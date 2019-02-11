@@ -1,0 +1,89 @@
+What is SmashGEN?
+    - Auto-generates functional, load, and security tests from a test tree
+    - Example
+    - Easier to create tests as a tree, makes you think of all permutations on a single page or input.
+        Represents how a tester comes up with test cases (tester thinks breadth-first, user thinks depth-first).
+
+Setup
+    - Installation
+        - npm
+        - Use even-numbered version of nodejs
+        (?) - Install webdriverio or selenium separately? See webdriverio installation guide and try to install it as a dependency
+    - Installing SmashPANEL Lite too
+        - What it does and why it's recommended
+
+Steps
+    - 4 spaces for indents (no tabs)
+    - Textual steps, built-in steps, functions
+    - Like indented comments on a site like Reddit, where each chain of replies is a branch
+    - Mention lead marker (-), even though it also has its own section
+
+Running tests
+    - Branches generated breath first
+    - Basic command line invocation
+        - File glob passed in
+        - Setting {vars} from command line
+    - js is generated, passed to webdriverio
+
+Configuration
+    - Timeouts
+    - Max browser instances
+
+Output
+    - Console
+    - Report
+        - Test failures
+
+Step reference
+    - Browsers, Webdriver steps, Verify, Wait, etc.
+    - Mocking APIs (it has its own section too)
+    - Execute in browser {}
+
+Step blocks
+
+ElementFinders
+
+Functions (*)
+
+Variables
+
+Comments
+
+Code functions
+    - Using our wrapper over webdriverio function so you don't have to use await on each line
+
+Leaf marker (-)
+    - -
+
+Debug and REPL (~)
+    - ~
+    - ~~
+    - Using REPL
+    - Kicking off blank browser and REPL just from the command line
+
+No parallel execution (+)
+    - +
+
+Sequential execution (..)
+    - ..
+
+Expected failure (#)
+    - #
+
+Must test
+
+Hook steps
+    - * After every X, etc.
+
+Mocking APIs
+
+Selective test running
+    - Groups
+        - Choosing which groups to run from variable, or from command line
+    - Frequency
+        - Choosing which frequencies to run from variable, or from command line
+
+Run tests that failed last time
+
+Manual tests (- M)
+     - - M

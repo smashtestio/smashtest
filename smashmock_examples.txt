@@ -1,0 +1,115 @@
+/*
+- At beginning of each file
+- Domain or IP is where SmashMOCK server is running
+- If boolean is false, SmashMOCK if off and mockpoints are just pass-throughs. If it's true, hit the server.
+- If no boolean is present, use file mock.config. If it contains "true" then mocks are on, otherwise they're off.
+(?) - init() retrieves db of requests/responses from server and sets off interval that pulls down fresh data every N ms
+    This allows Mock calls to be fast and sync, merely reading from memory
+*/
+
+    var Mock = require('smashmock');
+    Mock.init('internal.network.domain.com:4444', true);
+    Mock.init('internal.network.domain.com:4444'); // use mock.config
+
+---------------------------------------------------------
+/*
+- NOTE: For UI testing, you can inject Mock.point() code from the test itself (using Selenium js injection)
+- What Mock.point() does
+    1. Adds the mockpoint to the list in memory
+    2. originalFunc = func, adds it to the list in memory
+    3. Returns function that:
+        1. Logs the mockpoint name and the params that were sent into func()
+            Log means sent to the SmashMOCK server. These are viewable from the SmashMOCK UI and you can copy these to your tests.
+            Test will be able to read and validate these log items via APIs
+        2.
+            If mocking is off:
+                1. Calls originalFunc() with the params that were sent into me
+                2. Returns or throws that what originalFunc() returned or threw, logs either
+            If mocking is on:
+                1. Returns or throws what the test requests (from the queue)
+- What Mock.end() does
+    1. Returns originalFunc
+- Function to set name of mockpoint when next mockpoint in call stack is hit.
+    Useful for when you put a mockpoint in a function that sends http, but there are different callers of that send http function
+    and so you set the mockpoint name in the caller.
+*/
+
+    retval = func(A, B, C);
+
+        becomes
+
+    func = Mock.point('foo', func);
+    retval = func(A, B, C);
+    func = Mock.end('foo');   // optional
+
+---------------------------------------------------------
+/*
+- Mock.point() and Mock.end() do what they always do
+- APIs that tests will use
+    - To put into a mockpoint's queue:
+        Mock.to('foo', 'function(A, B, C) { validate(A, B, C); return Promise.resolve(); }' );
+            The function will take over what foo's function used to do
+            foo will do, throw, and return what the given code does, throws, and returns
+            A, B, C are the params sent into foo's function
+            Probably need to use eval() in implementation since this is code sent over the wire.
+        This will put that into foo's queue. When foo executes, it will empty that queue.
+        Mock.to('foo', 'function(A, B, C) { return ORIGINAL(A, B, C); }');
+            ORIGINAL is the original function that is being mocked
+            Best used to override the return value and pass along mocked inputs to the next promise handler (see below)
+    (?) - To call a mockpoint, as in the case of a response (see below):
+        Mock.call('foo-response', C, D);
+        A test can simulate a callback getting a response this way
+        Might not be necessary to have this. Callbacks can be invoked from code sent into Mock.to()
+    - Mock.repeat('foo') to make the mockpoint repeat over and over the N items in its current queue
+    - Mock.clear('foo') - clears foo's queue and repeat status
+    - Mock.on(), Mock.on('foo'), Mock.off(), Mock.off('foo') - turns mockpoints on and off
+        - Off means use the original functions
+        - Universally or for a specific mockpoint
+        - Mockpoints are off by default
+    - In a SmashGEN test, a code block will handle the js needed to communicate with SmashMOCK
+    - The SmashMOCK UI provides a way to kick these functions off manually too. Create a state, and setting that state sets off the js.
+        - UI has button to clear all logs. Anyone can click it.
+        - UI has no login yet.
+    - Use in browser js, server nodejs, etc. across many systems on the internet
+*/
+
+    retval = asyncFunc(A, B, function(C, D) { // code } );
+
+        becomes
+
+    asyncFunc = Mock.point('foo', asyncFunc);
+    retval = asyncFunc(A, B, Mock.start('foo-response', function(C, D) { // code } ));  // mock the callback so we can execute code to validate inputs C and D
+
+    ---------------------------
+
+    promiseFunc(A, B, C)
+        .then(function(A, B, C) {
+            // code
+        })
+        .then(function(A, B, C) {
+            // code 2
+        });
+
+        becomes
+
+    promiseFunc = Mock.point('foo', promiseFunc);     // perhaps have test do Mock.to('foo', 'return Promise.resolve(A, B, C to be sent to first then);');
+    promiseFunc(A, B, C)
+        .then(Mock.point('foo-res1', function(A, B, C) {    // perhaps use Mock.to('foo-res1', 'ORIGINAL(A, B, C); return Promise.resolve(A, B, C to be sent to the next then);')
+            // code
+        }))
+        .then(Mock.point('foo-res2', function(A, B, C) {
+            // code
+        }));
+
+---------------------------------------------------------
+/*
+- SmashMOCK can also mock variables, not only functions
+- The test sends the primitive value, not code
+*/
+
+
+    x;
+
+        becomes
+
+    x = Mock.point('foo');  // The test will do Mock.to('foo', 6); and x will become 6

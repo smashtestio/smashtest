@@ -1,0 +1,14 @@
+{
+  "name": "SmashGEN",
+  "version": "0.1.0",
+  "description": "SmashGEN",
+  "author": "SmashTEST <smashtest.io>",
+  "dependencies": {
+    "assert": "^1.4.1",
+    "glob": "^7.1.3",
+    "read-files-promise": "^1.1.1",
+    "webdriverio": "^5.0.0"
+  },
+  "private": true,
+  "devDependencies": {}
+}
