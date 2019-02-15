@@ -1,7 +1,7 @@
-const { remote } = require('webdriverio');
+var webdriverio = require('webdriverio');
 
 (async () => {
-    const browser = await remote({
+    const browser = await webdriverio.remote({
         logLevel: 'warn',
         capabilities: {
             browserName: 'chrome'

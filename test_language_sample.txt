@@ -4,14 +4,14 @@
 
 
 * QA Env
-    {host}='qa.site.com',
-    {group}='qa'
+    {host}='qa.site.com', {group}='qa'
 
 * Stage Env
     {host}='stage.site.com', {group}='stage'
 
 * Prod Env
-    {host} = 'site.com',
+    ..
+    {host} = 'site.com'
     {group}='prod'
 
 
@@ -93,25 +93,25 @@ Test the Widget Maker
 
                                                                     Verify 'something' inside of {some box} - #     // Add # to end of step to indicate it’s supposed to fail here. If fails, doesn’t complain about it. If passes, notifies you nicely.
 
-                                            Manual step - M    // treated as an empty texual step and pending test (assuming not signed off in txt file), but you can ask to generate a manual checklist from the commandline and it will list this
+                                            Manual step -MANUAL    // treated as an empty texual step and skipped test (assuming not signed off in txt file), but you can ask to generate a manual checklist from the commandline and it will list this
 
                                             Pen test url-here-with-inputs-marked        // also _currentUrl variable always set to the current url
-                                                {group}='pedantic' -
+                                                {group}='pedantic'
 
                     Navigate to about page at url {host}/about
 
-                        Verify at page '/about' -
-                        Verify page title is 'About page' -
+                        Verify at page '/about'
+                        Verify page title is 'About page' -TODO
 
         			Use mock 'blah'      // SmashMOCK integration
 
                     Call API GET {host}/something
 
-                        Verify {response} has 6 * -
+                        Verify {response} has 6 *
 
                     * After every branch  // called at the end of every branch from this step's siblings on down, also tests for "Before every branch", "Before every step", "After every step", "Before all branches" (before all siblings), "After all branches", "After failed step", and "After successful step"
 
-                        Do cleanup -    // - marks the leaf of a branch, all child branches of a - are considered to have -, all branches without a - are marked pending
+                        Do cleanup
 
 
 

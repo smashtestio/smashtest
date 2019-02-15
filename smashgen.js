@@ -1,13 +1,16 @@
 'use strict';
 
-var webdriverio = require('webdriverio');
-var glob = require('glob');
-var readFiles = require('read-files-promise');
-var util = require('util');
-
-var Tree = require('./tree.js');
+const webdriverio = require('webdriverio');
+const glob = require('glob');
+const readFiles = require('read-files-promise');
+const util = require('util');
+const Tree = require('./tree.js');
 
 var tree = new Tree();
+
+if(process.argv.length < 3) {
+    throw "No files inputted";
+}
 
 process.argv.forEach(function(val, index, array) { // when index is 2, val is the filename glob that's passed in from command line
     if(index == 2) {
@@ -30,6 +33,11 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
                         tree.parseIn(fileBuffers[i], filenames[i]);
                     }
 
+                    // TODO: after parsing in all files into the tree...
+                    // - Hook up function calls to their implementations, throwing errors if need be.
+                    //    Create a new function under Tree for this purpose.
+                    // - Hook up Must test and corresponding functions too
+                    // - Hook up hooks, like After every X
 
 
                     // TODO: run the tests here

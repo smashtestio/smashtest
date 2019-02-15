@@ -1,6 +1,6 @@
 one
 
-    two
-    three
+    two * + #JIRA 123 .. // comment here
+    three { code // comment
 
         four

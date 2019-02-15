@@ -44,20 +44,22 @@ Step blocks
 ElementFinders
 
 Functions (*)
+    - * has to be the first thing after the step text in a function call
 
 Variables
+    - You cannot set a var to a js object or array literal (it will screw up our regexes)
 
 Comments
 
 Code functions
     - Using our wrapper over webdriverio function so you don't have to use await on each line
 
-Leaf marker (-)
-    - -
+To Do (-TODO)
+    - -TODO
 
 Debug and REPL (~)
-    - ~
-    - ~~
+    - ~ (debug identifier)
+    - ~~ (step-by-step debug identifier)
     - Using REPL
     - Kicking off blank browser and REPL just from the command line
 
@@ -69,6 +71,7 @@ Sequential execution (..)
 
 Expected failure (#)
     - #
+    - No spaces in piece of text after the # (e.g., #http://url or #JIRA-123)
 
 Must test
 
@@ -85,5 +88,5 @@ Selective test running
 
 Run tests that failed last time
 
-Manual tests (- M)
-     - - M
+Manual tests (-MANUAL)
+     - -MANUAL
