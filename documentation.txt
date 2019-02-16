@@ -77,7 +77,17 @@ Expected failure (#)
 Must Test
 
 Hook steps
-    - * After every X, etc.
+    - * Before all branches
+        - mark this step's siblings - before any branches going through them are executed, execute this
+    - * After all branches
+    - * Before every branch
+        - mark this step's siblings - any branches going through these are where this step is called before
+    - * After every branch
+    - * Before every step
+    - * After every step
+    - * After failed step
+        - mark this step's siblings - any branches going through - if a step fails, execute this right after
+    - * After successful step
 
 Mocking APIs
 

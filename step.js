@@ -13,6 +13,10 @@ class Step {
 
         this.isFunction = false;           // true if this step is a * Function Declaration
         this.isFunctionCall = false;       // true if this step is a Function Call *
+
+        this.isMustTest = false;           // true if this step is a Must Test step
+        this.mustTestText = "";            // what comes after Must Test in this.text (doesn't include the *)
+
         this.isTODO = false;               // true if this step has the To Do identifier (-TODO)
         this.isMANUAL = false;             // true if this step has the manual identifier (-MANUAL)
         this.isDebug = false;              // true if this step has the debug identifier (~)

@@ -36,8 +36,9 @@ describe("Tree", function() {
             assert.equal(step.identifiers, undefined);
             assert.equal(step.codeBlock, undefined);
             assert.equal(step.comment, undefined);
-            assert.equal(step.isFunction, undefined);
+            assert.equal(step.isFunctionDeclaration, undefined);
             assert.equal(step.isFunctionCall, undefined);
+            assert.equal(step.isMustTest, undefined);
             assert.equal(step.isTODO, undefined);
             assert.equal(step.isMANUAL, undefined);
             assert.equal(step.isDebug, undefined);
@@ -109,15 +110,49 @@ describe("Tree", function() {
         it("parses a function declaration", function() {
             var step = tree.parseLine(`    * My Function here`, "file.txt", 10);
             assert.equal(step.text, `My Function here`);
-            assert.equal(step.isFunction, true);
+            assert.equal(step.isFunctionDeclaration, true);
             assert.equal(step.isFunctionCall, undefined);
+        });
+
+        it("throws an error if a function declaration has 'strings'", function() {
+            assert.throws(() => {
+                tree.parseLine(`* Something 'quote' something else`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`* Something "quote" something else`, "file.txt", 10);
+            });
         });
 
         it("parses a function call", function() {
             var step = tree.parseLine(`    My Function call * `, "file.txt", 10);
             assert.equal(step.text, `My Function call`);
-            assert.equal(step.isFunction, undefined);
+            assert.equal(step.isFunctionDeclaration, undefined);
             assert.equal(step.isFunctionCall, true);
+        });
+
+        it("parses a Must Test step", function() {
+            var step = tree.parseLine(`Must Test foo bar *`, "file.txt", 10);
+            assert.equal(step.isMustTest, true);
+            assert.equal(step.mustTestText, 'foo bar');
+
+            step = tree.parseLine(`    Must Test foo bar  *  `, "file.txt", 10);
+            assert.equal(step.isMustTest, true);
+            assert.equal(step.mustTestText, 'foo bar');
+
+            step = tree.parseLine(`Must Test   *  `, "file.txt", 10);
+            assert.equal(step.isMustTest, undefined);
+            assert.equal(step.mustTestText, undefined);
+        });
+
+        it("throws an error is a function declaration is also a Must Test step", function() {
+            assert.throws(() => {
+                tree.parseLine(`* Must Test something`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`    *  Must Test something  `, "file.txt", 10);
+            });
         });
 
         it("parses a code block", function() {

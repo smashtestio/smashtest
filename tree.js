@@ -20,7 +20,7 @@ class Tree {
         var whitespaceAtFront = step.match(/^(\s*)[^\s|$]/);
 
         if(spacesAtFront[1] != whitespaceAtFront[1]) {
-            throw new Error("Spaces are the only type of whitespace allowed at the beginning of a step. " + this.filenameAndLine(filename, lineNumber));
+            this.error("Spaces are the only type of whitespace allowed at the beginning of a step.", filename, lineNumber);
         }
         else if(typeof spacesAtFront[1] == 'undefined') {
             return 0;
@@ -30,19 +30,12 @@ class Tree {
             var numIndents = numSpaces / SPACES_PER_INDENT;
 
             if(numIndents - Math.floor(numIndents) != 0) {
-                throw new Error("The number of spaces at the beginning of a step must be a multiple of " + SPACES_PER_INDENT + ". You have " + numSpaces + " space(s). " + this.filenameAndLine(filename, lineNumber));
+                this.error("The number of spaces at the beginning of a step must be a multiple of " + SPACES_PER_INDENT + ". You have " + numSpaces + " space(s).", filename, lineNumber);
             }
             else {
                 return numIndents;
             }
         }
-    }
-
-    /**
-     * @return {String} String representing the given filename a line number, appropriate for logging or console output
-     */
-    filenameAndLine(filename, lineNumber) {
-        return "[" + filename + ":" + lineNumber + "]";
     }
 
     /**
@@ -65,16 +58,17 @@ class Tree {
         // Matches any well-formed non-empty line
         // Explanation: Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers (with * being first), then { and code, or // and a comment
         const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)(\s+\*)?((\s+(\-TODO|\-MANUAL|\~|\~\~|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
-        // Matches a 'string literal', handles escaped \ and '
-        const SINGLE_QUOTE_STRING_LITERAL = /'([^\\']|(\\\\)*\\.)*'/g;
-        const SINGLE_QUOTE_STRING_LITERAL_WHOLE = /^'([^\\']|(\\\\)*\\.)*'$/;
-        // Matches a "string literal", handles escaped \ and "
-        const DOUBLE_QUOTE_STRING_LITERAL = /"([^\\"]|(\\\\)*\\.)*"/g;
-        const DOUBLE_QUOTE_STRING_LITERAL_WHOLE = /^"([^\\"]|(\\\\)*\\.)*"$/;
+        // Matches "string" or 'string', handles escaped \ and "
+        const STRING_LITERAL_REGEX_WHOLE = /^'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"$/;
+        const STRING_LITERAL_REGEX = /'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
+        // Matches {var1} = Step1, {var2} = Step2, {{var3}} = Step3, etc.
+        const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
+        // Matches {var} or {{var}}
+        const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
 
         var matches = line.match(LINE_REGEX);
         if(!matches) {
-            throw new Error("This step is not written correctly. " + this.filenameAndLine(filename, lineNumber));
+            this.error("This step is not written correctly.", filename, lineNumber);
         }
 
         var step = new Step();
@@ -88,13 +82,29 @@ class Tree {
         step.codeBlock = matches[13] ? matches[13].substring(1) : undefined; // substring() strips off leading {
         step.comment = matches[15];
 
-        // Identifier booleans
+        // Function-related booleans
         step.isFunctionCall = (matches[8] ? matches[8].trim() == '*' : undefined);
-        step.isFunction = (matches[1] ? matches[1].trim() == '*' : undefined);
-        if(step.isFunctionCall && step.isFunction) {
-            throw new Error("A step cannot be both a '* Function Declaration' and a 'Function Call *'. " + this.filenameAndLine(filename, lineNumber));
+        step.isFunctionDeclaration = (matches[1] ? matches[1].trim() == '*' : undefined);
+        if(step.isFunctionCall && step.isFunctionDeclaration) {
+            this.error("A step cannot have a * on both sides of it.", filename, lineNumber);
+        }
+        if(step.isFunctionDeclaration && step.text.match(STRING_LITERAL_REGEX)) {
+            this.error("A Function* cannot have \"strings\" inside of it.", filename, lineNumber);
         }
 
+        // Must Test
+        const MUST_TEST_REGEX = /^\s*Must Test\s+(.*?)\s*$/;
+        matches = step.text.match(MUST_TEST_REGEX);
+        if(matches) {
+            if(step.isFunctionDeclaration) {
+                this.error("A *Function cannot start with Must Test.", filename, lineNumber);
+            }
+
+            step.isMustTest = true;
+            step.mustTestText = matches[1];
+        }
+
+        // Identifier booleans
         if(step.identifiers) {
             step.isTODO = step.identifiers.includes('-TODO') ? true : undefined;
             step.isMANUAL = step.identifiers.includes('-MANUAL') ? true : undefined;
@@ -105,12 +115,7 @@ class Tree {
             step.isExpectedFail = step.identifiers.includes('#') ? true : undefined;
         }
 
-        // Matches {var1} = Step1, {var2} = Step2, {{var3}} = Step3, etc.
-        const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
-        // Matches {var} or {{var}}
-        const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
-
-        // Parse {var1} = Step1, {var2} = Step2, {{var3}} = Step3, etc. from text into step.varsBeingSet
+        // Parse {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. from text into step.varsBeingSet
         if(step.text.match(VARS_SET_REGEX)) {
             var textCopy = step.text + "";
             step.varsBeingSet = [];
@@ -121,7 +126,7 @@ class Tree {
                 }
 
                 if(matches[2].match(/"|'/g)) {
-                    throw new Error("You cannot have quotes inside a {variable} that you're setting. " + this.filenameAndLine(filename, lineNumber));
+                    this.error("You cannot have quotes inside a {variable} that you're setting.", filename, lineNumber);
                 }
 
                 step.varsBeingSet.push({
@@ -134,11 +139,11 @@ class Tree {
                 textCopy = textCopy.replace(/^\,/, ''); // string the leading comma, if there is one
             }
 
-            // If there are multiple vars being set, each Step must be a string literal
+            // If there are multiple vars being set, each value must be a string literal
             if(step.varsBeingSet.length > 1) {
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
-                    if(!step.varsBeingSet[i].value.match(SINGLE_QUOTE_STRING_LITERAL_WHOLE) && !step.varsBeingSet[i].value.match(DOUBLE_QUOTE_STRING_LITERAL_WHOLE)) {
-                        throw new Error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'. " + this.filenameAndLine(filename, lineNumber));
+                    if(!step.varsBeingSet[i].value.match(STRING_LITERAL_REGEX_WHOLE)) {
+                        this.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'.", filename, lineNumber);
                     }
                 }
             }
@@ -174,7 +179,7 @@ class Tree {
             for(var i = 0; i < matches.length; i++) {
                 var name = matches[i].replace(/\{|\}/g, '');
                 if(name.match(/"|'/g) && !this.parseElementFinder(name)) {
-                    throw new Error("{variable} names containing quotes must be valid ElementFinders. " + this.filenameAndLine(filename, lineNumber));
+                    this.error("{variable} names containing quotes must be valid ElementFinders.", filename, lineNumber);
                 }
             }
         }
@@ -262,6 +267,21 @@ class Tree {
             lastStepInserted.children.push(stepObj);
             lastStepInserted = stepObj;
         }*/
+    }
+
+    /**
+     * Throws an Error with the given message, filename, and line number
+     * @throws {Error}
+     */
+    error(msg, filename, lineNumber) {
+        throw new Error(msg + " " + this.filenameAndLine(filename, lineNumber));
+    }
+
+    /**
+     * @return {String} String representing the given filename a line number, appropriate for logging or console output
+     */
+    filenameAndLine(filename, lineNumber) {
+        return "[" + filename + ":" + lineNumber + "]";
     }
 }
 module.exports = Tree;
