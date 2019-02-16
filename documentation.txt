@@ -1,5 +1,7 @@
 What is SmashGEN?
-    - Auto-generates functional, load, and security tests from a test tree
+    - Generates and executes functional, (?)(load, and security tests) from a test tree
+        - Geared towards UI browser testing, but can be used for anything
+        - NodeJS for now
     - Example
     - Easier to create tests as a tree, makes you think of all permutations on a single page or input.
         Represents how a tester comes up with test cases (tester thinks breadth-first, user thinks depth-first).
@@ -15,6 +17,7 @@ Setup
 Steps
     - 4 spaces for indents (no tabs)
     - Textual steps, built-in steps, functions
+        - Textual steps that match any existing functions cause a warning (this helps you to not forget the * at the end in function calls)
     - Like indented comments on a site like Reddit, where each chain of replies is a branch
 
 Running tests
@@ -34,7 +37,7 @@ Output
         - Test failures
 
 Step reference
-    - Browsers, Webdriver steps, Verify, Wait, etc.
+    - Browsers, Webdriver steps, Verify, Assertions, Wait, etc.
     - Mocking APIs (it has its own section too)
     - Execute in browser {}
 
@@ -43,17 +46,48 @@ Step blocks
 ElementFinders
 
 Functions (*)
-    - * has to be the first thing after the step text in a function call
+    - Calling
+        - Examples of calls (include vars, strings, vars within strings, and elementFinders)
+        - Function {var} here * or Function "6" here * maps to * Function {other var} here
+            - All function inputs are either {vars} or "strings"
+        - * has to be the first thing after the step text in a function call
+        - Primitive built-in functions must also end in a *
+    - Declaring
+        - Examples of declarations
+        - When a *function ends in multiple leaves, those are separate branches for the indented line below function*
+        - Finding declaration
+            - First look to siblings, then to siblings of parent, etc.
+            - Match custom functions first, then primitive built-in functions
+            - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children.
+    - Pitfalls
+        - *Function* causes an error
+        - An uncalled function causes a warning
 
 Variables
-    - You cannot set a var to a js object or array literal (it will screw up our regexes)
+    - Examples
+        - {var} = 'String' (or "String")
+        - {var} = Code Function *
+            - Code Function returns a string
+        - {var} = Function *
+            - Function is a list of textual steps that will be turned into strings
+            - Line is turned into a code block, where {var} = each string
     - In a line that's {var1}=Step1, {var2}=Step2, do not accept Functions* in Step1/2/etc.
         - (In other words, if there are multiple vars being set, each Step must be a string literal)
-    - Cannot have a \ in the name of a variable
+    - Using {vars} that will be defined later in the branch
+        - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
+    - Pitfalls
+        - Cannot have a \ in the name of a variable
 
 Comments
 
-Code functions
+Code blocks
+    - Types
+        - * Function {code}
+        - Textual step {code}
+        - Execute in browser {js code}
+    - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
+    - +, .., etc. characters applied come after the step text and before the {
+    - Vars accessible in code as vars["var name"] or localvars["var name"]
 
 To Do (-TODO)
     - -TODO
@@ -75,6 +109,10 @@ Expected failure (#)
     - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
 
 Must Test
+    - Must Test X *
+    - Subtree = Is every branch in X represented below me? (me = full tree, including function expansions, not including other Must Test statements)
+    - Must Test {var} = List *
+        - Makes sure every {var} = list member is included in the subtree
 
 Hook steps
     - * Before all branches
@@ -82,6 +120,7 @@ Hook steps
     - * After all branches
     - * Before every branch
         - mark this step's siblings - any branches going through these are where this step is called before
+        - Show an example of doing a require() here, then accessing a js var in subsequent code functions
     - * After every branch
     - * Before every step
     - * After every step

@@ -131,6 +131,12 @@ describe("Tree", function() {
             assert.equal(step.isFunctionCall, true);
         });
 
+        it("throws an error if a function call is also a code step", function() {
+            assert.throws(() => {
+                tree.parseLine(`Something * + {`, "file.txt", 10);
+            });
+        });
+
         it("parses a Must Test step", function() {
             var step = tree.parseLine(`Must Test foo bar *`, "file.txt", 10);
             assert.equal(step.isMustTest, true);
@@ -145,7 +151,7 @@ describe("Tree", function() {
             assert.equal(step.mustTestText, undefined);
         });
 
-        it("throws an error is a function declaration is also a Must Test step", function() {
+        it("throws an error if a function declaration is also a Must Test step", function() {
             assert.throws(() => {
                 tree.parseLine(`* Must Test something`, "file.txt", 10);
             });

@@ -61,7 +61,7 @@ class Tree {
         // Matches "string" or 'string', handles escaped \ and "
         const STRING_LITERAL_REGEX_WHOLE = /^'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"$/;
         const STRING_LITERAL_REGEX = /'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
-        // Matches {var1} = Step1, {var2} = Step2, {{var3}} = Step3, etc.
+        // Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val)
         const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
         // Matches {var} or {{var}}
         const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
@@ -82,14 +82,17 @@ class Tree {
         step.codeBlock = matches[13] ? matches[13].substring(1) : undefined; // substring() strips off leading {
         step.comment = matches[15];
 
-        // Function-related booleans
+        // Functions
         step.isFunctionCall = (matches[8] ? matches[8].trim() == '*' : undefined);
         step.isFunctionDeclaration = (matches[1] ? matches[1].trim() == '*' : undefined);
         if(step.isFunctionCall && step.isFunctionDeclaration) {
             this.error("A step cannot have a * on both sides of it.", filename, lineNumber);
         }
         if(step.isFunctionDeclaration && step.text.match(STRING_LITERAL_REGEX)) {
-            this.error("A Function* cannot have \"strings\" inside of it.", filename, lineNumber);
+            this.error("A Function Call * cannot have \"strings\" inside of it.", filename, lineNumber);
+        }
+        if(typeof step.codeBlock != 'undefined' && step.isFunctionCall) {
+            this.error("A Function Call * cannot be a code step as well.", filename, lineNumber);
         }
 
         // Must Test
