@@ -3,6 +3,7 @@
  */
 class Step {
     constructor() {
+        /*
         this.line = "";                    // entire text of the step, including spaces at the front, comments, etc.
 
         this.text = "";                    // text of the command of the step (not including spaces in front, identifiers, comments, etc.)
@@ -10,7 +11,6 @@ class Step {
         this.codeBlock = "";               // if this is a code block step, contains the '{' followed by the code
         this.comment = "";                 // text of the comment at the end of the line (e.g., '// comment here')
 
-        this.isOneLineCodeBlock = false;   // true if this step is a code block and is only one line ({ and } are on the same line)
         this.isFunction = false;           // true if this step is a * Function Declaration
         this.isFunctionCall = false;       // true if this step is a Function Call *
         this.isTODO = false;               // true if this step has the To Do identifier (-TODO)
@@ -20,15 +20,16 @@ class Step {
         this.isNonParallel = false;        // true if this step has the non-parallel identifier (+)
         this.isSequential = false;         // true if this step has the sequential identifier (..)
         this.isExpectedFail = false;       // true if this step has the expected fail indentifier (#)
-        this.expectedFailNote = "";        // if this step has the expected fail identifier (#), this is the string that comes after it
-        this.varBeingSet = "";             // if this step is in the format {var}=Step, this is set to the var's name (var)
-        this.localVarBeingSet = "";        // if this step is in the format {{var}}=Step, this is set to the var's name (var)
+
+        this.varsBeingSet = [];            // if this step is in the format {var1}=Step1, {{var2}}=Step2, etc., this array will contain objects {name: "var1", value: "Step1", isLocal: false}, {name: "var2", value: "Step2", isLocal: true} etc.
+        this.varsList = [];                // array of objects with format {name: "var1", isLocal: false} representing all the variables included in this step
 
         this.children = [];                // Step or StepBlock objects that are children of this Step
         this.parent = null;                // Step or StepBlock that's the parent of this Step
 
         this.filename = null;              // filename where this step is from
         this.lineNumber = null;            // line number where this step is from
+        */
     }
 }
 module.exports = Step;

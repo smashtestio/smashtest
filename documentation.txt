@@ -16,7 +16,6 @@ Steps
     - 4 spaces for indents (no tabs)
     - Textual steps, built-in steps, functions
     - Like indented comments on a site like Reddit, where each chain of replies is a branch
-    - Mention lead marker (-), even though it also has its own section
 
 Running tests
     - Branches generated breath first
@@ -48,11 +47,12 @@ Functions (*)
 
 Variables
     - You cannot set a var to a js object or array literal (it will screw up our regexes)
+    - In a line that's {var1}=Step1, {var2}=Step2, do not accept Functions* in Step1/2/etc.
+        - (In other words, if there are multiple vars being set, each Step must be a string literal)
 
 Comments
 
 Code functions
-    - Using our wrapper over webdriverio function so you don't have to use await on each line
 
 To Do (-TODO)
     - -TODO
@@ -71,7 +71,7 @@ Sequential execution (..)
 
 Expected failure (#)
     - #
-    - No spaces in piece of text after the # (e.g., #http://url or #JIRA-123)
+    - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
 
 Must test
 

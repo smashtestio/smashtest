@@ -16,9 +16,12 @@
 
 
 * Chrome
+    Open Chrome // opens latest version of Chrome
 * IE
     {version}=11
+        Open IE
 * Firefox
+    Open Firefox
 
 
 * Desktop
@@ -56,7 +59,7 @@ Test the Widget Maker
         Stage Env *
         Prod Env *
 
-            Chrome *      // opens latest version of Chrome
+            Chrome *
             IE *
             Firefox *
 
