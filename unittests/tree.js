@@ -257,26 +257,44 @@ describe("Tree", function() {
             assert.deepEqual(step.varsList, [ {name: "var1", isLocal: false}, {name: "var2", isLocal: true}, {name: "var 3", isLocal: false} ]);
         });
 
+        it("doesn't recognize {vars} with backslashes in their names", function() {
+            var step = tree.parseLine(`{var\\} = Click 'something \\{blah\\}' {foo}`, "file.txt", 10);
+            assert.equal(step.text, `{var\\} = Click 'something \\{blah\\}' {foo}`);
+            assert.equal(step.varsBeingSet, undefined);
+            assert.deepEqual(step.varsList, [ {name: "foo", isLocal: false} ]);
+        });
+
         it("parses {vars} that are ElementFinders", function() {
             var step = tree.parseLine(`Click {'Login' box}`, "file.txt", 10);
             assert.equal(step.text, `Click {'Login' box}`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "'Login' box", isLocal: false} ]);
+            assert.deepEqual(step.varsList, [ {name: "'Login' box", isLocal: false, elementFinder: {text: 'Login', selector: 'box'}} ]);
 
             step = tree.parseLine(`Click {'Login'}`, "file.txt", 10);
             assert.equal(step.text, `Click {'Login'}`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "'Login'", isLocal: false} ]);
+            assert.deepEqual(step.varsList, [ {name: "'Login'", isLocal: false, elementFinder: {text: 'Login'}} ]);
 
-            step = tree.parseLine(`Click {box next to "meow"}`, "file.txt", 10);
-            assert.equal(step.text, `Click {box next to "meow"}`);
+            step = tree.parseLine(`Click { 'Login' box  next to  "meow" }`, "file.txt", 10);
+            assert.equal(step.text, `Click { 'Login' box  next to  "meow" }`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "box next to \"meow\"", isLocal: false} ]);
+            assert.deepEqual(step.varsList, [ {name: " 'Login' box  next to  \"meow\" ", isLocal: false, elementFinder: {text: 'Login', selector: 'box', nextTo: 'meow'}} ]);
 
             step = tree.parseLine(`Click { 'Login' next to "meow" }`, "file.txt", 10);
             assert.equal(step.text, `Click { 'Login' next to "meow" }`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: " 'Login' next to \"meow\" ", isLocal: false} ]);
+            assert.deepEqual(step.varsList, [ {name: " 'Login' next to \"meow\" ", isLocal: false, elementFinder: {text: 'Login', nextTo: 'meow'}} ]);
+
+            step = tree.parseLine(`Click {box next to "meow"}`, "file.txt", 10);
+            assert.equal(step.text, `Click {box next to "meow"}`);
+            assert.equal(step.varsBeingSet, undefined);
+            assert.deepEqual(step.varsList, [ {name: "box next to \"meow\"", isLocal: false, elementFinder: {selector: 'box', nextTo: 'meow'}} ]);
+        });
+
+        it("throws an error when a {var} contains a quote and isn't a valid ElementFinder", function() {
+            assert.throws(() => {
+                tree.parseLine(`Step {something 'not' elementfinder}`, "file.txt", 10);
+            });
         });
 
         it("lists {vars} contained inside 'string literals'", function() {
@@ -284,6 +302,16 @@ describe("Tree", function() {
             assert.equal(step.text, `Click {var1} "something {var2} {{var3}} foo" '{var4}'`);
             assert.equal(step.varsBeingSet, undefined);
             assert.deepEqual(step.varsList, [ {name: "var1", isLocal: false}, {name: "var2", isLocal: false}, {name: "var3", isLocal: true}, {name: "var4", isLocal: false} ]);
+        });
+
+        it("throws an error when a {var} being set has quotes in it", function() {
+            assert.throws(() => {
+                tree.parseLine(`{var1"} = 'one'`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`{var1'} = 'one'`, "file.txt", 10);
+            });
         });
 
         it("throws an error when multiple {vars} are set in a line, and one of them is not a 'string literal'", function() {
@@ -307,9 +335,58 @@ describe("Tree", function() {
         });
     });
 
+    describe("parseElementFinder()", function() {
+        var tree = new Tree();
+
+        it("parses ElementFinders with text and selector", function() {
+            var elementFinder = tree.parseElementFinder(`'Login' box`);
+            assert.deepEqual(elementFinder, {text: 'Login', selector: 'box'});
+        });
+
+        it("parses ElementFinders with text", function() {
+            var elementFinder = tree.parseElementFinder(`'Login'`);
+            assert.deepEqual(elementFinder, {text: 'Login'});
+        });
+
+        it("parses ElementFinders with text, selector, and nextTo", function() {
+            var elementFinder = tree.parseElementFinder(` 'Login' box  next to  "meow" `);
+            assert.deepEqual(elementFinder, {text: 'Login', selector: 'box', nextTo: 'meow'});
+        });
+
+        it("parses ElementFinders with text and nextTo", function() {
+            var elementFinder = tree.parseElementFinder(` 'Login' next to "meow" `);
+            assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'meow'});
+        });
+
+        it("parses ElementFinders with selector and nextTo", function() {
+            var elementFinder = tree.parseElementFinder(`box next to "meow"`);
+            assert.deepEqual(elementFinder, {selector: 'box', nextTo: 'meow'});
+        });
+
+        it("returns null for invalid ElementFinders", function() {
+            var elementFinder = tree.parseElementFinder(`something 'not' elementfinder`);
+            assert.equal(elementFinder, null);
+        });
+    });
+
     describe("parseIn()", function() {
         it.skip("TEXT", function() {
-
         });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     });
 });

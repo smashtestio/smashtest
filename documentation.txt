@@ -49,6 +49,7 @@ Variables
     - You cannot set a var to a js object or array literal (it will screw up our regexes)
     - In a line that's {var1}=Step1, {var2}=Step2, do not accept Functions* in Step1/2/etc.
         - (In other words, if there are multiple vars being set, each Step must be a string literal)
+    - Cannot have a \ in the name of a variable
 
 Comments
 
@@ -73,7 +74,7 @@ Expected failure (#)
     - #
     - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
 
-Must test
+Must Test
 
 Hook steps
     - * After every X, etc.

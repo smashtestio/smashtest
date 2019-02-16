@@ -106,9 +106,9 @@ class Tree {
         }
 
         // Matches {var1} = Step1, {var2} = Step2, {{var3}} = Step3, etc.
-        const VARS_SET_REGEX = /^(\s*((\{[^\{\}]+\})|(\{\{[^\{\}]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}]+\})|(\{\{[^\{\}]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
+        const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
         // Matches {var} or {{var}}
-        const VAR_REGEX = /\{[^\{\}]+\}|\{\{[^\{\}]+\}\}/g;
+        const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
 
         // Parse {var1} = Step1, {var2} = Step2, {{var3}} = Step3, etc. from text into step.varsBeingSet
         if(step.text.match(VARS_SET_REGEX)) {
@@ -118,6 +118,10 @@ class Tree {
                 matches = textCopy.match(VARS_SET_REGEX);
                 if(!matches) {
                     break;
+                }
+
+                if(matches[2].match(/"|'/g)) {
+                    throw new Error("You cannot have quotes inside a {variable} that you're setting. " + this.filenameAndLine(filename, lineNumber));
                 }
 
                 step.varsBeingSet.push({
@@ -146,14 +150,67 @@ class Tree {
             step.varsList = [];
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
-                step.varsList.push({
-                    name: match.replace(/\{|\}/g, ''),
-                    isLocal: match.startsWith('{{')
-                });
+                var name = match.replace(/\{|\}/g, '');
+                var elementFinder = this.parseElementFinder(name);
+                if(elementFinder) {
+                    step.varsList.push({
+                        name: name,
+                        isLocal: match.startsWith('{{'),
+                        elementFinder: elementFinder
+                    });
+                }
+                else {
+                    step.varsList.push({
+                        name: name,
+                        isLocal: match.startsWith('{{')
+                    });
+                }
+            }
+        }
+
+        // If {vars} contain quotes, they must be valid ElementFinders ({vars} to the left of an = have already been vetted for the absence of quotes)
+        matches = step.text.match(VAR_REGEX);
+        if(matches) {
+            for(var i = 0; i < matches.length; i++) {
+                var name = matches[i].replace(/\{|\}/g, '');
+                if(name.match(/"|'/g) && !this.parseElementFinder(name)) {
+                    throw new Error("{variable} names containing quotes must be valid ElementFinders. " + this.filenameAndLine(filename, lineNumber));
+                }
             }
         }
 
         return step;
+    }
+
+    /**
+     * Parses text inside brackets into an ElementFinder
+     * @param {String} text - The text to parse, without the brackets ({})
+     * @return {Object} An object containing ElementFinder components (text, selector, nextTo - any one of which can be undefined), or null if this is not a valid ElementFinder
+     */
+    parseElementFinder(name) {
+        const ELEMENTFINDER_TEXT = `('[^']+?'|"[^"]+?")`;
+        const ELEMENTFINDER_SELECTOR = `([^"']+?)`;
+        const ELEMENTFINDER_NEXTTO = `(next\\s+to\\s+('[^']+?'|"[^"]+?"))`;
+
+        var matches = null;
+        if(matches = name.match(`^\\s*(` + ELEMENTFINDER_TEXT + `)\\s*$`)) {
+            return {text: matches[2].slice(1,-1)};
+        }
+        else if(matches = name.match(`^\\s*(` + ELEMENTFINDER_TEXT + `\\s+` + ELEMENTFINDER_SELECTOR + `)\\s*$`)) {
+            return {text: matches[2].slice(1,-1), selector: matches[3]};
+        }
+        else if(matches = name.match(`^\\s*(` + ELEMENTFINDER_TEXT + `\\s+` + ELEMENTFINDER_SELECTOR + `\\s+` + ELEMENTFINDER_NEXTTO + `)\\s*$`)) {
+            return {text: matches[2].slice(1,-1), selector: matches[3], nextTo: matches[5].slice(1,-1)};
+        }
+        else if(matches = name.match(`^\\s*(` + ELEMENTFINDER_TEXT + `\\s+` + ELEMENTFINDER_NEXTTO + `)\\s*$`)) {
+            return {text: matches[2].slice(1,-1), nextTo: matches[4].slice(1,-1)};
+        }
+        else if(matches = name.match(`^\\s*(` + ELEMENTFINDER_SELECTOR + `\\s+` + ELEMENTFINDER_NEXTTO + `)\\s*$`)) {
+            return {selector: matches[2], nextTo: matches[4].slice(1,-1)};
+        }
+        else {
+            return null;
+        }
     }
 
     /**

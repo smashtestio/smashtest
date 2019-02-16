@@ -1,5 +1,5 @@
 * Initialize
-    Must test All Browsers *, All Envs *, All Devices *
+    Must Test All Browsers *, All Envs *, All Devices *
         {Run at or above frequency} = 'medium'
 
 
@@ -175,7 +175,7 @@ All Browsers *    // functions work by copying the * function and replacing it h
 
     Test B
 
-Must test All Browsers *    // If Browsers isn't a subtree under this step, there will be a compile error. In other words, we add a new browser to the list, the tester will be forced to add it here too. If something like {n-wise}=X is set, only verify that each tuple of X is present
+Must Test All Browsers *    // If Browsers isn't a subtree under this step, there will be a compile error. In other words, we add a new browser to the list, the tester will be forced to add it here too. If something like {n-wise}=X is set, only verify that each tuple of X is present
 
     FF
         Desktop
@@ -197,7 +197,7 @@ Must test All Browsers *    // If Browsers isn't a subtree under this step, ther
         Desktop
             Click back button
 
-Must test All Browsers *, All Devices *, All Viewports *     // combining of multiple Must test statements into one
+Must Test All Browsers *, All Devices *, All Viewports *     // combining of multiple Must Test statements into one
 
 
 
