@@ -56,8 +56,8 @@ class Tree {
         }
 
         // Matches any well-formed non-empty line
-        // Explanation: Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers (with * being first), then { and code, or // and a comment
-        const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)(\s+\*)?((\s+(\-TODO|\-MANUAL|\~|\~\~|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
+        // Explanation: Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
+        const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
         // Matches "string" or 'string', handles escaped \ and "
         const STRING_LITERAL_REGEX_WHOLE = /^'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"$/;
         const STRING_LITERAL_REGEX = /'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
@@ -78,21 +78,14 @@ class Tree {
         // Parsed parts of the line
         step.line = line;
         step.text = matches[2];
-        step.identifiers = matches[9] ? matches[9].trim().split(/\s+/) : undefined;
-        step.codeBlock = matches[13] ? matches[13].substring(1) : undefined; // substring() strips off leading {
-        step.comment = matches[15];
+        step.identifiers = matches[8] ? matches[8].trim().split(/\s+/) : undefined;
+        step.codeBlock = matches[12] ? matches[12].substring(1) : undefined; // substring() strips off leading {
+        step.comment = matches[14];
 
-        // Functions
-        step.isFunctionCall = (matches[8] ? matches[8].trim() == '*' : undefined);
+        // *Function Declarations
         step.isFunctionDeclaration = (matches[1] ? matches[1].trim() == '*' : undefined);
-        if(step.isFunctionCall && step.isFunctionDeclaration) {
-            this.error("A step cannot have a * on both sides of it.", filename, lineNumber);
-        }
         if(step.isFunctionDeclaration && step.text.match(STRING_LITERAL_REGEX)) {
-            this.error("A Function Call * cannot have \"strings\" inside of it.", filename, lineNumber);
-        }
-        if(typeof step.codeBlock != 'undefined' && step.isFunctionCall) {
-            this.error("A Function Call * cannot be a code step as well.", filename, lineNumber);
+            this.error("A *Function declaration cannot have \"strings\" inside of it.", filename, lineNumber);
         }
 
         // Must Test
@@ -109,13 +102,25 @@ class Tree {
 
         // Identifier booleans
         if(step.identifiers) {
-            step.isTODO = step.identifiers.includes('-TODO') ? true : undefined;
-            step.isMANUAL = step.identifiers.includes('-MANUAL') ? true : undefined;
+            step.isToDo = step.identifiers.includes('-T') ? true : undefined;
+            step.isManual = step.identifiers.includes('-M') ? true : undefined;
+            step.isTextualStep = step.identifiers.includes('-') ? true : undefined;
             step.isDebug = step.identifiers.includes('~') ? true : undefined;
             step.isStepByStepDebug = step.identifiers.includes('~~') ? true : undefined;
             step.isNonParallel = step.identifiers.includes('+') ? true : undefined;
             step.isSequential = step.identifiers.includes('..') ? true : undefined;
             step.isExpectedFail = step.identifiers.includes('#') ? true : undefined;
+        }
+
+        if(!step.isTextualStep && !step.isFunctionDeclaration) {
+            step.isFunctionCall = true;
+        }
+
+        if(typeof step.codeBlock != 'undefined' && step.isTextualStep) {
+            this.error("A textual step (-) cannot have a code block a well.", filename, lineNumber);
+        }
+        if(step.isFunctionDeclaration && step.isTextualStep) {
+            this.error("A *Function declaration cannot be a textual step (-) as well.", filename, lineNumber);
         }
 
         // Parse {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. from text into step.varsBeingSet
@@ -166,7 +171,7 @@ class Tree {
                 var isLocal = match.startsWith('{{');
 
                 if(step.isFunctionDeclaration && !isLocal) {
-                    this.error("All variables in a * Function Declaration must be {{local}}. {" + name + "} is not.", filename, lineNumber);
+                    this.error("All variables in a *Function declaration must be {{local}}. {" + name + "} is not.", filename, lineNumber);
                 }
 
                 var elementFinder = this.parseElementFinder(name);
@@ -237,14 +242,14 @@ class Tree {
      * @param {String} filename - Name of the test file
      */
     parseIn(buffer, filename) {
-        var stepLines = buffer.split(/[\r\n|\r|\n]/);
+        var lines = buffer.split(/[\r\n|\r|\n]/);
 
         var lastStepInserted = this.root;
 
-        for(var i = 0; i < stepLines.length; i++) {
+        for(var i = 0; i < lines.length; i++) {
             // numIndents(step, filename, lineNumber);
 
-            this.parseLine(stepLines[i], filename, i);
+            this.parseLine(lines[i], filename, i);
 
 
 
@@ -262,20 +267,11 @@ class Tree {
 
 
 
-        // TODO
-        // - Handle step blocks
-        // - Handle step blocks that start with a .. on top
-        // - Handle code blocks, which span multiple lines (code blocks end on a line that starts with '}' and is the
-        //      exact number of indents as the step that started the code block)
-        //      Add to step.codeBlock
-
-
-
         // TODO: remove this
-        /*for(var i = 0; i < stepLines.length; i++) {
-            if(stepLines[i] == '') continue;
+        /*for(var i = 0; i < lines.length; i++) {
+            if(lines[i] == '') continue;
 
-            var stepObj = new Step(lastStepInserted, stepLines[i], filename, i);
+            var stepObj = new Step(lastStepInserted, lines[i], filename, i);
 
             lastStepInserted.children.push(stepObj);
             lastStepInserted = stepObj;

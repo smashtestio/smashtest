@@ -37,11 +37,12 @@ describe("Tree", function() {
             assert.equal(step.codeBlock, undefined);
             assert.equal(step.comment, undefined);
             assert.equal(step.isFunctionDeclaration, undefined);
-            assert.equal(step.isFunctionCall, undefined);
+            assert.equal(step.isFunctionCall, true);
             assert.equal(step.isMustTest, undefined);
-            assert.equal(step.isTODO, undefined);
-            assert.equal(step.isMANUAL, undefined);
+            assert.equal(step.isToDo, undefined);
+            assert.equal(step.isManual, undefined);
             assert.equal(step.isDebug, undefined);
+            assert.equal(step.isTextualStep, undefined);
             assert.equal(step.isStepByStepDebug, undefined);
             assert.equal(step.isNonParallel, undefined);
             assert.equal(step.isSequential, undefined);
@@ -130,28 +131,38 @@ describe("Tree", function() {
         });
 
         it("parses a function call", function() {
-            var step = tree.parseLine(`    My Function call * `, "file.txt", 10);
+            var step = tree.parseLine(`    My Function call `, "file.txt", 10);
             assert.equal(step.text, `My Function call`);
             assert.equal(step.isFunctionDeclaration, undefined);
             assert.equal(step.isFunctionCall, true);
         });
 
-        it("throws an error if a function call is also a code step", function() {
+        it("throws an error if a textual step is also a code step", function() {
             assert.throws(() => {
-                tree.parseLine(`Something * + {`, "file.txt", 10);
+                tree.parseLine(`Something + - {`, "file.txt", 10);
+            });
+        });
+
+        it("throws an error if a textual step is also a function declaration", function() {
+            assert.throws(() => {
+                tree.parseLine(`* Something - +`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`    * Something - + {`, "file.txt", 10);
             });
         });
 
         it("parses a Must Test step", function() {
-            var step = tree.parseLine(`Must Test foo bar *`, "file.txt", 10);
+            var step = tree.parseLine(`Must Test foo bar`, "file.txt", 10);
             assert.equal(step.isMustTest, true);
             assert.equal(step.mustTestText, 'foo bar');
 
-            step = tree.parseLine(`    Must Test foo bar  *  `, "file.txt", 10);
+            step = tree.parseLine(`    Must Test foo bar  `, "file.txt", 10);
             assert.equal(step.isMustTest, true);
             assert.equal(step.mustTestText, 'foo bar');
 
-            step = tree.parseLine(`Must Test   *  `, "file.txt", 10);
+            step = tree.parseLine(`Must Test    `, "file.txt", 10);
             assert.equal(step.isMustTest, undefined);
             assert.equal(step.mustTestText, undefined);
         });
@@ -179,24 +190,24 @@ describe("Tree", function() {
             assert.equal(step.comment, undefined);
         });
 
-        it("parses the to-do identifier (-TODO)", function() {
-            var step = tree.parseLine(`Click {button} -TODO`, "file.txt", 10);
+        it("parses the to-do identifier (-T)", function() {
+            var step = tree.parseLine(`Click {button} -T`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
-            assert.equal(step.isTODO, true);
+            assert.equal(step.isToDo, true);
 
-            step = tree.parseLine(`Click {button} + -TODO ~`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} + -T ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
-            assert.equal(step.isTODO, true);
+            assert.equal(step.isToDo, true);
         });
 
-        it("parses the manual identifier (-MANUAL)", function() {
-            var step = tree.parseLine(`Click {button} -MANUAL`, "file.txt", 10);
+        it("parses the manual identifier (-M)", function() {
+            var step = tree.parseLine(`Click {button} -M`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
-            assert.equal(step.isMANUAL, true);
+            assert.equal(step.isManual, true);
 
-            step = tree.parseLine(`Click {button} + -MANUAL ~`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} + -M ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
-            assert.equal(step.isMANUAL, true);
+            assert.equal(step.isManual, true);
         });
 
         it("parses the debug identifier (~)", function() {
@@ -228,7 +239,7 @@ describe("Tree", function() {
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isNonParallel, true);
 
-            step = tree.parseLine(`Click {button} -MANUAL + ~ // comment`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} -T + ~ // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isNonParallel, true);
         });
@@ -238,7 +249,7 @@ describe("Tree", function() {
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isSequential, true);
 
-            step = tree.parseLine(`Click {button} -MANUAL .. ~ // comment`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} -T .. ~ // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isSequential, true);
         });
@@ -253,7 +264,7 @@ describe("Tree", function() {
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isExpectedFail, true);
 
-            step = tree.parseLine(`Click {button} -MANUAL # ~ // comment`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} -T # ~ // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isExpectedFail, true);
         });
@@ -363,12 +374,6 @@ describe("Tree", function() {
         it("throws an error when multiple {vars} are set in a line, and one of them is not a 'string literal'", function() {
             assert.throws(() => {
                 tree.parseLine(`{var1} = 'one', {{var2}}=Some step here, {var 3}= "three 3" +`, "file.txt", 10);
-            });
-        });
-
-        it("throws an error when a step is both a function declaration and call", function() {
-            assert.throws(() => {
-                tree.parseLine(` *  My Function declaration and call  * `, "file.txt", 10);
             });
         });
 

@@ -17,7 +17,6 @@ Setup
 Steps
     - 4 spaces for indents (no tabs)
     - Textual steps, built-in steps, functions
-        - Textual steps that match any existing functions cause a warning (this helps you to not forget the * at the end in function calls)
     - Like indented comments on a site like Reddit, where each chain of replies is a branch
 
 Running tests
@@ -43,15 +42,15 @@ Step reference
 
 Step blocks
 
+Textual steps (-)
+
 ElementFinders
 
 Functions (*)
     - Calling
         - Examples of calls (include vars, strings, vars within strings, and elementFinders)
-        - Function {var} here * or Function "6" here * maps to * Function {other var} here
+        - Function {var} here * or Function "6" here maps to * Function {other var} here
             - All function inputs are either {vars} or "strings"
-        - * has to be the first thing after the step text in a function call
-        - Primitive built-in functions must also end in a *
     - Declaring
         - Examples of declarations
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function*
@@ -60,8 +59,7 @@ Functions (*)
             - Match custom functions first, then primitive built-in functions
             - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children.
     - Pitfalls
-        - *Function* causes an error
-        - An uncalled function causes a warning
+        - A declared but uncalled function causes a warning
 
 Variables
     - Types of vars
@@ -69,9 +67,9 @@ Variables
         - {{var}} is internal to the function
     - Setting vars
         - {var} = 'String' (or "String")
-        - {var} = Code Function *
+        - {var} = Code Function
             - Code Function returns a string
-        - {var} = Function *
+        - {var} = Function
             - Function is a list of textual steps that will be turned into strings
             - Line is turned into a code block, where {var} = each string
     - In a line that's {var1}=Step1, {var2}=Step2, do not accept Functions* in Step1/2/etc.
@@ -92,8 +90,8 @@ Code blocks
     - +, .., etc. characters applied come after the step text and before the {
     - Vars accessible in code as vars["var name"] or localvars["var name"]
 
-To Do (-TODO)
-    - -TODO
+To-Do (-T)
+    - Marks this branch and those under it as todo
 
 Debug and REPL (~)
     - ~ (debug identifier)
@@ -102,19 +100,20 @@ Debug and REPL (~)
     - Kicking off blank browser and REPL just from the command line
 
 No parallel execution (+)
-    - +
+    - No two child branches may execute simultaneously
 
 Sequential execution (..)
-    - ..
+    - executes branches below depth-first sequentially
+    - .. above a step block
 
 Expected failure (#)
     - #
     - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
 
 Must Test
-    - Must Test X *
+    - Must Test X
     - Subtree = Is every branch in X represented below me? (me = full tree, including function expansions, not including other Must Test statements)
-    - Must Test {var} = List *
+    - Must Test {var} = List
         - Makes sure every {var} = list member is included in the subtree
 
 Hook steps
@@ -141,5 +140,6 @@ Selective test running
 
 Run tests that failed last time
 
-Manual tests (-MANUAL)
-     - -MANUAL
+Manual tests (-M)
+    - Marks this branch and those under it as manual
+    - Treated as textual step, but you can ask to generate manual checklist from command line

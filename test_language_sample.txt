@@ -1,8 +1,8 @@
 * Initialize
     ..
-    Must Test All Browsers *
-    Must Test All Envs *
-    Must Test All Devices *
+    Must Test All Browsers
+    Must Test All Envs
+    Must Test All Devices
 
         {Run at or above frequency} = 'medium'
 
@@ -20,12 +20,12 @@
 
 
 * Chrome
-    Open Chrome * // opens latest version of Chrome
+    Open Chrome // opens latest version of Chrome
 * IE
     {version}=11
-        Open IE *
+        Open IE
 * Firefox
-    Open Firefox *
+    Open Firefox
 
 
 * Desktop
@@ -39,44 +39,44 @@
     {Login box}='.loginbox',
     {Password box}='.password'
 
-        Verify 'Welcome to homepage' is visible *
+        Verify 'Welcome to homepage' is visible
 
-            Verify {Login box} contains 'Login here' *
+            Verify {Login box} contains 'Login here'
 
 
 * Some function {
     js to execute in node webdriverio running this test goes here
-    return X; // used when you want to do {var} = Some function *
+    return X; // used when you want to do {var} = Function
 }
 
-* Verify {response} has {num} {
+* Verify {{response}} has {{num}} {
     if(JSON.parse(response).key != num)
         throw new Error();     // if exception is thrown, step fails
 }
 
 
 
-Test the Widget Maker
-    Initialize *
+Test the Widget Maker -
+    Initialize
 
-        QA Env *
-        Stage Env *
-        Prod Env *
+        QA Env
+        Stage Env
+        Prod Env
 
-            Chrome *
-            IE *
-            Firefox *
+            Chrome
+            IE
+            Firefox
 
-                Desktop *
-                Mobile *
+                Desktop
+                Mobile
 
-                    Navigate to {host} *
-                        Verify at homepage *
-                            Enter {username} into {Login box} *     // If var isn't set yet, execute this line when it is set below
+                    Navigate to {host}
+                        Verify at homepage
+                            Enter {username} into {Login box}     // If var isn't set yet, execute this line when it is set below
 
                                 {username}='one'
-                                    Special case for username of one
-                                        Click {Login box} *
+                                    Special case for username of one -
+                                        Click {Login box}
 
                                 {username}=two
                                 {username}=fuzz *
@@ -87,34 +87,34 @@ Test the Widget Maker
                                         {password}=two
                                         {password}=fuzz *
 
-                                            Click {'Login' button} *      // ElementFinder
+                                            Click {'Login' button}      // ElementFinder
 
-                                                Get MFA code sent via SMS
-                                                    {mfacode} = Get SMS code *
+                                                Get MFA code sent via SMS -
+                                                    {mfacode} = Get SMS code
 
                                                         Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
 
         						                            Execute in browser {js goes here}
 
-                                                                Some function *
+                                                                Some function
 
-                                                                    Verify 'something' inside of {some box} - #     // Add # to end of step to indicate it’s supposed to fail here. If fails, doesn’t complain about it. If passes, notifies you nicely.
+                                                                    Verify 'something' inside of {some box} #     // Add # to end of step to indicate it’s supposed to fail here. If fails, doesn’t complain about it. If passes, notifies you nicely.
 
-                                            Manual step -MANUAL    // treated as an empty texual step and skipped test (assuming not signed off in txt file), but you can ask to generate a manual checklist from the commandline and it will list this
+                                            Manual step -M    // treated as an empty texual step and skipped test (assuming not signed off in txt file), but you can ask to generate a manual checklist from the commandline and it will list this
 
-                                            Pen test url-here-with-inputs-marked *        // also _currentUrl variable always set to the current url
+                                            Pen test url-here-with-inputs-marked        // also _currentUrl variable always set to the current url
                                                 {group}='pedantic'
 
                     Navigate to about page at url {host}/about
                         ..
-                        Verify at page '/about' *
-                        Verify page title is 'About page' * -TODO
+                        Verify at page '/about'
+                        Verify page title is 'About page' * -T
 
         			Use mock 'blah'      // SmashMOCK integration
 
                     Call API GET {host}/something
 
-                        Verify {response} has 6 *
+                        Verify {response} has 6
 
                     * After every branch  // called at the end of every branch from this step's siblings on down, also tests for "Before every branch", "Before every step", "After every step", "Before all branches" (before all siblings), "After all branches", "After failed step", and "After successful step"
 
@@ -124,14 +124,14 @@ Test the Widget Maker
 
 
 * fuzz
-    a
-    b
-    c
-    securityFuzz *
-    stringBoundaryFuzz *
-    sizeFuzz *
+    {x}='a'
+    {x}='b'
+    {x}='c'
+    {x}=securityFuzz
+    {x}=stringBoundaryFuzz
+    {x}=sizeFuzz
 
-* Verify at Welcome page, set {meow} to what's sent back       // this is like a function, vars set above this function call will be accessible inside
+* Verify at Welcome page, set {{meow}} to what's sent back       // this is like a function, vars set above this function call will be accessible inside
 
     Verify at page '{host}/welcome' *
 
@@ -171,13 +171,13 @@ Test the Widget Maker
         Desktop
         Mobile
 
-All Browsers *    // functions work by copying the * function and replacing it here. Therefore, both tests will execute for all 3 browsers x 2 viewports
+All Browsers    // functions work by copying the * function and replacing it here. Therefore, both tests will execute for all 3 browsers x 2 viewports
 
     Test A
 
     Test B
 
-Must Test All Browsers *    // If Browsers isn't a subtree under this step, there will be a compile error. In other words, we add a new browser to the list, the tester will be forced to add it here too. If something like {n-wise}=X is set, only verify that each tuple of X is present
+Must Test All Browsers    // If Browsers isn't a subtree under this step, there will be a compile error. In other words, we add a new browser to the list, the tester will be forced to add it here too. If something like {n-wise}=X is set, only verify that each tuple of X is present
 
     FF
         Desktop
@@ -200,55 +200,55 @@ Must Test All Browsers *    // If Browsers isn't a subtree under this step, ther
             Click back button
 
 ..
-Must Test All Browsers *
-Must Test All Devices *
-Must Test All Viewports *
+Must Test All Browsers
+Must Test All Devices
+Must Test All Viewports
 
 
 
 
 * Test accessibility on Register page
 
-    Verify on Register page *
+    Verify on Register page
 
         {username} = "testAccount1" +         // + sign means no two branches below me may execute simultaneously, usually placed at a "shared resource" (e.g., username)
 
-            Action 1 *
+            Action 1
 
-            Action 2 *
+            Action 2
 
-    Navigate to register page * ..        // .. means execute branches below me depth-first sequentially, but never repeat the execution of a parent step (including me) more than once.  ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps, a .. does not expand beyond the bounds of a *function
+    Navigate to register page ..        // .. means execute branches below me depth-first sequentially, but never repeat the execution of a parent step (including me) more than once.  ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps, a .. does not expand beyond the bounds of a *function
 
-        Enter invalid username 1 *
-        Enter invalid username 2 *
-        Enter invalid username 3 *
+        Enter invalid username 1
+        Enter invalid username 2
+        Enter invalid username 3
 
-            Verify error *
+            Verify error
 
     ..              // .. right above a step block executes the step block sequentially, but under it it goes back to normal branched execution
     Something 1
     Something 2
     Something 3
 
-        Verify error *
+        Verify error
 
     Accessibility testing
 
-        Arrow up inside {dropdown} * ..
+        Arrow up inside {dropdown} ..
 
-            {dropdown} = List of dropdowns on Register page *     // .. applies to children and called functions as well (in this case, each dropdown= that will result), great for taking a matrix and converting into sequential (indented) items
+            {dropdown} = List of dropdowns on Register page     // .. applies to children and called functions as well (in this case, each dropdown= that will result), great for taking a matrix and converting into sequential (indented) items
 
-        Some func *
+        Some func
 
             Some step 1       // even if Some func has a .. inside, Some step 1 and 2 will still be treated as different branches
             Some step 2
 
 
 
-Open Chrome, call it browser 'A' *
+Open Chrome, call it browser 'A'
 
-    Open Chrome, call it browser 'B' *
+    Open Chrome, call it browser 'B'
 
-        Navigate to X, in browser 'B' *
+        Navigate to X, in browser 'B'
 
-            Navigate to Y, in browser 'A' *
+            Navigate to Y, in browser 'A'
