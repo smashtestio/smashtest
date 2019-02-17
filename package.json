@@ -10,5 +10,8 @@
     "webdriverio": "^5.0.0"
   },
   "private": true,
-  "devDependencies": {}
+  "devDependencies": {},
+  "scripts": {
+    "test": "nyc --reporter=lcov mocha unittests/*.js"
+  }
 }

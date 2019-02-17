@@ -15,9 +15,12 @@ Setup
         - What it does and why it's recommended
 
 Steps
-    - 4 spaces for indents (no tabs)
     - Textual steps, built-in steps, functions
-    - Like indented comments on a site like Reddit, where each chain of replies is a branch
+    - Indents
+        - 4 spaces for indents (no tabs)
+        - Like indented comments on a site like Reddit, where each chain of replies is a branch
+    - Blank lines generally don't matter, except to denote step blocks. Use them for stylistic organization.
+        - Blank lines are like a “big parenthesis” around multiple steps
 
 Running tests
     - Branches generated breath first

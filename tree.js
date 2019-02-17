@@ -12,7 +12,7 @@ class Tree {
     }
 
     /**
-     * @return {Integer} The number of indents in step
+     * @return {Integer} The number of indents in step (where each SPACES_PER_INDENT spaces counts as 1 indent)
      * @throws {Error} If there are an invalid number of spaces, or invalid whitespace chars, at the beginning of the step
      */
     numIndents(step, filename, lineNumber) {
@@ -20,10 +20,7 @@ class Tree {
         var whitespaceAtFront = step.match(/^(\s*)[^\s|$]/);
 
         if(spacesAtFront[1] != whitespaceAtFront[1]) {
-            this.error("Spaces are the only type of whitespace allowed at the beginning of a step.", filename, lineNumber);
-        }
-        else if(typeof spacesAtFront[1] == 'undefined') {
-            return 0;
+            this.error("Spaces are the only type of whitespace allowed at the beginning of a step", filename, lineNumber);
         }
         else {
             var numSpaces = spacesAtFront[1].length;
@@ -59,7 +56,7 @@ class Tree {
         // Explanation: Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
         const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
         // Matches "string" or 'string', handles escaped \ and "
-        const STRING_LITERAL_REGEX_WHOLE = /^'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"$/;
+        const STRING_LITERAL_REGEX_WHOLE = /^('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")$/;
         const STRING_LITERAL_REGEX = /'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
         // Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val)
         const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
@@ -68,7 +65,7 @@ class Tree {
 
         var matches = line.match(LINE_REGEX);
         if(!matches) {
-            this.error("This step is not written correctly.", filename, lineNumber);
+            this.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_REGEX can match anything)
         }
 
         var step = new Step();
@@ -85,7 +82,7 @@ class Tree {
         // *Function Declarations
         step.isFunctionDeclaration = (matches[1] ? matches[1].trim() == '*' : undefined);
         if(step.isFunctionDeclaration && step.text.match(STRING_LITERAL_REGEX)) {
-            this.error("A *Function declaration cannot have \"strings\" inside of it.", filename, lineNumber);
+            this.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
         }
 
         // Must Test
@@ -93,7 +90,7 @@ class Tree {
         matches = step.text.match(MUST_TEST_REGEX);
         if(matches) {
             if(step.isFunctionDeclaration) {
-                this.error("A *Function cannot start with Must Test.", filename, lineNumber);
+                this.error("A *Function cannot start with Must Test", filename, lineNumber);
             }
 
             step.isMustTest = true;
@@ -117,16 +114,16 @@ class Tree {
         }
 
         if(typeof step.codeBlock != 'undefined' && step.isTextualStep) {
-            this.error("A textual step (-) cannot have a code block a well.", filename, lineNumber);
+            this.error("A textual step (-) cannot have a code block a well", filename, lineNumber);
         }
         if(step.isFunctionDeclaration && step.isTextualStep) {
-            this.error("A *Function declaration cannot be a textual step (-) as well.", filename, lineNumber);
+            this.error("A *Function declaration cannot be a textual step (-) as well", filename, lineNumber);
         }
 
         // Parse {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. from text into step.varsBeingSet
         if(step.text.match(VARS_SET_REGEX)) {
             if(step.isFunctionDeclaration) {
-                this.error("A step setting {variables} cannot start with a *.", filename, lineNumber);
+                this.error("A step setting {variables} cannot start with a *", filename, lineNumber);
             }
 
             var textCopy = step.text + "";
@@ -134,11 +131,11 @@ class Tree {
             while(textCopy.trim() != "") {
                 matches = textCopy.match(VARS_SET_REGEX);
                 if(!matches) {
-                    break;
+                    this.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
                 }
 
                 if(matches[2].match(/"|'/g)) {
-                    this.error("You cannot have quotes inside a {variable} that you're setting.", filename, lineNumber);
+                    this.error("You cannot have quotes inside a {variable} that you're setting", filename, lineNumber);
                 }
 
                 step.varsBeingSet.push({
@@ -155,7 +152,7 @@ class Tree {
             if(step.varsBeingSet.length > 1) {
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
                     if(!step.varsBeingSet[i].value.match(STRING_LITERAL_REGEX_WHOLE)) {
-                        this.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'.", filename, lineNumber);
+                        this.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'", filename, lineNumber);
                     }
                 }
             }
@@ -197,7 +194,7 @@ class Tree {
             for(var i = 0; i < matches.length; i++) {
                 var name = matches[i].replace(/\{|\}/g, '');
                 if(name.match(/"|'/g) && !this.parseElementFinder(name)) {
-                    this.error("{variable} names containing quotes must be valid ElementFinders.", filename, lineNumber);
+                    this.error("{variable} names containing quotes must be valid ElementFinders", filename, lineNumber);
                 }
             }
         }
@@ -244,38 +241,102 @@ class Tree {
     parseIn(buffer, filename) {
         var lines = buffer.split(/[\r\n|\r|\n]/);
 
+        var lastLineIndents = 0; // number of indents on the last line we saw (doesn't include lines within code blocks or empty lines)
         var lastStepInserted = this.root;
 
+        var currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
+
+        // Put steps here as they are inserted into the tree.
+        // If later they're confirmed to be part of a step block, combine them into a StepBlock and insert that into the tree instead.
+        var potentialStepBlockCandidates = [];
+        var potentialStepBlockIsSequential = false; // is the potential step block sequential (..)?
+
         for(var i = 0; i < lines.length; i++) {
-            // numIndents(step, filename, lineNumber);
+            var line = lines[i];
+            var currLineIndents = this.numIndents(step, filename, i + 1);
 
-            this.parseLine(lines[i], filename, i);
+            if(currentlyInsideCodeBlockFromLineNum > 0) {
+                if(line.match(new RegExp("[ ]{" + (lastLineIndents * SPACES_PER_INDENT) + ",}\}\s*(\/\/.*?)?\s*"))) { // code block is ending
+                    currentlyInsideCodeBlockFromLineNum = -1;
+                }
+                else {
+                    lastStepInserted.codeBlock += ("\n" + line);
+                }
+            }
+            else if(line.match(/^\s*$/)) { // line is empty
+                flushStepBlockCandidates();
+            }
+            else { // line is a normal step
+                var step = this.parseLine(lines[i], filename, i + 1);
+
+                if(step == '..') {
+                    potentialStepBlockIsSequential = true;
+                }
+                else {
+                    // Insert the new step into the tree, based on the number of indents it has
 
 
 
 
 
 
+
+
+                    // If this is the start of a new code block
+                    if(typeof step.codeBlock != 'undefined') {
+                        currentlyInsideCodeBlockFromLineNum = i + 1;
+                        clearStepBlockCandidates();
+                    }
+                }
+
+                lastLineIndents = currLineIndents;
+            }
         }
 
+        // If we're still inside a code block, and EOF was reached, complain that a code block is not closed
+        if(currentlyInsideCodeBlockFromLineNum > 0) {
+            this.error("An unclosed code block was found", filename, currentlyInsideCodeBlockFromLineNum);
+        }
 
+        flushStepBlockCandidates();
 
+        /**
+         * If there are steps inside potentialStepBlockCandidates, puts them into a StepBlock and puts that into the tree instead.
+         */
+        function flushStepBlockCandidates() {
+            if(potentialStepBlockCandidates.length > 0) {
+                var stepblock = new StepBlock();
+                if(potentialStepBlockIsSequential) {
+                    stepblock.isSequential = true; // isSequential is undefined otherwise
+                }
+                var parent = potentialStepBlockCandidates[0].parent;
 
+                // Put new StepBlock into parent of the candidates
+                stepblock.parent = parentOfPotentialStepBlockCandidates;
+                parent.children.push(stepblock);
 
+                // Put candidates into the StepBlock
+                for(var i = 0; i < potentialStepBlockCandidates.length; i++) {
+                    stepblock.steps.push(potentialStepBlockCandidates[i]);
+                }
 
+                // Remove the candidates from their parent, as they're in the StepBlock now
+                parent.children = parent.children.filter(function(value) {
+                    return !stepblock.steps.includes(value);
+                });
 
+                // Clear out candidates, as they're in the StepBlock now
+                clearStepBlockCandidates();
+            }
+        }
 
-
-
-        // TODO: remove this
-        /*for(var i = 0; i < lines.length; i++) {
-            if(lines[i] == '') continue;
-
-            var stepObj = new Step(lastStepInserted, lines[i], filename, i);
-
-            lastStepInserted.children.push(stepObj);
-            lastStepInserted = stepObj;
-        }*/
+        /**
+         * Clears out the potential step block candidates
+         */
+        function clearStepBlockCandidates() {
+            potentialStepBlockCandidates = [];
+            potentialStepBlockIsSequential = false;
+        }
     }
 
     /**

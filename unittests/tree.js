@@ -396,6 +396,10 @@ describe("Tree", function() {
             assert.throws(() => {
                 tree.parseLine(`* Function {one} and {{two}}`, "file.txt", 10);
             });
+
+            assert.throws(() => {
+                tree.parseLine(`{var1}='str1', {var2}='str2', Invalid stuff here`, "file.txt", 10);
+            });
         });
 
         it("throws an error when a step sets a variable and is a function declaration", function() {
@@ -409,6 +413,10 @@ describe("Tree", function() {
 
             assert.throws(() => {
                 tree.parseLine(`* {var1}='str1', {var2}='str2'`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`* {var1}= Some function`, "file.txt", 10);
             });
         });
 

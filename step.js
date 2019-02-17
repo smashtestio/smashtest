@@ -3,8 +3,16 @@
  */
 class Step {
     constructor() {
-        /*
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
+
+        this.children = [];                   // Step or StepBlock objects that are children of this Step
+        this.parent = null;                   // Step or StepBlock that's the parent of this Step
+
+        this.filename = null;                 // filename where this step is from
+        this.lineNumber = null;               // line number where this step is from
+        
+        /*
+        OPTIONAL
 
         this.text = "";                       // text of the command of the step (not including spaces in front, identifiers, comments, etc.)
         this.identifiers = [];                // array of strings, each of which represents an identifier (e.g., ['..', '+', '#something'])
@@ -28,12 +36,6 @@ class Step {
 
         this.varsBeingSet = [];               // if this step is in the format {var1}=Step1, {{var2}}=Step2, etc., this array will contain objects {name: "var1", value: "Step1", isLocal: false}, {name: "var2", value: "Step2", isLocal: true} etc.
         this.varsList = [];                   // array of objects with format {name: "var1", isLocal: false} representing all the variables included in this step
-
-        this.children = [];                   // Step or StepBlock objects that are children of this Step
-        this.parent = null;                   // Step or StepBlock that's the parent of this Step
-
-        this.filename = null;                 // filename where this step is from
-        this.lineNumber = null;               // line number where this step is from
         */
     }
 }
