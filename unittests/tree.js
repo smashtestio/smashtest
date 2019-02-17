@@ -194,20 +194,35 @@ describe("Tree", function() {
             var step = tree.parseLine(`Click {button} -T`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isToDo, true);
+            assert.equal(step.isTextualStep, undefined);
 
             step = tree.parseLine(`Click {button} + -T ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isToDo, true);
+            assert.equal(step.isTextualStep, undefined);
         });
 
         it("parses the manual identifier (-M)", function() {
             var step = tree.parseLine(`Click {button} -M`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isManual, true);
+            assert.equal(step.isTextualStep, undefined);
 
             step = tree.parseLine(`Click {button} + -M ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isManual, true);
+            assert.equal(step.isTextualStep, undefined);
+        });
+
+        it("parses the textual step identifier (-)", function() {
+            var step = tree.parseLine(`Click {button} -`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isTextualStep, true);
+
+            step = tree.parseLine(`    Click {button} - -M ~ `, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isManual, true);
+            assert.equal(step.isTextualStep, true);
         });
 
         it("parses the debug identifier (~)", function() {
