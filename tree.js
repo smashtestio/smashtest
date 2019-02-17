@@ -120,6 +120,10 @@ class Tree {
 
         // Parse {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. from text into step.varsBeingSet
         if(step.text.match(VARS_SET_REGEX)) {
+            if(step.isFunctionDeclaration) {
+                this.error("A step setting {variables} cannot start with a *.", filename, lineNumber);
+            }
+
             var textCopy = step.text + "";
             step.varsBeingSet = [];
             while(textCopy.trim() != "") {
@@ -159,18 +163,24 @@ class Tree {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
                 var name = match.replace(/\{|\}/g, '');
+                var isLocal = match.startsWith('{{');
+
+                if(step.isFunctionDeclaration && !isLocal) {
+                    this.error("All variables in a * Function Declaration must be {{local}}. {" + name + "} is not.", filename, lineNumber);
+                }
+
                 var elementFinder = this.parseElementFinder(name);
                 if(elementFinder) {
                     step.varsList.push({
                         name: name,
-                        isLocal: match.startsWith('{{'),
+                        isLocal: isLocal,
                         elementFinder: elementFinder
                     });
                 }
                 else {
                     step.varsList.push({
                         name: name,
-                        isLocal: match.startsWith('{{')
+                        isLocal: isLocal
                     });
                 }
             }

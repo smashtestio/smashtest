@@ -112,6 +112,11 @@ describe("Tree", function() {
             assert.equal(step.text, `My Function here`);
             assert.equal(step.isFunctionDeclaration, true);
             assert.equal(step.isFunctionCall, undefined);
+
+            step = tree.parseLine(`    * My Function {{var}}`, "file.txt", 10);
+            assert.equal(step.text, `My Function {{var}}`);
+            assert.equal(step.isFunctionDeclaration, true);
+            assert.equal(step.isFunctionCall, undefined);
         });
 
         it("throws an error if a function declaration has 'strings'", function() {
@@ -364,6 +369,26 @@ describe("Tree", function() {
         it("throws an error when a step is both a function declaration and call", function() {
             assert.throws(() => {
                 tree.parseLine(` *  My Function declaration and call  * `, "file.txt", 10);
+            });
+        });
+
+        it("throws an error when a function declaration contains {non-local variables}", function() {
+            assert.throws(() => {
+                tree.parseLine(`* Function {one} and {{two}}`, "file.txt", 10);
+            });
+        });
+
+        it("throws an error when a step sets a variable and is a function declaration", function() {
+            assert.throws(() => {
+                tree.parseLine(`* {var}='str'`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`  * Function {var}='str'  `, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`* {var1}='str1', {var2}='str2'`, "file.txt", 10);
             });
         });
 

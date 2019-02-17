@@ -64,7 +64,10 @@ Functions (*)
         - An uncalled function causes a warning
 
 Variables
-    - Examples
+    - Types of vars
+        - {var} is global
+        - {{var}} is internal to the function
+    - Setting vars
         - {var} = 'String' (or "String")
         - {var} = Code Function *
             - Code Function returns a string
