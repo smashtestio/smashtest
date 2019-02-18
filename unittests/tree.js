@@ -477,7 +477,21 @@ describe("Tree", function() {
     });
 
     describe("parseIn()", function() {
-        it.skip("parses empty input", function() {
+        var tree = new Tree();
+
+        it("parses empty input", function() {
+            tree.parseIn(``, "file.txt");
+
+            // TODO: assert tree with chai-subset
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("parses all-whitespace input", function() {

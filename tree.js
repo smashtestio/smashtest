@@ -12,16 +12,19 @@ class Tree {
     }
 
     /**
-     * @return {Integer} The number of indents in step (where each SPACES_PER_INDENT spaces counts as 1 indent). Always returns 0 for empty string or all whitespace.
+     * @param {String} line - A single line
+     * @param {String} filename - The filename of the file where the line is
+     * @param {Integer} lineNumber - The line number
+     * @return {Integer} The number of indents in line (where each SPACES_PER_INDENT spaces counts as 1 indent). Always returns 0 for empty string or all whitespace.
      * @throws {Error} If there are an invalid number of spaces, or invalid whitespace chars, at the beginning of the step
      */
-    numIndents(step, filename, lineNumber) {
-        if(step.match(/^\s*$/)) { //empty string or all whitespace
+    numIndents(line, filename, lineNumber) {
+        if(line.match(/^\s*$/)) { //empty string or all whitespace
             return 0;
         }
 
-        var spacesAtFront = step.match(/^( *)([^ ]|$)/);
-        var whitespaceAtFront = step.match(/^(\s*)([^\s]|$)/);
+        var spacesAtFront = line.match(/^( *)([^ ]|$)/);
+        var whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
         if(spacesAtFront[1] != whitespaceAtFront[1]) {
             this.error("Spaces are the only type of whitespace allowed at the beginning of a step", filename, lineNumber);
@@ -268,7 +271,7 @@ class Tree {
             }
             else {
                 var step = this.parseLine(line, filename, i + 1);
-                step.indents = this.numIndents(step, filename, i + 1);
+                step.indents = this.numIndents(line, filename, i + 1);
 
                 if(!lastStepCreated && step.indents != 0) {
                     this.error("The first step must have 0 indents", filename, i + 1);
