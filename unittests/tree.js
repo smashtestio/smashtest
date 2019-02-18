@@ -6,6 +6,7 @@ describe("Tree", function() {
         var tree = new Tree();
 
         it("counts spaces properly", function() {
+            assert.equal(tree.numIndents('m ', 'file.txt', 10), 0);
             assert.equal(tree.numIndents('meow', 'file.txt', 10), 0);
             assert.equal(tree.numIndents('    meow blah', 'file.txt', 10), 1);
             assert.equal(tree.numIndents('        meow  \t ', 'file.txt', 10), 2);
@@ -21,6 +22,15 @@ describe("Tree", function() {
             assert.throws(() => { tree.numIndents('  meow', 'file.txt', 10); });
             assert.throws(() => { tree.numIndents('   meow', 'file.txt', 10); });
             assert.throws(() => { tree.numIndents('     meow', 'file.txt', 10); });
+        });
+
+        it("returns 0 for an empty string or all-whitespace string", function() {
+            assert.equal(tree.numIndents('', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents(' ', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('  ', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('     ', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('        ', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('    \t   ', 'file.txt', 10), 0);
         });
     });
 
@@ -269,11 +279,6 @@ describe("Tree", function() {
             assert.equal(step.isSequential, true);
         });
 
-        it("returns '..' when the whole line is a sequential identifier (..)", function() {
-            var step = tree.parseLine(`    .. `, "file.txt", 10);
-            assert.equal(step, '..');
-        });
-
         it("parses the expected fail identifier (#)", function() {
             var step = tree.parseLine(`Click {button} #`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
@@ -420,12 +425,20 @@ describe("Tree", function() {
             });
         });
 
-        it("returns null for empty or all-whitespace lines", function() {
+        it("returns text set to empty string for empty or all-whitespace lines", function() {
             var step = tree.parseLine(``, "file.txt", 10);
-            assert.equal(step, null);
+            assert.equal(step.text, '');
 
             step = tree.parseLine(`     `, "file.txt", 10);
-            assert.equal(step, null);
+            assert.equal(step.text, '');
+        });
+
+        it("returns text set to '..' when the whole line is a sequential identifier (..)", function() {
+            var step = tree.parseLine(`..`, "file.txt", 10);
+            assert.equal(step.text, '..');
+
+            step = tree.parseLine(`    .. `, "file.txt", 10);
+            assert.equal(step.text, '..');
         });
     });
 

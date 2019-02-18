@@ -4,13 +4,14 @@
 class Step {
     constructor() {
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
+        this.indents = -1;                    // number of indents before this step's text, where an indent consists of SPACES_PER_INDENT spaces
 
-        this.children = [];                   // Step or StepBlock objects that are children of this Step
-        this.parent = null;                   // Step or StepBlock that's the parent of this Step
+        this.parent = null;                   // Step or StepBlock that's the parent of this Step (null if this Step is itself part of a StepBlock)
+        this.children = [];                   // Step or StepBlock objects that are children of this Step ([] if this Step is itself part of a StepBlock)
 
         this.filename = null;                 // filename where this step is from
         this.lineNumber = null;               // line number where this step is from
-        
+
         /*
         OPTIONAL
 

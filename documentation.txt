@@ -44,6 +44,12 @@ Step reference
     - Execute in browser {}
 
 Step blocks
+    - What consititutes a step block
+        - Start with either the start of file, blank line, or ..
+        - End with either blank line or end of file
+        - Only a vertical list with no children, no blank lines
+    - Each line of a step block will connect with every child step to the step block. It's kind of like a for loop.
+    - .. at the top of a step block means sequential execution. Kind of like if we indented every step into a tree.
 
 Textual steps (-)
 
