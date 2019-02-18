@@ -33,15 +33,7 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
                         tree.parseIn(fileBuffers[i], filenames[i]);
                     }
 
-                    // TODO: after parsing in all files into the tree...
-                    // - Hook up function calls to their implementations, throwing errors if need be.
-                    //    Create a new function under Tree for this purpose.
-                    // - In a line that's {var1}=Step1, {var2}=Step2, do not accept functions in Step1/2/etc.
-                    // - Hook up Must test and corresponding functions too
-                    // - Hook up hooks, like After every X
-
-
-                    // TODO: run the tests here
+                    // TODO: call tree.finalize(), then runTests()
 
 
 
