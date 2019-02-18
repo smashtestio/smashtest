@@ -477,23 +477,105 @@ describe("Tree", function() {
     });
 
     describe("parseIn()", function() {
-        it.skip("TEXT", function() {
+        it.skip("parses empty input", function() {
         });
 
+        it.skip("parses all-whitespace input", function() {
+        });
 
+        it.skip("parses a normal tree", function() {
+            /*
+            A
+                B
+                    C
+                D
+                E
+                    F
+            G
+            H
+                I
+                    J
+                        K
+            L
+            */
+        });
 
+        it.skip("parses a normal tree with one or more empty lines in the middle", function() {
+            // Same as last tree, only with empty lines scattered throughout
+        });
 
+        it.skip("parses a normal tree that starts with an empty line", function() {
+        });
 
+        it.skip("handles multiple parses into the same tree", function() {
+            // Multiple calls to parseIn()
+        });
 
+        it.skip("throws an error when the first step is not at indent 0", function() {
+        });
 
+        it.skip("throws an error when a step is 2 or more indents ahead of the step above", function() {
+        });
 
+        it.skip("parses a step block at the very top", function() {
+        });
 
+        it.skip("parses a step block in the middle", function() {
+        });
 
+        it.skip("parses a step block at the bottom", function() {
+        });
 
+        it.skip("parses multiple nested step blocks", function() {
+        });
 
+        it.skip("parses a step block that starts with ..", function() {
+        });
 
+        it.skip("parses a first line of ..", function() {
+        });
 
+        it.skip("parses a line of .. immediately followed by an empty line", function() {
+        });
 
+        it.skip("parses a line of .. immediately followed by an indented line", function() {
+        });
 
+        it.skip("parses a step block that starts with .. and is adjacent to the line directly above (but indented)", function() {
+        });
+
+        it.skip("throws an error when a step block contains a .. line in the middle", function() {
+        });
+
+        it.skip("throws an error when a step block contains a .. line at the end", function() {
+        });
+
+        it.skip("doesn't call a group of consecutive steps with children a step block", function() {
+        });
+
+        it.skip("parses a code block", function() {
+        });
+
+        it.skip("parses an empty code block", function() {
+            /*
+            Step {
+            }
+            */
+        });
+
+        it.skip("parses a code block with children", function() {
+        });
+
+        it.skip("parses a code block with step blocks as children", function() {
+        });
+
+        it.skip("parses a code block with code blocks as children", function() {
+        });
+
+        it.skip("throws an error if there's a code block that isn't closed", function() {
+        });
+
+        it.skip("throws an error if there's a code block with a closing } at the wrong indentation", function() {
+        });
     });
 });
