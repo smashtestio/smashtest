@@ -254,14 +254,11 @@ class Tree {
             if(!text && !variable) { // either the text and/or the variable must be present
                 return null;
             }
-            if(ordinal && !text && !variable) { // if there's an ordinal, there has to either be text or a variable
-                return null;
-            }
             if(variable && !ordinal && !text && !nextTo) { // a variable cannot be listed alone
                 return null;
             }
             if(nextTo && !ordinal && !text && !variable) { // next to cannot be listed alone
-                return null;
+                return null; // NOTE: probably unreachable because a "next to" by itself won't get matched by the regex
             }
 
             var elementFinder = {};
@@ -297,6 +294,7 @@ class Tree {
         // Convert each string in lines to either a Step object
         // For a line that's part of a code block, insert the code into the Step representing the code block and remove that line
         var lastStepCreated = null;
+        var lastNonEmptyStep = null;
         var currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
         for(var i = 0; i < lines.length;) {
             var line = lines[i];
@@ -317,7 +315,7 @@ class Tree {
                 var step = this.parseLine(line, filename, i + 1);
                 step.indents = this.numIndents(line, filename, i + 1);
 
-                if(!lastStepCreated && step.indents != 0) {
+                if(!lastNonEmptyStep && step.indents != 0) {
                     this.error("The first step must have 0 indents", filename, i + 1);
                 }
 
@@ -329,6 +327,10 @@ class Tree {
                 lines[i] = step;
                 lastStepCreated = lines[i];
 
+                if(step.text != '') {
+                    lastNonEmptyStep = step;
+                }
+
                 i++;
             }
         }
@@ -338,52 +340,67 @@ class Tree {
             this.error("An unclosed code block was found", filename, currentlyInsideCodeBlockFromLineNum);
         }
 
+        // Validations for .. steps
+        for(var i = 0; i < lines.length; i++) {
+            if(lines[i].text == '..') {
+                if(i > 0 && lines[i-1].text != '' && lines[i-1].indents == lines[i].indents) {
+                    this.error("You cannot have a .. line at the same indent level as the adjacent line above", filename, i + 1);
+                }
+                if(i + 1 < lines.length && lines[i+1].text == '') {
+                    this.error("You cannot have a .. line without anything directly below", filename, i + 1);
+                }
+                if(i + 1 < lines.length && lines[i+1].indents != lines[i].indents) {
+                    this.error("A .. line must be followed by a line at the same indent level", filename, i + 1);
+                }
+            }
+        }
+
         // Look for groups of consecutive steps that consititute a step block, and replace them with a StepBlock object
         // A step block 1) is preceded by a '' step, '..' step, or start of file, 2) is followed by a '' line, or end of file,
         // 3) has no '' steps in the middle, and 4) all steps are at the same indent level
         for(var i = 0; i < lines.length;) {
-            if(i == 0 || lines[i].text == '' || lines[i].text == '..') {
-                // Current step may start a step block. See how far down it goes.
-
+            if(lines[i].text != '' && lines[i].text != '..' && (i == 0 || lines[i-1].text == '' || lines[i-1].text == '..')) {
+                // Current step may start a step block
                 var potentialStepBlock = new StepBlock();
-                potentialStepBlock.indents = 0;
 
-                if(lines[i].text != '') {
-                    potentialStepBlock.indents = lines[i].indents;
-                    potentialStepBlock.steps.push(lines[i]);
-                }
-
-                if(lines[i].text == '..') {
+                if(i > 0 && lines[i-1].text == '..') {
                     potentialStepBlock.isSequential = true;
                 }
 
+                potentialStepBlock.steps.push(lines[i]);
+
+                // See how far down it goes
                 for(var j = i + 1; j < lines.length; j++) {
                     if(lines[j].text == '') {
-                        break; // we've reached the end of the step block
-                    }
-                    else if(lines[j].indents != lines[i].indents) {
-                        // StepBlock is ruined, due to consecutive steps being at different indents
-                        potentialStepBlock = null;
+                        // We've reached the end of the step block
                         break;
                     }
-                    else { // lines[j] is a non-empty step at the same indent level as the previous step
-                        if(lines[j].text == '..') {
-                            this.error("You cannot have a .. line at the same indent level as the line above", filename, i + 1);
-                        }
-                        else {
-                            // We're all good
-                            potentialStepBlock.steps.push(lines[i]);
-                        }
+                    else if(lines[j].indents != potentialStepBlock.steps[0].indents) {
+                        // StepBlock is ruined, due to consecutive steps being at different indents
+                        potentialStepBlock = new StepBlock(); // clear out the potentialStepBlock
+                        break;
+                    }
+                    else {
+                        potentialStepBlock.steps.push(lines[j]);
                     }
                 }
 
-                if(potentialStepBlock && potentialStepBlock.steps.length > 1) {
+                if(potentialStepBlock.steps.length > 1) {
                     // We've found a valid step block
+                    potentialStepBlock.filename = filename;
+                    potentialStepBlock.lineNumber = potentialStepBlock.isSequential ? potentialStepBlock.steps[0].lineNumber - 1 : potentialStepBlock.steps[0].lineNumber;
+                    potentialStepBlock.indents = potentialStepBlock.steps[0].indents;
+                    for(var k = 0; k < potentialStepBlock.steps.length; k++) {
+                        potentialStepBlock.steps[k].containingStepBlock = potentialStepBlock;
+                    }
+
                     // Have the StepBlock object we created replace its corresponding Steps
                     lines.splice(i, potentialStepBlock.steps.length, potentialStepBlock);
+                    i++; // next i will be one position past the new StepBlock's index
                 }
-
-                i = j;
+                else {
+                    i = j; // no new StepBlock was created, so just advance i to however far down we ventured
+                }
             }
             else {
                 i++;
@@ -392,8 +409,17 @@ class Tree {
 
         // Remove steps that are '' or '..' (we don't need them anymore)
         for(var i = 0; i < lines.length;) {
-            if(lines[i].text == '' || lines[i].text == '..') {
+            if(lines[i].text == '') {
                 lines.splice(i, 1);
+            }
+            else if(lines[i].text == '..') {
+                // Validate that .. steps have a StepBlock directly below
+                if(i + 1 < lines.length && !(lines[i+1] instanceof StepBlock)) {
+                    this.error("A .. line must be followed by a step block", filename, i + 1);
+                }
+                else {
+                    lines.splice(i, 1);
+                }
             }
             else {
                 i++;

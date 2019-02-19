@@ -13,21 +13,21 @@ describe("Tree", function() {
 
         it("counts spaces properly", function() {
             assert.equal(tree.numIndents('m ', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('meow', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('    meow blah', 'file.txt', 10), 1);
-            assert.equal(tree.numIndents('        meow  \t ', 'file.txt', 10), 2);
+            assert.equal(tree.numIndents('blah', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('    blah blah', 'file.txt', 10), 1);
+            assert.equal(tree.numIndents('        blah  \t ', 'file.txt', 10), 2);
         });
 
         it("throws an exception for non-whitespace at the beginning of a step", function() {
-            assert.throws(() => { tree.numIndents('\tmeow', 'file.txt', 10); });
-            assert.throws(() => { tree.numIndents(' \tmeow', 'file.txt', 10); });
+            assert.throws(() => { tree.numIndents('\tblah', 'file.txt', 10); });
+            assert.throws(() => { tree.numIndents(' \tblah', 'file.txt', 10); });
         });
 
         it("throws an exception for a number of spaces not a multiple of 4", function() {
-            assert.throws(() => { tree.numIndents(' meow', 'file.txt', 10); });
-            assert.throws(() => { tree.numIndents('  meow', 'file.txt', 10); });
-            assert.throws(() => { tree.numIndents('   meow', 'file.txt', 10); });
-            assert.throws(() => { tree.numIndents('     meow', 'file.txt', 10); });
+            assert.throws(() => { tree.numIndents(' blah', 'file.txt', 10); });
+            assert.throws(() => { tree.numIndents('  blah', 'file.txt', 10); });
+            assert.throws(() => { tree.numIndents('   blah', 'file.txt', 10); });
+            assert.throws(() => { tree.numIndents('     blah', 'file.txt', 10); });
         });
 
         it("returns 0 for an empty string or all-whitespace string", function() {
@@ -358,20 +358,20 @@ describe("Tree", function() {
             assert.equal(step.varsBeingSet, undefined);
             assert.deepEqual(step.varsList, [ {name: "'Login'", isLocal: false, elementFinder: {text: 'Login'}} ]);
 
-            step = tree.parseLine(`Click { 4th 'Login' box  next to  "meow" }`, "file.txt", 10);
-            assert.equal(step.text, `Click { 4th 'Login' box  next to  "meow" }`);
+            step = tree.parseLine(`Click { 4th 'Login' box  next to  "blah" }`, "file.txt", 10);
+            assert.equal(step.text, `Click { 4th 'Login' box  next to  "blah" }`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: " 4th 'Login' box  next to  \"meow\" ", isLocal: false, elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'meow'}} ]);
+            assert.deepEqual(step.varsList, [ {name: " 4th 'Login' box  next to  \"blah\" ", isLocal: false, elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'blah'}} ]);
 
-            step = tree.parseLine(`Click { 'Login' next to "meow" }`, "file.txt", 10);
-            assert.equal(step.text, `Click { 'Login' next to "meow" }`);
+            step = tree.parseLine(`Click { 'Login' next to "blah" }`, "file.txt", 10);
+            assert.equal(step.text, `Click { 'Login' next to "blah" }`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: " 'Login' next to \"meow\" ", isLocal: false, elementFinder: {text: 'Login', nextTo: 'meow'}} ]);
+            assert.deepEqual(step.varsList, [ {name: " 'Login' next to \"blah\" ", isLocal: false, elementFinder: {text: 'Login', nextTo: 'blah'}} ]);
 
-            step = tree.parseLine(`Click {box next to "meow"}`, "file.txt", 10);
-            assert.equal(step.text, `Click {box next to "meow"}`);
+            step = tree.parseLine(`Click {box next to "blah"}`, "file.txt", 10);
+            assert.equal(step.text, `Click {box next to "blah"}`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "box next to \"meow\"", isLocal: false, elementFinder: {variable: 'box', nextTo: 'meow'}} ]);
+            assert.deepEqual(step.varsList, [ {name: "box next to \"blah\"", isLocal: false, elementFinder: {variable: 'box', nextTo: 'blah'}} ]);
         });
 
         it("throws an error when a {var} contains a quote and isn't a valid ElementFinder", function() {
@@ -476,34 +476,34 @@ describe("Tree", function() {
         });
 
         it("rejects ElementFinders with nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`next to 'meow'`);
+            var elementFinder = tree.parseElementFinder(`next to 'blah'`);
             assert.equal(elementFinder, null);
 
-            elementFinder = tree.parseElementFinder(`   next to "meow"  `);
+            elementFinder = tree.parseElementFinder(`   next to "blah"  `);
             assert.equal(elementFinder, null);
         });
 
         it("parses ElementFinders with ordinal and text", function() {
-            var elementFinder = tree.parseElementFinder(`235th '  meow cat '`);
-            assert.deepEqual(elementFinder, {ordinal: 235, text: '  meow cat '});
+            var elementFinder = tree.parseElementFinder(`235th '  blah blah2 '`);
+            assert.deepEqual(elementFinder, {ordinal: 235, text: '  blah blah2 '});
 
-            elementFinder = tree.parseElementFinder(` 235th  '  meow cat ' `);
-            assert.deepEqual(elementFinder, {ordinal: 235, text: '  meow cat '});
+            elementFinder = tree.parseElementFinder(` 235th  '  blah blah2 ' `);
+            assert.deepEqual(elementFinder, {ordinal: 235, text: '  blah blah2 '});
         });
 
         it("parses ElementFinders with ordinal and variable", function() {
-            var elementFinder = tree.parseElementFinder(`6422nd meow cat`);
-            assert.deepEqual(elementFinder, {ordinal: 6422, variable: 'meow cat'});
+            var elementFinder = tree.parseElementFinder(`6422nd blah blah2`);
+            assert.deepEqual(elementFinder, {ordinal: 6422, variable: 'blah blah2'});
 
-            elementFinder = tree.parseElementFinder(` 6422nd  meow  cat `);
-            assert.deepEqual(elementFinder, {ordinal: 6422, variable: 'meow  cat'});
+            elementFinder = tree.parseElementFinder(` 6422nd  blah  blah2 `);
+            assert.deepEqual(elementFinder, {ordinal: 6422, variable: 'blah  blah2'});
         });
 
         it("rejects ElementFinders with ordinal and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`2nd next to 'meow'`);
+            var elementFinder = tree.parseElementFinder(`2nd next to 'blah'`);
             assert.equal(elementFinder, null);
 
-            elementFinder = tree.parseElementFinder(` 2nd   next to 'meow' `);
+            elementFinder = tree.parseElementFinder(` 2nd   next to 'blah' `);
             assert.equal(elementFinder, null);
         });
 
@@ -516,22 +516,22 @@ describe("Tree", function() {
         });
 
         it("parses ElementFinders with text and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`'Login' next to "meow"`);
-            assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'meow'});
+            var elementFinder = tree.parseElementFinder(`'Login' next to "blah"`);
+            assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` 'Login'  next  to  "meow" `);
-            assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'meow'});
+            elementFinder = tree.parseElementFinder(` 'Login'  next  to  "blah" `);
+            assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with variable and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`box next to "meow"`);
-            assert.deepEqual(elementFinder, {variable: 'box', nextTo: 'meow'});
+            var elementFinder = tree.parseElementFinder(`box next to "blah"`);
+            assert.deepEqual(elementFinder, {variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` box  next  to  "meow" `);
-            assert.deepEqual(elementFinder, {variable: 'box', nextTo: 'meow'});
+            elementFinder = tree.parseElementFinder(` box  next  to  "blah" `);
+            assert.deepEqual(elementFinder, {variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(`22foo next to "meow"`);
-            assert.deepEqual(elementFinder, {variable: '22foo', nextTo: 'meow'});
+            elementFinder = tree.parseElementFinder(`22foo next to "blah"`);
+            assert.deepEqual(elementFinder, {variable: '22foo', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with ordinal, text, and variable", function() {
@@ -543,35 +543,35 @@ describe("Tree", function() {
         });
 
         it("parses ElementFinders with ordinal, text, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`20th " Login  thing " next to "meow"`);
-            assert.deepEqual(elementFinder, {ordinal: 20, text: ' Login  thing ', nextTo: 'meow'});
+            var elementFinder = tree.parseElementFinder(`20th " Login  thing " next to "blah"`);
+            assert.deepEqual(elementFinder, {ordinal: 20, text: ' Login  thing ', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(`  20th " Login  thing "  next  to  "meow" `);
-            assert.deepEqual(elementFinder, {ordinal: 20, text: ' Login  thing ', nextTo: 'meow'});
+            elementFinder = tree.parseElementFinder(`  20th " Login  thing "  next  to  "blah" `);
+            assert.deepEqual(elementFinder, {ordinal: 20, text: ' Login  thing ', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with ordinal, variable, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`14th box next to "meow"`);
-            assert.deepEqual(elementFinder, {ordinal: 14, variable: 'box', nextTo: 'meow'});
+            var elementFinder = tree.parseElementFinder(`14th box next to "blah"`);
+            assert.deepEqual(elementFinder, {ordinal: 14, variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` 13th  box  next  to "meow"  `);
-            assert.deepEqual(elementFinder, {ordinal: 13, variable: 'box', nextTo: 'meow'});
+            elementFinder = tree.parseElementFinder(` 13th  box  next  to "blah"  `);
+            assert.deepEqual(elementFinder, {ordinal: 13, variable: 'box', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with text, variable, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`'Login' box next to "meow"`);
-            assert.deepEqual(elementFinder, {text: 'Login', variable: 'box', nextTo: 'meow'});
+            var elementFinder = tree.parseElementFinder(`'Login' box next to "blah"`);
+            assert.deepEqual(elementFinder, {text: 'Login', variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` 'Login' box  next to  "meow" `);
-            assert.deepEqual(elementFinder, {text: 'Login', variable: 'box', nextTo: 'meow'});
+            elementFinder = tree.parseElementFinder(` 'Login' box  next to  "blah" `);
+            assert.deepEqual(elementFinder, {text: 'Login', variable: 'box', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with ordinal, text, variable, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`14th 'Login' box next to "meow"`);
-            assert.deepEqual(elementFinder, {ordinal: 14, text: 'Login', variable: 'box', nextTo: 'meow'});
+            var elementFinder = tree.parseElementFinder(`14th 'Login' box next to "blah"`);
+            assert.deepEqual(elementFinder, {ordinal: 14, text: 'Login', variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` 13th 'Login'  box  next  to "meow"  `);
-            assert.deepEqual(elementFinder, {ordinal: 13, text: 'Login', variable: 'box', nextTo: 'meow'});
+            elementFinder = tree.parseElementFinder(` 13th 'Login'  box  next  to "blah"  `);
+            assert.deepEqual(elementFinder, {ordinal: 13, text: 'Login', variable: 'box', nextTo: 'blah'});
         });
 
         it("rejects other invalid ElementFinders", function() {
@@ -1006,58 +1006,623 @@ H
             });
         });
 
-        it("throws an error when the first step is not at indent 0", function() {
+        it("rejects a first step that is not at indent 0", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`    A
+`
+                , "file.txt");
+            });
 
+            assert.throws(() => {
+                tree.parseIn(
+` A
+`
+                , "file.txt");
+            });
 
+            assert.throws(() => {
+                tree.parseIn(
+`
+    A
+`
+                , "file.txt");
+            });
+        });
 
-
-
-
-
-
-
-
-
+        it("rejects a step that is 2 or more indents ahead of the step above", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+        B
+`
+                , "file.txt");
+            });
 
         });
 
-        it.skip("throws an error when a step is 2 or more indents ahead of the step above", function() {
+        it("parses a step block at the very top", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+B
+C
+
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 1,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'C',
+                                    lineNumber: 3,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'D',
+                                    lineNumber: 5,
+                                    indents: 1,
+                                    parent: { indents: 0, steps: [] },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a step block at the very top", function() {
+        it("parses a step block at the very top, with an empty line above it", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`
+A
+B
+C
+
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 2,
+                            indents: 0,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 3,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'C',
+                                    lineNumber: 4,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'D',
+                                    lineNumber: 6,
+                                    indents: 1,
+                                    parent: { indents: 0, steps: [] },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a step block in the middle", function() {
+        it("parses a step block in the middle", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+
+    B
+    C
+    D
+
+        E
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 3,
+                                    indents: 1,
+                                    steps: [
+                                        {
+                                            text: 'B',
+                                            lineNumber: 3,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'C',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: [
+                                        {
+                                            text: 'E',
+                                            lineNumber: 7,
+                                            indents: 2,
+                                            parent: { indents: 1, steps: [] },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a step block at the bottom", function() {
+        it("parses a step block at the very bottom", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+
+    B
+    C
+    D`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 3,
+                                    indents: 1,
+                                    steps: [
+                                        {
+                                            text: 'B',
+                                            lineNumber: 3,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'C',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses multiple nested step blocks", function() {
+        it("parses a step block at the bottom, with an empty line below", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+
+    B
+    C
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 3,
+                                    indents: 1,
+                                    steps: [
+                                        {
+                                            text: 'B',
+                                            lineNumber: 3,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'C',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a step block that starts with ..", function() {
+        it("parses multiple nested step blocks", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+B
+C
+
+    D
+    E
+    F
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 1,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'C',
+                                    lineNumber: 3,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 5,
+                                    indents: 1,
+                                    steps: [
+                                        {
+                                            text: 'D',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'E',
+                                            lineNumber: 6,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'F',
+                                            lineNumber: 7,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a first line of ..", function() {
+        it("parses a .. step block with an empty line above it", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+
+    ..
+    B
+    C
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 3,
+                                    indents: 1,
+                                    isSequential: true,
+                                    steps: [
+                                        {
+                                            text: 'B',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'C',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 6,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a line of .. immediately followed by an empty line", function() {
+        it("parses a .. step block with no empty line above it", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    ..
+    B
+    C
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    isSequential: true,
+                                    steps: [
+                                        {
+                                            text: 'B',
+                                            lineNumber: 3,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'C',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a line of .. immediately followed by an indented line", function() {
+        it.skip("parses a .. step block on the first line", function() {
         });
 
-        it.skip("parses a step block that starts with .. and is adjacent to the line directly above (but indented)", function() {
+        it.skip("parses an empty first line followed by a .. step block", function() {
         });
 
-        it.skip("throws an error when a step block contains a .. line in the middle", function() {
+        it.skip("parses a .. step block that is adjacent to the line directly above (but indented)", function() {
         });
 
-        it.skip("throws an error when a step block contains a .. line at the end", function() {
+        it.skip("rejects a step block containing a .. line in the middle", function() {
         });
 
-        it.skip("doesn't call a group of consecutive steps with children a step block", function() {
+        it.skip("rejects a step block containing a .. line at the end", function() {
+        });
+
+        it.skip("rejects a .. line by itself", function() {
+        });
+
+        it.skip("rejects a .. line that's immediately followed by indented children", function() {
+        });
+
+        it.skip("rejects a .. line followed by a non-step block", function() {
+            // followed by what looks to be a step block, but then an indented child with no empty line in between
+        });
+
+        it.skip("parses a normal first line, followed by an indented .. step block", function() {
+        });
+
+        it.skip("parses a normal first line, followed by an empty line, followed by an indented .. step block", function() {
+        });
+
+        it.skip("parses a step block, followed by an indented .. step block", function() {
+        });
+
+        it.skip("parses a step block, followed by an empty line, followed by an indented .. step block", function() {
+        });
+
+        it.skip("parses a .. step block, followed by an indented .. step block", function() {
+        });
+
+        it.skip("parses a .. step block, followed by an empty line, followed by an indented .. step block", function() {
+        });
+
+        it.skip("doesn't call a group of consecutive steps immediately followed by an indented child a step block", function() {
         });
 
         it.skip("parses a code block", function() {
@@ -1079,10 +1644,10 @@ H
         it.skip("parses a code block with code blocks as children", function() {
         });
 
-        it.skip("throws an error if there's a code block that isn't closed", function() {
+        it.skip("rejects a code block that isn't closed", function() {
         });
 
-        it.skip("throws an error if there's a code block with a closing } at the wrong indentation", function() {
+        it.skip("rejects a code block with a closing } at the wrong indentation", function() {
         });
     });
 });
