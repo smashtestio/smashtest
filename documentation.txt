@@ -58,7 +58,7 @@ ElementFinders
 Functions (*)
     - Calling
         - Examples of calls (include vars, strings, vars within strings, and elementFinders)
-        - Function {var} here * or Function "6" here maps to * Function {other var} here
+        - Function {var} here OR Function "6" here maps to * Function {other var} here
             - All function inputs are either {vars} or "strings"
     - Declaring
         - Examples of declarations

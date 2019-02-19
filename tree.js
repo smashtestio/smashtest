@@ -84,12 +84,20 @@ class Tree {
 
         // Parsed parts of the line
         step.text = matches[2];
-        step.identifiers = matches[8] ? matches[8].trim().split(/\s+/) : undefined;
-        step.codeBlock = matches[12] ? matches[12].substring(1) : undefined; // substring() strips off leading {
-        step.comment = matches[14];
+        if(matches[8]) {
+            step.identifiers = matches[8].trim().split(/\s+/);
+        }
+        if(matches[12]) {
+            step.codeBlock = matches[12].substring(1); // substring() strips off leading {
+        }
+        if(matches[14]) {
+            step.comment = matches[14];
+        }
 
         // *Function Declarations
-        step.isFunctionDeclaration = (matches[1] ? matches[1].trim() == '*' : undefined);
+        if(matches[1]) {
+            step.isFunctionDeclaration = matches[1].trim() == '*';
+        }
         if(step.isFunctionDeclaration && step.text.match(STRING_LITERAL_REGEX)) {
             this.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
         }
@@ -108,14 +116,30 @@ class Tree {
 
         // Identifier booleans
         if(step.identifiers) {
-            step.isToDo = step.identifiers.includes('-T') ? true : undefined;
-            step.isManual = step.identifiers.includes('-M') ? true : undefined;
-            step.isTextualStep = step.identifiers.includes('-') ? true : undefined;
-            step.isDebug = step.identifiers.includes('~') ? true : undefined;
-            step.isStepByStepDebug = step.identifiers.includes('~~') ? true : undefined;
-            step.isNonParallel = step.identifiers.includes('+') ? true : undefined;
-            step.isSequential = step.identifiers.includes('..') ? true : undefined;
-            step.isExpectedFail = step.identifiers.includes('#') ? true : undefined;
+            if(step.identifiers.includes('-T')) {
+                step.isToDo = true;
+            }
+            if(step.identifiers.includes('-M')) {
+                step.isManual = true;
+            }
+            if(step.identifiers.includes('-')) {
+                step.isTextualStep = true;
+            }
+            if(step.identifiers.includes('~')) {
+                step.isDebug = true;
+            }
+            if(step.identifiers.includes('~~')) {
+                step.isStepByStepDebug = true;
+            }
+            if(step.identifiers.includes('+')) {
+                step.isNonParallel = true;
+            }
+            if(step.identifiers.includes('..')) {
+                step.isSequential = true;
+            }
+            if(step.identifiers.includes('#')) {
+                step.isExpectedFail = true;
+            }
         }
 
         if(!step.isTextualStep && !step.isFunctionDeclaration) {
@@ -214,28 +238,48 @@ class Tree {
     /**
      * Parses text inside brackets into an ElementFinder
      * @param {String} text - The text to parse, without the brackets ({})
-     * @return {Object} An object containing ElementFinder components (text, selector, nextTo - any one of which can be undefined), or null if this is not a valid ElementFinder
+     * @return {Object} An object containing ElementFinder components (ordinal, text, variable, nextTo - any one of which can be undefined), or null if this is not a valid ElementFinder
      */
     parseElementFinder(name) {
-        const ELEMENTFINDER_TEXT = `('[^']+?'|"[^"]+?")`;
-        const ELEMENTFINDER_SELECTOR = `([^"']+?)`;
-        const ELEMENTFINDER_NEXTTO = `(next\\s+to\\s+('[^']+?'|"[^"]+?"))`;
+        // OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')
+        const ELEMENTFINDER_REGEX = /^\s*([0-9]*(1st|2nd|3rd|[4-9]th|0th|11th|12th|13th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;
 
-        var matches = null;
-        if(matches = name.match(`^\\s*(` + ELEMENTFINDER_TEXT + `)\\s*$`)) {
-            return {text: matches[2].slice(1,-1)};
-        }
-        else if(matches = name.match(`^\\s*(` + ELEMENTFINDER_TEXT + `\\s+` + ELEMENTFINDER_SELECTOR + `)\\s*$`)) {
-            return {text: matches[2].slice(1,-1), selector: matches[3]};
-        }
-        else if(matches = name.match(`^\\s*(` + ELEMENTFINDER_TEXT + `\\s+` + ELEMENTFINDER_SELECTOR + `\\s+` + ELEMENTFINDER_NEXTTO + `)\\s*$`)) {
-            return {text: matches[2].slice(1,-1), selector: matches[3], nextTo: matches[5].slice(1,-1)};
-        }
-        else if(matches = name.match(`^\\s*(` + ELEMENTFINDER_TEXT + `\\s+` + ELEMENTFINDER_NEXTTO + `)\\s*$`)) {
-            return {text: matches[2].slice(1,-1), nextTo: matches[4].slice(1,-1)};
-        }
-        else if(matches = name.match(`^\\s*(` + ELEMENTFINDER_SELECTOR + `\\s+` + ELEMENTFINDER_NEXTTO + `)\\s*$`)) {
-            return {selector: matches[2], nextTo: matches[4].slice(1,-1)};
+        var matches = name.match(ELEMENTFINDER_REGEX);
+        if(matches) {
+            var ordinal = (matches[1] || '').replace(/[^0-9]/g, ''); // isolate the number
+            var text = ((matches[4] || '') + (matches[7] || '')).replace(/^'|^"|'$|"$/g, ''); // it's either matches[4] or matches[7], strip out surrounding quotes
+            var variable = ((matches[5] || '') + (matches[8] || '')).trim(); // it's either matches[5] or matches[8]
+            var nextTo = (matches[10] || '').replace(/^'|^"|'$|"$/g, ''); // strip out surrounding quotes
+
+            if(!text && !variable) { // either the text and/or the variable must be present
+                return null;
+            }
+            if(ordinal && !text && !variable) { // if there's an ordinal, there has to either be text or a variable
+                return null;
+            }
+            if(variable && !ordinal && !text && !nextTo) { // a variable cannot be listed alone
+                return null;
+            }
+            if(nextTo && !ordinal && !text && !variable) { // next to cannot be listed alone
+                return null;
+            }
+
+            var elementFinder = {};
+
+            if(ordinal) {
+                elementFinder.ordinal = parseInt(ordinal);
+            }
+            if(text) {
+                elementFinder.text = text;
+            }
+            if(variable) {
+                elementFinder.variable = variable;
+            }
+            if(nextTo) {
+                elementFinder.nextTo = nextTo;
+            }
+
+            return elementFinder;
         }
         else {
             return null;
@@ -387,7 +431,7 @@ class Tree {
             }
             else if(indentsAdvanced < 0) { // current step is a child of a descendant of the previous step
                 var parent = prevStepObj.parent;
-                for(var i = indentsAdvanced; i < 0; i++) {
+                for(var j = indentsAdvanced; j < 0; j++) {
                     if(parent.parent == null) {
                         this.error("Invalid number of indents", filename, i + 1); // NOTE: probably unreachable
                     }

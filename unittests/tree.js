@@ -1,5 +1,11 @@
-const assert = require('assert');
+const chai = require('chai');
+const chaiSubset = require('chai-subset');
+const expect = chai.expect;
+const assert = chai.assert;
+const util = require('util');
 const Tree = require('../tree.js');
+
+chai.use(chaiSubset);
 
 describe("Tree", function() {
     describe("numIndents()", function() {
@@ -345,17 +351,17 @@ describe("Tree", function() {
             var step = tree.parseLine(`Click {'Login' box}`, "file.txt", 10);
             assert.equal(step.text, `Click {'Login' box}`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "'Login' box", isLocal: false, elementFinder: {text: 'Login', selector: 'box'}} ]);
+            assert.deepEqual(step.varsList, [ {name: "'Login' box", isLocal: false, elementFinder: {text: 'Login', variable: 'box'}} ]);
 
             step = tree.parseLine(`Click {'Login'}`, "file.txt", 10);
             assert.equal(step.text, `Click {'Login'}`);
             assert.equal(step.varsBeingSet, undefined);
             assert.deepEqual(step.varsList, [ {name: "'Login'", isLocal: false, elementFinder: {text: 'Login'}} ]);
 
-            step = tree.parseLine(`Click { 'Login' box  next to  "meow" }`, "file.txt", 10);
-            assert.equal(step.text, `Click { 'Login' box  next to  "meow" }`);
+            step = tree.parseLine(`Click { 4th 'Login' box  next to  "meow" }`, "file.txt", 10);
+            assert.equal(step.text, `Click { 4th 'Login' box  next to  "meow" }`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: " 'Login' box  next to  \"meow\" ", isLocal: false, elementFinder: {text: 'Login', selector: 'box', nextTo: 'meow'}} ]);
+            assert.deepEqual(step.varsList, [ {name: " 4th 'Login' box  next to  \"meow\" ", isLocal: false, elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'meow'}} ]);
 
             step = tree.parseLine(`Click { 'Login' next to "meow" }`, "file.txt", 10);
             assert.equal(step.text, `Click { 'Login' next to "meow" }`);
@@ -365,7 +371,7 @@ describe("Tree", function() {
             step = tree.parseLine(`Click {box next to "meow"}`, "file.txt", 10);
             assert.equal(step.text, `Click {box next to "meow"}`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "box next to \"meow\"", isLocal: false, elementFinder: {selector: 'box', nextTo: 'meow'}} ]);
+            assert.deepEqual(step.varsList, [ {name: "box next to \"meow\"", isLocal: false, elementFinder: {variable: 'box', nextTo: 'meow'}} ]);
         });
 
         it("throws an error when a {var} contains a quote and isn't a valid ElementFinder", function() {
@@ -445,87 +451,574 @@ describe("Tree", function() {
     describe("parseElementFinder()", function() {
         var tree = new Tree();
 
-        it("parses ElementFinders with text and selector", function() {
-            var elementFinder = tree.parseElementFinder(`'Login' box`);
-            assert.deepEqual(elementFinder, {text: 'Login', selector: 'box'});
+        it("rejects ElementFinders with ordinal", function() {
+            var elementFinder = tree.parseElementFinder(`1st`);
+            assert.equal(elementFinder, null);
+
+            elementFinder = tree.parseElementFinder(`   2nd  `);
+            assert.equal(elementFinder, null);
         });
 
         it("parses ElementFinders with text", function() {
             var elementFinder = tree.parseElementFinder(`'Login'`);
             assert.deepEqual(elementFinder, {text: 'Login'});
+
+            elementFinder = tree.parseElementFinder(` 'Login' `);
+            assert.deepEqual(elementFinder, {text: 'Login'});
         });
 
-        it("parses ElementFinders with text, selector, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(` 'Login' box  next to  "meow" `);
-            assert.deepEqual(elementFinder, {text: 'Login', selector: 'box', nextTo: 'meow'});
+        it("rejects ElementFinders with variable", function() {
+            var elementFinder = tree.parseElementFinder(`foobar`);
+            assert.equal(elementFinder, null);
+
+            elementFinder = tree.parseElementFinder(`   foobar  `);
+            assert.equal(elementFinder, null);
+        });
+
+        it("rejects ElementFinders with nextTo", function() {
+            var elementFinder = tree.parseElementFinder(`next to 'meow'`);
+            assert.equal(elementFinder, null);
+
+            elementFinder = tree.parseElementFinder(`   next to "meow"  `);
+            assert.equal(elementFinder, null);
+        });
+
+        it("parses ElementFinders with ordinal and text", function() {
+            var elementFinder = tree.parseElementFinder(`235th '  meow cat '`);
+            assert.deepEqual(elementFinder, {ordinal: 235, text: '  meow cat '});
+
+            elementFinder = tree.parseElementFinder(` 235th  '  meow cat ' `);
+            assert.deepEqual(elementFinder, {ordinal: 235, text: '  meow cat '});
+        });
+
+        it("parses ElementFinders with ordinal and variable", function() {
+            var elementFinder = tree.parseElementFinder(`6422nd meow cat`);
+            assert.deepEqual(elementFinder, {ordinal: 6422, variable: 'meow cat'});
+
+            elementFinder = tree.parseElementFinder(` 6422nd  meow  cat `);
+            assert.deepEqual(elementFinder, {ordinal: 6422, variable: 'meow  cat'});
+        });
+
+        it("rejects ElementFinders with ordinal and nextTo", function() {
+            var elementFinder = tree.parseElementFinder(`2nd next to 'meow'`);
+            assert.equal(elementFinder, null);
+
+            elementFinder = tree.parseElementFinder(` 2nd   next to 'meow' `);
+            assert.equal(elementFinder, null);
+        });
+
+        it("parses ElementFinders with text and variable", function() {
+            var elementFinder = tree.parseElementFinder(`'Login' box`);
+            assert.deepEqual(elementFinder, {text: 'Login', variable: 'box'});
+
+            elementFinder = tree.parseElementFinder(` 'Login'  box `);
+            assert.deepEqual(elementFinder, {text: 'Login', variable: 'box'});
         });
 
         it("parses ElementFinders with text and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(` 'Login' next to "meow" `);
+            var elementFinder = tree.parseElementFinder(`'Login' next to "meow"`);
+            assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'meow'});
+
+            elementFinder = tree.parseElementFinder(` 'Login'  next  to  "meow" `);
             assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'meow'});
         });
 
-        it("parses ElementFinders with selector and nextTo", function() {
+        it("parses ElementFinders with variable and nextTo", function() {
             var elementFinder = tree.parseElementFinder(`box next to "meow"`);
-            assert.deepEqual(elementFinder, {selector: 'box', nextTo: 'meow'});
+            assert.deepEqual(elementFinder, {variable: 'box', nextTo: 'meow'});
+
+            elementFinder = tree.parseElementFinder(` box  next  to  "meow" `);
+            assert.deepEqual(elementFinder, {variable: 'box', nextTo: 'meow'});
+
+            elementFinder = tree.parseElementFinder(`22foo next to "meow"`);
+            assert.deepEqual(elementFinder, {variable: '22foo', nextTo: 'meow'});
         });
 
-        it("returns null for invalid ElementFinders", function() {
+        it("parses ElementFinders with ordinal, text, and variable", function() {
+            var elementFinder = tree.parseElementFinder(`1st "Login" box`);
+            assert.deepEqual(elementFinder, {ordinal: 1, text: 'Login', variable: 'box'});
+
+            elementFinder = tree.parseElementFinder(`  1st  "Login"  big  box  `);
+            assert.deepEqual(elementFinder, {ordinal: 1, text: 'Login', variable: 'big  box'});
+        });
+
+        it("parses ElementFinders with ordinal, text, and nextTo", function() {
+            var elementFinder = tree.parseElementFinder(`20th " Login  thing " next to "meow"`);
+            assert.deepEqual(elementFinder, {ordinal: 20, text: ' Login  thing ', nextTo: 'meow'});
+
+            elementFinder = tree.parseElementFinder(`  20th " Login  thing "  next  to  "meow" `);
+            assert.deepEqual(elementFinder, {ordinal: 20, text: ' Login  thing ', nextTo: 'meow'});
+        });
+
+        it("parses ElementFinders with ordinal, variable, and nextTo", function() {
+            var elementFinder = tree.parseElementFinder(`14th box next to "meow"`);
+            assert.deepEqual(elementFinder, {ordinal: 14, variable: 'box', nextTo: 'meow'});
+
+            elementFinder = tree.parseElementFinder(` 13th  box  next  to "meow"  `);
+            assert.deepEqual(elementFinder, {ordinal: 13, variable: 'box', nextTo: 'meow'});
+        });
+
+        it("parses ElementFinders with text, variable, and nextTo", function() {
+            var elementFinder = tree.parseElementFinder(`'Login' box next to "meow"`);
+            assert.deepEqual(elementFinder, {text: 'Login', variable: 'box', nextTo: 'meow'});
+
+            elementFinder = tree.parseElementFinder(` 'Login' box  next to  "meow" `);
+            assert.deepEqual(elementFinder, {text: 'Login', variable: 'box', nextTo: 'meow'});
+        });
+
+        it("parses ElementFinders with ordinal, text, variable, and nextTo", function() {
+            var elementFinder = tree.parseElementFinder(`14th 'Login' box next to "meow"`);
+            assert.deepEqual(elementFinder, {ordinal: 14, text: 'Login', variable: 'box', nextTo: 'meow'});
+
+            elementFinder = tree.parseElementFinder(` 13th 'Login'  box  next  to "meow"  `);
+            assert.deepEqual(elementFinder, {ordinal: 13, text: 'Login', variable: 'box', nextTo: 'meow'});
+        });
+
+        it("rejects other invalid ElementFinders", function() {
             var elementFinder = tree.parseElementFinder(`something 'not' elementfinder`);
+            assert.equal(elementFinder, null);
+
+            elementFinder = tree.parseElementFinder(`foobar`);
+            assert.equal(elementFinder, null);
+
+            elementFinder = tree.parseElementFinder(``);
+            assert.equal(elementFinder, null);
+
+            elementFinder = tree.parseElementFinder(`  `);
             assert.equal(elementFinder, null);
         });
     });
 
     describe("parseIn()", function() {
-        var tree = new Tree();
-
         it("parses empty input", function() {
+            var tree = new Tree();
             tree.parseIn(``, "file.txt");
 
-            // TODO: assert tree with chai-subset
-
-
-
-
-
-
-
-
-
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: []
+                }
+            });
         });
 
-        it.skip("parses all-whitespace input", function() {
+        it("parses all-whitespace input", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+                `, "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: []
+                }
+            });
         });
 
-        it.skip("parses a normal tree", function() {
-            /*
-            A
-                B
-                    C
-                D
-                E
-                    F
-            G
-            H
-                I
-                    J
-                        K
-            L
-            */
+        it("parses a normal tree", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    B
+        C
+    D
+    E
+        F
+G
+H
+    I
+        J
+            K
+L`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: [
+                                        {
+                                            text: 'C',
+                                            lineNumber: 3,
+                                            indents: 2,
+                                            parent: { text: 'B' },
+                                            children: []
+                                        }
+                                    ]
+                                },
+                                {
+                                    text: 'D',
+                                    lineNumber: 4,
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: []
+                                },
+                                {
+                                    text: 'E',
+                                    lineNumber: 5,
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: [
+                                        {
+                                            text: 'F',
+                                            lineNumber: 6,
+                                            indents: 2,
+                                            parent: { text: 'E' },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            text: 'G',
+                            lineNumber: 7,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        },
+                        {
+                            text: 'H',
+                            lineNumber: 8,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'I',
+                                    lineNumber: 9,
+                                    indents: 1,
+                                    parent: { text: 'H' },
+                                    children: [
+                                        {
+                                            text: 'J',
+                                            lineNumber: 10,
+                                            indents: 2,
+                                            parent: { text: 'I' },
+                                            children: [
+                                                {
+                                                    text: 'K',
+                                                    lineNumber: 11,
+                                                    indents: 3,
+                                                    parent: { text: 'J' },
+                                                    children: []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            text: 'L',
+                            lineNumber: 12,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a normal tree with one or more empty lines in the middle", function() {
-            // Same as last tree, only with empty lines scattered throughout
+        it("parses a normal tree with one or more empty lines in the middle", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`
+
+A
+    B
+
+        C
+    D
+    E
+        F
+
+G
+H
+    I
+
+
+        J
+            K
+L
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 3,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'B',
+                                    lineNumber: 4,
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: [
+                                        {
+                                            text: 'C',
+                                            lineNumber: 6,
+                                            indents: 2,
+                                            parent: { text: 'B' },
+                                            children: []
+                                        }
+                                    ]
+                                },
+                                {
+                                    text: 'D',
+                                    lineNumber: 7,
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: []
+                                },
+                                {
+                                    text: 'E',
+                                    lineNumber: 8,
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: [
+                                        {
+                                            text: 'F',
+                                            lineNumber: 9,
+                                            indents: 2,
+                                            parent: { text: 'E' },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            text: 'G',
+                            lineNumber: 11,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        },
+                        {
+                            text: 'H',
+                            lineNumber: 12,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'I',
+                                    lineNumber: 13,
+                                    indents: 1,
+                                    parent: { text: 'H' },
+                                    children: [
+                                        {
+                                            text: 'J',
+                                            lineNumber: 16,
+                                            indents: 2,
+                                            parent: { text: 'I' },
+                                            children: [
+                                                {
+                                                    text: 'K',
+                                                    lineNumber: 17,
+                                                    indents: 3,
+                                                    parent: { text: 'J' },
+                                                    children: []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            text: 'L',
+                            lineNumber: 18,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a normal tree that starts with an empty line", function() {
+        it("handles multiple parses into the same tree", function() {
+            var tree = new Tree();
+
+            tree.parseIn(
+`
+
+A
+    B
+
+        C
+    D
+    E
+        F
+`
+            , "file1.txt");
+
+            tree.parseIn(
+`G
+H
+    I
+
+
+        J
+            K
+`
+            , "file2.txt");
+
+            tree.parseIn(
+`L`
+            , "file3.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 3,
+                            filename: 'file1.txt',
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'B',
+                                    lineNumber: 4,
+                                    filename: 'file1.txt',
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: [
+                                        {
+                                            text: 'C',
+                                            lineNumber: 6,
+                                            filename: 'file1.txt',
+                                            indents: 2,
+                                            parent: { text: 'B' },
+                                            children: []
+                                        }
+                                    ]
+                                },
+                                {
+                                    text: 'D',
+                                    lineNumber: 7,
+                                    filename: 'file1.txt',
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: []
+                                },
+                                {
+                                    text: 'E',
+                                    lineNumber: 8,
+                                    filename: 'file1.txt',
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: [
+                                        {
+                                            text: 'F',
+                                            lineNumber: 9,
+                                            filename: 'file1.txt',
+                                            indents: 2,
+                                            parent: { text: 'E' },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            text: 'G',
+                            lineNumber: 1,
+                            filename: 'file2.txt',
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        },
+                        {
+                            text: 'H',
+                            lineNumber: 2,
+                            filename: 'file2.txt',
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'I',
+                                    lineNumber: 3,
+                                    filename: 'file2.txt',
+                                    indents: 1,
+                                    parent: { text: 'H' },
+                                    children: [
+                                        {
+                                            text: 'J',
+                                            lineNumber: 6,
+                                            filename: 'file2.txt',
+                                            indents: 2,
+                                            parent: { text: 'I' },
+                                            children: [
+                                                {
+                                                    text: 'K',
+                                                    lineNumber: 7,
+                                                    filename: 'file2.txt',
+                                                    indents: 3,
+                                                    parent: { text: 'J' },
+                                                    children: []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            text: 'L',
+                            lineNumber: 1,
+                            indents: 0,
+                            filename: 'file3.txt',
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("handles multiple parses into the same tree", function() {
-            // Multiple calls to parseIn()
-        });
+        it("throws an error when the first step is not at indent 0", function() {
 
-        it.skip("throws an error when the first step is not at indent 0", function() {
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("throws an error when a step is 2 or more indents ahead of the step above", function() {

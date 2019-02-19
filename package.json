@@ -4,13 +4,17 @@
   "description": "SmashGEN",
   "author": "SmashTEST <smashtest.io>",
   "dependencies": {
-    "assert": "^1.4.1",
     "glob": "^7.1.3",
     "read-files-promise": "^1.1.1",
+    "save": "^2.3.3",
     "webdriverio": "^5.0.0"
   },
   "private": true,
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-subset": "^1.6.0",
+    "util": "^0.11.1"
+  },
   "scripts": {
     "test": "nyc --reporter=lcov mocha unittests/*.js"
   }
