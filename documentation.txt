@@ -54,6 +54,16 @@ Step blocks
 Textual steps (-)
 
 ElementFinders
+    - {OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')}
+    - Examples
+        - {'Login' box}
+        - {4th 'Login' box}
+        - {'Login'}
+            - Any element that's an a, button, input, textarea, etc.  or is clickable/has a click handler and contains text 'Login' (see SmashPANEL implementation)
+        - {'Login' box next to 'meow'}
+        - {box next to 'meow'}
+        - {4th 'Login' next to 'meow'}
+    - Explain the basics of the find algorithm
 
 Functions (*)
     - Calling
