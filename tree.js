@@ -300,7 +300,7 @@ class Tree {
             var line = lines[i];
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
-                if(line.match(new RegExp("[ ]{" + (lastStepCreated.indents * SPACES_PER_INDENT) + ",}\}\s*(\/\/.*?)?\s*"))) { // code block is ending
+                if(line.match(new RegExp("^[ ]{" + (lastStepCreated.indents * SPACES_PER_INDENT) + "}\}\s*(\/\/.*?)?\s*$"))) { // code block is ending
                     lastStepCreated.codeBlock += "\n";
                     currentlyInsideCodeBlockFromLineNum = -1;
                 }
@@ -344,13 +344,13 @@ class Tree {
         for(var i = 0; i < lines.length; i++) {
             if(lines[i].text == '..') {
                 if(i > 0 && lines[i-1].text != '' && lines[i-1].indents == lines[i].indents) {
-                    this.error("You cannot have a .. line at the same indent level as the adjacent line above", filename, i + 1);
+                    this.error("You cannot have a .. line at the same indent level as the adjacent line above", filename, lines[i].lineNumber);
                 }
-                if(i + 1 < lines.length && lines[i+1].text == '') {
-                    this.error("You cannot have a .. line without anything directly below", filename, i + 1);
+                if((i + 1 < lines.length && lines[i+1].text == '') || (i + 1 == lines.length)) {
+                    this.error("You cannot have a .. line without anything directly below", filename, lines[i].lineNumber);
                 }
                 if(i + 1 < lines.length && lines[i+1].indents != lines[i].indents) {
-                    this.error("A .. line must be followed by a line at the same indent level", filename, i + 1);
+                    this.error("A .. line must be followed by a line at the same indent level", filename, lines[i].lineNumber);
                 }
             }
         }
@@ -415,7 +415,7 @@ class Tree {
             else if(lines[i].text == '..') {
                 // Validate that .. steps have a StepBlock directly below
                 if(i + 1 < lines.length && !(lines[i+1] instanceof StepBlock)) {
-                    this.error("A .. line must be followed by a step block", filename, i + 1);
+                    this.error("A .. line must be followed by a step block", filename, lines[i].lineNumber);
                 }
                 else {
                     lines.splice(i, 1);
@@ -453,13 +453,13 @@ class Tree {
                 prevStepObj.children.push(currStepObj);
             }
             else if(indentsAdvanced > 1) {
-                this.error("You cannot have a step that has 2 or more indents beyond the previous step", filename, i + 1);
+                this.error("You cannot have a step that has 2 or more indents beyond the previous step", filename, currStepObj.lineNumber);
             }
             else if(indentsAdvanced < 0) { // current step is a child of a descendant of the previous step
                 var parent = prevStepObj.parent;
                 for(var j = indentsAdvanced; j < 0; j++) {
                     if(parent.parent == null) {
-                        this.error("Invalid number of indents", filename, i + 1); // NOTE: probably unreachable
+                        this.error("Invalid number of indents", filename, currStepObj.lineNumber); // NOTE: probably unreachable
                     }
 
                     parent = parent.parent;

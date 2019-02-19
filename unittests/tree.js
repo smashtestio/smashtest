@@ -1590,44 +1590,244 @@ C
         });
 
         it("parses a .. step block on the first line", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`..
+A
+B
+C
+`
+            , "file.txt");
 
-
-
-
-
-
-
-
-
-
-
-
-
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            isSequential: true,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 3,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'C',
+                                    lineNumber: 4,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses an empty first line followed by a .. step block", function() {
+        it("parses empty lines followed by a .. step block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`
+
+..
+A
+B
+C
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 3,
+                            indents: 0,
+                            isSequential: true,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 4,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 5,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'C',
+                                    lineNumber: 6,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a .. step block that is adjacent to the line directly above (but indented)", function() {
+        it("rejects a step block containing a .. line in the middle", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+B
+..
+C
+D
+`
+                , "file.txt");
+            });
         });
 
-        it.skip("rejects a step block containing a .. line in the middle", function() {
+        it("rejects a step block containing a .. line at the end", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+B
+..`
+                , "file.txt");
+            });
+
+            assert.throws(() => {
+                tree.parseIn(
+`A
+B
+..
+`
+                , "file.txt");
+            });
+
+            assert.throws(() => {
+                tree.parseIn(
+`..`
+                , "file.txt");
+            });
         });
 
-        it.skip("rejects a step block containing a .. line at the end", function() {
+        it("rejects a .. line by itself", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+B
+
+..
+
+C
+`
+                , "file.txt");
+            });
         });
 
-        it.skip("rejects a .. line by itself", function() {
+        it("rejects a .. line that's immediately followed by indented children", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`..
+    A
+    B
+`
+                , "file.txt");
+            });
         });
 
-        it.skip("rejects a .. line that's immediately followed by indented children", function() {
+        it("rejects a .. line followed by a non-step block", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`..
+A
+B
+    C
+D
+`
+                , "file.txt");
+            });
+
+            assert.throws(() => {
+                tree.parseIn(
+`
+..
+A
+B
+    C
+`
+                , "file.txt");
+            });
+
+            assert.throws(() => {
+                tree.parseIn(
+`A
+
+    ..
+    B
+    C
+        D
+
+E
+`
+                , "file.txt");
+            });
+
+            assert.throws(() => {
+                tree.parseIn(
+`A
+
+    ..
+    B
+
+E
+`
+                , "file.txt");
+            });
         });
 
-        it.skip("rejects a .. line followed by a non-step block", function() {
-            // followed by what looks to be a step block, but then an indented child with no empty line in between
-        });
+        it("parses a normal first line, followed by an indented .. step block", function() {
 
-        it.skip("parses a normal first line, followed by an indented .. step block", function() {
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("parses a normal first line, followed by an empty line, followed by an indented .. step block", function() {
@@ -1667,10 +1867,46 @@ C
         it.skip("parses a code block with code blocks as children", function() {
         });
 
-        it.skip("rejects a code block that isn't closed", function() {
+        it("rejects a code block that isn't closed", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+`
+                , "file.txt");
+            });
+
+            assert.throws(() => {
+                tree.parseIn(
+`Code block here {`
+                , "file.txt");
+            });
         });
 
-        it.skip("rejects a code block with a closing } at the wrong indentation", function() {
+        it("rejects a code block with a closing } at the wrong indentation", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+    Code block here {
+
+}
+`
+                , "file.txt");
+            });
+
+            assert.throws(() => {
+                tree.parseIn(
+`A
+    Code block here {
+
+        }
+`
+                , "file.txt");
+            });
         });
     });
 });
