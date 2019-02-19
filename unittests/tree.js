@@ -124,6 +124,16 @@ describe("Tree", function() {
             assert.equal(step.comment, '// comment here ');
         });
 
+        it("parses a line that only consists of a comment", function() {
+            var step = tree.parseLine(`// comment here`, "file.txt", 10);
+            assert.equal(step.text, ``);
+            assert.equal(step.comment, '// comment here');
+
+            step = tree.parseLine(`    // comment here`, "file.txt", 10);
+            assert.equal(step.text, ``);
+            assert.equal(step.comment, '// comment here');
+        });
+
         it("parses a function declaration", function() {
             var step = tree.parseLine(`    * My Function here`, "file.txt", 10);
             assert.equal(step.text, `My Function here`);
@@ -1579,7 +1589,20 @@ C
             });
         });
 
-        it.skip("parses a .. step block on the first line", function() {
+        it("parses a .. step block on the first line", function() {
+
+
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("parses an empty first line followed by a .. step block", function() {
