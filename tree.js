@@ -8,7 +8,8 @@ const SPACES_PER_INDENT = 4;
  */
 class Tree {
     constructor() {
-        this.root = new Step();
+        this.root = new Step();  // the root Step of the tree (parsed version of the text that got inputted)
+        this.branches = [];      // this.root, but with each branch converted into a distinct array of Step objects (no more shared Steps)
     }
 
     /**
@@ -479,7 +480,8 @@ class Tree {
 
     /**
      * Called after all of the tree's text has been inputted with parseIn()
-     * Gets the tree ready for the test runner
+     * Converts this.root into this.branches, and gets everything ready for the test runner
+     * @throws {Error} If a step cannot be found, a Must Test step is violated, or if a var is used but never set in a branch
      */
     finalize() {
 

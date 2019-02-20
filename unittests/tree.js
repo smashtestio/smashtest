@@ -2787,4 +2787,41 @@ C
             });
         });
     });
+
+    describe("finalize()", function() {
+        it.skip("TEXT", function() {
+            var tree = new Tree();
+
+
+
+
+
+
+
+
+
+
+
+
+
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    });
 });
