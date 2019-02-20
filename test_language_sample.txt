@@ -72,29 +72,31 @@ Test the Widget Maker -
 
                     Navigate to {host}
                         Verify at homepage
-                            Enter {username} into {Login box}     // If var isn't set yet, execute this line when it is set below
+                            Enter {username} into { Login box }     // If var isn't set yet, execute this line when it is set below
 
                                 {username}='one'
                                     Special case for username of one -
-                                        Click {Login box}
+                                        Click [ 'Login' box ]       // ElementFinder
 
                                 {username}=two
-                                {username}=fuzz *
+                                {username}=fuzz
 
                                     Enter {password} into {Password box}
 
                                         {password}=one
                                         {password}=two
-                                        {password}=fuzz *
+                                        {password}=fuzz
 
-                                            Click {'Login' button}      // ElementFinder
+                                            Click [ 'Login' button ]
 
                                                 Get MFA code sent via SMS -
                                                     {mfacode} = Get SMS code
 
                                                         Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
 
-        						                            Execute in browser {js goes here}
+        						                            Execute in browser {
+                                                                js goes here
+                                                            }
 
                                                                 Some function
 
@@ -108,7 +110,7 @@ Test the Widget Maker -
                     Navigate to about page at url {host}/about
                         ..
                         Verify at page '/about'
-                        Verify page title is 'About page' * -T
+                        Verify page title is 'About page' -T
 
         			Use mock 'blah'      // SmashMOCK integration
 
@@ -133,17 +135,17 @@ Test the Widget Maker -
 
 * Verify at Welcome page, set {{meow}} to what's sent back       // this is like a function, vars set above this function call will be accessible inside
 
-    Verify at page '{host}/welcome' *
+    Verify at page '{host}/welcome'
 
-        Verify page title is 'Welcome {var}' *
+        Verify page title is 'Welcome {var}'
 
-            Verify 'Welcome text' visible *
+            Verify 'Welcome text' visible
 
-                Wait '2' seconds *
+                Wait '2' seconds
 
-                    Wait until 'something' visible *
+                    Wait until 'something' visible
 
-                        Wait until {big button} is visible *
+                        Wait until {big button} is visible
                             {big button}='.bigbutton'
 
                                 {purr}=blah   // this variable is accessible outside the function, but will be overridden if a variable of the same name is used in the caller

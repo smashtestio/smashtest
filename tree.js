@@ -77,6 +77,8 @@ class Tree {
         const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
         // Matches {var} or {{var}}
         const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
+        // Matches [text]
+        const BRACKET_REGEX = /\[[^\[\]\\]+\]/g;
 
         var matches = line.match(LINE_REGEX);
         if(!matches) {
@@ -168,12 +170,8 @@ class Tree {
                     this.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
                 }
 
-                if(matches[2].match(/"|'/g)) {
-                    this.error("You cannot have quotes inside a {variable} that you're setting", filename, lineNumber);
-                }
-
                 step.varsBeingSet.push({
-                    name: matches[2].replace(/\{|\}/g, ''),
+                    name: matches[2].replace(/\{|\}/g, '').trim(),
                     value: matches[5],
                     isLocal: matches[2].includes('{{')
                 });
@@ -192,44 +190,47 @@ class Tree {
             }
         }
 
-        // Create a list of vars contained in this step (including those within quotes)
+        // Create a list of elementFinders contained in this step
+        matches = step.text.match(BRACKET_REGEX);
+        if(matches) {
+            for(var i = 0; i < matches.length; i++) {
+                var match = matches[i];
+                var name = match.replace(/\[|\]/g, '').trim();
+
+                var elementFinder = this.parseElementFinder(name);
+                if(elementFinder) {
+                    if(!step.elementFinderList) {
+                        step.elementFinderList = [];
+                    }
+
+                    step.elementFinderList.push({
+                        name: name,
+                        elementFinder: elementFinder
+                    });
+                }
+                else {
+                    this.error("Invalid [elementFinder in brackets]", filename, lineNumber);
+                }
+            }
+        }
+
+        // Create a list of vars contained in this step
         matches = step.text.match(VAR_REGEX);
         if(matches) {
             step.varsList = [];
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
-                var name = match.replace(/\{|\}/g, '');
+                var name = match.replace(/\{|\}/g, '').trim();
                 var isLocal = match.startsWith('{{');
 
                 if(step.isFunctionDeclaration && !isLocal) {
                     this.error("All variables in a *Function declaration must be {{local}}. {" + name + "} is not.", filename, lineNumber);
                 }
 
-                var elementFinder = this.parseElementFinder(name);
-                if(elementFinder) {
-                    step.varsList.push({
-                        name: name,
-                        isLocal: isLocal,
-                        elementFinder: elementFinder
-                    });
-                }
-                else {
-                    step.varsList.push({
-                        name: name,
-                        isLocal: isLocal
-                    });
-                }
-            }
-        }
-
-        // If {vars} contain quotes, they must be valid ElementFinders ({vars} to the left of an = have already been vetted for the absence of quotes)
-        matches = step.text.match(VAR_REGEX);
-        if(matches) {
-            for(var i = 0; i < matches.length; i++) {
-                var name = matches[i].replace(/\{|\}/g, '');
-                if(name.match(/"|'/g) && !this.parseElementFinder(name)) {
-                    this.error("{variable} names containing quotes must be valid ElementFinders", filename, lineNumber);
-                }
+                step.varsList.push({
+                    name: name,
+                    isLocal: isLocal
+                });
             }
         }
 
@@ -238,19 +239,19 @@ class Tree {
 
     /**
      * Parses text inside brackets into an ElementFinder
-     * @param {String} text - The text to parse, without the brackets ({})
+     * @param {String} text - The text to parse, without the brackets ([])
      * @return {Object} An object containing ElementFinder components (ordinal, text, variable, nextTo - any one of which can be undefined), or null if this is not a valid ElementFinder
      */
     parseElementFinder(name) {
         // OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')
-        const ELEMENTFINDER_REGEX = /^\s*([0-9]*(1st|2nd|3rd|[4-9]th|0th|11th|12th|13th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;
+        const ELEMENTFINDER_REGEX = /^\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;
 
         var matches = name.match(ELEMENTFINDER_REGEX);
         if(matches) {
-            var ordinal = (matches[1] || '').replace(/[^0-9]/g, ''); // isolate the number
-            var text = ((matches[4] || '') + (matches[7] || '')).replace(/^'|^"|'$|"$/g, ''); // it's either matches[4] or matches[7], strip out surrounding quotes
-            var variable = ((matches[5] || '') + (matches[8] || '')).trim(); // it's either matches[5] or matches[8]
-            var nextTo = (matches[10] || '').replace(/^'|^"|'$|"$/g, ''); // strip out surrounding quotes
+            var ordinal = (matches[2] || '');
+            var text = ((matches[5] || '') + (matches[8] || '')).replace(/^'|^"|'$|"$/g, ''); // it's either matches[5] or matches[8], strip out surrounding quotes
+            var variable = ((matches[6] || '') + (matches[9] || '')).trim(); // it's either matches[6] or matches[9]
+            var nextTo = (matches[11] || '').replace(/^'|^"|'$|"$/g, ''); // strip out surrounding quotes
 
             if(!text && !variable) { // either the text and/or the variable must be present
                 return null;
@@ -480,7 +481,7 @@ class Tree {
 
     /**
      * Called after all of the tree's text has been inputted with parseIn()
-     * Converts this.root into this.branches, and gets everything ready for the test runner
+     * Converts the tree under this.root into this.branches, and gets everything ready for the test runner
      * @throws {Error} If a step cannot be found, a Must Test step is violated, or if a var is used but never set in a branch
      */
     finalize() {

@@ -38,7 +38,9 @@ class Step {
         this.varsBeingSet = [];               // if this step is in the format {var1}=Step1, {{var2}}=Step2, etc., this array will contain objects {name: "var1", value: "Step1", isLocal: false}, {name: "var2", value: "Step2", isLocal: true} etc.
         this.varsList = [];                   // array of objects with format {name: "var1", isLocal: false} representing all the variables included in this step
 
-        this.containingStepBlock = {};      // the StepBlock that contains this Step
+        this.elementFinderList = [];          // array of objects with format {name: "contents of elementFinder", elementFinder: {Object} } representing all the elementFinders included in this step
+
+        this.containingStepBlock = {};        // the StepBlock that contains this Step
         */
     }
 }
