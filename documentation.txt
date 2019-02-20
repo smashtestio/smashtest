@@ -107,6 +107,7 @@ Code blocks
         - Execute in browser {js code}
     - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
     - +, .., etc. characters applied come after the step text and before the {
+    - Only lines after the { line and before the } count as part of the code block
     - Vars accessible in code as vars["var name"] or localvars["var name"]
 
 To-Do (-T)
