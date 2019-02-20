@@ -485,17 +485,35 @@ class Tree {
      * @throws {Error} If a step cannot be found, a Must Test step is violated, or if a var is used but never set in a branch
      */
     finalize() {
+        this.expandTree();
+        this.validateTree();
+        this.convertToBranches();
+    }
 
+    /**
+     * Expands the tree under this.root to include copies of each function call instance (including built-in functions and hooks),
+     * and duplicates the tree underneath for function calls with multiple branches and step blocks
+     * @throws {Error} If a step cannot be found
+     */
+    expandTree() {
 
+    }
 
+    /**
+     * Does a final validation on the tree under this.root
+     * 1) Checks that all vars that are used in a branch are set
+     * 2) Enforces Must Test steps
+     * @throws {Error} If a Must Test step is violated, or if a var is used but never set in a branch
+     */
+    validateTree() {
 
+    }
 
-
-
-
-
-
-
+    /**
+     * Converts the tree under this.root into an array of arrays of steps in this.branches
+     * Removes branches that we don't want run
+     */
+    convertToBranches() {
 
     }
 

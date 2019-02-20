@@ -2784,14 +2784,17 @@ C
     });
 
     describe("finalize()", function() {
-        it.skip("TEXT", function() {
+        it("runs without crashing", function() {
             var tree = new Tree();
+            tree.parseIn(`Click ['Login' button]`);
+            tree.finalize();
+        });
+    });
 
-
-
-
-
-
+    describe("expandTree()", function() {
+        it.skip("expands a function call", function() {
+            var tree = new Tree();
+            tree.parseIn(`Click ['Login' button]`);
 
 
 
@@ -2801,22 +2804,134 @@ C
 
         });
 
+        it.skip("expands a function call with multiple branches", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands multiple function calls in the tree", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands a function call within a function call", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands a function call with multiple branches within a function call with multiple branches", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("finds the right function even if declaration has different amounts of whitespace between words", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("finds the right function when multiple functions with the same name exist", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("finds the right function when a function call contains strings, variables, and elementFinders", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("finds the right function on a {var} = Func code block that returns a value", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands on a {var} = Func that has muliple branches that set a variable", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("rejects {var} = Func if Func is neither a code block, nor a branched function in {x}='value' format", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("finds a built-in function", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands a declared function when it has the same signature as a built-in function", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("if function B is declared within function A, and A is called, the branches below now have access to B", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands the branches beneath a step block to under each step within the step block", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands the * Before all branches hook", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands the * After all branches hook", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands the * Before every branch hook", function() {
+            var tree = new Tree();
+        });
 
+        it.skip("expands the * After every branch hook", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("expands the * Before every step hook", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("expands the * After every step hook", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("expands the * After failed step hook", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("expands the * After successful step hook", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("handles multiple hooks of the same type that are siblings", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("handles multiple hooks of the same type that are at different levels in the tree", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("handles different hooks that are siblings", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects bad steps", function() {
+            var tree = new Tree();
+            // neither a declared function nor a built-in function
+        });
+
+        it.skip("rejects with a special error steps that match case insensitively but not case sensitively", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects function calls to functions that were declared in a different scope", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("an exception is thrown when there's a circular reference among function calls", function() {
+            var tree = new Tree();
+            // this will probably be a js stack size exception
+        });
+    });
+
+    describe("validateTree()", function() {
+        it.skip("TEXT", function() {
+
+        });
+    });
+
+    describe("convertToBranches()", function() {
+        it.skip("TEXT", function() {
+
+        });
     });
 });
