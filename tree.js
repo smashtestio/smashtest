@@ -296,7 +296,7 @@ class Tree {
         var lastStepCreated = null;
         var lastNonEmptyStep = null;
         var currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
-        for(var i = 0; i < lines.length;) {
+        for(var i = 0; i < lines.length; i++) {
             var line = lines[i];
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
@@ -308,8 +308,7 @@ class Tree {
                     lastStepCreated.codeBlock += ("\n" + line);
                 }
 
-                lines.splice(i, 1); // remove Step at index i
-                // do not advance i as we've just removed from lines and i is where it needs to be
+                lines[i] = this.parseLine('', filename, i + 1); // blank out the line we just handled
             }
             else {
                 var step = this.parseLine(line, filename, i + 1);
@@ -330,8 +329,6 @@ class Tree {
                 if(step.text != '') {
                     lastNonEmptyStep = step;
                 }
-
-                i++;
             }
         }
 
@@ -352,12 +349,18 @@ class Tree {
                 if(i + 1 < lines.length && lines[i+1].indents != lines[i].indents) {
                     this.error("A .. line must be followed by a line at the same indent level", filename, lines[i].lineNumber);
                 }
+                if(i + 1 < lines.length && lines[i+1].text == '..') {
+                    this.error("You cannot have two .. lines in a row", filename, lines[i].lineNumber);
+                }
             }
         }
 
         // Look for groups of consecutive steps that consititute a step block, and replace them with a StepBlock object
-        // A step block 1) is preceded by a '' step, '..' step, or start of file, 2) is followed by a '' line, or end of file,
-        // 3) has no '' steps in the middle, and 4) all steps are at the same indent level
+        // A step block:
+        // 1) is preceded by a '' step, '..' step, or start of file
+        // 2) is followed by a '' line, indented '..' step, or end of file
+        // 3) has no '' steps in the middle
+        // 4) all steps are at the same indent level
         for(var i = 0; i < lines.length;) {
             if(lines[i].text != '' && lines[i].text != '..' && (i == 0 || lines[i-1].text == '' || lines[i-1].text == '..')) {
                 // Current step may start a step block
@@ -376,8 +379,11 @@ class Tree {
                         break;
                     }
                     else if(lines[j].indents != potentialStepBlock.steps[0].indents) {
-                        // StepBlock is ruined, due to consecutive steps being at different indents
-                        potentialStepBlock = new StepBlock(); // clear out the potentialStepBlock
+                        if(lines[j].text != '..') { // indented .. is a valid end of a StepBlock (don't clear out potentialStepBlock in that case)
+                            // StepBlock is ruined, due to consecutive steps being at different indents
+                            potentialStepBlock = new StepBlock(); // clear out the potentialStepBlock
+                        }
+
                         break;
                     }
                     else {

@@ -1817,54 +1817,932 @@ E
             });
         });
 
-        it("parses a normal first line, followed by an indented .. step block", function() {
-
-
-
-
-
-
-
-
-
-
+        it("rejects two .. lines in a row", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`..
+..
+`
+                , "file.txt");
+            });
         });
 
-        it.skip("parses a normal first line, followed by an empty line, followed by an indented .. step block", function() {
+        it("parses a step block, followed by an indented .. step block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+B
+    ..
+    C
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            isSequential: undefined,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 1,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 3,
+                                    indents: 1,
+                                    isSequential: true,
+                                    steps: [
+                                        {
+                                            text: 'C',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a step block, followed by an indented .. step block", function() {
+        it("parses a step block, followed by an empty line, followed by an indented .. step block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+B
+
+    ..
+    C
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            isSequential: undefined,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 1,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 4,
+                                    indents: 1,
+                                    isSequential: true,
+                                    steps: [
+                                        {
+                                            text: 'C',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 6,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a step block, followed by an empty line, followed by an indented .. step block", function() {
+        it("parses a .. step block, followed by an indented .. step block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`..
+A
+B
+    ..
+    C
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            isSequential: true,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 3,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 4,
+                                    indents: 1,
+                                    isSequential: true,
+                                    steps: [
+                                        {
+                                            text: 'C',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 6,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a .. step block, followed by an indented .. step block", function() {
+        it("parses a .. step block, followed by an empty line, followed by an indented .. step block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`..
+A
+B
+
+    ..
+    C
+    D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            isSequential: true,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 3,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 5,
+                                    indents: 1,
+                                    isSequential: true,
+                                    steps: [
+                                        {
+                                            text: 'C',
+                                            lineNumber: 6,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 7,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a .. step block, followed by an empty line, followed by an indented .. step block", function() {
+        it("parses three levels of step blocks", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+B
+
+    C
+    D
+
+        E
+        F`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            isSequential: undefined,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 1,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 4,
+                                    indents: 1,
+                                    isSequential: undefined,
+                                    steps: [
+                                        {
+                                            text: 'C',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 5,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: [
+                                        {
+                                            lineNumber: 7,
+                                            indents: 2,
+                                            isSequential: undefined,
+                                            steps: [
+                                                {
+                                                    text: 'E',
+                                                    lineNumber: 7,
+                                                    indents: 2,
+                                                    parent: null,
+                                                    children: [],
+                                                    containingStepBlock: { indents: 2, steps: [] }
+                                                },
+                                                {
+                                                    text: 'F',
+                                                    lineNumber: 8,
+                                                    indents: 2,
+                                                    parent: null,
+                                                    children: [],
+                                                    containingStepBlock: { indents: 2, steps: [] }
+                                                }
+                                            ],
+                                            parent: { indents: 1 },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("doesn't call a group of consecutive steps immediately followed by an indented child a step block", function() {
+        it("doesn't call a group of consecutive steps immediately followed by an indented child a step block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+B
+    C
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        },
+                        {
+                            text: 'B',
+                            lineNumber: 2,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'C',
+                                    lineNumber: 3,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a code block", function() {
+        it("parses a code block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+    }
+
+    B
+C
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n        code;\n        more code;\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                },
+                                {
+                                    text: 'B',
+                                    codeBlock: undefined,
+                                    lineNumber: 7,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        },
+                        {
+                            text: 'C',
+                            codeBlock: undefined,
+                            lineNumber: 8,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses an empty code block", function() {
-            /*
-            Step {
-            }
-            */
+        it("parses an empty code block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+    }
+
+    B
+C
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                },
+                                {
+                                    text: 'B',
+                                    codeBlock: undefined,
+                                    lineNumber: 5,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        },
+                        {
+                            text: 'C',
+                            codeBlock: undefined,
+                            lineNumber: 6,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a code block with children", function() {
+        it("parses a code block with siblings", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+    }
+
+    B
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n        code;\n        more code;\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                },
+                                {
+                                    text: 'B',
+                                    codeBlock: undefined,
+                                    lineNumber: 7,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a code block with step blocks as children", function() {
+        it("parses a code block with siblings, not separated by an empty line", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+    }
+    B`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n        code;\n        more code;\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                },
+                                {
+                                    text: 'B',
+                                    codeBlock: undefined,
+                                    lineNumber: 6,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
-        it.skip("parses a code block with code blocks as children", function() {
+        it("parses a code block with children", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+    }
+
+        B
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n        code;\n        more code;\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: [
+                                        {
+                                            text: 'B',
+                                            codeBlock: undefined,
+                                            lineNumber: 7,
+                                            indents: 2,
+                                            parent: { indents: 1 },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
+        });
+
+        it("parses a code block with children, not separated by an empty line", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+    }
+        B
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n        code;\n        more code;\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: [
+                                        {
+                                            text: 'B',
+                                            codeBlock: undefined,
+                                            lineNumber: 6,
+                                            indents: 2,
+                                            parent: { indents: 1 },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
+        });
+
+        it("parses a code block with step blocks as children", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+    }
+
+        B
+        C
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n        code;\n        more code;\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: [
+                                        {
+                                            lineNumber: 7,
+                                            indents: 2,
+                                            steps: [
+                                                {
+                                                    text: 'B',
+                                                    lineNumber: 7,
+                                                    indents: 2,
+                                                    parent: null,
+                                                    children: [],
+                                                    containingStepBlock: { indents: 2, steps: [] }
+                                                },
+                                                {
+                                                    text: 'C',
+                                                    lineNumber: 8,
+                                                    indents: 2,
+                                                    parent: null,
+                                                    children: [],
+                                                    containingStepBlock: { indents: 2, steps: [] }
+                                                }
+                                            ],
+                                            parent: { indents: 1 },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
+        });
+
+        it("parses a code block with a code block as a child", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+    }
+
+        Another code block # {
+            blah;
+        }
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n        code;\n        more code;\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: [
+                                        {
+                                            text: 'Another code block',
+                                            codeBlock: '\n            blah;\n',
+                                            lineNumber: 7,
+                                            indents: 2,
+                                            parent: { indents: 1 },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
+        });
+
+        it("parses a code block with a code block as a child, not separated by an empty line", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    Code block here {
+        code;
+        more code;
+    }
+        Another code block # {
+            blah;
+        }`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            codeBlock: undefined,
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'Code block here',
+                                    codeBlock: '\n        code;\n        more code;\n',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: [
+                                        {
+                                            text: 'Another code block',
+                                            codeBlock: '\n            blah;\n',
+                                            lineNumber: 6,
+                                            indents: 2,
+                                            parent: { indents: 1 },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
         it("rejects a code block that isn't closed", function() {
