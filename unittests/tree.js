@@ -2909,6 +2909,11 @@ C
             // neither a declared function nor a built-in function
         });
 
+        it.skip("rejects bad Must Test steps", function() {
+            var tree = new Tree();
+            // Must Test X, where X doesn't exist
+        });
+
         it.skip("rejects with a special error steps that match case insensitively but not case sensitively", function() {
             var tree = new Tree();
         });
@@ -2917,14 +2922,71 @@ C
             var tree = new Tree();
         });
 
-        it.skip("an exception is thrown when there's a circular reference among function calls", function() {
+        it.skip("throws an exception when there's a circular reference among function calls", function() {
             var tree = new Tree();
             // this will probably be a js stack size exception
         });
     });
 
     describe("validateTree()", function() {
-        it.skip("TEXT", function() {
+        it.skip("throws an exception when a {var} is used but never set in a branch", function() {
+
+        });
+
+        it.skip("accepts a Must Test X statement that's fulfilled exactly", function() {
+            // structure under Must Test X is exactly the same as the one under X
+            // X contains both textual steps (must have - in both X and under Must Test X) and simple function calls (no vars, strings, elementFinders)
+        });
+
+        it.skip("accepts a Must Test X statement that's fulfilled", function() {
+            // any amount of children between steps under Must Test X
+        });
+
+        it.skip("rejects a Must Test X statement that's not fulfilled", function() {
+
+        });
+
+        it.skip("rejects a Must Test X statement that's fullfilled in some branches but not others", function() {
+
+        });
+
+        it.skip("accepts a Must Test X statement that's fulfilled once function calls under the statement are expanded", function() {
+
+        });
+
+        it.skip("accepts a Must Test X statement that's inside a called function and is fulfilled outside the function call", function() {
+
+        });
+
+        it.skip("rejects a Must Test X statement that's inside a called function and is not fulfilled", function() {
+
+        });
+
+        it.skip("accepts a Must Test X statement that has step blocks and is fulfilled", function() {
+
+        });
+
+        it.skip("rejects a Must Test X statement that has step blocks and is not fulfilled", function() {
+
+        });
+
+        it.skip("accepts a Must Test X statement where X contains complex function calls and is fulfilled", function() {
+            // X contains complex function calls (vars, strings, elementFinders). Ensure those exact functions are called, with those exact inputs.
+        });
+
+        it.skip("rejects a Must Test X statement where X contains complex function calls and is not fulfilled", function() {
+            // X contains complex function calls (vars, strings, elementFinders). Ensure those exact functions are called, with those exact inputs.
+        });
+
+        it.skip("accepts a Must Test {var} = X statement that's fulfilled", function() {
+            // any variable name in X
+        });
+
+        it.skip("rejects a Must Test {var} = X statement that's not fulfilled", function() {
+
+        });
+
+        it.skip("rejects a Must Test {var} = X statement when X is not in the correct format", function() {
 
         });
     });
