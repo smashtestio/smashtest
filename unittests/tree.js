@@ -2802,6 +2802,10 @@ C
 
 
 
+
+
+
+
         });
 
         it.skip("expands a function call with multiple branches", function() {
@@ -2909,12 +2913,30 @@ C
             var tree = new Tree();
         });
 
+        it.skip("expands Must Test X", function() {
+            var tree = new Tree();
+            // puts that tree into a separate variable (i.e., step.mustTestTree)
+        });
+
+        it.skip("expands {var} = Must Test X", function() {
+            var tree = new Tree();
+            // puts that tree into a separate variable (i.e., step.mustTestTree)
+        });
+
         it.skip("rejects steps that cannot be found", function() {
             var tree = new Tree();
             // neither a declared function nor a built-in function
         });
 
         it.skip("rejects Must Test X where X cannot be found", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects Must Test X where X is a code block", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects {var} = Must Test X where X is not a branched function in {x}='value' format", function() {
             var tree = new Tree();
         });
 
@@ -3069,13 +3091,8 @@ C
 
         });
 
-        it.skip("when called a second time, marks passed branches as such", function() {
-            // When convertToBranches() is called and this.branches already exists, this.branches is assumed to have been
-            // run already, and this function marks branches that need not be run this time
-
-            // Failed, was todo, or was manual last time and isn't one of those now. Step text shouldn't have changed
-            // (we identify a step by concatenation step text - line number won't work as well if steps are added or removed -
-            // and changing the text of a step should invalidate all branches of it)
+        it.skip("when called a second time, sets a flag to only run previously failed branches", function() {
+            // When convertToBranches() is called and this.branches already exists, this.branches is assumed to have been run already
         });
     });
 });

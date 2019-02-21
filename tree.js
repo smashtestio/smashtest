@@ -80,6 +80,8 @@ class Tree {
         const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
         // Matches [text]
         const BRACKET_REGEX = /\[[^\[\]\\]+\]/g;
+        // Matches Must Test X
+        const MUST_TEST_REGEX = /^\s*Must Test\s+(.*?)\s*$/;
 
         var matches = line.match(LINE_REGEX);
         if(!matches) {
@@ -107,7 +109,6 @@ class Tree {
         }
 
         // Must Test
-        const MUST_TEST_REGEX = /^\s*Must Test\s+(.*?)\s*$/;
         matches = step.text.match(MUST_TEST_REGEX);
         if(matches) {
             if(step.isFunctionDeclaration) {
@@ -225,7 +226,7 @@ class Tree {
                 var isLocal = match.startsWith('{{');
 
                 if(step.isFunctionDeclaration && !isLocal) {
-                    this.error("All variables in a *Function declaration must be {{local}}. {" + name + "} is not.", filename, lineNumber);
+                    this.error("All variables in a *Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
                 }
 
                 step.varsList.push({
@@ -497,6 +498,12 @@ class Tree {
      * @throws {Error} If a step cannot be found
      */
     expandTree() {
+
+
+
+
+
+
 
 
 
