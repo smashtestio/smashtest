@@ -2860,6 +2860,11 @@ C
             var tree = new Tree();
         });
 
+        it.skip("expands the branches beneath a .. step block to under each step within the .. step block", function() {
+            var tree = new Tree();
+            // also carries over step block's isSequential to its steps
+        });
+
         it.skip("expands the * Before all branches hook", function() {
             var tree = new Tree();
         });
@@ -2904,14 +2909,13 @@ C
             var tree = new Tree();
         });
 
-        it.skip("rejects bad steps", function() {
+        it.skip("rejects steps that cannot be found", function() {
             var tree = new Tree();
             // neither a declared function nor a built-in function
         });
 
-        it.skip("rejects bad Must Test steps", function() {
+        it.skip("rejects Must Test X where X cannot be found", function() {
             var tree = new Tree();
-            // Must Test X, where X doesn't exist
         });
 
         it.skip("rejects with a special error steps that match case insensitively but not case sensitively", function() {
@@ -3000,25 +3004,78 @@ C
     });
 
     describe("convertToBranches()", function() {
-        it.skip("TEXT", function() {
+        it.skip("generates branches from the tree", function() {
 
         });
 
+        it.skip("orders branches breadth-first", function() {
 
+        });
 
+        it.skip("orders branches based on their {frequency}, then breadth-first", function() {
 
+        });
 
+        it.skip("handles .. steps and the branches below properly", function() {
 
+        });
 
+        it.skip("handles .. step blocks and the branches below properly", function() {
 
+        });
 
+        it.skip("isolates the first branch with ~ encountered", function() {
+            // try multiple ~'s on different siblings, only the first one is chosen
+            // as for branches below the ~, the first breadth-first one is chosen
+        });
 
+        it.skip("isolates the first branch with ~ on multiple steps", function() {
+            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+        });
 
+        it.skip("puts a ~ on all steps above and including a ~~ step, isolates the first branch accordingly", function() {
 
+        });
 
+        it.skip("puts a ~ on all steps above and including a ~~ step, but stops when it encounters a ~ on the way to the top, isolates the first branch accordingly", function() {
 
+        });
 
+        it.skip("removes all steps under a -T step", function() {
+            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+        });
 
+        it.skip("removes all steps under a -M step", function() {
+            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+        });
 
+        it.skip("links branches that go through a + step", function() {
+
+        });
+
+        it.skip("removes branches not part of a {group} being run", function() {
+
+        });
+
+        it.skip("does not remove branches part of a {group} being run", function() {
+
+        });
+
+        it.skip("removes branches not part of a {frequency} being run", function() {
+
+        });
+
+        it.skip("does not remove branches part of a {frequency} being run", function() {
+
+        });
+
+        it.skip("when called a second time, marks passed branches as such", function() {
+            // When convertToBranches() is called and this.branches already exists, this.branches is assumed to have been
+            // run already, and this function marks branches that need not be run this time
+
+            // Failed, was todo, or was manual last time and isn't one of those now. Step text shouldn't have changed
+            // (we identify a step by concatenation step text - line number won't work as well if steps are added or removed -
+            // and changing the text of a step should invalidate all branches of it)
+        });
     });
 });

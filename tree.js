@@ -10,7 +10,7 @@ const SPACES_PER_INDENT = 4;
 class Tree {
     constructor() {
         this.root = new Step();  // the root Step of the tree (parsed version of the text that got inputted)
-        this.branches = [];      // this.root, but with each branch converted into a distinct array of Step objects (no more shared Steps)
+        this.branches = [];      // Array of Branch, generated from this.root
     }
 
     /**
