@@ -2946,7 +2946,15 @@ C
 
         });
 
-        it.skip("rejects a Must Test X statement that's fullfilled in some branches but not others", function() {
+        it.skip("rejects a Must Test X statement that's only fullfilled partially", function() {
+
+        });
+
+        it.skip("rejects a Must Test X statement that's fulfilled in a different part of the tree but not underneath", function() {
+
+        });
+
+        it.skip("accepts a Must Test X statement that's fulfilled by steps with different amounts of whitespace", function() {
 
         });
 
@@ -2995,5 +3003,22 @@ C
         it.skip("TEXT", function() {
 
         });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     });
 });

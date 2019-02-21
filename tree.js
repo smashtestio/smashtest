@@ -1,5 +1,6 @@
-const StepBlock = require('./stepblock.js');
 const Step = require('./step.js');
+const StepBlock = require('./stepblock.js');
+const Branch = require('./branch.js');
 
 const SPACES_PER_INDENT = 4;
 
@@ -522,7 +523,7 @@ class Tree {
     }
 
     /**
-     * Converts the tree under this.root into an array of arrays of steps in this.branches
+     * Converts the tree under this.root into an array of Branch in this.branches
      * Removes branches that we don't want run
      */
     convertToBranches() {
