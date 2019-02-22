@@ -2853,6 +2853,18 @@ C
         });
     });
 
+    describe("isFunctionMatch()", function() {
+        it("TEXT", function() {
+            var tree = new Tree();
+
+
+
+
+
+
+        });
+    });
+
     describe("expandTree()", function() {
         it.skip("expands a function call", function() {
             var tree = new Tree();

@@ -499,6 +499,29 @@ class Tree {
     }
 
     /**
+     * Checks to see if a given function call matches a given function declaration
+     * @param {String} functionDeclarationText - The text of the function declaration (from step.text)
+     * @param {String} functionCallText - The text of the function call (from step.text)
+     * @return {Boolean} true if they match, false if they don't
+     * @throws {Error} if there's a case insensitive match but not a case sensitive match
+     */
+    isFunctionMatch(functionDeclarationText, functionCallText) {
+
+
+
+
+
+
+
+
+
+
+
+
+        // TODO: Throws error if there's a case insensitive match but not a case sensitive match
+    }
+
+    /**
      * Expands the tree under this.root to include copies of each function call instance (including built-in functions and hooks),
      * and duplicates the tree underneath for function calls with multiple branches and step blocks
      * @throws {Error} If a step cannot be found
