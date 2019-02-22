@@ -2926,6 +2926,14 @@ C
             var tree = new Tree();
         });
 
+        it.skip("expands .. steps", function() {
+            // indented string of steps (with children and functions correctly connected to bottom)
+        });
+
+        it.skip("expands .. step blocks", function() {
+            // indented string of steps (with children and functions correctly connected to bottom)
+        });
+
         it.skip("expands the branches beneath a .. step block to under each step within the .. step block", function() {
             var tree = new Tree();
             // also carries over step block's isSequential to its steps
@@ -3097,14 +3105,6 @@ C
         });
 
         it.skip("orders branches based on their {frequency}, then breadth-first", function() {
-
-        });
-
-        it.skip("handles .. steps and the branches below properly", function() {
-
-        });
-
-        it.skip("handles .. step blocks and the branches below properly", function() {
 
         });
 
