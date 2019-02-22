@@ -291,8 +291,9 @@ class Tree {
      * Parses a string and adds it onto root
      * @param {String} buffer - Contents of a test file
      * @param {String} filename - Name of the test file
+     * @param {Boolean} [isBuiltIn] - If true, this is a built-in file
      */
-    parseIn(buffer, filename) {
+    parseIn(buffer, filename, isBuiltIn) {
         var lines = buffer.split(/[\r\n|\r|\n]/);
 
         // Convert each string in lines to either a Step object
@@ -441,6 +442,11 @@ class Tree {
         for(var i = 0; i < lines.length; i++) {
             var currStepObj = lines[i]; // either a Step or StepBlock object
             var prevStepObj = i > 0 ? lines[i-1] : null;
+
+            // Built-In
+            if(isBuiltIn) {
+                currStepObj.isBuiltIn = true;
+            }
 
             // Indents of new step vs. last step
             var indentsAdvanced = 0;

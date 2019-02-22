@@ -1,6 +1,4 @@
-const Tree = require('./tree.js');
-const Step = require('./step.js');
-const Branch = require('./branch.js');
+const RunInstance = require('./runinstance.js');
 
 /**
  * Test runner
@@ -15,6 +13,8 @@ class Runner {
     constructor(config) {
         this.maxInstances = config.maxInstances;
         this.tree = config.tree;
+
+        this.runInstances = [];     // will contain up to this.maxInstances RunInstance objects, each running a branch
     }
 
     /**
@@ -28,25 +28,8 @@ class Runner {
 
     /**
      * Resumes running branch after it was paused due to step.isDebug being set on a step
-     * There should only be one branch inside this.tree.branches, if isDebug is set inside any step
      */
     resumeTests() {
-        // TODO: read jsdoc above
-    }
-
-    /**
-     * Runs the given branch
-     * @param {Branch} branch - The branch to run, from this.tree.branches
-     */
-    runBranch(branch) {
-
-    }
-
-    /**
-     * Runs the given Step
-     * @param {Step} step - The Step to run
-     */
-    runStep(step) {
-
+        // TODO: There should only be one branch inside this.tree.branches, if isDebug is set inside any step
     }
 }

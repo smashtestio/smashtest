@@ -1011,6 +1011,68 @@ H
             });
         });
 
+        it("sets isBuiltIn", function() {
+            var tree = new Tree();
+
+            tree.parseIn(
+`A
+    B`
+            , "file1.txt");
+
+            tree.parseIn(
+`C
+    D`
+            , "file2.txt", true);
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            isBuiltIn: undefined,
+                            lineNumber: 1,
+                            filename: 'file1.txt',
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'B',
+                                    isBuiltIn: undefined,
+                                    lineNumber: 2,
+                                    filename: 'file1.txt',
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: []
+                                }
+                            ]
+                        },
+                        {
+                            text: 'C',
+                            isBuiltIn: true,
+                            lineNumber: 1,
+                            filename: 'file2.txt',
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'D',
+                                    isBuiltIn: true,
+                                    lineNumber: 2,
+                                    filename: 'file2.txt',
+                                    indents: 1,
+                                    parent: { text: 'C' },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
+        });
+
         it("rejects a first step that is not at indent 0", function() {
             var tree = new Tree();
             assert.throws(() => {
@@ -2852,7 +2914,7 @@ C
             var tree = new Tree();
         });
 
-        it.skip("expands a declared function when it has the same signature as a built-in function", function() {
+        it.skip("expands the declared function when it has the same signature as a built-in function", function() {
             var tree = new Tree();
         });
 

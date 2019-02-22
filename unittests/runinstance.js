@@ -8,13 +8,13 @@ const Runner = require('../runner.js');
 
 chai.use(chaiSubset);
 
-describe("Runner", function() {
-    describe("runTests()", function() {
+describe("RunInstance", function() {
+    describe("runStep()", function() {
         it.skip("TEXT", function() {
         });
     });
 
-    describe("resumeTests()", function() {
+    describe("runBranch()", function() {
         it.skip("TEXT", function() {
         });
     });

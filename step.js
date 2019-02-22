@@ -41,6 +41,8 @@ class Step {
         this.elementFinderList = [];          // array of objects with format {name: "contents of elementFinder", elementFinder: {Object} } representing all the elementFinders included in this step
 
         this.containingStepBlock = {};        // the StepBlock that contains this Step
+
+        this.isBuiltIn = false;               // true if this step is from a built-in file
         */
     }
 }

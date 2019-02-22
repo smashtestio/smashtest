@@ -23,28 +23,45 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
                 throw "Bad filename(s)";
             }
 
-            readFiles(filenames, {encoding: 'utf8'})
-                .then(function(fileBuffers) {
-                    if(fileBuffers.length == 0) {
-                        throw "No files found";
-                    }
+            glob('builtin/*', function(err, builtinFilenames) { // new array of filenames under builtin (our built-in functions)
+                if(err) {
+                    throw err;
+                }
 
-                    for(var i = 0; i < fileBuffers.length; i++) {
-                        tree.parseIn(fileBuffers[i], filenames[i]);
-                    }
+                if(!builtinFilenames) {
+                    // TODO: make sure this will work from any directory where you want to run smashgen from
+                    throw "Make sure builtin/ directory exists in the directory you're running this from";
+                }
 
-                    // TODO: call tree.finalize(), then runTests()
+                var originalFilenamesLength = filenames.length;
+                filenames = filenames.concat(builtinFilenames);
+
+                readFiles(filenames, {encoding: 'utf8'})
+                    .then(function(fileBuffers) {
+                        if(fileBuffers.length == 0) {
+                            throw "No files found";
+                        }
+
+                        for(var i = 0; i < fileBuffers.length; i++) {
+                            tree.parseIn(fileBuffers[i], filenames[i], i >= originalFilenamesLength);
+                        }
+
+                        // TODO:
+                        // 1) tree.parseIn() all the files under builtin/
+                        // 2) Call tree.finalize()
+                        // 3) Call create a new TestRunner and call runTests()
 
 
 
 
 
-                    // TODO: get rid of this
-                    print(tree.root);
-                })
-                .catch(function(err) {
-                    console.error(err);
-                });
+                        // TODO: get rid of this
+                        print(tree.root);
+                    })
+                    .catch(function(err) {
+                        console.error(err);
+                    });
+            });
         });
     }
 });
