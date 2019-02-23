@@ -368,12 +368,12 @@ class Tree {
 
         // Look for groups of consecutive steps that consititute a step block, and replace them with a StepBlock object
         // A step block:
-        // 1) is preceded by a '' step, '..' step, or start of file
-        // 2) is followed by a '' line, indented '..' step, or end of file
-        // 3) has no '' steps in the middle
-        // 4) all steps are at the same indent level
+        // 1) is followed by a '' line, indented '..' step, line that's less indented, or end of file
+        // 2) has no '' steps in the middle
+        // 3) all steps are at the same indent level
         for(var i = 0; i < lines.length;) {
             if(lines[i].text == '' || lines[i].text == '..') {
+                // The first line in a step block is a normal line
                 i++;
                 continue;
             }
@@ -395,9 +395,11 @@ class Tree {
                 }
                 else if(lines[j].indents != potentialStepBlock.steps[0].indents) {
                     if(lines[j].text != '..') { // indented .. is a valid end of a StepBlock (don't clear out potentialStepBlock in that case)
-                        if(potentialStepBlock.steps.length > 1) {
-                            // Two or more vertical lines at the same indent, followed by a line at a differnt indent with no empty line in between
-                            this.error("A step block must end in an empty line, .. line, or end of file. This line is directly underneath a step block. You may want to put an empty line before it.", filename, lines[j].lineNumber);
+                        if(potentialStepBlock.steps.length > 1) { // Two or more vertical lines at the same indent, followed by a line at a different indent with no empty line in between
+                            if(lines[j].indents > potentialStepBlock.steps[0].indents) {
+                                this.error("There must be a blank line between a step block and its children", filename, lines[j].lineNumber);
+                            }
+                            // lines directly below a step block and indented to the left of it are valid ends to a step block
                         }
                         else {
                             // StepBlock is ruined, due to consecutive steps being at different indents
@@ -414,11 +416,6 @@ class Tree {
 
             if(potentialStepBlock.steps.length > 1) {
                 // We've found a step block, which goes from lines index i to j
-
-                if(i - 1 >= 0 && lines[i-1].text != '' && lines[i-1].text != '..') {
-                    this.error("A step block must start with an empty line, .. line, or start of file. This step block is directly preceded by another line. You may want to put an empty line before it.", filename, lines[i].lineNumber);
-                }
-
                 potentialStepBlock.filename = filename;
                 potentialStepBlock.lineNumber = potentialStepBlock.isSequential ? potentialStepBlock.steps[0].lineNumber - 1 : potentialStepBlock.steps[0].lineNumber;
                 potentialStepBlock.indents = potentialStepBlock.steps[0].indents;

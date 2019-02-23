@@ -1841,13 +1841,13 @@ C
             });
         });
 
-        it("rejects a .. line followed by a non-step block", function() {
+        it("rejects a .. line followed by an invalid step block", function() {
             var tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
 `..
 A
-B
+    B
     C
 D
 `
@@ -2300,15 +2300,118 @@ B
             });
         });
 
-        it("rejects step blocks immediately preceded by a parent, with no empty line in between", function() {
+        it("parses step blocks immediately preceded by a parent, with no empty line in between", function() {
             var tree = new Tree();
-            assert.throws(() => {
-                tree.parseIn(
+            tree.parseIn(
 `A
     B
     C
 `
-                , "file.txt");
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    isSequential: undefined,
+                                    steps: [
+                                        {
+                                            text: 'B',
+                                            lineNumber: 2,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'C',
+                                            lineNumber: 3,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
+        });
+
+        it("parses a step block immediately followed by a line that's less indented than the step block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+
+    B
+    C
+D
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 3,
+                                    indents: 1,
+                                    isSequential: undefined,
+                                    steps: [
+                                        {
+                                            text: 'B',
+                                            lineNumber: 3,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'C',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        },
+                        {
+                            text: 'D',
+                            lineNumber: 5,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
             });
         });
 
@@ -2330,17 +2433,6 @@ B
     C
 D
 E
-`
-                , "file.txt");
-            });
-
-            assert.throws(() => {
-                tree.parseIn(
-`A
-
-    B
-    C
-D
 `
                 , "file.txt");
             });
