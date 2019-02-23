@@ -67,11 +67,12 @@ ElementFinders
         - [ 4th 'Login' next to 'meow' ]
     - Explain the basics of the find algorithm
 
-Functions (*)
+Functions
     - Calling
         - Examples of calls (include vars, strings, vars within strings, and elementFinders)
-        - Function {var} here OR Function "6" here maps to * Function {other var} here
-            - All function inputs are either {vars} or "strings"
+        - Function {var} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
+            - All function inputs are either {vars}, "strings", or [ElementFinders]
+        - Finds closest matching function declaration in the tree, otherwise looks to built-in functions
     - Declaring
         - Examples of declarations
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function*
@@ -125,7 +126,9 @@ No parallel execution (+)
     - No two child branches may execute simultaneously
 
 Sequential execution (..)
-    - executes branches below depth-first sequentially
+    - .. means execute branches below me depth-first sequentially, but never repeat the execution of a parent step (including me)
+        more than once.  ..'es have the effect of flattening themselves and their children into one long list of sequentially
+        indented steps, a .. does not expand beyond the bounds of a *Function
     - .. above a step block
 
 Expected failure (#)

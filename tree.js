@@ -547,25 +547,72 @@ class Tree {
      * @throws {Error} If a step cannot be found
      */
     expandTree() {
+        expandStep(this.root);
+
+        /**
+         * Expands the given step, then calls itself recursively on step's children (which may be new children that were just inserted)
+         */
+        function expandStep(step) {
+            // TODO: looks for hooks of step too
 
 
 
 
 
+        }
 
+        /**
+         * Finds the nearest function declaration step that matches the given function call step
+         * @param {Step} step - The function call to match
+         * @return {Step} The nearest function declaration that matches step
+         * @throws {Error} If a matching function declaration could not be found
+         */
+        function findFunctionInTree(step) {
+            var functionCallTextToMatch = getFunctionText(step);
+            var currStep = step;
 
+            while(currStep.indents != -1) { // while currStep is not yet at the root
+                var siblings = [];
+                if(currStep.parent) {
+                    siblings = currStep.parent.children;
+                    currStep = currStep.parent;
+                }
+                else if(currStep.containingStepBlock) {
+                    siblings = currStep.containingStepBlock.steps;
+                    currStep = currStep.containingStepBlock;
+                }
 
+                for(var i = 0; i < siblings.length; i++) {
+                    var sibling = siblings[i];
+                    if(!sibling.isFunctionDeclaration) {
+                        continue;
+                    }
 
+                    if(isFunctionMatch(sibling.text, functionCallTextToMatch, step.filename, step.lineNumber)) {
+                        return sibling;
+                    }
+                }
+            }
 
+            this.error("The function '" + functionCallTextToMatch + "' cannot be found", filename, lineNumber);
+        }
+    }
 
-
-
-
-
-
-
-
-
+    /**
+     * @return {String} The text of the function call (without {var}=) from the given step, null if step isn't a function call
+     */
+    getFunctionText(step) {
+        if(step.isFunctionCall) {
+            if(step.varsBeingSet.length == 1) { // {var} = Function
+                return step.varsBeingSet[0].value;
+            }
+            else { // Function
+                return step.text;
+            }
+        }
+        else {
+            return null;
+        }
     }
 
     /**
