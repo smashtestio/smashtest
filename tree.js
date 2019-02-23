@@ -147,10 +147,6 @@ class Tree {
             }
         }
 
-        if(!step.isTextualStep && !step.isFunctionDeclaration) {
-            step.isFunctionCall = true;
-        }
-
         if(typeof step.codeBlock != 'undefined' && step.isTextualStep) {
             this.error("A textual step (-) cannot have a code block a well", filename, lineNumber);
         }
@@ -182,13 +178,23 @@ class Tree {
                 textCopy = textCopy.replace(/^\,/, ''); // string the leading comma, if there is one
             }
 
-            // If there are multiple vars being set, each value must be a string literal
-            if(step.varsBeingSet.length > 1) {
+            if(step.varsBeingSet.length > 1) { // {var1}='str1', {var2}='str2', etc.
+                // If there are multiple vars being set, each value must be a string literal
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
                     if(!step.varsBeingSet[i].value.match(STRING_LITERAL_REGEX_WHOLE)) {
                         this.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'", filename, lineNumber);
                     }
                 }
+            }
+            else { // {var}=Func or {var}='str'
+                if(!step.varsBeingSet[0].value.match(STRING_LITERAL_REGEX_WHOLE)) { // {var}=Func
+                    step.isFunctionCall = true;
+                }
+            }
+        }
+        else {
+            if(!step.isTextualStep && !step.isFunctionDeclaration) {
+                step.isFunctionCall = true;
             }
         }
 
@@ -506,7 +512,8 @@ class Tree {
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
      */
     isFunctionMatch(functionDeclarationText, functionCallText) {
-
+        // TODO: remember, functionDeclarationText can have {{variables}} and
+        // functionCallText can have {{vars}}, {vars}, 'strings', "strings", and [elementFinders]
 
 
 

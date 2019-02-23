@@ -305,47 +305,59 @@ describe("Tree", function() {
             assert.equal(step.isExpectedFail, true);
         });
 
-        it("parses {var} = Step", function() {
+        it("parses {var} = Function", function() {
             var step = tree.parseLine(`{var} = Click 'something' {blah}`, "file.txt", 10);
             assert.equal(step.text, `{var} = Click 'something' {blah}`);
+            assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "Click 'something' {blah}", isLocal: false} ]);
             assert.deepEqual(step.varsList, [ {name: "var", isLocal: false}, {name: "blah", isLocal: false} ]);
 
-            step = tree.parseLine(`{var} = 'foo'`, "file.txt", 10);
-            assert.equal(step.text, `{var} = 'foo'`);
-            assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "'foo'", isLocal: false} ]);
-            assert.deepEqual(step.varsList, [ {name: "var", isLocal: false} ]);
-
             step = tree.parseLine(`    {var with spaces}  = Click 'something' {{blah}}`, "file.txt", 10);
             assert.equal(step.text, `{var with spaces}  = Click 'something' {{blah}}`);
+            assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var with spaces", value: "Click 'something' {{blah}}", isLocal: false} ]);
             assert.deepEqual(step.varsList, [ {name: "var with spaces", isLocal: false}, {name: "blah", isLocal: true} ]);
         });
 
-        it("parses {{var}} = Step", function() {
+        it("parses {var} = 'string'", function() {
+            step = tree.parseLine(`{var} = 'foo'`, "file.txt", 10);
+            assert.equal(step.text, `{var} = 'foo'`);
+            assert.equal(step.isFunctionCall, undefined);
+            assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "'foo'", isLocal: false} ]);
+            assert.deepEqual(step.varsList, [ {name: "var", isLocal: false} ]);
+        });
+
+        it("parses {{var}} = Function", function() {
             var step = tree.parseLine(`{{var}} = Click 'something' { blah }`, "file.txt", 10);
             assert.equal(step.text, `{{var}} = Click 'something' { blah }`);
+            assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "Click 'something' { blah }", isLocal: true} ]);
             assert.deepEqual(step.varsList, [ {name: "var", isLocal: true}, {name: "blah", isLocal: false} ]);
 
-            step = tree.parseLine(`{{var}} = 'foo \\\''`, "file.txt", 10);
-            assert.equal(step.text, `{{var}} = 'foo \\\''`);
-            assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "'foo \\\''", isLocal: true} ]);
-            assert.deepEqual(step.varsList, [ {name: "var", isLocal: true} ]);
-
             step = tree.parseLine(`    {{ var with spaces  }} =  Click 'something' {{blah}}`, "file.txt", 10);
             assert.equal(step.text, `{{ var with spaces  }} =  Click 'something' {{blah}}`);
+            assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var with spaces", value: "Click 'something' {{blah}}", isLocal: true} ]);
             assert.deepEqual(step.varsList, [ {name: "var with spaces", isLocal: true}, {name: "blah", isLocal: true} ]);
 
             step = tree.parseLine(`{{var}} = Click 'something \\\\ \'' "something2 \"" {blah} {{blah2}}`, "file.txt", 10);
+            assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: `Click 'something \\\\ \'' "something2 \"" {blah} {{blah2}}`, isLocal: true} ]);
             assert.deepEqual(step.varsList, [ {name: "var", isLocal: true}, {name: "blah", isLocal: false}, {name: "blah2", isLocal: true} ]);
+        });
+
+        it("parses {{var}} = 'string'", function() {
+            step = tree.parseLine(`{{var}} = 'foo \\\''`, "file.txt", 10);
+            assert.equal(step.text, `{{var}} = 'foo \\\''`);
+            assert.equal(step.isFunctionCall, undefined);
+            assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "'foo \\\''", isLocal: true} ]);
+            assert.deepEqual(step.varsList, [ {name: "var", isLocal: true} ]);
         });
 
         it("parses multiple {var} = 'string literal', separated by commas", function() {
             var step = tree.parseLine(`{var1} = 'one', {{var2}}='two 2', {var 3}= "three 3" +`, "file.txt", 10);
             assert.equal(step.text, `{var1} = 'one', {{var2}}='two 2', {var 3}= "three 3"`);
+            assert.equal(step.isFunctionCall, undefined);
             assert.deepEqual(step.varsBeingSet, [ {name: "var1", value: "'one'", isLocal: false}, {name: "var2", value: "'two 2'", isLocal: true}, {name: "var 3", value: "\"three 3\"", isLocal: false} ]);
             assert.deepEqual(step.varsList, [ {name: "var1", isLocal: false}, {name: "var2", isLocal: true}, {name: "var 3", isLocal: false} ]);
         });
@@ -2854,14 +2866,46 @@ C
     });
 
     describe("isFunctionMatch()", function() {
-        it("TEXT", function() {
+        it("matches a function call and function declaration with the same text", function() {
             var tree = new Tree();
+            expect(tree.isFunctionMatch("Step name here", "Step name here")).to.equal(true);
+        });
 
+        it("doesn't match a function call and function declaration with different text", function() {
+            var tree = new Tree();
+            expect(tree.isFunctionMatch("Step name here", "Different name here")).to.equal(false);
+        });
 
+        it("matches a function call and function declaration with the same text but differing amounts of whitespace", function() {
+            var tree = new Tree();
+            expect(tree.isFunctionMatch("Step name here", "  Step  name here ")).to.equal(true);
+        });
 
+        it("throws an exception if a function call and function declaration match case insensitively but not case sensitively", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.isFunctionMatch("Step name here", "step name here");
+            });
+        });
 
+        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [ElementFinders]", function() {
+            var tree = new Tree();
+            expect(tree.isFunctionMatch("Step {{var1}} and {{var2}} {{var3}} also {{var4}}, {{var5}}", "Step {{varA}} and  {varB} 'string C' also \"stringD\", [4th 'Login' button]")).to.equal(true);
+        });
 
+        it("doesn't match a function declaration with {{vars}} and a function call with extra {vars} at the end", function() {
+            var tree = new Tree();
+            expect(tree.isFunctionMatch("Step {{var1}}", "Step {varA} {varB}")).to.equal(false);
+        });
 
+        it("doesn't match a function declaration with {{vars}} and a function call with extra 'strings' at the end", function() {
+            var tree = new Tree();
+            expect(tree.isFunctionMatch("Step {{var1}}", "Step 'stringA' 'stringB'")).to.equal(false);
+        });
+
+        it("doesn't match a function declaration with {{vars}} and a function call with extra [ElementFinders] at the end", function() {
+            var tree = new Tree();
+            expect(tree.isFunctionMatch("Step {{var1}}", "Step {varA} ['element' finderB]")).to.equal(false);
         });
     });
 
