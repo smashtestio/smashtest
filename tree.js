@@ -4,6 +4,24 @@ const Branch = require('./branch.js');
 
 const SPACES_PER_INDENT = 4;
 
+// Matches any well-formed non-empty line, in this format:
+// Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
+const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
+// Matches "string" or 'string', handles escaped \ and "
+const STRING_LITERAL_REGEX_WHOLE = /^('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")$/;
+const STRING_LITERAL_REGEX = /'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
+// Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val)
+const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
+// Matches {var} or {{var}}
+const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
+// Matches [text]
+const BRACKET_REGEX = /\[[^\[\]\\]+\]/g;
+// Matches Must Test X
+const MUST_TEST_REGEX = /^\s*Must Test\s+(.*?)\s*$/;
+// Matches an ElementFinder in this format:
+// OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')
+const ELEMENTFINDER_REGEX = /^\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;
+
 /**
  * Represents the test tree
  */
@@ -67,21 +85,6 @@ class Tree {
             step.text = '..';
             return step;
         }
-
-        // Matches any well-formed non-empty line
-        // Explanation: Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
-        const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
-        // Matches "string" or 'string', handles escaped \ and "
-        const STRING_LITERAL_REGEX_WHOLE = /^('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")$/;
-        const STRING_LITERAL_REGEX = /'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
-        // Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val)
-        const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
-        // Matches {var} or {{var}}
-        const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
-        // Matches [text]
-        const BRACKET_REGEX = /\[[^\[\]\\]+\]/g;
-        // Matches Must Test X
-        const MUST_TEST_REGEX = /^\s*Must Test\s+(.*?)\s*$/;
 
         var matches = line.match(LINE_REGEX);
         if(!matches) {
@@ -251,9 +254,6 @@ class Tree {
      * @return {Object} An object containing ElementFinder components (ordinal, text, variable, nextTo - any one of which can be undefined), or null if this is not a valid ElementFinder
      */
     parseElementFinder(name) {
-        // OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')
-        const ELEMENTFINDER_REGEX = /^\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;
-
         var matches = name.match(ELEMENTFINDER_REGEX);
         if(matches) {
             var ordinal = (matches[2] || '');
@@ -508,24 +508,37 @@ class Tree {
      * Checks to see if a given function call matches a given function declaration
      * @param {String} functionDeclarationText - The text of the function declaration (from step.text)
      * @param {String} functionCallText - The text of the function call (from step.text)
+     * @param {String} filename - The filename of the file where the function call is
+     * @param {Integer} lineNumber - The line number where the function call is
      * @return {Boolean} true if they match, false if they don't
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
      */
-    isFunctionMatch(functionDeclarationText, functionCallText) {
-        // TODO: remember, functionDeclarationText can have {{variables}} and
+    isFunctionMatch(functionDeclarationText, functionCallText, filename, lineNumber) {
+        // When hooking up functions, canonicalize by trim(), replace \s+ with a single space
+        // functionDeclarationText can have {{variables}}
         // functionCallText can have {{vars}}, {vars}, 'strings', "strings", and [elementFinders]
 
+        functionDeclarationText = functionDeclarationText
+            .trim()
+            .replace(/\s+/g, ' ')
+            .replace(VAR_REGEX, '{}');
 
+        functionCallText = functionCallText
+            .trim()
+            .replace(/\s+/g, ' ')
+            .replace(STRING_LITERAL_REGEX, '{}')
+            .replace(BRACKET_REGEX, '{}')
+            .replace(VAR_REGEX, '{}');
 
-
-
-
-
-
-
-
-
-        // TODO: Throws error if there's a case insensitive match but not a case sensitive match
+        if(functionDeclarationText == functionCallText) {
+            return true;
+        }
+        else if(functionDeclarationText.toLowerCase() == functionCallText.toLowerCase()) {
+            this.error("The function call '" + functionCallText + "' matches function declaration '" + functionDeclarationText + "', but must match case sensitively", filename, lineNumber);
+        }
+        else {
+            return false;
+        }
     }
 
     /**
