@@ -643,9 +643,11 @@ describe("Tree", function() {
     B
         C
     D
+
     E
         F
 G
+
 H
     I
         J
@@ -689,13 +691,13 @@ L`
                                 },
                                 {
                                     text: 'E',
-                                    lineNumber: 5,
+                                    lineNumber: 6,
                                     indents: 1,
                                     parent: { text: 'A' },
                                     children: [
                                         {
                                             text: 'F',
-                                            lineNumber: 6,
+                                            lineNumber: 7,
                                             indents: 2,
                                             parent: { text: 'E' },
                                             children: []
@@ -706,32 +708,32 @@ L`
                         },
                         {
                             text: 'G',
-                            lineNumber: 7,
+                            lineNumber: 8,
                             indents: 0,
                             parent: { indents: -1 },
                             children: []
                         },
                         {
                             text: 'H',
-                            lineNumber: 8,
+                            lineNumber: 10,
                             indents: 0,
                             parent: { indents: -1 },
                             children: [
                                 {
                                     text: 'I',
-                                    lineNumber: 9,
+                                    lineNumber: 11,
                                     indents: 1,
                                     parent: { text: 'H' },
                                     children: [
                                         {
                                             text: 'J',
-                                            lineNumber: 10,
+                                            lineNumber: 12,
                                             indents: 2,
                                             parent: { text: 'I' },
                                             children: [
                                                 {
                                                     text: 'K',
-                                                    lineNumber: 11,
+                                                    lineNumber: 13,
                                                     indents: 3,
                                                     parent: { text: 'J' },
                                                     children: []
@@ -744,7 +746,7 @@ L`
                         },
                         {
                             text: 'L',
-                            lineNumber: 12,
+                            lineNumber: 14,
                             indents: 0,
                             parent: { indents: -1 },
                             children: []
@@ -764,10 +766,12 @@ A
 
         C
     D
+
     E
         F
 
 G
+
 H
     I
 
@@ -814,13 +818,13 @@ L
                                 },
                                 {
                                     text: 'E',
-                                    lineNumber: 8,
+                                    lineNumber: 9,
                                     indents: 1,
                                     parent: { text: 'A' },
                                     children: [
                                         {
                                             text: 'F',
-                                            lineNumber: 9,
+                                            lineNumber: 10,
                                             indents: 2,
                                             parent: { text: 'E' },
                                             children: []
@@ -831,32 +835,32 @@ L
                         },
                         {
                             text: 'G',
-                            lineNumber: 11,
+                            lineNumber: 12,
                             indents: 0,
                             parent: { indents: -1 },
                             children: []
                         },
                         {
                             text: 'H',
-                            lineNumber: 12,
+                            lineNumber: 14,
                             indents: 0,
                             parent: { indents: -1 },
                             children: [
                                 {
                                     text: 'I',
-                                    lineNumber: 13,
+                                    lineNumber: 15,
                                     indents: 1,
                                     parent: { text: 'H' },
                                     children: [
                                         {
                                             text: 'J',
-                                            lineNumber: 16,
+                                            lineNumber: 18,
                                             indents: 2,
                                             parent: { text: 'I' },
                                             children: [
                                                 {
                                                     text: 'K',
-                                                    lineNumber: 17,
+                                                    lineNumber: 19,
                                                     indents: 3,
                                                     parent: { text: 'J' },
                                                     children: []
@@ -869,7 +873,7 @@ L
                         },
                         {
                             text: 'L',
-                            lineNumber: 18,
+                            lineNumber: 20,
                             indents: 0,
                             parent: { indents: -1 },
                             children: []
@@ -890,6 +894,7 @@ A
 
         C
     D
+
     E
         F
 `
@@ -897,6 +902,7 @@ A
 
             tree.parseIn(
 `G
+
 H
     I
 
@@ -950,14 +956,14 @@ H
                                 },
                                 {
                                     text: 'E',
-                                    lineNumber: 8,
+                                    lineNumber: 9,
                                     filename: 'file1.txt',
                                     indents: 1,
                                     parent: { text: 'A' },
                                     children: [
                                         {
                                             text: 'F',
-                                            lineNumber: 9,
+                                            lineNumber: 10,
                                             filename: 'file1.txt',
                                             indents: 2,
                                             parent: { text: 'E' },
@@ -977,28 +983,28 @@ H
                         },
                         {
                             text: 'H',
-                            lineNumber: 2,
+                            lineNumber: 3,
                             filename: 'file2.txt',
                             indents: 0,
                             parent: { indents: -1 },
                             children: [
                                 {
                                     text: 'I',
-                                    lineNumber: 3,
+                                    lineNumber: 4,
                                     filename: 'file2.txt',
                                     indents: 1,
                                     parent: { text: 'H' },
                                     children: [
                                         {
                                             text: 'J',
-                                            lineNumber: 6,
+                                            lineNumber: 7,
                                             filename: 'file2.txt',
                                             indents: 2,
                                             parent: { text: 'I' },
                                             children: [
                                                 {
                                                     text: 'K',
-                                                    lineNumber: 7,
+                                                    lineNumber: 8,
                                                     filename: 'file2.txt',
                                                     indents: 3,
                                                     parent: { text: 'J' },
@@ -2294,45 +2300,49 @@ B
             });
         });
 
-        it("doesn't call a group of consecutive steps immediately followed by an indented child a step block", function() {
+        it("rejects step blocks immediately preceded by a parent, with no empty line in between", function() {
             var tree = new Tree();
-            tree.parseIn(
+            assert.throws(() => {
+                tree.parseIn(
+`A
+    B
+    C
+`
+                , "file.txt");
+            });
+        });
+
+        it("rejects a step block immediately followed by an indented child, with no empty line in between", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
 `A
 B
     C
 `
-            , "file.txt");
+                , "file.txt");
+            });
 
-            expect(tree).to.containSubset({
-                root: {
-                    line: '',
-                    indents: -1,
-                    parent: null,
-                    children: [
-                        {
-                            text: 'A',
-                            lineNumber: 1,
-                            indents: 0,
-                            parent: { indents: -1 },
-                            children: []
-                        },
-                        {
-                            text: 'B',
-                            lineNumber: 2,
-                            indents: 0,
-                            parent: { indents: -1 },
-                            children: [
-                                {
-                                    text: 'C',
-                                    lineNumber: 3,
-                                    indents: 1,
-                                    parent: { indents: 0 },
-                                    children: []
-                                }
-                            ]
-                        }
-                    ]
-                }
+            assert.throws(() => {
+                tree.parseIn(
+`A
+B
+    C
+D
+E
+`
+                , "file.txt");
+            });
+
+            assert.throws(() => {
+                tree.parseIn(
+`A
+
+    B
+    C
+D
+`
+                , "file.txt");
             });
         });
 

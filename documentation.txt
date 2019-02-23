@@ -45,9 +45,9 @@ Step reference
 
 Step blocks
     - What constitutes a step block
-        - Vertical list of steps with no children, no blank lines in between
-        - Start with either blank line, .., or start of file
-        - End with either blank line or end of file
+        - Vertical list of steps, no blank lines in between
+        - Must start with either blank line, .., or start of file
+        - Must end with either blank line or end of file
         - Show examples
     - Each line of a step block will connect with every child step to the step block. It's kind of like a for loop.
     - .. at the top of a step block means sequential execution. Kind of like if we indented every step into a tree.

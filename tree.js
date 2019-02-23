@@ -373,54 +373,65 @@ class Tree {
         // 3) has no '' steps in the middle
         // 4) all steps are at the same indent level
         for(var i = 0; i < lines.length;) {
-            if(lines[i].text != '' && lines[i].text != '..' && (i == 0 || lines[i-1].text == '' || lines[i-1].text == '..')) {
-                // Current step may start a step block
-                var potentialStepBlock = new StepBlock();
+            if(lines[i].text == '' || lines[i].text == '..') {
+                i++;
+                continue;
+            }
 
-                if(i > 0 && lines[i-1].text == '..') {
-                    potentialStepBlock.isSequential = true;
+            // Current step may start a step block
+            var potentialStepBlock = new StepBlock();
+
+            if(i > 0 && lines[i-1].text == '..') {
+                potentialStepBlock.isSequential = true;
+            }
+
+            potentialStepBlock.steps.push(lines[i]);
+
+            // See how far down it goes
+            for(var j = i + 1; j < lines.length; j++) {
+                if(lines[j].text == '') {
+                    // We've reached the end of the step block
+                    break;
                 }
-
-                potentialStepBlock.steps.push(lines[i]);
-
-                // See how far down it goes
-                for(var j = i + 1; j < lines.length; j++) {
-                    if(lines[j].text == '') {
-                        // We've reached the end of the step block
-                        break;
-                    }
-                    else if(lines[j].indents != potentialStepBlock.steps[0].indents) {
-                        if(lines[j].text != '..') { // indented .. is a valid end of a StepBlock (don't clear out potentialStepBlock in that case)
+                else if(lines[j].indents != potentialStepBlock.steps[0].indents) {
+                    if(lines[j].text != '..') { // indented .. is a valid end of a StepBlock (don't clear out potentialStepBlock in that case)
+                        if(potentialStepBlock.steps.length > 1) {
+                            // Two or more vertical lines at the same indent, followed by a line at a differnt indent with no empty line in between
+                            this.error("A step block must end in an empty line, .. line, or end of file. This line is directly underneath a step block. You may want to put an empty line before it.", filename, lines[j].lineNumber);
+                        }
+                        else {
                             // StepBlock is ruined, due to consecutive steps being at different indents
                             potentialStepBlock = new StepBlock(); // clear out the potentialStepBlock
                         }
-
-                        break;
-                    }
-                    else {
-                        potentialStepBlock.steps.push(lines[j]);
-                    }
-                }
-
-                if(potentialStepBlock.steps.length > 1) {
-                    // We've found a valid step block
-                    potentialStepBlock.filename = filename;
-                    potentialStepBlock.lineNumber = potentialStepBlock.isSequential ? potentialStepBlock.steps[0].lineNumber - 1 : potentialStepBlock.steps[0].lineNumber;
-                    potentialStepBlock.indents = potentialStepBlock.steps[0].indents;
-                    for(var k = 0; k < potentialStepBlock.steps.length; k++) {
-                        potentialStepBlock.steps[k].containingStepBlock = potentialStepBlock;
                     }
 
-                    // Have the StepBlock object we created replace its corresponding Steps
-                    lines.splice(i, potentialStepBlock.steps.length, potentialStepBlock);
-                    i++; // next i will be one position past the new StepBlock's index
+                    break;
                 }
                 else {
-                    i = j; // no new StepBlock was created, so just advance i to however far down we ventured
+                    potentialStepBlock.steps.push(lines[j]);
                 }
             }
+
+            if(potentialStepBlock.steps.length > 1) {
+                // We've found a step block, which goes from lines index i to j
+
+                if(i - 1 >= 0 && lines[i-1].text != '' && lines[i-1].text != '..') {
+                    this.error("A step block must start with an empty line, .. line, or start of file. This step block is directly preceded by another line. You may want to put an empty line before it.", filename, lines[i].lineNumber);
+                }
+
+                potentialStepBlock.filename = filename;
+                potentialStepBlock.lineNumber = potentialStepBlock.isSequential ? potentialStepBlock.steps[0].lineNumber - 1 : potentialStepBlock.steps[0].lineNumber;
+                potentialStepBlock.indents = potentialStepBlock.steps[0].indents;
+                for(var k = 0; k < potentialStepBlock.steps.length; k++) {
+                    potentialStepBlock.steps[k].containingStepBlock = potentialStepBlock;
+                }
+
+                // Have the StepBlock object we created replace its corresponding Steps
+                lines.splice(i, potentialStepBlock.steps.length, potentialStepBlock);
+                i++; // next i will be one position past the new StepBlock's index
+            }
             else {
-                i++;
+                i = j; // no new StepBlock was created, so just advance i to however far down we ventured
             }
         }
 
@@ -554,6 +565,10 @@ class Tree {
          */
         function expandStep(step) {
             // TODO: looks for hooks of step too
+
+
+
+
 
 
 
