@@ -561,16 +561,89 @@ class Tree {
          * Expands the given step, then calls itself recursively on step's children (which may be new children that were just inserted)
          */
         function expandStep(step) {
-            // TODO: looks for hooks of step too
+            if(step.isTextualStep) {
+                // Just keep the step as is
+            }
+            else if(step.isMustTest) {
+
+
+
+            }
+            else if(step.isFunctionCall) {
+
+
+
+            }
+            else if(step.isFunctionDeclaration) {
+                // Handle hooks
+                var stepText = step.text.trim().toLowerCase().replace(/\s+/g, ' ');
+                if(stepText == "before all branches") {
+
+
+
+                }
+                else if(stepText == "after all branches") {
+
+
+
+                }
+                else if(stepText == "before every branch") {
+
+
+
+                }
+                else if(stepText == "after every branch") {
+
+
+
+                }
+                else if(stepText == "before every step") {
+
+
+
+                }
+                else if(stepText == "after every step") {
+
+
+
+                }
+                else if(stepText == "after failed step") {
+
+
+
+                }
+                else if(stepText == "after successful step") {
+
+
+
+                }
+                else {
+                    // Ignore non-hook function declarations
+                }
+            }
+            else if(step instanceof StepBlock) {
+                if(step.isSequential) {
+                    // Convert step.steps into one long line of Steps, each being the child of the previous.
+                    // then set the last Step's children to be step.children
+
+                    // TODO: Set step = that last child, so it's ready for the recursive expandStep() calls below
+
+
+
+                }
+                else {
 
 
 
 
 
+                }
+            }
 
-
-
-
+            // Recursively call yourself on step's children
+            for(var i = 0; i < step.children.length; i++) {
+                expandStep(step.children[i]);
+            }
         }
 
         /**
