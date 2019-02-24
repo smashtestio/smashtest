@@ -73,7 +73,6 @@ Test the Widget Maker -
                     Navigate to {host}
                         Verify at homepage
                             Enter {username} into { Login box }     // If var isn't set yet, execute this line when it is set below
-
                                 {username}='one'
 
                                     Special case for username of one -

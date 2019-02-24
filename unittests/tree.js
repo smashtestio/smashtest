@@ -1448,6 +1448,125 @@ C
             });
         });
 
+        it("parses a step block with an indented line directly above", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    B
+C
+D`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        },
+                        {
+                            lineNumber: 3,
+                            indents: 0,
+                            steps: [
+                                {
+                                    text: 'C',
+                                    lineNumber: 3,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'D',
+                                    lineNumber: 4,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
+        });
+
+        it("parses a step block with an indented line above", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    B
+
+C
+D`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    parent: { indents: 0 },
+                                    children: []
+                                }
+                            ]
+                        },
+                        {
+                            lineNumber: 4,
+                            indents: 0,
+                            steps: [
+                                {
+                                    text: 'C',
+                                    lineNumber: 4,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'D',
+                                    lineNumber: 5,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
+        });
+
         it("parses multiple nested step blocks", function() {
             var tree = new Tree();
             tree.parseIn(
@@ -3088,13 +3207,26 @@ C
             // indented string of steps (with children and functions correctly connected to bottom)
         });
 
-        it.skip("expands .. step blocks", function() {
-            // indented string of steps (with children and functions correctly connected to bottom)
+        it.skip("expands .. steps that contain function calls underneath", function() {
+            // the .. doesn't apply to within that function call (use functions with multiple branches to ensure branching still occurs)
         });
 
-        it.skip("expands the branches beneath a .. step block to under each step within the .. step block", function() {
-            var tree = new Tree();
+        it.skip("expands .. steps that contain step blocks underneath", function() {
+
+        });
+
+        it.skip("expands .. steps that contain other .. steps underneath", function() {
+
+        });
+
+        it.skip("expands .. step blocks", function() {
+            // indented string of steps (with children and functions correctly connected to bottom)
+            // expands the branches beneath a .. step block to under each step within the .. step block
             // also carries over step block's isSequential to its steps
+        });
+
+        it.skip("expands .. step blocks that contain function calls", function() {
+            // the contents of the functions themselves aren't expanded (use functions with multiple branches to ensure branching still occurs)
         });
 
         it.skip("expands the * Before all branches hook", function() {

@@ -368,9 +368,9 @@ class Tree {
 
         // Look for groups of consecutive steps that consititute a step block, and replace them with a StepBlock object
         // A step block:
-        // 1) is followed by a '' line, indented '..' step, line that's less indented, or end of file
+        // 1) all steps are at the same indent level
         // 2) has no '' steps in the middle
-        // 3) all steps are at the same indent level
+        // 3) is followed by a '' line, indented '..' step, line that's less indented, or end of file
         for(var i = 0; i < lines.length;) {
             if(lines[i].text == '' || lines[i].text == '..') {
                 // The first line in a step block is a normal line
