@@ -1134,7 +1134,6 @@ H
 `A
 B
 C
-
     D
 `
             , "file.txt");
@@ -1178,7 +1177,7 @@ C
                             children: [
                                 {
                                     text: 'D',
-                                    lineNumber: 5,
+                                    lineNumber: 4,
                                     indents: 1,
                                     parent: { indents: 0, steps: [] },
                                     children: []
@@ -1190,7 +1189,7 @@ C
             });
         });
 
-        it("parses a step block at the very top, with an empty line above it", function() {
+        it("parses a step block at the very top, with empty lines above and below", function() {
             var tree = new Tree();
             tree.parseIn(
 `
@@ -1253,7 +1252,7 @@ C
             });
         });
 
-        it("parses a step block in the middle", function() {
+        it("parses a step block in the middle, with empty lines above and below", function() {
             var tree = new Tree();
             tree.parseIn(
 `A
@@ -1312,6 +1311,76 @@ C
                                         {
                                             text: 'E',
                                             lineNumber: 7,
+                                            indents: 2,
+                                            parent: { indents: 1, steps: [] },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
+        });
+
+        it("parses a step block in the middle, with no empty lines above and below", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+    B
+    C
+    D
+        E
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    lineNumber: 2,
+                                    indents: 1,
+                                    steps: [
+                                        {
+                                            text: 'B',
+                                            lineNumber: 2,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'C',
+                                            lineNumber: 3,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        },
+                                        {
+                                            text: 'D',
+                                            lineNumber: 4,
+                                            indents: 1,
+                                            parent: null,
+                                            children: [],
+                                            containingStepBlock: { indents: 1, steps: [] }
+                                        }
+                                    ],
+                                    parent: { indents: 0 },
+                                    children: [
+                                        {
+                                            text: 'E',
+                                            lineNumber: 5,
                                             indents: 2,
                                             parent: { indents: 1, steps: [] },
                                             children: []
@@ -1975,31 +2044,6 @@ D
 
             assert.throws(() => {
                 tree.parseIn(
-`
-..
-A
-B
-    C
-`
-                , "file.txt");
-            });
-
-            assert.throws(() => {
-                tree.parseIn(
-`A
-
-    ..
-    B
-    C
-        D
-
-E
-`
-                , "file.txt");
-            });
-
-            assert.throws(() => {
-                tree.parseIn(
 `A
 
     ..
@@ -2531,29 +2575,6 @@ D
                         }
                     ]
                 }
-            });
-        });
-
-        it("rejects a step block immediately followed by an indented child, with no empty line in between", function() {
-            var tree = new Tree();
-            assert.throws(() => {
-                tree.parseIn(
-`A
-B
-    C
-`
-                , "file.txt");
-            });
-
-            assert.throws(() => {
-                tree.parseIn(
-`A
-B
-    C
-D
-E
-`
-                , "file.txt");
             });
         });
 
@@ -3271,6 +3292,11 @@ C
 
         it.skip("handles different hooks that are siblings", function() {
             var tree = new Tree();
+        });
+
+        it.skip("rejects a hook function declaration with the wrong casing", function() {
+            var tree = new Tree();
+            // must be first letter caps, such as "After all branches"
         });
 
         it.skip("expands Must Test X", function() {

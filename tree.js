@@ -370,7 +370,7 @@ class Tree {
         // A step block:
         // 1) all steps are at the same indent level
         // 2) has no '' steps in the middle
-        // 3) is followed by a '' line, indented '..' step, line that's less indented, or end of file
+        // 3) is followed by a '' line, indented '..' step, line that's differntly indented, or end of file
         for(var i = 0; i < lines.length;) {
             if(lines[i].text == '' || lines[i].text == '..') {
                 // The first line in a step block is a normal line
@@ -389,24 +389,8 @@ class Tree {
 
             // See how far down it goes
             for(var j = i + 1; j < lines.length; j++) {
-                if(lines[j].text == '') {
+                if(lines[j].text == '' || lines[j].indents != potentialStepBlock.steps[0].indents) {
                     // We've reached the end of the step block
-                    break;
-                }
-                else if(lines[j].indents != potentialStepBlock.steps[0].indents) {
-                    if(lines[j].text != '..') { // indented .. is a valid end of a StepBlock (don't clear out potentialStepBlock in that case)
-                        if(potentialStepBlock.steps.length > 1) { // Two or more vertical lines at the same indent, followed by a line at a different indent with no empty line in between
-                            if(lines[j].indents > potentialStepBlock.steps[0].indents) {
-                                this.error("There must be a blank line between a step block and its children", filename, lines[j].lineNumber);
-                            }
-                            // lines directly below a step block and indented to the left of it are valid ends to a step block
-                        }
-                        else {
-                            // StepBlock is ruined, due to consecutive steps being at different indents
-                            potentialStepBlock = new StepBlock(); // clear out the potentialStepBlock
-                        }
-                    }
-
                     break;
                 }
                 else {
@@ -561,6 +545,34 @@ class Tree {
          * Expands the given step, then calls itself recursively on step's children (which may be new children that were just inserted)
          */
         function expandStep(step) {
+            // Expand sequential (..) steps
+            if(step.isSequential) {
+                // Convert step.steps into one long line of Steps, each being the child of the previous.
+                var originalChildren = step.children;
+                var leafSteps = expandSequentialStep(step);
+
+                // Attach a copy of step's original children to each leaf that's now under step
+                leafSteps.forEach((leaf) => {
+                    leaf.children = step.cloneChildren();
+                });
+
+                /**
+                 * Expands a sequential step, calls itself recursively (depth-first traversal)
+                 * @return {Array} Array of Step which are leaves under step, post-expansion
+                 */
+                function expandSequentialStep(step) {
+
+
+
+
+
+
+
+
+                }
+            }
+
+            // Expand the step based on its type
             if(step.isTextualStep) {
                 // Just keep the step as is
             }
@@ -568,8 +580,45 @@ class Tree {
 
 
 
+
+
+
             }
             else if(step.isFunctionCall) {
+                // Find corresponding function declaration
+
+
+
+
+                // Remove step's original children
+
+
+
+
+                // Copy function into step's children
+
+
+
+
+
+                // Attach a copy of step's original children to each leaf of step's new children
+
+
+
+
+
+
+
+
+            }
+            else if(step instanceof StepBlock) {
+
+
+
+
+
+
+
 
 
 
@@ -578,41 +627,76 @@ class Tree {
                 // Handle hooks
                 var stepText = step.text.trim().toLowerCase().replace(/\s+/g, ' ');
                 if(stepText == "before all branches") {
+                    validateCase();
+
+
+
 
 
 
                 }
                 else if(stepText == "after all branches") {
+                    validateCase();
+
+
+
 
 
 
                 }
                 else if(stepText == "before every branch") {
+                    validateCase();
+
+
+
 
 
 
                 }
                 else if(stepText == "after every branch") {
+                    validateCase();
+
+
+
 
 
 
                 }
                 else if(stepText == "before every step") {
+                    validateCase();
+
+
+
 
 
 
                 }
                 else if(stepText == "after every step") {
+                    validateCase();
+
+
+
+
 
 
 
                 }
                 else if(stepText == "after failed step") {
+                    validateCase();
+
+
+
+
 
 
 
                 }
                 else if(stepText == "after successful step") {
+                    validateCase();
+
+
+
+
 
 
 
@@ -620,23 +704,19 @@ class Tree {
                 else {
                     // Ignore non-hook function declarations
                 }
-            }
-            else if(step instanceof StepBlock) {
-                if(step.isSequential) {
-                    // Convert step.steps into one long line of Steps, each being the child of the previous.
-                    // then set the last Step's children to be step.children
 
-                    // TODO: Set step = that last child, so it's ready for the recursive expandStep() calls below
+                /**
+                 * Validates that step.text is in the proper hook function casing (i.e., After all branches)
+                 * Only call if step.text is a hook function
+                 * @throws {Error} If step.text is not in the right casing
+                 */
+                function validateCase() {
+                    var properStepText = step.text.trim().toLowerCase().replace(/\s+/g, ' ');
+                    properStepText[0] = properStepText[0].toUpperCase();
 
-
-
-                }
-                else {
-
-
-
-
-
+                    if(step.text.trim().replace(/\s+/g, ' ') != properStepText) {
+                        this.error("This hook function declaration is not in the right casing (first letter must be caps, e.g., 'After all branches')", step.filename, step.lineNumber);
+                    }
                 }
             }
 

@@ -1,3 +1,5 @@
+const clonedeep = require('lodash/clonedeep');
+
 /**
  * Represents a Step within a Tree or StepBlock
  */
@@ -44,6 +46,54 @@ class Step {
 
         this.isBuiltIn = false;               // true if this step is from a built-in file
         */
+    }
+
+    /**
+     * @return {Step} A distinct copy of this Step and its underlying tree, but with parent and containingStepBlock of the top Step set to null
+     */
+    clone() {
+        // We don't want the clone to walk the tree into this.parent and beyond (same with this.containingStepBlock)
+        var originalParent = this.parent;
+        this.parent = null;
+
+        var originalContainingBlock = this.containingStepBlock;
+        this.containingStepBlock = null;
+
+        var clone = clonedeep(this);
+
+        // Restore originals
+        this.parent = originalParent;
+        this.containingStepBlock = originalContainingBlock;
+
+        return clone;
+    }
+
+    /**
+     * @return {Array} Cloned array of this.children
+     */
+    cloneChildren() {
+        var cloneArr = [];
+        this.children.forEach((step) => {
+            cloneArr.push(step.clone());
+        });
+        return cloneArr;
+    }
+
+    /**
+     * @return {Array} Array of Step, which are the leaves of this step's underlying tree, [ this ] if this is itself a leaf
+     */
+    getLeaves() {
+        if(step.children.length == 0) {
+            // this is a leaf
+            return [ this ];
+        }
+        else {
+            var arr = [];
+            step.children.forEach((child) => {
+                arr = arr.concat(child.getLeaves());
+            });
+            return arr;
+        }
     }
 }
 module.exports = Step;

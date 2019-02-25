@@ -13,6 +13,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
+    "lodash": "^4.17.11",
     "util": "^0.11.1"
   },
   "scripts": {

@@ -19,5 +19,16 @@ class StepBlock {
         this.isSequential = false;     // true if this StepBlock is precended with a ..
         */
     }
+
+    /**
+     * @return {Array} Cloned array of this.steps
+     */
+    cloneSteps() {
+        var cloneArr = [];
+        this.steps.forEach((step) => {
+            cloneArr.push(step.clone());
+        });
+        return cloneArr;
+    }
 }
 module.exports = StepBlock;
