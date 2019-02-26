@@ -5,8 +5,6 @@ const clonedeep = require('lodash/clonedeep');
  */
 class Step {
     constructor() {
-        this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
-
         this.indents = -1;                    // number of indents before this step's text, where an indent consists of SPACES_PER_INDENT spaces
 
         this.parent = null;                   // Step or StepBlock that's the parent of this Step (null if this Step is itself part of a StepBlock)
@@ -18,6 +16,7 @@ class Step {
         /*
         OPTIONAL
 
+        this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
         this.text = "";                       // text of the command of the step (not including spaces in front, identifiers, comments, etc.)
         this.identifiers = [];                // array of strings, each of which represents an identifier (e.g., ['..', '+', '#something'])
         this.codeBlock = "";                  // if this is a code block step, contains the '{' followed by the code

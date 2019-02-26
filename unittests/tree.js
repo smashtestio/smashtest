@@ -613,7 +613,6 @@ describe("Tree", function() {
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: []
@@ -628,7 +627,6 @@ describe("Tree", function() {
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: []
@@ -657,7 +655,6 @@ L`
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -784,7 +781,6 @@ L
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -918,7 +914,6 @@ H
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1044,7 +1039,6 @@ H
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1140,7 +1134,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1203,7 +1196,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1267,7 +1259,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1337,7 +1328,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1406,7 +1396,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1468,7 +1457,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1528,7 +1516,6 @@ D`
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1588,7 +1575,6 @@ D`
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1647,7 +1633,6 @@ C`
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1702,7 +1687,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1790,7 +1774,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1853,7 +1836,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1915,7 +1897,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -1971,7 +1952,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2130,7 +2110,6 @@ B
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2204,7 +2183,6 @@ B
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2278,7 +2256,6 @@ B
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2353,7 +2330,6 @@ B
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2428,7 +2404,6 @@ B
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2525,7 +2500,6 @@ B
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2580,7 +2554,6 @@ D
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2645,7 +2618,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2701,7 +2673,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2758,7 +2729,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2805,7 +2775,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2854,7 +2823,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2903,7 +2871,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -2954,7 +2921,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -3022,7 +2988,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
@@ -3072,7 +3037,6 @@ C
 
             expect(tree).to.containSubset({
                 root: {
-                    line: '',
                     indents: -1,
                     parent: null,
                     children: [
