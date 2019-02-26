@@ -6,6 +6,7 @@ const clonedeep = require('lodash/clonedeep');
 class Step {
     constructor() {
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
+
         this.indents = -1;                    // number of indents before this step's text, where an indent consists of SPACES_PER_INDENT spaces
 
         this.parent = null;                   // Step or StepBlock that's the parent of this Step (null if this Step is itself part of a StepBlock)
@@ -83,13 +84,13 @@ class Step {
      * @return {Array} Array of Step, which are the leaves of this step's underlying tree, [ this ] if this is itself a leaf
      */
     getLeaves() {
-        if(step.children.length == 0) {
+        if(this.children.length == 0) {
             // this is a leaf
             return [ this ];
         }
         else {
             var arr = [];
-            step.children.forEach((child) => {
+            this.children.forEach((child) => {
                 arr = arr.concat(child.getLeaves());
             });
             return arr;

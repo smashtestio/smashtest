@@ -19,8 +19,10 @@ Steps
     - Indents
         - 4 spaces for indents (no tabs)
         - Like indented comments on a site like Reddit, where each chain of replies is a branch
-    - Blank lines generally don't matter, except to denote step blocks. Use them for stylistic organization.
-        - Blank lines are like a “big parenthesis” around multiple steps
+    - Blank lines generally don't matter
+        - Use them for stylistic organization and to group similar steps
+        - Recommended to put a blank line above and below a step block, to make it easier to see.
+        - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
 
 Running tests
     - Branches generated breath first

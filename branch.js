@@ -9,7 +9,6 @@ class Branch {
         OPTIONAL
 
         this.prevSequentialBranch = {};     // When multiple branches cannot be run in parallel (due to +), they are sequentially linked here, where this var either points to the previous Branch in the sequence, or to null
-        this.nextSequentialBranch = {};     // When multiple branches cannot be run in parallel (due to +), they are sequentially linked here, where this var either points to the next Branch in the sequence, or to null
         */
     }
 }

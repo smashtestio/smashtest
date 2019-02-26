@@ -1636,6 +1636,57 @@ D`
             });
         });
 
+        it("recognizes an empty line as the end of a step block", function() {
+            var tree = new Tree();
+            tree.parseIn(
+`A
+B
+
+C`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    line: '',
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            lineNumber: 1,
+                            indents: 0,
+                            steps: [
+                                {
+                                    text: 'A',
+                                    lineNumber: 1,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                },
+                                {
+                                    text: 'B',
+                                    lineNumber: 2,
+                                    indents: 0,
+                                    parent: null,
+                                    children: [],
+                                    containingStepBlock: { indents: 0, steps: [] }
+                                }
+                            ],
+                            parent: { indents: -1 },
+                            children: []
+                        },
+                        {
+                            text: 'C',
+                            lineNumber: 4,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: []
+                        }
+                    ]
+                }
+            });
+        });
+
         it("parses multiple nested step blocks", function() {
             var tree = new Tree();
             tree.parseIn(

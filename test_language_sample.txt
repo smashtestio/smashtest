@@ -1,4 +1,4 @@
-* Initialize
+* Before all branches
     ..
     Must Test All Browsers
     Must Test All Envs
@@ -57,7 +57,6 @@
 
 
 Test the Widget Maker -
-    Initialize
 
         QA Env
         Stage Env
