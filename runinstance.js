@@ -4,6 +4,7 @@
 class RunInstance {
     constructor(testRunner) {
         this.testRunner = testRunner;
+        this.persistant = this.testRunner.persistant;
     }
 
     /**

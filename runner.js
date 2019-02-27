@@ -13,6 +13,7 @@ class Runner {
     constructor(config) {
         this.maxInstances = config.maxInstances;
         this.tree = config.tree;
+        this.persistant = {};  // stores variables which persist from branch to branch, for the life of the Runner
 
         this.runInstances = [];     // will contain up to this.maxInstances RunInstance objects, each running a branch
     }

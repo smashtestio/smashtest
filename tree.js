@@ -6,7 +6,7 @@ const SPACES_PER_INDENT = 4;
 
 // Matches any well-formed non-empty line, in this format:
 // Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
-const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
+const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\$|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
 // Matches "string" or 'string', handles escaped \ and "
 const STRING_LITERAL_REGEX_WHOLE = /^('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")$/;
 const STRING_LITERAL_REGEX = /'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
@@ -27,8 +27,11 @@ const ELEMENTFINDER_REGEX = /^\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")
  */
 class Tree {
     constructor() {
-        this.root = new Step();  // the root Step of the tree (parsed version of the text that got inputted)
-        this.branches = [];      // Array of Branch, generated from this.root
+        this.root = new Step();         // the root Step of the tree (parsed version of the text that got inputted)
+        this.beforeEverything = [];     // Array of Step, the steps (and their children) to execute before all branches (tests)
+        this.afterEverything = [];      // Array of Step, the steps (and their children) to execute after all branches (tests)
+
+        this.branches = [];             // Array of Branch, generated from this.root
     }
 
     /**
@@ -103,7 +106,7 @@ class Tree {
             step.comment = matches[14];
         }
 
-        // *Function Declarations
+        // Is this step a *Function Declaration?
         if(matches[1]) {
             step.isFunctionDeclaration = matches[1].trim() == '*';
         }
@@ -111,7 +114,7 @@ class Tree {
             this.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
         }
 
-        // Must Test
+        // Is this step a Must Test X?
         matches = step.text.match(MUST_TEST_REGEX);
         if(matches) {
             if(step.isFunctionDeclaration) {
@@ -122,7 +125,7 @@ class Tree {
             step.mustTestText = matches[1];
         }
 
-        // Identifier booleans
+        // Set identifier booleans and perform related validations
         if(step.identifiers) {
             if(step.identifiers.includes('-T')) {
                 step.isToDo = true;
@@ -132,12 +135,19 @@ class Tree {
             }
             if(step.identifiers.includes('-')) {
                 step.isTextualStep = true;
+
+                if(step.isFunctionDeclaration) {
+                    this.error("A *Function declaration cannot be a textual step (-) as well", filename, lineNumber);
+                }
             }
             if(step.identifiers.includes('~')) {
                 step.isDebug = true;
             }
             if(step.identifiers.includes('~~')) {
                 step.isStepByStepDebug = true;
+            }
+            if(step.identifiers.includes('$')) {
+                step.isOnly = true;
             }
             if(step.identifiers.includes('+')) {
                 step.isNonParallel = true;
@@ -150,14 +160,8 @@ class Tree {
             }
         }
 
-        if(typeof step.codeBlock != 'undefined' && step.isTextualStep) {
-            this.error("A textual step (-) cannot have a code block a well", filename, lineNumber);
-        }
-        if(step.isFunctionDeclaration && step.isTextualStep) {
-            this.error("A *Function declaration cannot be a textual step (-) as well", filename, lineNumber);
-        }
-
-        // Parse {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. from text into step.varsBeingSet
+        // Is this step a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc.? (one or more vars)
+        // Parse vars from text into step.varsBeingSet
         if(step.text.match(VARS_SET_REGEX)) {
             if(step.isFunctionDeclaration) {
                 this.error("A step setting {variables} cannot start with a *", filename, lineNumber);
@@ -181,7 +185,7 @@ class Tree {
                 textCopy = textCopy.replace(/^\,/, ''); // string the leading comma, if there is one
             }
 
-            if(step.varsBeingSet.length > 1) { // {var1}='str1', {var2}='str2', etc.
+            if(step.varsBeingSet.length > 1) { // This step is {var1}='str1', {var2}='str2', etc. (two or more vars)
                 // If there are multiple vars being set, each value must be a string literal
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
                     if(!step.varsBeingSet[i].value.match(STRING_LITERAL_REGEX_WHOLE)) {
@@ -189,16 +193,29 @@ class Tree {
                     }
                 }
             }
-            else { // {var}=Func or {var}='str'
-                if(!step.varsBeingSet[0].value.match(STRING_LITERAL_REGEX_WHOLE)) { // {var}=Func
+            else { // This step is {var}=Func or {var}='str' (only one var being set)
+                if(!step.varsBeingSet[0].value.match(STRING_LITERAL_REGEX_WHOLE)) { // This step is {var}=Func
                     step.isFunctionCall = true;
+
+                    if(step.isTextualStep) {
+                        this.error("A textual step (ending in -) cannot also start with a {variable} assignment", filename, lineNumber);
+                    }
+                    if(typeof step.codeBlock != 'undefined') {
+                        this.error("A step that starts with a {variable} assignment cannot also have a code block", filename, lineNumber);
+                    }
                 }
             }
         }
-        else {
+        else { // This step does not start with {var}=
             if(!step.isTextualStep && !step.isFunctionDeclaration) {
                 step.isFunctionCall = true;
             }
+        }
+
+        // Validate that code blocks are either textual, function declarations, or approved function calls
+        var approvedFunctionCallsWithCodeBlock = [ 'execute in browser' ];
+        if(typeof step.codeBlock != 'undefined' && !step.isTextualStep && !step.isFunctionDeclaration && approvedFunctionCallsWithCodeBlock.indexOf(step.getCanonicalText()) == -1) {
+            this.error("A function call with a code block must be textual. Consider adding a - to the end of the text.", filename, lineNumber);
         }
 
         // Create a list of elementFinders contained in this step
@@ -583,6 +600,12 @@ class Tree {
 
 
 
+
+
+
+
+
+
             }
             else if(step.isFunctionCall) {
                 // Find corresponding function declaration
@@ -625,93 +648,59 @@ class Tree {
             }
             else if(step.isFunctionDeclaration) {
                 // Handle hooks
-                var stepText = step.text.trim().toLowerCase().replace(/\s+/g, ' ');
-                if(stepText == "before all branches") {
+                var stepText = step.getCanonicalText();
+                if(stepText == "after every branch") {
                     validateCase();
 
+                    if(!step.parent.afterEveryBranch) {
+                        step.parent.afterEveryBranch = [];
+                    }
+                    var clonedStep = step.clone();
+                    clonedStep.isFunctionDeclaration = false;
+                    clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
+                    step.parent.afterEveryBranch.push(clonedStep);
 
-
-
-
-
+                    expandStep(step); // expand the tree below
                 }
-                else if(stepText == "after all branches") {
+                else if(stepText == "before everything") {
                     validateCase();
 
+                    if(step.indents != 0) {
+                        this.error("A '* Before everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                    }
 
+                    var clonedStep = step.clone();
+                    clonedStep.isFunctionDeclaration = false;
+                    clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
+                    this.beforeEverything.push(clonedStep);
 
-
-
-
+                    expandStep(step); // expand the tree below
                 }
-                else if(stepText == "before every branch") {
+                else if(stepText == "after everything") {
                     validateCase();
 
+                    if(step.indents != 0) {
+                        this.error("An '* After everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                    }
 
+                    var clonedStep = step.clone();
+                    clonedStep.isFunctionDeclaration = false;
+                    clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
+                    this.afterEverything.push(clonedStep);
 
-
-
-
-                }
-                else if(stepText == "after every branch") {
-                    validateCase();
-
-
-
-
-
-
-                }
-                else if(stepText == "before every step") {
-                    validateCase();
-
-
-
-
-
-
-                }
-                else if(stepText == "after every step") {
-                    validateCase();
-
-
-
-
-
-
-
-                }
-                else if(stepText == "after failed step") {
-                    validateCase();
-
-
-
-
-
-
-
-                }
-                else if(stepText == "after successful step") {
-                    validateCase();
-
-
-
-
-
-
-
+                    expandStep(step); // expand the tree below
                 }
                 else {
                     // Ignore non-hook function declarations
                 }
 
                 /**
-                 * Validates that step.text is in the proper hook function casing (i.e., After all branches)
+                 * Validates that step.text is in the proper hook function casing (i.e., first letter uppercase, all others lowercase)
                  * Only call if step.text is a hook function
                  * @throws {Error} If step.text is not in the right casing
                  */
                 function validateCase() {
-                    var properStepText = step.text.trim().toLowerCase().replace(/\s+/g, ' ');
+                    var properStepText = step.getCanonicalText();
                     properStepText[0] = properStepText[0].toUpperCase();
 
                     if(step.text.trim().replace(/\s+/g, ' ') != properStepText) {
@@ -721,9 +710,9 @@ class Tree {
             }
 
             // Recursively call yourself on step's children
-            for(var i = 0; i < step.children.length; i++) {
-                expandStep(step.children[i]);
-            }
+            step.children.forEach((child) => {
+                expandStep(child);
+            });
         }
 
         /**
@@ -759,7 +748,7 @@ class Tree {
                 }
             }
 
-            this.error("The function '" + functionCallTextToMatch + "' cannot be found", filename, lineNumber);
+            this.error("The function '" + functionCallTextToMatch + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
         }
     }
 

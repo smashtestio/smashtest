@@ -60,6 +60,7 @@ describe("Tree", function() {
             assert.equal(step.isDebug, undefined);
             assert.equal(step.isTextualStep, undefined);
             assert.equal(step.isStepByStepDebug, undefined);
+            assert.equal(step.isOnly, undefined);
             assert.equal(step.isNonParallel, undefined);
             assert.equal(step.isSequential, undefined);
             assert.equal(step.isExpectedFail, undefined);
@@ -163,12 +164,6 @@ describe("Tree", function() {
             assert.equal(step.isFunctionCall, true);
         });
 
-        it("throws an error if a textual step is also a code step", function() {
-            assert.throws(() => {
-                tree.parseLine(`Something + - {`, "file.txt", 10);
-            });
-        });
-
         it("throws an error if a textual step is also a function declaration", function() {
             assert.throws(() => {
                 tree.parseLine(`* Something - +`, "file.txt", 10);
@@ -203,15 +198,33 @@ describe("Tree", function() {
             });
         });
 
-        it("parses a code block", function() {
-            var step = tree.parseLine(`Click 'A button' + { `, "file.txt", 10);
-            assert.equal(step.text, `Click 'A button'`);
+        it("parses a function declaration with a code block", function() {
+            var step = tree.parseLine(`* Click {{var}} + { `, "file.txt", 10);
+            assert.equal(step.text, `Click {{var}}`);
             assert.equal(step.codeBlock, ' ');
         });
 
+        it("parses a textual step with a code block", function() {
+            var step = tree.parseLine(`Some text + - { `, "file.txt", 10);
+            assert.equal(step.text, `Some text`);
+            assert.equal(step.codeBlock, ' ');
+        });
+
+        it("parses an approved function call with a code block", function() {
+            var step = tree.parseLine(`Execute  in browser  + { `, "file.txt", 10);
+            assert.equal(step.text, `Execute  in browser`);
+            assert.equal(step.codeBlock, ' ');
+        });
+
+        it("rejects an unapproved function call with a code block", function() {
+            assert.throws(() => {
+                tree.parseLine(`Some function call + { `, "file.txt", 10);
+            });
+        });
+
         it("parses a code block followed by a comment", function() {
-            var step = tree.parseLine(`Click 'A button' + { // comment here`, "file.txt", 10);
-            assert.equal(step.text, `Click 'A button'`);
+            var step = tree.parseLine(`Something here + - { // comment here`, "file.txt", 10);
+            assert.equal(step.text, `Something here`);
             assert.equal(step.codeBlock, ' // comment here');
             assert.equal(step.comment, undefined);
         });
@@ -257,7 +270,7 @@ describe("Tree", function() {
             assert.equal(step.isDebug, true);
             assert.equal(step.isStepByStepDebug, undefined);
 
-            step = tree.parseLine(`Click {button} + ~ {`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} + ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, true);
             assert.equal(step.isStepByStepDebug, undefined);
@@ -269,10 +282,20 @@ describe("Tree", function() {
             assert.equal(step.isDebug, undefined);
             assert.equal(step.isStepByStepDebug, true);
 
-            step = tree.parseLine(`Click {button} + ~~ {`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} + ~~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, undefined);
             assert.equal(step.isStepByStepDebug, true);
+        });
+
+        it("parses the only identifier ($)", function() {
+            var step = tree.parseLine(`Click {button} $`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isOnly, true);
+
+            step = tree.parseLine(`Click {button} + $ `, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isOnly, true);
         });
 
         it("parses the non-parallel identifier (+)", function() {
@@ -317,6 +340,18 @@ describe("Tree", function() {
             assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var with spaces", value: "Click 'something' {{blah}}", isLocal: false} ]);
             assert.deepEqual(step.varsList, [ {name: "var with spaces", isLocal: false}, {name: "blah", isLocal: true} ]);
+        });
+
+        it("rejects {var} = Textual Function -", function() {
+            assert.throws(() => {
+                tree.parseLine(`{var} = Textual Function -`, "file.txt", 10);
+            });
+        });
+
+        it("rejects {var} = Code Block Function {", function() {
+            assert.throws(() => {
+                tree.parseLine(`{var} = Execute in browser {`, "file.txt", 10);
+            });
         });
 
         it("parses {var} = 'string'", function() {
@@ -2606,7 +2641,7 @@ D
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
     }
@@ -2663,7 +2698,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
     }
 
     B
@@ -2718,7 +2753,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
     }
@@ -2766,7 +2801,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
     }
@@ -2812,7 +2847,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
     }
@@ -2861,7 +2896,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
     }
@@ -2909,7 +2944,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
     }
@@ -2975,12 +3010,12 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
     }
 
-        Another code block # {
+        Another code block # - {
             blah;
         }
 `
@@ -3026,11 +3061,11 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
     }
-        Another code block # {
+        Another code block - # {
             blah;
         }`
             , "file.txt");
@@ -3076,7 +3111,7 @@ C
             assert.throws(() => {
                 tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
         code;
         more code;
 `
@@ -3085,7 +3120,7 @@ C
 
             assert.throws(() => {
                 tree.parseIn(
-`Code block here {`
+`Code block here - {`
                 , "file.txt");
             });
         });
@@ -3095,7 +3130,7 @@ C
             assert.throws(() => {
                 tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
 
 }
 `
@@ -3105,7 +3140,7 @@ C
             assert.throws(() => {
                 tree.parseIn(
 `A
-    Code block here {
+    Code block here - {
 
         }
 `
@@ -3265,35 +3300,24 @@ C
             // the contents of the functions themselves aren't expanded (use functions with multiple branches to ensure branching still occurs)
         });
 
-        it.skip("expands the * Before all branches hook", function() {
-            var tree = new Tree();
-        });
-
-        it.skip("expands the * After all branches hook", function() {
-            var tree = new Tree();
-        });
-
-        it.skip("expands the * Before every branch hook", function() {
-            var tree = new Tree();
-        });
-
         it.skip("expands the * After every branch hook", function() {
             var tree = new Tree();
+            // have it expand to multiple leaves, but not to all leaves in the tree
         });
 
-        it.skip("expands the * Before every step hook", function() {
+        it.skip("expands the * Before everything hook", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * After every step hook", function() {
+        it.skip("expands the * After everything hook", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * After failed step hook", function() {
+        it.skip("rejects the * Before everything hook when not at 0 indents", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * After successful step hook", function() {
+        it.skip("rejects the * After everything hook when not at 0 indents", function() {
             var tree = new Tree();
         });
 
@@ -3319,7 +3343,7 @@ C
             // puts that tree into a separate variable (i.e., step.mustTestTree)
         });
 
-        it.skip("expands {var} = Must Test X", function() {
+        it.skip("expands Must Test {var} = X", function() {
             var tree = new Tree();
             // puts that tree into a separate variable (i.e., step.mustTestTree)
         });
@@ -3337,7 +3361,7 @@ C
             var tree = new Tree();
         });
 
-        it.skip("rejects {var} = Must Test X where X is not a branched function in {x}='value' format", function() {
+        it.skip("rejects Must Test {var} = X where X is not a branched function in {x}='value' format", function() {
             var tree = new Tree();
         });
 

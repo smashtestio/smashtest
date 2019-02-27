@@ -10,12 +10,13 @@ Setup
     - Installation
         - npm
         - Use even-numbered version of nodejs
-        (?) - Install webdriverio or selenium separately? See webdriverio installation guide and try to install it as a dependency
+        (?) - Install webdriverjs and/or selenium separately? See webdriverjs installation guide and try to install it as a dependency
     - Installing SmashPANEL Lite too
         - What it does and why it's recommended
 
 Steps
     - Textual steps, built-in steps, functions
+    - Each "branch" is a separate test. We call tests "branches".
     - Indents
         - 4 spaces for indents (no tabs)
         - Like indented comments on a site like Reddit, where each chain of replies is a branch
@@ -25,11 +26,10 @@ Steps
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
 
 Running tests
-    - Branches generated breath first
+    - Branches run breadth-first
     - Basic command line invocation
         - File glob passed in
         - Setting {vars} from command line
-    - js is generated, passed to webdriverio
 
 Configuration
     - Timeouts
@@ -58,11 +58,11 @@ ElementFinders
     - [OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')]
     - Examples
         - [ 'Login' box ]
-        - [ 4th 'Login' box ]
         - [ 'Login' ]
             - Any element that's an a, button, input, textarea, etc.  or is clickable/has a click handler and contains text 'Login' (see SmashPANEL implementation)
         - [ 'Login' box next to 'meow' ]
         - [ box next to 'meow' ]
+        - [ 4th 'Login' box ]
         - [ 4th 'Login' next to 'meow' ]
     - Explain the basics of the find algorithm
 
@@ -72,24 +72,24 @@ Functions
         - Function {var} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
             - All function inputs are either {vars}, "strings", or [ElementFinders]
         - Finds closest matching function declaration in the tree, otherwise looks to built-in functions
+        - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
     - Declaring
         - Examples of declarations
-        - When a *function ends in multiple leaves, those are separate branches for the indented line below function*
         - Finding declaration
             - First look to siblings, then to siblings of parent, etc.
             - Match custom functions first, then primitive built-in functions
-            - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children.
+            - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
     - Pitfalls
-        - A declared but uncalled function causes a warning
+        - Functions must match case (if they don't it's a compile error), but may include varying whitespace
 
 Variables
     - Types of vars
-        - {var} is global
-        - {{var}} is internal to the function
+        - {var} is global (steps below the function call will have access to {var})
+        - {{var}} is internal to the function (it goes out of scope at the end of the function)
     - Setting vars
         - {var} = 'String' (or "String")
         - {var} = Code Function
-            - Code Function returns a string
+            - Code Function returns a string (actually any kind of js value will work)
         - {var} = Function
             - Function is a list of textual steps that will be turned into strings
             - Line is turned into a code block, where {var} = each string
@@ -99,18 +99,20 @@ Variables
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
     - Pitfalls
         - Cannot have a \ in the name of a variable
+        - Whitespace in front of and behind a variable name doesn't count
 
 Comments
 
 Code blocks
     - Types
         - * Function {code}
-        - Textual step {code}
-        - Execute in browser {js code}
+        - Textual step - {code}
+        - Execute in browser {code}
     - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
     - +, .., etc. characters applied come after the step text and before the {
     - Only lines after the { line and before the } count as part of the code block
-    - Vars accessible in code as vars["var name"] or localvars["var name"]
+    - Vars accessible in code as global.name (or global["var name"]) or local.name (or local["var name"])
+        - Vars that persist from branch to branch are stored in persistant
 
 To-Do (-T)
     - Marks this branch and those under it as todo
@@ -139,28 +141,37 @@ Must Test
     - Subtree = Is every branch in X represented below me? (me = full tree, including function expansions, not including other Must Test statements)
     - Must Test {var} = List
         - Makes sure every {var} = list member is included in the subtree
+        - List format has to be (where the var names can be anything, not just {x})
+            List
+                {x}='str1'
+                {x}='str2'
 
 Hook steps
-    - * Before all branches
-        - mark this step's siblings - before any branches going through them are executed, execute this
-    - * After all branches
-    - * Before every branch
-        - mark this step's siblings - any branches going through these are where this step is called before
-        - Show an example of doing a require() here, then accessing a js var in subsequent code functions
     - * After every branch
-    - * Before every step
-    - * After every step
-    - * After failed step
-        - mark this step's siblings - any branches going through - if a step fails, execute this right after
-    - * After successful step
+        - {branchSuccessful} = true if passed, false if failed
+        - {error} = the Error object, if failed
+        - attached to the end of every leaf under this function declaration's parent
+    - * Before everything
+        - before any tests begin, execute this
+        - only valid at 0 indents
+    - * After everything
+        - after all tests end, execute this
+        - only valid at 0 indents
 
 Mocking APIs
 
+Only ($)
+    - $ = Only run branches under this step, but no debugging.
+        - Multiple $'s that intersect only run tests that fall under both (AND)
+        - Multiple $'s that do not intersect run tests that fall under either (OR)
+
 Selective test running
+    - Only identifier ($)
     - Groups
         - Choosing which groups to run from variable, or from command line
     - Frequency
         - Choosing which frequencies to run from variable, or from command line
+        - Overrides breadth-first algo when choosing which branch to run next
 
 Run tests that failed last time
 
