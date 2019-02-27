@@ -3157,50 +3157,6 @@ C
         });
     });
 
-    describe("isFunctionMatch()", function() {
-        it("matches a function call and function declaration with the same text", function() {
-            var tree = new Tree();
-            expect(tree.isFunctionMatch("Step name here", "Step name here", "filename.text", 10)).to.equal(true);
-        });
-
-        it("doesn't match a function call and function declaration with different text", function() {
-            var tree = new Tree();
-            expect(tree.isFunctionMatch("Step name here", "Different name here", "filename.text", 10)).to.equal(false);
-        });
-
-        it("matches a function call and function declaration with the same text but differing amounts of whitespace", function() {
-            var tree = new Tree();
-            expect(tree.isFunctionMatch("Step name here", "  Step  name here ", "filename.text", 10)).to.equal(true);
-        });
-
-        it("throws an exception if a function call and function declaration match case insensitively but not case sensitively", function() {
-            var tree = new Tree();
-            assert.throws(() => {
-                tree.isFunctionMatch("Step name here", "step name here", "filename.text", 10);
-            });
-        });
-
-        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [ElementFinders]", function() {
-            var tree = new Tree();
-            expect(tree.isFunctionMatch("Step {{var1}} and {{var2}} {{var3}} also {{var4}}, {{var5}}", "Step {{varA}} and  {varB} 'string C' also \"stringD\", [4th 'Login' button]", "filename.text", 10)).to.equal(true);
-        });
-
-        it("doesn't match a function declaration with {{vars}} and a function call with extra {vars} at the end", function() {
-            var tree = new Tree();
-            expect(tree.isFunctionMatch("Step {{var1}}", "Step {varA} {varB}", "filename.text", 10)).to.equal(false);
-        });
-
-        it("doesn't match a function declaration with {{vars}} and a function call with extra 'strings' at the end", function() {
-            var tree = new Tree();
-            expect(tree.isFunctionMatch("Step {{var1}}", "Step 'stringA' 'stringB'", "filename.text", 10)).to.equal(false);
-        });
-
-        it("doesn't match a function declaration with {{vars}} and a function call with extra [ElementFinders] at the end", function() {
-            var tree = new Tree();
-            expect(tree.isFunctionMatch("Step {{var1}}", "Step {varA} ['element' finderB]", "filename.text", 10)).to.equal(false);
-        });
-    });
-
     describe("expandTree()", function() {
         it.skip("expands a function call", function() {
             var tree = new Tree();
@@ -3243,6 +3199,10 @@ C
         });
 
         it.skip("finds the right function when a function call contains strings, variables, and elementFinders", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("finds the right function when a {var} = Func call contains strings, variables, and elementFinders", function() {
             var tree = new Tree();
         });
 

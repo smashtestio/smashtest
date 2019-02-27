@@ -387,4 +387,62 @@ describe("Step", function() {
             expect(leaves).to.have.length(1);
         });
     });
+
+    describe("isFunctionMatch()", function() {
+        var functionDeclaration = new Step();
+        var functionCall = new Step();
+
+        functionDeclaration.isFunctionDeclaration = true;
+        functionCall.isFunctionCall = true;
+
+        it("matches a function call and function declaration with the same text", function() {
+            functionDeclaration.text = "Step name here";
+            functionCall.text = "Step name here";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("doesn't match a function call and function declaration with different text", function() {
+            functionDeclaration.text = "Step name here";
+            functionCall.text = "Different name here";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
+        });
+
+        it("matches a function call and function declaration with the same text but differing amounts of whitespace", function() {
+            functionDeclaration.text = "Step name here";
+            functionCall.text = "  Step  name here ";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("throws an exception if a function call and function declaration match case insensitively but not case sensitively", function() {
+            functionDeclaration.text = "Step name here";
+            functionCall.text = "step name here";
+            assert.throws(() => {
+                functionCall.isFunctionMatch(functionDeclaration);
+            });
+        });
+
+        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [ElementFinders]", function() {
+            functionDeclaration.text = "Step {{var1}} and {{var2}} {{var3}} also {{var4}}, {{var5}}";
+            functionCall.text = "Step {{varA}} and  {varB} 'string C' also \"stringD\", [4th 'Login' button]";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("doesn't match a function declaration with {{vars}} and a function call with extra {vars} at the end", function() {
+            functionDeclaration.text = "Step {{var1}}";
+            functionCall.text = "Step {varA} {varB}";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
+        });
+
+        it("doesn't match a function declaration with {{vars}} and a function call with extra 'strings' at the end", function() {
+            functionDeclaration.text = "Step {{var1}}";
+            functionCall.text = "Step 'stringA' 'stringB'";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
+        });
+
+        it("doesn't match a function declaration with {{vars}} and a function call with extra [ElementFinders] at the end", function() {
+            functionDeclaration.text = "Step {{var1}}";
+            functionCall.text = "Step {varA} ['element' finderB]";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
+        });
+    });
 });

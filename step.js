@@ -1,4 +1,5 @@
 const clonedeep = require('lodash/clonedeep');
+const Constants = require('./constants.js');
 
 /**
  * Represents a Step within a Tree or StepBlock
@@ -107,11 +108,48 @@ class Step {
     }
 
     /**
+     * Checks to see if this step, which is a function call, matches the given function declaration
+     * @param {Step} functionDeclaration - A function declaration step
+     * @return {Boolean} true if they match, false if they don't
+     * @throws {Error} if there's a case insensitive match but not a case sensitive match
+     */
+    isFunctionMatch(functionDeclaration) {
+        var functionCallText = this.getFunctionCallText();
+        var functionDeclarationText = functionDeclaration.text;
+
+        // When hooking up functions, canonicalize by trim(), replace \s+ with a single space
+        // functionDeclarationText can have {{variables}}
+        // functionCallText can have {{vars}}, {vars}, 'strings', "strings", and [elementFinders]
+
+        functionDeclarationText = functionDeclarationText
+            .trim()
+            .replace(/\s+/g, ' ')
+            .replace(Constants.VAR_REGEX, '{}');
+
+        functionCallText = functionCallText
+            .trim()
+            .replace(/\s+/g, ' ')
+            .replace(Constants.STRING_LITERAL_REGEX, '{}')
+            .replace(Constants.BRACKET_REGEX, '{}')
+            .replace(Constants.VAR_REGEX, '{}');
+
+        if(functionDeclarationText == functionCallText) {
+            return true;
+        }
+        else if(functionDeclarationText.toLowerCase() == functionCallText.toLowerCase()) {
+            this.error("The function call '" + functionCallText + "' matches function declaration '" + functionDeclarationText + "', but must match case sensitively", this.filename, this.lineNumber);
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * @return {String} The text of the function call (without {var}= or Must Test), null if step isn't a function call
      */
-    getFunctionText() {
+    getFunctionCallText() {
         if(this.isMustTest) { // Must Test X
-            if(this.varsBeingSet.length == 1) { // Must Test {var} = Func
+            if(this.varsBeingSet && this.varsBeingSet.length == 1) { // Must Test {var} = Func
                 return this.varsBeingSet[0].value;
             }
             else { // Must Test Func
@@ -119,7 +157,7 @@ class Step {
             }
         }
         else if(this.isFunctionCall) {
-            if(this.varsBeingSet.length == 1) { // {var} = Func
+            if(this.varsBeingSet && this.varsBeingSet.length == 1) { // {var} = Func
                 return this.varsBeingSet[0].value;
             }
             else { // Func

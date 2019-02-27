@@ -1,26 +1,7 @@
 const Step = require('./step.js');
 const StepBlock = require('./stepblock.js');
 const Branch = require('./branch.js');
-
-const SPACES_PER_INDENT = 4;
-
-// Matches any well-formed non-empty line, in this format:
-// Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
-const LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\$|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
-// Matches "string" or 'string', handles escaped \ and "
-const STRING_LITERAL_REGEX_WHOLE = /^('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")$/;
-const STRING_LITERAL_REGEX = /'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
-// Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val)
-const VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
-// Matches {var} or {{var}}
-const VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
-// Matches [text]
-const BRACKET_REGEX = /\[[^\[\]\\]+\]/g;
-// Matches Must Test X
-const MUST_TEST_REGEX = /^\s*Must Test\s+(.*?)\s*$/;
-// Matches an ElementFinder in this format:
-// OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')
-const ELEMENTFINDER_REGEX = /^\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;
+const Constants = require('./constants.js');
 
 /**
  * Represents the test tree
@@ -54,10 +35,10 @@ class Tree {
         }
         else {
             var numSpaces = spacesAtFront[1].length;
-            var numIndents = numSpaces / SPACES_PER_INDENT;
+            var numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
             if(numIndents - Math.floor(numIndents) != 0) {
-                this.error("The number of spaces at the beginning of a step must be a multiple of " + SPACES_PER_INDENT + ". You have " + numSpaces + " space(s).", filename, lineNumber);
+                this.error("The number of spaces at the beginning of a step must be a multiple of " + Constants.SPACES_PER_INDENT + ". You have " + numSpaces + " space(s).", filename, lineNumber);
             }
             else {
                 return numIndents;
@@ -89,7 +70,7 @@ class Tree {
             return step;
         }
 
-        var matches = line.match(LINE_REGEX);
+        var matches = line.match(Constants.LINE_REGEX);
         if(!matches) {
             this.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_REGEX can match anything)
         }
@@ -110,12 +91,12 @@ class Tree {
         if(matches[1]) {
             step.isFunctionDeclaration = matches[1].trim() == '*';
         }
-        if(step.isFunctionDeclaration && step.text.match(STRING_LITERAL_REGEX)) {
+        if(step.isFunctionDeclaration && step.text.match(Constants.STRING_LITERAL_REGEX)) {
             this.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
         }
 
         // Is this step a Must Test X?
-        matches = step.text.match(MUST_TEST_REGEX);
+        matches = step.text.match(Constants.MUST_TEST_REGEX);
         if(matches) {
             if(step.isFunctionDeclaration) {
                 this.error("A *Function cannot start with Must Test", filename, lineNumber);
@@ -162,7 +143,7 @@ class Tree {
 
         // Is this step a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc.? (one or more vars)
         // Parse vars from text into step.varsBeingSet
-        if(step.text.match(VARS_SET_REGEX)) {
+        if(step.text.match(Constants.VARS_SET_REGEX)) {
             if(step.isFunctionDeclaration) {
                 this.error("A step setting {variables} cannot start with a *", filename, lineNumber);
             }
@@ -170,7 +151,7 @@ class Tree {
             var textCopy = step.text + "";
             step.varsBeingSet = [];
             while(textCopy.trim() != "") {
-                matches = textCopy.match(VARS_SET_REGEX);
+                matches = textCopy.match(Constants.VARS_SET_REGEX);
                 if(!matches) {
                     this.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
                 }
@@ -188,13 +169,13 @@ class Tree {
             if(step.varsBeingSet.length > 1) { // This step is {var1}='str1', {var2}='str2', etc. (two or more vars)
                 // If there are multiple vars being set, each value must be a string literal
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
-                    if(!step.varsBeingSet[i].value.match(STRING_LITERAL_REGEX_WHOLE)) {
+                    if(!step.varsBeingSet[i].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) {
                         this.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'", filename, lineNumber);
                     }
                 }
             }
             else { // This step is {var}=Func or {var}='str' (only one var being set)
-                if(!step.varsBeingSet[0].value.match(STRING_LITERAL_REGEX_WHOLE)) { // This step is {var}=Func
+                if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) { // This step is {var}=Func
                     step.isFunctionCall = true;
 
                     if(step.isTextualStep) {
@@ -219,7 +200,7 @@ class Tree {
         }
 
         // Create a list of elementFinders contained in this step
-        matches = step.text.match(BRACKET_REGEX);
+        matches = step.text.match(Constants.BRACKET_REGEX);
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
@@ -243,7 +224,7 @@ class Tree {
         }
 
         // Create a list of vars contained in this step
-        matches = step.text.match(VAR_REGEX);
+        matches = step.text.match(Constants.VAR_REGEX);
         if(matches) {
             step.varsList = [];
             for(var i = 0; i < matches.length; i++) {
@@ -271,7 +252,7 @@ class Tree {
      * @return {Object} An object containing ElementFinder components (ordinal, text, variable, nextTo - any one of which can be undefined), or null if this is not a valid ElementFinder
      */
     parseElementFinder(name) {
-        var matches = name.match(ELEMENTFINDER_REGEX);
+        var matches = name.match(Constants.ELEMENTFINDER_REGEX);
         if(matches) {
             var ordinal = (matches[2] || '');
             var text = ((matches[5] || '') + (matches[8] || '')).replace(/^'|^"|'$|"$/g, ''); // it's either matches[5] or matches[8], strip out surrounding quotes
@@ -328,7 +309,7 @@ class Tree {
             var line = lines[i];
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
-                if(line.match(new RegExp("^[ ]{" + (lastStepCreated.indents * SPACES_PER_INDENT) + "}\}\s*(\/\/.*?)?\s*$"))) { // code block is ending
+                if(line.match(new RegExp("^[ ]{" + (lastStepCreated.indents * Constants.SPACES_PER_INDENT) + "}\}\s*(\/\/.*?)?\s*$"))) { // code block is ending
                     lastStepCreated.codeBlock += "\n";
                     currentlyInsideCodeBlockFromLineNum = -1;
                 }
@@ -514,43 +495,6 @@ class Tree {
     }
 
     /**
-     * Checks to see if a given function call matches a given function declaration
-     * @param {String} functionDeclarationText - The text of the function declaration (from step.text)
-     * @param {String} functionCallText - The text of the function call (from step.text)
-     * @param {String} filename - The filename of the file where the function call is
-     * @param {Integer} lineNumber - The line number where the function call is
-     * @return {Boolean} true if they match, false if they don't
-     * @throws {Error} if there's a case insensitive match but not a case sensitive match
-     */
-    isFunctionMatch(functionDeclarationText, functionCallText, filename, lineNumber) {
-        // When hooking up functions, canonicalize by trim(), replace \s+ with a single space
-        // functionDeclarationText can have {{variables}}
-        // functionCallText can have {{vars}}, {vars}, 'strings', "strings", and [elementFinders]
-
-        functionDeclarationText = functionDeclarationText
-            .trim()
-            .replace(/\s+/g, ' ')
-            .replace(VAR_REGEX, '{}');
-
-        functionCallText = functionCallText
-            .trim()
-            .replace(/\s+/g, ' ')
-            .replace(STRING_LITERAL_REGEX, '{}')
-            .replace(BRACKET_REGEX, '{}')
-            .replace(VAR_REGEX, '{}');
-
-        if(functionDeclarationText == functionCallText) {
-            return true;
-        }
-        else if(functionDeclarationText.toLowerCase() == functionCallText.toLowerCase()) {
-            this.error("The function call '" + functionCallText + "' matches function declaration '" + functionDeclarationText + "', but must match case sensitively", filename, lineNumber);
-        }
-        else {
-            return false;
-        }
-    }
-
-    /**
      * Expands the tree under this.root to include copies of each function call instance (including built-in functions and hooks),
      * and duplicates the tree underneath for function calls with multiple branches and step blocks
      * @throws {Error} If a step cannot be found
@@ -594,7 +538,7 @@ class Tree {
                 // Just keep the step as is
             }
             else if(step.isMustTest) {
-                var f = findFunctionDeclarationInTree(step);
+                var f = findFunctionDeclaration(step);
                 var fclone = f.clone();
 
                 fclone.isFunctionDeclaration = false;
@@ -717,8 +661,7 @@ class Tree {
          * @return {Step} The nearest function declaration that matches functionCallStep
          * @throws {Error} If a matching function declaration could not be found
          */
-        function findFunctionDeclarationInTree(functionCallStep) {
-            var functionCallTextToMatch = functionCallStep.getFunctionText();
+        function findFunctionDeclaration(functionCallStep) {
             var currStep = functionCallStep;
 
             while(currStep.indents != -1) { // while currStep is not yet at the root
@@ -738,13 +681,13 @@ class Tree {
                         continue;
                     }
 
-                    if(isFunctionMatch(sibling.text, functionCallTextToMatch, functionCallStep.filename, functionCallStep.lineNumber)) {
+                    if(functionCallStep.isFunctionMatch(sibling)) {
                         return sibling;
                     }
                 }
             }
 
-            this.error("The function '" + functionCallTextToMatch + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
+            this.error("The function '" + functionCallStep.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
         }
     }
 
