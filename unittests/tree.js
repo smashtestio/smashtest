@@ -1823,6 +1823,29 @@ C
             });
         });
 
+        it("rejects a step block containing a function declaration", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+* B
+C`
+                , "file.txt");
+            });
+        });
+
+        it("rejects a step block containing a code block", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+B - {
+}
+C`
+                , "file.txt");
+            });
+        });
+
         it("parses a .. step block with an empty line above it", function() {
             var tree = new Tree();
             tree.parseIn(
@@ -3191,7 +3214,7 @@ C
             tree.parseIn(`Click ['Login' button]`);
 
 
-
+//meow
 
 
 

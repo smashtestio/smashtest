@@ -412,6 +412,16 @@ class Tree {
                 potentialStepBlock.indents = potentialStepBlock.steps[0].indents;
                 for(var k = 0; k < potentialStepBlock.steps.length; k++) {
                     potentialStepBlock.steps[k].containingStepBlock = potentialStepBlock;
+
+                    // Validate that a step block member is not a function declaration
+                    if(potentialStepBlock.steps[k].isFunctionDeclaration) {
+                        this.error("You cannot have a *Function declaration within a step block", filename, potentialStepBlock.steps[k].lineNumber);
+                    }
+
+                    // Validate that a step block member is not a code block
+                    if(typeof potentialStepBlock.steps[k].codeBlock != 'undefined') {
+                        this.error("You cannot have a code block within a step block", filename, potentialStepBlock.steps[k].lineNumber);
+                    }
                 }
 
                 // Have the StepBlock object we created replace its corresponding Steps
@@ -548,7 +558,7 @@ class Tree {
 
 
 
-
+//meow
 
 
 
