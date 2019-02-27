@@ -3184,9 +3184,18 @@ C
 
         it.skip("expands a function call within a function call", function() {
             var tree = new Tree();
+            // Functions declared within function F. A call to F makes the functions accessible to its children.
         });
 
         it.skip("expands a function call with multiple branches within a function call with multiple branches", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("finds the right function when its declaration is a sibling of the function call", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("finds the right function when its declaration is a sibling of a descendant", function() {
             var tree = new Tree();
         });
 

@@ -506,6 +506,19 @@ class Tree {
          * Expands the given step, then calls itself recursively on step's children (which may be new children that were just inserted)
          */
         function expandStep(step) {
+            // TODO: Save original children, steps, parent, and containingStepBlock to their own vars, prior to manipulation
+            // Save original state of children and steps
+            /*step.originalChildren = [];
+            step.children.forEach((child) => {
+                originalChildren.push(child);
+            });
+            if(step.steps) { // for StepBlocks
+                step.originalSteps = [];
+                step.steps.forEach((step) => {
+                    originalSteps.push(step);
+                });
+            }*/
+
             // Expand sequential (..) steps
             if(step.isSequential) {
                 // Convert step.steps into one long line of Steps, each being the child of the previous.
@@ -600,7 +613,10 @@ class Tree {
                     clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
                     step.parent.afterEveryBranch.push(clonedStep);
 
-                    expandStep(step); // expand the tree below
+                    // Expand the tree below
+                    clonedStep.children.forEach((child) => {
+                        expandStep(child);
+                    });
                 }
                 else if(stepText == "before everything") {
                     validateCase();
@@ -614,7 +630,10 @@ class Tree {
                     clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
                     this.beforeEverything.push(clonedStep);
 
-                    expandStep(step); // expand the tree below
+                    // Expand the tree below
+                    clonedStep.children.forEach((child) => {
+                        expandStep(child);
+                    });
                 }
                 else if(stepText == "after everything") {
                     validateCase();
@@ -628,7 +647,10 @@ class Tree {
                     clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
                     this.afterEverything.push(clonedStep);
 
-                    expandStep(step); // expand the tree below
+                    // Expand the tree below
+                    clonedStep.children.forEach((child) => {
+                        expandStep(child);
+                    });
                 }
                 else {
                     // Ignore non-hook function declarations
