@@ -77,6 +77,20 @@ describe("Tree", function() {
             assert.equal(step.codeBlock, undefined);
         });
 
+        it("throws an error if a step only has numbers, periods, or commas", function() {
+            assert.throws(() => {
+                tree.parseLine(`324798`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`32, 4798`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`...`, "file.txt", 10);
+            });
+        });
+
         it("parses a line with a {variable}", function() {
             var step = tree.parseLine(`Click {Big Red Button}`, "file.txt", 10);
             assert.equal(step.line, `Click {Big Red Button}`);
@@ -351,6 +365,20 @@ describe("Tree", function() {
         it("rejects {var} = Code Block Function {", function() {
             assert.throws(() => {
                 tree.parseLine(`{var} = Execute in browser {`, "file.txt", 10);
+            });
+        });
+
+        it("rejects {var} = only numbers, periods, or commas", function() {
+            assert.throws(() => {
+                tree.parseLine(`{var} =324798`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`{var} = 32, 4798`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`{var}=...`, "file.txt", 10);
             });
         });
 

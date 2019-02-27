@@ -87,6 +87,11 @@ class Tree {
             step.comment = matches[14];
         }
 
+        // Validation against prohibited step texts
+        if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
+            this.error("Invalid step name", filename, lineNumber);
+        }
+
         // Is this step a *Function Declaration?
         if(matches[1]) {
             step.isFunctionDeclaration = matches[1].trim() == '*';
@@ -178,6 +183,10 @@ class Tree {
                 if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) { // This step is {var}=Func
                     step.isFunctionCall = true;
 
+                    // Validations
+                    if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
+                        this.error("{vars} can only be set to 'strings'", filename, lineNumber);
+                    }
                     if(step.isTextualStep) {
                         this.error("A textual step (ending in -) cannot also start with a {variable} assignment", filename, lineNumber);
                     }

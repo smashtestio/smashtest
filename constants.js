@@ -17,6 +17,8 @@ exports.MUST_TEST_REGEX = /^\s*Must Test\s+(.*?)\s*$/;
 // Matches an ElementFinder in this format:
 // OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')
 exports.ELEMENTFINDER_REGEX = /^\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;
+// Matches a line with only numbers (after whitespace stripped out)
+exports.NUMBERS_ONLY_REGEX = /^[0-9\.\,]+$/;
 
 // PARSE CONFIG
 
