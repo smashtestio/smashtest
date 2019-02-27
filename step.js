@@ -105,5 +105,30 @@ class Step {
     getCanonicalText() {
         return this.text.trim().toLowerCase().replace(/\s+/g, ' ');
     }
+
+    /**
+     * @return {String} The text of the function call (without {var}= or Must Test), null if step isn't a function call
+     */
+    getFunctionText() {
+        if(this.isMustTest) { // Must Test X
+            if(this.varsBeingSet.length == 1) { // Must Test {var} = Func
+                return this.varsBeingSet[0].value;
+            }
+            else { // Must Test Func
+                return this.mustTestText;
+            }
+        }
+        else if(this.isFunctionCall) {
+            if(this.varsBeingSet.length == 1) { // {var} = Func
+                return this.varsBeingSet[0].value;
+            }
+            else { // Func
+                return this.text;
+            }
+        }
+        else {
+            return null;
+        }
+    }
 }
 module.exports = Step;

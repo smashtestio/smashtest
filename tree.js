@@ -594,18 +594,14 @@ class Tree {
                 // Just keep the step as is
             }
             else if(step.isMustTest) {
+                var f = findFunctionDeclarationInTree(step);
+                var fclone = f.clone();
 
+                fclone.isFunctionDeclaration = false;
+                fclone.isFunctionCall = true;
+                step.mustTestTree = fclone;
 
-
-
-
-
-
-
-
-
-
-
+                expandStep(step.mustTestTree);
             }
             else if(step.isFunctionCall) {
                 // Find corresponding function declaration
@@ -717,13 +713,13 @@ class Tree {
 
         /**
          * Finds the nearest function declaration step that matches the given function call step
-         * @param {Step} step - The function call to match
-         * @return {Step} The nearest function declaration that matches step
+         * @param {Step} functionCallStep - The function call to match
+         * @return {Step} The nearest function declaration that matches functionCallStep
          * @throws {Error} If a matching function declaration could not be found
          */
-        function findFunctionInTree(step) {
-            var functionCallTextToMatch = getFunctionText(step);
-            var currStep = step;
+        function findFunctionDeclarationInTree(functionCallStep) {
+            var functionCallTextToMatch = functionCallStep.getFunctionText();
+            var currStep = functionCallStep;
 
             while(currStep.indents != -1) { // while currStep is not yet at the root
                 var siblings = [];
@@ -742,30 +738,13 @@ class Tree {
                         continue;
                     }
 
-                    if(isFunctionMatch(sibling.text, functionCallTextToMatch, step.filename, step.lineNumber)) {
+                    if(isFunctionMatch(sibling.text, functionCallTextToMatch, functionCallStep.filename, functionCallStep.lineNumber)) {
                         return sibling;
                     }
                 }
             }
 
             this.error("The function '" + functionCallTextToMatch + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
-        }
-    }
-
-    /**
-     * @return {String} The text of the function call (without {var}=) from the given step, null if step isn't a function call
-     */
-    getFunctionText(step) {
-        if(step.isFunctionCall) {
-            if(step.varsBeingSet.length == 1) { // {var} = Function
-                return step.varsBeingSet[0].value;
-            }
-            else { // Function
-                return step.text;
-            }
-        }
-        else {
-            return null;
         }
     }
 
