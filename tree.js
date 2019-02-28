@@ -191,7 +191,9 @@ class Tree {
                 if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) {
                     // This step is {var}=Func
 
-                    step.isFunctionCall = true;
+                    if(typeof step.codeBlock == 'undefined') { // In {var} = Text {, the Text is not considered a function call
+                        step.isFunctionCall = true;
+                    }
 
                     // Validations
                     if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
@@ -200,9 +202,6 @@ class Tree {
                     if(step.isTextualStep) {
                         this.error("A textual step (ending in -) cannot also start with a {variable} assignment", filename, lineNumber);
                     }
-                    if(typeof step.codeBlock != 'undefined') {
-                        this.error("A step that starts with a {variable} assignment cannot also have a code block", filename, lineNumber);
-                    }
                 }
             }
         }
@@ -210,12 +209,6 @@ class Tree {
             if(!step.isTextualStep && !step.isFunctionDeclaration) {
                 step.isFunctionCall = true;
             }
-        }
-
-        // Validate that code blocks are either textual, function declarations, or approved function calls
-        var approvedFunctionCallsWithCodeBlock = [ 'execute in browser' ];
-        if(typeof step.codeBlock != 'undefined' && !step.isTextualStep && !step.isFunctionDeclaration && approvedFunctionCallsWithCodeBlock.indexOf(step.getCanonicalText()) == -1) {
-            this.error("A function call with a code block must be textual. Consider adding a - to the end of the text.", filename, lineNumber);
         }
 
         // Create a list of elementFinders contained in this step
@@ -515,7 +508,7 @@ class Tree {
     /**
      * Called after all of the tree's text has been inputted with parseIn()
      * Converts the tree under this.root into this.branches, and gets everything ready for the test runner
-     * @throws {Error} If a step cannot be found, a Must Test step is violated, or if a var is used but never set in a branch
+     * @throws {Error} If a step cannot be found, or if a Must Test step is violated
      */
     finalize() {
         this.connectFunctions();

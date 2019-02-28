@@ -230,14 +230,8 @@ describe("Tree", function() {
             assert.equal(step.codeBlock, ' ');
         });
 
-        it("rejects an unapproved function call with a code block", function() {
-            assert.throws(() => {
-                tree.parseLine(`Some function call + { `, "file.txt", 10);
-            });
-        });
-
         it("parses a code block followed by a comment", function() {
-            var step = tree.parseLine(`Something here + - { // comment here`, "file.txt", 10);
+            var step = tree.parseLine(`Something here + { // comment here`, "file.txt", 10);
             assert.equal(step.text, `Something here`);
             assert.equal(step.codeBlock, ' // comment here');
             assert.equal(step.comment, undefined);
@@ -356,15 +350,18 @@ describe("Tree", function() {
             assert.deepEqual(step.varsList, [ {name: "var with spaces", isLocal: false}, {name: "blah", isLocal: true} ]);
         });
 
+        it("parses {var} = Code Block Function {", function() {
+            var step = tree.parseLine(`{var} = Code Block Function {`, "file.txt", 10);
+            assert.equal(step.text, `{var} = Code Block Function`);
+            assert.equal(step.isFunctionCall, undefined);
+            assert.equal(step.isTextualStep, undefined);
+            assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "Code Block Function", isLocal: false} ]);
+            assert.deepEqual(step.varsList, [ {name: "var", isLocal: false} ]);
+        });
+
         it("rejects {var} = Textual Function -", function() {
             assert.throws(() => {
                 tree.parseLine(`{var} = Textual Function -`, "file.txt", 10);
-            });
-        });
-
-        it("rejects {var} = Code Block Function {", function() {
-            assert.throws(() => {
-                tree.parseLine(`{var} = Execute in browser {`, "file.txt", 10);
             });
         });
 
@@ -1839,7 +1836,7 @@ C`
             assert.throws(() => {
                 tree.parseIn(
 `A
-B - {
+B {
 }
 C`
                 , "file.txt");
@@ -2692,7 +2689,7 @@ D
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
     }
@@ -2749,7 +2746,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
     }
 
     B
@@ -2804,7 +2801,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
     }
@@ -2852,7 +2849,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
     }
@@ -2898,7 +2895,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
     }
@@ -2947,7 +2944,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
     }
@@ -2995,7 +2992,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
     }
@@ -3061,12 +3058,12 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
     }
 
-        Another code block # - {
+        Another code block # {
             blah;
         }
 `
@@ -3112,7 +3109,7 @@ C
             var tree = new Tree();
             tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
     }
@@ -3162,7 +3159,7 @@ C
             assert.throws(() => {
                 tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
         code;
         more code;
 `
@@ -3171,7 +3168,7 @@ C
 
             assert.throws(() => {
                 tree.parseIn(
-`Code block here - {`
+`Code block here {`
                 , "file.txt");
             });
         });
@@ -3181,7 +3178,7 @@ C
             assert.throws(() => {
                 tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
 
 }
 `
@@ -3191,7 +3188,7 @@ C
             assert.throws(() => {
                 tree.parseIn(
 `A
-    Code block here - {
+    Code block here {
 
         }
 `

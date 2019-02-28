@@ -88,9 +88,10 @@ Variables
         - {{var}} is internal to the function (it goes out of scope at the end of the function)
     - Setting vars
         - {var} = 'String' (or "String")
-        - {var} = Code Function
+        - {var} = Function with a code block
             - Code Function returns a string (actually any kind of js value will work)
-        - {var} = Function
+            - Could be {var} = Text { code block that returns something }
+        - {var} = Function with branches
             - Function is a list of textual steps that will be turned into strings
             - Line is turned into a code block, where {var} = each string
     - In a line that's {var1}=Step1, {var2}=Step2, do not accept Functions* in Step1/2/etc.
@@ -106,7 +107,7 @@ Comments
 Code blocks
     - Types
         - * Function {code}
-        - Textual step - {code}
+        - Textual step {code} // - is optional
         - Execute in browser {code}
     - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
     - +, .., etc. characters applied come after the step text and before the {
