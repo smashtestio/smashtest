@@ -77,127 +77,37 @@ describe("Step", function() {
     });
 
     describe("clone()", function() {
-        it("can properly deep clone", function() {
-            var clonedRoot = root.clone();
+        it("can properly clone", function() {
+            var C = root.children[0].children[1];
+            var clonedC = C.clone();
 
-            clonedRoot.cloneMark = true;
-            clonedRoot.children[0].children[1].children[0].cloneMark = true; // D's clone
+            clonedC.cloneMark = true;
 
-            expect(clonedRoot).to.containSubset({
-                parent: null,
+            expect(clonedC).to.containSubset({
+                text: 'C',
+                varsList: [ 'C1', 'C2' ],
                 cloneMark: true,
-                children: [
-                    {
-                        text: 'A',
-                        varsList: [ 'A1', 'A2' ],
-                        cloneMark: undefined,
-                        parent: { cloneMark: true },
-                        children: [
-                            {
-                                text: 'B',
-                                varsList: [ 'B1', 'B2' ],
-                                cloneMark: undefined,
-                                parent: { cloneMark: undefined },
-                                children: []
-                            },
-                            {
-                                text: 'C',
-                                varsList: [ 'C1', 'C2' ],
-                                cloneMark: undefined,
-                                parent: { cloneMark: undefined },
-                                children: [
-                                    {
-                                        text: 'D',
-                                        varsList: [ 'D1', 'D2' ],
-                                        cloneMark: true,
-                                        parent: { cloneMark: undefined },
-                                        children: []
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: 'E',
-                                varsList: [ 'E1', 'E2' ],
-                                cloneMark: undefined,
-                                parent: null,
-                                children: []
-                            },
-                            {
-                                text: 'F',
-                                varsList: [ 'F1', 'F2' ],
-                                cloneMark: undefined,
-                                parent: null,
-                                children: []
-                            }
-                        ],
-                        parent: { cloneMark: true },
-                        children: []
-                    }
-                ]
+                parent: null,
+                children: undefined
             });
         });
 
         it("changes to the clone do not affect the original object", function() {
-            var clonedRoot = root.clone();
+            var C = root.children[0].children[1];
+            var clonedC = C.clone();
 
-            clonedRoot.cloneMark = true;
-            clonedRoot.children[0].children[1].children[0].cloneMark = true; // D's clone
+            clonedC.cloneMark = true;
 
-            expect(root).to.containSubset({
-                parent: null,
+            expect(C).to.containSubset({
+                text: 'C',
+                varsList: [ 'C1', 'C2' ],
                 cloneMark: undefined,
+                parent: { text: 'A' },
                 children: [
                     {
-                        text: 'A',
-                        varsList: [ 'A1', 'A2' ],
+                        text: 'D',
+                        varsList: [ 'D1', 'D2' ],
                         cloneMark: undefined,
-                        parent: { cloneMark: undefined },
-                        children: [
-                            {
-                                text: 'B',
-                                varsList: [ 'B1', 'B2' ],
-                                cloneMark: undefined,
-                                parent: { cloneMark: undefined },
-                                children: []
-                            },
-                            {
-                                text: 'C',
-                                varsList: [ 'C1', 'C2' ],
-                                cloneMark: undefined,
-                                parent: { cloneMark: undefined },
-                                children: [
-                                    {
-                                        text: 'D',
-                                        varsList: [ 'D1', 'D2' ],
-                                        cloneMark: undefined,
-                                        parent: { cloneMark: undefined },
-                                        children: []
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: 'E',
-                                varsList: [ 'E1', 'E2' ],
-                                cloneMark: undefined,
-                                parent: null,
-                                children: []
-                            },
-                            {
-                                text: 'F',
-                                varsList: [ 'F1', 'F2' ],
-                                cloneMark: undefined,
-                                parent: null,
-                                children: []
-                            }
-                        ],
                         parent: { cloneMark: undefined },
                         children: []
                     }
@@ -206,129 +116,18 @@ describe("Step", function() {
         });
 
         it("changes to the original object do not affect the clone", function() {
-            var clonedRoot = root.clone();
+            var C = root.children[0].children[1];
+            var clonedC = C.clone();
 
-            root.originalMark = true;
-            root.children[0].children[1].children[0].originalMark = true; // D
+            C.originalMark = true;
 
-            expect(clonedRoot).to.containSubset({
-                parent: null,
+            expect(clonedC).to.containSubset({
+                text: 'C',
+                varsList: [ 'C1', 'C2' ],
                 originalMark: undefined,
-                children: [
-                    {
-                        text: 'A',
-                        varsList: [ 'A1', 'A2' ],
-                        originalMark: undefined,
-                        parent: { originalMark: undefined },
-                        children: [
-                            {
-                                text: 'B',
-                                varsList: [ 'B1', 'B2' ],
-                                originalMark: undefined,
-                                parent: { originalMark: undefined },
-                                children: []
-                            },
-                            {
-                                text: 'C',
-                                varsList: [ 'C1', 'C2' ],
-                                originalMark: undefined,
-                                parent: { originalMark: undefined },
-                                children: [
-                                    {
-                                        text: 'D',
-                                        varsList: [ 'D1', 'D2' ],
-                                        originalMark: undefined,
-                                        parent: { originalMark: undefined },
-                                        children: []
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: 'E',
-                                varsList: [ 'E1', 'E2' ],
-                                originalMark: undefined,
-                                parent: null,
-                                children: []
-                            },
-                            {
-                                text: 'F',
-                                varsList: [ 'F1', 'F2' ],
-                                originalMark: undefined,
-                                parent: null,
-                                children: []
-                            }
-                        ],
-                        parent: { originalMark: undefined },
-                        children: []
-                    }
-                ]
+                parent: null,
+                children: undefined
             });
-        });
-    });
-
-    describe("cloneChildren()", function() {
-        it("can properly clone children", function() {
-            var clones = root.cloneChildren();
-
-            root.originalMark = true;
-            root.children[0].children[1].children[0].originalMark = true; // D
-
-            expect(clones).to.containSubset([
-                {
-                    text: 'A',
-                    varsList: [ 'A1', 'A2' ],
-                    originalMark: undefined,
-                    parent: null,
-                    children: [
-                        {
-                            text: 'B',
-                            varsList: [ 'B1', 'B2' ],
-                            originalMark: undefined,
-                            parent: { originalMark: undefined },
-                            children: []
-                        },
-                        {
-                            text: 'C',
-                            varsList: [ 'C1', 'C2' ],
-                            originalMark: undefined,
-                            parent: { originalMark: undefined },
-                            children: [
-                                {
-                                    text: 'D',
-                                    varsList: [ 'D1', 'D2' ],
-                                    originalMark: undefined,
-                                    parent: { originalMark: undefined },
-                                    children: []
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    steps: [
-                        {
-                            text: 'E',
-                            varsList: [ 'E1', 'E2' ],
-                            originalMark: undefined,
-                            parent: null,
-                            children: []
-                        },
-                        {
-                            text: 'F',
-                            varsList: [ 'F1', 'F2' ],
-                            originalMark: undefined,
-                            parent: null,
-                            children: []
-                        }
-                    ],
-                    parent: null,
-                    children: []
-                }
-            ]);
         });
     });
 

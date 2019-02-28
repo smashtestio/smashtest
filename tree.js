@@ -92,17 +92,19 @@ class Tree {
             this.error("Invalid step name", filename, lineNumber);
         }
 
-        // Is this step a *Function Declaration?
+        // * Function Declaration
         if(matches[1]) {
             step.isFunctionDeclaration = matches[1].trim() == '*';
-        }
-        if(step.isFunctionDeclaration && step.text.match(Constants.STRING_LITERAL_REGEX)) {
-            this.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
+
+            if(step.isFunctionDeclaration && step.text.match(Constants.STRING_LITERAL_REGEX)) {
+                this.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
+            }
         }
 
-        // Is this step a Must Test X?
+        // Must Test X
         matches = step.text.match(Constants.MUST_TEST_REGEX);
         if(matches) {
+            // This step is a Must Test X
             if(step.isFunctionDeclaration) {
                 this.error("A *Function cannot start with Must Test", filename, lineNumber);
             }
@@ -146,13 +148,15 @@ class Tree {
             }
         }
 
-        // Is this step a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc.? (one or more vars)
-        // Parse vars from text into step.varsBeingSet
+        // Steps that set variables
         if(step.text.match(Constants.VARS_SET_REGEX)) {
+            // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
+
             if(step.isFunctionDeclaration) {
                 this.error("A step setting {variables} cannot start with a *", filename, lineNumber);
             }
 
+            // Parse vars from text into step.varsBeingSet
             var textCopy = step.text + "";
             step.varsBeingSet = [];
             while(textCopy.trim() != "") {
@@ -171,7 +175,9 @@ class Tree {
                 textCopy = textCopy.replace(/^\,/, ''); // string the leading comma, if there is one
             }
 
-            if(step.varsBeingSet.length > 1) { // This step is {var1}='str1', {var2}='str2', etc. (two or more vars)
+            if(step.varsBeingSet.length > 1) {
+                // This step is {var1}='str1', {var2}='str2', etc. (two or more vars)
+
                 // If there are multiple vars being set, each value must be a string literal
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
                     if(!step.varsBeingSet[i].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) {
@@ -179,8 +185,12 @@ class Tree {
                     }
                 }
             }
-            else { // This step is {var}=Func or {var}='str' (only one var being set)
-                if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) { // This step is {var}=Func
+            else {
+                // This step is {var}=Func or {var}='str' (only one var being set)
+
+                if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) {
+                    // This step is {var}=Func
+
                     step.isFunctionCall = true;
 
                     // Validations
@@ -525,19 +535,6 @@ class Tree {
          * Expands the given step, then calls itself recursively on step's children (which may be new children that were just inserted)
          */
         function expandStep(step) {
-            // TODO: Save original children, steps, parent, and containingStepBlock to their own vars, prior to manipulation
-            // Save original state of children and steps
-            /*step.originalChildren = [];
-            step.children.forEach((child) => {
-                originalChildren.push(child);
-            });
-            if(step.steps) { // for StepBlocks
-                step.originalSteps = [];
-                step.steps.forEach((step) => {
-                    originalSteps.push(step);
-                });
-            }*/
-
             // Expand sequential (..) steps
             if(step.isSequential) {
                 // Convert step.steps into one long line of Steps, each being the child of the previous.

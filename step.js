@@ -53,7 +53,7 @@ class Step {
     }
 
     /**
-     * @return {Step} A distinct copy of this Step and its underlying tree, but with parent and containingStepBlock of the top Step set to null
+     * @return {Step} A distinct copy of this Step, but with parent and containingStepBlock set to null and no children array
      */
     clone() {
         // We don't want the clone to walk the tree into this.parent and beyond (same with this.containingStepBlock)
@@ -63,24 +63,17 @@ class Step {
         var originalContainingBlock = this.containingStepBlock;
         this.containingStepBlock = null;
 
+        var originalChildren = this.children;
+        this.children = undefined;
+
         var clone = clonedeep(this);
 
         // Restore originals
         this.parent = originalParent;
         this.containingStepBlock = originalContainingBlock;
+        this.children = originalChildren;
 
         return clone;
-    }
-
-    /**
-     * @return {Array} Cloned array of this.children
-     */
-    cloneChildren() {
-        var cloneArr = [];
-        this.children.forEach((step) => {
-            cloneArr.push(step.clone());
-        });
-        return cloneArr;
     }
 
     /**
