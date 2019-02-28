@@ -489,7 +489,7 @@ class Tree {
             else if(indentsAdvanced > 1) {
                 this.error("You cannot have a step that has 2 or more indents beyond the previous step", filename, currStepObj.lineNumber);
             }
-            else { // indentsAdvanced < 0, and current step is a child of a descendant of the previous step
+            else { // indentsAdvanced < 0, and current step is a child of an ancestor of the previous step
                 var parent = prevStepObj.parent;
                 for(var j = indentsAdvanced; j < 0; j++) {
                     if(parent.parent == null) {

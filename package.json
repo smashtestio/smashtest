@@ -1,7 +1,7 @@
 {
-  "name": "SmashGEN",
+  "name": "SmashTEST",
   "version": "0.1.0",
-  "description": "SmashGEN",
+  "description": "SmashTEST",
   "author": "SmashTEST <smashtest.io>",
   "dependencies": {
     "glob": "^7.1.3",

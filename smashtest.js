@@ -29,7 +29,7 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
                 }
 
                 if(!builtinFilenames) {
-                    // TODO: make sure this will work from any directory where you want to run smashgen from
+                    // TODO: make sure this will work from any directory where you want to run smashtest from
                     throw "Make sure builtin/ directory exists in the directory you're running this from";
                 }
 

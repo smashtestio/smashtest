@@ -1,4 +1,4 @@
-What is SmashGEN?
+What is SmashTEST?
     - Generates and executes functional, (?)(load, and security tests) from a test tree
         - Geared towards UI browser testing, but can be used for anything
         - NodeJS for now

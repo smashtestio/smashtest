@@ -66,7 +66,7 @@
         - Off means use the original functions
         - Universally or for a specific mockpoint
         - Mockpoints are off by default
-    - In a SmashGEN test, a code block will handle the js needed to communicate with SmashMOCK
+    - In a SmashTEST test, a code block will handle the js needed to communicate with SmashMOCK
     - The SmashMOCK UI provides a way to kick these functions off manually too. Create a state, and setting that state sets off the js.
         - UI has button to clear all logs. Anyone can click it.
         - UI has no login yet.
