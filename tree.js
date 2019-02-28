@@ -509,7 +509,6 @@ class Tree {
      */
     finalize() {
         this.expandTree();
-        this.validateTree();
         this.convertToBranches();
     }
 
@@ -520,6 +519,7 @@ class Tree {
      */
     expandTree() {
         expandStep(this.root);
+        this.validateMustTest();
 
         /**
          * Expands the given step, then calls itself recursively on step's children (which may be new children that were just inserted)
@@ -733,12 +733,10 @@ class Tree {
     }
 
     /**
-     * Does a final validation on the tree under this.root
-     * 1) Checks that all vars that are used in a branch are set
-     * 2) Enforces Must Test steps
-     * @throws {Error} If a Must Test step is violated, or if a var is used but never set in a branch
+     * Enforces Must Test steps on the tree under this.root
+     * @throws {Error} If a Must Test step is violated
      */
-    validateTree() {
+    validateMustTest() {
 
     }
 

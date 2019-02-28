@@ -3399,11 +3399,7 @@ C
         });
     });
 
-    describe("validateTree()", function() {
-        it.skip("throws an exception when a {var} is used but never set in a branch", function() {
-
-        });
-
+    describe("validateMustTest()", function() {
         it.skip("accepts a Must Test X statement that's fulfilled exactly", function() {
             // structure under Must Test X is exactly the same as the one under X
             // X contains both textual steps (must have - in both X and under Must Test X) and simple function calls (no vars, strings, elementFinders)
