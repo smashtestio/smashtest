@@ -26,6 +26,7 @@ class Step {
         this.isFunctionDeclaration = false;   // true if this step is a * Function Declaration
         this.isFunctionCall = false;          // true if this step is a function call
         this.isTextualStep = false;           // true if this step is textual (-) and not a function call
+        this.functionDeclaration = {};        // Step that corresponds to the function declaration, if this step is a function call
 
         this.isMustTest = false;              // true if this step is a Must Test step
         this.mustTestText = "";               // what comes after Must Test in this.text (doesn't include the *)

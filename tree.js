@@ -511,238 +511,82 @@ class Tree {
      * @throws {Error} If a step cannot be found, or if a Must Test step is violated
      */
     finalize() {
-        this.connectFunctions();
-        this.generateBranches();
-    }
-
-    /**
-     * Connects function calls to function declarations, hooks, and Must Test X to X
-     * @throws {Error} If a step cannot be found
-     */
-    connectFunctions() {
-
-
-
-
-
-
-
-
-    }
-
-    /**
-     * Converts the tree under this.root into an array of Branch in this.branches
-     * Removes branches that we don't want run
-     * Enforces Must Test steps
-     * @throws {Error} If a Must Test step is violated
-     */
-    generateBranches() {
-
-
-
-
-
-
-
-    }
-
-    /**
-     * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
-     * @param {Step} Step or StepBlock to convert to branches
-     * @return {Array} Array of Branch, containing the branches under step
-     */
-    branchify(step) {
-
-
-
-
-
-
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Expands the tree under this.root to include copies of each function call instance (including built-in functions and hooks),
-     * and duplicates the tree underneath for function calls with multiple branches and step blocks
-     * @throws {Error} If a step cannot be found
-     */
-    expandTree() {
-        expandStep(this.root);
-        this.validateMustTest();
+        connectFunctions();
+        generateBranches();
+        validateMustTest();
+        pruneBranches();
 
         /**
-         * Expands the given step, then calls itself recursively on step's children (which may be new children that were just inserted)
+         * Connects function calls to function declarations, hooks to their respective steps/tree, and Must Test X to X
+         * @throws {Error} If a step cannot be found
          */
-        function expandStep(step) {
-            // Expand sequential (..) steps
-            if(step.isSequential) {
-                // Convert step.steps into one long line of Steps, each being the child of the previous.
-                var originalChildren = step.children;
-                var leafSteps = expandSequentialStep(step);
+        function connectFunctions() {
+            traverseStep(this.root);
 
-                // Attach a copy of step's original children to each leaf that's now under step
-                leafSteps.forEach((leaf) => {
-                    leaf.children = step.cloneChildren();
-                });
-
-                /**
-                 * Expands a sequential step, calls itself recursively (depth-first traversal)
-                 * @return {Array} Array of Step which are leaves under step, post-expansion
-                 */
-                function expandSequentialStep(step) {
-
-
-
-
-//meow
-
-
-
+            /**
+             * Traverses the given step, then traverses its children
+             */
+            function traverseStep(step) {
+                if(step.isMustTest) {
+                    var functionDeclaration = findFunctionDeclaration(step);
+                    step.mustTestTree = functionDeclaration;
                 }
-            }
+                else if(step.isFunctionCall) {
+                    var functionDeclaration = findFunctionDeclaration(step);
+                    step.functionDeclaration = functionDeclaration;
+                }
+                else if(step.isFunctionDeclaration) {
+                    // Handle hooks
+                    var stepText = step.getCanonicalText();
+                    if(stepText == "after every branch") {
+                        validateHook();
 
-            // Expand the step based on its type
-            if(step.isTextualStep) {
-                // Just keep the step as is
-            }
-            else if(step.isMustTest) {
-                var f = findFunctionDeclaration(step);
-                var fclone = f.clone();
-
-                fclone.isFunctionDeclaration = false;
-                fclone.isFunctionCall = true;
-                step.mustTestTree = fclone;
-
-                expandStep(step.mustTestTree);
-            }
-            else if(step.isFunctionCall) {
-                // Find corresponding function declaration
-
-
-
-
-                // Remove step's original children
-
-
-
-
-                // Copy function into step's children
-
-
-
-
-
-                // Attach a copy of step's original children to each leaf of step's new children
-
-
-
-
-
-
-
-
-            }
-            else if(step instanceof StepBlock) {
-
-
-
-
-
-
-
-
-
-
-            }
-            else if(step.isFunctionDeclaration) {
-                // Handle hooks
-                var stepText = step.getCanonicalText();
-                if(stepText == "after every branch") {
-                    validateCase();
-
-                    if(!step.parent.afterEveryBranch) {
-                        step.parent.afterEveryBranch = [];
+                        if(!step.parent.afterEveryBranch) {
+                            step.parent.afterEveryBranch = [];
+                        }
+                        step.parent.afterEveryBranch.push(step);
                     }
-                    var clonedStep = step.clone();
-                    clonedStep.isFunctionDeclaration = false;
-                    clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
-                    step.parent.afterEveryBranch.push(clonedStep);
+                    else if(stepText == "before everything") {
+                        validateHook();
 
-                    // Expand the tree below
-                    clonedStep.children.forEach((child) => {
-                        expandStep(child);
-                    });
-                }
-                else if(stepText == "before everything") {
-                    validateCase();
+                        if(step.indents != 0) {
+                            this.error("A '* Before everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                        }
 
-                    if(step.indents != 0) {
-                        this.error("A '* Before everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                        this.beforeEverything.push(step);
                     }
+                    else if(stepText == "after everything") {
+                        validateHook();
 
-                    var clonedStep = step.clone();
-                    clonedStep.isFunctionDeclaration = false;
-                    clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
-                    this.beforeEverything.push(clonedStep);
+                        if(step.indents != 0) {
+                            this.error("An '* After everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                        }
 
-                    // Expand the tree below
-                    clonedStep.children.forEach((child) => {
-                        expandStep(child);
-                    });
-                }
-                else if(stepText == "after everything") {
-                    validateCase();
-
-                    if(step.indents != 0) {
-                        this.error("An '* After everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                        this.afterEverything.push(step);
                     }
-
-                    var clonedStep = step.clone();
-                    clonedStep.isFunctionDeclaration = false;
-                    clonedStep.isFunctionCall = true; // converting from a function declaration to a function call
-                    this.afterEverything.push(clonedStep);
-
-                    // Expand the tree below
-                    clonedStep.children.forEach((child) => {
-                        expandStep(child);
-                    });
-                }
-                else {
                     // Ignore non-hook function declarations
-                }
 
-                /**
-                 * Validates that step.text is in the proper hook function casing (i.e., first letter uppercase, all others lowercase)
-                 * Only call if step.text is a hook function
-                 * @throws {Error} If step.text is not in the right casing
-                 */
-                function validateCase() {
-                    var properStepText = step.getCanonicalText();
-                    properStepText[0] = properStepText[0].toUpperCase();
+                    /**
+                     * Validates that step.text is in the proper hook function casing (i.e., first letter uppercase, all others lowercase)
+                     * Only call if step.text is a hook function
+                     * @throws {Error} If step.text is not in the right casing
+                     */
+                    function validateHook() {
+                        var properStepText = step.getCanonicalText();
+                        properStepText[0] = properStepText[0].toUpperCase();
 
-                    if(step.text.trim().replace(/\s+/g, ' ') != properStepText) {
-                        this.error("This hook function declaration is not in the right casing (first letter must be caps, e.g., 'After all branches')", step.filename, step.lineNumber);
+                        if(step.text.trim().replace(/\s+/g, ' ') != properStepText) {
+                            this.error("This hook function declaration is not in the right casing (first letter must be caps, e.g., 'After all branches')", step.filename, step.lineNumber);
+                        }
                     }
                 }
-            }
+                // No need to do anything if this is a textual step, or StepBlock
 
-            // Recursively call yourself on step's children
-            step.children.forEach((child) => {
-                expandStep(child);
-            });
+                // Recursively call yourself on children
+                step.children.forEach((child) => {
+                    expandStep(child);
+                });
+            }
         }
 
         /**
@@ -778,6 +622,65 @@ class Tree {
             }
 
             this.error("The function '" + functionCallStep.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
+        }
+
+        /**
+         * Converts the tree under this.root into an array of Branch in this.branches
+         */
+        function generateBranches() {
+
+
+
+
+
+
+
+
+
+
+
+            /**
+             * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
+             * @param {Step} Step or StepBlock to convert to branches
+             * @return {Array} Array of Branch, containing the branches under step
+             */
+            function branchify(step) {
+
+
+
+
+
+
+
+
+
+
+            }
+        }
+
+        /**
+         * Removes branches that we don't want run
+         */
+        function pruneBranches() {
+
+
+
+
+
+
+        }
+
+        /**
+         * Enforces Must Test steps
+         * @throws {Error} If a Must Test step is violated
+         */
+        function validateMustTest() {
+
+
+
+
+
+
         }
     }
 
