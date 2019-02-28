@@ -3201,14 +3201,6 @@ C
     });
 
     describe("finalize()", function() {
-        it("runs without crashing", function() {
-            var tree = new Tree();
-            tree.parseIn(`Click ['Login' button]`);
-            tree.finalize();
-        });
-    });
-
-    describe("expandTree()", function() {
         it.skip("expands a function call", function() {
             var tree = new Tree();
             tree.parseIn(`Click ['Login' button]`);
@@ -3397,9 +3389,7 @@ C
             var tree = new Tree();
             // this will probably be a js stack size exception
         });
-    });
 
-    describe("validateMustTest()", function() {
         it.skip("accepts a Must Test X statement that's fulfilled exactly", function() {
             // structure under Must Test X is exactly the same as the one under X
             // X contains both textual steps (must have - in both X and under Must Test X) and simple function calls (no vars, strings, elementFinders)
@@ -3464,9 +3454,7 @@ C
         it.skip("rejects a Must Test {var} = X statement when X is not in the correct format", function() {
 
         });
-    });
 
-    describe("convertToBranches()", function() {
         it.skip("generates branches from the tree", function() {
 
         });

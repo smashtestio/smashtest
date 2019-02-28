@@ -518,9 +518,68 @@ class Tree {
      * @throws {Error} If a step cannot be found, a Must Test step is violated, or if a var is used but never set in a branch
      */
     finalize() {
-        this.expandTree();
-        this.convertToBranches();
+        this.connectFunctions();
+        this.generateBranches();
     }
+
+    /**
+     * Connects function calls to function declarations, hooks, and Must Test X to X
+     * @throws {Error} If a step cannot be found
+     */
+    connectFunctions() {
+
+
+
+
+
+
+
+
+    }
+
+    /**
+     * Converts the tree under this.root into an array of Branch in this.branches
+     * Removes branches that we don't want run
+     * Enforces Must Test steps
+     * @throws {Error} If a Must Test step is violated
+     */
+    generateBranches() {
+
+
+
+
+
+
+
+    }
+
+    /**
+     * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
+     * @param {Step} Step or StepBlock to convert to branches
+     * @return {Array} Array of Branch, containing the branches under step
+     */
+    branchify(step) {
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Expands the tree under this.root to include copies of each function call instance (including built-in functions and hooks),
@@ -727,22 +786,6 @@ class Tree {
 
             this.error("The function '" + functionCallStep.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
         }
-    }
-
-    /**
-     * Enforces Must Test steps on the tree under this.root
-     * @throws {Error} If a Must Test step is violated
-     */
-    validateMustTest() {
-
-    }
-
-    /**
-     * Converts the tree under this.root into an array of Branch in this.branches
-     * Removes branches that we don't want run
-     */
-    convertToBranches() {
-
     }
 
     /**
