@@ -511,102 +511,33 @@ class Tree {
      * @throws {Error} If a step cannot be found, or if a Must Test step is violated
      */
     finalize() {
-        connectFunctions();
         generateBranches();
         validateMustTest();
         pruneBranches();
 
         /**
-         * Connects function calls to function declarations, hooks to their respective steps/tree, and Must Test X to X
-         * @throws {Error} If a step cannot be found
-         */
-        function connectFunctions() {
-            traverseStep(this.root);
-
-            /**
-             * Traverses the given step, then traverses its children
-             */
-            function traverseStep(step) {
-                if(step.isMustTest) {
-                    var functionDeclaration = findFunctionDeclaration(step);
-                    step.mustTestTree = functionDeclaration;
-                }
-                else if(step.isFunctionCall) {
-                    var functionDeclaration = findFunctionDeclaration(step);
-                    step.functionDeclaration = functionDeclaration;
-                }
-                else if(step.isFunctionDeclaration) {
-                    // Handle hooks
-                    var stepText = step.getCanonicalText();
-                    if(stepText == "after every branch") {
-                        validateHook();
-
-                        if(!step.parent.afterEveryBranch) {
-                            step.parent.afterEveryBranch = [];
-                        }
-                        step.parent.afterEveryBranch.push(step);
-                    }
-                    else if(stepText == "before everything") {
-                        validateHook();
-
-                        if(step.indents != 0) {
-                            this.error("A '* Before everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
-                        }
-
-                        this.beforeEverything.push(step);
-                    }
-                    else if(stepText == "after everything") {
-                        validateHook();
-
-                        if(step.indents != 0) {
-                            this.error("An '* After everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
-                        }
-
-                        this.afterEverything.push(step);
-                    }
-                    // Ignore non-hook function declarations
-
-                    /**
-                     * Validates that step.text is in the proper hook function casing (i.e., first letter uppercase, all others lowercase)
-                     * Only call if step.text is a hook function
-                     * @throws {Error} If step.text is not in the right casing
-                     */
-                    function validateHook() {
-                        var properStepText = step.getCanonicalText();
-                        properStepText[0] = properStepText[0].toUpperCase();
-
-                        if(step.text.trim().replace(/\s+/g, ' ') != properStepText) {
-                            this.error("This hook function declaration is not in the right casing (first letter must be caps, e.g., 'After all branches')", step.filename, step.lineNumber);
-                        }
-                    }
-                }
-                // No need to do anything if this is a textual step, or StepBlock
-
-                // Recursively call yourself on children
-                step.children.forEach((child) => {
-                    expandStep(child);
-                });
-            }
-        }
-
-        /**
-         * Finds the nearest function declaration step that matches the given function call step
-         * @param {Step} functionCallStep - The function call to match
-         * @return {Step} The nearest function declaration that matches functionCallStep
+         * Finds the nearest function declaration step under this.root that matches a given function call step from a Branch
+         * @param {Branch} containingBranch - The Branch that contains the function call step at its the very end
+         * @return {Step} The nearest function declaration under this.root that matches the function call step
          * @throws {Error} If a matching function declaration could not be found
          */
-        function findFunctionDeclaration(functionCallStep) {
-            var currStep = functionCallStep;
+        function findFunctionDeclaration(containingBranch) {
+            // NOTE: Why do we use branches here instead of just using a Step from this.root?
+            // Suppose function declaration B is declared inside function declaration A. If A is called, B has to be accessible
+            // to the steps under the call to A. This can only be done if the call to A has been "expanded" (has the steps from
+            // A's declaration attached), and this is something that's done in branches but not in this.root.
 
-            while(currStep.indents != -1) { // while currStep is not yet at the root
+            var index = containingBranch.steps.length - 1;
+            var functionCallStepInBranch = containingBranch.steps[index];
+            var currStepInTree = functionCallStep.originalStep;
+
+            while(index >= 0) {
                 var siblings = [];
-                if(currStep.parent) {
-                    siblings = currStep.parent.children;
-                    currStep = currStep.parent;
+                if(currStepInTree.parent) { // currStep is not inside a StepBlock
+                    siblings = currStepInTree.parent.children;
                 }
-                else if(currStep.containingStepBlock) {
-                    siblings = currStep.containingStepBlock.steps;
-                    currStep = currStep.containingStepBlock;
+                else if(currStepInTree.containingStepBlock) { // currStep is inside a StepBlock
+                    siblings = currStepInTree.containingStepBlock.steps;
                 }
 
                 for(var i = 0; i < siblings.length; i++) {
@@ -615,20 +546,25 @@ class Tree {
                         continue;
                     }
 
-                    if(functionCallStep.isFunctionMatch(sibling)) {
+                    if(functionCallStepInBranch.isFunctionMatch(sibling)) {
                         return sibling;
                     }
                 }
+
+                index--;
+                currStepInTree = containingBranch.steps[index].originalStep;
             }
 
-            this.error("The function '" + functionCallStep.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
+            this.error("The function '" + functionCallStepInBranch.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
         }
 
         /**
          * Converts the tree under this.root into an array of Branch in this.branches
+         * Expands function calls, hooks, and Must Test X to their corresponding function declarations
+         * @throws {Error} If a step cannot be found
          */
         function generateBranches() {
-
+            this.branches = branchify(this.root);
 
 
 
@@ -644,48 +580,114 @@ class Tree {
 
         /**
          * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
-         * @param {Step} Step or StepBlock to convert to branches
-         * @return {Array} Array of Branch, containing the branches under step. Sorted by ideal execution order (but without regard to {frequency}).
+         * @param {Step} step - Step or StepBlock under this.root to convert to branches
+         * @param {Branch} [branchAbove] - Branch that comes above step (used to help find function declarations), [] if omitted
+         * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}).
+         * @throws {Error} If a step cannot be found, or if a hook name is invalid
          */
-        function branchify(step) {
-            var branches = [];
+        function branchify(step, branchAbove) {
+            if(typeof branchAbove == 'undefined') {
+                branchAbove = [];
+            }
+
+            branchAbove.push(step.cloneForBranch());
+            var branchesBelow = []; // Branches at and below step (what we're returning)
 
             if(step.isTextualStep) {
-                branches.push(step.clone());
+                var branch = new Branch();
+                branch.steps.push(step.cloneForBranch());
+                branchesBelow.push(branch);
             }
             else if(step.isFunctionCall) {
-
-
-
-
-
+                var functionDeclarationInTree = findFunctionDeclaration(branchAbove);
+                branchesBelow = branchify(functionDeclarationInTree, branchAbove);
+                branchesBelow.forEach((branch) => {
+                    branch.steps.unshift(step.cloneForBranch()); // put clone of step at the front of each Branch that results from expanding the function call
+                });
             }
             else if(step instanceof StepBlock) {
-
-
-
-
-
+                step.steps.forEach((step) => { // branchify each member of this step block
+                    branchesBelow = branchesBelow.concat(branchify(step, branchAbove));
+                });
+                branchesBelow.forEach((branch) => {
+                    branch.steps.unshift(step.cloneForBranch()); // put clone of step at the front of each resulting Branch
+                });
             }
             else if(step.isMustTest) {
-
-
-
-
-
+                var functionDeclarationInTree = findFunctionDeclaration(branchAbove); // If step is 'Must Test X', functionDeclarationInTree is X
+                step.mustTestBraches = branchify(functionDeclarationInTree);
             }
-            // Ignore function declarations
+            else if(step.isFunctionDeclaration) {
+                // Handle hooks
+                var stepText = step.getCanonicalText();
+                if(stepText == "after every branch") {
+                    validateHook();
 
-            if(step.afterEveryBranch) {
 
 
 
 
 
+
+
+
+
+                    if(!step.parent.afterEveryBranch) {
+                        step.parent.afterEveryBranch = [];
+                    }
+                    step.parent.afterEveryBranch.push(step);
+                }
+                else if(stepText == "before everything") {
+                    validateHook();
+
+
+
+
+
+
+
+
+                    if(step.indents != 0) {
+                        this.error("A '* Before everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                    }
+
+                    this.beforeEverything.push(step);
+                }
+                else if(stepText == "after everything") {
+                    validateHook();
+
+
+
+
+
+
+
+
+                    if(step.indents != 0) {
+                        this.error("An '* After everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                    }
+
+                    this.afterEverything.push(step);
+                }
+                // Ignore non-hook function declarations (since we do not include the *Function Declaration step itself in branchesBelow)
+
+                /**
+                 * Validates that step.text is in the proper hook function casing (i.e., first letter uppercase, all others lowercase)
+                 * Only call if step.text is a hook function
+                 * @throws {Error} If step.text is not in the right casing
+                 */
+                function validateHook() {
+                    var properStepText = step.getCanonicalText();
+                    properStepText[0] = properStepText[0].toUpperCase();
+
+                    if(step.text.trim().replace(/\s+/g, ' ') != properStepText) {
+                        this.error("This hook function declaration is not in the right casing (first letter must be caps, e.g., 'After all branches')", step.filename, step.lineNumber);
+                    }
+                }
             }
 
             // Recursively call on children, in a breadth-first manner
-            var branchesFromChildren = [];
+            var branchesFromChildren = []; // Array of Array of Branch
             step.children.forEach((child) => {
                 var branchesFromChild = branchify(child);
                 if(branchesFromChild && branchesFromChild.length > 0) {
@@ -693,21 +695,35 @@ class Tree {
                 }
             });
 
-            // TODO:
-            // Take one Branch from each branchesFromChildren member (to put into branches),
-            //      then continue dealing until nothing left
-            // Make sure this is unit tested
+            // Put into branchesBelow in a breadth-first manner
+            // Take one Branch from each child (to tack onto end of every member of branchesBelow), then continue taking round-robin until nothing left
+            while(branchesFromChildren.length > 0) {
+                for(var i = 0; i < branchesFromChildren.length;) {
+                    var branchesFromChild = branchesFromChildren[i];
+                    var takenBranch = branchesFromChild.shift(); // take first branch from each child
+                    branchesBelow.forEach((branchBelow) => { // put takenBranch onto every branchBelow
+                        branchBelow.steps.push(takenBranch);
+                    });
+
+                    if(branchesFromChild.length == 0) {
+                        branchesFromChildren.splice(i, 1); // remove empty branchesFromChild
+                    }
+                    else {
+                        i++;
+                    }
+                }
+            }
+
+            if(step.afterEveryBranch) {
+                // TODO: attach in a way that built-in After every branch come last
 
 
 
 
+            }
 
 
-
-
-
-
-            return branches;
+            return branchesBelow;
         }
 
         /**

@@ -76,10 +76,10 @@ describe("Step", function() {
         root.children = [ A, EF ];
     });
 
-    describe("clone()", function() {
+    describe("cloneForBranch()", function() {
         it("can properly clone, chlidren are removed from the clone, and the original and cloned objects are distinct", function() {
             var C = root.children[0].children[1];
-            var clonedC = C.clone();
+            var clonedC = C.cloneForBranch();
 
             clonedC.cloneMark = true;
             C.originalMark = true;

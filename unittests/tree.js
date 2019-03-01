@@ -3198,9 +3198,14 @@ C
     });
 
     describe("finalize()", function() {
-        it.skip("expands a function call", function() {
+        it.skip("expands a function call with one branch", function() {
             var tree = new Tree();
-            tree.parseIn(`Click ['Login' button]`);
+            tree.parseIn(`
+My function
+
+* My function
+    Step one -
+`);
 
 
 //meow
@@ -3349,12 +3354,12 @@ C
 
         it.skip("expands Must Test X", function() {
             var tree = new Tree();
-            // puts that tree into a separate variable (i.e., step.mustTestTree)
+            // puts that tree into a separate variable (i.e., step.mustTestBranches)
         });
 
         it.skip("expands Must Test {var} = X", function() {
             var tree = new Tree();
-            // puts that tree into a separate variable (i.e., step.mustTestTree)
+            // puts that tree into a separate variable (i.e., step.mustTestBranches)
         });
 
         it.skip("rejects steps that cannot be found", function() {

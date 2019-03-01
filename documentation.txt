@@ -29,7 +29,7 @@ Running tests
     - Branches run breadth-first
         - In other words, execute the first branch from each top node, then the second, etc.
         - This way, you're executing wide coverage and can stop tests at any time and be confident. The longer you run your tests, the more confidence you gain.
-        - Always do all high, then medium, then low branches based on {frequency} var (regardless of position in tree)
+        - Always do all high, then medium/none, then low branches based on {frequency} var (regardless of position in tree)
         - You should order your branches based on frequency
     - Basic command line invocation
         - File glob passed in
@@ -52,7 +52,8 @@ Step reference
 Step blocks
     - Vertical list of 2 or more steps, no blank lines in between
     - Show examples
-    - Each line of a step block will connect with every child step to the step block. It's kind of like a for loop.
+    - Each line of a step block will connect with every child step to the step block, in a separate branch. It's kind of like a for loop.
+        - Give an example
     - .. at the top of a step block means sequential execution. Kind of like if we indented every step into a tree.
         - .. must be at the same indentation as vertical list
 
@@ -77,6 +78,7 @@ Functions
             - All function inputs are either {vars}, "strings", or [ElementFinders]
         - Finds closest matching function declaration in the tree, otherwise looks to built-in functions
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
+            - Show example
     - Declaring
         - Examples of declarations
         - Finding declaration

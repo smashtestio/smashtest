@@ -30,7 +30,7 @@ class Step {
 
         this.isMustTest = false;              // true if this step is a Must Test step
         this.mustTestText = "";               // what comes after Must Test in this.text (doesn't include the *)
-        this.mustTestTree = {};               // if this is a Must Test X step, X and its children are copied under here
+        this.mustTestBranches = [];           // if this is a Must Test X step, X and its children are converted into branches and placed in this Array
 
         this.isToDo = false;                  // true if this step has the To Do identifier (-T)
         this.isManual = false;                // true if this step has the manual identifier (-M)
@@ -57,9 +57,10 @@ class Step {
     }
 
     /**
+     * Generates a clone of this Step, ready to be placed into a Branch
      * @return {Step} A distinct copy of this Step, but with parent and containingStepBlock set to null and no children array
      */
-    clone() {
+    cloneForBranch() {
         // We don't want the clone to walk the tree into this.parent and beyond (same with this.containingStepBlock)
         var originalParent = this.parent;
         this.parent = null;
