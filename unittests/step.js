@@ -77,56 +77,47 @@ describe("Step", function() {
     });
 
     describe("clone()", function() {
-        it("can properly clone", function() {
+        it("can properly clone, chlidren are removed from the clone, and the original and cloned objects are distinct", function() {
             var C = root.children[0].children[1];
             var clonedC = C.clone();
 
             clonedC.cloneMark = true;
+            C.originalMark = true;
 
             expect(clonedC).to.containSubset({
                 text: 'C',
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: true,
+                originalMark: undefined,
                 parent: null,
-                children: undefined
+                children: undefined,
+                originalStep: {
+                    originalMark: true,
+                    cloneMark: undefined
+                }
             });
-        });
-
-        it("changes to the clone do not affect the original object", function() {
-            var C = root.children[0].children[1];
-            var clonedC = C.clone();
-
-            clonedC.cloneMark = true;
 
             expect(C).to.containSubset({
                 text: 'C',
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: undefined,
+                originalMark: true,
                 parent: { text: 'A' },
                 children: [
                     {
                         text: 'D',
                         varsList: [ 'D1', 'D2' ],
                         cloneMark: undefined,
-                        parent: { cloneMark: undefined },
+                        originalMark: undefined,
+                        parent: {
+                            cloneMark: undefined,
+                            originalMark: true,
+                            originalStep: undefined
+                        },
                         children: []
                     }
-                ]
-            });
-        });
-
-        it("changes to the original object do not affect the clone", function() {
-            var C = root.children[0].children[1];
-            var clonedC = C.clone();
-
-            C.originalMark = true;
-
-            expect(clonedC).to.containSubset({
-                text: 'C',
-                varsList: [ 'C1', 'C2' ],
-                originalMark: undefined,
-                parent: null,
-                children: undefined
+                ],
+                originalStep: undefined
             });
         });
     });

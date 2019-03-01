@@ -27,6 +27,10 @@ Steps
 
 Running tests
     - Branches run breadth-first
+        - In other words, execute the first branch from each top node, then the second, etc.
+        - This way, you're executing wide coverage and can stop tests at any time and be confident. The longer you run your tests, the more confidence you gain.
+        - Always do all high, then medium, then low branches based on {frequency} var (regardless of position in tree)
+        - You should order your branches based on frequency
     - Basic command line invocation
         - File glob passed in
         - Setting {vars} from command line

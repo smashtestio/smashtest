@@ -50,6 +50,9 @@ class Step {
         this.isBuiltIn = false;               // true if this step is from a built-in file
 
         this.afterEveryBranch = [];           // array of Step, which represent the steps to execute after every branch that traverses through this step is complete
+
+        this.originalStep = {};               // when this step is cloned, the clone's originalStep points to the Step from which it was cloned
+        this.branchIndents = 0;               // when this step is included in a Branch, this indicates the number of indents to use when printing the Branch out, so as to preserve function calling hierarchies (i.e., steps under a function are indented under that function's call)
         */
     }
 
@@ -68,6 +71,7 @@ class Step {
         this.children = undefined;
 
         var clone = clonedeep(this);
+        clone.originalStep = this;
 
         // Restore originals
         this.parent = originalParent;

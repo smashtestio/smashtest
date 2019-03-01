@@ -639,23 +639,75 @@ class Tree {
 
 
 
-            /**
-             * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
-             * @param {Step} Step or StepBlock to convert to branches
-             * @return {Array} Array of Branch, containing the branches under step
-             */
-            function branchify(step) {
 
+        }
 
+        /**
+         * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
+         * @param {Step} Step or StepBlock to convert to branches
+         * @return {Array} Array of Branch, containing the branches under step. Sorted by ideal execution order (but without regard to {frequency}).
+         */
+        function branchify(step) {
+            var branches = [];
 
-
-
+            if(step.isTextualStep) {
+                branches.push(step.clone());
+            }
+            else if(step.isFunctionCall) {
 
 
 
 
 
             }
+            else if(step instanceof StepBlock) {
+
+
+
+
+
+            }
+            else if(step.isMustTest) {
+
+
+
+
+
+            }
+            // Ignore function declarations
+
+            if(step.afterEveryBranch) {
+
+
+
+
+
+            }
+
+            // Recursively call on children, in a breadth-first manner
+            var branchesFromChildren = [];
+            step.children.forEach((child) => {
+                var branchesFromChild = branchify(child);
+                if(branchesFromChild && branchesFromChild.length > 0) {
+                    branchesFromChildren.push(branchesFromChild);
+                }
+            });
+
+            // TODO:
+            // Take one Branch from each branchesFromChildren member (to put into branches),
+            //      then continue dealing until nothing left
+            // Make sure this is unit tested
+
+
+
+
+
+
+
+
+
+
+            return branches;
         }
 
         /**
