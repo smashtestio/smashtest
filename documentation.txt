@@ -138,8 +138,11 @@ No parallel execution (+)
 Sequential execution (..)
     - .. means execute branches below me depth-first sequentially, but never repeat the execution of a parent step (including me)
         more than once.  ..'es have the effect of flattening themselves and their children into one long list of sequentially
-        indented steps, a .. does not expand beyond the bounds of a *Function
+        indented steps
+            - a .. inside a *Function declaration does not expand beyond the bounds of that *Function declaration
+            - a .. applied to a function call does not apply to inside the function (in case it has multiple branches)
     - .. above a step block
+        - a .. applied to a function call does not apply to inside the function (in case it has multiple branches)
 
 Expected failure (#)
     - #
