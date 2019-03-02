@@ -3315,12 +3315,14 @@ My function
             var tree = new Tree();
         });
 
-        it.skip("expands on a {var} = Func that has muliple branches that set a variable", function() {
+        it.skip("expands on a {var} = Func that has muliple branches in {x}='value' format", function() {
             var tree = new Tree();
+            // try branched function with steps and stepblocks
         });
 
         it.skip("rejects {var} = Func if Func doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
             var tree = new Tree();
+            // try branched function with steps and stepblocks with bad steps in both the steps and stepblocks. Bad steps can be not in {x}='value' format, or have children themselves.
         });
 
         it.skip("finds a built-in function", function() {
