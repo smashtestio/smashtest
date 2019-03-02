@@ -618,10 +618,12 @@ class Tree {
         /**
          * Validates that F from {var} = F is either a code block function or in {x}='val' format
          * @param {Step} functionDeclarationInTree - The function declaration of F, under this.root
+         * @param {String} filename - The filename of the line {var} = F
+         * @param {String} lineNumber - The line number of the line {var} = F
          * @return {Boolean} true if F is in {x}='val' format, false otherwise
          * @throws {Error} If F is not the right format
          */
-        function validateVarSettingFunction(functionDeclarationInTree) {
+        function validateVarSettingFunction(functionDeclarationInTree, filename, lineNumber) {
             /*
             Acceptable formats of F:
                 * F {
@@ -641,16 +643,33 @@ class Tree {
                         - May contain steps, step blocks, or a combination of them
             */
 
+            if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
+                return false;
+            }
+            else {
+                functionDeclarationInTree.children.forEach((child) => {
+                    if(child instanceof StepBlock) {
+                        child.steps.forEach((step) => {
+                            validateChild(step);
+                        });
+                    }
+                    else {
+                        validateChild(child);
+                    }
+                });
 
+                return true;
 
+                function validateChild(child) {
+                    if(child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
+                        this.error("All child steps in the function being called must be in the format {x}='string'. Not the case at [" + child.filename + ":" + child.lineNumber + "]", filename, lineNumber);
+                    }
 
-
-
-
-
-
-
-            // TODO: return true if F is in {x}='val' format, false otherwise
+                    if(child.children.length > 0) {
+                        this.error("All child steps in the function being called must not have children themselves. Not the case at [" + child.filename + ":" + child.lineNumber + "]", filename, lineNumber);
+                    }
+                }
+            }
         }
 
         /**
@@ -692,7 +711,7 @@ class Tree {
 
                     // If F doesn't have a code block, validate that it either points at a code block function, or points at a function with all children being {x}='val'
                     if(typeof step.codeBlock == 'undefined') {
-                        isReplaceVarsInChildren = validateVarSettingFunction(functionDeclarationInTree);
+                        isReplaceVarsInChildren = validateVarSettingFunction(functionDeclarationInTree, step.filename, step.lineNumber);
                     }
                 }
 
