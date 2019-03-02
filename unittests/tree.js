@@ -439,6 +439,42 @@ describe("Tree", function() {
             assert.deepEqual(step.varsList, [ {name: "foo", isLocal: false} ]);
         });
 
+        it("rejects {Frequency}", function() {
+            assert.throws(() => {
+                tree.parseLine(`{Frequency} = 'high'`, "file.txt", 10);
+            });
+        });
+
+        it("rejects {{frequency}}", function() {
+            assert.throws(() => {
+                tree.parseLine(`{{frequency}} = 'high'`, "file.txt", 10);
+            });
+        });
+
+        it("rejects {frequency} not set to high/med/low", function() {
+            assert.throws(() => {
+                tree.parseLine(`{frequency} = 'blah'`, "file.txt", 10);
+            });
+        });
+
+        it("parses valid {frequency}", function() {
+            assert.doesNotThrow(() => {
+                tree.parseLine(`{frequency} = 'high'`, "file.txt", 10);
+            });
+
+            assert.doesNotThrow(() => {
+                tree.parseLine(`{frequency} = 'med'`, "file.txt", 10);
+            });
+
+            assert.doesNotThrow(() => {
+                tree.parseLine(`{frequency} = 'low'`, "file.txt", 10);
+            });
+
+            assert.doesNotThrow(() => {
+                tree.parseLine(`{foo1}='bar1',{frequency} = 'med', {foo2} = "bar2"`, "file.txt", 10);
+            });
+        });
+
         it("parses ElementFinders", function() {
             var step = tree.parseLine(`Click ['Login' box]`, "file.txt", 10);
             assert.equal(step.text, `Click ['Login' box]`);
@@ -3298,6 +3334,24 @@ My function
         it.skip("expands the branches beneath a step block to under each step within the step block", function() {
             var tree = new Tree();
         });
+
+        it.skip("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("sets the frequency of multiple branches when the {frequency} variable is set", function() {
+            var tree = new Tree();
+            // have multiple branches have their {frequency} set
+        });
+
+        it.skip("doesn't set the frequency of a branch when the {frequency} variable is absent", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", function() {
+            var tree = new Tree();
+        });
+
 
         it.skip("expands .. steps", function() {
             // indented string of steps (with children and functions correctly connected to bottom)

@@ -2,6 +2,7 @@ const Step = require('./step.js');
 const StepBlock = require('./stepblock.js');
 const Branch = require('./branch.js');
 const Constants = require('./constants.js');
+const utils = require('./utils.js');
 
 /**
  * Represents the test tree
@@ -168,11 +169,26 @@ class Tree {
                     this.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
                 }
 
-                step.varsBeingSet.push({
+                var varBeingSet = {
                     name: matches[2].replace(/\{|\}/g, '').trim(),
                     value: matches[5],
                     isLocal: matches[2].includes('{{')
-                });
+                };
+
+                // Validations for special variables
+                if(varBeingSet.name.toLowerCase() == 'frequency') {
+                    if(varBeingSet.name != 'frequency') {
+                        this.error("The {frequency} variable is special and must be all lowercase", filename, lineNumber);
+                    }
+                    if(varBeingSet.isLocal) {
+                        this.error("The {frequency} variable is special and cannot be {{frequency}}", filename, lineNumber);
+                    }
+                    if(['high','med','low'].indexOf(utils.stripQuotes(varBeingSet.value)) == -1) {
+                        this.error("The {frequency} variable is special and can only be set to 'high', 'med', or 'low'", filename, lineNumber);
+                    }
+                }
+
+                step.varsBeingSet.push(varBeingSet);
 
                 textCopy = textCopy.replace(matches[1], ''); // strip the leading {var}=Step from the string
                 textCopy = textCopy.replace(/^\,/, ''); // string the leading comma, if there is one
@@ -270,9 +286,9 @@ class Tree {
         var matches = name.match(Constants.ELEMENTFINDER_REGEX);
         if(matches) {
             var ordinal = (matches[2] || '');
-            var text = ((matches[5] || '') + (matches[8] || '')).replace(/^'|^"|'$|"$/g, ''); // it's either matches[5] or matches[8], strip out surrounding quotes
+            var text = utils.stripQuotes((matches[5] || '') + (matches[8] || '')); // it's either matches[5] or matches[8]
             var variable = ((matches[6] || '') + (matches[9] || '')).trim(); // it's either matches[6] or matches[9]
-            var nextTo = (matches[11] || '').replace(/^'|^"|'$|"$/g, ''); // strip out surrounding quotes
+            var nextTo = utils.stripQuotes(matches[11] || '');
 
             if(!text && !variable) { // either the text and/or the variable must be present
                 return null;
@@ -587,10 +603,11 @@ class Tree {
          * @param {Branch} [branchAbove] - Branch that comes above step (used to help find function declarations), [] if omitted
          * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
          * @param {Array} [afterEveryBranch] - Array of Branch - the Branches to execute after every child branch of step (in order of preferred execution), [] if omitted
+         * @param {String} [frequency] - The frequency set at step or above it
          * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}).
          * @throws {Error} If a step cannot be found, or if a hook name is invalid
          */
-        function branchify(step, branchAbove, branchIndents, afterEveryBranch) {
+        function branchify(step, branchAbove, branchIndents, afterEveryBranch, frequency) {
             if(typeof branchAbove == 'undefined') {
                 branchAbove = [];
             }
@@ -601,25 +618,18 @@ class Tree {
                 afterEveryBranch = [];
             }
 
-            branchAbove.push(step.cloneForBranch());
+            branchAbove.push(step.cloneForBranch()); // now branchAbove contains step at its end, so we can use it with findFunctionDeclaration()
 
             var branchesBelow = []; // Branches at and below step (what we're returning)
 
             // Fill branchesBelow based on step's type
-            if(step.isTextualStep) {
-                var branch = new Branch();
-                var clonedStep = step.cloneForBranch();
-                clonedStep.branchIndents = branchIndents;
-                branch.steps.push();
-                branchesBelow.push(branch);
-            }
-            else if(step.isMustTest) {
+            if(step.isMustTest) {
                 var functionDeclarationInTree = findFunctionDeclaration(branchAbove); // If step is 'Must Test X', functionDeclarationInTree is X
-                step.mustTestBraches = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch);
+                step.mustTestBraches = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
             }
             else if(step.isFunctionCall) {
                 var functionDeclarationInTree = findFunctionDeclaration(branchAbove);
-                branchesBelow = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch);
+                branchesBelow = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
 
                 // Put clone of step at the front of each Branch that results from expanding the function call
                 branchesBelow.forEach((branch) => {
@@ -628,13 +638,36 @@ class Tree {
                     branch.steps.unshift(clonedStep);
                 });
             }
+            else if(step.isFunctionDeclaration) {
+                // Ignore function declarations (since we do not include the *Function Declaration step itself in branchesBelow)
+            }
             else if(step instanceof StepBlock) {
                 // Branchify each member of this step block
                 step.steps.forEach((stepInBlock) => {
-                    branchesBelow = branchesBelow.concat(branchify(stepInBlock, branchAbove, branchIndents, afterEveryBranch));
+                    branchesBelow = branchesBelow.concat(branchify(stepInBlock, branchAbove, branchIndents, afterEveryBranch, frequency));
                 });
             }
-            // Ignore function declarations (since we do not include the *Function Declaration step itself in branchesBelow)
+            else { // Textual steps (including manual steps), non-function-declaration code block steps, {var}='string'
+                // {frequency}='high/med/low'
+                var frequency = null;
+                if(step.varsBeingSet && step.varsBeingSet.length > 0) {
+                    step.varsBeingSet.forEach((varBeingSet) => {
+                        if(varBeingSet.name == 'frequency') {
+                            frequency = utils.stripQuotes(varBeingSet.value);
+                        }
+                    });
+                }
+
+                // Generic step cloning into branchesBelow
+                var branch = new Branch();
+                var clonedStep = step.cloneForBranch();
+                clonedStep.branchIndents = branchIndents;
+                if(frequency) {
+                    branch.frequency = frequency;
+                }
+                branch.steps.push();
+                branchesBelow.push(branch);
+            }
 
             if(step.children.length > 0) {
                 // We have children
@@ -649,7 +682,7 @@ class Tree {
                                 badHookCasingError(child);
                             }
 
-                            var afterEveryBranchBranches = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch);
+                            var afterEveryBranchBranches = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
                             afterEveryBranch.unshift(afterEveryBranchBranches); // add to front of array (attached in a way that built-in * After Every Branch functions come last)
                         }
                         else if(canStepText == "before everything") {
@@ -661,7 +694,7 @@ class Tree {
                                 this.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                             }
 
-                            var newBeforeEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch);
+                            var newBeforeEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
                             this.beforeEverything.push(newBeforeEverything);
                         }
                         else if(canStepText == "after everything") {
@@ -673,7 +706,7 @@ class Tree {
                                 this.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                             }
 
-                            var newAfterEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch);
+                            var newAfterEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
                             this.afterEverything.push(newAfterEverything);
                         }
                     }
@@ -682,7 +715,7 @@ class Tree {
                 // Recursively call branchify() on children
                 var branchesFromChildren = []; // Array of Array of Branch
                 step.children.forEach((child) => {
-                    var branchesFromChild = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch);
+                    var branchesFromChild = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren.push(branchesFromChild);
                     }
