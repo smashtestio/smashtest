@@ -585,7 +585,25 @@ class Tree {
         function generateBranches() {
             this.branches = branchify(this.root);
 
-
+            // Sort by {frequency} (otherwise keeping the same order)
+            var highBranches = [];
+            var medBranches = [];
+            var lowBranches = [];
+            this.branches.forEach((branch) => {
+                if(branch.frequency == 'high') {
+                    highBranches.push(branch);
+                }
+                else if(branch.frequency == 'med') {
+                    medBranches.push(branch);
+                }
+                else if(branch.frequency == 'low') {
+                    lowBranches.push(branch);
+                }
+                else { // branch.frequency is undefined or something else
+                    medBranches.push(branch);
+                }
+            });
+            this.branches = highBranches.concat(medBranches).concat(lowBranches);
 
 
 
