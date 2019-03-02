@@ -585,6 +585,20 @@ class Tree {
         function generateBranches() {
             this.branches = branchify(this.root);
 
+            // Set Branch.frequency for all branches
+            this.branches.forEach((branch) => {
+                branch.steps.forEach((step) => {
+                    if(step.varsBeingSet && step.varsBeingSet.length > 0) {
+                        step.varsBeingSet.forEach((varBeingSet) => {
+                            if(varBeingSet.name == 'frequency') {
+                                branch.frequency = utils.stripQuotes(varBeingSet.value);
+                                // keep running loop in case a later {frequency} variable overrides this one
+                            }
+                        });
+                    }
+                });
+            });
+
             // Sort by {frequency} (otherwise keeping the same order)
             var highBranches = [];
             var medBranches = [];
@@ -678,11 +692,11 @@ class Tree {
          * @param {Branch} [branchAbove] - Branch that comes above step (used to help find function declarations), [] if omitted
          * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
          * @param {Array} [afterEveryBranch] - Array of Branch - the Branches to execute after every child branch of step (in order of preferred execution), [] if omitted
-         * @param {String} [frequency] - The frequency set at step or above it
+         * @param {Boolean} [isSequential] - If true, combine branches of children sequentially
          * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}).
          * @throws {Error} If a step cannot be found, or if a hook name is invalid
          */
-        function branchify(step, branchAbove, branchIndents, afterEveryBranch, frequency) {
+        function branchify(step, branchAbove, branchIndents, afterEveryBranch, isSequential) {
             if(typeof branchAbove == 'undefined') {
                 branchAbove = [];
             }
@@ -692,6 +706,11 @@ class Tree {
             if(typeof afterEveryBranch == 'undefined') {
                 afterEveryBranch = [];
             }
+            if(typeof isSequential == 'undefined') {
+                isSequential = false;
+            }
+
+            isSequential = step.isSequential || isSequential;
 
             branchAbove.push(step.cloneForBranch()); // now branchAbove contains step at its end, so we can use it with findFunctionDeclaration()
 
@@ -700,7 +719,7 @@ class Tree {
             // Fill branchesBelow based on step's type
             if(step.isMustTest) {
                 var functionDeclarationInTree = findFunctionDeclaration(branchAbove); // If step is 'Must Test X', functionDeclarationInTree is X
-                step.mustTestBraches = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
+                step.mustTestBraches = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
             }
             else if(step.isFunctionCall) {
                 var functionDeclarationInTree = findFunctionDeclaration(branchAbove);
@@ -715,7 +734,7 @@ class Tree {
                     }
                 }
 
-                branchesBelow = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
+                branchesBelow = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
                 if(isReplaceVarsInChildren) {
                     // replace {x} in each child to {var} (where step is {var} = F)
@@ -731,33 +750,37 @@ class Tree {
                     branch.steps.unshift(clonedStep);
                 });
             }
-            else if(step.isFunctionDeclaration) {
-                // Ignore function declarations (since we do not include the *Function Declaration step itself in branchesBelow)
-            }
             else if(step instanceof StepBlock) {
-                // Branchify each member of this step block
-                step.steps.forEach((stepInBlock) => {
-                    branchesBelow = branchesBelow.concat(branchify(stepInBlock, branchAbove, branchIndents, afterEveryBranch, frequency));
-                });
-            }
-            else { // Textual steps (including manual steps), non-function-declaration code block steps, {var}='string'
-                // {frequency}='high/med/low'
-                var frequency = null;
-                if(step.varsBeingSet && step.varsBeingSet.length > 0) {
-                    step.varsBeingSet.forEach((varBeingSet) => {
-                        if(varBeingSet.name == 'frequency') {
-                            frequency = utils.stripQuotes(varBeingSet.value);
+                if(isSequential) {
+                    // Branches from each step block member are attached sequentially to the branches of the step block member before it
+                    step.steps.forEach((stepInBlock) => {
+                        var branchesBelowStepInBlock = branchify(stepInBlock, branchAbove, branchIndents, afterEveryBranch); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                        if(branchesBelow.length == 0) {
+                            branchesBelow = branchesBelowStepInBlock;
+                        }
+                        else {
+                            var newBranchesBelow = [];
+                            branchesBelow.forEach((branchBelow) => {
+                                branchesBelowStepInBlock.forEach((branchBelowStepInBlock) => {
+                                    newBranchesBelow.push(branchBelow.attachToEnd(branchBelowStepInBlock));
+                                });
+                            });
+                            branchesBelow = newBranchesBelow;
                         }
                     });
                 }
-
+                else {
+                    // Branchify each member of this step block
+                    step.steps.forEach((stepInBlock) => {
+                        branchesBelow.push(branchify(stepInBlock, branchAbove, branchIndents, afterEveryBranch)); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                    });
+                }
+            }
+            else { // Textual steps (including manual steps), function declarations, non-function-declaration code block steps, {var}='string'
                 // Generic step cloning into branchesBelow
                 var branch = new Branch();
                 var clonedStep = step.cloneForBranch();
                 clonedStep.branchIndents = branchIndents;
-                if(frequency) {
-                    branch.frequency = frequency;
-                }
                 branch.steps.push();
                 branchesBelow.push(branch);
             }
@@ -775,7 +798,7 @@ class Tree {
                                 badHookCasingError(child);
                             }
 
-                            var afterEveryBranchBranches = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
+                            var afterEveryBranchBranches = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
                             afterEveryBranch.unshift(afterEveryBranchBranches); // add to front of array (attached in a way that built-in * After Every Branch functions come last)
                         }
                         else if(canStepText == "before everything") {
@@ -787,7 +810,7 @@ class Tree {
                                 this.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                             }
 
-                            var newBeforeEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
+                            var newBeforeEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
                             this.beforeEverything.push(newBeforeEverything);
                         }
                         else if(canStepText == "after everything") {
@@ -799,7 +822,7 @@ class Tree {
                                 this.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                             }
 
-                            var newAfterEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
+                            var newAfterEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
                             this.afterEverything.push(newAfterEverything);
                         }
                     }
@@ -807,12 +830,32 @@ class Tree {
 
                 // Recursively call branchify() on children
                 var branchesFromChildren = []; // Array of Array of Branch
-                step.children.forEach((child) => {
-                    var branchesFromChild = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
-                    if(branchesFromChild && branchesFromChild.length > 0) {
-                        branchesFromChildren.push(branchesFromChild);
-                    }
-                });
+                if(isSequential) {
+                    // Branches from each child are attached sequentially to the branches of the child before it
+                    step.children.forEach((child) => {
+                        var branchesBelowChild = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                        if(branchesBelow.length == 0) {
+                            branchesBelow = branchesBelowChild;
+                        }
+                        else {
+                            var newBranchesBelow = [];
+                            branchesBelow.forEach((branchBelow) => {
+                                branchesBelowChild.forEach((branchBelowChild) => {
+                                    newBranchesBelow.push(branchBelow.attachToEnd(branchBelowChild));
+                                });
+                            });
+                            branchesBelow = newBranchesBelow;
+                        }
+                    });
+                }
+                else {
+                    step.children.forEach((child) => {
+                        var branchesFromChild = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
+                        if(branchesFromChild && branchesFromChild.length > 0) {
+                            branchesFromChildren.push(branchesFromChild);
+                        }
+                    });
+                }
 
                 // Put branchify() results into branchesBelow in a breadth-first manner
                 // Take one Branch from each child (to tack onto end of every member of branchesBelow), then continue taking round-robin until nothing left

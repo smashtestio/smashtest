@@ -3364,7 +3364,7 @@ My function
         });
 
         it.skip("expands .. steps that contain function calls underneath", function() {
-            // the .. doesn't apply to within that function call (use functions with multiple branches to ensure branching still occurs)
+            // the .. doesn't apply to within each function call (use functions with multiple branches to ensure branching still occurs)
         });
 
         it.skip("expands .. steps that contain step blocks underneath", function() {
