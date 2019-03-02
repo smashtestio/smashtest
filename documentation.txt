@@ -98,8 +98,10 @@ Variables
             - Code Function returns a string (actually any kind of js value will work)
             - Could be {var} = Text { code block that returns something }
         - {var} = Function with branches
-            - Function is a list of textual steps that will be turned into strings
-            - Line is turned into a code block, where {var} = each string
+            - Each line must be {x}='value'
+                - No children
+            - Separate branches will be created, each setting {var} to each 'value' encountered to the right of {x}
+            - You can name {x} whatever you want, but the convention is {x}
     - In a line that's {var1}=Step1, {var2}=Step2, do not accept Functions* in Step1/2/etc.
         - (In other words, if there are multiple vars being set, each Step must be a string literal)
     - Using {vars} that will be defined later in the branch
