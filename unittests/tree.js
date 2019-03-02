@@ -3221,6 +3221,7 @@ My function
 
         it.skip("expands a function call with multiple branches", function() {
             var tree = new Tree();
+            // check step.branchIndents too
         });
 
         it.skip("expands multiple function calls in the tree", function() {
@@ -3314,24 +3315,28 @@ My function
             // the contents of the functions themselves aren't expanded (use functions with multiple branches to ensure branching still occurs)
         });
 
-        it.skip("expands the * After every branch hook", function() {
+        it.skip("expands the * After Every Branch hook", function() {
             var tree = new Tree();
             // have it expand to multiple leaves, but not to all leaves in the tree
         });
 
-        it.skip("expands the * Before everything hook", function() {
+        it.skip("expands the * After Every Branch hook such that built-in hooks execute last", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * After everything hook", function() {
+        it.skip("expands the * Before Everything hook", function() {
             var tree = new Tree();
         });
 
-        it.skip("rejects the * Before everything hook when not at 0 indents", function() {
+        it.skip("expands the * After Everything hook", function() {
             var tree = new Tree();
         });
 
-        it.skip("rejects the * After everything hook when not at 0 indents", function() {
+        it.skip("rejects the * Before Everything hook when not at 0 indents", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects the * After Everything hook when not at 0 indents", function() {
             var tree = new Tree();
         });
 

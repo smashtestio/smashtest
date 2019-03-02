@@ -154,14 +154,14 @@ Must Test
                 {x}='str2'
 
 Hook steps
-    - * After every branch
+    - * After Every Branch
         - {branchSuccessful} = true if passed, false if failed
         - {error} = the Error object, if failed
         - attached to the end of every leaf under this function declaration's parent
-    - * Before everything
+    - * Before Everything
         - before any tests begin, execute this
         - only valid at 0 indents
-    - * After everything
+    - * After Everything
         - after all tests end, execute this
         - only valid at 0 indents
 
