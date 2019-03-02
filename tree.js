@@ -183,7 +183,7 @@ class Tree {
                     if(varBeingSet.isLocal) {
                         this.error("The {frequency} variable is special and cannot be {{frequency}}", filename, lineNumber);
                     }
-                    if(['high','med','low'].indexOf(utils.stripQuotes(varBeingSet.value)) == -1) {
+                    if(!utils.hasQuotes(varBeingSet.value) || ['high','med','low'].indexOf(utils.stripQuotes(varBeingSet.value)) == -1) {
                         this.error("The {frequency} variable is special and can only be set to 'high', 'med', or 'low'", filename, lineNumber);
                     }
                 }

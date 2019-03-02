@@ -455,6 +455,10 @@ describe("Tree", function() {
             assert.throws(() => {
                 tree.parseLine(`{frequency} = 'blah'`, "file.txt", 10);
             });
+
+            assert.throws(() => {
+                tree.parseLine(`{frequency} = Function`, "file.txt", 10);
+            });
         });
 
         it("parses valid {frequency}", function() {
