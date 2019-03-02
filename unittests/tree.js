@@ -3319,7 +3319,7 @@ My function
             var tree = new Tree();
         });
 
-        it.skip("rejects {var} = Func if Func is neither a code block, nor a branched function in {x}='value' format", function() {
+        it.skip("rejects {var} = Func if Func doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
             var tree = new Tree();
         });
 

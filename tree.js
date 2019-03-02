@@ -616,6 +616,44 @@ class Tree {
         }
 
         /**
+         * Validates that F from {var} = F is either a code block function or in {x}='val' format
+         * @param {Step} functionDeclarationInTree - The function declaration of F, under this.root
+         * @return {Boolean} true if F is in {x}='val' format, false otherwise
+         * @throws {Error} If F is not the right format
+         */
+        function validateVarSettingFunction(functionDeclarationInTree) {
+            /*
+            Acceptable formats of F:
+                * F {
+                    code
+                }
+
+                * F
+                    {x}='val1'
+                    {x}='val2'
+                    {x}='val3'
+
+                    {x}='val4'
+                    {x}='val5'
+
+                        - No children
+                        - No sequential (..) anything
+                        - May contain steps, step blocks, or a combination of them
+            */
+
+
+
+
+
+
+
+
+
+
+            // TODO: return true if F is in {x}='val' format, false otherwise
+        }
+
+        /**
          * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
          * @param {Step} step - Step or StepBlock under this.root to convert to branches
          * @param {Branch} [branchAbove] - Branch that comes above step (used to help find function declarations), [] if omitted
@@ -647,7 +685,25 @@ class Tree {
             }
             else if(step.isFunctionCall) {
                 var functionDeclarationInTree = findFunctionDeclaration(branchAbove);
+                var isReplaceVarsInChildren = false;
+
+                if(step.varsBeingSet.length > 0) {
+                    // Special case of {var} = F
+
+                    // If F doesn't have a code block, validate that it either points at a code block function, or points at a function with all children being {x}='val'
+                    if(typeof step.codeBlock == 'undefined') {
+                        isReplaceVarsInChildren = validateVarSettingFunction(functionDeclarationInTree);
+                    }
+                }
+
                 branchesBelow = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch, frequency);
+
+                if(isReplaceVarsInChildren) {
+                    // replace {x} in each child to {var} (where step is {var} = F)
+                    branchesBelow.forEach((branch) => {
+                        branch.steps[0].varsBeingSet[0].name = step.varsBeingSet[0].name;
+                    });
+                }
 
                 // Put clone of step at the front of each Branch that results from expanding the function call
                 branchesBelow.forEach((branch) => {
