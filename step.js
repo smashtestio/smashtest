@@ -28,10 +28,6 @@ class Step {
         this.isTextualStep = false;           // true if this step is textual (-) and not a function call
         this.functionDeclaration = {};        // Step that corresponds to the function declaration, if this step is a function call
 
-        this.isMustTest = false;              // true if this step is a Must Test step
-        this.mustTestText = "";               // what comes after Must Test in this.text (doesn't include the *)
-        this.mustTestBranches = [];           // if this is a Must Test X step, X and its children are converted into branches and placed in this Array
-
         this.isToDo = false;                  // true if this step has the To Do identifier (-T)
         this.isManual = false;                // true if this step has the manual identifier (-M)
         this.isDebug = false;                 // true if this step has the debug identifier (~)
@@ -144,18 +140,10 @@ class Step {
     }
 
     /**
-     * @return {String} The text of the function call (without {var}= or Must Test), null if step isn't a function call
+     * @return {String} The text of the function call (without the leading {var}=, if one exists), null if step isn't a function call
      */
     getFunctionCallText() {
-        if(this.isMustTest) { // Must Test X
-            if(this.varsBeingSet && this.varsBeingSet.length == 1) { // Must Test {var} = Func
-                return this.varsBeingSet[0].value;
-            }
-            else { // Must Test Func
-                return this.mustTestText;
-            }
-        }
-        else if(this.isFunctionCall) {
+        if(this.isFunctionCall) {
             if(this.varsBeingSet && this.varsBeingSet.length == 1) { // {var} = Func
                 return this.varsBeingSet[0].value;
             }

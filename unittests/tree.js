@@ -54,7 +54,6 @@ describe("Tree", function() {
             assert.equal(step.comment, undefined);
             assert.equal(step.isFunctionDeclaration, undefined);
             assert.equal(step.isFunctionCall, true);
-            assert.equal(step.isMustTest, undefined);
             assert.equal(step.isToDo, undefined);
             assert.equal(step.isManual, undefined);
             assert.equal(step.isDebug, undefined);
@@ -185,40 +184,6 @@ describe("Tree", function() {
 
             assert.throws(() => {
                 tree.parseLine(`    * Something - + {`, "file.txt", 10);
-            });
-        });
-
-        it("parses a Must Test step", function() {
-            var step = tree.parseLine(`Must Test foo bar`, "file.txt", 10);
-            assert.equal(step.isMustTest, true);
-            assert.equal(step.mustTestText, 'foo bar');
-
-            step = tree.parseLine(`    Must Test foo bar  `, "file.txt", 10);
-            assert.equal(step.isMustTest, true);
-            assert.equal(step.mustTestText, 'foo bar');
-
-            step = tree.parseLine(`Must Test    `, "file.txt", 10);
-            assert.equal(step.isMustTest, undefined);
-            assert.equal(step.mustTestText, undefined);
-        });
-
-        it("throws an error if a function declaration is also a Must Test step", function() {
-            assert.throws(() => {
-                tree.parseLine(`* Must Test something`, "file.txt", 10);
-            });
-
-            assert.throws(() => {
-                tree.parseLine(`    *  Must Test something  `, "file.txt", 10);
-            });
-        });
-
-        it("throws an error if a Must Test step is textual", function() {
-            assert.throws(() => {
-                tree.parseLine(`Must Test something -`, "file.txt", 10);
-            });
-
-            assert.throws(() => {
-                tree.parseLine(`    Must Test something  -  `, "file.txt", 10);
             });
         });
 
@@ -3440,31 +3405,9 @@ My function
             // every word must be capitalized, such as "After Every Branch"
         });
 
-        it.skip("expands Must Test X", function() {
-            var tree = new Tree();
-            // puts that tree into a separate variable (i.e., step.mustTestBranches)
-        });
-
-        it.skip("expands Must Test {var} = X", function() {
-            var tree = new Tree();
-            // puts that tree into a separate variable (i.e., step.mustTestBranches)
-        });
-
         it.skip("rejects steps that cannot be found", function() {
             var tree = new Tree();
             // neither a declared function nor a built-in function
-        });
-
-        it.skip("rejects Must Test X where X cannot be found", function() {
-            var tree = new Tree();
-        });
-
-        it.skip("rejects Must Test X where X is a code block", function() {
-            var tree = new Tree();
-        });
-
-        it.skip("rejects Must Test {var} = X where X is not a branched function in {x}='value' format", function() {
-            var tree = new Tree();
         });
 
         it.skip("rejects with a special error steps that match case insensitively but not case sensitively", function() {
@@ -3478,71 +3421,6 @@ My function
         it.skip("throws an exception when there's a circular reference among function calls", function() {
             var tree = new Tree();
             // this will probably be a js stack size exception
-        });
-
-        it.skip("accepts a Must Test X statement that's fulfilled exactly", function() {
-            // structure under Must Test X is exactly the same as the one under X
-            // X contains both textual steps (must have - in both X and under Must Test X) and simple function calls (no vars, strings, elementFinders)
-        });
-
-        it.skip("accepts a Must Test X statement that's fulfilled", function() {
-            // any amount of children between steps under Must Test X
-        });
-
-        it.skip("rejects a Must Test X statement that's not fulfilled", function() {
-
-        });
-
-        it.skip("rejects a Must Test X statement that's only fullfilled partially", function() {
-
-        });
-
-        it.skip("rejects a Must Test X statement that's fulfilled in a different part of the tree but not underneath", function() {
-
-        });
-
-        it.skip("accepts a Must Test X statement that's fulfilled by steps with different amounts of whitespace", function() {
-
-        });
-
-        it.skip("accepts a Must Test X statement that's fulfilled once function calls under the statement are expanded", function() {
-
-        });
-
-        it.skip("accepts a Must Test X statement that's inside a called function and is fulfilled outside the function call", function() {
-
-        });
-
-        it.skip("rejects a Must Test X statement that's inside a called function and is not fulfilled", function() {
-
-        });
-
-        it.skip("accepts a Must Test X statement that has step blocks and is fulfilled", function() {
-
-        });
-
-        it.skip("rejects a Must Test X statement that has step blocks and is not fulfilled", function() {
-
-        });
-
-        it.skip("accepts a Must Test X statement where X contains complex function calls and is fulfilled", function() {
-            // X contains complex function calls (vars, strings, elementFinders). Ensure those exact functions are called, with those exact inputs.
-        });
-
-        it.skip("rejects a Must Test X statement where X contains complex function calls and is not fulfilled", function() {
-            // X contains complex function calls (vars, strings, elementFinders). Ensure those exact functions are called, with those exact inputs.
-        });
-
-        it.skip("accepts a Must Test {var} = X statement that's fulfilled", function() {
-            // any variable name in X
-        });
-
-        it.skip("rejects a Must Test {var} = X statement that's not fulfilled", function() {
-
-        });
-
-        it.skip("rejects a Must Test {var} = X statement when X is not in the correct format", function() {
-
         });
 
         it.skip("generates branches from the tree", function() {

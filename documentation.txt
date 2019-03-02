@@ -148,16 +148,6 @@ Expected failure (#)
     - #
     - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
 
-Must Test
-    - Must Test X
-    - Subtree = Is every branch in X represented below me? (me = full tree, including function expansions, not including other Must Test statements)
-    - Must Test {var} = List
-        - Makes sure every {var} = list member is included in the subtree
-        - List format has to be (where the var names can be anything, not just {x})
-            List
-                {x}='str1'
-                {x}='str2'
-
 Hook steps
     - * After Every Branch
         - {branchSuccessful} = true if passed, false if failed

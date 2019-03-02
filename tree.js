@@ -102,18 +102,6 @@ class Tree {
             }
         }
 
-        // Must Test X
-        matches = step.text.match(Constants.MUST_TEST_REGEX);
-        if(matches) {
-            // This step is a Must Test X
-            if(step.isFunctionDeclaration) {
-                this.error("A *Function cannot start with Must Test", filename, lineNumber);
-            }
-
-            step.isMustTest = true;
-            step.mustTestText = matches[1];
-        }
-
         // Set identifier booleans and perform related validations
         if(step.identifiers) {
             if(step.identifiers.includes('-T')) {
@@ -127,9 +115,6 @@ class Tree {
 
                 if(step.isFunctionDeclaration) {
                     this.error("A *Function declaration cannot be a textual step (-) as well", filename, lineNumber);
-                }
-                if(step.isMustTest) {
-                    this.error("A textual step (-) cannot start with Must Test", filename, lineNumber);
                 }
             }
             if(step.identifiers.includes('~')) {
@@ -527,11 +512,10 @@ class Tree {
     /**
      * Called after all of the tree's text has been inputted with parseIn()
      * Converts the tree under this.root into this.branches, and gets everything ready for the test runner
-     * @throws {Error} If a step cannot be found, or if a Must Test step is violated
+     * @throws {Error} If a step cannot be found
      */
     finalize() {
         generateBranches();
-        validateMustTest();
         pruneBranches();
 
         /**
@@ -579,7 +563,7 @@ class Tree {
 
         /**
          * Converts the tree under this.root into an array of Branch in this.branches
-         * Expands function calls, hooks, and Must Test X to their corresponding function declarations
+         * Expands function calls and hooks to their corresponding function declarations
          * @throws {Error} If a step cannot be found
          */
         function generateBranches() {
@@ -717,11 +701,7 @@ class Tree {
             var branchesBelow = []; // Branches at and below step (what we're returning)
 
             // Fill branchesBelow based on step's type
-            if(step.isMustTest) {
-                var functionDeclarationInTree = findFunctionDeclaration(branchAbove); // If step is 'Must Test X', functionDeclarationInTree is X
-                step.mustTestBraches = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
-            }
-            else if(step.isFunctionCall) {
+            if(step.isFunctionCall) {
                 var functionDeclarationInTree = findFunctionDeclaration(branchAbove);
                 var isReplaceVarsInChildren = false;
 
@@ -906,19 +886,6 @@ class Tree {
          * Removes branches that we don't want run
          */
         function pruneBranches() {
-
-
-
-
-
-
-        }
-
-        /**
-         * Enforces Must Test steps
-         * @throws {Error} If a Must Test step is violated
-         */
-        function validateMustTest() {
 
 
 
