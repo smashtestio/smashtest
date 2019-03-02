@@ -3320,6 +3320,11 @@ My function
             // have it expand to multiple leaves, but not to all leaves in the tree
         });
 
+        it.skip("expands the * After Every Branch hook when it itself has multiple branches", function() {
+            var tree = new Tree();
+            // have the function declaration have multiple branches itself
+        });
+
         it.skip("expands the * After Every Branch hook such that built-in hooks execute last", function() {
             var tree = new Tree();
         });
@@ -3328,7 +3333,15 @@ My function
             var tree = new Tree();
         });
 
+        it.skip("expands the * Before Everything hook when it itself has multiple branches", function() {
+            var tree = new Tree();
+        });
+
         it.skip("expands the * After Everything hook", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("expands the * After Everything hook when it itself has multiple branches", function() {
             var tree = new Tree();
         });
 
@@ -3354,7 +3367,7 @@ My function
 
         it.skip("rejects a hook function declaration with the wrong casing", function() {
             var tree = new Tree();
-            // must be first letter caps, such as "After all branches"
+            // every word must be capitalized, such as "After Every Branch"
         });
 
         it.skip("expands Must Test X", function() {

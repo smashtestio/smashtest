@@ -106,7 +106,7 @@ Test the Widget Maker -
 
                     Verify {response} has 6
 
-                * After Every Branch  // called at the end of every branch from this step's siblings on down, also tests for "Before every branch", "Before every step", "After every step", "Before all branches" (before all siblings), "After all branches", "After failed step", and "After successful step"
+                * After Every Branch  // called at the end of every branch from this step's siblings on down
 
                     Do cleanup
 

@@ -675,7 +675,7 @@ class Tree {
                     }
                 });
 
-                // Recursively call on children
+                // Recursively call branchify() on children
                 var branchesFromChildren = []; // Array of Array of Branch
                 step.children.forEach((child) => {
                     var branchesFromChild = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch);
@@ -684,14 +684,17 @@ class Tree {
                     }
                 });
 
-                // Put into branchesBelow in a breadth-first manner
+                // Put branchify() results into branchesBelow in a breadth-first manner
                 // Take one Branch from each child (to tack onto end of every member of branchesBelow), then continue taking round-robin until nothing left
+                var expandedBranchesBelow = [];
                 while(branchesFromChildren.length > 0) {
                     for(var i = 0; i < branchesFromChildren.length;) {
                         var branchesFromChild = branchesFromChildren[i];
                         var takenBranch = branchesFromChild.shift(); // take first branch from each child
                         branchesBelow.forEach((branchBelow) => { // put takenBranch onto every branchBelow
-                            branchBelow.steps.push(takenBranch);
+                            var expandedBranch = branchBelow.clone();
+                            expandedBranch.attachToEnd(takenBranch);
+                            expandedBranchesBelow.push(expandedBranch);
                         });
 
                         if(branchesFromChild.length == 0) {
@@ -702,6 +705,7 @@ class Tree {
                         }
                     }
                 }
+                branchesBelow = expandedBranchesBelow;
             }
             else {
                 // We're at a leaf
@@ -722,7 +726,7 @@ class Tree {
          * @throws {Error} That step is not in the right casing
          */
         function badHookCasingError(step) {
-            this.error("This hook function declaration is not in the right casing (first letter in every word must be caps, e.g., 'After Every Branch')", step.filename, step.lineNumber);
+            this.error("Every word must be capitalized in a hook function declaration (e.g., 'After Every Branch')", step.filename, step.lineNumber);
         }
 
         /**
