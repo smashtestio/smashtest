@@ -127,6 +127,9 @@ class Tree {
                 if(step.isFunctionDeclaration) {
                     this.error("A *Function declaration cannot be a textual step (-) as well", filename, lineNumber);
                 }
+                if(step.isMustTest) {
+                    this.error("A textual step (-) cannot start with Must Test", filename, lineNumber);
+                }
             }
             if(step.identifiers.includes('~')) {
                 step.isDebug = true;
@@ -602,12 +605,17 @@ class Tree {
 
             var branchesBelow = []; // Branches at and below step (what we're returning)
 
+            // Fill branchesBelow based on step's type
             if(step.isTextualStep) {
                 var branch = new Branch();
                 var clonedStep = step.cloneForBranch();
                 clonedStep.branchIndents = branchIndents;
                 branch.steps.push();
                 branchesBelow.push(branch);
+            }
+            else if(step.isMustTest) {
+                var functionDeclarationInTree = findFunctionDeclaration(branchAbove); // If step is 'Must Test X', functionDeclarationInTree is X
+                step.mustTestBraches = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch);
             }
             else if(step.isFunctionCall) {
                 var functionDeclarationInTree = findFunctionDeclaration(branchAbove);
@@ -625,10 +633,6 @@ class Tree {
                 step.steps.forEach((stepInBlock) => {
                     branchesBelow = branchesBelow.concat(branchify(stepInBlock, branchAbove, branchIndents, afterEveryBranch));
                 });
-            }
-            else if(step.isMustTest) {
-                var functionDeclarationInTree = findFunctionDeclaration(branchAbove); // If step is 'Must Test X', functionDeclarationInTree is X
-                step.mustTestBraches = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch);
             }
             // Ignore function declarations (since we do not include the *Function Declaration step itself in branchesBelow)
 

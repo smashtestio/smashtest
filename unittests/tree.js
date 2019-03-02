@@ -212,6 +212,16 @@ describe("Tree", function() {
             });
         });
 
+        it("throws an error if a Must Test step is textual", function() {
+            assert.throws(() => {
+                tree.parseLine(`Must Test something -`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`    Must Test something  -  `, "file.txt", 10);
+            });
+        });
+
         it("parses a function declaration with a code block", function() {
             var step = tree.parseLine(`* Click {{var}} + { `, "file.txt", 10);
             assert.equal(step.text, `Click {{var}}`);
