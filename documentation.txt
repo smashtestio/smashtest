@@ -26,14 +26,15 @@ Steps
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
 
 Running tests
+    - Basic command line invocation
+        - File glob passed in
+            - All files are merged into one big one, and everything at the top level is accessible to everything in other files
+        - Setting {vars} from command line
     - Branches run breadth-first
         - In other words, execute the first branch from each top node, then the second, etc.
         - This way, you're executing wide coverage and can stop tests at any time and be confident. The longer you run your tests, the more confidence you gain.
         - Always do all high, then medium/none, then low branches based on {frequency} var (regardless of position in tree)
         - You should order your branches based on frequency
-    - Basic command line invocation
-        - File glob passed in
-        - Setting {vars} from command line
 
 Configuration
     - Timeouts
@@ -157,11 +158,13 @@ Hook steps
         - {error} = the Error object, if failed
         - attached to the end of every leaf under this function declaration's parent
     - * Before Everything
-        - before any tests begin, execute this
+        - before any branches begin, execute this
         - only valid at 0 indents
+        - applies to all branches from all files you put in your glob
     - * After Everything
-        - after all tests end, execute this
+        - after all branches end, execute this
         - only valid at 0 indents
+        - applies to all branches from all files you put in your glob
 
 Mocking APIs
 
