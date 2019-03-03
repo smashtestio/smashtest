@@ -177,6 +177,14 @@ class Tree {
                         this.error("The {frequency} variable is special and can only be set to 'high', 'med', or 'low'", filename, lineNumber);
                     }
                 }
+                else if(varBeingSet.name.toLowerCase() == 'group') {
+                    if(varBeingSet.name != 'group') {
+                        this.error("The {group} variable is special and must be all lowercase", filename, lineNumber);
+                    }
+                    if(varBeingSet.isLocal) {
+                        this.error("The {group} variable is special and cannot be {{group}}", filename, lineNumber);
+                    }
+                }
 
                 step.varsBeingSet.push(varBeingSet);
 

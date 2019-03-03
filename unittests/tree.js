@@ -458,6 +458,28 @@ describe("Tree", function() {
             });
         });
 
+        it("rejects {Group}", function() {
+            assert.throws(() => {
+                tree.parseLine(`{Group} = 'foobar'`, "file.txt", 10);
+            });
+        });
+
+        it("rejects {{group}}", function() {
+            assert.throws(() => {
+                tree.parseLine(`{{group}} = 'foobar'`, "file.txt", 10);
+            });
+        });
+
+        it("parses valid {group}", function() {
+            assert.doesNotThrow(() => {
+                tree.parseLine(`{group} = 'foobar'`, "file.txt", 10);
+            });
+
+            assert.doesNotThrow(() => {
+                tree.parseLine(`{group} = ' one two three  '`, "file.txt", 10);
+            });
+        });
+
         it("parses ElementFinders", function() {
             var step = tree.parseLine(`Click ['Login' box]`, "file.txt", 10);
             assert.equal(step.text, `Click ['Login' box]`);
@@ -3208,6 +3230,29 @@ C
     });
 
     describe("finalize()", function() {
+        it.skip("handles empty input", function() {
+            var tree = new Tree();
+            tree.parseIn(``);
+
+
+//meow
+
+
+
+        });
+
+        it.skip("handles whitespace-only input", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+
+`);
+
+
+
+
+
+        });
+
         it.skip("expands a function call with one branch", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -3218,7 +3263,7 @@ My function
 `);
 
 
-//meow
+
 
 
 
