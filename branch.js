@@ -1,5 +1,3 @@
-const clonedeep = require('lodash/clonedeep');
-
 /**
  * Represents a Branch from the test tree
  */
@@ -17,20 +15,34 @@ class Branch {
     }
 
     /**
-     * @return {Branch} A deep clone of this Branch
-     */
-    clone() {
-        return clonedeep(this);
-    }
-
-    /**
-     * Attaches branch.steps to the end of this.steps, copies member vars from branch into this one
+     * Attaches branch.steps to the end of this.steps
      */
     mergeToEnd(branch) {
         this.steps = this.steps.concat(branch.steps);
-        this.prevSequentialBranch = branch.prevSequentialBranch;
-        this.afterBranches = branch.afterBranches;
-        this.frequency = branch.frequency;
+    }
+
+    /**
+     * @return {Branch} Cloned version of this branch
+     */
+    clone() {
+        var clone = new Branch();
+        this.steps.forEach((step) => {
+            clone.steps.push(step.cloneForBranch());
+        });
+
+        if(this.prevSequentialBranch) {
+            clone.prevSequentialBranch = this.prevSequentialBranch;
+        }
+
+        if(this.afterBranches) {
+            this.afterBranches.forEach((afterBranch) => {
+                clone.afterBranches.push(afterBranch.clone());
+            });
+        }
+
+        if(this.frequency) {
+            clone.frequency = this.frequency;
+        }
     }
 }
 module.exports = Branch;

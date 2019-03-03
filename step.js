@@ -68,7 +68,9 @@ class Step {
         this.children = undefined;
 
         var clone = clonedeep(this);
-        clone.originalStep = this;
+        if(!clone.originalStep) {
+            clone.originalStep = this; // this is so that double-cloning a Step doesn't mess things up
+        }
 
         // Restore originals
         this.parent = originalParent;
@@ -174,6 +176,16 @@ class Step {
         if(typeof this.functionDeclarationStep.codeBlock != 'undefined') {
             this.codeBlock = this.functionDeclarationStep.codeBlock;
         }
+    }
+
+    /**
+     * @return {Step} clone of this step, which is a function declaration, as a function call
+     */
+    cloneAsFunctionCall() {
+        var clone = this.cloneForBranch();
+        clone.isFunctionDeclaration = false;
+        clone.isFunctionCall = true;
+        return clone;
     }
 }
 module.exports = Step;
