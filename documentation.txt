@@ -87,6 +87,10 @@ Functions
             - First look to siblings, then to siblings of parent, etc.
             - Match custom functions first, then primitive built-in functions
             - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
+    - Examples
+        - Using functions to encapsulate common steps
+        - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)
+        - Using functions to organize testing (have a high-level tree that describes your app, where each leaf is a function call to a function with multiple branches, where all the testing for that specific component occurs)
     - Pitfalls
         - Functions must match case (if they don't it's a compile error), but may include varying whitespace
 

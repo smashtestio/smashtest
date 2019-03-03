@@ -3232,6 +3232,16 @@ C
     describe("findFunctionDeclaration()", function() {
         it.skip("finds the right function when its declaration is a sibling of the function call", function() {
             var tree = new Tree();
+
+
+// meow
+
+
+
+
+
+
+
         });
 
         it.skip("finds the right function when its declaration is a sibling of a descendant", function() {
@@ -3309,11 +3319,6 @@ C
             var tree = new Tree();
             tree.parseIn(``);
 
-
-// meow
-
-
-
         });
 
         it.skip("expands a function call with no children, whose function declaration has no children", function() {
@@ -3327,16 +3332,6 @@ My function
 * My function
     Step one -
 `);
-
-
-
-
-
-
-
-
-
-
 
         });
 
