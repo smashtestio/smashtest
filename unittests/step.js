@@ -84,6 +84,29 @@ describe("Step", function() {
             clonedC.cloneMark = true;
             C.originalMark = true;
 
+            expect(C).to.containSubset({
+                text: 'C',
+                varsList: [ 'C1', 'C2' ],
+                cloneMark: undefined,
+                originalMark: true,
+                parent: { text: 'A' },
+                children: [
+                    {
+                        text: 'D',
+                        varsList: [ 'D1', 'D2' ],
+                        cloneMark: undefined,
+                        originalMark: undefined,
+                        parent: {
+                            cloneMark: undefined,
+                            originalMark: true,
+                            originalStep: undefined
+                        },
+                        children: []
+                    }
+                ],
+                originalStep: undefined
+            });
+
             expect(clonedC).to.containSubset({
                 text: 'C',
                 varsList: [ 'C1', 'C2' ],
@@ -96,6 +119,15 @@ describe("Step", function() {
                     cloneMark: undefined
                 }
             });
+        });
+
+        it("can properly double-clone a step", function() {
+            var C = root.children[0].children[1];
+            var clonedC1 = C.cloneForBranch();
+            var clonedC2 = clonedC1.cloneForBranch();
+
+            clonedC2.cloneMark = true;
+            C.originalMark = true;
 
             expect(C).to.containSubset({
                 text: 'C',
@@ -118,6 +150,32 @@ describe("Step", function() {
                     }
                 ],
                 originalStep: undefined
+            });
+
+            expect(clonedC1).to.containSubset({
+                text: 'C',
+                varsList: [ 'C1', 'C2' ],
+                cloneMark: undefined,
+                originalMark: undefined,
+                parent: null,
+                children: undefined,
+                originalStep: {
+                    originalMark: true,
+                    cloneMark: undefined
+                }
+            });
+
+            expect(clonedC2).to.containSubset({
+                text: 'C',
+                varsList: [ 'C1', 'C2' ],
+                cloneMark: true,
+                originalMark: undefined,
+                parent: null,
+                children: undefined,
+                originalStep: {
+                    originalMark: true,
+                    cloneMark: undefined
+                }
             });
         });
     });
@@ -178,6 +236,17 @@ describe("Step", function() {
         });
     });
 
+    describe("getCanonicalText()", function() {
+        it("TEXT", function() {
+
+
+
+
+
+
+        });
+    });
+
     describe("isFunctionMatch()", function() {
         var functionDeclaration = new Step();
         var functionCall = new Step();
@@ -233,6 +302,39 @@ describe("Step", function() {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step {varA} ['element' finderB]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
+        });
+    });
+
+    describe("getFunctionCallText()", function() {
+        it("TEXT", function() {
+
+
+
+
+
+
+        });
+    });
+
+    describe("mergeInFunctionDeclaration()", function() {
+        it("TEXT", function() {
+
+
+
+
+
+
+        });
+    });
+
+    describe("cloneAsFunctionCall()", function() {
+        it("TEXT", function() {
+
+
+
+
+
+
         });
     });
 });

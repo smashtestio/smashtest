@@ -54,7 +54,7 @@ class Step {
 
     /**
      * Generates a clone of this Step, ready to be placed into a Branch
-     * @return {Step} A distinct copy of this Step, but with parent and containingStepBlock set to null and no children array
+     * @return {Step} A distinct copy of this Step, but with parent and containingStepBlock set to null, no children array, and originalStep set
      */
     cloneForBranch() {
         // We don't want the clone to walk the tree into this.parent and beyond (same with this.containingStepBlock)
@@ -67,15 +67,27 @@ class Step {
         var originalChildren = this.children;
         this.children = undefined;
 
+        var originalOriginalStep = null;
+        if(this.originalStep) { // this is so that double-cloning a Step retains originalStep pointing at the original step under this.root
+            originalOriginalStep = this.originalStep;
+            this.originalStep = null;
+        }
+
         var clone = clonedeep(this);
-        if(!clone.originalStep) {
-            clone.originalStep = this; // this is so that double-cloning a Step doesn't mess things up
+        if(originalOriginalStep) {
+            clone.originalStep = originalOriginalStep;
+        }
+        else {
+            clone.originalStep = this;
         }
 
         // Restore originals
         this.parent = originalParent;
         this.containingStepBlock = originalContainingBlock;
         this.children = originalChildren;
+        if(originalOriginalStep) {
+            this.originalStep = originalOriginalStep;
+        }
 
         return clone;
     }

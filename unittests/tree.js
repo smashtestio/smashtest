@@ -3229,69 +3229,7 @@ C
         });
     });
 
-    describe("finalize()", function() {
-        it.skip("handles empty input", function() {
-            var tree = new Tree();
-            tree.parseIn(``);
-
-
-//meow
-
-
-
-        });
-
-        it.skip("handles whitespace-only input", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-
-`);
-
-
-
-
-
-        });
-
-        it.skip("expands a function call with one branch", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-My function
-
-* My function
-    Step one -
-`);
-
-
-
-
-
-
-
-
-
-
-
-        });
-
-        it.skip("expands a function call with multiple branches", function() {
-            var tree = new Tree();
-            // check step.branchIndents too
-        });
-
-        it.skip("expands multiple function calls in the tree", function() {
-            var tree = new Tree();
-        });
-
-        it.skip("expands a function call within a function call", function() {
-            var tree = new Tree();
-            // Functions declared within function F. A call to F makes the functions accessible to its children.
-        });
-
-        it.skip("expands a function call with multiple branches within a function call with multiple branches", function() {
-            var tree = new Tree();
-        });
-
+    describe("findFunctionDeclaration()", function() {
         it.skip("finds the right function when its declaration is a sibling of the function call", function() {
             var tree = new Tree();
         });
@@ -3320,22 +3258,139 @@ My function
             var tree = new Tree();
         });
 
-        it.skip("expands on a {var} = Func that has muliple branches in {x}='value' format", function() {
-            var tree = new Tree();
-            // try branched function with steps and stepblocks
-        });
-
-        it.skip("rejects {var} = Func if Func doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
-            var tree = new Tree();
-            // try branched function with steps and stepblocks with bad steps in both the steps and stepblocks. Bad steps can be not in {x}='value' format, or have children themselves.
-        });
-
         it.skip("finds a built-in function", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the declared function when it has the same signature as a built-in function", function() {
+        it.skip("finds the declared function when it shares the same signature with a built-in function", function() {
             var tree = new Tree();
+        });
+
+        it.skip("rejects function calls that cannot be found", function() {
+            var tree = new Tree();
+            // neither a declared function nor a built-in function
+        });
+
+        it.skip("rejects with a special error function calls that match case insensitively but not case sensitively", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects function calls to functions that were declared in a different scope", function() {
+            var tree = new Tree();
+        });
+    });
+
+    describe("validateVarSettingFunction()", function() {
+        it.skip("accepts function that has muliple branches in {x}='value' format", function() {
+            var tree = new Tree();
+            // try branched function with steps and stepblocks
+        });
+
+        it.skip("accepts function that has a code block", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects function that has a code block, but also has children", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects function that is in {x}='value' format, but also has children", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects function that doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
+            var tree = new Tree();
+            // try branched function with steps and stepblocks with bad steps in both the steps and stepblocks. Bad steps can be not in {x}='value' format, or have children themselves.
+        });
+    });
+
+    describe("branchify()", function() {
+        it.skip("handles an empty tree", function() {
+            var tree = new Tree();
+            tree.parseIn(``);
+
+
+// meow
+
+
+
+        });
+
+        it.skip("expands a function call with no children, whose function declaration has no children", function() {
+        });
+
+        it.skip("expands a function call with no children, whose function declaration has one branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My function
+
+* My function
+    Step one -
+`);
+
+
+
+
+
+
+
+
+
+
+
+        });
+
+        it.skip("expands a function call with no children, whose function declaration has multiple branches", function() {
+            var tree = new Tree();
+            // check step.branchIndents too
+        });
+
+        it.skip("expands a function call with children, whose function declaration has no children", function() {
+        });
+
+        it.skip("expands a function call with children, whose function declaration has one branch", function() {
+        });
+
+        it.skip("expands a function call with children, whose function declaration has multiple branches", function() {
+        });
+
+        it.skip("expands multiple function calls in the tree", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("expands a function call within a function call", function() {
+            var tree = new Tree();
+            // Functions declared within function F. A call to F makes the functions accessible to its children.
+        });
+
+        it.skip("expands a function call with multiple branches within a function call with multiple branches", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("orders branches breadth-first", function() {
+
+        });
+
+        it.skip("expands on {var} = F where F has muliple branches in {x}='value' format", function() {
+            var tree = new Tree();
+            // try branched function with steps and stepblocks
+        });
+
+        it.skip("expands on {var} = F where F has a code block", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects {var} = F if F has a code block, but also has children", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects {var} = F if F is in {x}='value' format, but some of those steps have children", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("rejects {var} = F if F doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
+            var tree = new Tree();
+            // try branched function with steps and stepblocks with bad steps in both the steps and stepblocks. Bad steps can be not in {x}='value' format, or have children themselves.
         });
 
         it.skip("if function B is declared within function A, and A is called, the branches below now have access to B", function() {
@@ -3346,55 +3401,64 @@ My function
             var tree = new Tree();
         });
 
-        it.skip("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
+        it.skip("expands two step blocks, one the child of the other", function() {
             var tree = new Tree();
         });
 
-        it.skip("sets the frequency of multiple branches when the {frequency} variable is set", function() {
-            var tree = new Tree();
-            // have multiple branches have their {frequency} set
+        it.skip("expands a .. step with no children", function() {
+
         });
 
-        it.skip("doesn't set the frequency of a branch when the {frequency} variable is absent", function() {
-            var tree = new Tree();
-        });
-
-        it.skip("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", function() {
-            var tree = new Tree();
-        });
-
-
-        it.skip("expands a .. step", function() {
+        it.skip("expands a .. step with children", function() {
             // indented string of steps (with children and functions correctly connected to bottom)
         });
 
-        it.skip("expands a .. step that contains function calls underneath", function() {
+        it.skip("expands a .. step that is a function call and has no children", function() {
+
+        });
+
+        it.skip("expands a .. step that is a function call and has children", function() {
             // the .. doesn't apply to within each function call
         });
 
-        it.skip("expands a .. step that contains a function call underneath, whose function declaration starts with a ..", function() {
+        it.skip("expands a .. step that is a function call, has children, and whose function declaration starts with a ..", function() {
 
         });
 
-        it.skip("expands a .. step that is also a function call", function() {
+        it.skip("expands a .. step that is a function call, has children, and where the function declaration has multiple branches", function() {
             // the .. doesn't apply to within each function call
             // see documentation and test_language_sample.txt
         });
 
-        it.skip("expands a .. step that contains a function call underneath, where the function has multiple branches", function() {
-            // the .. doesn't apply to within each function call
-            // see documentation and test_language_sample.txt
-        });
-
-        it.skip("expands a .. step that contains a step block underneath", function() {
+        it.skip("expands a .. step that is a function call, has children, where the function declaration has a function call", function() {
 
         });
 
-        it.skip("expands a .. step that contains other .. steps underneath", function() {
+        it.skip("expands a .. step that has a step block as a child", function() {
 
         });
 
-        it.skip("expands a .. step block", function() {
+        it.skip("expands a .. step that has a step block as a child, and a single step as its child", function() {
+
+        });
+
+        it.skip("expands a .. step that has a step block as a child, and another step block as its child", function() {
+
+        });
+
+        it.skip("expands a .. step that has other .. steps as children", function() {
+
+        });
+
+        it.skip("expands a .. step block with no children", function() {
+
+        });
+
+        it.skip("expands a .. step block with a single branch of children", function() {
+
+        });
+
+        it.skip("expands a .. step block with multiple branches of children", function() {
             // indented string of steps (with children and functions correctly connected to bottom)
             // expands the branches beneath a .. step block to under each step within the .. step block
         });
@@ -3416,7 +3480,7 @@ My function
             // have it expand to multiple leaves, but not to all leaves in the tree
         });
 
-        it.skip("expands the * After Every Branch hook when it itself has multiple branches", function() {
+        it.skip("expands the * After Every Branch hook with multiple branches", function() {
             var tree = new Tree();
             // have the function declaration have multiple branches itself
         });
@@ -3433,7 +3497,7 @@ My function
             var tree = new Tree();
         });
 
-        it.skip("expands the * Before Everything hook when it itself has multiple branches", function() {
+        it.skip("expands the * Before Everything hook with multiple branches", function() {
             var tree = new Tree();
         });
 
@@ -3478,36 +3542,49 @@ My function
             // every word must be capitalized, such as "After Every Branch"
         });
 
-        it.skip("rejects steps that cannot be found", function() {
-            var tree = new Tree();
-            // neither a declared function nor a built-in function
-        });
-
-        it.skip("rejects with a special error steps that match case insensitively but not case sensitively", function() {
-            var tree = new Tree();
-        });
-
-        it.skip("rejects function calls to functions that were declared in a different scope", function() {
-            var tree = new Tree();
-        });
-
         it.skip("throws an exception when there's a circular reference among function calls", function() {
             var tree = new Tree();
             // this will probably be a js stack size exception
         });
+    });
 
-        it.skip("generates branches from the tree", function() {
-
+    describe("generateBranches()", function() {
+        it.skip("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
+            var tree = new Tree();
         });
 
-        it.skip("orders branches breadth-first", function() {
-
+        it.skip("sets the frequency of multiple branches when the {frequency} variable is set", function() {
+            var tree = new Tree();
+            // have multiple branches have their {frequency} set
         });
 
-        it.skip("orders branches based on their {frequency}, then breadth-first", function() {
-
+        it.skip("sets the frequency of a branch to medium when the {frequency} variable is absent", function() {
+            var tree = new Tree();
         });
 
+        it.skip("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("sorts branches by {frequency}, then breadth-first", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("when called a second time, sets a flag to only run previously failed branches", function() {
+            // When generateBranches() is called and this.branches already exists, this.branches is assumed to have been run already
+        });
+
+
+
+
+
+
+
+
+
+    });
+
+    describe("pruneBranches()", function() {
         it.skip("isolates the first branch with ~ encountered", function() {
             // try multiple ~'s on different siblings, only the first one is chosen
             // as for branches below the ~, the first breadth-first one is chosen
@@ -3553,8 +3630,19 @@ My function
 
         });
 
-        it.skip("when called a second time, sets a flag to only run previously failed branches", function() {
-            // When convertToBranches() is called and this.branches already exists, this.branches is assumed to have been run already
+
+
+
+
+
+
+
+
+    });
+
+    describe("finalize()", function() {
+        it.skip("doesn't crash when called", function() {
+
         });
     });
 });
