@@ -122,7 +122,7 @@ Test the Widget Maker -
 
 
 * fuzz
-    {x}='a'
+    {x}='AAAA'
     {x}='b'
     {x}='c'
     {x}=securityFuzz
@@ -245,10 +245,198 @@ Must Test All Viewports
 
 
 
-Open Chrome, call it browser 'A'
+Open Chrome, call it browser 'AAAA'
 
     Open Chrome, call it browser 'B'
 
         Navigate to X, in browser 'B'
 
-            Navigate to Y, in browser 'A'
+            Navigate to Y, in browser 'AAAA'
+
+
+
+
+
+
+
+
+
+
+
+
+Enter {txt} into [textbox] ..
+
+    {txt} = '1111'
+    {txt} = '2222'
+    {txt} = '3333'
+    {txt} = '4444'
+
+        Verify error is visible
+
+=
+
+1) Enter {txt} into [textbox]
+2) {txt} = '1111'
+3) Verify error is visible
+4) {txt} = '2222'
+5) Verify error is visible
+6) {txt} = '3333'
+7) Verify error is visible
+8) {txt} = '4444'
+9) Verify error is visible
+
+
+
+
+
+
+
+
+Enter {txt} into [textbox]
+
+    ..
+    {txt} = '1111'
+    {txt} = '2222'
+    {txt} = '3333'
+    {txt} = '4444'
+
+        Verify error is visible
+
+=
+
+1) Enter {txt} into [textbox]
+2) {txt} = '1111'
+3) {txt} = '2222'
+4) {txt} = '3333'
+5) {txt} = '4444'
+6) Verify error is visible
+
+
+
+
+
+
+
+
+Enter {txt} into [textbox] ..
+
+    F
+
+        Verify error is visible
+
+* F
+    {txt} = '1111'
+    {txt} = '2222'
+    {txt} = '3333'
+    {txt} = '4444'
+
+=
+
+1) Enter {txt} into [textbox]
+2) {txt} = '1111'
+3) Verify error is visible
+4) {txt} = '2222'
+5) Verify error is visible
+6) {txt} = '3333'
+7) Verify error is visible
+8) {txt} = '4444'
+9) Verify error is visible
+
+
+
+
+
+
+
+
+Enter {txt} into [textbox]
+
+    F ..
+
+        Verify error is visible
+
+* F
+    {txt} = '1111'
+    {txt} = '2222'
+    {txt} = '3333'
+    {txt} = '4444'
+
+=
+
+1) Enter {txt} into [textbox]
+2) {txt} = '1111'
+3) Verify error is visible
+4) {txt} = '2222'
+5) Verify error is visible
+6) {txt} = '3333'
+7) Verify error is visible
+8) {txt} = '4444'
+9) Verify error is visible
+
+
+
+
+
+
+
+
+Enter {txt} into [textbox]
+
+    F
+
+        Verify error is visible
+
+* F ..
+    {txt} = '1111'
+    {txt} = '2222'
+    {txt} = '3333'
+    {txt} = '4444'
+
+=
+
+1) Enter {txt} into [textbox]
+2) {txt} = '1111'
+3) {txt} = '2222'
+4) {txt} = '3333'
+5) {txt} = '4444'
+6) Verify error is visible
+
+
+
+
+
+
+
+
+Enter {txt} into [textbox]
+
+    ..
+    F
+    G
+
+        Verify error is visible
+
+* F
+    {txt} = '1111'
+    {txt} = '2222'
+    {txt} = '3333'
+    {txt} = '4444'
+
+* G
+    {txt} = 'AAAA'
+    {txt} = 'BBBB'
+    {txt} = 'CCCC'
+    {txt} = 'DDDD'
+
+=
+
+1) Enter {txt} into [textbox]
+2) {txt} = '1111'
+3) {txt} = '2222'
+4) {txt} = '3333'
+5) {txt} = '4444'
+6) {txt} = 'AAAA'
+7) {txt} = 'BBBB'
+8) {txt} = 'CCCC'
+9) {txt} = 'DDDD'
+10) Verify error is visible

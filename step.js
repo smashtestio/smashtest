@@ -26,7 +26,7 @@ class Step {
         this.isFunctionDeclaration = false;   // true if this step is a * Function Declaration
         this.isFunctionCall = false;          // true if this step is a function call
         this.isTextualStep = false;           // true if this step is textual (-) and not a function call
-        this.functionDeclaration = {};        // Step that corresponds to the function declaration, if this step is a function call
+        this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
 
         this.isToDo = false;                  // true if this step has the To Do identifier (-T)
         this.isManual = false;                // true if this step has the manual identifier (-M)
@@ -153,6 +153,26 @@ class Step {
         }
         else {
             return null;
+        }
+    }
+
+    /**
+     * Merges this.functionDeclarationStep into this Step (which must be a function call step)
+     * Identifier booleans are OR'ed in from this.functionDeclarationStep into this
+     * If this.functionDeclarationStep has a code block, it is copied into this
+     */
+    mergeInFunctionDeclaration() {
+        this.isToDo = this.isToDo || this.functionDeclarationStep.isToDo;
+        this.isManual = this.isManual || this.functionDeclarationStep.isManual;
+        this.isDebug = this.isDebug || this.functionDeclarationStep.isDebug;
+        this.isStepByStepDebug = this.isStepByStepDebug || this.functionDeclarationStep.isStepByStepDebug;
+        this.isOnly = this.isOnly || this.functionDeclarationStep.isOnly;
+        this.isNonParallel = this.isNonParallel || this.functionDeclarationStep.isNonParallel;
+        this.isSequential = this.isSequential || this.functionDeclarationStep.isSequential;
+        this.isExpectedFail = this.isExpectedFail || this.functionDeclarationStep.isExpectedFail;
+
+        if(typeof this.functionDeclarationStep.codeBlock != 'undefined') {
+            this.codeBlock = this.functionDeclarationStep.codeBlock;
         }
     }
 }

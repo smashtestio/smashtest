@@ -3319,30 +3319,51 @@ My function
         });
 
 
-        it.skip("expands .. steps", function() {
+        it.skip("expands a .. step", function() {
             // indented string of steps (with children and functions correctly connected to bottom)
         });
 
-        it.skip("expands .. steps that contain function calls underneath", function() {
-            // the .. doesn't apply to within each function call (use functions with multiple branches to ensure branching still occurs)
+        it.skip("expands a .. step that contains function calls underneath", function() {
+            // the .. doesn't apply to within each function call
         });
 
-        it.skip("expands .. steps that contain step blocks underneath", function() {
-
-        });
-
-        it.skip("expands .. steps that contain other .. steps underneath", function() {
+        it.skip("expands a .. step that contains a function call underneath, whose function declaration starts with a ..", function() {
 
         });
 
-        it.skip("expands .. step blocks", function() {
+        it.skip("expands a .. step that is also a function call", function() {
+            // the .. doesn't apply to within each function call
+            // see documentation and test_language_sample.txt
+        });
+
+        it.skip("expands a .. step that contains a function call underneath, where the function has multiple branches", function() {
+            // the .. doesn't apply to within each function call
+            // see documentation and test_language_sample.txt
+        });
+
+        it.skip("expands a .. step that contains a step block underneath", function() {
+
+        });
+
+        it.skip("expands a .. step that contains other .. steps underneath", function() {
+
+        });
+
+        it.skip("expands a .. step block", function() {
             // indented string of steps (with children and functions correctly connected to bottom)
             // expands the branches beneath a .. step block to under each step within the .. step block
-            // also carries over step block's isSequential to its steps
         });
 
-        it.skip("expands .. step blocks that contain function calls", function() {
-            // the contents of the functions themselves aren't expanded (use functions with multiple branches to ensure branching still occurs)
+        it.skip("expands a .. step block that contains function calls", function() {
+            // function has one branch only
+        });
+
+        it.skip("expands a .. step block that contains a function call, whose function declaration starts with a ..", function() {
+
+        });
+
+        it.skip("expands a .. step block that contains function calls, where each function has multiple branches", function() {
+            // One branch resulting: 1st step's function 1st branch, 1st step's function 2nd branch, 2nd step's function 1st branch, etc.
         });
 
         it.skip("expands the * After Every Branch hook", function() {
@@ -3359,6 +3380,10 @@ My function
             var tree = new Tree();
         });
 
+        it.skip("expands the * After Every Branch hook if it has a ..", function() {
+            var tree = new Tree();
+        });
+
         it.skip("expands the * Before Everything hook", function() {
             var tree = new Tree();
         });
@@ -3367,11 +3392,19 @@ My function
             var tree = new Tree();
         });
 
+        it.skip("expands the * Before Everything hook if it has a ..", function() {
+            var tree = new Tree();
+        });
+
         it.skip("expands the * After Everything hook", function() {
             var tree = new Tree();
         });
 
         it.skip("expands the * After Everything hook when it itself has multiple branches", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("expands the * After Everything hook if it has a ..", function() {
             var tree = new Tree();
         });
 

@@ -26,7 +26,7 @@ class Branch {
     /**
      * Attaches branch.steps to the end of this.steps, copies member vars from branch into this one
      */
-    attachToEnd(branch) {
+    mergeToEnd(branch) {
         this.steps = this.steps.concat(branch.steps);
         this.prevSequentialBranch = branch.prevSequentialBranch;
         this.afterBranches = branch.afterBranches;

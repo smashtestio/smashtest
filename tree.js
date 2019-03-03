@@ -522,18 +522,18 @@ class Tree {
 
         /**
          * Finds the nearest function declaration step under this.root that matches a given function call step from a Branch
-         * @param {Branch} containingBranch - The Branch that contains the function call step at its the very end
+         * @param {Array} stepsAbove - Array of Step, steps above the function call step, with the function call step at the very end of the array
          * @return {Step} The nearest function declaration under this.root that matches the function call step
          * @throws {Error} If a matching function declaration could not be found
          */
-        function findFunctionDeclaration(containingBranch) {
-            // NOTE: Why do we use branches here instead of just using a Step from this.root?
+        function findFunctionDeclaration(stepsAbove) {
+            // NOTE: Why do we use stepsAbove here instead of just using a Step from this.root?
             // Suppose function declaration B is declared inside function declaration A. If A is called, B has to be accessible
             // to the steps under the call to A. This can only be done if the call to A has been "expanded" (has the steps from
-            // A's declaration attached), and this is something that's done in branches but not in this.root.
+            // A's declaration attached), and this is something that's done during branchify but doesn't exist in this.root.
 
-            var index = containingBranch.steps.length - 1;
-            var functionCallStepInBranch = containingBranch.steps[index];
+            var index = stepsAbove.length - 1;
+            var functionCallStepInBranch = stepsAbove[index];
             var currStepInTree = functionCallStep.originalStep;
 
             while(index >= 0) {
@@ -557,7 +557,7 @@ class Tree {
                 }
 
                 index--;
-                currStepInTree = containingBranch.steps[index].originalStep;
+                currStepInTree = stepsAbove[index].originalStep;
             }
 
             this.error("The function '" + functionCallStepInBranch.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", filename, lineNumber);
@@ -617,13 +617,11 @@ class Tree {
 
         /**
          * Validates that F from {var} = F is either a code block function or in {x}='val' format
-         * @param {Step} functionDeclarationInTree - The function declaration of F, under this.root
-         * @param {String} filename - The filename of the line {var} = F
-         * @param {String} lineNumber - The line number of the line {var} = F
+         * @param {Step} step - The step {var} = F, with step.functionDeclarationInTree already being set to F
          * @return {Boolean} true if F is in {x}='val' format, false otherwise
          * @throws {Error} If F is not the right format
          */
-        function validateVarSettingFunction(functionDeclarationInTree, filename, lineNumber) {
+        function validateVarSettingFunction(step) {
             /*
             Acceptable formats of F:
                 * F {
@@ -643,14 +641,14 @@ class Tree {
                         - May contain steps, step blocks, or a combination of them
             */
 
-            if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
+            if(typeof step.functionDeclarationInTree.codeBlock != 'undefined') {
                 return false;
             }
             else {
-                functionDeclarationInTree.children.forEach((child) => {
+                step.functionDeclarationInTree.children.forEach((child) => {
                     if(child instanceof StepBlock) {
-                        child.steps.forEach((step) => {
-                            validateChild(step);
+                        child.steps.forEach((childStep) => {
+                            validateChild(childStep);
                         });
                     }
                     else {
@@ -662,11 +660,11 @@ class Tree {
 
                 function validateChild(child) {
                     if(child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
-                        this.error("All child steps in the function being called must be in the format {x}='string'. Not the case at [" + child.filename + ":" + child.lineNumber + "]", filename, lineNumber);
+                        this.error("All child steps in the function being called must be in the format {x}='string'. Not the case at [" + child.filename + ":" + child.lineNumber + "]", step.filename, step.lineNumber);
                     }
 
                     if(child.children.length > 0) {
-                        this.error("All child steps in the function being called must not have children themselves. Not the case at [" + child.filename + ":" + child.lineNumber + "]", filename, lineNumber);
+                        this.error("All child steps in the function being called must not have children themselves. Not the case at [" + child.filename + ":" + child.lineNumber + "]", step.filename, step.lineNumber);
                     }
                 }
             }
@@ -675,22 +673,22 @@ class Tree {
         /**
          * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
          * @param {Step} step - Step or StepBlock under this.root to convert to branches
-         * @param {Branch} [branchAbove] - Branch that comes above step (used to help find function declarations), [] if omitted
+         * @param {Array} [stepsAbove] - Array of Step, steps that comes above this step, with function calls, etc. already expanded (used to help find function declarations), [] if omitted
          * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
-         * @param {Array} [afterEveryBranch] - Array of Branch - the Branches to execute after every child branch of step (in order of preferred execution), [] if omitted
-         * @param {Boolean} [isSequential] - If true, combine branches of children sequentially
+         * @param {Array} [afterBranches] - Array of Branch - the Branches to execute after every child branch of step is executed (in order of preferred execution), [] if omitted
+         * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier)
          * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}).
-         * @throws {Error} If a step cannot be found, or if a hook name is invalid
+         * @throws {Error} If a function declaration cannot be found, or if a hook name is invalid
          */
-        function branchify(step, branchAbove, branchIndents, afterEveryBranch, isSequential) {
-            if(typeof branchAbove == 'undefined') {
-                branchAbove = [];
+        function branchify(step, stepsAbove, branchIndents, afterBranches, isSequential) {
+            if(typeof stepsAbove == 'undefined') {
+                stepsAbove = [];
             }
             if(typeof indentCount == 'undefined') {
                 indentCount = 0;
             }
-            if(typeof afterEveryBranch == 'undefined') {
-                afterEveryBranch = [];
+            if(typeof afterBranches == 'undefined') {
+                afterBranches = [];
             }
             if(typeof isSequential == 'undefined') {
                 isSequential = false;
@@ -698,34 +696,40 @@ class Tree {
 
             isSequential = step.isSequential || isSequential;
 
-            branchAbove.push(step.cloneForBranch()); // now branchAbove contains step at its end, so we can use it with findFunctionDeclaration()
+            stepsAbove.push(step.cloneForBranch()); // now stepsAbove contains this step at its end, so we can use it with findFunctionDeclaration()
 
-            var branchesBelow = []; // Branches at and below step (what we're returning)
+            var branchesBelow = []; // Array of Branch, branches at and below this step (what we're returning)
 
-            // Fill branchesBelow based on step's type
-            if(step.isFunctionCall) {
-                var functionDeclarationInTree = findFunctionDeclaration(branchAbove);
-                var isReplaceVarsInChildren = false;
+            // Fill branchesBelow with this step (which may be multiple steps/branches if this step is a function call, step block, etc.)
+            if(step.indents == -1) {
+                // We're at the root. "Prime" branchesBelow with an empty Branch.
+                branchesBelow.push(new Branch());
+            }
+            else if(step.isFunctionCall) {
+                step.functionDeclarationInTree = findFunctionDeclaration(stepsAbove);
+                step.mergeInFunctionDeclaration(); // merge top step in function declaration into this function call
+
+                var isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
 
                 if(step.varsBeingSet.length > 0) {
-                    // Special case of {var} = F
+                    // This step is {var} = F
 
                     // If F doesn't have a code block, validate that it either points at a code block function, or points at a function with all children being {x}='val'
                     if(typeof step.codeBlock == 'undefined') {
-                        isReplaceVarsInChildren = validateVarSettingFunction(functionDeclarationInTree, step.filename, step.lineNumber);
+                        isReplaceVarsInChildren = validateVarSettingFunction(step);
                     }
                 }
 
-                branchesBelow = branchify(functionDeclarationInTree, branchAbove, branchIndents + 1, afterEveryBranch); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                branchesBelow = branchify(step.functionDeclarationInTree, stepsAbove, branchIndents, afterBranches); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
                 if(isReplaceVarsInChildren) {
-                    // replace {x} in each child to {var} (where step is {var} = F)
+                    // replace {x} in each child to {var} (where this step is {var} = F)
                     branchesBelow.forEach((branch) => {
                         branch.steps[0].varsBeingSet[0].name = step.varsBeingSet[0].name;
                     });
                 }
 
-                // Put clone of step at the front of each Branch that results from expanding the function call
+                // Put clone of this step at the front of each Branch that results from expanding the function call
                 branchesBelow.forEach((branch) => {
                     var clonedStep = step.cloneForBranch();
                     clonedStep.branchIndents = branchIndents;
@@ -733,46 +737,65 @@ class Tree {
                 });
             }
             else if(step instanceof StepBlock) {
-                if(isSequential) {
-                    // Branches from each step block member are attached sequentially to the branches of the step block member before it
+                if(step.isSequential) { // sequential step block (with a .. on top)
+                    // Branches from each step block member are attached sequentially to each other
+                    var bigBranch = new Branch();
                     step.steps.forEach((stepInBlock) => {
-                        var branchesBelowStepInBlock = branchify(stepInBlock, branchAbove, branchIndents, afterEveryBranch); // there's no isSequential in branchify() because isSequential does not extend into function calls
-                        if(branchesBelow.length == 0) {
-                            branchesBelow = branchesBelowStepInBlock;
-                        }
-                        else {
-                            var newBranchesBelow = [];
-                            branchesBelow.forEach((branchBelow) => {
-                                branchesBelowStepInBlock.forEach((branchBelowStepInBlock) => {
-                                    newBranchesBelow.push(branchBelow.attachToEnd(branchBelowStepInBlock));
-                                });
-                            });
-                            branchesBelow = newBranchesBelow;
-                        }
+                        var branchesBelowBlockMember = branchify(stepInBlock, stepsAbove, branchIndents, afterBranches); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                        branchesBelowBlockMember.forEach((branchBelowBlockMember) => {
+                            bigBranch.mergeToEnd(branchBelowBlockMember);
+                        });
                     });
+                    branchesBelow.push(bigBranch);
                 }
                 else {
                     // Branchify each member of this step block
                     step.steps.forEach((stepInBlock) => {
-                        branchesBelow.push(branchify(stepInBlock, branchAbove, branchIndents, afterEveryBranch)); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                        branchesBelow.push(branchify(stepInBlock, stepsAbove, branchIndents, afterBranches)); // there's no isSequential in branchify() because isSequential does not extend into function calls
                     });
                 }
             }
-            else { // Textual steps (including manual steps), function declarations, non-function-declaration code block steps, {var}='string'
+            else if(step.isFunctionDeclaration) {
+                // Skip over function declarations, since we are already including their corresponding function calls in branches
+                // "Prime" branchesBelow with an empty Branch
+                branchesBelow.push(new Branch());
+            }
+            else { // Textual steps (including manual steps), non-function-declaration code block steps, {var}='string'
                 // Generic step cloning into branchesBelow
                 var branch = new Branch();
                 var clonedStep = step.cloneForBranch();
                 clonedStep.branchIndents = branchIndents;
-                branch.steps.push();
+                branch.steps.push(clonedStep);
                 branchesBelow.push(branch);
             }
 
-            if(step.children.length > 0) {
+            // Fill branchesBelow with branches that come from this step's children
+            var children = step.children;
+            if(children.length == 0) {
+                // Check to see if this step is part of a StepBlock with children
+                if(step.containingStepBlock) {
+                    children = step.containingStepBlock.children;
+                }
+            }
+
+            if(children.length > 0) {
                 // We have children
 
-                // Check if a child is an * After Every Branch function declaration
-                step.children.forEach((child) => {
+                // Check if a child is a hook function declaration
+                children.forEach((child) => {
                     if(child.isFunctionDeclaration) {
+                        // TODO: a hook function declaration can have identifiers, such as .., and code blocks
+                        // make sure they're copied into a brand-new function call step, and that step is attached
+                        // to the front of every branch and we'll be putting into afterBranches/this.beforeEverything/this.afterEverything
+
+
+
+
+
+
+
+
+
                         var canStepText = child.getCanonicalText();
                         var stepText = child.text.trim().replace(/\s+/g, ' ');
                         if(canStepText == "after every branch") {
@@ -780,8 +803,8 @@ class Tree {
                                 badHookCasingError(child);
                             }
 
-                            var afterEveryBranchBranches = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
-                            afterEveryBranch.unshift(afterEveryBranchBranches); // add to front of array (attached in a way that built-in * After Every Branch functions come last)
+                            var newAfterBranches = branchify(child, stepsAbove, -1, [], child.isSequential); // -1 branchIndents so that its children will have branchIndents of 0
+                            afterBranches.unshift(newAfterBranches); // add to front of array (attached in a way that built-in * After Every Branch functions come last)
                         }
                         else if(canStepText == "before everything") {
                             if(stepText != 'Before Everything') {
@@ -792,7 +815,7 @@ class Tree {
                                 this.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                             }
 
-                            var newBeforeEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
+                            var newBeforeEverything = branchify(child, stepsAbove, -1, [], child.isSequential);
                             this.beforeEverything.push(newBeforeEverything);
                         }
                         else if(canStepText == "after everything") {
@@ -804,7 +827,7 @@ class Tree {
                                 this.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                             }
 
-                            var newAfterEverything = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
+                            var newAfterEverything = branchify(child, stepsAbove, -1, [], child.isSequential);
                             this.afterEverything.push(newAfterEverything);
                         }
                     }
@@ -814,8 +837,8 @@ class Tree {
                 var branchesFromChildren = []; // Array of Array of Branch
                 if(isSequential) {
                     // Branches from each child are attached sequentially to the branches of the child before it
-                    step.children.forEach((child) => {
-                        var branchesBelowChild = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                    children.forEach((child) => {
+                        var branchesBelowChild = branchify(child, stepsAbove, branchIndents + 1, afterBranches); // there's no isSequential in branchify() because isSequential does not extend into function calls
                         if(branchesBelow.length == 0) {
                             branchesBelow = branchesBelowChild;
                         }
@@ -823,7 +846,7 @@ class Tree {
                             var newBranchesBelow = [];
                             branchesBelow.forEach((branchBelow) => {
                                 branchesBelowChild.forEach((branchBelowChild) => {
-                                    newBranchesBelow.push(branchBelow.attachToEnd(branchBelowChild));
+                                    newBranchesBelow.push(branchBelow.mergeToEnd(branchBelowChild));
                                 });
                             });
                             branchesBelow = newBranchesBelow;
@@ -831,8 +854,8 @@ class Tree {
                     });
                 }
                 else {
-                    step.children.forEach((child) => {
-                        var branchesFromChild = branchify(child, branchAbove, branchIndents + 1, afterEveryBranch, isSequential);
+                    children.forEach((child) => {
+                        var branchesFromChild = branchify(child, stepsAbove, branchIndents + 1, afterBranches, isSequential);
                         if(branchesFromChild && branchesFromChild.length > 0) {
                             branchesFromChildren.push(branchesFromChild);
                         }
@@ -848,7 +871,7 @@ class Tree {
                         var takenBranch = branchesFromChild.shift(); // take first branch from each child
                         branchesBelow.forEach((branchBelow) => { // put takenBranch onto every branchBelow
                             var expandedBranch = branchBelow.clone();
-                            expandedBranch.attachToEnd(takenBranch);
+                            expandedBranch.mergeToEnd(takenBranch);
                             expandedBranchesBelow.push(expandedBranch);
                         });
 
@@ -865,9 +888,9 @@ class Tree {
             else {
                 // We're at a leaf
 
-                // Add afterEveryBranch to every member of branchesBelow
+                // Add afterBranches to every member of branchesBelow
                 branchesBelow.forEach((branchBelow) => {
-                    afterEveryBranch.forEach((afterBranch) => {
+                    afterBranches.forEach((afterBranch) => {
                         branchBelow.afterBranches = afterBranch.clone();
                     });
                 });

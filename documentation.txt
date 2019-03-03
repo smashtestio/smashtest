@@ -137,13 +137,15 @@ No parallel execution (+)
     - No two child branches may execute simultaneously
 
 Sequential execution (..)
-    - .. means execute branches below me depth-first sequentially, but never repeat the execution of a parent step (including me)
-        more than once.  ..'es have the effect of flattening themselves and their children into one long list of sequentially
-        indented steps
+    - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)
+        more than once
+            - ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps
             - a .. inside a *Function declaration does not expand beyond the bounds of that *Function declaration
-            - a .. applied to a function call does not apply to inside the function (in case it has multiple branches)
+            - If a function call is at or below the .. line, and it has multiple branches inside, it will be executed as such:
+                1st branch from top to bottom, steps under function call, 2nd branch from top to bottom, steps under function call, etc.
     - .. above a step block
-        - a .. applied to a function call does not apply to inside the function (in case it has multiple branches)
+        - Same rules if one of the steps in the step block is a function with multiple branches
+    - Show examples from bottom of test_language_sample.txt
 
 Expected failure (#)
     - #
