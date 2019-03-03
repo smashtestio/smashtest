@@ -67,6 +67,7 @@ ElementFinders
             - Any element that's an a, button, input, textarea, etc.  or is clickable/has a click handler and contains text 'Login' (see SmashPANEL implementation)
         - [ 'Login' box next to 'meow' ]
         - [ box next to 'meow' ]
+        - [ box ] (although you could use {box} too)
         - [ 4th 'Login' box ]
         - [ 4th 'Login' next to 'meow' ]
     - Explain the basics of the find algorithm

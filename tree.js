@@ -155,10 +155,15 @@ class Tree {
                 }
 
                 var varBeingSet = {
-                    name: matches[2].replace(/\{|\}/g, '').trim(),
+                    name: matches[2].replace(/^\{\{|\}\}$|^\{|\}$/g, '').trim(),
                     value: matches[5],
                     isLocal: matches[2].includes('{{')
                 };
+
+                // Generate variable name validations
+                if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
+                    this.error("A {variable name} cannot be just numbers", filename, lineNumber);
+                }
 
                 // Validations for special variables
                 if(varBeingSet.name.toLowerCase() == 'frequency') {
@@ -276,9 +281,6 @@ class Tree {
             var nextTo = utils.stripQuotes(matches[11] || '');
 
             if(!text && !variable) { // either the text and/or the variable must be present
-                return null;
-            }
-            if(variable && !ordinal && !text && !nextTo) { // a variable cannot be listed alone
                 return null;
             }
             if(nextTo && !ordinal && !text && !variable) { // next to cannot be listed alone

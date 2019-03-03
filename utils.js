@@ -1,3 +1,5 @@
+const Constants = require('./constants.js');
+
 /**
  * @return {String} str but without leading whitespace and quotes ' or ", returns str if there are no quotes
  */
@@ -14,5 +16,5 @@ exports.stripQuotes = function(str) {
  * @return {Boolean} true if str is in 'quotes' or "quotes", false otherwise
  */
 exports.hasQuotes = function(str) {
-    return str.trim().match(/(^'|^").*('$|"$)/g, '') != null;
+    return str.trim().match(Constants.STRING_LITERAL_REGEX_WHOLE) != null;
 }

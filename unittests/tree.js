@@ -404,6 +404,20 @@ describe("Tree", function() {
             assert.deepEqual(step.varsList, [ {name: "foo", isLocal: false} ]);
         });
 
+        it("rejects {vars} with only numbers in their names", function() {
+            assert.throws(() => {
+                tree.parseLine(`{23} = 'str'`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`{234 23432} = 'str'`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`{  435 4545    } = 'str'`, "file.txt", 10);
+            });
+        });
+
         it("rejects {Frequency}", function() {
             assert.throws(() => {
                 tree.parseLine(`{Frequency} = 'high'`, "file.txt", 10);
@@ -478,7 +492,7 @@ describe("Tree", function() {
 
         it("throws an error when a [bracketed string] is not a valid elementFinder", function() {
             assert.throws(() => {
-                tree.parseLine(`Something [in brackets]`, "file.txt", 10);
+                tree.parseLine(`Something [next to 'something']`, "file.txt", 10);
             });
         });
 
@@ -543,28 +557,12 @@ describe("Tree", function() {
     describe("parseElementFinder()", function() {
         var tree = new Tree();
 
-        it("rejects ElementFinders with ordinal", function() {
-            var elementFinder = tree.parseElementFinder(`1st`);
-            assert.equal(elementFinder, null);
-
-            elementFinder = tree.parseElementFinder(`   2nd  `);
-            assert.equal(elementFinder, null);
-        });
-
         it("parses ElementFinders with text", function() {
             var elementFinder = tree.parseElementFinder(`'Login'`);
             assert.deepEqual(elementFinder, {text: 'Login'});
 
             elementFinder = tree.parseElementFinder(` 'Login' `);
             assert.deepEqual(elementFinder, {text: 'Login'});
-        });
-
-        it("rejects ElementFinders with variable", function() {
-            var elementFinder = tree.parseElementFinder(`foobar`);
-            assert.equal(elementFinder, null);
-
-            elementFinder = tree.parseElementFinder(`   foobar  `);
-            assert.equal(elementFinder, null);
         });
 
         it("rejects ElementFinders with nextTo", function() {
@@ -668,9 +666,6 @@ describe("Tree", function() {
 
         it("rejects other invalid ElementFinders", function() {
             var elementFinder = tree.parseElementFinder(`something 'not' elementfinder`);
-            assert.equal(elementFinder, null);
-
-            elementFinder = tree.parseElementFinder(`foobar`);
             assert.equal(elementFinder, null);
 
             elementFinder = tree.parseElementFinder(``);
