@@ -192,7 +192,7 @@ class Step {
     }
 
     /**
-     * @return {Step} clone of this step, which is a function declaration, as a function call
+     * @return {Step} clone of this function declaration step (using this.cloneForBranch()), converted into a function call step
      */
     cloneAsFunctionCall() {
         var clone = this.cloneForBranch();

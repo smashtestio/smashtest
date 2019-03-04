@@ -304,35 +304,73 @@ describe("Step", function() {
     });
 
     describe("getFunctionCallText()", function() {
-        it("TEXT", function() {
+        it("returns function call text for a function call", function() {
+            var step = new Step();
+            step.isFunctionCall = true;
+            step.text = "Function call";
+            expect(step.getFunctionCallText()).to.equal("Function call");
+        });
 
+        it("returns function call text for a function call in form {var} = F", function() {
+            var step = new Step();
+            step.isFunctionCall = true;
+            step.text = "{var} = Function call";
+            step.varsBeingSet = [ {name: "var", value: "Function call", isLocal: false} ];
+            expect(step.getFunctionCallText()).to.equal("Function call");
+        });
 
-
-
-
-
+        it("returns null for a non-function call", function() {
+            var step = new Step();
+            step.isFunctionCall = false;
+            expect(step.getFunctionCallText()).to.equal(null);
         });
     });
 
     describe("mergeInFunctionDeclaration()", function() {
-        it("TEXT", function() {
+        it("merges in function declaration", function() {
+            var step = new Step();
+            step.isToDo = true;
+            step.isManual = false;
+            step.isDebug = false;
 
+            step.functionDeclarationStep = new Step();
+            step.functionDeclarationStep.isToDo = true;
+            step.functionDeclarationStep.isManual = true;
+            step.functionDeclarationStep.isDebug = false;
 
+            step.mergeInFunctionDeclaration();
 
+            expect(step.isToDo).to.equal(true);
+            expect(step.isManual).to.equal(true);
+            expect(step.isDebug).to.equal(false);
+        });
 
+        it("merges in code block", function() {
+            var step = new Step();
 
+            step.functionDeclarationStep = new Step();
+            step.functionDeclarationStep.codeBlock = 'code';
 
+            step.mergeInFunctionDeclaration();
+
+            expect(step.codeBlock).to.equal('code');
         });
     });
 
     describe("cloneAsFunctionCall()", function() {
-        it("TEXT", function() {
+        it("clones a function declaration step into a function call step", function() {
+            var functionDeclarationStep = new Step();
+            functionDeclarationStep.isFunctionDeclaration = true;
+            functionDeclarationStep.text = "My function";
+            functionDeclarationStep.children = [ new Step() ];
+            functionDeclarationStep.children[0].text = "Child step";
 
+            var clone = functionDeclarationStep.cloneAsFunctionCall();
 
-
-
-
-
+            expect(clone.isFunctionDeclaration).to.equal(false);
+            expect(clone.isFunctionCall).to.equal(true);
+            expect(clone.text).to.equal("My function");
+            expect(clone.children).to.equal(undefined);
         });
     });
 });
