@@ -34,11 +34,16 @@ class Branch {
 
         if(this.afterBranches) {
             this.afterBranches.forEach((afterBranch) => {
+                if(!clone.afterBranches) {
+                    clone.afterBranches = [];
+                }
                 clone.afterBranches.push(afterBranch.clone());
             });
         }
 
         this.frequency ? clone.frequency = this.frequency : null;
+
+        return clone;
     }
 }
 module.exports = Branch;
