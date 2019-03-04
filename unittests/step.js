@@ -36,6 +36,8 @@ describe("Step", function() {
         var C = new Step();
         C.text = "C";
         C.varsList = ["C1", "C2"];
+        C.functionDeclarationInTree = new Step();
+        C.functionDeclarationInTree.text = "C-orig";
 
         var D = new Step();
         D.text = "D";
@@ -89,6 +91,8 @@ describe("Step", function() {
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: undefined,
                 originalMark: true,
+                containingStepBlock: undefined,
+                functionDeclarationInTree: { text: "C-orig" },
                 parent: { text: 'A' },
                 children: [
                     {
@@ -96,6 +100,7 @@ describe("Step", function() {
                         varsList: [ 'D1', 'D2' ],
                         cloneMark: undefined,
                         originalMark: undefined,
+                        functionDeclarationInTree: undefined,
                         parent: {
                             cloneMark: undefined,
                             originalMark: true,
@@ -112,9 +117,48 @@ describe("Step", function() {
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: true,
                 originalMark: undefined,
+                containingStepBlock: undefined,
+                functionDeclarationInTree: undefined,
                 parent: undefined,
                 children: undefined,
                 originalStep: {
+                    text: 'C',
+                    originalMark: true,
+                    cloneMark: undefined,
+                    functionDeclarationInTree: { text: "C-orig" }
+                }
+            });
+        });
+
+        it("can properly clone a step within a step block", function() {
+            var E = root.children[1].steps[0];
+            var clonedE = E.cloneForBranch();
+
+            clonedE.cloneMark = true;
+            E.originalMark = true;
+
+            expect(E).to.containSubset({
+                text: 'E',
+                varsList: [ 'E1', 'E2' ],
+                cloneMark: undefined,
+                originalMark: true,
+                functionDeclarationInTree: undefined,
+                containingStepBlock: { parent: { parent: null } },
+                parent: null,
+                children: [],
+                originalStep: undefined
+            });
+
+            expect(clonedE).to.containSubset({
+                text: 'E',
+                varsList: [ 'E1', 'E2' ],
+                cloneMark: true,
+                originalMark: undefined,
+                containingStepBlock: undefined,
+                parent: undefined,
+                children: undefined,
+                originalStep: {
+                    text: 'E',
                     originalMark: true,
                     cloneMark: undefined
                 }
@@ -134,6 +178,8 @@ describe("Step", function() {
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: undefined,
                 originalMark: true,
+                functionDeclarationInTree: { text: "C-orig" },
+                containingStepBlock: undefined,
                 parent: { text: 'A' },
                 children: [
                     {
@@ -141,6 +187,8 @@ describe("Step", function() {
                         varsList: [ 'D1', 'D2' ],
                         cloneMark: undefined,
                         originalMark: undefined,
+                        functionDeclarationInTree: undefined,
+                        containingStepBlock: undefined,
                         parent: {
                             cloneMark: undefined,
                             originalMark: true,
@@ -157,11 +205,15 @@ describe("Step", function() {
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: undefined,
                 originalMark: undefined,
+                functionDeclarationInTree: undefined,
+                containingStepBlock: undefined,
                 parent: undefined,
                 children: undefined,
                 originalStep: {
+                    text: 'C',
                     originalMark: true,
-                    cloneMark: undefined
+                    cloneMark: undefined,
+                    functionDeclarationInTree: { text: "C-orig" },
                 }
             });
 
@@ -170,11 +222,15 @@ describe("Step", function() {
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: true,
                 originalMark: undefined,
+                functionDeclarationInTree: undefined,
+                containingStepBlock: undefined,
                 parent: undefined,
                 children: undefined,
                 originalStep: {
+                    text: 'C',
                     originalMark: true,
-                    cloneMark: undefined
+                    cloneMark: undefined,
+                    functionDeclarationInTree: { text: "C-orig" }
                 }
             });
         });
@@ -330,19 +386,62 @@ describe("Step", function() {
         it("merges in function declaration", function() {
             var step = new Step();
             step.isToDo = true;
-            step.isManual = false;
-            step.isDebug = false;
 
             step.functionDeclarationStep = new Step();
             step.functionDeclarationStep.isToDo = true;
             step.functionDeclarationStep.isManual = true;
-            step.functionDeclarationStep.isDebug = false;
 
             step.mergeInFunctionDeclaration();
 
             expect(step.isToDo).to.equal(true);
             expect(step.isManual).to.equal(true);
-            expect(step.isDebug).to.equal(false);
+            expect(step.isDebug).to.equal(undefined);
+            expect(step.isBuiltIn).to.equal(undefined);
+        });
+
+        it("merges in function declaration with all identifiers set to false", function() {
+            var step = new Step();
+
+            step.functionDeclarationStep = new Step();
+            step.functionDeclarationStep.isToDo = true;
+            step.functionDeclarationStep.isManual = true;
+            step.functionDeclarationStep.isDebug = true;
+            step.functionDeclarationStep.isStepByStepDebug = true;
+            step.functionDeclarationStep.isOnly = true;
+            step.functionDeclarationStep.isNonParallel = true;
+            step.functionDeclarationStep.isSequential = true;
+            step.functionDeclarationStep.isExpectedFail = true;
+            step.functionDeclarationStep.isBuiltIn = true;
+
+            step.mergeInFunctionDeclaration();
+
+            expect(step.isToDo).to.equal(true);
+            expect(step.isManual).to.equal(true);
+            expect(step.isDebug).to.equal(true);
+            expect(step.isStepByStepDebug).to.equal(true);
+            expect(step.isOnly).to.equal(true);
+            expect(step.isNonParallel).to.equal(true);
+            expect(step.isSequential).to.equal(true);
+            expect(step.isExpectedFail).to.equal(true);
+            expect(step.isBuiltIn).to.equal(true);
+        });
+
+        it("merges in function declaration with all identifiers missing", function() {
+            var step = new Step();
+
+            step.functionDeclarationStep = new Step();
+
+            step.mergeInFunctionDeclaration();
+
+            expect(step.isToDo).to.equal(undefined);
+            expect(step.isManual).to.equal(undefined);
+            expect(step.isDebug).to.equal(undefined);
+            expect(step.isStepByStepDebug).to.equal(undefined);
+            expect(step.isOnly).to.equal(undefined);
+            expect(step.isNonParallel).to.equal(undefined);
+            expect(step.isSequential).to.equal(undefined);
+            expect(step.isExpectedFail).to.equal(undefined);
+            expect(step.isBuiltIn).to.equal(undefined);
         });
 
         it("merges in code block", function() {

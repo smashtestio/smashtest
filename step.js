@@ -54,7 +54,8 @@ class Step {
 
     /**
      * Generates a clone of this Step, ready to be placed into a Branch
-     * @return {Step} A distinct copy of this Step, but with parent, containingStepBlock, and functionDeclarationInTree set to null, no children array, and originalStep set
+     * Cannot be called if this is a StepBlock
+     * @return {Step} A distinct copy of this Step, but with parent, children, containingStepBlock, and functionDeclarationInTree deleted, and originalStep set
      */
     cloneForBranch() {
         // We don't want the clone to walk the tree into other Step objects, such as this.parent
@@ -68,7 +69,7 @@ class Step {
         var originalFunctionDeclarationInTree = this.functionDeclarationInTree;
         delete this.functionDeclarationInTree; // delete because this variable is optional and is undefined by default
 
-        var originalContainingBlock = this.containingStepBlock;
+        var originalContainingStepBlock = this.containingStepBlock;
         delete this.containingStepBlock; // delete because this variable is optional and is undefined by default
 
         var originalOriginalStep = this.originalStep;
@@ -82,7 +83,7 @@ class Step {
         this.parent = originalParent;
         this.children = originalChildren;
         originalFunctionDeclarationInTree ? this.functionDeclarationInTree = originalFunctionDeclarationInTree : null; // if originalFunctionDeclarationInTree is undefined, don't do anything ("null;")
-        originalContainingBlock ? this.containingStepBlock = originalContainingBlock : null;
+        originalContainingStepBlock ? this.containingStepBlock = originalContainingStepBlock : null;
         originalOriginalStep ? this.originalStep = originalOriginalStep : null;
 
         return clone;
