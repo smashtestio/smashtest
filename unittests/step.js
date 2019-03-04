@@ -112,7 +112,7 @@ describe("Step", function() {
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: true,
                 originalMark: undefined,
-                parent: null,
+                parent: undefined,
                 children: undefined,
                 originalStep: {
                     originalMark: true,
@@ -157,7 +157,7 @@ describe("Step", function() {
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: undefined,
                 originalMark: undefined,
-                parent: null,
+                parent: undefined,
                 children: undefined,
                 originalStep: {
                     originalMark: true,
@@ -170,7 +170,7 @@ describe("Step", function() {
                 varsList: [ 'C1', 'C2' ],
                 cloneMark: true,
                 originalMark: undefined,
-                parent: null,
+                parent: undefined,
                 children: undefined,
                 originalStep: {
                     originalMark: true,

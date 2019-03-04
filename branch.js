@@ -30,9 +30,7 @@ class Branch {
             clone.steps.push(step.cloneForBranch());
         });
 
-        if(this.prevSequentialBranch) {
-            clone.prevSequentialBranch = this.prevSequentialBranch;
-        }
+        this.prevSequentialBranch ? clone.prevSequentialBranch = this.prevSequentialBranch : null; // if this.prevSequentialBranch doesn't exist, don't do anything ("null;")
 
         if(this.afterBranches) {
             this.afterBranches.forEach((afterBranch) => {
@@ -40,9 +38,7 @@ class Branch {
             });
         }
 
-        if(this.frequency) {
-            clone.frequency = this.frequency;
-        }
+        this.frequency ? clone.frequency = this.frequency : null;
     }
 }
 module.exports = Branch;
