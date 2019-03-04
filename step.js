@@ -54,15 +54,18 @@ class Step {
 
     /**
      * Generates a clone of this Step, ready to be placed into a Branch
-     * @return {Step} A distinct copy of this Step, but with parent and containingStepBlock set to null, no children array, and originalStep set
+     * @return {Step} A distinct copy of this Step, but with parent, containingStepBlock, and functionDeclarationInTree set to null, no children array, and originalStep set
      */
     cloneForBranch() {
-        // We don't want the clone to walk the tree into this.parent and beyond (same with this.containingStepBlock)
+        // We don't want the clone to walk the tree into other Step objects, such as this.parent. Therefore, temporarily undefine references to other Steps.
         var originalParent = this.parent;
-        this.parent = null;
+        this.parent = undefined;
 
         var originalContainingBlock = this.containingStepBlock;
-        this.containingStepBlock = null;
+        this.containingStepBlock = undefined;
+
+        var originalFunctionDeclarationInTree = this.functionDeclarationInTree;
+        this.functionDeclarationInTree = undefined;
 
         var originalChildren = this.children;
         this.children = undefined;
@@ -84,6 +87,7 @@ class Step {
         // Restore originals
         this.parent = originalParent;
         this.containingStepBlock = originalContainingBlock;
+        this.functionDeclarationInTree = originalFunctionDeclarationInTree;
         this.children = originalChildren;
         if(originalOriginalStep) {
             this.originalStep = originalOriginalStep;
