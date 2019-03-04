@@ -3244,30 +3244,132 @@ C
     });
 
     describe("findFunctionDeclaration()", function() {
-        it.skip("finds the right function when its declaration is a sibling of the function call", function() {
+        it("finds the right function when its declaration is a sibling of the function call and is below the function call", function() {
             var tree = new Tree();
+            tree.parseIn(`
+My function
 
+* My function
+    Step one -
+`);
 
-// meow
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
 
+            expect(functionDeclaration).to.containSubset({
+                text: "My function",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "Step one",
+                        isTextualStep: true
+                    }
+                ]
+            });
 
-
-
-
-
-
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it.skip("finds the right function when its declaration is a sibling of a descendant", function() {
+        it("finds the right function when its declaration is a sibling of the function call and is above the function call", function() {
             var tree = new Tree();
+            tree.parseIn(`
+* My function
+    Step one -
+My function
+`);
+
+            var stepsAbove = [ tree.root.children[1].cloneForBranch() ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "My function",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "Step one",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[0]).to.equal(true);
         });
 
-        it.skip("finds the right function even if declaration has different amounts of whitespace between words", function() {
+        it("finds the right function when its declaration is a sibling of a descendant", function() {
             var tree = new Tree();
+            tree.parseIn(`
+Some parent step -
+    My function
+
+* My function
+    Step one -
+`);
+
+            var stepsAbove = [
+                tree.root.children[0].cloneForBranch(),
+                tree.root.children[0].children[0].cloneForBranch()
+            ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "My function",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "Step one",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+        });
+
+        it("finds the right function even if declaration has different amounts of whitespace between words", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+Some parent step -
+    My     function
+
+* My  function
+    Step one -
+`);
+
+            var stepsAbove = [
+                tree.root.children[0].cloneForBranch(),
+                tree.root.children[0].children[0].cloneForBranch()
+            ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "My  function",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "Step one",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
         it.skip("finds the right function when multiple functions with the same name exist", function() {
             var tree = new Tree();
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("finds the right function when a function call contains strings, variables, and elementFinders", function() {
