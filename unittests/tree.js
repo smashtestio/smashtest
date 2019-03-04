@@ -3321,10 +3321,18 @@ C
 
         });
 
-        it.skip("expands a function call with no children, whose function declaration has no children", function() {
+        it.skip("branchifies a normal tree with one branch", function() {
+            var tree = new Tree();
         });
 
-        it.skip("expands a function call with no children, whose function declaration has one branch", function() {
+        it.skip("branchifies a normal tree with multiple branches", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("branchifies a function call with no children, whose function declaration has no children", function() {
+        });
+
+        it.skip("branchifies a function call with no children, whose function declaration has one branch", function() {
             var tree = new Tree();
             tree.parseIn(`
 My function
@@ -3335,30 +3343,30 @@ My function
 
         });
 
-        it.skip("expands a function call with no children, whose function declaration has multiple branches", function() {
+        it.skip("branchifies a function call with no children, whose function declaration has multiple branches", function() {
             var tree = new Tree();
             // check step.branchIndents too
         });
 
-        it.skip("expands a function call with children, whose function declaration has no children", function() {
+        it.skip("branchifies a function call with children, whose function declaration has no children", function() {
         });
 
-        it.skip("expands a function call with children, whose function declaration has one branch", function() {
+        it.skip("branchifies a function call with children, whose function declaration has one branch", function() {
         });
 
-        it.skip("expands a function call with children, whose function declaration has multiple branches", function() {
+        it.skip("branchifies a function call with children, whose function declaration has multiple branches", function() {
         });
 
-        it.skip("expands multiple function calls in the tree", function() {
+        it.skip("branchifies multiple function calls in the tree", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands a function call within a function call", function() {
+        it.skip("branchifies a function call within a function call", function() {
             var tree = new Tree();
             // Functions declared within function F. A call to F makes the functions accessible to its children.
         });
 
-        it.skip("expands a function call with multiple branches within a function call with multiple branches", function() {
+        it.skip("branchifies a function call with multiple branches within a function call with multiple branches", function() {
             var tree = new Tree();
         });
 
@@ -3366,12 +3374,12 @@ My function
 
         });
 
-        it.skip("expands on {var} = F where F has muliple branches in {x}='value' format", function() {
+        it.skip("branchifies {var} = F where F has muliple branches in {x}='value' format", function() {
             var tree = new Tree();
             // try branched function with steps and stepblocks
         });
 
-        it.skip("expands on {var} = F where F has a code block", function() {
+        it.skip("branchifies {var} = F where F has a code block", function() {
             var tree = new Tree();
         });
 
@@ -3388,127 +3396,131 @@ My function
             // try branched function with steps and stepblocks with bad steps in both the steps and stepblocks. Bad steps can be not in {x}='value' format, or have children themselves.
         });
 
-        it.skip("if function B is declared within function A, and A is called, the branches below now have access to B", function() {
+        it.skip("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the branches beneath a step block to under each step within the step block", function() {
+        it.skip("branchifies a step block with no children", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands two step blocks, one the child of the other", function() {
+        it.skip("branchifies a step block with children", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands a .. step with no children", function() {
+        it.skip("branchifies two levels of step blocks", function() {
+            var tree = new Tree();
+        });
+
+        it.skip("branchifies a .. step with no children", function() {
 
         });
 
-        it.skip("expands a .. step with children", function() {
+        it.skip("branchifies a .. step with children", function() {
             // indented string of steps (with children and functions correctly connected to bottom)
         });
 
-        it.skip("expands a .. step that is a function call and has no children", function() {
+        it.skip("branchifies a .. step that is a function call and has no children", function() {
 
         });
 
-        it.skip("expands a .. step that is a function call and has children", function() {
+        it.skip("branchifies a .. step that is a function call and has children", function() {
             // the .. doesn't apply to within each function call
         });
 
-        it.skip("expands a .. step that is a function call, has children, and whose function declaration starts with a ..", function() {
+        it.skip("branchifies a .. step that is a function call, has children, and whose function declaration starts with a ..", function() {
 
         });
 
-        it.skip("expands a .. step that is a function call, has children, and where the function declaration has multiple branches", function() {
+        it.skip("branchifies a .. step that is a function call, has children, and where the function declaration has multiple branches", function() {
             // the .. doesn't apply to within each function call
             // see documentation and test_language_sample.txt
         });
 
-        it.skip("expands a .. step that is a function call, has children, where the function declaration has a function call", function() {
+        it.skip("branchifies a .. step that is a function call, has children, where the function declaration has a function call", function() {
 
         });
 
-        it.skip("expands a .. step that has a step block as a child", function() {
+        it.skip("branchifies a .. step that has a step block as a child", function() {
 
         });
 
-        it.skip("expands a .. step that has a step block as a child, and a single step as its child", function() {
+        it.skip("branchifies a .. step that has a step block as a child, and a single step as its child", function() {
 
         });
 
-        it.skip("expands a .. step that has a step block as a child, and another step block as its child", function() {
+        it.skip("branchifies a .. step that has a step block as a child, and another step block as its child", function() {
 
         });
 
-        it.skip("expands a .. step that has other .. steps as children", function() {
+        it.skip("branchifies a .. step that has other .. steps as children", function() {
 
         });
 
-        it.skip("expands a .. step block with no children", function() {
+        it.skip("branchifies a .. step block with no children", function() {
 
         });
 
-        it.skip("expands a .. step block with a single branch of children", function() {
+        it.skip("branchifies a .. step block with a single branch of children", function() {
 
         });
 
-        it.skip("expands a .. step block with multiple branches of children", function() {
+        it.skip("branchifies a .. step block with multiple branches of children", function() {
             // indented string of steps (with children and functions correctly connected to bottom)
             // expands the branches beneath a .. step block to under each step within the .. step block
         });
 
-        it.skip("expands a .. step block that contains function calls", function() {
+        it.skip("branchifies a .. step block that contains function calls", function() {
             // function has one branch only
         });
 
-        it.skip("expands a .. step block that contains a function call, whose function declaration starts with a ..", function() {
+        it.skip("branchifies a .. step block that contains a function call, whose function declaration starts with a ..", function() {
 
         });
 
-        it.skip("expands a .. step block that contains function calls, where each function has multiple branches", function() {
+        it.skip("branchifies a .. step block that contains function calls, where each function has multiple branches", function() {
             // One branch resulting: 1st step's function 1st branch, 1st step's function 2nd branch, 2nd step's function 1st branch, etc.
         });
 
-        it.skip("expands the * After Every Branch hook", function() {
+        it.skip("branchifies the * After Every Branch hook", function() {
             var tree = new Tree();
             // have it expand to multiple leaves, but not to all leaves in the tree
         });
 
-        it.skip("expands the * After Every Branch hook with multiple branches", function() {
+        it.skip("branchifies the * After Every Branch hook with multiple branches", function() {
             var tree = new Tree();
             // have the function declaration have multiple branches itself
         });
 
-        it.skip("expands the * After Every Branch hook such that built-in hooks execute last", function() {
+        it.skip("branchifies the * After Every Branch hook such that built-in hooks execute last", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * After Every Branch hook if it has a ..", function() {
+        it.skip("branchifies the * After Every Branch hook if it has a ..", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * Before Everything hook", function() {
+        it.skip("branchifies the * Before Everything hook", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * Before Everything hook with multiple branches", function() {
+        it.skip("branchifies the * Before Everything hook with multiple branches", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * Before Everything hook if it has a ..", function() {
+        it.skip("branchifies the * Before Everything hook if it has a ..", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * After Everything hook", function() {
+        it.skip("branchifies the * After Everything hook", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * After Everything hook when it itself has multiple branches", function() {
+        it.skip("branchifies the * After Everything hook when it itself has multiple branches", function() {
             var tree = new Tree();
         });
 
-        it.skip("expands the * After Everything hook if it has a ..", function() {
+        it.skip("branchifies the * After Everything hook if it has a ..", function() {
             var tree = new Tree();
         });
 

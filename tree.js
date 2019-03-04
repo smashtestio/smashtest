@@ -796,7 +796,7 @@ class Tree {
                 }
             });
 
-            // Put branches from children into branchesBelow (which already contains branches from expanding the current step)
+            // Put branches from children into branchesBelow (which already contains branches derived from the current step on its own)
             if(isSequential) {
                 // One big resulting branch, built as follows:
                 // One branchesBelow branch, each child branch, one branchesBelow branch, each child branch, etc.
@@ -840,7 +840,6 @@ class Tree {
 
     /**
      * Converts the tree under this.root into an array of Branch in this.branches
-     * Expands function calls and hooks to their corresponding function declarations
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
     generateBranches() {
