@@ -90,6 +90,20 @@ describe("Tree", function() {
             });
         });
 
+        it("throws an error if a step has the name of a hook function declaration", function() {
+            assert.throws(() => {
+                tree.parseLine(`After Every Branch`, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(`  before   Everything  `, "file.txt", 10);
+            });
+
+            assert.throws(() => {
+                tree.parseLine(` AFTER EVERYTHING `, "file.txt", 10);
+            });
+        });
+
         it("parses a line with a {variable}", function() {
             var step = tree.parseLine(`Click {Big Red Button}`, "file.txt", 10);
             assert.equal(step.line, `Click {Big Red Button}`);

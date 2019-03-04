@@ -111,8 +111,9 @@ class Step {
 
     /**
      * @return {String} The text of this step, but in a canonical format (trimmed, all lowercase, and all whitespace replaced with a single space)
+     * NOTE: Only use this function if this step is a hook function declaration
      */
-    getCanonicalText() {
+    getHookCanonicalText() {
         return this.text.trim().toLowerCase().replace(/\s+/g, ' ');
     }
 

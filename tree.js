@@ -102,6 +102,13 @@ class Tree {
             }
         }
 
+        // Validate that a non-function declaration isn't using a hook step name
+        if(!step.isFunctionDeclaration) {
+            if(['after every branch', 'before everything', 'after everything'].indexOf(step.getHookCanonicalText()) != -1) {
+                this.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
+            }
+        }
+
         // Set identifier booleans and perform related validations
         if(step.identifiers) {
             if(step.identifiers.includes('-T')) {
@@ -739,7 +746,7 @@ class Tree {
             // Check if a child is a hook function declaration
             children.forEach((child) => {
                 if(child.isFunctionDeclaration) {
-                    var canStepText = child.getCanonicalText();
+                    var canStepText = child.getHookCanonicalText();
                     var stepText = child.text.trim().replace(/\s+/g, ' ');
                     if(canStepText == "after every branch") {
                         if(stepText != 'After Every Branch') {
