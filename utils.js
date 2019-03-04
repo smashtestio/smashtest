@@ -18,3 +18,11 @@ exports.stripQuotes = function(str) {
 exports.hasQuotes = function(str) {
     return str.trim().match(Constants.STRING_LITERAL_REGEX_WHOLE) != null;
 }
+
+/**
+ * Throws an Error with the given message, filename, and line number
+ * @throws {Error}
+ */
+exports.error = function(msg, filename, lineNumber) {
+    throw new Error(msg + " [" + filename + ":" + lineNumber + "]");
+}

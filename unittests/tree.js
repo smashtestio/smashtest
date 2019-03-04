@@ -3359,50 +3359,223 @@ Some parent step -
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it.skip("finds the right function when multiple functions with the same name exist", function() {
+        it("finds the right function when multiple functions with the same name exist", function() {
             var tree = new Tree();
+            tree.parseIn(`
+Some parent step -
+    My function
 
+    * My function
+        The right one -
+            * My function
+                The wrong one -
 
+    * My function
+        The wrong one -
 
+* My function
+    The wrong one -
+`);
 
+            var stepsAbove = [
+                tree.root.children[0].cloneForBranch(),
+                tree.root.children[0].children[0].cloneForBranch()
+            ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
 
+            expect(functionDeclaration).to.containSubset({
+                text: "My function",
+                isFunctionDeclaration: true,
+                parent: { text: "Some parent step" },
+                children: [
+                    {
+                        text: "The right one",
+                        isTextualStep: true
+                    }
+                ]
+            });
 
-
-
-
+            expect(functionDeclaration === tree.root.children[0].children[1]).to.equal(true);
         });
 
-        it.skip("finds the right function when a function call contains strings, variables, and elementFinders", function() {
+        it("finds the first function declaration when multiple sibling function declarations have the same name", function() {
             var tree = new Tree();
+            tree.parseIn(`
+My function
+
+* My function
+    First -
+
+* My function
+    Second -
+`);
+
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "My function",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "First",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it.skip("finds the right function when a {var} = Func call contains strings, variables, and elementFinders", function() {
+        it("finds the right function when a function call contains strings, variables, and elementFinders", function() {
             var tree = new Tree();
+            tree.parseIn(`
+One {varA}   two   {{varB}} three [1st 'text' ElementFinder]
+
+* Something else
+
+* One {{var1}} two {{var2}}   three   {{var3}}
+    Step one -
+
+* Something else
+`);
+
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "One {{var1}} two {{var2}}   three   {{var3}}",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "Step one",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[2]).to.equal(true);
         });
 
-        it.skip("finds the right function on a {var} = Func code block that returns a value", function() {
+        it("finds the right function when a {var} = Func call contains strings, variables, and elementFinders", function() {
             var tree = new Tree();
+            tree.parseIn(`
+{varC} = One {varA}   two   {{varB}} three [1st 'text' ElementFinder]
+
+* Something else
+
+* One {{var1}} two {{var2}}   three   {{var3}}
+    Step one -
+
+* Something else
+`);
+
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "One {{var1}} two {{var2}}   three   {{var3}}",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "Step one",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[2]).to.equal(true);
         });
 
-        it.skip("finds a built-in function", function() {
+        it("finds the right function on a {var} = Func code block that returns a value", function() {
             var tree = new Tree();
+            tree.parseIn(`
+{varC} = One {varA}   two   {{varB}} three [1st 'text' ElementFinder]
+
+* Something else
+
+* One {{var1}} two {{var2}}   three   {{var3}} {
+    code here
+}
+
+* Something else
+`);
+
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "One {{var1}} two {{var2}}   three   {{var3}}",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [],
+                codeBlock: '\n    code here\n'
+            });
+
+            expect(functionDeclaration === tree.root.children[2]).to.equal(true);
         });
 
-        it.skip("finds the declared function when it shares the same signature with a built-in function", function() {
+        it("rejects function calls that cannot be found", function() {
             var tree = new Tree();
+            tree.parseIn(`
+Function that doesn't exist
+
+* Something else
+`);
+
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            assert.throws(() => {
+                tree.findFunctionDeclaration(stepsAbove);
+            });
         });
 
-        it.skip("rejects function calls that cannot be found", function() {
+        it("rejects with a special error function calls that match case insensitively but not case sensitively", function() {
             var tree = new Tree();
-            // neither a declared function nor a built-in function
+            tree.parseIn(`
+My function
+
+* my function
+`);
+
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            assert.throws(() => {
+                tree.findFunctionDeclaration(stepsAbove);
+            });
         });
 
-        it.skip("rejects with a special error function calls that match case insensitively but not case sensitively", function() {
+        it("rejects function calls to functions that were declared in a different scope", function() {
             var tree = new Tree();
-        });
+            tree.parseIn(`
+My function
 
-        it.skip("rejects function calls to functions that were declared in a different scope", function() {
-            var tree = new Tree();
+Other scope -
+    * My function
+`);
+
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            assert.throws(() => {
+                tree.findFunctionDeclaration(stepsAbove);
+            });
+
+            tree = new Tree();
+            tree.parseIn(`
+One scope -
+    My function
+
+Other scope -
+    * My function
+`);
+
+            stepsAbove = [
+                tree.root.children[0].cloneForBranch(),
+                tree.root.children[0].children[0].cloneForBranch()
+            ];
+            assert.throws(() => {
+                tree.findFunctionDeclaration(stepsAbove);
+            });
         });
     });
 

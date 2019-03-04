@@ -32,14 +32,14 @@ class Tree {
         var whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
         if(spacesAtFront[1] != whitespaceAtFront[1]) {
-            this.error("Spaces are the only type of whitespace allowed at the beginning of a step", filename, lineNumber);
+            utils.error("Spaces are the only type of whitespace allowed at the beginning of a step", filename, lineNumber);
         }
         else {
             var numSpaces = spacesAtFront[1].length;
             var numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
             if(numIndents - Math.floor(numIndents) != 0) {
-                this.error("The number of spaces at the beginning of a step must be a multiple of " + Constants.SPACES_PER_INDENT + ". You have " + numSpaces + " space(s).", filename, lineNumber);
+                utils.error("The number of spaces at the beginning of a step must be a multiple of " + Constants.SPACES_PER_INDENT + ". You have " + numSpaces + " space(s).", filename, lineNumber);
             }
             else {
                 return numIndents;
@@ -73,7 +73,7 @@ class Tree {
 
         var matches = line.match(Constants.LINE_REGEX);
         if(!matches) {
-            this.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_REGEX can match anything)
+            utils.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_REGEX can match anything)
         }
 
         // Parsed parts of the line
@@ -90,7 +90,7 @@ class Tree {
 
         // Validation against prohibited step texts
         if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
-            this.error("Invalid step name", filename, lineNumber);
+            utils.error("Invalid step name", filename, lineNumber);
         }
 
         // * Function Declaration
@@ -98,14 +98,14 @@ class Tree {
             step.isFunctionDeclaration = matches[1].trim() == '*';
 
             if(step.isFunctionDeclaration && step.text.match(Constants.STRING_LITERAL_REGEX)) {
-                this.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
+                utils.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
             }
         }
 
         // Validate that a non-function declaration isn't using a hook step name
         if(!step.isFunctionDeclaration) {
             if(['after every branch', 'before everything', 'after everything'].indexOf(step.getHookCanonicalText()) != -1) {
-                this.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
+                utils.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
             }
         }
 
@@ -121,7 +121,7 @@ class Tree {
                 step.isTextualStep = true;
 
                 if(step.isFunctionDeclaration) {
-                    this.error("A *Function declaration cannot be a textual step (-) as well", filename, lineNumber);
+                    utils.error("A *Function declaration cannot be a textual step (-) as well", filename, lineNumber);
                 }
             }
             if(step.identifiers.includes('~')) {
@@ -149,7 +149,7 @@ class Tree {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
 
             if(step.isFunctionDeclaration) {
-                this.error("A step setting {variables} cannot start with a *", filename, lineNumber);
+                utils.error("A step setting {variables} cannot start with a *", filename, lineNumber);
             }
 
             // Parse vars from text into step.varsBeingSet
@@ -158,7 +158,7 @@ class Tree {
             while(textCopy.trim() != "") {
                 matches = textCopy.match(Constants.VARS_SET_REGEX);
                 if(!matches) {
-                    this.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
+                    utils.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
                 }
 
                 var varBeingSet = {
@@ -169,27 +169,27 @@ class Tree {
 
                 // Generate variable name validations
                 if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
-                    this.error("A {variable name} cannot be just numbers", filename, lineNumber);
+                    utils.error("A {variable name} cannot be just numbers", filename, lineNumber);
                 }
 
                 // Validations for special variables
                 if(varBeingSet.name.toLowerCase() == 'frequency') {
                     if(varBeingSet.name != 'frequency') {
-                        this.error("The {frequency} variable is special and must be all lowercase", filename, lineNumber);
+                        utils.error("The {frequency} variable is special and must be all lowercase", filename, lineNumber);
                     }
                     if(varBeingSet.isLocal) {
-                        this.error("The {frequency} variable is special and cannot be {{frequency}}", filename, lineNumber);
+                        utils.error("The {frequency} variable is special and cannot be {{frequency}}", filename, lineNumber);
                     }
                     if(!utils.hasQuotes(varBeingSet.value) || ['high','med','low'].indexOf(utils.stripQuotes(varBeingSet.value)) == -1) {
-                        this.error("The {frequency} variable is special and can only be set to 'high', 'med', or 'low'", filename, lineNumber);
+                        utils.error("The {frequency} variable is special and can only be set to 'high', 'med', or 'low'", filename, lineNumber);
                     }
                 }
                 else if(varBeingSet.name.toLowerCase() == 'group') {
                     if(varBeingSet.name != 'group') {
-                        this.error("The {group} variable is special and must be all lowercase", filename, lineNumber);
+                        utils.error("The {group} variable is special and must be all lowercase", filename, lineNumber);
                     }
                     if(varBeingSet.isLocal) {
-                        this.error("The {group} variable is special and cannot be {{group}}", filename, lineNumber);
+                        utils.error("The {group} variable is special and cannot be {{group}}", filename, lineNumber);
                     }
                 }
 
@@ -205,7 +205,7 @@ class Tree {
                 // If there are multiple vars being set, each value must be a string literal
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
                     if(!step.varsBeingSet[i].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) {
-                        this.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'", filename, lineNumber);
+                        utils.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'", filename, lineNumber);
                     }
                 }
             }
@@ -221,10 +221,10 @@ class Tree {
 
                     // Validations
                     if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
-                        this.error("{vars} can only be set to 'strings'", filename, lineNumber);
+                        utils.error("{vars} can only be set to 'strings'", filename, lineNumber);
                     }
                     if(step.isTextualStep) {
-                        this.error("A textual step (ending in -) cannot also start with a {variable} assignment", filename, lineNumber);
+                        utils.error("A textual step (ending in -) cannot also start with a {variable} assignment", filename, lineNumber);
                     }
                 }
             }
@@ -254,7 +254,7 @@ class Tree {
                     });
                 }
                 else {
-                    this.error("Invalid [elementFinder in brackets]", filename, lineNumber);
+                    utils.error("Invalid [elementFinder in brackets]", filename, lineNumber);
                 }
             }
         }
@@ -269,7 +269,7 @@ class Tree {
                 var isLocal = match.startsWith('{{');
 
                 if(step.isFunctionDeclaration && !isLocal) {
-                    this.error("All variables in a *Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
+                    utils.error("All variables in a *Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
                 }
 
                 step.varsList.push({
@@ -357,7 +357,7 @@ class Tree {
                 step.indents = this.numIndents(line, filename, i + 1);
 
                 if(!lastNonEmptyStep && step.indents != 0) {
-                    this.error("The first step must have 0 indents", filename, i + 1);
+                    utils.error("The first step must have 0 indents", filename, i + 1);
                 }
 
                 // If this is the start of a new code block
@@ -376,23 +376,23 @@ class Tree {
 
         // If we're still inside a code block, and EOF was reached, complain that a code block is not closed
         if(currentlyInsideCodeBlockFromLineNum != -1) {
-            this.error("An unclosed code block was found", filename, currentlyInsideCodeBlockFromLineNum);
+            utils.error("An unclosed code block was found", filename, currentlyInsideCodeBlockFromLineNum);
         }
 
         // Validations for .. steps
         for(var i = 0; i < lines.length; i++) {
             if(lines[i].text == '..') {
                 if(i > 0 && lines[i-1].text != '' && lines[i-1].indents == lines[i].indents) {
-                    this.error("You cannot have a .. line at the same indent level as the adjacent line above", filename, lines[i].lineNumber);
+                    utils.error("You cannot have a .. line at the same indent level as the adjacent line above", filename, lines[i].lineNumber);
                 }
                 if((i + 1 < lines.length && lines[i+1].text == '') || (i + 1 == lines.length)) {
-                    this.error("You cannot have a .. line without anything directly below", filename, lines[i].lineNumber);
+                    utils.error("You cannot have a .. line without anything directly below", filename, lines[i].lineNumber);
                 }
                 if(i + 1 < lines.length && lines[i+1].indents != lines[i].indents) {
-                    this.error("A .. line must be followed by a line at the same indent level", filename, lines[i].lineNumber);
+                    utils.error("A .. line must be followed by a line at the same indent level", filename, lines[i].lineNumber);
                 }
                 if(i + 1 < lines.length && lines[i+1].text == '..') {
-                    this.error("You cannot have two .. lines in a row", filename, lines[i].lineNumber);
+                    utils.error("You cannot have two .. lines in a row", filename, lines[i].lineNumber);
                 }
             }
         }
@@ -439,12 +439,12 @@ class Tree {
 
                     // Validate that a step block member is not a function declaration
                     if(potentialStepBlock.steps[k].isFunctionDeclaration) {
-                        this.error("You cannot have a *Function declaration within a step block", filename, potentialStepBlock.steps[k].lineNumber);
+                        utils.error("You cannot have a *Function declaration within a step block", filename, potentialStepBlock.steps[k].lineNumber);
                     }
 
                     // Validate that a step block member is not a code block
                     if(typeof potentialStepBlock.steps[k].codeBlock != 'undefined') {
-                        this.error("You cannot have a code block within a step block", filename, potentialStepBlock.steps[k].lineNumber);
+                        utils.error("You cannot have a code block within a step block", filename, potentialStepBlock.steps[k].lineNumber);
                     }
                 }
 
@@ -465,7 +465,7 @@ class Tree {
             else if(lines[i].text == '..') {
                 // Validate that .. steps have a StepBlock directly below
                 if(i + 1 < lines.length && !(lines[i+1] instanceof StepBlock)) {
-                    this.error("A .. line must be followed by a step block", filename, lines[i].lineNumber);
+                    utils.error("A .. line must be followed by a step block", filename, lines[i].lineNumber);
                 }
                 else {
                     lines.splice(i, 1);
@@ -508,13 +508,13 @@ class Tree {
                 prevStepObj.children.push(currStepObj);
             }
             else if(indentsAdvanced > 1) {
-                this.error("You cannot have a step that has 2 or more indents beyond the previous step", filename, currStepObj.lineNumber);
+                utils.error("You cannot have a step that has 2 or more indents beyond the previous step", filename, currStepObj.lineNumber);
             }
             else { // indentsAdvanced < 0, and current step is a child of an ancestor of the previous step
                 var parent = prevStepObj.parent;
                 for(var j = indentsAdvanced; j < 0; j++) {
                     if(parent.parent == null) {
-                        this.error("Invalid number of indents", filename, currStepObj.lineNumber); // NOTE: probably unreachable
+                        utils.error("Invalid number of indents", filename, currStepObj.lineNumber); // NOTE: probably unreachable
                     }
 
                     parent = parent.parent;
@@ -541,9 +541,10 @@ class Tree {
 
         var index = stepsAbove.length - 1;
         var functionCall = stepsAbove[index];
-        var currStepInTree = functionCall.originalStep;
 
-        while(index >= 0) {
+        for(; index >= 0; index--) {
+            var currStepInTree = stepsAbove[index].originalStep;
+
             var siblings = [];
             if(currStepInTree.parent) { // currStep is not inside a StepBlock
                 siblings = currStepInTree.parent.children;
@@ -558,12 +559,9 @@ class Tree {
                     return sibling;
                 }
             }
-
-            index--;
-            currStepInTree = stepsAbove[index].originalStep;
         }
 
-        this.error("The function '" + functionCall.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", functionCall.filename, functionCall.lineNumber);
+        utils.error("The function '" + functionCall.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", functionCall.filename, functionCall.lineNumber);
     }
 
     /**
@@ -594,7 +592,7 @@ class Tree {
 
         if(typeof step.functionDeclarationInTree.codeBlock != 'undefined') {
             if(step.functionDeclarationInTree.children.length > 0) {
-                this.error("The function being called must have a code block and no children. Not the case at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber, step.filename, step.lineNumber);
+                utils.error("The function being called must have a code block and no children. Not the case at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber, step.filename, step.lineNumber);
             }
 
             return false;
@@ -615,11 +613,11 @@ class Tree {
 
             function validateChild(child) {
                 if(child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
-                    this.error("All child steps in the function being called must be in the format {x}='string'. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
+                    utils.error("All child steps in the function being called must be in the format {x}='string'. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
                 }
 
                 if(child.children.length > 0) {
-                    this.error("All child steps in the function being called must not have children themselves. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
+                    utils.error("All child steps in the function being called must not have children themselves. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
                 }
             }
         }
@@ -765,7 +763,7 @@ class Tree {
                         }
 
                         if(child.indents != 0) {
-                            this.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                            utils.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                         }
 
                         var newBeforeEverything = this.branchify(child, stepsAbove, -1);
@@ -781,7 +779,7 @@ class Tree {
                         }
 
                         if(child.indents != 0) {
-                            this.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                            utils.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                         }
 
                         var newAfterEverything = this.branchify(child, stepsAbove, -1);
@@ -919,26 +917,11 @@ class Tree {
     }
 
     /**
-     * Throws an Error with the given message, filename, and line number
-     * @throws {Error}
-     */
-    error(msg, filename, lineNumber) {
-        throw new Error(msg + " " + this.filenameAndLine(filename, lineNumber));
-    }
-
-    /**
      * Throws an error for bad casing in the given hook step
      * @throws {Error} That step is not in the right casing
      */
     badHookCasingError(step) {
-        this.error("Every word must be capitalized in a hook function declaration (e.g., 'After Every Branch')", step.filename, step.lineNumber);
-    }
-
-    /**
-     * @return {String} String representing the given filename a line number, appropriate for logging or console output
-     */
-    filenameAndLine(filename, lineNumber) {
-        return "[" + filename + ":" + lineNumber + "]";
+        utils.error("Every word must be capitalized in a hook function declaration (e.g., 'After Every Branch')", step.filename, step.lineNumber);
     }
 }
 module.exports = Tree;

@@ -24,6 +24,8 @@ Steps
         - Use them for stylistic organization and to group similar steps
         - Recommended to put a blank line above and below a step block, to make it easier to see.
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
+    - Pitfalls
+        - Always use \' when the same line has 'strings', or when in doubt
 
 Running tests
     - Basic command line invocation

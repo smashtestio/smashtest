@@ -1,4 +1,5 @@
 const clonedeep = require('lodash/clonedeep');
+const utils = require('./utils.js');
 const Constants = require('./constants.js');
 
 /**
@@ -131,20 +132,22 @@ class Step {
         functionDeclarationText = functionDeclarationText
             .trim()
             .replace(/\s+/g, ' ')
-            .replace(Constants.VAR_REGEX, '{}');
+            .replace(Constants.VAR_REGEX, '{}')
+            .replace(Constants.ESCAPED_SINGLE_QUOTE, '\''); // replace \' with '
 
         functionCallText = functionCallText
             .trim()
             .replace(/\s+/g, ' ')
             .replace(Constants.STRING_LITERAL_REGEX, '{}')
             .replace(Constants.BRACKET_REGEX, '{}')
-            .replace(Constants.VAR_REGEX, '{}');
+            .replace(Constants.VAR_REGEX, '{}')
+            .replace(Constants.ESCAPED_SINGLE_QUOTE, '\''); // replace \' with '
 
         if(functionDeclarationText == functionCallText) {
             return true;
         }
         else if(functionDeclarationText.toLowerCase() == functionCallText.toLowerCase()) {
-            this.error("The function call '" + functionCallText + "' matches function declaration '" + functionDeclarationText + "', but must match case sensitively", this.filename, this.lineNumber);
+            utils.error("The function call '" + functionCallText + "' matches function declaration '" + functionDeclarationText + "', but must match case sensitively", this.filename, this.lineNumber);
         }
         else {
             return false;
