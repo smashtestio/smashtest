@@ -528,7 +528,7 @@ class Tree {
 
     /**
      * Finds the nearest function declaration step under this.root that matches a given function call step
-     * @param {Array} stepsAbove - Array of Step, steps above the function call step (with functions, step blocks, etc. expanded by branchify()), with the function call step at the very end of the array
+     * @param {Array} stepsAbove - Array of Step (no StepBlocks), steps above the function call step (with functions, step blocks, etc. expanded by branchify()), with the function call step at the very end of the array
      * @return {Step} The nearest function declaration under this.root that matches the function call step
      * @throws {Error} If a matching function declaration could not be found
      */
@@ -549,8 +549,8 @@ class Tree {
             if(currStepInTree.parent) { // currStep is not inside a StepBlock
                 siblings = currStepInTree.parent.children;
             }
-            else if(currStepInTree.containingStepBlock) { // currStep is inside a StepBlock
-                siblings = currStepInTree.containingStepBlock.steps;
+            else { // currStep is inside a StepBlock
+                siblings = currStepInTree.containingStepBlock.parent.children; // these are the siblings of the step block's parent (remember, step blocks themselves cannot have function declarations)
             }
 
             for(var i = 0; i < siblings.length; i++) {

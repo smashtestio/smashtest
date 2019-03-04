@@ -3328,6 +3328,39 @@ Some parent step -
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
+        it("finds the right function even if a step block has to be traversed", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+Step block step 1 -
+Step block step 2 -
+
+    My function
+
+* My function
+    Step one -
+`);
+
+            var stepsAbove = [
+                tree.root.children[0].steps[0].cloneForBranch(),
+                tree.root.children[0].children[0].cloneForBranch()
+            ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "My function",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "Step one",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+        });
+
         it("finds the right function even if declaration has different amounts of whitespace between words", function() {
             var tree = new Tree();
             tree.parseIn(`
