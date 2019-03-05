@@ -549,7 +549,7 @@ class Tree {
         var functionCall = stepsAbove[index];
 
         for(; index >= 0; index--) {
-            var currStepInTree = stepsAbove[index].originalStep;
+            var currStepInTree = stepsAbove[index].originalStepInTree;
 
             var siblings = [];
             if(currStepInTree.parent) { // currStep is not inside a StepBlock
@@ -667,15 +667,18 @@ class Tree {
         }
         else if(step.isFunctionCall) {
             step.functionDeclarationInTree = this.findFunctionDeclaration(stepsAbove);
-            step.mergeInFunctionDeclaration(); // merge top step in function declaration into this function call
+
+            var clonedStep = step.cloneForBranch();
+            clonedStep.branchIndents = branchIndents;
+            clonedStep.mergeInFunctionDeclaration(step.functionDeclarationInTree); // merge top step in function declaration into this function call
 
             var isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
 
-            if(step.varsBeingSet && step.varsBeingSet.length > 0) {
+            if(clonedStep.varsBeingSet && clonedStep.varsBeingSet.length > 0) {
                 // This step is {var} = F
 
                 // If F doesn't have a code block, validate that it either points at a code block function, or points at a function with all children being {x}='val'
-                if(typeof step.codeBlock == 'undefined') {
+                if(typeof clonedStep.codeBlock == 'undefined') {
                     isReplaceVarsInChildren = this.validateVarSettingFunction(step);
                 }
             }
@@ -685,30 +688,24 @@ class Tree {
             if(branchesBelow.length == 0) {
                 // If branchesBelow is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
                 branchesBelow = [ new Branch() ];
-                var clonedStep = step.cloneForBranch();
-                clonedStep.branchIndents = branchIndents;
                 branchesBelow[0].steps.push(clonedStep);
             }
             else {
                 if(isReplaceVarsInChildren) {
                     // replace {x} in each child to {var} (where this step is {var} = F)
                     branchesBelow.forEach((branch) => {
-                        branch.steps[0].varsBeingSet[0].name = step.varsBeingSet[0].name;
+                        branch.steps[0].varsBeingSet[0].name = clonedStep.varsBeingSet[0].name;
                     });
                 }
 
                 if(isSequential) {
                     // Put clone of this step at the front of the first Branch that results from expanding the function call
-                    var clonedStep = step.cloneForBranch();
-                    clonedStep.branchIndents = branchIndents;
                     branchesBelow[0].steps.unshift(clonedStep);
                 }
                 else {
                     // Put clone of this step at the front of each Branch that results from expanding the function call
                     branchesBelow.forEach((branch) => {
-                        var clonedStep = step.cloneForBranch();
-                        clonedStep.branchIndents = branchIndents;
-                        branch.steps.unshift(clonedStep);
+                        branch.steps.unshift(clonedStep.cloneForBranch()); // new clone every time we unshift
                     });
                 }
             }

@@ -48,7 +48,7 @@ class Step {
 
         this.afterEveryBranch = [];           // array of Step, which represent the steps to execute after every branch that traverses through this step is complete
 
-        this.originalStep = {};               // when this step is cloned, the clone's originalStep points to the Step from which it was cloned
+        this.originalStepInTree = {};               // when this step is cloned, the clone's originalStepInTree points to the Step from which it was cloned
         this.branchIndents = 0;               // when this step is included in a Branch, this indicates the number of indents to use when printing the Branch out, so as to preserve function calling hierarchies (i.e., steps under a function are indented under that function's call)
         */
     }
@@ -56,7 +56,7 @@ class Step {
     /**
      * Generates a clone of this Step, ready to be placed into a Branch
      * Cannot be called if this is a StepBlock
-     * @return {Step} A distinct copy of this Step, but with parent, children, containingStepBlock, and functionDeclarationInTree deleted, and originalStep set
+     * @return {Step} A distinct copy of this Step, but with parent, children, containingStepBlock, and functionDeclarationInTree deleted, and originalStepInTree set
      */
     cloneForBranch() {
         // We don't want the clone to walk the tree into other Step objects, such as this.parent
@@ -73,19 +73,19 @@ class Step {
         var originalContainingStepBlock = this.containingStepBlock;
         delete this.containingStepBlock; // delete because this variable is optional and is undefined by default
 
-        var originalOriginalStep = this.originalStep;
-        delete this.originalStep;
+        var originalOriginalStepInTree = this.originalStepInTree;
+        delete this.originalStepInTree;
 
         // Clone
         var clone = clonedeep(this);
-        clone.originalStep = originalOriginalStep ? originalOriginalStep : this; // double-cloning a Step retains originalStep pointing at the original step under this.root
+        clone.originalStepInTree = originalOriginalStepInTree ? originalOriginalStepInTree : this; // double-cloning a Step retains originalStepInTree pointing at the original step under this.root
 
         // Restore originals
         this.parent = originalParent;
         this.children = originalChildren;
         originalFunctionDeclarationInTree ? this.functionDeclarationInTree = originalFunctionDeclarationInTree : null; // if originalFunctionDeclarationInTree is undefined, don't do anything ("null;")
         originalContainingStepBlock ? this.containingStepBlock = originalContainingStepBlock : null;
-        originalOriginalStep ? this.originalStep = originalOriginalStep : null;
+        originalOriginalStepInTree ? this.originalStepInTree = originalOriginalStepInTree : null;
 
         return clone;
     }
@@ -176,40 +176,41 @@ class Step {
     }
 
     /**
-     * Merges this.functionDeclarationInTree into this Step (this Step must be a function call)
-     * Identifier booleans are OR'ed in from this.functionDeclarationInTree into this
+     * Merges functionDeclarationInTree into this Step (identifier booleans are OR'ed in from functionDeclarationInTree into this)
      * If this.functionDeclarationInTree has a code block, it is copied into this
+     * This step must be a function call
+     * @param {Step} functionDeclarationInTree - The function declaration that corresponds to this step
      */
-    mergeInFunctionDeclaration() {
-        var isToDo = this.isToDo || this.functionDeclarationInTree.isToDo;
+    mergeInFunctionDeclaration(functionDeclarationInTree) {
+        var isToDo = this.isToDo || functionDeclarationInTree.isToDo;
         isToDo ? this.isToDo = isToDo : null; // don't do anything ("null;") if isTodo isn't true
 
-        var isManual = this.isManual || this.functionDeclarationInTree.isManual;
+        var isManual = this.isManual || functionDeclarationInTree.isManual;
         isManual ? this.isManual = isManual : null;
 
-        var isDebug = this.isDebug || this.functionDeclarationInTree.isDebug;
+        var isDebug = this.isDebug || functionDeclarationInTree.isDebug;
         isDebug ? this.isDebug = isDebug : null;
 
-        var isStepByStepDebug = this.isStepByStepDebug || this.functionDeclarationInTree.isStepByStepDebug;
+        var isStepByStepDebug = this.isStepByStepDebug || functionDeclarationInTree.isStepByStepDebug;
         isStepByStepDebug ? this.isStepByStepDebug = isStepByStepDebug : null;
 
-        var isOnly = this.isOnly || this.functionDeclarationInTree.isOnly;
+        var isOnly = this.isOnly || functionDeclarationInTree.isOnly;
         isOnly ? this.isOnly = isOnly : null;
 
-        var isNonParallel = this.isNonParallel || this.functionDeclarationInTree.isNonParallel;
+        var isNonParallel = this.isNonParallel || functionDeclarationInTree.isNonParallel;
         isNonParallel ? this.isNonParallel = isNonParallel : null;
 
-        var isSequential = this.isSequential || this.functionDeclarationInTree.isSequential;
+        var isSequential = this.isSequential || functionDeclarationInTree.isSequential;
         isSequential ? this.isSequential = isSequential : null;
 
-        var isExpectedFail = this.isExpectedFail || this.functionDeclarationInTree.isExpectedFail;
+        var isExpectedFail = this.isExpectedFail || functionDeclarationInTree.isExpectedFail;
         isExpectedFail ? this.isExpectedFail = isExpectedFail : null;
 
-        var isBuiltIn = this.isBuiltIn || this.functionDeclarationInTree.isBuiltIn;
+        var isBuiltIn = this.isBuiltIn || functionDeclarationInTree.isBuiltIn;
         isBuiltIn ? this.isBuiltIn = isBuiltIn : null;
 
-        if(typeof this.functionDeclarationInTree.codeBlock != 'undefined') {
-            this.codeBlock = this.functionDeclarationInTree.codeBlock;
+        if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
+            this.codeBlock = functionDeclarationInTree.codeBlock;
         }
     }
 

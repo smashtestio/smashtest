@@ -3976,7 +3976,7 @@ F
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
                             branchIndents: 0,
-                            originalStep: {
+                            originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
                                 functionDeclarationInTree: {
@@ -4010,7 +4010,7 @@ F
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
                             branchIndents: 0,
-                            originalStep: {
+                            originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
                                 functionDeclarationInTree: {
@@ -4025,7 +4025,7 @@ F
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
                             branchIndents: 1,
-                            originalStep: {
+                            originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
                                 functionDeclarationInTree: undefined
@@ -4036,23 +4036,107 @@ F
             ]);
         });
 
-        it("properly merges identifiers between function call and function declaration", function() {
+        it("doesn't expand a textual step that has the same text as a function declaration", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F -
 
+* F
+    A -
+    `);
 
+            var branches = tree.branchify(tree.root);
 
-
-
-
-
-
-
-
-
-
-
+            expect(branches).to.have.lengthOf(1);
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: { text: "F" }
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("properly merges identifiers and code block between function call and function declaration", function() {
+        it("properly merges identifiers between function call and function declaration", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F ~~
+
+* F + #
+    A -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            isStepByStepDebug: true,
+                            isNonParallel: true,
+                            isExpectedFail: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                isFunctionCall: true,
+                                isFunctionDeclaration: undefined,
+                                isStepByStepDebug: true,
+                                isNonParallel: undefined,
+                                isExpectedFail: undefined,
+                                functionDeclarationInTree: {
+                                    text: "F",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: true,
+                                    isStepByStepDebug: undefined,
+                                    isNonParallel: true,
+                                    isExpectedFail: true
+                                }
+                            }
+                        },
+                        {
+                            text: "A",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            isStepByStepDebug: undefined,
+                            isNonParallel: undefined,
+                            isExpectedFail: undefined,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "A",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("properly merges identifiers and code block between function call and function declaration", function() {
+
+
+
+
+
+
+
+
+
+
+
+            
         });
 
         it.skip("branchifies a function call with no children, whose function declaration has multiple branches", function() {

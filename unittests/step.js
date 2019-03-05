@@ -104,12 +104,12 @@ describe("Step", function() {
                         parent: {
                             cloneMark: undefined,
                             originalMark: true,
-                            originalStep: undefined
+                            originalStepInTree: undefined
                         },
                         children: []
                     }
                 ],
-                originalStep: undefined
+                originalStepInTree: undefined
             });
 
             expect(clonedC).to.containSubset({
@@ -121,7 +121,7 @@ describe("Step", function() {
                 functionDeclarationInTree: undefined,
                 parent: undefined,
                 children: undefined,
-                originalStep: {
+                originalStepInTree: {
                     text: 'C',
                     originalMark: true,
                     cloneMark: undefined,
@@ -146,7 +146,7 @@ describe("Step", function() {
                 containingStepBlock: { parent: { parent: null } },
                 parent: null,
                 children: [],
-                originalStep: undefined
+                originalStepInTree: undefined
             });
 
             expect(clonedE).to.containSubset({
@@ -157,7 +157,7 @@ describe("Step", function() {
                 containingStepBlock: undefined,
                 parent: undefined,
                 children: undefined,
-                originalStep: {
+                originalStepInTree: {
                     text: 'E',
                     originalMark: true,
                     cloneMark: undefined
@@ -192,12 +192,12 @@ describe("Step", function() {
                         parent: {
                             cloneMark: undefined,
                             originalMark: true,
-                            originalStep: undefined
+                            originalStepInTree: undefined
                         },
                         children: []
                     }
                 ],
-                originalStep: undefined
+                originalStepInTree: undefined
             });
 
             expect(clonedC1).to.containSubset({
@@ -209,7 +209,7 @@ describe("Step", function() {
                 containingStepBlock: undefined,
                 parent: undefined,
                 children: undefined,
-                originalStep: {
+                originalStepInTree: {
                     text: 'C',
                     originalMark: true,
                     cloneMark: undefined,
@@ -226,7 +226,7 @@ describe("Step", function() {
                 containingStepBlock: undefined,
                 parent: undefined,
                 children: undefined,
-                originalStep: {
+                originalStepInTree: {
                     text: 'C',
                     originalMark: true,
                     cloneMark: undefined,
@@ -481,11 +481,11 @@ describe("Step", function() {
             var step = new Step();
             step.isToDo = true;
 
-            step.functionDeclarationInTree = new Step();
-            step.functionDeclarationInTree.isToDo = true;
-            step.functionDeclarationInTree.isManual = true;
+            var functionDeclarationInTree = new Step();
+            functionDeclarationInTree.isToDo = true;
+            functionDeclarationInTree.isManual = true;
 
-            step.mergeInFunctionDeclaration();
+            step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
             expect(step.isToDo).to.equal(true);
             expect(step.isManual).to.equal(true);
@@ -496,18 +496,18 @@ describe("Step", function() {
         it("merges in function declaration with all identifiers set to false", function() {
             var step = new Step();
 
-            step.functionDeclarationInTree = new Step();
-            step.functionDeclarationInTree.isToDo = true;
-            step.functionDeclarationInTree.isManual = true;
-            step.functionDeclarationInTree.isDebug = true;
-            step.functionDeclarationInTree.isStepByStepDebug = true;
-            step.functionDeclarationInTree.isOnly = true;
-            step.functionDeclarationInTree.isNonParallel = true;
-            step.functionDeclarationInTree.isSequential = true;
-            step.functionDeclarationInTree.isExpectedFail = true;
-            step.functionDeclarationInTree.isBuiltIn = true;
+            var functionDeclarationInTree = new Step();
+            functionDeclarationInTree.isToDo = true;
+            functionDeclarationInTree.isManual = true;
+            functionDeclarationInTree.isDebug = true;
+            functionDeclarationInTree.isStepByStepDebug = true;
+            functionDeclarationInTree.isOnly = true;
+            functionDeclarationInTree.isNonParallel = true;
+            functionDeclarationInTree.isSequential = true;
+            functionDeclarationInTree.isExpectedFail = true;
+            functionDeclarationInTree.isBuiltIn = true;
 
-            step.mergeInFunctionDeclaration();
+            step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
             expect(step.isToDo).to.equal(true);
             expect(step.isManual).to.equal(true);
@@ -523,9 +523,9 @@ describe("Step", function() {
         it("merges in function declaration with all identifiers missing", function() {
             var step = new Step();
 
-            step.functionDeclarationInTree = new Step();
+            var functionDeclarationInTree = new Step();
 
-            step.mergeInFunctionDeclaration();
+            step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
             expect(step.isToDo).to.equal(undefined);
             expect(step.isManual).to.equal(undefined);
@@ -541,10 +541,10 @@ describe("Step", function() {
         it("merges in code block", function() {
             var step = new Step();
 
-            step.functionDeclarationInTree = new Step();
-            step.functionDeclarationInTree.codeBlock = 'code';
+            var functionDeclarationInTree = new Step();
+            functionDeclarationInTree.codeBlock = 'code';
 
-            step.mergeInFunctionDeclaration();
+            step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
             expect(step.codeBlock).to.equal('code');
         });
