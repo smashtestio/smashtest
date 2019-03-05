@@ -685,7 +685,9 @@ class Tree {
             if(branchesBelow.length == 0) {
                 // If branchesBelow is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
                 branchesBelow = [ new Branch() ];
-                branchesBelow[0].steps.push(step.cloneForBranch());
+                var clonedStep = step.cloneForBranch();
+                clonedStep.branchIndents = branchIndents;
+                branchesBelow[0].steps.push(clonedStep);
             }
             else {
                 if(isReplaceVarsInChildren) {

@@ -3822,16 +3822,19 @@ A -
                     steps: [
                         {
                             text: "A",
+                            branchIndents: 0,
                             parent: undefined,
                             children: undefined
                         },
                         {
                             text: "B",
+                            branchIndents: 0,
                             parent: undefined,
                             children: undefined
                         },
                         {
                             text: "C",
+                            branchIndents: 0,
                             parent: undefined,
                             children: undefined
                         }
@@ -3864,34 +3867,34 @@ H -
             expect(branches).to.containSubset([
                 {
                     steps: [
-                        { text: "A" },
-                        { text: "B" },
-                        { text: "C" }
+                        { text: "A", branchIndents: 0 },
+                        { text: "B", branchIndents: 0 },
+                        { text: "C", branchIndents: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A" },
-                        { text: "B" },
-                        { text: "D" }
+                        { text: "A", branchIndents: 0 },
+                        { text: "B", branchIndents: 0 },
+                        { text: "D", branchIndents: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A" },
-                        { text: "E" }
+                        { text: "A", branchIndents: 0 },
+                        { text: "E", branchIndents: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A" },
-                        { text: "F" },
-                        { text: "G" }
+                        { text: "A", branchIndents: 0 },
+                        { text: "F", branchIndents: 0 },
+                        { text: "G", branchIndents: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "H" }
+                        { text: "H", branchIndents: 0 }
                     ]
                 }
             ]);
@@ -3920,35 +3923,35 @@ H -
             expect(branches).to.containSubset([
                 {
                     steps: [
-                        { text: "A" },
-                        { text: "B" },
-                        { text: "C" }
+                        { text: "A", branchIndents: 0 },
+                        { text: "B", branchIndents: 0 },
+                        { text: "C", branchIndents: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A" },
-                        { text: "B" },
-                        { text: "D" }
+                        { text: "A", branchIndents: 0 },
+                        { text: "B", branchIndents: 0 },
+                        { text: "D", branchIndents: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A" },
-                        { text: "E" },
-                        { text: "G" }
+                        { text: "A", branchIndents: 0 },
+                        { text: "E", branchIndents: 0 },
+                        { text: "G", branchIndents: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A" },
-                        { text: "F" },
-                        { text: "G" }
+                        { text: "A", branchIndents: 0 },
+                        { text: "F", branchIndents: 0 },
+                        { text: "G", branchIndents: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "H" }
+                        { text: "H", branchIndents: 0 }
                     ]
                 }
             ]);
@@ -3972,6 +3975,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
+                            branchIndents: 0,
                             originalStep: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4005,6 +4009,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
+                            branchIndents: 0,
                             originalStep: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4019,6 +4024,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
+                            branchIndents: 1,
                             originalStep: {
                                 text: "A",
                                 parent: { text: "F" },
