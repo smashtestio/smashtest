@@ -3784,21 +3784,179 @@ F
     });
 
     describe("branchify()", function() {
-        it.skip("handles an empty tree", function() {
+        it("handles an empty tree", function() {
             var tree = new Tree();
             tree.parseIn(``);
 
+            var branches = tree.branchify(tree.root);
+            expect(branches).to.have.lengthOf(0);
         });
 
-        it.skip("branchifies a normal tree with one branch", function() {
+        it("branchifies a textual-step-only tree with one branch", function() {
             var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        C -`);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            parent: undefined,
+                            children: undefined
+                        },
+                        {
+                            text: "B",
+                            parent: undefined,
+                            children: undefined
+                        },
+                        {
+                            text: "C",
+                            parent: undefined,
+                            children: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a normal tree with multiple branches", function() {
+        it("branchifies a textual-step-only tree with multiple branches", function() {
             var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+        C -
+
+        D -
+
+    E -
+
+    F -
+
+        G -
+H -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(5);
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        { text: "A" },
+                        { text: "B" },
+                        { text: "C" }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "A" },
+                        { text: "B" },
+                        { text: "D" }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "A" },
+                        { text: "E" }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "A" },
+                        { text: "F" },
+                        { text: "G" }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "H" }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a function call with no children, whose function declaration has no children", function() {
+        it("branchifies a textual-step-only tree with multiple branches and containing step blocks", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+        C -
+
+        D -
+
+    E -
+    F -
+
+        G -
+H -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(5);
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        { text: "A" },
+                        { text: "B" },
+                        { text: "C" }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "A" },
+                        { text: "B" },
+                        { text: "D" }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "A" },
+                        { text: "E" },
+                        { text: "G" }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "A" },
+                        { text: "F" },
+                        { text: "G" }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "H" }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies a function call with no children, whose function declaration has no children", function() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("branchifies a function call with no children, whose function declaration has one branch", function() {

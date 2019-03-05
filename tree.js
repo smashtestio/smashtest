@@ -2,6 +2,7 @@ const Step = require('./step.js');
 const StepBlock = require('./stepblock.js');
 const Branch = require('./branch.js');
 const Constants = require('./constants.js');
+const util = require('util');
 const utils = require('./utils.js');
 
 /**
@@ -641,8 +642,8 @@ class Tree {
         if(typeof stepsAbove == 'undefined') {
             stepsAbove = [];
         }
-        if(typeof indentCount == 'undefined') {
-            indentCount = 0;
+        if(typeof branchIndents == 'undefined') {
+            branchIndents = 0;
         }
         if(typeof isSequential == 'undefined') {
             isSequential = false;
@@ -650,7 +651,10 @@ class Tree {
 
         isSequential = step.isSequential || isSequential;
 
-        stepsAbove.push(step.cloneForBranch()); // now stepsAbove contains this step at its end, so we can use it with findFunctionDeclaration()
+        // If this step isn't the root and isn't a step block, place it at the end of stepsAbove, so we can use it with findFunctionDeclaration()
+        if(step.indents != -1 && !(step instanceof StepBlock)) {
+            stepsAbove.push(step.cloneForBranch());
+        }
 
         var branchesBelow = []; // Array of Branch, branches at and below this step (what we're returning)
 
@@ -716,7 +720,7 @@ class Tree {
             else {
                 // Branchify each member of this step block
                 step.steps.forEach((stepInBlock) => {
-                    branchesBelow.push(this.branchify(stepInBlock, stepsAbove, branchIndents)); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                    branchesBelow = branchesBelow.concat(this.branchify(stepInBlock, stepsAbove, branchIndents)); // there's no isSequential in branchify() because isSequential does not extend into function calls
                 });
             }
         }
@@ -843,6 +847,11 @@ class Tree {
                 }
                 branchesBelow = newBranchesBelow;
             }
+        }
+
+        // If we only have an empty branch, remove it
+        if(branchesBelow.length == 1 && branchesBelow[0].steps.length == 0) {
+            branchesBelow = [];
         }
 
         return branchesBelow;
