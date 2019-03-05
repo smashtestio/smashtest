@@ -131,17 +131,21 @@ class Step {
 
         functionDeclarationText = functionDeclarationText
             .trim()
-            .replace(/\s+/g, ' ')
             .replace(Constants.VAR_REGEX, '{}')
-            .replace(Constants.ESCAPED_SINGLE_QUOTE, '\''); // replace \' with '
+            .replace(/\s+/g, ' ')
+            .replace(/\\\\/g, '\\') // replace \\ with \
+            .replace(/\\\'/g, '\'') // replace \' with '
+            .replace(/\\\"/g, '\"'); // replace \" with "
 
         functionCallText = functionCallText
             .trim()
-            .replace(/\s+/g, ' ')
             .replace(Constants.STRING_LITERAL_REGEX, '{}')
             .replace(Constants.BRACKET_REGEX, '{}')
             .replace(Constants.VAR_REGEX, '{}')
-            .replace(Constants.ESCAPED_SINGLE_QUOTE, '\''); // replace \' with '
+            .replace(/\s+/g, ' ')
+            .replace(/\\\\/g, '\\') // replace \\ with \
+            .replace(/\\\'/g, '\'') // replace \' with '
+            .replace(/\\\"/g, '\"'); // replace \" with "
 
         if(functionDeclarationText == functionCallText) {
             return true;

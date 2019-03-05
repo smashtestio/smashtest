@@ -5,7 +5,7 @@
 exports.LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\$|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
 // Matches "string" or 'string', handles escaped \ and "
 exports.STRING_LITERAL_REGEX_WHOLE = /^('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")$/;
-exports.STRING_LITERAL_REGEX = /(?<!(\\\\)*\\)'([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"/g;
+exports.STRING_LITERAL_REGEX = /(?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")/g;
 // Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val)
 exports.VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
 // Matches {var} or {{var}}
@@ -17,8 +17,6 @@ exports.BRACKET_REGEX = /\[[^\[\]\\]+\]/g;
 exports.ELEMENTFINDER_REGEX = /^\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;
 // Matches a line with only numbers (after whitespace stripped out)
 exports.NUMBERS_ONLY_REGEX = /^[0-9\.\,]+$/;
-// Matches \' or \\\' or \\\\\' etc.
-exports.ESCAPED_SINGLE_QUOTE = /(\\\\)*\\'/g;
 
 // PARSE CONFIG
 

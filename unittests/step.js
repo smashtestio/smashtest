@@ -326,9 +326,87 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with apostrophes", function() {
+        it("matches a function call and function declaration with a single quote", function() {
             functionDeclaration.text = "I don't know";
             functionCall.text = "I don't know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function call and function declaration with an escaped single quote", function() {
+            functionDeclaration.text = "I don\\'t know";
+            functionCall.text = "I don\\'t know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don't know";
+            functionCall.text = "I don\\'t know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don\\'t know";
+            functionCall.text = "I don't know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function call and function declaration with multiple escaped single quotes", function() {
+            functionDeclaration.text = "I don\\'t k\\'now";
+            functionCall.text = "I don\\'t k\\'now";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don't k'now";
+            functionCall.text = "I don\\'t k'now";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don\\'t k\\'now";
+            functionCall.text = "I don't k\\'now";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function call and function declaration with an escaped single quote preceded with a backslash", function() {
+            functionDeclaration.text = "I don\\\\'t know";
+            functionCall.text = "I don\\\\'t know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don\\\\'t know";
+            functionCall.text = "I don\\\'t know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function call and function declaration with a double quote", function() {
+            functionDeclaration.text = "I don\"t know";
+            functionCall.text = "I don\"t know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function call and function declaration with an escaped double quote", function() {
+            functionDeclaration.text = "I don\\\"t know";
+            functionCall.text = "I don\\\"t know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don\"t know";
+            functionCall.text = "I don\\\"t know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don\\\"t know";
+            functionCall.text = "I don\"t know";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function call and function declaration with multiple escaped double quotes", function() {
+            functionDeclaration.text = "I don\\\"t k\\\"now";
+            functionCall.text = "I don\\\"t k\\\"now";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don\\\"t k\"now";
+            functionCall.text = "I don\"t k\\\"now";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+
+            functionDeclaration.text = "I don\\\"t k\\\"now";
+            functionCall.text = "I don\"t k\\\"now";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function call and function declaration with an escaped double quote preceded with a backslash", function() {
+            functionDeclaration.text = "I don\\\\\"t know";
+            functionCall.text = "I don\\\\\"t know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
@@ -346,13 +424,13 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [ElementFinders], both of which have apostrophes", function() {
-            functionDeclaration.text = "Step {{var1}} a\\'nd {{var2}} {{var3}} also {{var4}}, {{var5}}";
-            functionCall.text = "Step {{varA}} a\\'nd  {varB} 'string C' also \"stringD\", [4th 'Login' button]";
+        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [ElementFinders], both of which have single and double quotes", function() {
+            functionDeclaration.text = "Step {{var1}} a\\'nd {{var2}} {{var3}} al\\\"so {{var4}}, {{var5}}";
+            functionCall.text = "Step {{varA}} a\\'nd  {varB} 'string C' al\\\"so \"stringD\", [4th 'Login' button]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "Step {{var1}} a'nd {{var2}} {{var3}} also {{var4}}, {{var5}}";
-            functionCall.text = "Step {{varA}} a\\'nd  {varB} 'string C' also \"stringD\", [4th 'Login' button]";
+            functionDeclaration.text = "Step {{var1}} a'nd {{var2}} {{var3}} al\"so {{var4}}, {{var5}}";
+            functionCall.text = "Step {{varA}} a\\'nd  {varB} 'string C' al\\\"so \"stringD\", [4th 'Login' button]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 

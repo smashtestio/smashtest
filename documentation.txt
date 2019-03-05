@@ -25,7 +25,8 @@ Steps
         - Recommended to put a blank line above and below a step block, to make it easier to see.
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
     - Pitfalls
-        - Always use \' when the same line has 'strings', or when in doubt
+        - Always use \' or \" when the same line has 'strings' or "strings".
+            - ' and \', and " and \" will match each other, but you should use \' and \" to prevent a string literal from forming in a function call
 
 Running tests
     - Basic command line invocation
