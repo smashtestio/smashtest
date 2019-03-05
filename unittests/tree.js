@@ -4819,6 +4819,157 @@ F
         });
 
         it("branchifies multiple function calls in the tree", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* FC
+    FA
+        C -
+
+FA
+    FB
+        D -
+    * FB
+        B1 -
+        B2 -
+FC
+
+* FA
+
+    A -
+
+* FB    // never called
+    X -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+            expect(branches[0].steps).to.have.lengthOf(5);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(5);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "FA",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 1
+                        },
+                        {
+                            text: "FB",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "B1",
+                            branchIndents: 1
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0
+                        },
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "FC",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "FA",
+                            branchIndents: 1
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 2
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 1
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "FA",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 1
+                        },
+                        {
+                            text: "FB",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "B2",
+                            branchIndents: 1
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0
+                        },
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies a function call declared within a function call", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* FA
+    * FB
+        B -
+
+FA
+
+FA
+    FB
+    `);
+            // A call to FA makes FB accessible to its children
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "FA",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "FA",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "FB",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 1
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies {var} = F where F has muliple branches in {x}='value' format", function() {
+            // try branched function with steps and stepblocks
 // meow
 
 
@@ -4832,22 +4983,6 @@ F
 
 
 
-
-
-        });
-
-        it.skip("branchifies a function call within a function call", function() {
-            var tree = new Tree();
-            // Functions declared within function F. A call to F makes the functions accessible to its children.
-        });
-
-        it.skip("orders branches breadth-first", function() {
-
-        });
-
-        it.skip("branchifies {var} = F where F has muliple branches in {x}='value' format", function() {
-            var tree = new Tree();
-            // try branched function with steps and stepblocks
         });
 
         it.skip("branchifies {var} = F where F has a code block", function() {
