@@ -1,11 +1,13 @@
 const chai = require('chai');
 const chaiSubset = require('chai-subset');
+const chaiSubsetInOrder = require('chai-subset-in-order');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
 const Tree = require('../tree.js');
 
 chai.use(chaiSubset);
+chai.use(chaiSubsetInOrder);
 
 describe("Tree", function() {
     describe("numIndents()", function() {
@@ -3817,7 +3819,7 @@ A -
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -3864,7 +3866,7 @@ H -
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(5);
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         { text: "A", branchIndents: 0 },
@@ -3874,9 +3876,7 @@ H -
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "B", branchIndents: 0 },
-                        { text: "D", branchIndents: 0 }
+                        { text: "H", branchIndents: 0 }
                     ]
                 },
                 {
@@ -3894,7 +3894,9 @@ H -
                 },
                 {
                     steps: [
-                        { text: "H", branchIndents: 0 }
+                        { text: "A", branchIndents: 0 },
+                        { text: "B", branchIndents: 0 },
+                        { text: "D", branchIndents: 0 }
                     ]
                 }
             ]);
@@ -3920,7 +3922,7 @@ H -
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(5);
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         { text: "A", branchIndents: 0 },
@@ -3930,9 +3932,7 @@ H -
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "B", branchIndents: 0 },
-                        { text: "D", branchIndents: 0 }
+                        { text: "H", branchIndents: 0 }
                     ]
                 },
                 {
@@ -3951,7 +3951,9 @@ H -
                 },
                 {
                     steps: [
-                        { text: "H", branchIndents: 0 }
+                        { text: "A", branchIndents: 0 },
+                        { text: "B", branchIndents: 0 },
+                        { text: "D", branchIndents: 0 }
                     ]
                 }
             ]);
@@ -3968,7 +3970,7 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -4002,7 +4004,7 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -4048,7 +4050,7 @@ F -
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -4076,7 +4078,7 @@ F ~~
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -4124,46 +4126,680 @@ F ~~
             ]);
         });
 
-        it("properly merges identifiers and code block between function call and function declaration", function() {
-
-
-
-
-
-
-
-
-
-
-
-            
-        });
-
-        it.skip("branchifies a function call with no children, whose function declaration has multiple branches", function() {
+        it("properly merges identifiers and a code block between function call and function declaration", function() {
             var tree = new Tree();
-            // check step.branchIndents too
+            tree.parseIn(`
+F ~~
+
+* F + # {
+    code block 1
+    code block 2
+}
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            isStepByStepDebug: true,
+                            isNonParallel: true,
+                            isExpectedFail: true,
+                            branchIndents: 0,
+                            codeBlock: '\n    code block 1\n    code block 2\n',
+                            originalStepInTree: {
+                                text: "F",
+                                isFunctionCall: true,
+                                isFunctionDeclaration: undefined,
+                                isStepByStepDebug: true,
+                                isNonParallel: undefined,
+                                isExpectedFail: undefined,
+                                codeBlock: undefined,
+                                functionDeclarationInTree: {
+                                    text: "F",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: true,
+                                    isStepByStepDebug: undefined,
+                                    isNonParallel: true,
+                                    isExpectedFail: true,
+                                    codeBlock: '\n    code block 1\n    code block 2\n'
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a function call with children, whose function declaration has no children", function() {
-        });
-
-        it.skip("branchifies a function call with children, whose function declaration has one branch", function() {
-        });
-
-        it.skip("branchifies a function call with children, whose function declaration has multiple branches", function() {
-        });
-
-        it.skip("branchifies multiple function calls in the tree", function() {
+        it("branchifies a function call with no children, whose function declaration has multiple branches", function() {
             var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    A -
+        B -
+    C -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F",
+                                    lineNumber: 4
+                                }
+                            }
+                        },
+                        {
+                            text: "A",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "A",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "B",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "B",
+                                parent: { text: "A" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F",
+                                    lineNumber: 4
+                                }
+                            }
+                        },
+                        {
+                            text: "C",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "C",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies a function call with children, whose function declaration has no children", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+    A -
+        B -
+
+* F
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "A",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "A",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "B",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "B",
+                                parent: { text: "A" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies a function call with children, whose function declaration has one branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+    C -
+        D -
+
+* F
+    A -
+        B -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "A",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "A",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "B",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "B",
+                                parent: { text: "A" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "C",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "C",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "D",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "D",
+                                parent: { text: "C" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies a function call with children, whose function declaration has multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+    C -
+        D -
+
+* F
+    A -
+        B -
+    E -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "A",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "A",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "B",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "B",
+                                parent: { text: "A" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "C",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "C",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "D",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "D",
+                                parent: { text: "C" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "E",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "E",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "C",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "C",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "D",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "D",
+                                parent: { text: "C" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies a function call with multiple branches within a function call with multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+    C -
+        D -
+    G -
+
+* F
+    A -
+        B -
+    E -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(4);
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "A",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "A",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "B",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "B",
+                                parent: { text: "A" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "C",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "C",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "D",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "D",
+                                parent: { text: "C" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "E",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "E",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "C",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "C",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "D",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "D",
+                                parent: { text: "C" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "A",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "A",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "B",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "B",
+                                parent: { text: "A" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "G",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "G",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "E",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "E",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "G",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "G",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies multiple function calls in the tree", function() {
+// meow
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("branchifies a function call within a function call", function() {
             var tree = new Tree();
             // Functions declared within function F. A call to F makes the functions accessible to its children.
-        });
-
-        it.skip("branchifies a function call with multiple branches within a function call with multiple branches", function() {
-            var tree = new Tree();
         });
 
         it.skip("orders branches breadth-first", function() {

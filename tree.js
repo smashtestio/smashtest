@@ -635,7 +635,7 @@ class Tree {
 
     /**
      * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
-     * @param {Step} step - Step or StepBlock under this.root to convert to branches
+     * @param {Step} step - Step or StepBlock under this.root to convert to branches (do not set step to a StepBlock unless it's a sequential StepBlock)
      * @param {Array} [stepsAbove] - Array of Step, steps that comes above this step, with function calls, etc. already expanded (used to help find function declarations), [] if omitted
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
@@ -658,10 +658,9 @@ class Tree {
             stepsAbove.push(step.cloneForBranch());
         }
 
-        var branchesBelow = []; // Array of Branch, branches at and below this step (what we're returning)
+        var branchesFromThisStep = []; // Array of Branch
 
-        // Fill branchesBelow with this step
-        // If this step is a function call, step block, etc., expand it (in which case we may end up with multiple branches with multiple steps in branchBelow - all from just one step)
+        // Fill branchesFromThisStep with this step (which may be multiple branches if this step is a function call, etc.)
         if(step.indents == -1) {
             // We're at the root. Ignore it.
         }
@@ -683,28 +682,28 @@ class Tree {
                 }
             }
 
-            branchesBelow = this.branchify(step.functionDeclarationInTree, stepsAbove, branchIndents + 1, true); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, stepsAbove, branchIndents + 1, true); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
-            if(branchesBelow.length == 0) {
-                // If branchesBelow is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
-                branchesBelow = [ new Branch() ];
-                branchesBelow[0].steps.push(clonedStep);
+            if(branchesFromThisStep.length == 0) {
+                // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
+                branchesFromThisStep = [ new Branch() ];
+                branchesFromThisStep[0].steps.push(clonedStep);
             }
             else {
                 if(isReplaceVarsInChildren) {
                     // replace {x} in each child to {var} (where this step is {var} = F)
-                    branchesBelow.forEach((branch) => {
+                    branchesFromThisStep.forEach((branch) => {
                         branch.steps[0].varsBeingSet[0].name = clonedStep.varsBeingSet[0].name;
                     });
                 }
 
                 if(isSequential) {
                     // Put clone of this step at the front of the first Branch that results from expanding the function call
-                    branchesBelow[0].steps.unshift(clonedStep);
+                    branchesFromThisStep[0].steps.unshift(clonedStep);
                 }
                 else {
                     // Put clone of this step at the front of each Branch that results from expanding the function call
-                    branchesBelow.forEach((branch) => {
+                    branchesFromThisStep.forEach((branch) => {
                         branch.steps.unshift(clonedStep.cloneForBranch()); // new clone every time we unshift
                     });
                 }
@@ -715,19 +714,14 @@ class Tree {
                 // Branches from each step block member are attached sequentially to each other
                 var bigBranch = new Branch();
                 step.steps.forEach((stepInBlock) => {
-                    var branchesBelowBlockMember = this.branchify(stepInBlock, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
-                    branchesBelowBlockMember.forEach((branchBelowBlockMember) => {
+                    var branchesFromThisStepBlockMember = this.branchify(stepInBlock, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                    branchesFromThisStepBlockMember.forEach((branchBelowBlockMember) => {
                         bigBranch.mergeToEnd(branchBelowBlockMember);
                     });
                 });
-                branchesBelow.push(bigBranch);
+                branchesFromThisStep.push(bigBranch);
             }
-            else {
-                // Branchify each member of this step block
-                step.steps.forEach((stepInBlock) => {
-                    branchesBelow = branchesBelow.concat(this.branchify(stepInBlock, stepsAbove, branchIndents)); // there's no isSequential in branchify() because isSequential does not extend into function calls
-                });
-            }
+            // NOTE: branchify() is not called on step blocks, unless those step blocks are sequential
         }
         else if(step.isFunctionDeclaration) {
             // Skip over function declarations, since we are already including their corresponding function calls in branches
@@ -735,23 +729,26 @@ class Tree {
             // If this function declaration was encountered unintentionally, and not in response to finding a function call, return without visiting its children
             // This is because hitting a function declaration on its own won't create any new branches
             if(!isFunctionCall) {
-                return;
+                return [];
             }
         }
         else { // Textual steps (including manual steps), non-function-declaration code block steps, {var}='string'
-            // Generic step cloning into branchesBelow
+            // Generic step cloning into branchesFromThisStep
             var branch = new Branch();
             var clonedStep = step.cloneForBranch();
             clonedStep.branchIndents = branchIndents;
             branch.steps.push(clonedStep);
-            branchesBelow.push(branch);
+            branchesFromThisStep.push(branch);
         }
+
+        var branchesBelow = branchesFromThisStep; // Array of Branch - branches at or below this step
 
         // Fill branchesBelow with branches that come from this step's children
 
         var children = step.children;
+
         if(children.length == 0) {
-            // Check to see if this step is part of a StepBlock with children
+            // If this step is a member of a step block, the step block's children are this step's "children"
             if(step.containingStepBlock) {
                 children = step.containingStepBlock.children;
             }
@@ -819,9 +816,21 @@ class Tree {
             // Recursively call branchify() on children
             var branchesFromChildren = []; // Array of Array of Branch
             children.forEach((child) => {
-                var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
-                if(branchesFromChild && branchesFromChild.length > 0) {
-                    branchesFromChildren.push(branchesFromChild);
+                if(child instanceof StepBlock && !child.isSequential) {
+                    // If this child is a non-sequential step block, just call branchify() directly on each member step
+                    child.steps.forEach((step) => {
+                        var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
+                        if(branchesFromChild && branchesFromChild.length > 0) {
+                            branchesFromChildren.push(branchesFromChild);
+                        }
+                    });
+                }
+                else {
+                    // If this child is a step, call branchify() on it normally
+                    var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
+                    if(branchesFromChild && branchesFromChild.length > 0) {
+                        branchesFromChildren.push(branchesFromChild);
+                    }
                 }
             });
 
