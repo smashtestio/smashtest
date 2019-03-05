@@ -3650,34 +3650,136 @@ Other scope -
     });
 
     describe("validateVarSettingFunction()", function() {
-        it.skip("accepts function that has muliple branches in {x}='value' format", function() {
+        it("accepts function that has muliple branches in {x}='value' format", function() {
             var tree = new Tree();
-            // try branched function with steps and stepblocks
+            tree.parseIn(`
+F
 
-// meow
+* F
+    {x}='1'
 
+    {x}='2'
 
+    {x}='3'
+`);
 
-
-
-
+            var functionCall = tree.root.children[0].cloneForBranch();
+            functionCall.functionDeclarationInTree = tree.root.children[1];
+            expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
-        it.skip("accepts function that has a code block", function() {
+        it("accepts function that has muliple branches in {x}='value' format and some are step blocks", function() {
             var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    {x}='1'
+
+    {a}='2'
+    {b}='3'
+    {c}='4'
+
+    {x}='5'
+`);
+
+            var functionCall = tree.root.children[0].cloneForBranch();
+            functionCall.functionDeclarationInTree = tree.root.children[1];
+            expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
-        it.skip("rejects function that has a code block, but also has children", function() {
+        it("accepts function that has a code block", function() {
             var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F {
+    code block
+}
+`);
+
+            var functionCall = tree.root.children[0].cloneForBranch();
+            functionCall.functionDeclarationInTree = tree.root.children[1];
+            expect(tree.validateVarSettingFunction(functionCall)).to.equal(false);
         });
 
-        it.skip("rejects function that is in {x}='value' format, but also has children", function() {
+        it("rejects function that doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
             var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    {x}='1'
+
+    Function name
+
+    {x}='3'
+`);
+
+            var functionCall = tree.root.children[0].cloneForBranch();
+            functionCall.functionDeclarationInTree = tree.root.children[1];
+
+            assert.throws(() => {
+                tree.validateVarSettingFunction(functionCall);
+            });
+
+            tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    {x}='1'
+    Function name
+    {x}='3'
+`);
+
+            var functionCall = tree.root.children[0].cloneForBranch();
+            functionCall.functionDeclarationInTree = tree.root.children[1];
+
+            assert.throws(() => {
+                tree.validateVarSettingFunction(functionCall);
+            });
         });
 
-        it.skip("rejects function that doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
+        it("rejects function that has a code block, but also has children", function() {
             var tree = new Tree();
-            // try branched function with steps and stepblocks with bad steps in both the steps and stepblocks. Bad steps can be not in {x}='value' format, or have children themselves.
+            tree.parseIn(`
+F
+
+* F {
+    code block
+}
+    Child -
+`);
+
+            var functionCall = tree.root.children[0].cloneForBranch();
+            functionCall.functionDeclarationInTree = tree.root.children[1];
+
+            assert.throws(() => {
+                tree.validateVarSettingFunction(functionCall);
+            });
+        });
+
+        it("rejects function that is in {x}='value' format, but also has children", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    {x}='1'
+
+    {x}='2'
+        Child -
+
+    {x}='3'
+`);
+
+            var functionCall = tree.root.children[0].cloneForBranch();
+            functionCall.functionDeclarationInTree = tree.root.children[1];
+
+            assert.throws(() => {
+                tree.validateVarSettingFunction(functionCall);
+            });
         });
     });
 

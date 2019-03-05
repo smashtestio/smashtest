@@ -597,7 +597,7 @@ class Tree {
 
         if(typeof step.functionDeclarationInTree.codeBlock != 'undefined') {
             if(step.functionDeclarationInTree.children.length > 0) {
-                utils.error("The function being called must have a code block and no children. Not the case at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber, step.filename, step.lineNumber);
+                utils.error("If the function being used has a code block, it must not have children. Not the case at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber, step.filename, step.lineNumber);
             }
 
             return false;
@@ -617,12 +617,12 @@ class Tree {
             return true;
 
             function validateChild(child) {
-                if(child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
-                    utils.error("All child steps in the function being called must be in the format {x}='string'. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
+                if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
+                    utils.error("All child steps in the function being used must be in the format {x}='string'. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
                 }
 
                 if(child.children.length > 0) {
-                    utils.error("All child steps in the function being called must not have children themselves. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
+                    utils.error("All child steps in the function being used must not have children themselves. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
                 }
             }
         }
