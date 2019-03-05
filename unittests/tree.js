@@ -1234,6 +1234,7 @@ H
 `A
 B
 C
+
     D
 `
             , "file.txt");
@@ -1276,7 +1277,7 @@ C
                             children: [
                                 {
                                     text: 'D',
-                                    lineNumber: 4,
+                                    lineNumber: 5,
                                     indents: 1,
                                     parent: { indents: 0, steps: [] },
                                     children: []
@@ -1421,13 +1422,14 @@ C
             });
         });
 
-        it("parses a step block in the middle, with no empty lines above and below", function() {
+        it("parses a step block in the middle, with only an empty line below", function() {
             var tree = new Tree();
             tree.parseIn(
 `A
     B
     C
     D
+
         E
 `
             , "file.txt");
@@ -1476,7 +1478,7 @@ C
                                     children: [
                                         {
                                             text: 'E',
-                                            lineNumber: 5,
+                                            lineNumber: 6,
                                             indents: 2,
                                             parent: { indents: 1, steps: [] },
                                             children: []
@@ -1885,6 +1887,41 @@ C`
 B {
 }
 C`
+                , "file.txt");
+            });
+        });
+
+        it("rejects a step block with children that doesn't end in an empty line", function() {
+            var tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A
+B
+    C
+`
+                , "file.txt");
+            });
+        });
+
+        it("doesn't reject a step block that's directly followed by a line indented left of the step block", function() {
+            var tree = new Tree();
+            assert.doesNotThrow(() => {
+                tree.parseIn(
+`A
+    B
+    C
+D
+`
+                , "file.txt");
+            });
+        });
+
+        it("doesn't reject a step block if it doesn't have children and doesn't end in an empty line", function() {
+            var tree = new Tree();
+            assert.doesNotThrow(() => {
+                tree.parseIn(
+`A
+B`
                 , "file.txt");
             });
         });
@@ -3617,13 +3654,13 @@ Other scope -
             var tree = new Tree();
             // try branched function with steps and stepblocks
 
+// meow
 
 
 
 
 
 
-            
         });
 
         it.skip("accepts function that has a code block", function() {

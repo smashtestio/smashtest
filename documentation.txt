@@ -55,6 +55,7 @@ Step reference
 
 Step blocks
     - Vertical list of 2 or more steps, no blank lines in between
+    - Must end in an empty line if it has children
     - Show examples
     - Each line of a step block will connect with every child step to the step block, in a separate branch. It's kind of like a for loop.
         - Give an example

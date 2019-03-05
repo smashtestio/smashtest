@@ -68,7 +68,7 @@ Test the Widget Maker -
 
                             {username}='two'
                             {username}=fuzz
-
+                            
                                 Enter {password} into {Password box}
 
                                     {password}='one'

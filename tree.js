@@ -421,7 +421,7 @@ class Tree {
             // See how far down it goes
             for(var j = i + 1; j < lines.length; j++) {
                 if(lines[j].text == '' || lines[j].indents != potentialStepBlock.steps[0].indents) {
-                    // We've reached the end of the step block
+                    // We've reached the end of the (potential) step block
                     break;
                 }
                 else {
@@ -431,6 +431,11 @@ class Tree {
 
             if(potentialStepBlock.steps.length > 1) {
                 // We've found a step block, which goes from lines index i to j
+
+                if(j < lines.length && lines[j].text != '' && lines[j].text != '..' && lines[j].indents == potentialStepBlock.steps[0].indents + 1) {
+                    utils.error("There must be an empty line under a step block, if that step block has indented steps directly underneath it. Try putting an empty line above this one.", filename, lines[j].lineNumber);
+                }
+
                 potentialStepBlock.filename = filename;
                 potentialStepBlock.lineNumber = potentialStepBlock.isSequential ? potentialStepBlock.steps[0].lineNumber - 1 : potentialStepBlock.steps[0].lineNumber;
                 potentialStepBlock.indents = potentialStepBlock.steps[0].indents;
