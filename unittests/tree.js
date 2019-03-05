@@ -3703,6 +3703,21 @@ F
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(false);
         });
 
+        it("rejects an empty function", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+`);
+
+            var functionCall = tree.root.children[0].cloneForBranch();
+            functionCall.functionDeclarationInTree = tree.root.children[1];
+            assert.throws(() => {
+                tree.validateVarSettingFunction(functionCall);
+            });
+        });
+
         it("rejects function that doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -3940,10 +3955,82 @@ H -
         });
 
         it("branchifies a function call with no children, whose function declaration has no children", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
 
+* F
+    `);
 
+            var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(1);
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            originalStep: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F",
+                                    lineNumber: 4
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]);
+        });
 
+        it("branchifies a function call with no children, whose function declaration has one branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    A -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            originalStep: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F",
+                                    lineNumber: 4
+                                }
+                            }
+                        },
+                        {
+                            text: "A",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            originalStep: {
+                                text: "A",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("properly merges identifiers between function call and function declaration", function() {
 
 
 
@@ -3959,15 +4046,7 @@ H -
 
         });
 
-        it.skip("branchifies a function call with no children, whose function declaration has one branch", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-My function
-
-* My function
-    Step one -
-`);
-
+        it.skip("properly merges identifiers and code block between function call and function declaration", function() {
         });
 
         it.skip("branchifies a function call with no children, whose function declaration has multiple branches", function() {

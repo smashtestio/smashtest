@@ -604,6 +604,10 @@ class Tree {
             return false;
         }
         else {
+            if(step.functionDeclarationInTree.children.length == 0) {
+                utils.error("You cannot use an empty function", step.filename, step.lineNumber);
+            }
+
             step.functionDeclarationInTree.children.forEach((child) => {
                 if(child instanceof StepBlock) {
                     child.steps.forEach((childStep) => {
@@ -634,19 +638,17 @@ class Tree {
      * @param {Step} step - Step or StepBlock under this.root to convert to branches
      * @param {Array} [stepsAbove] - Array of Step, steps that comes above this step, with function calls, etc. already expanded (used to help find function declarations), [] if omitted
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
+     * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
      * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier)
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}).
      * @throws {Error} If a function declaration cannot be found, or if a hook name is invalid
      */
-    branchify(step, stepsAbove, branchIndents, isSequential) {
+    branchify(step, stepsAbove, branchIndents, isFunctionCall, isSequential) {
         if(typeof stepsAbove == 'undefined') {
             stepsAbove = [];
         }
         if(typeof branchIndents == 'undefined') {
             branchIndents = 0;
-        }
-        if(typeof isSequential == 'undefined') {
-            isSequential = false;
         }
 
         isSequential = step.isSequential || isSequential;
@@ -661,8 +663,7 @@ class Tree {
         // Fill branchesBelow with this step
         // If this step is a function call, step block, etc., expand it (in which case we may end up with multiple branches with multiple steps in branchBelow - all from just one step)
         if(step.indents == -1) {
-            // We're at the root. "Prime" branchesBelow with an empty Branch.
-            branchesBelow.push(new Branch());
+            // We're at the root. Ignore it.
         }
         else if(step.isFunctionCall) {
             step.functionDeclarationInTree = this.findFunctionDeclaration(stepsAbove);
@@ -670,7 +671,7 @@ class Tree {
 
             var isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
 
-            if(step.varsBeingSet.length > 0) {
+            if(step.varsBeingSet && step.varsBeingSet.length > 0) {
                 // This step is {var} = F
 
                 // If F doesn't have a code block, validate that it either points at a code block function, or points at a function with all children being {x}='val'
@@ -679,30 +680,35 @@ class Tree {
                 }
             }
 
-            branchesBelow = this.branchify(step.functionDeclarationInTree, stepsAbove, branchIndents + 1); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            branchesBelow = this.branchify(step.functionDeclarationInTree, stepsAbove, branchIndents + 1, true); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
-            if(isReplaceVarsInChildren) {
-                // replace {x} in each child to {var} (where this step is {var} = F)
-                branchesBelow.forEach((branch) => {
-                    branch.steps[0].varsBeingSet[0].name = step.varsBeingSet[0].name;
-                });
+            if(branchesBelow.length == 0) {
+                // If branchesBelow is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
+                branchesBelow = [ new Branch() ];
+                branchesBelow[0].steps.push(step.cloneForBranch());
             }
+            else {
+                if(isReplaceVarsInChildren) {
+                    // replace {x} in each child to {var} (where this step is {var} = F)
+                    branchesBelow.forEach((branch) => {
+                        branch.steps[0].varsBeingSet[0].name = step.varsBeingSet[0].name;
+                    });
+                }
 
-            if(isSequential) {
-                // Put clone of this step at the front of the first Branch that results from expanding the function call
-                if(branchesBelow.length > 0) {
+                if(isSequential) {
+                    // Put clone of this step at the front of the first Branch that results from expanding the function call
                     var clonedStep = step.cloneForBranch();
                     clonedStep.branchIndents = branchIndents;
                     branchesBelow[0].steps.unshift(clonedStep);
                 }
-            }
-            else {
-                // Put clone of this step at the front of each Branch that results from expanding the function call
-                branchesBelow.forEach((branch) => {
-                    var clonedStep = step.cloneForBranch();
-                    clonedStep.branchIndents = branchIndents;
-                    branch.steps.unshift(clonedStep);
-                });
+                else {
+                    // Put clone of this step at the front of each Branch that results from expanding the function call
+                    branchesBelow.forEach((branch) => {
+                        var clonedStep = step.cloneForBranch();
+                        clonedStep.branchIndents = branchIndents;
+                        branch.steps.unshift(clonedStep);
+                    });
+                }
             }
         }
         else if(step instanceof StepBlock) {
@@ -726,8 +732,12 @@ class Tree {
         }
         else if(step.isFunctionDeclaration) {
             // Skip over function declarations, since we are already including their corresponding function calls in branches
-            // "Prime" branchesBelow with an empty Branch
-            branchesBelow.push(new Branch());
+
+            // If this function declaration was encountered unintentionally, and not in response to finding a function call, return without visiting its children
+            // This is because hitting a function declaration on its own won't create any new branches
+            if(!isFunctionCall) {
+                return;
+            }
         }
         else { // Textual steps (including manual steps), non-function-declaration code block steps, {var}='string'
             // Generic step cloning into branchesBelow
@@ -739,6 +749,7 @@ class Tree {
         }
 
         // Fill branchesBelow with branches that come from this step's children
+
         var children = step.children;
         if(children.length == 0) {
             // Check to see if this step is part of a StepBlock with children
@@ -750,6 +761,11 @@ class Tree {
         if(children.length > 0) {
             // We have children
 
+            // If branchesBelow is empty, "prime" it with an empty Branch, so that the loops below work
+            if(branchesBelow.length == 0) {
+                branchesBelow.push(new Branch());
+            }
+
             // Check if a child is a hook function declaration
             children.forEach((child) => {
                 if(child.isFunctionDeclaration) {
@@ -760,7 +776,7 @@ class Tree {
                             this.badHookCasingError(child);
                         }
 
-                        child.afterBranches = this.branchify(child, stepsAbove, -1); // -1 branchIndents so that its children will have branchIndents of 0
+                        child.afterBranches = this.branchify(child, stepsAbove, -1, true); // -1 branchIndents so that its children will have branchIndents of 0
                         var clonedHookStep = child.cloneAsFunctionCall();
                         child.afterBranches.forEach((branch) => {
                             branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
@@ -775,7 +791,7 @@ class Tree {
                             utils.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                         }
 
-                        var newBeforeEverything = this.branchify(child, stepsAbove, -1);
+                        var newBeforeEverything = this.branchify(child, stepsAbove, -1, true);
                         var clonedHookStep = child.cloneAsFunctionCall();
                         newBeforeEverything.forEach((branch) => {
                             branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
@@ -791,7 +807,7 @@ class Tree {
                             utils.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                         }
 
-                        var newAfterEverything = this.branchify(child, stepsAbove, -1);
+                        var newAfterEverything = this.branchify(child, stepsAbove, -1, true);
                         var clonedHookStep = child.cloneAsFunctionCall();
                         newAfterEverything.forEach((branch) => {
                             branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
@@ -804,7 +820,7 @@ class Tree {
             // Recursively call branchify() on children
             var branchesFromChildren = []; // Array of Array of Branch
             children.forEach((child) => {
-                var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, isSequential);
+                var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
                 if(branchesFromChild && branchesFromChild.length > 0) {
                     branchesFromChildren.push(branchesFromChild);
                 }

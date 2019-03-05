@@ -481,9 +481,9 @@ describe("Step", function() {
             var step = new Step();
             step.isToDo = true;
 
-            step.functionDeclarationStep = new Step();
-            step.functionDeclarationStep.isToDo = true;
-            step.functionDeclarationStep.isManual = true;
+            step.functionDeclarationInTree = new Step();
+            step.functionDeclarationInTree.isToDo = true;
+            step.functionDeclarationInTree.isManual = true;
 
             step.mergeInFunctionDeclaration();
 
@@ -496,16 +496,16 @@ describe("Step", function() {
         it("merges in function declaration with all identifiers set to false", function() {
             var step = new Step();
 
-            step.functionDeclarationStep = new Step();
-            step.functionDeclarationStep.isToDo = true;
-            step.functionDeclarationStep.isManual = true;
-            step.functionDeclarationStep.isDebug = true;
-            step.functionDeclarationStep.isStepByStepDebug = true;
-            step.functionDeclarationStep.isOnly = true;
-            step.functionDeclarationStep.isNonParallel = true;
-            step.functionDeclarationStep.isSequential = true;
-            step.functionDeclarationStep.isExpectedFail = true;
-            step.functionDeclarationStep.isBuiltIn = true;
+            step.functionDeclarationInTree = new Step();
+            step.functionDeclarationInTree.isToDo = true;
+            step.functionDeclarationInTree.isManual = true;
+            step.functionDeclarationInTree.isDebug = true;
+            step.functionDeclarationInTree.isStepByStepDebug = true;
+            step.functionDeclarationInTree.isOnly = true;
+            step.functionDeclarationInTree.isNonParallel = true;
+            step.functionDeclarationInTree.isSequential = true;
+            step.functionDeclarationInTree.isExpectedFail = true;
+            step.functionDeclarationInTree.isBuiltIn = true;
 
             step.mergeInFunctionDeclaration();
 
@@ -523,7 +523,7 @@ describe("Step", function() {
         it("merges in function declaration with all identifiers missing", function() {
             var step = new Step();
 
-            step.functionDeclarationStep = new Step();
+            step.functionDeclarationInTree = new Step();
 
             step.mergeInFunctionDeclaration();
 
@@ -541,8 +541,8 @@ describe("Step", function() {
         it("merges in code block", function() {
             var step = new Step();
 
-            step.functionDeclarationStep = new Step();
-            step.functionDeclarationStep.codeBlock = 'code';
+            step.functionDeclarationInTree = new Step();
+            step.functionDeclarationInTree.codeBlock = 'code';
 
             step.mergeInFunctionDeclaration();
 
@@ -552,13 +552,13 @@ describe("Step", function() {
 
     describe("cloneAsFunctionCall()", function() {
         it("clones a function declaration step into a function call step", function() {
-            var functionDeclarationStep = new Step();
-            functionDeclarationStep.isFunctionDeclaration = true;
-            functionDeclarationStep.text = "My function";
-            functionDeclarationStep.children = [ new Step() ];
-            functionDeclarationStep.children[0].text = "Child step";
+            var functionDeclarationInTree = new Step();
+            functionDeclarationInTree.isFunctionDeclaration = true;
+            functionDeclarationInTree.text = "My function";
+            functionDeclarationInTree.children = [ new Step() ];
+            functionDeclarationInTree.children[0].text = "Child step";
 
-            var clone = functionDeclarationStep.cloneAsFunctionCall();
+            var clone = functionDeclarationInTree.cloneAsFunctionCall();
 
             expect(clone.isFunctionDeclaration).to.equal(false);
             expect(clone.isFunctionCall).to.equal(true);

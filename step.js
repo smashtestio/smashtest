@@ -38,13 +38,13 @@ class Step {
         this.isSequential = false;            // true if this step has the sequential identifier (..)
         this.isExpectedFail = false;          // true if this step has the expected fail indentifier (#)
 
+        this.isBuiltIn = false;               // true if this step is from a built-in file
+
         this.varsBeingSet = [];               // if this step is in the format {var1}=Step1, {{var2}}=Step2, etc., this array will contain objects {name: "var1", value: "Step1", isLocal: false}, {name: "var2", value: "Step2", isLocal: true} etc.
         this.varsList = [];                   // array of objects with format {name: "var1", isLocal: false} representing all the variables included in this step
         this.elementFinderList = [];          // array of objects with format {name: "contents of elementFinder", elementFinder: {Object} } representing all the elementFinders included in this step
 
         this.containingStepBlock = {};        // the StepBlock that contains this Step
-
-        this.isBuiltIn = false;               // true if this step is from a built-in file
 
         this.afterEveryBranch = [];           // array of Step, which represent the steps to execute after every branch that traverses through this step is complete
 
@@ -176,40 +176,40 @@ class Step {
     }
 
     /**
-     * Merges this.functionDeclarationStep into this Step (this Step must be a function call)
-     * Identifier booleans are OR'ed in from this.functionDeclarationStep into this
-     * If this.functionDeclarationStep has a code block, it is copied into this
+     * Merges this.functionDeclarationInTree into this Step (this Step must be a function call)
+     * Identifier booleans are OR'ed in from this.functionDeclarationInTree into this
+     * If this.functionDeclarationInTree has a code block, it is copied into this
      */
     mergeInFunctionDeclaration() {
-        var isToDo = this.isToDo || this.functionDeclarationStep.isToDo;
+        var isToDo = this.isToDo || this.functionDeclarationInTree.isToDo;
         isToDo ? this.isToDo = isToDo : null; // don't do anything ("null;") if isTodo isn't true
 
-        var isManual = this.isManual || this.functionDeclarationStep.isManual;
+        var isManual = this.isManual || this.functionDeclarationInTree.isManual;
         isManual ? this.isManual = isManual : null;
 
-        var isDebug = this.isDebug || this.functionDeclarationStep.isDebug;
+        var isDebug = this.isDebug || this.functionDeclarationInTree.isDebug;
         isDebug ? this.isDebug = isDebug : null;
 
-        var isStepByStepDebug = this.isStepByStepDebug || this.functionDeclarationStep.isStepByStepDebug;
+        var isStepByStepDebug = this.isStepByStepDebug || this.functionDeclarationInTree.isStepByStepDebug;
         isStepByStepDebug ? this.isStepByStepDebug = isStepByStepDebug : null;
 
-        var isOnly = this.isOnly || this.functionDeclarationStep.isOnly;
+        var isOnly = this.isOnly || this.functionDeclarationInTree.isOnly;
         isOnly ? this.isOnly = isOnly : null;
 
-        var isNonParallel = this.isNonParallel || this.functionDeclarationStep.isNonParallel;
+        var isNonParallel = this.isNonParallel || this.functionDeclarationInTree.isNonParallel;
         isNonParallel ? this.isNonParallel = isNonParallel : null;
 
-        var isSequential = this.isSequential || this.functionDeclarationStep.isSequential;
+        var isSequential = this.isSequential || this.functionDeclarationInTree.isSequential;
         isSequential ? this.isSequential = isSequential : null;
 
-        var isExpectedFail = this.isExpectedFail || this.functionDeclarationStep.isExpectedFail;
+        var isExpectedFail = this.isExpectedFail || this.functionDeclarationInTree.isExpectedFail;
         isExpectedFail ? this.isExpectedFail = isExpectedFail : null;
 
-        var isBuiltIn = this.isBuiltIn || this.functionDeclarationStep.isBuiltIn;
+        var isBuiltIn = this.isBuiltIn || this.functionDeclarationInTree.isBuiltIn;
         isBuiltIn ? this.isBuiltIn = isBuiltIn : null;
 
-        if(typeof this.functionDeclarationStep.codeBlock != 'undefined') {
-            this.codeBlock = this.functionDeclarationStep.codeBlock;
+        if(typeof this.functionDeclarationInTree.codeBlock != 'undefined') {
+            this.codeBlock = this.functionDeclarationInTree.codeBlock;
         }
     }
 
