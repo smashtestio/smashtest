@@ -3819,6 +3819,8 @@ A -
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -3866,6 +3868,12 @@ H -
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(1);
+            expect(branches[2].steps).to.have.lengthOf(2);
+            expect(branches[3].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(3);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -3922,6 +3930,12 @@ H -
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(1);
+            expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[3].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(3);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -3970,6 +3984,8 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(1);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4004,6 +4020,8 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4050,6 +4068,8 @@ F -
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(1);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4078,6 +4098,8 @@ F ~~
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4140,6 +4162,8 @@ F ~~
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(1);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4190,6 +4214,9 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(2);
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(2);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4279,6 +4306,8 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4339,6 +4368,8 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(5);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4424,6 +4455,9 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(2);
+            expect(branches[0].steps).to.have.lengthOf(5);
+            expect(branches[1].steps).to.have.lengthOf(4);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
@@ -4563,6 +4597,11 @@ F
             var branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(4);
+            expect(branches[0].steps).to.have.lengthOf(5);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(4);
+            expect(branches[3].steps).to.have.lengthOf(3);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
