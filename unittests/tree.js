@@ -5546,7 +5546,7 @@ B -
         it("branchifies a .. step with no children", function() {
 
 
-
+// meow
 
 
 
@@ -5626,102 +5626,108 @@ B -
         });
 
         it.skip("branchifies the * After Every Branch hook", function() {
-            var tree = new Tree();
             // have it expand to multiple leaves, but not to all leaves in the tree
         });
 
         it.skip("branchifies the * After Every Branch hook with multiple branches", function() {
-            var tree = new Tree();
             // have the function declaration have multiple branches itself
         });
 
         it.skip("branchifies the * After Every Branch hook such that built-in hooks execute last", function() {
-            var tree = new Tree();
         });
 
         it.skip("branchifies the * After Every Branch hook if it has a ..", function() {
-            var tree = new Tree();
         });
 
         it.skip("branchifies the * Before Everything hook", function() {
-            var tree = new Tree();
         });
 
         it.skip("branchifies the * Before Everything hook with multiple branches", function() {
-            var tree = new Tree();
         });
 
         it.skip("branchifies the * Before Everything hook if it has a ..", function() {
-            var tree = new Tree();
         });
 
         it.skip("branchifies the * After Everything hook", function() {
-            var tree = new Tree();
         });
 
         it.skip("branchifies the * After Everything hook when it itself has multiple branches", function() {
-            var tree = new Tree();
         });
 
         it.skip("branchifies the * After Everything hook if it has a ..", function() {
-            var tree = new Tree();
         });
 
         it.skip("rejects the * Before Everything hook when not at 0 indents", function() {
-            var tree = new Tree();
         });
 
         it.skip("rejects the * After Everything hook when not at 0 indents", function() {
-            var tree = new Tree();
         });
 
         it.skip("handles multiple hooks of the same type that are siblings", function() {
-            var tree = new Tree();
         });
 
         it.skip("handles multiple hooks of the same type that are at different levels in the tree", function() {
-            var tree = new Tree();
         });
 
         it.skip("handles different hooks that are siblings", function() {
-            var tree = new Tree();
         });
 
         it.skip("rejects a hook function declaration with the wrong casing", function() {
-            var tree = new Tree();
             // every word must be capitalized, such as "After Every Branch"
         });
 
-        it.skip("throws an exception when there's a circular reference among function calls", function() {
+        it("throws an exception when there's an infinite loop among function calls", function() {
             var tree = new Tree();
-            // this will probably be a js stack size exception
+            tree.parseIn(`
+F
+
+* F
+    F
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
+
+            tree = new Tree();
+            tree.parseIn(`
+A
+
+* A
+    B
+
+* B
+    A
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
         });
     });
 
     describe("generateBranches()", function() {
         it.skip("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
-            var tree = new Tree();
         });
 
         it.skip("sets the frequency of multiple branches when the {frequency} variable is set", function() {
-            var tree = new Tree();
             // have multiple branches have their {frequency} set
         });
 
         it.skip("sets the frequency of a branch to medium when the {frequency} variable is absent", function() {
-            var tree = new Tree();
         });
 
         it.skip("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", function() {
-            var tree = new Tree();
         });
 
         it.skip("sorts branches by {frequency}, then breadth-first", function() {
-            var tree = new Tree();
         });
 
         it.skip("when called a second time, sets a flag to only run previously failed branches", function() {
             // When generateBranches() is called and this.branches already exists, this.branches is assumed to have been run already
+        });
+
+        it("throws an exception when there's an infinite loop among function calls", function() {
         });
 
 
