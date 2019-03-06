@@ -1,3 +1,4 @@
+const util = require('util');
 const Constants = require('./constants.js');
 
 /**
@@ -25,4 +26,11 @@ exports.hasQuotes = function(str) {
  */
 exports.error = function(msg, filename, lineNumber) {
     throw new Error(msg + " [" + filename + ":" + lineNumber + "]");
+}
+
+/**
+ * Logs the given object to console
+ */
+exports.log = function(obj) {
+    console.log(util.inspect(obj, {depth: null}));
 }

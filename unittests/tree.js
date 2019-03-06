@@ -4,6 +4,7 @@ const chaiSubsetInOrder = require('chai-subset-in-order');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
+const utils = require('../utils.js');
 const Tree = require('../tree.js');
 
 chai.use(chaiSubset);
@@ -5544,31 +5545,136 @@ B -
         });
 
         it("branchifies a .. step with no children", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - ..
+    `);
+            var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(1);
 
-// meow
-
-
-
-
-
-
-
-
-
-
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: true
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step with children", function() {
-            // indented string of steps (with children and functions correctly connected to bottom)
+        it("branchifies a .. step with children", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - ..
+    B -
+        C -
+    D -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: true
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step that is a function call and has no children", function() {
+        it("branchifies a .. step that is a function call and has no children", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F ..
 
+* F
+    A -
+        B -
+    C -
+
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(5);
+
+            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
+            expect(branches[0].steps[0].text).to.equal("F");
+            expect(branches[0].steps[1].text).to.equal("A");
+            expect(branches[0].steps[2].text).to.equal("B");
+            expect(branches[0].steps[3].text).to.equal("F");
+            expect(branches[0].steps[4].text).to.equal("C");
+
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            branchIndents: 0,
+                            isSequential: true
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "F",
+                            branchIndents: 0,
+                            isSequential: true
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step that is a function call and has children", function() {
+        it("branchifies a .. step that is a function call and has children", function() {
             // the .. doesn't apply to within each function call
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("branchifies a .. step that is a function call, has children, and whose function declaration starts with a ..", function() {

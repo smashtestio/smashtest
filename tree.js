@@ -695,16 +695,10 @@ class Tree {
                     });
                 }
 
-                if(isSequential) {
-                    // Put clone of this step at the front of the first Branch that results from expanding the function call
-                    branchesFromThisStep[0].steps.unshift(clonedStep);
-                }
-                else {
-                    // Put clone of this step at the front of each Branch that results from expanding the function call
-                    branchesFromThisStep.forEach((branch) => {
-                        branch.steps.unshift(clonedStep.cloneForBranch()); // new clone every time we unshift
-                    });
-                }
+                // Put clone of this step at the front of each Branch that results from expanding the function call
+                branchesFromThisStep.forEach((branch) => {
+                    branch.steps.unshift(clonedStep.cloneForBranch()); // new clone every time we unshift
+                });
             }
         }
         else if(step instanceof StepBlock) {
@@ -752,100 +746,100 @@ class Tree {
             }
         }
 
-        if(children.length > 0) {
-            // We have children
+        // If branchesBelow is empty, "prime" it with an empty Branch, so that the loops below work
+        if(branchesBelow.length == 0) {
+            branchesBelow.push(new Branch());
+        }
 
-            // If branchesBelow is empty, "prime" it with an empty Branch, so that the loops below work
-            if(branchesBelow.length == 0) {
-                branchesBelow.push(new Branch());
-            }
-
-            // Check if a child is a hook function declaration
-            children.forEach((child) => {
-                if(child.isFunctionDeclaration) {
-                    var canStepText = child.getHookCanonicalText();
-                    var stepText = child.text.trim().replace(/\s+/g, ' ');
-                    if(canStepText == "after every branch") {
-                        if(stepText != 'After Every Branch') {
-                            this.badHookCasingError(child);
-                        }
-
-                        child.afterBranches = this.branchify(child, stepsAbove, -1, true); // -1 branchIndents so that its children will have branchIndents of 0
-                        var clonedHookStep = child.cloneAsFunctionCall();
-                        child.afterBranches.forEach((branch) => {
-                            branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
-                        });
+        // Check if a child is a hook function declaration
+        children.forEach((child) => {
+            if(child.isFunctionDeclaration) {
+                var canStepText = child.getHookCanonicalText();
+                var stepText = child.text.trim().replace(/\s+/g, ' ');
+                if(canStepText == "after every branch") {
+                    if(stepText != 'After Every Branch') {
+                        this.badHookCasingError(child);
                     }
-                    else if(canStepText == "before everything") {
-                        if(stepText != 'Before Everything') {
-                            this.badHookCasingError(child);
-                        }
 
-                        if(child.indents != 0) {
-                            utils.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
-                        }
-
-                        var newBeforeEverything = this.branchify(child, stepsAbove, -1, true);
-                        var clonedHookStep = child.cloneAsFunctionCall();
-                        newBeforeEverything.forEach((branch) => {
-                            branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
-                        });
-                        this.beforeEverything = this.beforeEverything.concat(newBeforeEverything);
-                    }
-                    else if(canStepText == "after everything") {
-                        if(stepText != 'After Everything') {
-                            this.badHookCasingError(child);
-                        }
-
-                        if(child.indents != 0) {
-                            utils.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
-                        }
-
-                        var newAfterEverything = this.branchify(child, stepsAbove, -1, true);
-                        var clonedHookStep = child.cloneAsFunctionCall();
-                        newAfterEverything.forEach((branch) => {
-                            branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
-                        });
-                        this.afterEverything = this.afterEverything.concat(newAfterEverything);
-                    }
-                }
-            });
-
-            // Recursively call branchify() on children
-            var branchesFromChildren = []; // Array of Array of Branch
-            children.forEach((child) => {
-                if(child instanceof StepBlock && !child.isSequential) {
-                    // If this child is a non-sequential step block, just call branchify() directly on each member step
-                    child.steps.forEach((step) => {
-                        var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
-                        if(branchesFromChild && branchesFromChild.length > 0) {
-                            branchesFromChildren.push(branchesFromChild);
-                        }
+                    child.afterBranches = this.branchify(child, stepsAbove, -1, true); // -1 branchIndents so that its children will have branchIndents of 0
+                    var clonedHookStep = child.cloneAsFunctionCall();
+                    child.afterBranches.forEach((branch) => {
+                        branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
                 }
-                else {
-                    // If this child is a step, call branchify() on it normally
-                    var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
+                else if(canStepText == "before everything") {
+                    if(stepText != 'Before Everything') {
+                        this.badHookCasingError(child);
+                    }
+
+                    if(child.indents != 0) {
+                        utils.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                    }
+
+                    var newBeforeEverything = this.branchify(child, stepsAbove, -1, true);
+                    var clonedHookStep = child.cloneAsFunctionCall();
+                    newBeforeEverything.forEach((branch) => {
+                        branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
+                    });
+                    this.beforeEverything = this.beforeEverything.concat(newBeforeEverything);
+                }
+                else if(canStepText == "after everything") {
+                    if(stepText != 'After Everything') {
+                        this.badHookCasingError(child);
+                    }
+
+                    if(child.indents != 0) {
+                        utils.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                    }
+
+                    var newAfterEverything = this.branchify(child, stepsAbove, -1, true);
+                    var clonedHookStep = child.cloneAsFunctionCall();
+                    newAfterEverything.forEach((branch) => {
+                        branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
+                    });
+                    this.afterEverything = this.afterEverything.concat(newAfterEverything);
+                }
+            }
+        });
+
+        // Recursively call branchify() on children
+        var branchesFromChildren = []; // Array of Array of Branch
+        children.forEach((child) => {
+            if(child instanceof StepBlock && !child.isSequential) {
+                // If this child is a non-sequential step block, just call branchify() directly on each member step
+                child.steps.forEach((step) => {
+                    var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren.push(branchesFromChild);
                     }
+                });
+            }
+            else {
+                // If this child is a step, call branchify() on it normally
+                var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
+                if(branchesFromChild && branchesFromChild.length > 0) {
+                    branchesFromChildren.push(branchesFromChild);
                 }
-            });
+            }
+        });
 
-            // Put branches from children into branchesBelow (which already contains branches derived from the current step on its own)
-            if(isSequential) {
-                // One big resulting branch, built as follows:
-                // One branchesBelow branch, each child branch, one branchesBelow branch, each child branch, etc.
-                var bigBranch = new Branch();
-                branchesBelow.forEach((branchBelow) => {
-                    bigBranch.mergeToEnd(branchBelow);
-                    branchesFromChildren.forEach((branchFromChild) => {
+        // Put branches from children into branchesBelow (which already contains branches derived from the current step on its own)
+        if(isSequential) {
+            // One big resulting branch, built as follows:
+            // One branchesBelow branch, each child branch, one branchesBelow branch, each child branch, etc.
+            var bigBranch = new Branch();
+            branchesBelow.forEach((branchBelow) => {
+                bigBranch.mergeToEnd(branchBelow);
+                branchesFromChildren.forEach((branchesFromChild) => {
+                    branchesFromChild.forEach((branchFromChild) => {
                         bigBranch.mergeToEnd(branchFromChild.clone());
                     });
                 });
-                branchesBelow = bigBranch;
-            }
-            else {
+            });
+            branchesBelow = [ bigBranch ];
+        }
+        else {
+            if(children.length > 0) {
                 // Put branches from children into branchesBelow in a breadth-first manner
                 // Take one Branch from each child (to tack onto end of every member of branchesBelow), then continue taking round-robin until nothing left
                 var newBranchesBelow = [];
