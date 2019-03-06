@@ -598,7 +598,7 @@ class Tree {
 
         if(typeof step.functionDeclarationInTree.codeBlock != 'undefined') {
             if(step.functionDeclarationInTree.children.length > 0) {
-                utils.error("The function used at " + step.filename + ":" + step.lineNumber + " has a code block, but it must not have any more steps (i.e., children). The function declaration step at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber + " doesn't comply with this.", step.filename, step.lineNumber);
+                utils.error("The function called at " + step.filename + ":" + step.lineNumber + " has a code block in its declaration (at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber + ") but that code block must not have any child steps", step.filename, step.lineNumber);
             }
 
             return false;
@@ -623,11 +623,11 @@ class Tree {
 
             function validateChild(child) {
                 if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
-                    utils.error("The function used at " + step.filename + ":" + step.lineNumber + " must have all steps under it in the format {x}='string'. The function declaration step at " + child.filename + ":" + child.lineNumber + " doesn't comply with this.", step.filename, step.lineNumber);
+                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must have all steps in its declaration (at " + child.filename + ":" + child.lineNumber + ") be in format {x}='string'", step.filename, step.lineNumber);
                 }
 
                 if(child.children.length > 0) {
-                    utils.error("The function used at " + step.filename + ":" + step.lineNumber + " must only have one level of steps under it (and those steps may not have children of their own). The function declaration step at " + child.filename + ":" + child.lineNumber + " doesn't comply with this.", step.filename, step.lineNumber);
+                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must not have any steps in its declaration (at " + child.filename + ":" + child.lineNumber + ") that have children of their own", step.filename, step.lineNumber);
                 }
             }
         }
