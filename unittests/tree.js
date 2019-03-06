@@ -4931,6 +4931,9 @@ FA
 
 FA
     FB
+
+* FB // never called
+    X
     `);
             // A call to FA makes FB accessible to its children
 
@@ -4969,56 +4972,590 @@ FA
         });
 
         it("branchifies {var} = F where F has muliple branches in {x}='value' format", function() {
-            // try branched function with steps and stepblocks
-// meow
-
-
-
-
-
-
-
-
-
-
-
-
-        });
-
-        it.skip("branchifies {var} = F where F has a code block", function() {
             var tree = new Tree();
+            tree.parseIn(`
+{var} = F
+
+* F
+    {x}='1'
+
+    {x}='2'
+    {x}=''
+    {x}="3"
+
+    {a}='4'
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(2);
+            expect(branches[3].steps).to.have.lengthOf(2);
+            expect(branches[4].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{x}='1'",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{x}='2'",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{x}=''",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{x}=\"3\"",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{a}='4'",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("rejects {var} = F if F has a code block, but also has children", function() {
+        it("branchifies {var} = F where it has children and F has muliple branches in {x}='value' format", function() {
             var tree = new Tree();
+            tree.parseIn(`
+{var} = F
+    G -
+
+* F
+    {x}='1'
+
+    {x}='2'
+    {x}=''
+    {x}="3"
+
+    {a}='4'
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(3);
+            expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[3].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{x}='1'",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        },
+                        {
+                            text: "G",
+                            isFunctionCall: undefined,
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{x}='2'",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        },
+                        {
+                            text: "G",
+                            isFunctionCall: undefined,
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{x}=''",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        },
+                        {
+                            text: "G",
+                            isFunctionCall: undefined,
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{x}=\"3\"",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        },
+                        {
+                            text: "G",
+                            isFunctionCall: undefined,
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0
+                        },
+                        {
+                            text: "{a}='4'",
+                            isFunctionCall: undefined,
+                            branchIndents: 1
+                        },
+                        {
+                            text: "G",
+                            isFunctionCall: undefined,
+                            branchIndents: 0
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("rejects {var} = F if F is in {x}='value' format, but some of those steps have children", function() {
+        it("branchifies {var} = F where F has a code block", function() {
             var tree = new Tree();
+            tree.parseIn(`
+{var} = F
+
+* F {
+    code block
+}
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "{var} = F",
+                            isFunctionCall: true,
+                            branchIndents: 0,
+                            codeBlock: '\n    code block\n'
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("rejects {var} = F if F doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
+        it("rejects {var} = F if F has a code block, but also has children", function() {
             var tree = new Tree();
-            // try branched function with steps and stepblocks with bad steps in both the steps and stepblocks. Bad steps can be not in {x}='value' format, or have children themselves.
+            tree.parseIn(`
+{var} = F
+
+* F {
+    code block
+}
+    Child -
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
         });
 
-        it.skip("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", function() {
+        it("rejects {var} = F if F is in {x}='value' format, but some of those steps have children", function() {
             var tree = new Tree();
+            tree.parseIn(`
+{var} = F
+
+* F
+    {x}='1'
+
+    {x}='2'
+        {x}='3'
+
+    {x}='4'
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
         });
 
-        it.skip("branchifies a step block with no children", function() {
+        it("rejects {var} = F if F doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
             var tree = new Tree();
+            tree.parseIn(`
+{var} = F
+
+* F
+    {x}='1'
+    D -
+    {x}='4'
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
         });
 
-        it.skip("branchifies a step block with children", function() {
+        it("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", function() {
             var tree = new Tree();
+            tree.parseIn(`
+* A
+    * B
+        C -
+
+A
+    B
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 1
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies two levels of step blocks", function() {
+        it("branchifies a step block with no children", function() {
             var tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+C -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "B",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "C",
+                            branchIndents: 0
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step with no children", function() {
+        it("branchifies a step block with children", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+C -
+
+    D -
+
+    E -
+        F -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(6);
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(2);
+            expect(branches[3].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(3);
+            expect(branches[5].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "B",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "C",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "F",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "B",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "F",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "C",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "F",
+                            branchIndents: 0
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies two levels of step blocks", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+
+    C -
+    D -
+
+        E -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(4);
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(3);
+            expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[3].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "B",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "B",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 0
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies a .. step with no children", function() {
+
+
+
+
+
+
+
+
+
+
+
+
 
         });
 

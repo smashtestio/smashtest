@@ -598,7 +598,7 @@ class Tree {
 
         if(typeof step.functionDeclarationInTree.codeBlock != 'undefined') {
             if(step.functionDeclarationInTree.children.length > 0) {
-                utils.error("If the function being used has a code block, it must not have children. Not the case at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber, step.filename, step.lineNumber);
+                utils.error("The function used at " + step.filename + ":" + step.lineNumber + " has a code block, but it must not have any more steps (i.e., children). The function declaration step at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber + " doesn't comply with this.", step.filename, step.lineNumber);
             }
 
             return false;
@@ -623,11 +623,11 @@ class Tree {
 
             function validateChild(child) {
                 if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
-                    utils.error("All child steps in the function being used must be in the format {x}='string'. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
+                    utils.error("The function used at " + step.filename + ":" + step.lineNumber + " must have all steps under it in the format {x}='string'. The function declaration step at " + child.filename + ":" + child.lineNumber + " doesn't comply with this.", step.filename, step.lineNumber);
                 }
 
                 if(child.children.length > 0) {
-                    utils.error("All child steps in the function being used must not have children themselves. Not the case at " + child.filename + ":" + child.lineNumber, step.filename, step.lineNumber);
+                    utils.error("The function used at " + step.filename + ":" + step.lineNumber + " must only have one level of steps under it (and those steps may not have children of their own). The function declaration step at " + child.filename + ":" + child.lineNumber + " doesn't comply with this.", step.filename, step.lineNumber);
                 }
             }
         }
@@ -676,10 +676,8 @@ class Tree {
             if(clonedStep.varsBeingSet && clonedStep.varsBeingSet.length > 0) {
                 // This step is {var} = F
 
-                // If F doesn't have a code block, validate that it either points at a code block function, or points at a function with all children being {x}='val'
-                if(typeof clonedStep.codeBlock == 'undefined') {
-                    isReplaceVarsInChildren = this.validateVarSettingFunction(step);
-                }
+                // Validate that F is either a code block function, or has all children being {x}='val'
+                isReplaceVarsInChildren = this.validateVarSettingFunction(step);
             }
 
             branchesFromThisStep = this.branchify(step.functionDeclarationInTree, stepsAbove, branchIndents + 1, true); // there's no isSequential in branchify() because isSequential does not extend into function calls
