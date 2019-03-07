@@ -434,7 +434,7 @@ class Tree {
                 // We've found a step block, which goes from lines index i to j
 
                 if(j < lines.length && lines[j].text != '' && lines[j].text != '..' && lines[j].indents == potentialStepBlock.steps[0].indents + 1) {
-                    utils.error("There must be an empty line under a step block, if that step block has indented steps directly underneath it. Try putting an empty line above this one.", filename, lines[j].lineNumber);
+                    utils.error("There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line above this line.", filename, lines[j].lineNumber);
                 }
 
                 potentialStepBlock.filename = filename;
@@ -701,19 +701,18 @@ class Tree {
                 });
             }
         }
-        else if(step instanceof StepBlock) {
-            if(step.isSequential) { // sequential step block (with a .. on top)
-                // Branches from each step block member are attached sequentially to each other
-                var bigBranch = new Branch();
-                step.steps.forEach((stepInBlock) => {
-                    var branchesFromThisStepBlockMember = this.branchify(stepInBlock, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
-                    branchesFromThisStepBlockMember.forEach((branchBelowBlockMember) => {
-                        bigBranch.mergeToEnd(branchBelowBlockMember);
-                    });
+        else if(step instanceof StepBlock && step.isSequential) { // sequential step block (with a .. on top)
+            // Branches from each step block member are attached sequentially to each other
+            var bigBranch = new Branch();
+            step.steps.forEach((stepInBlock) => {
+                var branchesFromThisStepBlockMember = this.branchify(stepInBlock, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                branchesFromThisStepBlockMember.forEach((branchBelowBlockMember) => {
+                    bigBranch.mergeToEnd(branchBelowBlockMember);
                 });
-                branchesFromThisStep.push(bigBranch);
-            }
-            // NOTE: branchify() is not called on step blocks, unless those step blocks are sequential
+            });
+            branchesFromThisStep.push(bigBranch);
+
+            // NOTE: branchify() is not called on step blocks unless they are sequential
         }
         else if(step.isFunctionDeclaration) {
             // Skip over function declarations, since we are already including their corresponding function calls in branches
@@ -740,8 +739,8 @@ class Tree {
         var children = step.children;
 
         if(children.length == 0) {
-            // If this step is a member of a step block, the step block's children are this step's "children"
-            if(step.containingStepBlock) {
+            // If this step is a member of a non-sequential step block, the step block's children are this step's "children"
+            if(step.containingStepBlock && !step.containingStepBlock.isSequential) {
                 children = step.containingStepBlock.children;
             }
         }
@@ -824,7 +823,7 @@ class Tree {
         });
 
         // Put branches from children into branchesBelow (which already contains branches derived from the current step on its own)
-        if(isSequential) {
+        if(isSequential && !(step instanceof StepBlock)) {
             // One big resulting branch, built as follows:
             // One branchesBelow branch, each child branch, one branchesBelow branch, each child branch, etc.
             var bigBranch = new Branch();

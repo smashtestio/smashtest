@@ -151,7 +151,8 @@ Sequential execution (..)
             - ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps
             - a .. inside a *Function declaration does not expand beyond the bounds of that *Function declaration
             - If a function call is at or below the .. line, and it has multiple branches inside, it will be executed as such:
-                1st branch from top to bottom, steps under function call, 2nd branch from top to bottom, steps under function call, etc.
+                - All in one branch: 1st branch from top to bottom, flattened steps under function call, 2nd branch from top to bottom, flattened steps under function call, etc.
+                - Give an example
     - .. above a step block
         - Same rules if one of the steps in the step block is a function with multiple branches
     - Show examples from bottom of test_language_sample.txt
