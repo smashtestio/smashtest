@@ -758,12 +758,11 @@ class Tree {
                 var canStepText = child.getHookCanonicalText();
                 var stepText = child.text.trim().replace(/\s+/g, ' ');
                 if(canStepText == "after every branch") {
-                    if(stepText != 'After Every Branch') {
-                        this.badHookCasingError(child);
-                    }
+                    this.verifyHookCasing(child, 'After Every Branch');
 
-                    var afterBranchesMembers = this.branchify(child, stepsAbove, -1, true); // -1 branchIndents so that its children will have branchIndents of 0
+                    var afterBranchesMembers = this.branchify(child, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
+                    clonedHookStep.branchIndents = 0;
                     afterBranchesMembers.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
@@ -771,32 +770,30 @@ class Tree {
                     afterBranches = afterBranches.concat(afterBranchesMembers);
                 }
                 else if(canStepText == "before everything") {
-                    if(stepText != 'Before Everything') {
-                        this.badHookCasingError(child);
-                    }
+                    this.verifyHookCasing(child, 'Before Everything');
 
                     if(child.indents != 0) {
                         utils.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                     }
 
-                    var newBeforeEverything = this.branchify(child, stepsAbove, -1, true);
+                    var newBeforeEverything = this.branchify(child, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
+                    clonedHookStep.branchIndents = 0;
                     newBeforeEverything.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
                     this.beforeEverything = this.beforeEverything.concat(newBeforeEverything);
                 }
                 else if(canStepText == "after everything") {
-                    if(stepText != 'After Everything') {
-                        this.badHookCasingError(child);
-                    }
+                    this.verifyHookCasing(child, 'After Everything');
 
                     if(child.indents != 0) {
                         utils.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
                     }
 
-                    var newAfterEverything = this.branchify(child, stepsAbove, -1, true);
+                    var newAfterEverything = this.branchify(child, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
+                    clonedHookStep.branchIndents = 0;
                     newAfterEverything.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
@@ -954,11 +951,15 @@ class Tree {
     }
 
     /**
-     * Throws an error for bad casing in the given hook step
+     * Verifies correct casing in a hook's text
+     * @param {Step} step - The step to verify
+     * @param {String} correctText - The correct way to spell step's text
      * @throws {Error} That step is not in the right casing
      */
-    badHookCasingError(step) {
-        utils.error("Every word must be capitalized in a hook function declaration (e.g., 'After Every Branch')", step.filename, step.lineNumber);
+    verifyHookCasing(step, correctText) {
+        if(step.text.trim().replace(/\s+/g, ' ') != correctText) {
+            utils.error("Every word must be capitalized in a hook function declaration (use '" + correctText + "' instead)", step.filename, step.lineNumber);
+        }
     }
 }
 module.exports = Tree;

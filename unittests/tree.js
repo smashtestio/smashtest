@@ -7418,7 +7418,7 @@ E -
                     steps: [ { text: "A" }, { text: "C" } ],
                     afterBranches: [
                         {
-                            steps: [ { text: "After Every Branch"}, { text: "D" } ]
+                            steps: [ { text: "After Every Branch", branchIndents: 0 }, { text: "D", branchIndents: 1 } ]
                         }
                     ]
                 },
@@ -7458,7 +7458,7 @@ C -
                     steps: [ { text: "A" } ],
                     afterBranches: [
                         {
-                            steps: [ { text: "After Every Branch"}, { text: "B" } ]
+                            steps: [ { text: "After Every Branch", branchIndents: 0 }, { text: "B", branchIndents: 1 } ]
                         }
                     ]
                 },
@@ -7466,7 +7466,7 @@ C -
                     steps: [ { text: "C" } ],
                     afterBranches: [
                         {
-                            steps: [ { text: "After Every Branch"}, { text: "B" } ]
+                            steps: [ { text: "After Every Branch", branchIndents: 0 }, { text: "B", branchIndents: 1 } ]
                         }
                     ]
                 }
@@ -7513,10 +7513,10 @@ G -
                     steps: [ { text: "A" }, { text: "C" } ],
                     afterBranches: [
                         {
-                            steps: [ { text: "After Every Branch" }, { text: "D" } ]
+                            steps: [ { text: "After Every Branch", branchIndents: 0 }, { text: "D", branchIndents: 1 } ]
                         },
                         {
-                            steps: [ { text: "After Every Branch" }, { text: "E" }, { text: "F" } ]
+                            steps: [ { text: "After Every Branch", branchIndents: 0 }, { text: "E", branchIndents: 1 }, { text: "F", branchIndents: 1 } ]
                         }
                     ]
                 },
@@ -7852,6 +7852,56 @@ E -
             ]);
         });
 
+        it("handles a function call under a * After Every Branch hook, with function declarations inside an outside the hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        * After Every Branch
+            C
+            D
+
+            * C
+                X -
+
+    * D
+        Y -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+
+            expect(branches[0].afterBranches).to.have.lengthOf(2);
+
+            expect(branches[0].afterBranches[0].steps).to.have.lengthOf(3);
+            expect(branches[0].afterBranches[1].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    afterBranches: [
+                        {
+                            steps: [
+                                { text: "After Every Branch", branchIndents: 0 },
+                                { text: "C", branchIndents: 1, isFunctionCall: true },
+                                { text: "X", branchIndents: 2 } ,
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: "After Every Branch", branchIndents: 0 },
+                                { text: "D", branchIndents: 1, isFunctionCall: true },
+                                { text: "Y", branchIndents: 2 } ,
+                            ]
+                        }
+                    ]
+                }
+            ]);
+        });
+
         it("branchifies many * After Every Branch hooks in the tree", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -7896,7 +7946,7 @@ A -
         O -
 
     * After Every Branch
-        K -
+        W -
 G -
     P -
     `);
@@ -7905,57 +7955,180 @@ G -
             expect(branches).to.have.lengthOf(8);
 
             expect(branches[0].steps).to.have.lengthOf(4);
+            expect(branches[0].afterBranches).to.have.lengthOf(3);
+            expect(branches[0].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[0].afterBranches[1].steps).to.have.lengthOf(2);
+            expect(branches[0].afterBranches[1].afterBranches).to.have.lengthOf(1);
+            expect(branches[0].afterBranches[1].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[0].afterBranches[2].steps).to.have.lengthOf(2);
+
             expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[1].afterBranches).to.have.lengthOf(3);
+            expect(branches[1].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[1].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[1].afterBranches).to.have.lengthOf(1);
+            expect(branches[1].afterBranches[1].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[2].steps).to.have.lengthOf(2);
+
             expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[2].afterBranches).to.have.lengthOf(1);
+            expect(branches[2].afterBranches[0].steps).to.have.lengthOf(2);
+
             expect(branches[3].steps).to.have.lengthOf(2);
+            expect(branches[3].afterBranches).to.have.lengthOf(2);
+            expect(branches[3].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[3].afterBranches[1].steps).to.have.lengthOf(2);
+
             expect(branches[4].steps).to.have.lengthOf(2);
+            expect(branches[4].afterBranches).to.have.lengthOf(2);
+            expect(branches[4].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[4].afterBranches[1].steps).to.have.lengthOf(2);
+
             expect(branches[5].steps).to.have.lengthOf(3);
+            expect(branches[5].afterBranches).to.have.lengthOf(2);
+            expect(branches[5].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[5].afterBranches[1].steps).to.have.lengthOf(2);
+
             expect(branches[6].steps).to.have.lengthOf(5);
+            expect(branches[6].afterBranches).to.have.lengthOf(2);
+            expect(branches[6].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[6].afterBranches[1].steps).to.have.lengthOf(2);
+
             expect(branches[7].steps).to.have.lengthOf(2);
-
-            // TODO: add checks for branch.afterBranches
-
-
-
-
+            expect(branches[7].afterBranches).to.equal(undefined);
 
             expect(branches).to.containSubsetInOrder([
                 {
-                    steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ]
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "U" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "T" } ],
+                            afterBranches: [
+                                {
+                                    steps: [ { text: "After Every Branch" }, { text: "V" } ]
+                                }
+                            ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "W" } ]
+                        }
+                    ]
                 },
                 {
-                    steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ]
+                    steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "U" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "T" } ],
+                            afterBranches: [
+                                {
+                                    steps: [ { text: "After Every Branch" }, { text: "V" } ]
+                                }
+                            ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "W" } ]
+                        }
+                    ]
                 },
                 {
-                    steps: [ { text: "A" }, { text: "B" }, { text: "F" } ]
+                    steps: [ { text: "A" }, { text: "B" }, { text: "F" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "W" } ]
+                        }
+                    ]
                 },
                 {
-                    steps: [ { text: "A" }, { text: "H" } ]
+                    steps: [ { text: "A" }, { text: "H" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "S" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "W" } ]
+                        }
+                    ]
                 },
                 {
-                    steps: [ { text: "A" }, { text: "I" } ]
+                    steps: [ { text: "A" }, { text: "I" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "S" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "W" } ]
+                        }
+                    ]
                 },
                 {
-                    steps: [ { text: "A" }, { text: "J" }, { text: "K" } ]
+                    steps: [ { text: "A" }, { text: "J" }, { text: "K" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "R" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "W" } ]
+                        }
+                    ]
                 },
                 {
-                    steps: [ { text: "A" }, { text: "L" }, { text: "M" }, { text: "N" }, { text: "O" } ]
+                    steps: [ { text: "A" }, { text: "L" }, { text: "M" }, { text: "N" }, { text: "O" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "Q" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "W" } ]
+                        }
+                    ]
                 },
                 {
-                    steps: [ { text: "G" }, { text: "P" } ]
+                    steps: [ { text: "G" }, { text: "P" } ],
+                    afterBranches: undefined
                 }
             ]);
-
-
-
-
-
-
-
         });
 
-        it.skip("rejects the * After Every Branch hook with the wrong casing", function() {
-            // every word must be capitalized, such as "After Every Branch"
+        it("rejects the * After Every Branch hook with the wrong casing", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C -
+        * After every Branch
+            D -
+
+E -
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
+        });
+
+        it("accepts varying amounts of whitespace in the * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C -
+        *  After   Every  Branch
+            D -
+
+E -
+    `);
+
+            assert.doesNotThrow(() => {
+                tree.branchify(tree.root);
+            });
         });
 
         it.skip("branchifies the * Before Everything hook", function() {
