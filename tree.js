@@ -732,10 +732,8 @@ class Tree {
             branchesFromThisStep.push(branch);
         }
 
-        var branchesBelow = branchesFromThisStep; // Array of Branch - branches at or below this step
-
-        // Fill branchesBelow with branches that come from this step's children
-
+        // Fill branchesBelow by cross joining branchesFromThisStep with the branches that come from this step's children
+        var branchesBelow = []; // what we're returning
         var children = step.children;
 
         if(children.length == 0) {
@@ -745,9 +743,9 @@ class Tree {
             }
         }
 
-        // If branchesBelow is empty, "prime" it with an empty Branch, so that the loops below work
-        if(branchesBelow.length == 0) {
-            branchesBelow.push(new Branch());
+        // If branchesFromThisStep is empty, "prime" it with an empty Branch, so that the loops below work
+        if(branchesFromThisStep.length == 0) {
+            branchesFromThisStep.push(new Branch());
         }
 
         // Check if a child is a hook function declaration
@@ -802,14 +800,14 @@ class Tree {
         });
 
         // Recursively call branchify() on children
-        var branchesFromChildren = []; // Array of Array of Branch
+        var branchesFromChildren = []; // Array of Branch
         children.forEach((child) => {
             if(child instanceof StepBlock && !child.isSequential) {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach((step) => {
                     var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild) { // NOTE: probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
-                        branchesFromChildren.push(branchesFromChild);
+                        branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
                 });
             }
@@ -817,56 +815,37 @@ class Tree {
                 // If this child is a step, call branchify() on it normally
                 var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
                 if(branchesFromChild) {
-                    branchesFromChildren.push(branchesFromChild);
+                    branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
             }
         });
 
-        // Put branches from children into branchesBelow (which already contains branches derived from the current step on its own)
+        // Attach branches from children onto branchesFromThisStep
         if(isSequential && !(step instanceof StepBlock)) {
             // One big resulting branch, built as follows:
-            // One branchesBelow branch, each child branch, one branchesBelow branch, each child branch, etc.
+            // One branchesFromThisStep branch, each child branch, one branchesFromThisStep branch, each child branch, etc.
             var bigBranch = new Branch();
-            branchesBelow.forEach((branchBelow) => {
-                bigBranch.mergeToEnd(branchBelow);
-                branchesFromChildren.forEach((branchesFromChild) => {
-                    branchesFromChild.forEach((branchFromChild) => {
-                        bigBranch.mergeToEnd(branchFromChild.clone());
-                    });
+            branchesFromThisStep.forEach((branchFromThisStep) => {
+                bigBranch.mergeToEnd(branchFromThisStep);
+                branchesFromChildren.forEach((branchFromChild) => {
+                    bigBranch.mergeToEnd(branchFromChild.clone());
                 });
             });
             branchesBelow = [ bigBranch ];
         }
         else {
             if(children.length > 0) {
-                // Put branches from children into branchesBelow in a breadth-first manner
-                // Take one Branch from each child (to tack onto end of every member of branchesBelow), then continue taking round-robin until nothing left
-                var newBranchesBelow = [];
-                while(branchesFromChildren.length > 0) {
-                    for(var i = 0; i < branchesFromChildren.length;) {
-                        var branchesFromChild = branchesFromChildren[i];
-                        var takenBranch = branchesFromChild.shift(); // take first branch from each child
-                        branchesBelow.forEach((branchBelow) => { // put takenBranch onto every branchBelow
-                            var newBranchBelow = branchBelow.clone();
-                            newBranchBelow.mergeToEnd(takenBranch.clone());
-                            newBranchesBelow.push(newBranchBelow);
-                        });
-
-                        if(branchesFromChild.length == 0) {
-                            branchesFromChildren.splice(i, 1); // remove empty branchesFromChild
-                        }
-                        else {
-                            i++;
-                        }
-                    }
-                }
-                branchesBelow = newBranchesBelow;
+                branchesFromThisStep.forEach((branchFromThisStep) => {
+                    branchesFromChildren.forEach((branchFromChild) => {
+                        var newBranchBelow = branchFromThisStep.clone();
+                        newBranchBelow.mergeToEnd(branchFromChild.clone());
+                        branchesBelow.push(newBranchBelow);
+                    });
+                });
             }
-        }
-
-        // If we only have an empty branch, remove it (happens when we "primed" branchesBelow with an empty branch, but there were no children below, so it's still standing alone)
-        if(branchesBelow.length == 1 && branchesBelow[0].steps.length == 0) {
-            branchesBelow = [];
+            else if(branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
+                branchesBelow = branchesFromThisStep;
+            }
         }
 
         return branchesBelow;

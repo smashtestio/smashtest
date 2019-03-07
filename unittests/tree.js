@@ -3870,10 +3870,10 @@ H -
 
             expect(branches).to.have.lengthOf(5);
             expect(branches[0].steps).to.have.lengthOf(3);
-            expect(branches[1].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(3);
             expect(branches[2].steps).to.have.lengthOf(2);
             expect(branches[3].steps).to.have.lengthOf(3);
-            expect(branches[4].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(1);
 
             expect(branches).to.containSubsetInOrder([
                 {
@@ -3885,7 +3885,9 @@ H -
                 },
                 {
                     steps: [
-                        { text: "H", branchIndents: 0 }
+                        { text: "A", branchIndents: 0 },
+                        { text: "B", branchIndents: 0 },
+                        { text: "D", branchIndents: 0 }
                     ]
                 },
                 {
@@ -3903,9 +3905,7 @@ H -
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "B", branchIndents: 0 },
-                        { text: "D", branchIndents: 0 }
+                        { text: "H", branchIndents: 0 }
                     ]
                 }
             ]);
@@ -3932,10 +3932,10 @@ H -
 
             expect(branches).to.have.lengthOf(5);
             expect(branches[0].steps).to.have.lengthOf(3);
-            expect(branches[1].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(3);
             expect(branches[2].steps).to.have.lengthOf(3);
             expect(branches[3].steps).to.have.lengthOf(3);
-            expect(branches[4].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(1);
 
             expect(branches).to.containSubsetInOrder([
                 {
@@ -3947,7 +3947,9 @@ H -
                 },
                 {
                     steps: [
-                        { text: "H", branchIndents: 0 }
+                        { text: "A", branchIndents: 0 },
+                        { text: "B", branchIndents: 0 },
+                        { text: "D", branchIndents: 0 }
                     ]
                 },
                 {
@@ -3966,9 +3968,7 @@ H -
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "B", branchIndents: 0 },
-                        { text: "D", branchIndents: 0 }
+                        { text: "H", branchIndents: 0 }
                     ]
                 }
             ]);
@@ -4685,59 +4685,6 @@ F
                             }
                         },
                         {
-                            text: "E",
-                            isFunctionCall: undefined,
-                            isFunctionDeclaration: undefined,
-                            isTextualStep: true,
-                            branchIndents: 1,
-                            originalStepInTree: {
-                                text: "E",
-                                parent: { text: "F" },
-                                functionDeclarationInTree: undefined
-                            }
-                        },
-                        {
-                            text: "C",
-                            isFunctionCall: undefined,
-                            isFunctionDeclaration: undefined,
-                            isTextualStep: true,
-                            branchIndents: 0,
-                            originalStepInTree: {
-                                text: "C",
-                                parent: { text: "F" },
-                                functionDeclarationInTree: undefined
-                            }
-                        },
-                        {
-                            text: "D",
-                            isFunctionCall: undefined,
-                            isFunctionDeclaration: undefined,
-                            isTextualStep: true,
-                            branchIndents: 0,
-                            originalStepInTree: {
-                                text: "D",
-                                parent: { text: "C" },
-                                functionDeclarationInTree: undefined
-                            }
-                        }
-                    ]
-                },
-                {
-                    steps: [
-                        {
-                            text: "F",
-                            isFunctionCall: true,
-                            isFunctionDeclaration: undefined,
-                            branchIndents: 0,
-                            originalStepInTree: {
-                                text: "F",
-                                parent: { indents: -1 },
-                                functionDeclarationInTree: {
-                                    text: "F"
-                                }
-                            }
-                        },
-                        {
                             text: "A",
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
@@ -4770,6 +4717,59 @@ F
                             originalStepInTree: {
                                 text: "G",
                                 parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "F",
+                            isFunctionCall: true,
+                            isFunctionDeclaration: undefined,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "F",
+                                parent: { indents: -1 },
+                                functionDeclarationInTree: {
+                                    text: "F"
+                                }
+                            }
+                        },
+                        {
+                            text: "E",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 1,
+                            originalStepInTree: {
+                                text: "E",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "C",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "C",
+                                parent: { text: "F" },
+                                functionDeclarationInTree: undefined
+                            }
+                        },
+                        {
+                            text: "D",
+                            isFunctionCall: undefined,
+                            isFunctionDeclaration: undefined,
+                            isTextualStep: true,
+                            branchIndents: 0,
+                            originalStepInTree: {
+                                text: "D",
+                                parent: { text: "C" },
                                 functionDeclarationInTree: undefined
                             }
                         }
@@ -4846,8 +4846,8 @@ FC
 
             expect(branches).to.have.lengthOf(3);
             expect(branches[0].steps).to.have.lengthOf(5);
-            expect(branches[1].steps).to.have.lengthOf(4);
-            expect(branches[2].steps).to.have.lengthOf(5);
+            expect(branches[1].steps).to.have.lengthOf(5);
+            expect(branches[2].steps).to.have.lengthOf(4);
 
             expect(branches).to.containSubsetInOrder([
                 {
@@ -4877,26 +4877,6 @@ FC
                 {
                     steps: [
                         {
-                            text: "FC",
-                            branchIndents: 0
-                        },
-                        {
-                            text: "FA",
-                            branchIndents: 1
-                        },
-                        {
-                            text: "A",
-                            branchIndents: 2
-                        },
-                        {
-                            text: "C",
-                            branchIndents: 1
-                        }
-                    ]
-                },
-                {
-                    steps: [
-                        {
                             text: "FA",
                             branchIndents: 0
                         },
@@ -4916,6 +4896,26 @@ FC
                             text: "D",
                             branchIndents: 0
                         },
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "FC",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "FA",
+                            branchIndents: 1
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 2
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 1
+                        }
                     ]
                 }
             ]);
@@ -5363,10 +5363,10 @@ C -
 
             expect(branches).to.have.lengthOf(6);
             expect(branches[0].steps).to.have.lengthOf(2);
-            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(3);
             expect(branches[2].steps).to.have.lengthOf(2);
             expect(branches[3].steps).to.have.lengthOf(3);
-            expect(branches[4].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(2);
             expect(branches[5].steps).to.have.lengthOf(3);
 
             expect(branches).to.containSubsetInOrder([
@@ -5385,30 +5385,6 @@ C -
                 {
                     steps: [
                         {
-                            text: "B",
-                            branchIndents: 0
-                        },
-                        {
-                            text: "D",
-                            branchIndents: 0
-                        }
-                    ]
-                },
-                {
-                    steps: [
-                        {
-                            text: "C",
-                            branchIndents: 0
-                        },
-                        {
-                            text: "D",
-                            branchIndents: 0
-                        }
-                    ]
-                },
-                {
-                    steps: [
-                        {
                             text: "A",
                             branchIndents: 0
                         },
@@ -5429,11 +5405,35 @@ C -
                             branchIndents: 0
                         },
                         {
+                            text: "D",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "B",
+                            branchIndents: 0
+                        },
+                        {
                             text: "E",
                             branchIndents: 0
                         },
                         {
                             text: "F",
+                            branchIndents: 0
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "C",
+                            branchIndents: 0
+                        },
+                        {
+                            text: "D",
                             branchIndents: 0
                         }
                     ]
@@ -5496,11 +5496,11 @@ B -
                 {
                     steps: [
                         {
-                            text: "B",
+                            text: "A",
                             branchIndents: 0
                         },
                         {
-                            text: "C",
+                            text: "D",
                             branchIndents: 0
                         },
                         {
@@ -5512,11 +5512,11 @@ B -
                 {
                     steps: [
                         {
-                            text: "A",
+                            text: "B",
                             branchIndents: 0
                         },
                         {
-                            text: "D",
+                            text: "C",
                             branchIndents: 0
                         },
                         {
@@ -7231,7 +7231,7 @@ B -
             // have it expand to multiple leaves, but not to all leaves in the tree
 
 
-
+// meow
 
 
 
@@ -7353,7 +7353,7 @@ A
         it.skip("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", function() {
         });
 
-        it.skip("sorts branches by {frequency}, then breadth-first", function() {
+        it.skip("sorts branches by {frequency}", function() {
         });
 
         it.skip("when called a second time, sets a flag to only run previously failed branches", function() {
@@ -7376,7 +7376,6 @@ A
     describe("pruneBranches()", function() {
         it.skip("isolates the first branch with ~ encountered", function() {
             // try multiple ~'s on different siblings, only the first one is chosen
-            // as for branches below the ~, the first breadth-first one is chosen
         });
 
         it.skip("isolates the first branch with ~ on multiple steps", function() {
