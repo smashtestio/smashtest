@@ -41,6 +41,18 @@ describe("Tree", function() {
             assert.equal(tree.numIndents('        ', 'file.txt', 10), 0);
             assert.equal(tree.numIndents('    \t   ', 'file.txt', 10), 0);
         });
+
+        it("returns 0 for a string that's entirely a comment", function() {
+            assert.equal(tree.numIndents('//', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('// blah', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('//blah', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents(' //', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents(' // blah', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents(' //blah', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('    //', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('    // blah', 'file.txt', 10), 0);
+            assert.equal(tree.numIndents('    //blah', 'file.txt', 10), 0);
+        });
     });
 
     describe("parseLine()", function() {
@@ -7370,7 +7382,477 @@ B -
             ]);
         });
 
-        it.only("branchifies the * After Every Branch hook", function() {
+        it("branchifies the * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C -
+        * After Every Branch
+            D -
+
+E -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.equal(undefined);
+            expect(branches[1].afterBranches).to.have.lengthOf(1);
+            expect(branches[2].afterBranches).to.equal(undefined);
+
+            expect(branches[1].afterBranches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    afterBranches: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "D" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "E" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
+        it("branchifies the * After Every Branch hook under the root", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+* After Every Branch
+    B -
+
+C -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.have.lengthOf(1);
+            expect(branches[1].afterBranches).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "B" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "B" } ]
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies the * After Every Branch hook with multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C -
+        * After Every Branch
+            D -
+
+            E -
+                F -
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.equal(undefined);
+            expect(branches[1].afterBranches).to.have.lengthOf(2);
+            expect(branches[2].afterBranches).to.equal(undefined);
+
+            expect(branches[1].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[1].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    afterBranches: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "D" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "E" }, { text: "F" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
+        it("branchifies the * After Every Branch hook under a step block", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+    C -
+
+        * After Every Branch
+            D -
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.have.lengthOf(1);
+            expect(branches[1].afterBranches).to.have.lengthOf(1);
+            expect(branches[2].afterBranches).to.equal(undefined);
+
+            expect(branches[0].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "D" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "D" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
+        it("branchifies the * After Every Branch hook under a .. step", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - ..
+
+    B -
+
+    C -
+        * After Every Branch
+            D -
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.have.lengthOf(1);
+            expect(branches[1].afterBranches).to.equal(undefined);
+
+            expect(branches[0].afterBranches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "D" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
+        it("branchifies the * After Every Branch hook under a .. step block", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    ..
+    B -
+    C -
+
+        * After Every Branch
+            D -
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.have.lengthOf(1);
+            expect(branches[1].afterBranches).to.equal(undefined);
+
+            expect(branches[0].afterBranches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "D" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
+        it("branchifies the * After Every Branch hook under a * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C -
+        * After Every Branch
+            D -
+
+            * After Every Branch
+                H -
+
+            E -
+                * After Every Branch
+                    I -
+                F -
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.equal(undefined);
+            expect(branches[1].afterBranches).to.have.lengthOf(2);
+            expect(branches[2].afterBranches).to.equal(undefined);
+
+            expect(branches[1].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[1].steps).to.have.lengthOf(3);
+
+            expect(branches[1].afterBranches[0].afterBranches).to.have.lengthOf(1);
+            expect(branches[1].afterBranches[1].afterBranches).to.have.lengthOf(2);
+
+            expect(branches[1].afterBranches[0].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[1].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[1].afterBranches[1].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    afterBranches: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "D" } ],
+                            afterBranches: [
+                                {
+                                    steps: [ { text: "After Every Branch" }, { text: "H" } ]
+                                }
+                            ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "E" }, { text: "F" } ],
+                            afterBranches: [
+                                {
+                                    steps: [ { text: "After Every Branch" }, { text: "I" } ]
+                                },
+                                {
+                                    steps: [ { text: "After Every Branch" }, { text: "H" } ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
+        it("branchifies the * After Every Branch hook if it has a ..", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C -
+        * After Every Branch ..
+            D -
+                F -
+            G -
+
+E -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.equal(undefined);
+            expect(branches[1].afterBranches).to.have.lengthOf(1);
+            expect(branches[2].afterBranches).to.equal(undefined);
+
+            expect(branches[1].afterBranches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    afterBranches: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "D" }, { text: "F" }, { text: "G" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "E" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
+        it("handles multiple * After Every Branch hooks that are siblings", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C -
+        * After Every Branch
+            D -
+
+        * After Every Branch
+            G -
+
+        * After Every Branch
+            H -
+
+E -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[0].afterBranches).to.equal(undefined);
+            expect(branches[1].afterBranches).to.have.lengthOf(3);
+            expect(branches[2].afterBranches).to.equal(undefined);
+
+            expect(branches[1].afterBranches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[1].steps).to.have.lengthOf(2);
+            expect(branches[1].afterBranches[2].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    afterBranches: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "D" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "G" } ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch"}, { text: "H" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "E" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
+        it("branchifies many * After Every Branch hooks in the tree", function() {
             var tree = new Tree();
             tree.parseIn(`
 A -
@@ -7431,6 +7913,12 @@ G -
             expect(branches[6].steps).to.have.lengthOf(5);
             expect(branches[7].steps).to.have.lengthOf(2);
 
+            // TODO: add checks for branch.afterBranches
+
+
+
+
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ]
@@ -7464,22 +7952,6 @@ G -
 
 
 
-        });
-
-        it.skip("branchifies the * After Every Branch hook with multiple branches", function() {
-            // have the function declaration have multiple branches itself
-        });
-
-        it.skip("branchifies the * After Every Branch hook such that built-in hooks execute last", function() {
-        });
-
-        it.skip("branchifies the * After Every Branch hook if it has a ..", function() {
-        });
-
-        it.skip("handles multiple * After Every Branch hooks that are siblings", function() {
-        });
-
-        it.skip("handles multiple * After Every Branch hooks that are at different levels in the tree", function() {
         });
 
         it.skip("rejects the * After Every Branch hook with the wrong casing", function() {
@@ -7532,6 +8004,154 @@ G -
 
         it.skip("handles different hooks that are siblings", function() {
             // try each of the the 3 hook types
+        });
+
+        it("connects branches via nonParallelId when + is set", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C - +
+
+        D -
+            E -
+
+        F -
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(4);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[3].steps).to.have.lengthOf(1);
+
+            expect(branches[0].nonParallelId).to.equal(undefined);
+            var nonParallelId = branches[1].nonParallelId;
+            expect(nonParallelId).to.have.lengthOf.above(0);
+            expect(branches[2].nonParallelId).to.equal(nonParallelId);
+            expect(branches[3].nonParallelId).to.equal(undefined);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    nonParallelId: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "F" } ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    nonParallelId: undefined
+                }
+            ]);
+        });
+
+        it("handles two steps with +, one a descendant of the other", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C - +
+
+        D + -
+            E -
+
+        F -
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(4);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[3].steps).to.have.lengthOf(1);
+
+            expect(branches[0].nonParallelId).to.equal(undefined);
+            var nonParallelId = branches[1].nonParallelId;
+            expect(nonParallelId).to.have.lengthOf.above(0);
+            expect(branches[2].nonParallelId).to.equal(nonParallelId);
+            expect(branches[3].nonParallelId).to.equal(undefined);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    nonParallelId: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "F" } ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    nonParallelId: undefined
+                }
+            ]);
+        });
+
+        it("handles two sibling steps with +", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B - +
+
+    C - +
+
+        D -
+            E -
+
+        F -
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(4);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[3].steps).to.have.lengthOf(1);
+
+            var nonParallelId0 = branches[0].nonParallelId;
+            expect(nonParallelId0).to.have.lengthOf.above(0);
+            var nonParallelId1 = branches[1].nonParallelId;
+            expect(nonParallelId1).to.have.lengthOf.above(0);
+            expect(nonParallelId0).to.not.equal(nonParallelId1);
+            expect(branches[2].nonParallelId).to.equal(nonParallelId1);
+            expect(branches[3].nonParallelId).to.equal(undefined);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "F" } ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    nonParallelId: undefined
+                }
+            ]);
         });
 
         it("throws an exception when there's an infinite loop among function calls", function() {

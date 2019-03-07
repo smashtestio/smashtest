@@ -98,7 +98,7 @@ class Step {
         }
         else {
             var arr = [];
-            this.children.forEach((child) => {
+            this.children.forEach(child => {
                 arr = arr.concat(child.getLeaves());
             });
             return arr;

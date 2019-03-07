@@ -25,7 +25,10 @@ class Tree {
      * @throws {Error} If there are an invalid number of spaces, or invalid whitespace chars, at the beginning of the step
      */
     numIndents(line, filename, lineNumber) {
-        if(line.match(/^\s*$/)) { //empty string or all whitespace
+        if(line.match(/^\s*$/)) { // empty string or all whitespace
+            return 0;
+        }
+        if(line.match(/^\s*\/\/.*$/)) { // comment
             return 0;
         }
 
@@ -99,7 +102,7 @@ class Tree {
             step.isFunctionDeclaration = matches[1].trim() == '*';
 
             if(step.isFunctionDeclaration && step.text.match(Constants.STRING_LITERAL_REGEX)) {
-                utils.error("A *Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
+                utils.error("A * Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
             }
         }
 
@@ -122,7 +125,7 @@ class Tree {
                 step.isTextualStep = true;
 
                 if(step.isFunctionDeclaration) {
-                    utils.error("A *Function declaration cannot be a textual step (-) as well", filename, lineNumber);
+                    utils.error("A * Function declaration cannot be a textual step (-) as well", filename, lineNumber);
                 }
             }
             if(step.identifiers.includes('~')) {
@@ -270,7 +273,7 @@ class Tree {
                 var isLocal = match.startsWith('{{');
 
                 if(step.isFunctionDeclaration && !isLocal) {
-                    utils.error("All variables in a *Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
+                    utils.error("All variables in a * Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
                 }
 
                 step.varsList.push({
@@ -445,7 +448,7 @@ class Tree {
 
                     // Validate that a step block member is not a function declaration
                     if(potentialStepBlock.steps[k].isFunctionDeclaration) {
-                        utils.error("You cannot have a *Function declaration within a step block", filename, potentialStepBlock.steps[k].lineNumber);
+                        utils.error("You cannot have a * Function declaration within a step block", filename, potentialStepBlock.steps[k].lineNumber);
                     }
 
                     // Validate that a step block member is not a code block
@@ -608,9 +611,9 @@ class Tree {
                 utils.error("You cannot use an empty function", step.filename, step.lineNumber);
             }
 
-            step.functionDeclarationInTree.children.forEach((child) => {
+            step.functionDeclarationInTree.children.forEach(child => {
                 if(child instanceof StepBlock) {
-                    child.steps.forEach((childStep) => {
+                    child.steps.forEach(childStep => {
                         validateChild(childStep);
                     });
                 }
@@ -690,13 +693,13 @@ class Tree {
             else {
                 if(isReplaceVarsInChildren) {
                     // replace {x} in each child to {var} (where this step is {var} = F)
-                    branchesFromThisStep.forEach((branch) => {
+                    branchesFromThisStep.forEach(branch => {
                         branch.steps[0].varsBeingSet[0].name = clonedStep.varsBeingSet[0].name;
                     });
                 }
 
                 // Put clone of this step at the front of each Branch that results from expanding the function call
-                branchesFromThisStep.forEach((branch) => {
+                branchesFromThisStep.forEach(branch => {
                     branch.steps.unshift(clonedStep.cloneForBranch()); // new clone every time we unshift
                 });
             }
@@ -704,9 +707,9 @@ class Tree {
         else if(step instanceof StepBlock && step.isSequential) { // sequential step block (with a .. on top)
             // Branches from each step block member are attached sequentially to each other
             var bigBranch = new Branch();
-            step.steps.forEach((stepInBlock) => {
+            step.steps.forEach(stepInBlock => {
                 var branchesFromThisStepBlockMember = this.branchify(stepInBlock, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
-                branchesFromThisStepBlockMember.forEach((branchBelowBlockMember) => {
+                branchesFromThisStepBlockMember.forEach(branchBelowBlockMember => {
                     bigBranch.mergeToEnd(branchBelowBlockMember);
                 });
             });
@@ -749,7 +752,8 @@ class Tree {
         }
 
         // Check if a child is a hook function declaration
-        children.forEach((child) => {
+        var afterBranches = [];
+        children.forEach(child => {
             if(child.isFunctionDeclaration) {
                 var canStepText = child.getHookCanonicalText();
                 var stepText = child.text.trim().replace(/\s+/g, ' ');
@@ -758,11 +762,13 @@ class Tree {
                         this.badHookCasingError(child);
                     }
 
-                    step.afterBranches = this.branchify(child, stepsAbove, -1, true); // -1 branchIndents so that its children will have branchIndents of 0
+                    var afterBranchesMembers = this.branchify(child, stepsAbove, -1, true); // -1 branchIndents so that its children will have branchIndents of 0
                     var clonedHookStep = child.cloneAsFunctionCall();
-                    step.afterBranches.forEach((branch) => {
+                    afterBranchesMembers.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
+
+                    afterBranches = afterBranches.concat(afterBranchesMembers);
                 }
                 else if(canStepText == "before everything") {
                     if(stepText != 'Before Everything') {
@@ -775,7 +781,7 @@ class Tree {
 
                     var newBeforeEverything = this.branchify(child, stepsAbove, -1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
-                    newBeforeEverything.forEach((branch) => {
+                    newBeforeEverything.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
                     this.beforeEverything = this.beforeEverything.concat(newBeforeEverything);
@@ -791,7 +797,7 @@ class Tree {
 
                     var newAfterEverything = this.branchify(child, stepsAbove, -1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
-                    newAfterEverything.forEach((branch) => {
+                    newAfterEverything.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
                     this.afterEverything = this.afterEverything.concat(newAfterEverything);
@@ -801,12 +807,12 @@ class Tree {
 
         // Recursively call branchify() on children
         var branchesFromChildren = []; // Array of Branch
-        children.forEach((child) => {
+        children.forEach(child => {
             if(child instanceof StepBlock && !child.isSequential) {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
-                child.steps.forEach((step) => {
+                child.steps.forEach(step => {
                     var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
-                    if(branchesFromChild) { // NOTE: probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
+                    if(branchesFromChild && branchesFromChild.length > 0) { // NOTE: probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
                 });
@@ -814,7 +820,7 @@ class Tree {
             else {
                 // If this child is a step, call branchify() on it normally
                 var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
-                if(branchesFromChild) {
+                if(branchesFromChild && branchesFromChild.length > 0) {
                     branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
             }
@@ -825,17 +831,17 @@ class Tree {
             // One big resulting branch, built as follows:
             // One branchesFromThisStep branch, each child branch, one branchesFromThisStep branch, each child branch, etc.
             var bigBranch = new Branch();
-            branchesFromThisStep.forEach((branchFromThisStep) => {
+            branchesFromThisStep.forEach(branchFromThisStep => {
                 bigBranch.mergeToEnd(branchFromThisStep);
-                branchesFromChildren.forEach((branchFromChild) => {
+                branchesFromChildren.forEach(branchFromChild => {
                     bigBranch.mergeToEnd(branchFromChild.clone());
                 });
             });
             branchesBelow = [ bigBranch ];
         }
         else {
-            branchesFromThisStep.forEach((branchFromThisStep) => {
-                branchesFromChildren.forEach((branchFromChild) => {
+            branchesFromThisStep.forEach(branchFromThisStep => {
+                branchesFromChildren.forEach(branchFromChild => {
                     var newBranchBelow = branchFromThisStep.clone();
                     newBranchBelow.mergeToEnd(branchFromChild.clone());
                     branchesBelow.push(newBranchBelow);
@@ -852,6 +858,25 @@ class Tree {
             }
         }
 
+        // Attach afterBranches to each branch below
+        if(afterBranches && afterBranches.length > 0) {
+            branchesBelow.forEach(branchBelow => {
+                afterBranches.forEach(afterBranch => {
+                    if(!branchBelow.afterBranches) {
+                        branchBelow.afterBranches = [];
+                    }
+
+                    branchBelow.afterBranches.push(afterBranch.clone());
+                });
+            });
+        }
+
+        // If isNonParallel (+) is set, connect up the branches in branchesBelow
+        if(step.isNonParallel) {
+            var nonParallelId = utils.randomId();
+            branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);
+        }
+
         return branchesBelow;
     }
 
@@ -863,10 +888,10 @@ class Tree {
         this.branches = this.branchify(this.root);
 
         // Set Branch.frequency for all branches
-        this.branches.forEach((branch) => {
-            branch.steps.forEach((step) => {
+        this.branches.forEach(branch => {
+            branch.steps.forEach(step => {
                 if(step.varsBeingSet && step.varsBeingSet.length > 0) {
-                    step.varsBeingSet.forEach((varBeingSet) => {
+                    step.varsBeingSet.forEach(varBeingSet => {
                         if(varBeingSet.name == 'frequency') {
                             branch.frequency = utils.stripQuotes(varBeingSet.value);
                             // keep running loop in case a later {frequency} variable overrides this one
@@ -880,7 +905,7 @@ class Tree {
         var highBranches = [];
         var medBranches = [];
         var lowBranches = [];
-        this.branches.forEach((branch) => {
+        this.branches.forEach(branch => {
             if(branch.frequency == 'high') {
                 highBranches.push(branch);
             }

@@ -10,7 +10,7 @@ class Branch {
         /*
         OPTIONAL
 
-        this.prevSequentialBranch = {};     // When multiple branches cannot be run in parallel (due to +), they are sequentially linked here, where this var either points to the previous Branch in the sequence, or to null
+        this.nonParallelId = "";            // When multiple branches cannot be run in parallel (due to +), they are each given the same nonParallelId
         this.afterBranches = [];            // Array of Branch, the branches to execute after this branch is done
         this.frequency = "";                // Frequency of this Branch (either 'high', 'med', or 'low')
         */
@@ -18,9 +18,23 @@ class Branch {
 
     /**
      * Attaches branch.steps to the end of this.steps
+     * Attaches branch.afterBranches to the end of this.afterBranches (so that built-in comes last)
+     * Copies over branch.nonParallelId, if it exists
      */
     mergeToEnd(branch) {
         this.steps = this.steps.concat(branch.steps);
+
+        if(branch.afterBranches) {
+            if(!this.afterBranches) {
+                this.afterBranches = [];
+            }
+
+            this.afterBranches = branch.afterBranches.concat(this.afterBranches);
+        }
+
+        if(branch.nonParallelId) {
+            this.nonParallelId = branch.nonParallelId
+        }
     }
 
     /**
@@ -28,14 +42,14 @@ class Branch {
      */
     clone() {
         var clone = new Branch();
-        this.steps.forEach((step) => {
+        this.steps.forEach(step => {
             clone.steps.push(step.cloneForBranch());
         });
 
-        this.prevSequentialBranch ? clone.prevSequentialBranch = this.prevSequentialBranch : null; // if this.prevSequentialBranch doesn't exist, don't do anything ("null;")
+        this.nonParallelId ? clone.nonParallelId = this.nonParallelId : null; // if this.nonParallelId doesn't exist, don't do anything ("null;")
 
         if(this.afterBranches) {
-            this.afterBranches.forEach((afterBranch) => {
+            this.afterBranches.forEach(afterBranch => {
                 if(!clone.afterBranches) {
                     clone.afterBranches = [];
                 }
@@ -54,7 +68,7 @@ class Branch {
     output(branchName) {
         var output = branchName + ' ..\n';
 
-        this.steps.forEach((step) => {
+        this.steps.forEach(step => {
             for(var i = 0; i <= step.branchIndents; i++) {
                 for (var j = 0; j < Constants.SPACES_PER_INDENT; j++) {
                     output += ' ';

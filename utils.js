@@ -44,3 +44,14 @@ exports.printBranches = function(branches) {
         console.log(branches[i].output("Branch " + i));
     }
 }
+
+/**
+ * @return {String} A random string of characters
+ */
+exports.randomId = function() {
+    var id = '';
+    for(var i = 0; i < 4; i++) {
+        id += Math.random().toString(36).substr(2, 34);
+    }
+    return id;
+}
