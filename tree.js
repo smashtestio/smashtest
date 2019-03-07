@@ -758,9 +758,9 @@ class Tree {
                         this.badHookCasingError(child);
                     }
 
-                    child.afterBranches = this.branchify(child, stepsAbove, -1, true); // -1 branchIndents so that its children will have branchIndents of 0
+                    step.afterBranches = this.branchify(child, stepsAbove, -1, true); // -1 branchIndents so that its children will have branchIndents of 0
                     var clonedHookStep = child.cloneAsFunctionCall();
-                    child.afterBranches.forEach((branch) => {
+                    step.afterBranches.forEach((branch) => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
                 }
@@ -834,17 +834,21 @@ class Tree {
             branchesBelow = [ bigBranch ];
         }
         else {
-            if(children.length > 0) {
-                branchesFromThisStep.forEach((branchFromThisStep) => {
-                    branchesFromChildren.forEach((branchFromChild) => {
-                        var newBranchBelow = branchFromThisStep.clone();
-                        newBranchBelow.mergeToEnd(branchFromChild.clone());
-                        branchesBelow.push(newBranchBelow);
-                    });
+            branchesFromThisStep.forEach((branchFromThisStep) => {
+                branchesFromChildren.forEach((branchFromChild) => {
+                    var newBranchBelow = branchFromThisStep.clone();
+                    newBranchBelow.mergeToEnd(branchFromChild.clone());
+                    branchesBelow.push(newBranchBelow);
                 });
-            }
-            else if(branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
-                branchesBelow = branchesFromThisStep;
+            });
+
+            if(branchesBelow.length == 0) {
+                if(branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
+                    branchesBelow = branchesFromThisStep;
+                }
+                else {
+                    branchesBelow = [];
+                }
             }
         }
 

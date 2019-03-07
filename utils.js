@@ -34,3 +34,13 @@ exports.error = function(msg, filename, lineNumber) {
 exports.log = function(obj) {
     console.log(util.inspect(obj, {depth: null}));
 }
+
+/**
+ * Prints an array of branches to console
+ * @param {Array} Array of Branch to print out
+ */
+exports.printBranches = function(branches) {
+    for(var i = 0; i < branches.length; i++) {
+        console.log(branches[i].output("Branch " + i));
+    }
+}

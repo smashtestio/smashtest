@@ -21,6 +21,9 @@ describe("Step", function() {
 
         E
         F
+
+        C's afterBranches:
+            K
         */
 
         root = new Step();

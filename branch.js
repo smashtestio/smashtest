@@ -1,3 +1,5 @@
+const Constants = require('./constants.js');
+
 /**
  * Represents a Branch from the test tree
  */
@@ -44,6 +46,25 @@ class Branch {
         this.frequency ? clone.frequency = this.frequency : null;
 
         return clone;
+    }
+
+    /**
+     * @return {String} The string representation of Branch
+     */
+    output(branchName) {
+        var output = branchName + ' ..\n';
+
+        this.steps.forEach((step) => {
+            for(var i = 0; i <= step.branchIndents; i++) {
+                for (var j = 0; j < Constants.SPACES_PER_INDENT; j++) {
+                    output += ' ';
+                }
+            }
+
+            output += step.text + '\n';
+        });
+
+        return output;
     }
 }
 module.exports = Branch;

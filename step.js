@@ -20,7 +20,7 @@ class Step {
 
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
         this.text = "";                       // text of the command of the step (not including spaces in front, identifiers, comments, etc.)
-        this.identifiers = [];                // array of strings, each of which represents an identifier (e.g., ['..', '+', '#something'])
+        this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['..', '+', '#something'])
         this.codeBlock = "";                  // if this is a code block step, contains the '{' followed by the code
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
@@ -46,9 +46,7 @@ class Step {
 
         this.containingStepBlock = {};        // the StepBlock that contains this Step
 
-        this.afterEveryBranch = [];           // array of Step, which represent the steps to execute after every branch that traverses through this step is complete
-
-        this.originalStepInTree = {};               // when this step is cloned, the clone's originalStepInTree points to the Step from which it was cloned
+        this.originalStepInTree = {};         // when this step is cloned, the clone's originalStepInTree points to the Step from which it was cloned
         this.branchIndents = 0;               // when this step is included in a Branch, this indicates the number of indents to use when printing the Branch out, so as to preserve function calling hierarchies (i.e., steps under a function are indented under that function's call)
         */
     }
