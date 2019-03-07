@@ -640,7 +640,7 @@ class Tree {
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
      * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier)
-     * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}).
+     * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
      * @throws {Error} If a function declaration cannot be found, or if a hook name is invalid
      */
     branchify(step, stepsAbove, branchIndents, isFunctionCall, isSequential) {
@@ -720,7 +720,7 @@ class Tree {
             // If this function declaration was encountered unintentionally, and not in response to finding a function call, return without visiting its children
             // This is because hitting a function declaration on its own won't create any new branches
             if(!isFunctionCall) {
-                return [];
+                return null;
             }
         }
         else { // Textual steps (including manual steps), non-function-declaration code block steps, {var}='string'
@@ -808,7 +808,7 @@ class Tree {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach((step) => {
                     var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
-                    if(branchesFromChild && branchesFromChild.length > 0) {
+                    if(branchesFromChild) {
                         branchesFromChildren.push(branchesFromChild);
                     }
                 });
@@ -816,7 +816,7 @@ class Tree {
             else {
                 // If this child is a step, call branchify() on it normally
                 var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
-                if(branchesFromChild && branchesFromChild.length > 0) {
+                if(branchesFromChild) {
                     branchesFromChildren.push(branchesFromChild);
                 }
             }
@@ -864,7 +864,7 @@ class Tree {
             }
         }
 
-        // If we only have an empty branch, remove it
+        // If we only have an empty branch, remove it (happens when we "primed" branchesBelow with an empty branch, but there were no children below, so it's still standing alone)
         if(branchesBelow.length == 1 && branchesBelow[0].steps.length == 0) {
             branchesBelow = [];
         }

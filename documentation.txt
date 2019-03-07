@@ -154,6 +154,7 @@ Sequential execution (..)
                 - All in one branch: 1st branch from top to bottom, flattened steps under function call, 2nd branch from top to bottom, flattened steps under function call, etc.
                 - Give an example
     - .. above a step block
+        - Only applies to the step block, not to the step block's children
         - Same rules if one of the steps in the step block is a function with multiple branches
     - Show examples from bottom of test_language_sample.txt
 
