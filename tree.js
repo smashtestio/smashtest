@@ -651,7 +651,7 @@ class Tree {
             branchIndents = 0;
         }
 
-        isSequential = step.isSequential || isSequential;
+        isSequential = (step.isSequential && !(step instanceof StepBlock)) || isSequential; // is this step or any step above it sequential? (does not include sequential step blocks)
 
         // If this step isn't the root and isn't a step block, place it at the end of stepsAbove, so we can use it with findFunctionDeclaration()
         if(step.indents != -1 && !(step instanceof StepBlock)) {
@@ -808,7 +808,7 @@ class Tree {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach((step) => {
                     var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
-                    if(branchesFromChild) {
+                    if(branchesFromChild) { // NOTE: probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
                         branchesFromChildren.push(branchesFromChild);
                     }
                 });

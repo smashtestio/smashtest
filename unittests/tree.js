@@ -6653,45 +6653,592 @@ C -
         });
 
         it("branchifies a .. step block that contains function calls, where each function call has a single branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+A
+B -
+C
 
+* A
+    G -
+        H -
 
+* C
+    I -
+    `);
+            var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(6);
 
-
-
-
-
-
-
-
-
-
-
-
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "G",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "I",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step block that contains a function call, whose function declaration starts with a ..", function() {
+        it("branchifies a .. step block that contains a function call, whose function declaration starts with a ..", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+A
+B -
 
+* A ..
+    C -
+        D -
+    E -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(5);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: true
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step block that contains function calls, where each function declaration has multiple branches", function() {
-            // One branch resulting: 1st step's function 1st branch, 1st step's function 2nd branch, 2nd step's function 1st branch, etc.
+        it("branchifies a .. step block that contains function calls, where each function declaration has multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+A
+B -
+C
+
+* A
+    G -
+        H -
+    J -
+
+* C
+    I -
+    K -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(10);
+
+            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
+            expect(branches[0].steps[0].text).to.equal("A");
+            expect(branches[0].steps[1].text).to.equal("G");
+            expect(branches[0].steps[2].text).to.equal("H");
+            expect(branches[0].steps[3].text).to.equal("A");
+            expect(branches[0].steps[4].text).to.equal("J");
+            expect(branches[0].steps[5].text).to.equal("B");
+            expect(branches[0].steps[6].text).to.equal("C");
+            expect(branches[0].steps[7].text).to.equal("I");
+            expect(branches[0].steps[8].text).to.equal("C");
+            expect(branches[0].steps[9].text).to.equal("K");
+
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "G",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "J",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "I",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "K",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step block that contains function calls and multiple branches of children, where each function declaration has multiple branches", function() {
+        it("branchifies a .. step block that contains function calls and multiple branches of children, where each function declaration has multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+A
+B -
+C
 
+    L -
+
+    M -
+        N -
+        O -
+
+* A
+    G -
+        H -
+    J -
+
+* C
+    I -
+    K -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+            expect(branches[0].steps).to.have.lengthOf(11);
+            expect(branches[1].steps).to.have.lengthOf(12);
+            expect(branches[2].steps).to.have.lengthOf(12);
+
+            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
+            expect(branches[0].steps[0].text).to.equal("A");
+            expect(branches[0].steps[1].text).to.equal("G");
+            expect(branches[0].steps[2].text).to.equal("H");
+            expect(branches[0].steps[3].text).to.equal("A");
+            expect(branches[0].steps[4].text).to.equal("J");
+            expect(branches[0].steps[5].text).to.equal("B");
+            expect(branches[0].steps[6].text).to.equal("C");
+            expect(branches[0].steps[7].text).to.equal("I");
+            expect(branches[0].steps[8].text).to.equal("C");
+            expect(branches[0].steps[9].text).to.equal("K");
+            expect(branches[0].steps[10].text).to.equal("L");
+
+            expect(branches[1].steps[0].text).to.equal("A");
+            expect(branches[1].steps[1].text).to.equal("G");
+            expect(branches[1].steps[2].text).to.equal("H");
+            expect(branches[1].steps[3].text).to.equal("A");
+            expect(branches[1].steps[4].text).to.equal("J");
+            expect(branches[1].steps[5].text).to.equal("B");
+            expect(branches[1].steps[6].text).to.equal("C");
+            expect(branches[1].steps[7].text).to.equal("I");
+            expect(branches[1].steps[8].text).to.equal("C");
+            expect(branches[1].steps[9].text).to.equal("K");
+            expect(branches[1].steps[10].text).to.equal("M");
+            expect(branches[1].steps[11].text).to.equal("N");
+
+            expect(branches[2].steps[0].text).to.equal("A");
+            expect(branches[2].steps[1].text).to.equal("G");
+            expect(branches[2].steps[2].text).to.equal("H");
+            expect(branches[2].steps[3].text).to.equal("A");
+            expect(branches[2].steps[4].text).to.equal("J");
+            expect(branches[2].steps[5].text).to.equal("B");
+            expect(branches[2].steps[6].text).to.equal("C");
+            expect(branches[2].steps[7].text).to.equal("I");
+            expect(branches[2].steps[8].text).to.equal("C");
+            expect(branches[2].steps[9].text).to.equal("K");
+            expect(branches[2].steps[10].text).to.equal("M");
+            expect(branches[2].steps[11].text).to.equal("O");
+
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "G",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "J",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "I",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "K",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "L",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "G",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "J",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "I",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "K",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "M",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "N",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "G",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "J",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "I",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "K",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "M",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "O",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step that contains a .. step block", function() {
+        it("branchifies a .. step that contains a .. step block", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+A -
+B -
+    ..
+    C -
+    D -
+    `);
+            var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies a .. step that contains a .. step block that contains function calls, where each function has multiple branches", function() {
+        it("branchifies a .. step that contains a .. step block that contains a function call, whose function declaration has multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+A -
+B -
+    ..
+    C
+    D -
 
+    * C
+        E -
+
+        F -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(7);
+
+            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
+            expect(branches[0].steps[0].text).to.equal("A");
+            expect(branches[0].steps[1].text).to.equal("B");
+            expect(branches[0].steps[2].text).to.equal("C");
+            expect(branches[0].steps[3].text).to.equal("E");
+            expect(branches[0].steps[4].text).to.equal("C");
+            expect(branches[0].steps[5].text).to.equal("F");
+            expect(branches[0].steps[6].text).to.equal("D");
+
+            expect(branches).to.containSubset([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "E",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "F",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "D",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("branchifies the * After Every Branch hook", function() {
+        it("branchifies the * After Every Branch hook", function() {
             // have it expand to multiple leaves, but not to all leaves in the tree
+
+
+
+
+
+
+
+
+
+            
         });
 
         it.skip("branchifies the * After Every Branch hook with multiple branches", function() {
