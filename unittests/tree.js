@@ -7238,7 +7238,7 @@ B -
 
 
 
-            
+
         });
 
         it.skip("branchifies the * After Every Branch hook with multiple branches", function() {
@@ -7251,6 +7251,16 @@ B -
         it.skip("branchifies the * After Every Branch hook if it has a ..", function() {
         });
 
+        it.skip("handles multiple * After Every Branch hooks that are siblings", function() {
+        });
+
+        it.skip("handles multiple * After Every Branch hooks that are at different levels in the tree", function() {
+        });
+
+        it.skip("rejects the * After Every Branch hook with the wrong casing", function() {
+            // every word must be capitalized, such as "After Every Branch"
+        });
+
         it.skip("branchifies the * Before Everything hook", function() {
         });
 
@@ -7258,6 +7268,19 @@ B -
         });
 
         it.skip("branchifies the * Before Everything hook if it has a ..", function() {
+        });
+
+        it.skip("handles multiple * Before Everything hooks that are siblings", function() {
+        });
+
+        it.skip("handles multiple * Before Everything hooks that are at different levels in the tree", function() {
+        });
+
+        it.skip("rejects the * Before Everything hook with the wrong casing", function() {
+            // every word must be capitalized, such as "After Every Branch"
+        });
+
+        it.skip("rejects the * Before Everything hook when not at 0 indents", function() {
         });
 
         it.skip("branchifies the * After Everything hook", function() {
@@ -7269,23 +7292,21 @@ B -
         it.skip("branchifies the * After Everything hook if it has a ..", function() {
         });
 
-        it.skip("rejects the * Before Everything hook when not at 0 indents", function() {
+        it.skip("handles multiple * After Everything hooks that are siblings", function() {
+        });
+
+        it.skip("handles multiple * After Everything hooks that are at different levels in the tree", function() {
+        });
+
+        it.skip("rejects the * After Everything hook with the wrong casing", function() {
+            // every word must be capitalized, such as "After Every Branch"
         });
 
         it.skip("rejects the * After Everything hook when not at 0 indents", function() {
         });
 
-        it.skip("handles multiple hooks of the same type that are siblings", function() {
-        });
-
-        it.skip("handles multiple hooks of the same type that are at different levels in the tree", function() {
-        });
-
         it.skip("handles different hooks that are siblings", function() {
-        });
-
-        it.skip("rejects a hook function declaration with the wrong casing", function() {
-            // every word must be capitalized, such as "After Every Branch"
+            // try each of the the 3 hook types
         });
 
         it("throws an exception when there's an infinite loop among function calls", function() {
