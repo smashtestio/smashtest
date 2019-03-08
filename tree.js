@@ -10,13 +10,13 @@ const utils = require('./utils.js');
  */
 class Tree {
     constructor() {
-        this.root = new Step();         // the root Step of the tree (parsed version of the text that got inputted)
-        this.beforeEverything = [];     // Array of Step, the steps (and their children) to execute before all branches (tests)
-        this.afterEverything = [];      // Array of Step, the steps (and their children) to execute after all branches (tests)
+        this.root = new Step();              // the root Step of the tree (parsed version of the text that got inputted)
+        this.beforeEverything = [];          // Array of Step, the steps (and their children) to execute before all branches (tests)
+        this.afterEverything = [];           // Array of Step, the steps (and their children) to execute after all branches (tests)
 
-        this.branches = [];             // Array of Branch, generated from this.root
+        this.branches = [];                  // Array of Branch, generated from this.root
 
-        this.latestStep = null;         // Step most recently used by branchify(). Used to debug and track down infinite loops.
+        this.latestBranchifiedStep = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
     }
 
     /**
@@ -104,7 +104,7 @@ class Tree {
             step.isFunctionDeclaration = matches[1].trim() == '*';
 
             if(step.isFunctionDeclaration && step.text.match(Constants.STRING_LITERAL_REGEX)) {
-                utils.error("A * Function declaration cannot have \"strings\" inside of it", filename, lineNumber);
+                utils.error("A * Function declaration cannot have 'strings' inside of it", filename, lineNumber);
             }
         }
 
@@ -181,7 +181,7 @@ class Tree {
                 // Validations for special variables
                 if(varBeingSet.name.toLowerCase() == 'frequency') {
                     if(varBeingSet.name != 'frequency') {
-                        utils.error("The {frequency} variable is special and must be all lowercase", filename, lineNumber);
+                        utils.error("The {frequency} variable name is special and must be all lowercase", filename, lineNumber);
                     }
                     if(varBeingSet.isLocal) {
                         utils.error("The {frequency} variable is special and cannot be {{frequency}}", filename, lineNumber);
@@ -192,7 +192,7 @@ class Tree {
                 }
                 else if(varBeingSet.name.toLowerCase() == 'group') {
                     if(varBeingSet.name != 'group') {
-                        utils.error("The {group} variable is special and must be all lowercase", filename, lineNumber);
+                        utils.error("The {group} variable name is special and must be all lowercase", filename, lineNumber);
                     }
                     if(varBeingSet.isLocal) {
                         utils.error("The {group} variable is special and cannot be {{group}}", filename, lineNumber);
@@ -439,7 +439,7 @@ class Tree {
                 // We've found a step block, which goes from lines index i to j
 
                 if(j < lines.length && lines[j].text != '' && lines[j].text != '..' && lines[j].indents == potentialStepBlock.steps[0].indents + 1) {
-                    utils.error("There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line above this line.", filename, lines[j].lineNumber);
+                    utils.error("There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line.", filename, lines[j].lineNumber - 1);
                 }
 
                 potentialStepBlock.filename = filename;
@@ -628,11 +628,11 @@ class Tree {
 
             function validateChild(child) {
                 if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
-                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must have all steps in its declaration (at " + child.filename + ":" + child.lineNumber + ") be in format {x}='string'", step.filename, step.lineNumber);
+                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must have all steps in its declaration be in format {x}='string' (but " + child.filename + ":" + child.lineNumber + " is not)", step.filename, step.lineNumber);
                 }
 
                 if(child.children.length > 0) {
-                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must not have any steps in its declaration (at " + child.filename + ":" + child.lineNumber + ") that have children of their own", step.filename, step.lineNumber);
+                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must not have any steps in its declaration that have children of their own (but " + child.filename + ":" + child.lineNumber + " does)", step.filename, step.lineNumber);
                 }
             }
         }
@@ -657,7 +657,7 @@ class Tree {
         }
 
         if(!step.isFunctionDeclaration) {
-            this.latestStep = step;
+            this.latestBranchifiedStep = step;
         }
 
         isSequential = (step.isSequential && !(step instanceof StepBlock)) || isSequential; // is this step or any step above it sequential? (does not include sequential step blocks)
@@ -815,9 +815,10 @@ class Tree {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach(step => {
                     var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
-                    if(branchesFromChild && branchesFromChild.length > 0) { // NOTE: probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
+                    if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
+                    // NOTE: else is probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
                 });
             }
             else {
@@ -893,8 +894,8 @@ class Tree {
         }
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
-                if(this.latestStep) {
-                    utils.error("Infinite loop detected", this.latestStep.filename, this.latestStep.lineNumber);
+                if(this.latestBranchifiedStep) {
+                    utils.error("Infinite loop detected", this.latestBranchifiedStep.filename, this.latestBranchifiedStep.lineNumber);
                 }
                 else {
                     throw new Error("Infinite loop detected");

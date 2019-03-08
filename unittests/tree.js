@@ -22,15 +22,31 @@ describe("Tree", function() {
         });
 
         it("throws an exception for non-whitespace at the beginning of a step", function() {
-            assert.throws(() => { tree.numIndents('\tblah', 'file.txt', 10); });
-            assert.throws(() => { tree.numIndents(' \tblah', 'file.txt', 10); });
+            assert.throws(() => {
+                tree.numIndents('\tblah', 'file.txt', 10);
+            }, "Spaces are the only type of whitespace allowed at the beginning of a step [file.txt:10]");
+
+            assert.throws(() => {
+                tree.numIndents(' \tblah', 'file.txt', 10);
+            }, "Spaces are the only type of whitespace allowed at the beginning of a step [file.txt:10]");
         });
 
         it("throws an exception for a number of spaces not a multiple of 4", function() {
-            assert.throws(() => { tree.numIndents(' blah', 'file.txt', 10); });
-            assert.throws(() => { tree.numIndents('  blah', 'file.txt', 10); });
-            assert.throws(() => { tree.numIndents('   blah', 'file.txt', 10); });
-            assert.throws(() => { tree.numIndents('     blah', 'file.txt', 10); });
+            assert.throws(() => {
+                tree.numIndents(' blah', 'file.txt', 10);
+            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space(s). [file.txt:10]");
+
+            assert.throws(() => {
+                tree.numIndents('  blah', 'file.txt', 10);
+            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 2 space(s). [file.txt:10]");
+
+            assert.throws(() => {
+                tree.numIndents('   blah', 'file.txt', 10);
+            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 3 space(s). [file.txt:10]");
+
+            assert.throws(() => {
+                tree.numIndents('     blah', 'file.txt', 10);
+            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 5 space(s). [file.txt:10]");
         });
 
         it("returns 0 for an empty string or all-whitespace string", function() {
@@ -94,29 +110,29 @@ describe("Tree", function() {
         it("throws an error if a step only has numbers, periods, or commas", function() {
             assert.throws(() => {
                 tree.parseLine(`324798`, "file.txt", 10);
-            });
+            }, "Invalid step name [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`32, 4798`, "file.txt", 10);
-            });
+            }, "Invalid step name [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`...`, "file.txt", 10);
-            });
+            }, "Invalid step name [file.txt:10]");
         });
 
         it("throws an error if a step has the name of a hook function declaration", function() {
             assert.throws(() => {
                 tree.parseLine(`After Every Branch`, "file.txt", 10);
-            });
+            }, "You cannot have a function call with that name. That's reserved for hook function declarations. [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`  before   Everything  `, "file.txt", 10);
-            });
+            }, "You cannot have a function call with that name. That's reserved for hook function declarations. [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(` AFTER EVERYTHING `, "file.txt", 10);
-            });
+            }, "You cannot have a function call with that name. That's reserved for hook function declarations. [file.txt:10]");
         });
 
         it("parses a line with a {variable}", function() {
@@ -192,11 +208,11 @@ describe("Tree", function() {
         it("throws an error if a function declaration has 'strings'", function() {
             assert.throws(() => {
                 tree.parseLine(`* Something 'quote' something else`, "file.txt", 10);
-            });
+            }, "A * Function declaration cannot have 'strings' inside of it [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`* Something "quote" something else`, "file.txt", 10);
-            });
+            }, "A * Function declaration cannot have 'strings' inside of it [file.txt:10]");
         });
 
         it("parses a function call", function() {
@@ -209,11 +225,11 @@ describe("Tree", function() {
         it("throws an error if a textual step is also a function declaration", function() {
             assert.throws(() => {
                 tree.parseLine(`* Something - +`, "file.txt", 10);
-            });
+            }, "A * Function declaration cannot be a textual step (-) as well [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`    * Something - + {`, "file.txt", 10);
-            });
+            }, "A * Function declaration cannot be a textual step (-) as well [file.txt:10]");
         });
 
         it("parses a function declaration with a code block", function() {
@@ -366,21 +382,21 @@ describe("Tree", function() {
         it("rejects {var} = Textual Function -", function() {
             assert.throws(() => {
                 tree.parseLine(`{var} = Textual Function -`, "file.txt", 10);
-            });
+            }, "A textual step (ending in -) cannot also start with a {variable} assignment [file.txt:10]");
         });
 
         it("rejects {var} = only numbers, periods, or commas", function() {
             assert.throws(() => {
                 tree.parseLine(`{var} =324798`, "file.txt", 10);
-            });
+            }, "{vars} can only be set to 'strings' [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`{var} = 32, 4798`, "file.txt", 10);
-            });
+            }, "{vars} can only be set to 'strings' [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`{var}=...`, "file.txt", 10);
-            });
+            }, "{vars} can only be set to 'strings' [file.txt:10]");
         });
 
         it("parses {var} = 'string'", function() {
@@ -436,37 +452,37 @@ describe("Tree", function() {
         it("rejects {vars} with only numbers in their names", function() {
             assert.throws(() => {
                 tree.parseLine(`{23} = 'str'`, "file.txt", 10);
-            });
+            }, "A {variable name} cannot be just numbers [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`{234 23432} = 'str'`, "file.txt", 10);
-            });
+            }, "A {variable name} cannot be just numbers [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`{  435 4545    } = 'str'`, "file.txt", 10);
-            });
+            }, "A {variable name} cannot be just numbers [file.txt:10]");
         });
 
         it("rejects {Frequency}", function() {
             assert.throws(() => {
                 tree.parseLine(`{Frequency} = 'high'`, "file.txt", 10);
-            });
+            }, "The {frequency} variable name is special and must be all lowercase [file.txt:10]");
         });
 
         it("rejects {{frequency}}", function() {
             assert.throws(() => {
                 tree.parseLine(`{{frequency}} = 'high'`, "file.txt", 10);
-            });
+            }, "The {frequency} variable is special and cannot be {{frequency}} [file.txt:10]");
         });
 
         it("rejects {frequency} not set to high/med/low", function() {
             assert.throws(() => {
                 tree.parseLine(`{frequency} = 'blah'`, "file.txt", 10);
-            });
+            }, "The {frequency} variable is special and can only be set to 'high', 'med', or 'low' [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`{frequency} = Function`, "file.txt", 10);
-            });
+            }, "The {frequency} variable is special and can only be set to 'high', 'med', or 'low' [file.txt:10]");
         });
 
         it("parses valid {frequency}", function() {
@@ -490,13 +506,13 @@ describe("Tree", function() {
         it("rejects {Group}", function() {
             assert.throws(() => {
                 tree.parseLine(`{Group} = 'foobar'`, "file.txt", 10);
-            });
+            }, "The {group} variable name is special and must be all lowercase [file.txt:10]");
         });
 
         it("rejects {{group}}", function() {
             assert.throws(() => {
                 tree.parseLine(`{{group}} = 'foobar'`, "file.txt", 10);
-            });
+            }, "The {group} variable is special and cannot be {{group}} [file.txt:10]");
         });
 
         it("parses valid {group}", function() {
@@ -544,7 +560,7 @@ describe("Tree", function() {
         it("throws an error when a [bracketed string] is not a valid elementFinder", function() {
             assert.throws(() => {
                 tree.parseLine(`Something [next to 'something']`, "file.txt", 10);
-            });
+            }, "Invalid [elementFinder in brackets] [file.txt:10]");
         });
 
         it("lists {vars} contained inside 'string literals'", function() {
@@ -557,35 +573,23 @@ describe("Tree", function() {
         it("throws an error when multiple {vars} are set in a line, and one of them is not a 'string literal'", function() {
             assert.throws(() => {
                 tree.parseLine(`{var1} = 'one', {{var2}}=Some step here, {var 3}= "three 3" +`, "file.txt", 10);
-            });
+            }, "When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants' [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`{var1}='str1', {var2}='str2', Invalid stuff here`, "file.txt", 10);
+            }, "When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants' [file.txt:10]");
         });
 
         it("throws an error when a function declaration contains {non-local variables}", function() {
             assert.throws(() => {
                 tree.parseLine(`* Function {one} and {{two}}`, "file.txt", 10);
-            });
-
-            assert.throws(() => {
-                tree.parseLine(`{var1}='str1', {var2}='str2', Invalid stuff here`, "file.txt", 10);
-            });
+            }, "All variables in a \* Function declaration must be {{local}} and {one} is not [file.txt:10]");
         });
 
         it("throws an error when a step sets a variable and is a function declaration", function() {
             assert.throws(() => {
-                tree.parseLine(`* {var}='str'`, "file.txt", 10);
-            });
-
-            assert.throws(() => {
-                tree.parseLine(`  * Function {var}='str'  `, "file.txt", 10);
-            });
-
-            assert.throws(() => {
-                tree.parseLine(`* {var1}='str1', {var2}='str2'`, "file.txt", 10);
-            });
-
-            assert.throws(() => {
                 tree.parseLine(`* {var1}= Some function`, "file.txt", 10);
-            });
+            }, "A step setting {variables} cannot start with a \* [file.txt:10]");
         });
 
         it("returns text set to empty string for empty or all-whitespace lines", function() {
@@ -1213,14 +1217,7 @@ H
 `    A
 `
                 , "file.txt");
-            });
-
-            assert.throws(() => {
-                tree.parseIn(
-` A
-`
-                , "file.txt");
-            });
+            }, "The first step must have 0 indents [file.txt:1]");
 
             assert.throws(() => {
                 tree.parseIn(
@@ -1228,7 +1225,7 @@ H
     A
 `
                 , "file.txt");
-            });
+            }, "The first step must have 0 indents [file.txt:2]");
         });
 
         it("rejects a step that is 2 or more indents ahead of the step above", function() {
@@ -1239,8 +1236,7 @@ H
         B
 `
                 , "file.txt");
-            });
-
+            }, "You cannot have a step that has 2 or more indents beyond the previous step [file.txt:2]");
         });
 
         it("parses a step block at the very top", function() {
@@ -1891,7 +1887,7 @@ C
 * B
 C`
                 , "file.txt");
-            });
+            }, "You cannot have a * Function declaration within a step block [file.txt:2]");
         });
 
         it("rejects a step block containing a code block", function() {
@@ -1903,7 +1899,7 @@ B {
 }
 C`
                 , "file.txt");
-            });
+            }, "You cannot have a code block within a step block [file.txt:2]");
         });
 
         it("rejects a step block with children that doesn't end in an empty line", function() {
@@ -1915,7 +1911,7 @@ B
     C
 `
                 , "file.txt");
-            });
+            }, "There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line. [file.txt:2]");
         });
 
         it("doesn't reject a step block that's directly followed by a line indented left of the step block", function() {
@@ -2185,7 +2181,7 @@ C
 D
 `
                 , "file.txt");
-            });
+            }, "You cannot have a .. line at the same indent level as the adjacent line above [file.txt:3]");
         });
 
         it("rejects a step block containing a .. line at the end", function() {
@@ -2196,7 +2192,7 @@ D
 B
 ..`
                 , "file.txt");
-            });
+            }, "You cannot have a .. line at the same indent level as the adjacent line above [file.txt:3]");
 
             assert.throws(() => {
                 tree.parseIn(
@@ -2205,13 +2201,13 @@ B
 ..
 `
                 , "file.txt");
-            });
+            }, "You cannot have a .. line at the same indent level as the adjacent line above [file.txt:3]");
 
             assert.throws(() => {
                 tree.parseIn(
 `..`
                 , "file.txt");
-            });
+            }, "You cannot have a .. line without anything directly below [file.txt:1]");
         });
 
         it("rejects a .. line by itself", function() {
@@ -2226,7 +2222,7 @@ B
 C
 `
                 , "file.txt");
-            });
+            }, "You cannot have a .. line without anything directly below [file.txt:4]");
         });
 
         it("rejects a .. line that's immediately followed by indented children", function() {
@@ -2238,7 +2234,7 @@ C
     B
 `
                 , "file.txt");
-            });
+            }, "A .. line must be followed by a line at the same indent level [file.txt:1]");
         });
 
         it("rejects a .. line followed by an invalid step block", function() {
@@ -2252,7 +2248,7 @@ A
 D
 `
                 , "file.txt");
-            });
+            }, "A .. line must be followed by a step block [file.txt:1]");
 
             assert.throws(() => {
                 tree.parseIn(
@@ -2264,7 +2260,7 @@ D
 E
 `
                 , "file.txt");
-            });
+            }, "A .. line must be followed by a step block [file.txt:3]");
         });
 
         it("rejects two .. lines in a row", function() {
@@ -2275,7 +2271,7 @@ E
 ..
 `
                 , "file.txt");
-            });
+            }, "You cannot have two .. lines in a row [file.txt:1]");
         });
 
         it("parses a step block, followed by an indented .. step block", function() {
@@ -3262,13 +3258,13 @@ C
         more code;
 `
                 , "file.txt");
-            });
+            }, "An unclosed code block was found [file.txt:2]");
 
             assert.throws(() => {
                 tree.parseIn(
 `Code block here {`
                 , "file.txt");
-            });
+            }, "An unclosed code block was found [file.txt:1]");
         });
 
         it("rejects a code block with a closing } at the wrong indentation", function() {
@@ -3281,7 +3277,7 @@ C
 }
 `
                 , "file.txt");
-            });
+            }, "An unclosed code block was found [file.txt:2]");
 
             assert.throws(() => {
                 tree.parseIn(
@@ -3291,7 +3287,7 @@ C
         }
 `
                 , "file.txt");
-            });
+            }, "An unclosed code block was found [file.txt:2]");
         });
     });
 
@@ -3609,12 +3605,12 @@ One {varA}   two   {{varB}} three [1st 'text' ElementFinder]
 Function that doesn't exist
 
 * Something else
-`);
+`, "file.txt");
 
             var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
             assert.throws(() => {
                 tree.findFunctionDeclaration(stepsAbove);
-            });
+            }, "The function 'Function that doesn't exist' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
         });
 
         it("rejects with a special error function calls that match case insensitively but not case sensitively", function() {
@@ -3623,12 +3619,12 @@ Function that doesn't exist
 My function
 
 * my function
-`);
+`, "file.txt");
 
             var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
             assert.throws(() => {
                 tree.findFunctionDeclaration(stepsAbove);
-            });
+            }, "The function call 'My function' matches function declaration 'my function', but must match case sensitively [file.txt:2]");
         });
 
         it("rejects function calls to functions that were declared in a different scope", function() {
@@ -3638,12 +3634,12 @@ My function
 
 Other scope -
     * My function
-`);
+`, "file.txt");
 
             var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
             assert.throws(() => {
                 tree.findFunctionDeclaration(stepsAbove);
-            });
+            }, "The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
 
             tree = new Tree();
             tree.parseIn(`
@@ -3652,7 +3648,7 @@ One scope -
 
 Other scope -
     * My function
-`);
+`, "file.txt");
 
             stepsAbove = [
                 tree.root.children[0].cloneForBranch(),
@@ -3660,7 +3656,7 @@ Other scope -
             ];
             assert.throws(() => {
                 tree.findFunctionDeclaration(stepsAbove);
-            });
+            }, "The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:3]");
         });
     });
 
@@ -3668,7 +3664,7 @@ Other scope -
         it("accepts function that has muliple branches in {x}='value' format", function() {
             var tree = new Tree();
             tree.parseIn(`
-F
+{var} = F
 
 * F
     {x}='1'
@@ -3686,7 +3682,7 @@ F
         it("accepts function that has muliple branches in {x}='value' format and some are step blocks", function() {
             var tree = new Tree();
             tree.parseIn(`
-F
+{var} = F
 
 * F
     {x}='1'
@@ -3706,7 +3702,7 @@ F
         it("accepts function that has a code block", function() {
             var tree = new Tree();
             tree.parseIn(`
-F
+{var} = F
 
 * F {
     code block
@@ -3721,22 +3717,22 @@ F
         it("rejects an empty function", function() {
             var tree = new Tree();
             tree.parseIn(`
-F
+{var} = F
 
 * F
-`);
+`, "file.txt");
 
             var functionCall = tree.root.children[0].cloneForBranch();
             functionCall.functionDeclarationInTree = tree.root.children[1];
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            });
+            }, "You cannot use an empty function [file.txt:2]");
         });
 
         it("rejects function that doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
             var tree = new Tree();
             tree.parseIn(`
-F
+{var} = F
 
 * F
     {x}='1'
@@ -3744,56 +3740,56 @@ F
     Function name
 
     {x}='3'
-`);
+`, "file.txt");
 
             var functionCall = tree.root.children[0].cloneForBranch();
             functionCall.functionDeclarationInTree = tree.root.children[1];
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            });
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' (but file.txt:7 is not) [file.txt:2]");
 
             tree = new Tree();
             tree.parseIn(`
-F
+{var} = F
 
 * F
     {x}='1'
     Function name
     {x}='3'
-`);
+`, "file.txt");
 
             var functionCall = tree.root.children[0].cloneForBranch();
             functionCall.functionDeclarationInTree = tree.root.children[1];
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            });
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' (but file.txt:6 is not) [file.txt:2]");
         });
 
         it("rejects function that has a code block, but also has children", function() {
             var tree = new Tree();
             tree.parseIn(`
-F
+{var} = F
 
 * F {
     code block
 }
     Child -
-`);
+`, "file.txt");
 
             var functionCall = tree.root.children[0].cloneForBranch();
             functionCall.functionDeclarationInTree = tree.root.children[1];
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            });
+            }, "The function called at file.txt:2 has a code block in its declaration (at file.txt:4) but that code block must not have any child steps [file.txt:2]");
         });
 
         it("rejects function that is in {x}='value' format, but also has children", function() {
             var tree = new Tree();
             tree.parseIn(`
-F
+{var} = F
 
 * F
     {x}='1'
@@ -3802,14 +3798,14 @@ F
         Child -
 
     {x}='3'
-`);
+`, "file.txt");
 
             var functionCall = tree.root.children[0].cloneForBranch();
             functionCall.functionDeclarationInTree = tree.root.children[1];
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            });
+            }, "The function called at file.txt:2 must not have any steps in its declaration that have children of their own (but file.txt:7 does) [file.txt:2]");
         });
     });
 
@@ -4358,11 +4354,11 @@ B -
 F
     * F
         B -
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
         });
 
         it("branchifies a function call with children, whose function declaration has no children", function() {
@@ -5300,11 +5296,11 @@ FA
     code block
 }
     Child -
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "The function called at file.txt:2 has a code block in its declaration (at file.txt:4) but that code block must not have any child steps [file.txt:2]");
         });
 
         it("rejects {var} = F if F is in {x}='value' format, but some of those steps have children", function() {
@@ -5319,11 +5315,11 @@ FA
         {x}='3'
 
     {x}='4'
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "The function called at file.txt:2 must not have any steps in its declaration that have children of their own (but file.txt:7 does) [file.txt:2]");
         });
 
         it("rejects {var} = F if F doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
@@ -5335,11 +5331,11 @@ FA
     {x}='1'
     D -
     {x}='4'
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' (but file.txt:6 is not) [file.txt:2]");
         });
 
         it("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", function() {
@@ -8127,11 +8123,11 @@ A -
             D -
 
 E -
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "Every word must be capitalized in a hook function declaration (use 'After Every Branch' instead) [file.txt:6]");
         });
 
         it("accepts varying amounts of whitespace in the * After Every Branch hook", function() {
@@ -8383,11 +8379,11 @@ A -
             var tree = new Tree();
             tree.parseIn(`
 * before Everything
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "Every word must be capitalized in a hook function declaration (use 'Before Everything' instead) [file.txt:2]");
         });
 
         it("accepts the * Before Everything hook with varying amounts of whitespace", function() {
@@ -8406,11 +8402,11 @@ A -
             tree.parseIn(`
 A -
     * Before Everything
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "A '* Before Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
         it("branchifies the * After Everything hook", function() {
@@ -8644,11 +8640,11 @@ A -
             var tree = new Tree();
             tree.parseIn(`
 * after Everything
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "Every word must be capitalized in a hook function declaration (use 'After Everything' instead) [file.txt:2]");
         });
 
         it("accepts the * After Everything hook with varying amounts of whitespace", function() {
@@ -8667,11 +8663,11 @@ A -
             tree.parseIn(`
 A -
     * After Everything
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "An '* After Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
         it("handles different hooks that are siblings, and orders the last Before Everything one first", function() {
@@ -8915,11 +8911,11 @@ F
 
 * F
     F
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "Maximum call stack size exceeded");
 
             tree = new Tree();
             tree.parseIn(`
@@ -8930,16 +8926,26 @@ A
 
 * B
     A
-    `);
+    `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            });
+            }, "Maximum call stack size exceeded");
         });
     });
 
     describe("generateBranches()", function() {
-        it.skip("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
+        it("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
+// meow
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("sets the frequency of multiple branches when the {frequency} variable is set", function() {
@@ -8966,11 +8972,11 @@ F
 
 * F
     F
-    `, "file.txt");
+`, "file.txt");
 
             assert.throws(() => {
                 tree.generateBranches();
-            });
+            }, "Infinite loop detected [file.txt:5]");
 
             tree = new Tree();
             tree.parseIn(`
@@ -8981,11 +8987,11 @@ A
 
 * B
     A
-    `, "file.txt");
+`, "file.txt");
 
             assert.throws(() => {
                 tree.generateBranches();
-            });
+            }, /Infinite loop detected \[file\.txt:(5|8)\]/);
 
         });
 
