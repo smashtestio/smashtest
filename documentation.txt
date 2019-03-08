@@ -159,9 +159,13 @@ Expected failure (#)
 
 Hook steps
     - * After Every Branch
-        - {branchSuccessful} = true if passed, false if failed
+        - {successful} = true if passed, false if failed
         - {error} = the Error object, if failed
         - attached to the end of every leaf under this function declaration's parent
+        - For "Before Every Branch", just insert a step on top of all the branches you want to cover
+    - * After Every Step
+        - {successful} = true if passed, false if failed
+        - {error} = the Error object, if failed
     - * Before Everything
         - before any branches begin, execute this
         - only valid at 0 indents

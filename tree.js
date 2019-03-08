@@ -110,7 +110,7 @@ class Tree {
 
         // Validate that a non-function declaration isn't using a hook step name
         if(!step.isFunctionDeclaration) {
-            if(['after every branch', 'before everything', 'after everything'].indexOf(step.getHookCanonicalText()) != -1) {
+            if(['after every branch', 'after every step', 'before everything', 'after everything'].indexOf(step.getHookCanonicalText()) != -1) {
                 utils.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
             }
         }
@@ -758,7 +758,8 @@ class Tree {
         }
 
         // Check if a child is a hook function declaration
-        var afterBranches = [];
+        var afterEveryBranch = [];
+        var afterEveryStep = [];
         children.forEach(child => {
             if(child.isFunctionDeclaration) {
                 var canStepText = child.getHookCanonicalText();
@@ -766,14 +767,26 @@ class Tree {
                 if(canStepText == "after every branch") {
                     this.verifyHookCasing(child, 'After Every Branch');
 
-                    var afterBranchesMembers = this.branchify(child, stepsAbove, 1, true);
+                    var afterEveryBranchMembers = this.branchify(child, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
                     clonedHookStep.branchIndents = 0;
-                    afterBranchesMembers.forEach(branch => {
+                    afterEveryBranchMembers.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
 
-                    afterBranches = afterBranches.concat(afterBranchesMembers);
+                    afterEveryBranch = afterEveryBranch.concat(afterEveryBranchMembers);
+                }
+                else if(canStepText == "after every step") {
+                    this.verifyHookCasing(child, 'After Every Step');
+
+                    var afterEveryStepMembers = this.branchify(child, stepsAbove, 1, true);
+                    var clonedHookStep = child.cloneAsFunctionCall();
+                    clonedHookStep.branchIndents = 0;
+                    afterEveryStepMembers.forEach(branch => {
+                        branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
+                    });
+
+                    afterEveryStep = afterEveryStep.concat(afterEveryStepMembers);
                 }
                 else if(canStepText == "before everything") {
                     this.verifyHookCasing(child, 'Before Everything');
@@ -862,15 +875,28 @@ class Tree {
             }
         }
 
-        // Attach afterBranches to each branch below
-        if(afterBranches && afterBranches.length > 0) {
+        // Attach afterEveryBranch to each branch below
+        if(afterEveryBranch && afterEveryBranch.length > 0) {
             branchesBelow.forEach(branchBelow => {
-                afterBranches.forEach(afterBranch => {
-                    if(!branchBelow.afterBranches) {
-                        branchBelow.afterBranches = [];
+                afterEveryBranch.forEach(afterBranch => {
+                    if(!branchBelow.afterEveryBranch) {
+                        branchBelow.afterEveryBranch = [];
                     }
 
-                    branchBelow.afterBranches.push(afterBranch.clone());
+                    branchBelow.afterEveryBranch.push(afterBranch.clone());
+                });
+            });
+        }
+
+        // Attach afterEveryStep to each branch below
+        if(afterEveryStep && afterEveryStep.length > 0) {
+            branchesBelow.forEach(branchBelow => {
+                afterEveryStep.forEach(afterBranch => {
+                    if(!branchBelow.afterEveryStep) {
+                        branchBelow.afterEveryStep = [];
+                    }
+
+                    branchBelow.afterEveryStep.push(afterBranch.clone());
                 });
             });
         }

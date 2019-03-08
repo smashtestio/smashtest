@@ -11,25 +11,35 @@ class Branch {
         OPTIONAL
 
         this.nonParallelId = "";            // When multiple branches cannot be run in parallel (due to +), they are each given the same nonParallelId
-        this.afterBranches = [];            // Array of Branch, the branches to execute after this branch is done
+        this.afterEveryBranch = [];            // Array of Branch, the branches to execute after this branch is done
+        this.afterEveryStep = [];               // Array of Branch, the branches to execute after each step in this branch is done
         this.frequency = "";                // Frequency of this Branch (either 'high', 'med', or 'low')
         */
     }
 
     /**
      * Attaches branch.steps to the end of this.steps
-     * Attaches branch.afterBranches to the end of this.afterBranches (so that built-in comes last)
+     * Attaches branch.afterEveryBranch to the end of this.afterEveryBranch (so that built-in comes last)
+     * Attaches branch.afterEveryStep to the end of this.afterEveryStep (so that built-in comes last)
      * Copies over branch.nonParallelId, if it exists
      */
     mergeToEnd(branch) {
         this.steps = this.steps.concat(branch.steps);
 
-        if(branch.afterBranches) {
-            if(!this.afterBranches) {
-                this.afterBranches = [];
+        if(branch.afterEveryBranch) {
+            if(!this.afterEveryBranch) {
+                this.afterEveryBranch = [];
             }
 
-            this.afterBranches = branch.afterBranches.concat(this.afterBranches);
+            this.afterEveryBranch = branch.afterEveryBranch.concat(this.afterEveryBranch);
+        }
+
+        if(branch.afterEveryStep) {
+            if(!this.afterEveryStep) {
+                this.afterEveryStep = [];
+            }
+
+            this.afterEveryStep = branch.afterEveryStep.concat(this.afterEveryStep);
         }
 
         if(branch.nonParallelId) {
@@ -48,12 +58,21 @@ class Branch {
 
         this.nonParallelId ? clone.nonParallelId = this.nonParallelId : null; // if this.nonParallelId doesn't exist, don't do anything ("null;")
 
-        if(this.afterBranches) {
-            this.afterBranches.forEach(afterBranch => {
-                if(!clone.afterBranches) {
-                    clone.afterBranches = [];
+        if(this.afterEveryBranch) {
+            this.afterEveryBranch.forEach(branch => {
+                if(!clone.afterEveryBranch) {
+                    clone.afterEveryBranch = [];
                 }
-                clone.afterBranches.push(afterBranch.clone());
+                clone.afterEveryBranch.push(branch.clone());
+            });
+        }
+
+        if(this.afterEveryStep) {
+            this.afterEveryStep.forEach(branch => {
+                if(!clone.afterEveryStep) {
+                    clone.afterEveryStep = [];
+                }
+                clone.afterEveryStep.push(branch.clone());
             });
         }
 
