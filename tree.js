@@ -782,7 +782,7 @@ class Tree {
                     newBeforeEverything.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
-                    this.beforeEverything = this.beforeEverything.concat(newBeforeEverything);
+                    this.beforeEverything = newBeforeEverything.concat(this.beforeEverything); // inserted this way so that built-in hooks get executed first
                 }
                 else if(canStepText == "after everything") {
                     this.verifyHookCasing(child, 'After Everything');
@@ -797,7 +797,7 @@ class Tree {
                     newAfterEverything.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
                     });
-                    this.afterEverything = this.afterEverything.concat(newAfterEverything);
+                    this.afterEverything = this.afterEverything.concat(newAfterEverything); // inserted this way so that built-in hooks get executed last
                 }
             }
         });

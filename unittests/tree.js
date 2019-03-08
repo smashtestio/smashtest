@@ -8275,7 +8275,7 @@ A -
             ]);
         });
 
-        it("handles multiple * Before Everything hooks that are siblings", function() {
+        it("handles multiple * Before Everything hooks that are siblings, and orders the last in tree to be first in tree.beforeEverything", function() {
             var tree = new Tree();
             tree.parseIn(`
 * Before Everything
@@ -8305,13 +8305,13 @@ A -
                 {
                     steps: [
                         { text: "Before Everything", branchIndents: 0 },
-                        { text: "B", branchIndents: 1 }
+                        { text: "C", branchIndents: 1 }
                     ]
                 },
                 {
                     steps: [
                         { text: "Before Everything", branchIndents: 0 },
-                        { text: "C", branchIndents: 1 }
+                        { text: "B", branchIndents: 1 }
                     ]
                 }
             ]);
@@ -8674,7 +8674,7 @@ A -
             });
         });
 
-        it("handles different hooks that are siblings", function() {
+        it("handles different hooks that are siblings, and orders the last Before Everything one first", function() {
             var tree = new Tree();
             tree.parseIn(`
 A -
@@ -8720,21 +8720,21 @@ A -
             ]);
 
             expect(tree.beforeEverything).to.have.lengthOf(2);
-            expect(tree.beforeEverything[0].steps).to.have.length(3);
-            expect(tree.beforeEverything[1].steps).to.have.length(2);
+            expect(tree.beforeEverything[0].steps).to.have.length(2);
+            expect(tree.beforeEverything[1].steps).to.have.length(3);
 
             expect(tree.beforeEverything).to.containSubsetInOrder([
                 {
                     steps: [
                         { text: "Before Everything", branchIndents: 0 },
-                        { text: "D", branchIndents: 1 },
-                        { text: "E", branchIndents: 1 }
+                        { text: "I", branchIndents: 1 }
                     ]
                 },
                 {
                     steps: [
                         { text: "Before Everything", branchIndents: 0 },
-                        { text: "I", branchIndents: 1 }
+                        { text: "D", branchIndents: 1 },
+                        { text: "E", branchIndents: 1 }
                     ]
                 }
             ]);
