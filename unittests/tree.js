@@ -9453,13 +9453,6 @@ A -
         it("handles different hooks that are siblings, and orders the last Before Everything one first", function() {
             var tree = new Tree();
             tree.parseIn(`
-A -
-    * After Every Branch
-        K -
-
-    * After Every Step
-        W -
-
 * After Every Branch
     B -
         C -
@@ -9467,6 +9460,13 @@ A -
 * After Every Step
     Y -
         Z -
+
+A -
+    * After Every Branch
+        K -
+
+    * After Every Step
+        W -
 
 * Before Everything
     D -
@@ -9759,8 +9759,16 @@ A
         it.skip("sorts branches by {frequency}", function() {
         });
 
-        it.skip("when called a second time, sets a flag to only run previously failed branches", function() {
-            // When generateBranches() is called and this.branches already exists, this.branches is assumed to have been run already
+        it("handles an error from branchify()", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * Before Everything
+    `, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches();
+            }, "A '* Before Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
         it("throws an exception when there's an infinite loop among function calls", function() {
@@ -9792,15 +9800,6 @@ A
             }, /Infinite loop detected \[file\.txt:(5|8)\]/);
 
         });
-
-
-
-
-
-
-
-
-
     });
 
     describe("pruneBranches()", function() {

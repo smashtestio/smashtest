@@ -924,7 +924,7 @@ class Tree {
                     utils.error("Infinite loop detected", this.latestBranchifiedStep.filename, this.latestBranchifiedStep.lineNumber);
                 }
                 else {
-                    throw new Error("Infinite loop detected");
+                    throw new Error("Infinite loop detected"); // very rare situation (as this.latestBranchifiedStep is almost always set)
                 }
             }
             else {
@@ -965,15 +965,6 @@ class Tree {
             }
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
-
-
-
-
-
-
-
-
-
     }
 
     /**
