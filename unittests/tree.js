@@ -8960,6 +8960,33 @@ A
         });
 
         it("throws an exception when there's an infinite loop among function calls", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    F
+    `, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches();
+            });
+
+            tree = new Tree();
+            tree.parseIn(`
+A
+
+* A
+    B
+
+* B
+    A
+    `, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches();
+            });
+
         });
 
 

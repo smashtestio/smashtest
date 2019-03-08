@@ -15,6 +15,8 @@ class Tree {
         this.afterEverything = [];      // Array of Step, the steps (and their children) to execute after all branches (tests)
 
         this.branches = [];             // Array of Branch, generated from this.root
+
+        this.latestStep = null;         // Step most recently used by branchify(). Used to debug and track down infinite loops.
     }
 
     /**
@@ -654,6 +656,10 @@ class Tree {
             branchIndents = 0;
         }
 
+        if(!step.isFunctionDeclaration) {
+            this.latestStep = step;
+        }
+
         isSequential = (step.isSequential && !(step instanceof StepBlock)) || isSequential; // is this step or any step above it sequential? (does not include sequential step blocks)
 
         // If this step isn't the root and isn't a step block, place it at the end of stepsAbove, so we can use it with findFunctionDeclaration()
@@ -882,7 +888,22 @@ class Tree {
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
     generateBranches() {
-        this.branches = this.branchify(this.root);
+        try {
+            this.branches = this.branchify(this.root);
+        }
+        catch(e) {
+            if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
+                if(this.latestStep) {
+                    utils.error("Infinite loop detected", this.latestStep.filename, this.latestStep.lineNumber);
+                }
+                else {
+                    throw new Error("Infinite loop detected");
+                }
+            }
+            else {
+                throw e;
+            }
+        }
 
         // Set Branch.frequency for all branches
         this.branches.forEach(branch => {
