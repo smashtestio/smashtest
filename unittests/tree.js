@@ -9734,29 +9734,167 @@ A
 
     describe("generateBranches()", function() {
         it("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
-// meow
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        {frequency}='high'
+    C -
+D -
+`, "file.txt");
 
+            tree.generateBranches();
 
-
-
-
-
-
-
-
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" },  { text: "B" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" },  { text: "C" } ],
+                    frequency: undefined
+                },
+                {
+                    steps: [ { text: "D" } ],
+                    frequency: undefined
+                }
+            ]);
         });
 
-        it.skip("sets the frequency of multiple branches when the {frequency} variable is set", function() {
-            // have multiple branches have their {frequency} set
+        it("sets the frequency of multiple branches when the {frequency} variable is set", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        {frequency}='high'
+            C -
+
+            D -
+
+E -
+
+{frequency}='low'
+
+    F -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='high'" }, { text: "C" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='high'" }, { text: "D" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "E" } ],
+                    frequency: undefined
+                },
+                {
+                    steps: [ { text: "{frequency}='low'" }, { text: "F" } ],
+                    frequency: 'low'
+                }
+            ]);
         });
 
-        it.skip("sets the frequency of a branch to medium when the {frequency} variable is absent", function() {
+        it("sets the frequency of multiple branches when the {frequency} variable is set on a step block", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        C -
+        D -
+
+            {frequency}='high'
+
+        {frequency}='low'
+            E -
+            F -
+G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" },  { text: "B" }, { text: "C" }, { text: "{frequency}='high'" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" },  { text: "B" }, { text: "D" }, { text: "{frequency}='high'" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    frequency: undefined
+                },
+                {
+                    steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='low'" }, { text: "E" } ],
+                    frequency: 'low'
+                },
+                {
+                    steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='low'" }, { text: "F" } ],
+                    frequency: 'low'
+                }
+            ]);
         });
 
-        it.skip("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", function() {
+        it("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {frequency}='high'
+        B -
+            {frequency}='low'
+                C -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" },  { text: "{frequency}='high'" }, { text: "B" }, { text: "{frequency}='low'" }, { text: "C" } ],
+                    frequency: 'low'
+                }
+            ]);
         });
 
-        it.skip("sorts branches by {frequency}", function() {
+        it("sorts branches by {frequency}", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {frequency}='low'
+B -
+
+C -
+    {frequency}='high', {var}='foo'
+D -
+    {frequency}='med'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "C" }, { text: "{frequency}='high', {var}='foo'" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    frequency: undefined
+                },
+                {
+                    steps: [ { text: "D" }, { text: "{frequency}='med'" } ],
+                    frequency: 'med'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='low'" } ],
+                    frequency: 'low'
+                }
+            ]);
         });
 
         it("handles an error from branchify()", function() {
@@ -9803,8 +9941,16 @@ A
     });
 
     describe("pruneBranches()", function() {
-        it.skip("isolates the first branch with ~ encountered", function() {
+        it("isolates the first branch with ~ encountered", function() {
             // try multiple ~'s on different siblings, only the first one is chosen
+            // meow
+
+
+
+
+
+
+
         });
 
         it.skip("isolates the first branch with ~ on multiple steps", function() {

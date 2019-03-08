@@ -187,7 +187,10 @@ Selective test running
     - Groups
         - Choosing which groups to run from variable, or from command line
     - Frequency
-        - Choosing which frequencies to run from variable, or from command line
+        - Choosing which frequencies to run from {frequency}='high/med/low', or from command line
+        - The value of {frequency} at the leaf is what controls the frequency of that branch
+        - You can choose to run tests from a frequency, and above
+        - Recommended to sort the children of a step by their frequency
 
 Run tests that failed last time
 

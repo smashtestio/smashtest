@@ -960,7 +960,7 @@ class Tree {
             else if(branch.frequency == 'low') {
                 lowBranches.push(branch);
             }
-            else { // branch.frequency is undefined or something else
+            else { // branch.frequency is undefined
                 medBranches.push(branch);
             }
         });
