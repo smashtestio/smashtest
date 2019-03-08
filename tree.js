@@ -975,8 +975,11 @@ class Tree {
 
     /**
      * Removes branches that we don't want run
+     * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
+     * @param {String} [frequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or ~~ is encountered in this.branches
      */
-    pruneBranches() {
+    pruneBranches(groups, frequency, noDebug) {
 
 
 

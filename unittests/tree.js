@@ -10029,16 +10029,24 @@ A
     });
 
     describe("pruneBranches()", function() {
-        it("isolates the first branch with ~ encountered", function() {
+        it.skip("keeps all branches if there are no restrictions", function() {
+
+        });
+
+        it.skip("throws an exception if noDebug is set but a $ is present in a branch", function() {
+
+        });
+
+        it.skip("throws an exception if noDebug is set but a ~ is present in a branch", function() {
+
+        });
+
+        it.skip("throws an exception if noDebug is set but a ~~ is present in a branch", function() {
+
+        });
+
+        it.skip("isolates the first branch with ~ encountered", function() {
             // try multiple ~'s on different siblings, only the first one is chosen
-            // meow
-
-
-
-
-
-
-
         });
 
         it.skip("isolates the first branch with ~ on multiple steps", function() {
@@ -10054,41 +10062,48 @@ A
         });
 
         it.skip("removes all steps under a -T step", function() {
-            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+            // have a -T leaf too
         });
 
         it.skip("removes all steps under a -M step", function() {
-            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+            // have an -M leaf too
         });
 
-        it.skip("links branches that go through a + step", function() {
-
-        });
-
-        it.skip("removes branches not part of a {group} being run", function() {
+        it.skip("only keeps a branches under a $", function() {
 
         });
 
-        it.skip("does not remove branches part of a {group} being run", function() {
+        it.skip("only keeps branches that intersect under multiple $'s", function() {
 
         });
 
-        it.skip("removes branches not part of a {frequency} being run", function() {
+        it.skip("keeps multiple branches that are under non-intersecting $'s", function() {
 
         });
 
-        it.skip("does not remove branches part of a {frequency} being run", function() {
+        it.skip("only keeps branches that are part of a group being run", function() {
 
         });
 
+        it.skip("only keeps branches that are part of a group being run, where each branch has multiple groups, and multiple groups are being run", function() {
+            // include branches with no group
+        });
 
+        it.skip("keeps all branches when frequency is set to 'low'", function() {
 
+        });
 
+        it.skip("removes branches not at or above 'med' frequency", function() {
+            // include branches with no frequency set
+        });
 
+        it.skip("removes branches not at or above 'high' frequency", function() {
 
+        });
 
-
-
+        it.skip("handles multiple restrictions", function() {
+            // try them all here, all on one big tree
+        });
     });
 
     describe("finalize()", function() {
