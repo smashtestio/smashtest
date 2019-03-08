@@ -9897,6 +9897,94 @@ D -
             ]);
         });
 
+        it("sets the groups for a branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        {group}='first'
+
+    {group}='second'
+        D -
+
+        E -
+        F -
+
+G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" } ],
+                    groups: [ 'first' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='second'" }, { text: "D" } ],
+                    groups: [ 'second' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='second'" }, { text: "E" } ],
+                    groups: [ 'second' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='second'" }, { text: "F" } ],
+                    groups: [ 'second' ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    groups: undefined
+                }
+            ]);
+        });
+
+        it("sets multiple groups for a branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        {group}='first'
+            {group}='second'
+
+    {group}='third'
+        D -
+            {group}='fourth', {group}='fifth'
+
+        E -
+        F -
+
+            {group}='sixth'
+
+G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
+                    groups: [ 'first', 'second' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "D" }, { text: "{group}='fourth', {group}='fifth'" } ],
+                    groups: [ 'third', 'fourth', 'fifth' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "E" }, { text: "{group}='sixth'" } ],
+                    groups: [ 'third', 'sixth' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" } ],
+                    groups: [ 'third', 'sixth' ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    groups: undefined
+                }
+            ]);
+        });
+
         it("handles an error from branchify()", function() {
             var tree = new Tree();
             tree.parseIn(`

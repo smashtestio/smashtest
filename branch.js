@@ -11,8 +11,9 @@ class Branch {
         OPTIONAL
 
         this.nonParallelId = "";            // When multiple branches cannot be run in parallel (due to +), they are each given the same nonParallelId
-        this.afterEveryBranch = [];            // Array of Branch, the branches to execute after this branch is done
-        this.afterEveryStep = [];               // Array of Branch, the branches to execute after each step in this branch is done
+        this.afterEveryBranch = [];         // Array of Branch, the branches to execute after this branch is done
+        this.afterEveryStep = [];           // Array of Branch, the branches to execute after each step in this branch is done
+
         this.frequency = "";                // Frequency of this Branch (either 'high', 'med', or 'low')
         */
     }
@@ -59,24 +60,36 @@ class Branch {
         this.nonParallelId ? clone.nonParallelId = this.nonParallelId : null; // if this.nonParallelId doesn't exist, don't do anything ("null;")
 
         if(this.afterEveryBranch) {
+            if(!clone.afterEveryBranch) {
+                clone.afterEveryBranch = [];
+            }
+
             this.afterEveryBranch.forEach(branch => {
-                if(!clone.afterEveryBranch) {
-                    clone.afterEveryBranch = [];
-                }
                 clone.afterEveryBranch.push(branch.clone());
             });
         }
 
         if(this.afterEveryStep) {
+            if(!clone.afterEveryStep) {
+                clone.afterEveryStep = [];
+            }
+
             this.afterEveryStep.forEach(branch => {
-                if(!clone.afterEveryStep) {
-                    clone.afterEveryStep = [];
-                }
                 clone.afterEveryStep.push(branch.clone());
             });
         }
 
         this.frequency ? clone.frequency = this.frequency : null;
+
+        if(this.groups) {
+            if(typeof clone.groups == 'undefined') {
+                clone.groups = [];
+            }
+            
+            this.groups.forEach(group => {
+                clone.groups.push(group);
+            });
+        }
 
         return clone;
     }

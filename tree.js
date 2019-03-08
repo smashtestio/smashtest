@@ -932,7 +932,7 @@ class Tree {
             }
         }
 
-        // Set Branch.frequency for all branches
+        // Set Branch.frequency and Branch.groups for all branches
         this.branches.forEach(branch => {
             branch.steps.forEach(step => {
                 if(step.varsBeingSet && step.varsBeingSet.length > 0) {
@@ -940,6 +940,12 @@ class Tree {
                         if(varBeingSet.name == 'frequency') {
                             branch.frequency = utils.stripQuotes(varBeingSet.value);
                             // keep running loop in case a later {frequency} variable overrides this one
+                        }
+                        else if(varBeingSet.name == 'group') {
+                            if(!branch.groups) {
+                                branch.groups = [];
+                            }
+                            branch.groups = branch.groups.concat(utils.stripQuotes(varBeingSet.value));
                         }
                     });
                 }

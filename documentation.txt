@@ -186,6 +186,7 @@ Selective test running
     - Only identifier ($)
     - Groups
         - Choosing which groups to run from variable, or from command line
+        - When multiple group vars are set in a branch, the branch belongs to all groups
     - Frequency
         - Choosing which frequencies to run from {frequency}='high/med/low', or from command line
         - The value of {frequency} at the leaf is what controls the frequency of that branch

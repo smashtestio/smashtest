@@ -286,6 +286,7 @@ describe("Branch", function() {
             branch.afterEveryBranch = [ afterBranch1, afterBranch2 ];
             branch.afterEveryStep = [ afterBranch3 ];
             branch.frequency = "high";
+            branch.groups = ['big', 'small'];
 
             var clonedBranch = branch.clone();
 
@@ -315,7 +316,8 @@ describe("Branch", function() {
                         ]
                     }
                 ],
-                frequency: "high"
+                frequency: "high",
+                groups: [ "big", "small" ]
             });
 
             expect(clonedBranch.steps).to.have.lengthOf(2);
