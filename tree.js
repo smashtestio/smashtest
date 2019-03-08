@@ -773,7 +773,7 @@ class Tree {
                     this.verifyHookCasing(child, 'Before Everything');
 
                     if(child.indents != 0) {
-                        utils.error("A '* Before Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                        utils.error("A '* Before Everything' function must not be indented (it must be at 0 indents)", step.filename, step.lineNumber + 1);
                     }
 
                     var newBeforeEverything = this.branchify(child, stepsAbove, 1, true);
@@ -788,7 +788,7 @@ class Tree {
                     this.verifyHookCasing(child, 'After Everything');
 
                     if(child.indents != 0) {
-                        utils.error("An '* After Everything' function must not be indented (it must be at the top level)", step.filename, step.lineNumber);
+                        utils.error("An '* After Everything' function must not be indented (it must be at 0 indents)", step.filename, step.lineNumber + 1);
                     }
 
                     var newAfterEverything = this.branchify(child, stepsAbove, 1, true);

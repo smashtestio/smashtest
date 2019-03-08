@@ -251,4 +251,29 @@ describe("Branch", function() {
             expect(branch.steps).to.have.lengthOf(2);
         });
     });
+
+    describe("output()", function() {
+        it("outputs the right text", function() {
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.branchIndents = 0;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.branchIndents = 1;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.branchIndents = 2;
+
+            var branch = new Branch;
+            branch.steps = [ stepA, stepB, stepC ];
+
+            expect(branch.output("Foo")).to.equal(`Foo ..
+    A
+        B
+            C
+`);
+        });
+    });
 });

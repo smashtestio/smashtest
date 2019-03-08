@@ -7429,6 +7429,27 @@ E -
             ]);
         });
 
+        it("branchifies an empty * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+`);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[0].afterBranches).to.equal(undefined);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    afterBranches: undefined
+                }
+            ]);
+        });
+
         it("branchifies the * After Every Branch hook under the root", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -8131,52 +8152,612 @@ E -
             });
         });
 
-        it.skip("branchifies the * Before Everything hook", function() {
+        it("branchifies the * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+* Before Everything
+    B -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.beforeEverything).to.have.lengthOf(1);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "Before Everything", branchIndents: 0 }, { text: "B", branchIndents: 1 } ]
+                }
+            ]);
         });
 
-        it.skip("branchifies the * Before Everything hook with multiple branches", function() {
+        it("branchifies an empty * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything
+`);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(0);
+            expect(tree.beforeEverything).to.have.lengthOf(0);
         });
 
-        it.skip("branchifies the * Before Everything hook if it has a ..", function() {
+        it("branchifies the * Before Everything hook with multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything
+    B -
+        C -
+    D -
+A -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.beforeEverything).to.have.lengthOf(2);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(3);
+            expect(tree.beforeEverything[1].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 },
+                        { text: "C", branchIndents: 1 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "D", branchIndents: 1 }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("handles multiple * Before Everything hooks that are siblings", function() {
+        it("branchifies the * Before Everything hook if it has a ..", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything ..
+    B -
+        C -
+    D -
+A -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.beforeEverything).to.have.lengthOf(1);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 },
+                        { text: "C", branchIndents: 1 },
+                        { text: "D", branchIndents: 1 }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("handles multiple * Before Everything hooks that are at different levels in the tree", function() {
+        it("handles multiple * Before Everything hooks that are siblings", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything
+    B -
+* Before Everything
+    C -
+A -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.beforeEverything).to.have.lengthOf(2);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(2);
+            expect(tree.beforeEverything[1].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "C", branchIndents: 1 }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("rejects the * Before Everything hook with the wrong casing", function() {
-            // every word must be capitalized, such as "After Every Branch"
+        it("handles a function call under a * Before Everything hook, with function declarations inside an outside the hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+* D
+    E -
+
+* Before Everything
+    B -
+        C
+
+        * C
+            G -
+            H -
+    D
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.beforeEverything).to.have.lengthOf(3);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(4);
+            expect(tree.beforeEverything[1].steps).to.have.lengthOf(4);
+            expect(tree.beforeEverything[2].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 },
+                        { text: "C", branchIndents: 1 },
+                        { text: "G", branchIndents: 2 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 },
+                        { text: "C", branchIndents: 1 },
+                        { text: "H", branchIndents: 2 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "D", branchIndents: 1 },
+                        { text: "E", branchIndents: 2 }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("rejects the * Before Everything hook when not at 0 indents", function() {
+        it("rejects the * Before Everything hook with the wrong casing", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* before Everything
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
         });
 
-        it.skip("branchifies the * After Everything hook", function() {
+        it("accepts the * Before Everything hook with varying amounts of whitespace", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+*   Before    Everything
+    `);
+
+            assert.doesNotThrow(() => {
+                tree.branchify(tree.root);
+            });
         });
 
-        it.skip("branchifies the * After Everything hook when it itself has multiple branches", function() {
+        it("rejects the * Before Everything hook when not at 0 indents", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * Before Everything
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
         });
 
-        it.skip("branchifies the * After Everything hook if it has a ..", function() {
+        it("branchifies the * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+* After Everything
+    B -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.afterEverything).to.have.lengthOf(1);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "After Everything", branchIndents: 0 }, { text: "B", branchIndents: 1 } ]
+                }
+            ]);
         });
 
-        it.skip("handles multiple * After Everything hooks that are siblings", function() {
+        it("branchifies an empty * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything
+`);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(0);
+            expect(tree.afterEverything).to.have.lengthOf(0);
         });
 
-        it.skip("handles multiple * After Everything hooks that are at different levels in the tree", function() {
+        it("branchifies the * After Everything hook with multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything
+    B -
+        C -
+    D -
+A -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.afterEverything).to.have.lengthOf(2);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(3);
+            expect(tree.afterEverything[1].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 },
+                        { text: "C", branchIndents: 1 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "D", branchIndents: 1 }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("rejects the * After Everything hook with the wrong casing", function() {
-            // every word must be capitalized, such as "After Every Branch"
+        it("branchifies the * After Everything hook if it has a ..", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything ..
+    B -
+        C -
+    D -
+A -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.afterEverything).to.have.lengthOf(1);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 },
+                        { text: "C", branchIndents: 1 },
+                        { text: "D", branchIndents: 1 }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("rejects the * After Everything hook when not at 0 indents", function() {
+        it("handles multiple * After Everything hooks that are siblings", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything
+    B -
+* After Everything
+    C -
+A -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.afterEverything).to.have.lengthOf(2);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(2);
+            expect(tree.afterEverything[1].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "C", branchIndents: 1 }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("handles different hooks that are siblings", function() {
-            // try each of the the 3 hook types
+        it("handles a function call under an * After Everything hook, with function declarations inside an outside the hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+* D
+    E -
+
+* After Everything
+    B -
+        C
+
+        * C
+            G -
+            H -
+    D
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(tree.afterEverything).to.have.lengthOf(3);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(4);
+            expect(tree.afterEverything[1].steps).to.have.lengthOf(4);
+            expect(tree.afterEverything[2].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ]
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 },
+                        { text: "C", branchIndents: 1 },
+                        { text: "G", branchIndents: 2 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "B", branchIndents: 1 },
+                        { text: "C", branchIndents: 1 },
+                        { text: "H", branchIndents: 2 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "D", branchIndents: 1 },
+                        { text: "E", branchIndents: 2 }
+                    ]
+                }
+            ]);
+        });
+
+        it("rejects the * After Everything hook with the wrong casing", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* after Everything
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
+        });
+
+        it("accepts the * After Everything hook with varying amounts of whitespace", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+*   After    Everything
+    `);
+
+            assert.doesNotThrow(() => {
+                tree.branchify(tree.root);
+            });
+        });
+
+        it("rejects the * After Everything hook when not at 0 indents", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Everything
+    `);
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            });
+        });
+
+        it("handles different hooks that are siblings", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        K -
+
+* After Every Branch
+    B -
+        C -
+
+* Before Everything
+    D -
+        E -
+
+* After Everything
+    F -
+        G -
+
+* After Every Branch
+    H -
+
+* Before Everything
+    I -
+
+* After Everything
+    J -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(1);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    afterBranches: [
+                        {
+                            steps: [ { text: "K" } ]
+                        }
+                    ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.have.lengthOf(2);
+            expect(tree.beforeEverything[0].steps).to.have.length(3);
+            expect(tree.beforeEverything[1].steps).to.have.length(2);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "D", branchIndents: 1 },
+                        { text: "E", branchIndents: 1 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "Before Everything", branchIndents: 0 },
+                        { text: "I", branchIndents: 1 }
+                    ]
+                }
+            ]);
+
+            expect(tree.afterEverything).to.have.lengthOf(2);
+            expect(tree.afterEverything[0].steps).to.have.length(3);
+            expect(tree.afterEverything[1].steps).to.have.length(2);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "F", branchIndents: 1 },
+                        { text: "G", branchIndents: 1 }
+                    ]
+                },
+                {
+                    steps: [
+                        { text: "After Everything", branchIndents: 0 },
+                        { text: "J", branchIndents: 1 }
+                    ]
+                }
+            ]);
         });
 
         it("connects branches via nonParallelId when + is set", function() {
