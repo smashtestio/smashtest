@@ -11,10 +11,10 @@ const utils = require('./utils.js');
 class Tree {
     constructor() {
         this.root = new Step();              // the root Step of the tree (parsed version of the text that got inputted)
+        this.branches = [];                  // Array of Branch, generated from this.root
+
         this.beforeEverything = [];          // Array of Step, the steps (and their children) to execute before all branches (tests)
         this.afterEverything = [];           // Array of Step, the steps (and their children) to execute after all branches (tests)
-
-        this.branches = [];                  // Array of Branch, generated from this.root
 
         this.latestBranchifiedStep = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
     }
@@ -976,6 +976,42 @@ class Tree {
             }
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
+
+        // Enforce noDebug
+        if(noDebug) {
+            validateNoDebug(this.branches);
+            if(this.beforeEverything) {
+                validateNoDebug(this.beforeEverything);
+            }
+            if(this.afterEverything) {
+                validateNoDebug(this.afterEverything);
+            }
+
+            function validateNoDebug(branches) {
+                branches.forEach(branch => {
+                    branch.steps.forEach(step => {
+                        if(step.isDebug) {
+                            utils.error("A ~ was found, but the noDebug flag is set", step.filename, step.lineNumber);
+                        }
+                        else if(step.isStepByStepDebug) {
+                            utils.error("A ~~ was found, but the noDebug flag is set", step.filename, step.lineNumber);
+                        }
+                        else if(step.isOnly) {
+                            utils.error("A $ was found, but the noDebug flag is set", step.filename, step.lineNumber);
+                        }
+                    });
+
+                    if(branch.afterEveryBranch) {
+                        validateNoDebug(branch.afterEveryBranch);
+                    }
+                    if(branch.afterEveryStep) {
+                        validateNoDebug(branch.afterEveryStep);
+                    }
+                });
+
+            }
+        }
+
 
 
 

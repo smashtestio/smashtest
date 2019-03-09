@@ -10030,6 +10030,7 @@ A
         // NOTE: this just freezes up the executable
         // Unlike the infinite loop which causes an immediate stack size exception, this probably blows out memory before stack size (and there is no exception thrown)
         // This many branches are unlikely in normal usage, though
+        /*
         it.skip("throws an exception when there are too many branches", function() {
             var tree = new Tree();
             // This is 10^10 branches, or 10,000,000,000 branches
@@ -10150,8 +10151,274 @@ K-1 -
                 tree.generateBranches();
             }, "Infinite loop detected");
         });
+        */
 
         it("throws an exception if noDebug is set but a $ is present in a branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in a branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~~ is present in a branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B ~~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B -
+            * After Every Branch
+                C - $
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Step
+        B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B -
+            * After Every Step
+                C - $
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything
+    B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything
+    B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B -
+            * After Every Branch
+                C - ~
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Step
+        B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Step
+        B -
+            * After Every Step
+                C - ~
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything
+    B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything
+    B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~~ is present in an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B ~~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~~ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B -
+            * After Every Branch
+                C - ~~
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~~ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a ~~ is present in an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Step
+        B ~~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~~ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Step
+        B -
+            * After Every Step
+                C - ~~
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~~ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a ~~ is present in a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything
+    B ~~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~~ is present in an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything
+    B ~~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, true);
+            }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("isolates the first branch with ~ encountered", function() {
+            // try multiple ~'s on different siblings, only the first one is chosen
 // meow
 
 
@@ -10161,30 +10428,9 @@ K-1 -
 
 
 
-        });
 
-        it.skip("throws an exception if noDebug is set but a ~ is present in a branch", function() {
 
-        });
 
-        it.skip("throws an exception if noDebug is set but a ~~ is present in a branch", function() {
-
-        });
-
-        it.skip("throws an exception if noDebug is set but a $ is present in a hook", function() {
-            // try the 4 hook types
-        });
-
-        it.skip("throws an exception if noDebug is set but a ~ is present in a hook", function() {
-            // try the 4 hook types
-        });
-
-        it.skip("throws an exception if noDebug is set but a ~~ is present in a hook", function() {
-            // try the 4 hook types
-        });
-
-        it.skip("isolates the first branch with ~ encountered", function() {
-            // try multiple ~'s on different siblings, only the first one is chosen
         });
 
         it.skip("isolates the first branch with ~ on multiple steps", function() {
@@ -10199,17 +10445,33 @@ K-1 -
 
         });
 
-        it.skip("handles a ~ in a hook", function() {
-            // try the 4 hook types
+        it.skip("doesn't remove steps when ~ is inside an * After Every Branch hook", function() {
         });
 
-        it.skip("handles a ~~ in a hook", function() {
-            // try the 4 hook types
+        it.skip("doesn't remove steps when ~ is inside an * After Every Step hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~ is inside a * Before Everything hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~ is inside an * After Everything hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~~ is inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~~ is inside an * After Every Step hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~~ is inside a * Before Everything hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~~ is inside * After Everything hook", function() {
         });
 
         it.skip("removes all steps under a -T step", function() {
             // have a -T leaf too
-            // include -T's inside the four hook types
+            // include -M's inside the four hook types
         });
 
         it.skip("removes all steps under a -M step", function() {
@@ -10229,8 +10491,16 @@ K-1 -
 
         });
 
-        it.skip("rejects a $ in a hook", function() {
-            // try the 4 hook types
+        it.skip("handles $ inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("handles $ inside an * After Every Step hook", function() {
+        });
+
+        it.skip("handles $ inside a * Before Everything hook", function() {
+        });
+
+        it.skip("handles $ inside an * After Everything hook", function() {
         });
 
         it.skip("only keeps branches that are part of a group being run", function() {
@@ -10241,8 +10511,16 @@ K-1 -
             // include branches with no group
         });
 
-        it.skip("ignores groups inside a hook", function() {
-            // try the 4 hook types
+        it.skip("ignores groups inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("ignores groups inside an * After Every Step hook", function() {
+        });
+
+        it.skip("ignores groups inside a * Before Everything hook", function() {
+        });
+
+        it.skip("ignores groups inside an * After Everything hook", function() {
         });
 
         it.skip("keeps all branches when frequency is set to 'low'", function() {
@@ -10257,8 +10535,16 @@ K-1 -
 
         });
 
-        it.skip("ignores frequencies inside a hook", function() {
-            // try the 4 hook types
+        it.skip("ignores frequencies inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("ignores frequencies inside an * After Every Step hook", function() {
+        });
+
+        it.skip("ignores frequencies inside a * Before Everything hook", function() {
+        });
+
+        it.skip("ignores frequencies inside an * After Everything hook", function() {
         });
 
         it.skip("handles multiple restrictions", function() {

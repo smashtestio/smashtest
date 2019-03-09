@@ -117,6 +117,8 @@ Variables
         - Whitespace in front of and behind a variable name doesn't count
 
 Comments
+    - // only, stuff before it is a legit step
+    - if whole line starts with //, it's treated as an empty line
 
 Code blocks
     - Types
@@ -132,14 +134,15 @@ Code blocks
 To-Do (-T)
     - Marks this branch and those under it as todo
 
+Manual tests (-M)
+    - Marks this branch and those under it as manual
+    - Treated as textual step, but you can ask to generate manual checklist from command line
+
 Debug and REPL (~)
     - ~ (debug identifier)
     - ~~ (step-by-step debug identifier)
     - Using REPL
     - Kicking off blank browser and REPL just from the command line
-
-No parallel execution (+)
-    - No two child branches may execute simultaneously
 
 Sequential execution (..)
     - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)
@@ -154,9 +157,35 @@ Sequential execution (..)
         - Same rules if one of the steps in the step block is a function with multiple branches
     - Show examples from bottom of test_language_sample.txt
 
+No parallel execution (+)
+    - No two child branches may execute simultaneously
+
 Expected failure (#)
     - #
     - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
+
+Only ($)
+    - $ = Only run branches under this step, but no debugging.
+        - Multiple $'s that intersect only run tests that fall under both (AND)
+        - Multiple $'s that do not intersect run tests that fall under either (OR)
+
+Run tests that failed last time
+
+Selective test running
+    - Only identifier ($)
+    - Groups
+        - Choosing which groups to run from variable, or from command line
+        - When multiple group vars are set in a branch, the branch belongs to all groups
+    - Frequency
+        - Choosing which frequencies to run from {frequency}='high/med/low', or from command line
+            - You can choose to run tests from a frequency, and above
+        - The value of {frequency} at the leaf is what controls the frequency of that branch
+        - Branches are also run in order of frequency, from high to low, where no frequency is med
+        - Recommended to sort the children of a step by their frequency
+    - When {noDebug} is set to true, or the noDebug command line flag is set, a ~, ~~, or $ anywhere in your tree will cause an error
+        - Great for making sure you're not debug prior to committing test files to CI
+
+Mocking APIs
 
 Hook steps
     - * After Every Branch
@@ -175,28 +204,3 @@ Hook steps
         - after all branches end, execute this
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
-
-Mocking APIs
-
-Only ($)
-    - $ = Only run branches under this step, but no debugging.
-        - Multiple $'s that intersect only run tests that fall under both (AND)
-        - Multiple $'s that do not intersect run tests that fall under either (OR)
-
-Selective test running
-    - Only identifier ($)
-    - Groups
-        - Choosing which groups to run from variable, or from command line
-        - When multiple group vars are set in a branch, the branch belongs to all groups
-    - Frequency
-        - Choosing which frequencies to run from {frequency}='high/med/low', or from command line
-            - You can choose to run tests from a frequency, and above
-        - The value of {frequency} at the leaf is what controls the frequency of that branch
-        - Branches are also run in order of frequency, from high to low, where no frequency is med
-        - Recommended to sort the children of a step by their frequency
-
-Run tests that failed last time
-
-Manual tests (-M)
-    - Marks this branch and those under it as manual
-    - Treated as textual step, but you can ask to generate manual checklist from command line
