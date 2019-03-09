@@ -10029,6 +10029,7 @@ A
 
         // NOTE: this just freezes up the executable
         // Unlike the infinite loop which causes an immediate stack size exception, this probably blows out memory before stack size (and there is no exception thrown)
+        // This many branches are unlikely in normal usage, though
         it.skip("throws an exception when there are too many branches", function() {
             var tree = new Tree();
             // This is 10^10 branches, or 10,000,000,000 branches
@@ -10150,8 +10151,7 @@ K-1 -
             }, "Infinite loop detected");
         });
 
-        it("keeps all branches if there are no restrictions", function() {
-
+        it("throws an exception if noDebug is set but a $ is present in a branch", function() {
 // meow
 
 
@@ -10161,11 +10161,6 @@ K-1 -
 
 
 
-
-        });
-
-        it.skip("throws an exception if noDebug is set but a $ is present in a branch", function() {
-
         });
 
         it.skip("throws an exception if noDebug is set but a ~ is present in a branch", function() {
@@ -10174,6 +10169,18 @@ K-1 -
 
         it.skip("throws an exception if noDebug is set but a ~~ is present in a branch", function() {
 
+        });
+
+        it.skip("throws an exception if noDebug is set but a $ is present in a hook", function() {
+            // try the 4 hook types
+        });
+
+        it.skip("throws an exception if noDebug is set but a ~ is present in a hook", function() {
+            // try the 4 hook types
+        });
+
+        it.skip("throws an exception if noDebug is set but a ~~ is present in a hook", function() {
+            // try the 4 hook types
         });
 
         it.skip("isolates the first branch with ~ encountered", function() {
@@ -10192,12 +10199,22 @@ K-1 -
 
         });
 
+        it.skip("handles a ~ in a hook", function() {
+            // try the 4 hook types
+        });
+
+        it.skip("handles a ~~ in a hook", function() {
+            // try the 4 hook types
+        });
+
         it.skip("removes all steps under a -T step", function() {
             // have a -T leaf too
+            // include -T's inside the four hook types
         });
 
         it.skip("removes all steps under a -M step", function() {
             // have an -M leaf too
+            // include -M's inside the four hook types
         });
 
         it.skip("only keeps a branches under a $", function() {
@@ -10212,12 +10229,20 @@ K-1 -
 
         });
 
+        it.skip("rejects a $ in a hook", function() {
+            // try the 4 hook types
+        });
+
         it.skip("only keeps branches that are part of a group being run", function() {
 
         });
 
         it.skip("only keeps branches that are part of a group being run, where each branch has multiple groups, and multiple groups are being run", function() {
             // include branches with no group
+        });
+
+        it.skip("ignores groups inside a hook", function() {
+            // try the 4 hook types
         });
 
         it.skip("keeps all branches when frequency is set to 'low'", function() {
@@ -10230,6 +10255,10 @@ K-1 -
 
         it.skip("removes branches not at or above 'high' frequency", function() {
 
+        });
+
+        it.skip("ignores frequencies inside a hook", function() {
+            // try the 4 hook types
         });
 
         it.skip("handles multiple restrictions", function() {
