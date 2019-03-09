@@ -138,11 +138,13 @@ Manual tests (-M)
     - Marks this branch and those under it as manual
     - Treated as textual step, but you can ask to generate manual checklist from command line
 
-Debug and REPL (~)
+Debug and REPL (~ and ~~)
     - ~ (debug identifier)
     - ~~ (step-by-step debug identifier)
+        - Attaches ~ to every step above (including this one), all the way to the root, or until it encounters another ~ step
     - Using REPL
     - Kicking off blank browser and REPL just from the command line
+    - Works inside hooks
 
 Sequential execution (..)
     - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)

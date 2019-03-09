@@ -10417,7 +10417,7 @@ A -
             }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
-        it("doesn't throw an exception if noDebug is set but ~, ~~, and $ isn't present", function() {
+        it("doesn't throw an exception if noDebug is set but ~, ~~, and $ aren't present", function() {
             var tree = new Tree();
             tree.parseIn(`
 A -

@@ -1008,6 +1008,40 @@ class Tree {
             }
         }
 
+        // Put isDebug onto all steps before an isStepByStepDebug step
+        debugStepExpansion(this.branches);
+        debugStepExpansion(this.beforeEverything);
+        debugStepExpansion(this.afterEverything);
+
+        function debugStepExpansion(branches) {
+            branches.forEach(branch => {
+                for(var i = 0; i < branch.steps.length; i++) {
+                    var step = branch.steps[i];
+                    if(step.isStepByStepDebug) {
+                        step.isDebug = true;
+
+                        // Set isDebug on all steps before, up until an existing isDebug step is encountered
+                        for(var j = i - 1; j >= 0; j--) {
+                            var step = branch.steps[j];
+                            if(step.isDebug) {
+                                break;
+                            }
+                            else {
+                                step.isDebug = true;
+                            }
+                        }
+                    }
+                }
+
+                if(branch.afterEveryBranch) {
+                    debugStepExpansion(branch.afterEveryBranch);
+                }
+                if(branch.afterEveryStep) {
+                    debugStepExpansion(branch.afterEveryStep);
+                }
+            });
+        }
+
 
 
 
