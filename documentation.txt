@@ -142,6 +142,7 @@ Debug and REPL (~)
     - ~ (debug identifier)
     - Using REPL
     - Kicking off blank browser and REPL just from the command line
+    - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)
     - Works inside hooks
 
 Sequential execution (..)
