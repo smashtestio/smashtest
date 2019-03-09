@@ -10417,6 +10417,18 @@ A -
             }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
+        it("doesn't throw an exception if noDebug is set but ~, ~~, and $ isn't present", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+`, "file.txt");
+
+            assert.doesNotThrow(() => {
+                tree.generateBranches(undefined, undefined, true);
+            });
+        });
+
         it("isolates the first branch with ~ encountered", function() {
             // try multiple ~'s on different siblings, only the first one is chosen
 // meow

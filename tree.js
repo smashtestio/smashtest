@@ -980,12 +980,8 @@ class Tree {
         // Enforce noDebug
         if(noDebug) {
             validateNoDebug(this.branches);
-            if(this.beforeEverything) {
-                validateNoDebug(this.beforeEverything);
-            }
-            if(this.afterEverything) {
-                validateNoDebug(this.afterEverything);
-            }
+            validateNoDebug(this.beforeEverything);
+            validateNoDebug(this.afterEverything);
 
             function validateNoDebug(branches) {
                 branches.forEach(branch => {
