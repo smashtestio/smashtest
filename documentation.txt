@@ -33,6 +33,7 @@ Running tests
         - File glob passed in
             - All files are merged into one big one, and everything at the top level is accessible to everything in other files
         - Setting {vars} from command line
+        - Branches are run in order of {frequency}, high to low, where no {frequency} is med
 
 Configuration
     - Timeouts
@@ -189,8 +190,9 @@ Selective test running
         - When multiple group vars are set in a branch, the branch belongs to all groups
     - Frequency
         - Choosing which frequencies to run from {frequency}='high/med/low', or from command line
+            - You can choose to run tests from a frequency, and above
         - The value of {frequency} at the leaf is what controls the frequency of that branch
-        - You can choose to run tests from a frequency, and above
+        - Branches are also run in order of frequency, from high to low, where no frequency is med
         - Recommended to sort the children of a step by their frequency
 
 Run tests that failed last time

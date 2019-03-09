@@ -48,8 +48,8 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
 
                         // TODO:
                         // 1) tree.parseIn() all the files under builtin/
-                        // 2) Call tree.finalize()
-                        // 3) Call create a new TestRunner and call runTests()
+                        // 2) Call tree.generateBranches(with parameters from command line or vars)
+                        // 3) Call create a new TestRunner and call run()
 
 
 

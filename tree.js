@@ -911,10 +911,15 @@ class Tree {
     }
 
     /**
-     * Converts the tree under this.root into an array of Branch in this.branches
+     * Converts the tree under this.root into an array of Branch in this.branches and removes branches we don't want run
+     * Called after all of the tree's text has been inputted with parseIn()
+     * Gets everything ready for the test runner
+     * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
+     * @param {String} [frequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or ~~ is encountered in this.branches
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
-    generateBranches() {
+    generateBranches(groups, frequency, noDebug) {
         try {
             this.branches = this.branchify(this.root);
         }
@@ -971,31 +976,15 @@ class Tree {
             }
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
-    }
-
-    /**
-     * Removes branches that we don't want run
-     * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
-     * @param {String} [frequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or ~~ is encountered in this.branches
-     */
-    pruneBranches(groups, frequency, noDebug) {
 
 
 
 
 
 
-    }
 
-    /**
-     * Called after all of the tree's text has been inputted with parseIn()
-     * Converts the tree under this.root into this.branches, and gets everything ready for the test runner
-     * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
-     */
-    finalize() {
-        this.generateBranches();
-        this.pruneBranches();
+
+
     }
 
     /**

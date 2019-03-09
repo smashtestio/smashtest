@@ -8,7 +8,7 @@ class Runner {
      * Generates the runner
      * @param {Object} config - Configuration with the following parameters
      *      {Number} maxInstances - The maximum number of simultaneous branches to run
-     *      {Tree} tree - The tree to run (tree.finalize() must have been already called)
+     *      {Tree} tree - The tree to run (tree.generateBranches() must have been already called)
      */
     constructor(config) {
         this.maxInstances = config.maxInstances;
