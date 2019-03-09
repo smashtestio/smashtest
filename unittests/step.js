@@ -505,7 +505,6 @@ describe("Step", function() {
             functionDeclarationInTree.isToDo = true;
             functionDeclarationInTree.isManual = true;
             functionDeclarationInTree.isDebug = true;
-            functionDeclarationInTree.isStepByStepDebug = true;
             functionDeclarationInTree.isOnly = true;
             functionDeclarationInTree.isNonParallel = true;
             functionDeclarationInTree.isSequential = true;
@@ -517,7 +516,6 @@ describe("Step", function() {
             expect(step.isToDo).to.equal(true);
             expect(step.isManual).to.equal(true);
             expect(step.isDebug).to.equal(true);
-            expect(step.isStepByStepDebug).to.equal(true);
             expect(step.isOnly).to.equal(true);
             expect(step.isNonParallel).to.equal(true);
             expect(step.isSequential).to.equal(true);
@@ -535,7 +533,6 @@ describe("Step", function() {
             expect(step.isToDo).to.equal(undefined);
             expect(step.isManual).to.equal(undefined);
             expect(step.isDebug).to.equal(undefined);
-            expect(step.isStepByStepDebug).to.equal(undefined);
             expect(step.isOnly).to.equal(undefined);
             expect(step.isNonParallel).to.equal(undefined);
             expect(step.isSequential).to.equal(undefined);

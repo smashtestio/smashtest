@@ -32,7 +32,6 @@ class Step {
         this.isToDo = false;                  // true if this step has the To Do identifier (-T)
         this.isManual = false;                // true if this step has the manual identifier (-M)
         this.isDebug = false;                 // true if this step has the debug identifier (~)
-        this.isStepByStepDebug = false;       // true if this step has the step-by-step debug identifier (~~)
         this.isOnly = false;                  // true if this step has the only identifier ($)
         this.isNonParallel = false;           // true if this step has the non-parallel identifier (+)
         this.isSequential = false;            // true if this step has the sequential identifier (..)
@@ -188,9 +187,6 @@ class Step {
 
         var isDebug = this.isDebug || functionDeclarationInTree.isDebug;
         isDebug ? this.isDebug = isDebug : null;
-
-        var isStepByStepDebug = this.isStepByStepDebug || functionDeclarationInTree.isStepByStepDebug;
-        isStepByStepDebug ? this.isStepByStepDebug = isStepByStepDebug : null;
 
         var isOnly = this.isOnly || functionDeclarationInTree.isOnly;
         isOnly ? this.isOnly = isOnly : null;

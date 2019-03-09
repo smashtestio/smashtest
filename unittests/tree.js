@@ -89,7 +89,6 @@ describe("Tree", function() {
             assert.equal(step.isManual, undefined);
             assert.equal(step.isDebug, undefined);
             assert.equal(step.isTextualStep, undefined);
-            assert.equal(step.isStepByStepDebug, undefined);
             assert.equal(step.isOnly, undefined);
             assert.equal(step.isNonParallel, undefined);
             assert.equal(step.isSequential, undefined);
@@ -300,24 +299,10 @@ describe("Tree", function() {
             var step = tree.parseLine(`Click {button} ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, true);
-            assert.equal(step.isStepByStepDebug, undefined);
 
             step = tree.parseLine(`Click {button} + ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, true);
-            assert.equal(step.isStepByStepDebug, undefined);
-        });
-
-        it("parses the step-by-step debug identifier (~~)", function() {
-            var step = tree.parseLine(`Click {button} ~~`, "file.txt", 10);
-            assert.equal(step.text, `Click {button}`);
-            assert.equal(step.isDebug, undefined);
-            assert.equal(step.isStepByStepDebug, true);
-
-            step = tree.parseLine(`Click {button} + ~~`, "file.txt", 10);
-            assert.equal(step.text, `Click {button}`);
-            assert.equal(step.isDebug, undefined);
-            assert.equal(step.isStepByStepDebug, true);
         });
 
         it("parses the only identifier ($)", function() {
@@ -4102,7 +4087,7 @@ F -
         it("properly merges identifiers between function call and function declaration", function() {
             var tree = new Tree();
             tree.parseIn(`
-F ~~
+F ~
 
 * F + #
     A -
@@ -4120,7 +4105,7 @@ F ~~
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            isStepByStepDebug: true,
+                            isDebug: true,
                             isNonParallel: true,
                             isExpectedFail: true,
                             branchIndents: 0,
@@ -4128,14 +4113,14 @@ F ~~
                                 text: "F",
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
-                                isStepByStepDebug: true,
+                                isDebug: true,
                                 isNonParallel: undefined,
                                 isExpectedFail: undefined,
                                 functionDeclarationInTree: {
                                     text: "F",
                                     isFunctionCall: undefined,
                                     isFunctionDeclaration: true,
-                                    isStepByStepDebug: undefined,
+                                    isDebug: undefined,
                                     isNonParallel: true,
                                     isExpectedFail: true
                                 }
@@ -4146,7 +4131,7 @@ F ~~
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            isStepByStepDebug: undefined,
+                            isDebug: undefined,
                             isNonParallel: undefined,
                             isExpectedFail: undefined,
                             branchIndents: 1,
@@ -4164,7 +4149,7 @@ F ~~
         it("properly merges identifiers and a code block between function call and function declaration", function() {
             var tree = new Tree();
             tree.parseIn(`
-F ~~
+F ~
 
 * F + # {
     code block 1
@@ -4184,7 +4169,7 @@ F ~~
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            isStepByStepDebug: true,
+                            isDebug: true,
                             isNonParallel: true,
                             isExpectedFail: true,
                             branchIndents: 0,
@@ -4193,7 +4178,7 @@ F ~~
                                 text: "F",
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
-                                isStepByStepDebug: true,
+                                isDebug: true,
                                 isNonParallel: undefined,
                                 isExpectedFail: undefined,
                                 codeBlock: undefined,
@@ -4201,7 +4186,7 @@ F ~~
                                     text: "F",
                                     isFunctionCall: undefined,
                                     isFunctionDeclaration: true,
-                                    isStepByStepDebug: undefined,
+                                    isDebug: undefined,
                                     isNonParallel: true,
                                     isExpectedFail: true,
                                     codeBlock: '\n    code block 1\n    code block 2\n'
@@ -10177,18 +10162,6 @@ A -
             }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
-        it("throws an exception if noDebug is set but a ~~ is present in a branch", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    B ~~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
         it("throws an exception if noDebug is set but a $ is present in an * After Every Branch hook", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -10341,94 +10314,6 @@ A -
             }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
-        it("throws an exception if noDebug is set but a ~~ is present in an * After Every Branch hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch
-        B ~~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~~ was found, but the noDebug flag is set [file.txt:4]");
-
-            tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch
-        B -
-            * After Every Branch
-                C - ~~
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~~ was found, but the noDebug flag is set [file.txt:6]");
-        });
-
-        it("throws an exception if noDebug is set but a ~~ is present in an * After Every Step hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Step
-        B ~~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~~ was found, but the noDebug flag is set [file.txt:4]");
-
-            tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Step
-        B -
-            * After Every Step
-                C - ~~
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~~ was found, but the noDebug flag is set [file.txt:6]");
-        });
-
-        it("throws an exception if noDebug is set but a ~~ is present in a * Before Everything hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-* Before Everything
-    B ~~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a ~~ is present in an * After Everything hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-* After Everything
-    B ~~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("doesn't throw an exception if noDebug is set but ~, ~~, and $ aren't present", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    B -
-`, "file.txt");
-
-            assert.doesNotThrow(() => {
-                tree.generateBranches(undefined, undefined, true);
-            });
-        });
-
         it("isolates the first branch with ~ encountered", function() {
             // try multiple ~'s on different siblings, only the first one is chosen
 // meow
@@ -10449,14 +10334,6 @@ A -
             // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
         });
 
-        it.skip("puts a ~ on all steps above and including a ~~ step, isolates the first branch accordingly", function() {
-
-        });
-
-        it.skip("puts a ~ on all steps above and including a ~~ step, but stops when it encounters a ~ on the way to the top, isolates the first branch accordingly", function() {
-
-        });
-
         it.skip("doesn't remove steps when ~ is inside an * After Every Branch hook", function() {
         });
 
@@ -10467,18 +10344,6 @@ A -
         });
 
         it.skip("doesn't remove steps when ~ is inside an * After Everything hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~~ is inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~~ is inside an * After Every Step hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~~ is inside a * Before Everything hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~~ is inside * After Everything hook", function() {
         });
 
         it.skip("removes all steps under a -T step", function() {

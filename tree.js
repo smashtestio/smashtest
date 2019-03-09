@@ -133,9 +133,6 @@ class Tree {
             if(step.identifiers.includes('~')) {
                 step.isDebug = true;
             }
-            if(step.identifiers.includes('~~')) {
-                step.isStepByStepDebug = true;
-            }
             if(step.identifiers.includes('$')) {
                 step.isOnly = true;
             }
@@ -916,7 +913,7 @@ class Tree {
      * Gets everything ready for the test runner
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [frequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or ~~ is encountered in this.branches
+     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
     generateBranches(groups, frequency, noDebug) {
@@ -989,9 +986,6 @@ class Tree {
                         if(step.isDebug) {
                             utils.error("A ~ was found, but the noDebug flag is set", step.filename, step.lineNumber);
                         }
-                        else if(step.isStepByStepDebug) {
-                            utils.error("A ~~ was found, but the noDebug flag is set", step.filename, step.lineNumber);
-                        }
                         else if(step.isOnly) {
                             utils.error("A $ was found, but the noDebug flag is set", step.filename, step.lineNumber);
                         }
@@ -1008,39 +1002,7 @@ class Tree {
             }
         }
 
-        // Put isDebug onto all steps before an isStepByStepDebug step
-        debugStepExpansion(this.branches);
-        debugStepExpansion(this.beforeEverything);
-        debugStepExpansion(this.afterEverything);
-
-        function debugStepExpansion(branches) {
-            branches.forEach(branch => {
-                for(var i = 0; i < branch.steps.length; i++) {
-                    var step = branch.steps[i];
-                    if(step.isStepByStepDebug) {
-                        step.isDebug = true;
-
-                        // Set isDebug on all steps before, up until an existing isDebug step is encountered
-                        for(var j = i - 1; j >= 0; j--) {
-                            var step = branch.steps[j];
-                            if(step.isDebug) {
-                                break;
-                            }
-                            else {
-                                step.isDebug = true;
-                            }
-                        }
-                    }
-                }
-
-                if(branch.afterEveryBranch) {
-                    debugStepExpansion(branch.afterEveryBranch);
-                }
-                if(branch.afterEveryStep) {
-                    debugStepExpansion(branch.afterEveryStep);
-                }
-            });
-        }
+// meow
 
 
 
