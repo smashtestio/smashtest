@@ -7482,6 +7482,54 @@ C -
             ]);
         });
 
+        it("branchifies the * After Every Branch hook when it's inside a function declaration", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    A -
+    B -
+
+    * After Every Branch
+        C -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+
+            expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
+            expect(branches[1].afterEveryBranch).to.have.lengthOf(1);
+
+            expect(branches[0].afterEveryBranch[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterEveryBranch[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" }, { text: "A" } ],
+                    afterEveryBranch: [
+                        {
+                            steps: [ { text: "After Every Branch", branchIndents: 0 }, { text: "C", branchIndents: 1 } ]
+                        }
+                    ],
+                    afterEveryStep: undefined
+                },
+                {
+                    steps: [ { text: "F" }, { text: "B" } ],
+                    afterEveryBranch: [
+                        {
+                            steps: [ { text: "After Every Branch", branchIndents: 0 }, { text: "C", branchIndents: 1 } ]
+                        }
+                    ],
+                    afterEveryStep: undefined
+                }
+            ]);
+        });
+
         it("branchifies the * After Every Branch hook with multiple branches", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -7861,7 +7909,7 @@ E -
             ]);
         });
 
-        it("handles a function call under a * After Every Branch hook, with function declarations inside an outside the hook", function() {
+        it("handles a function call under a * After Every Branch hook, with function declarations inside and outside the hook", function() {
             var tree = new Tree();
             tree.parseIn(`
 A -
@@ -8255,6 +8303,54 @@ C -
             ]);
         });
 
+        it("branchifies the * After Every Step hook when it's inside a function declaration", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    A -
+    B -
+
+    * After Every Step
+        C -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+
+            expect(branches[0].afterEveryStep).to.have.lengthOf(1);
+            expect(branches[1].afterEveryStep).to.have.lengthOf(1);
+
+            expect(branches[0].afterEveryStep[0].steps).to.have.lengthOf(2);
+            expect(branches[1].afterEveryStep[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" }, { text: "A" } ],
+                    afterEveryStep: [
+                        {
+                            steps: [ { text: "After Every Step", branchIndents: 0 }, { text: "C", branchIndents: 1 } ]
+                        }
+                    ],
+                    afterEveryBranch: undefined
+                },
+                {
+                    steps: [ { text: "F" }, { text: "B" } ],
+                    afterEveryStep: [
+                        {
+                            steps: [ { text: "After Every Step", branchIndents: 0 }, { text: "C", branchIndents: 1 } ]
+                        }
+                    ],
+                    afterEveryBranch: undefined
+                }
+            ]);
+        });
+
         it("branchifies the * After Every Step hook with multiple branches", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -8634,7 +8730,7 @@ E -
             ]);
         });
 
-        it("handles a function call under a * After Every Step hook, with function declarations inside an outside the hook", function() {
+        it("handles a function call under a * After Every Step hook, with function declarations inside and outside the hook", function() {
             var tree = new Tree();
             tree.parseIn(`
 A -
@@ -9078,7 +9174,7 @@ A -
             ]);
         });
 
-        it("handles a function call under a * Before Everything hook, with function declarations inside an outside the hook", function() {
+        it("handles a function call under a * Before Everything hook, with function declarations inside and outside the hook", function() {
             var tree = new Tree();
             tree.parseIn(`
 A -
@@ -9339,7 +9435,7 @@ A -
             ]);
         });
 
-        it("handles a function call under an * After Everything hook, with function declarations inside an outside the hook", function() {
+        it("handles a function call under an * After Everything hook, with function declarations inside and outside the hook", function() {
             var tree = new Tree();
             tree.parseIn(`
 A -
@@ -10314,38 +10410,6 @@ A -
             }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
-        it("isolates the first branch with ~ encountered", function() {
-            // try multiple ~'s on different siblings, only the first one is chosen
-// meow
-
-
-
-
-
-
-
-
-
-
-
-        });
-
-        it.skip("isolates the first branch with ~ on multiple steps", function() {
-            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
-        });
-
-        it.skip("doesn't remove steps when ~ is inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside an * After Every Step hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside a * Before Everything hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside an * After Everything hook", function() {
-        });
-
         it.skip("removes all steps under a -T step", function() {
             // have a -T leaf too
             // include -M's inside the four hook types
@@ -10368,7 +10432,11 @@ A -
 
         });
 
-        it.skip("handles using multiple $'s and a ~ to isolate a single branch to debug", function() {
+        it.skip("handles $ when it's attached to a step block member", function() {
+
+        });
+
+        it.skip("handles $ when it's inside a function declaration", function() {
 
         });
 
@@ -10426,6 +10494,38 @@ A -
         });
 
         it.skip("ignores frequencies inside an * After Everything hook", function() {
+        });
+
+        it.skip("isolates the first branch with ~ encountered", function() {
+            // try multiple ~'s on different siblings, only the first one is chosen
+        });
+
+        it.skip("isolates the first branch with ~ on multiple steps", function() {
+            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+        });
+
+        it.skip("handles ~ when it's attached to a step block member", function() {
+
+        });
+
+        it.skip("handles ~ when it's inside a function declaration", function() {
+
+        });
+
+        it.skip("doesn't remove steps when ~ is inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~ is inside an * After Every Step hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~ is inside a * Before Everything hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~ is inside an * After Everything hook", function() {
+        });
+
+        it.skip("handles using multiple $'s and a ~ to isolate a single branch to debug", function() {
+
         });
 
         it.skip("handles multiple restrictions", function() {
