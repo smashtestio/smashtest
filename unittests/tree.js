@@ -9811,6 +9811,82 @@ A
                 tree.branchify(tree.root);
             }, "Maximum call stack size exceeded");
         });
+
+        it.skip("only keeps a branches under a $", function() {
+
+
+// meow
+
+
+
+
+
+        });
+
+        it.skip("only keeps branches that intersect under multiple $'s", function() {
+
+        });
+
+        it.skip("keeps multiple branches that are under non-intersecting $'s", function() {
+
+        });
+
+        it.skip("handles $ when it's attached to a step block member", function() {
+
+        });
+
+        it.skip("handles $ when it's inside a function declaration", function() {
+
+        });
+
+        it.skip("handles $ inside an * After Every Branch hook", function() {
+            // it touches the branches in the hook but doesn't touch this.branches (which may remain fully intact if no $'s exist there)
+        });
+
+        it.skip("handles $ inside an * After Every Step hook", function() {
+        });
+
+        it.skip("handles $ inside a * Before Everything hook", function() {
+        });
+
+        it.skip("handles $ inside an * After Everything hook", function() {
+        });
+
+        it.skip("isolates the first branch with ~ encountered", function() {
+            // try multiple ~'s on different siblings, only the first one is chosen
+        });
+
+        it.skip("isolates the first branch with ~ on multiple steps", function() {
+            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+        });
+
+        it.skip("handles ~ when it's attached to a step block member", function() {
+
+        });
+
+        it.skip("handles ~ when it's inside a function declaration", function() {
+
+        });
+
+        it.skip("doesn't remove steps when ~ is inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~ is inside an * After Every Step hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~ is inside a * Before Everything hook", function() {
+        });
+
+        it.skip("doesn't remove steps when ~ is inside an * After Everything hook", function() {
+        });
+
+        it.skip("handles using multiple $'s and a ~ to isolate a single branch to debug", function() {
+
+        });
+
+        it.skip("throws exception if a ~ exists, but is cut off due to $", function() {
+
+        });
     });
 
     describe("generateBranches()", function() {
@@ -10410,48 +10486,6 @@ A -
             }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
-        it.skip("removes all steps under a -T step", function() {
-            // have a -T leaf too
-            // include -M's inside the four hook types
-        });
-
-        it.skip("removes all steps under a -M step", function() {
-            // have an -M leaf too
-            // include -M's inside the four hook types
-        });
-
-        it.skip("only keeps a branches under a $", function() {
-
-        });
-
-        it.skip("only keeps branches that intersect under multiple $'s", function() {
-
-        });
-
-        it.skip("keeps multiple branches that are under non-intersecting $'s", function() {
-
-        });
-
-        it.skip("handles $ when it's attached to a step block member", function() {
-
-        });
-
-        it.skip("handles $ when it's inside a function declaration", function() {
-
-        });
-
-        it.skip("handles $ inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("handles $ inside an * After Every Step hook", function() {
-        });
-
-        it.skip("handles $ inside a * Before Everything hook", function() {
-        });
-
-        it.skip("handles $ inside an * After Everything hook", function() {
-        });
-
         it.skip("only keeps branches that are part of a group being run", function() {
 
         });
@@ -10496,40 +10530,14 @@ A -
         it.skip("ignores frequencies inside an * After Everything hook", function() {
         });
 
-        it.skip("isolates the first branch with ~ encountered", function() {
-            // try multiple ~'s on different siblings, only the first one is chosen
+        it.skip("throws exception if a ~ exists, but is cut off due to a groups restriction", function() {
         });
 
-        it.skip("isolates the first branch with ~ on multiple steps", function() {
-            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
-        });
-
-        it.skip("handles ~ when it's attached to a step block member", function() {
-
-        });
-
-        it.skip("handles ~ when it's inside a function declaration", function() {
-
-        });
-
-        it.skip("doesn't remove steps when ~ is inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside an * After Every Step hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside a * Before Everything hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside an * After Everything hook", function() {
-        });
-
-        it.skip("handles using multiple $'s and a ~ to isolate a single branch to debug", function() {
-
+        it.skip("throws exception if a ~ exists, but is cut off due to a frequency restriction", function() {
         });
 
         it.skip("handles multiple restrictions", function() {
-            // try them all here, all on one big tree
+            // try them all here, all on one big tree (group, frequency, $, ~)
         });
     });
 });
