@@ -35,7 +35,7 @@ Running tests
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
 
-Run tests that failed last time
+Only run tests that didn't pass last time
 
 Configuration
     - Timeouts
@@ -164,6 +164,7 @@ Only ($)
     - $ = Only run branches under this step, but no debugging.
         - Multiple $'s that intersect only run tests that fall under both (AND)
         - Multiple $'s that do not intersect run tests that fall under either (OR)
+        - A $ on one or more step block members will remove all other step block members
 
 Debug and REPL (~)
     - ~ (debug identifier)

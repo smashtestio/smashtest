@@ -9929,34 +9929,381 @@ J -
         });
 
         it("handles $ when it's attached to a step block member", function() {
-// meow
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+    C - $
 
+        D -
+        E - $
 
+            F -
 
+    G -
+    H -
 
+        I $ -
 
+    J - $
+    K - $
 
+        L -
 
+M $ -
 
+    N -
+    O -
+    `);
 
+            var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(7);
+
+            expect(branches[0].steps).to.have.lengthOf(4);
+            expect(branches[1].steps).to.have.lengthOf(3);
+            expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[3].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(3);
+            expect(branches[5].steps).to.have.lengthOf(2);
+            expect(branches[6].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "G" }, { text: "I" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "H" }, { text: "I" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "J" }, { text: "L" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "K" }, { text: "L" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "M" }, { text: "N" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "M" }, { text: "O" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
         });
 
-        it.skip("handles $ when it's inside a function declaration", function() {
+        it("handles $ when it's inside a function declaration", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
+F
 
+* F
+    A - $
+        B -
+
+    C -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" }, { text: "A" }, { text: "B" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "F" }, { text: "A" }, { text: "B" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
         });
 
-        it.skip("handles $ inside an * After Every Branch hook", function() {
-            // it touches the branches in the hook but doesn't touch this.branches (which may remain fully intact if no $'s exist there)
+        it("handles $ when it's inside a .. step", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A .. -
+    B -
+        C -
+    D $ -
+        E -
+    F -
+
+G .. - $
+    H -
+    I -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "D" }, { text: "E" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "G" }, { text: "H" }, { text: "I" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
         });
 
-        it.skip("handles $ inside an * After Every Step hook", function() {
+        it("handles $ when it's attached to a .. step block member", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+A -
+B $ -
+C -
+
+    D -
+    E -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(4);
+            expect(branches[1].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
         });
 
-        it.skip("handles $ inside a * Before Everything hook", function() {
+        it("handles $ inside an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+B -
+    * After Every Branch
+        C -
+
+        D - $
+
+E -
+    * After Every Branch $
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[1].afterEveryBranch).to.have.lengthOf(1);
+            expect(branches[1].afterEveryBranch[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryBranch: undefined
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryBranch: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "D" } ]
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "E" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryBranch: undefined
+                }
+            ]);
         });
 
-        it.skip("handles $ inside an * After Everything hook", function() {
+        it("handles $ inside an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+B -
+    * After Every Step
+        C -
+
+        D - $
+
+E -
+    * After Every Step $
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[1].afterEveryStep).to.have.lengthOf(1);
+            expect(branches[1].afterEveryStep[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryStep: undefined
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryStep: [
+                        {
+                            steps: [ { text: "After Every Step" }, { text: "D" } ],
+                            isOnly: true,
+                            isDebug: undefined
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "E" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryStep: undefined
+                }
+            ]);
+        });
+
+        it("handles $ inside a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+B -
+
+* Before Everything
+    C -
+
+    D - $
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+
+            expect(tree.beforeEverything).to.have.lengthOf(1);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: undefined
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "Before Everything" }, { text: "D" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
+        });
+
+        it("handles $ inside an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+B -
+
+* After Everything
+    C -
+
+    D - $
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+
+            expect(tree.afterEverything).to.have.lengthOf(1);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: undefined
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "After Everything" }, { text: "D" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
         });
 
         it.skip("isolates a branch with a single ~", function() {

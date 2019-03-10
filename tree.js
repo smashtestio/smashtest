@@ -886,7 +886,39 @@ class Tree {
         // ***************************************
 
         // Look for $'s
-        // If found, remove branches that don't have a $
+
+        // Special case for child branches whose first step is a step block member:
+        // If a step block member has a $, discard all other branches, even if they have isOnly set
+        for(var i = 0; i < branchesFromChildren.length; i++) {
+            var branchFromChild = branchesFromChildren[i];
+            var firstStep = branchFromChild.steps[0];
+            var stepBlockOfFirstStep = firstStep.originalStepInTree.containingStepBlock;
+            if(stepBlockOfFirstStep && firstStep.isOnly) { // found a $ step part of a step block
+                // Remove other child branches from the same step block that don't have a $ directly attached
+                for(var i = 0; i < branchesFromChildren.length;) {
+                    var branchFromChild = branchesFromChildren[i];
+                    var firstStep = branchFromChild.steps[0];
+                    if(firstStep.originalStepInTree.containingStepBlock === stepBlockOfFirstStep) {
+                        if(firstStep.isOnly) {
+                            i++; // keep it
+                        }
+                        else {
+                            if(branchFromChild.isDebug) {
+                                utils.error("A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                            }
+                            else {
+                                branchesFromChildren.splice(i, 1); // remove this branch
+                            }
+                        }
+                    }
+                    else {
+                        i++; // keep it, since it's not in the same step block
+                    }
+                }
+            }
+        }
+
+        // Normal case. If an isOnly child branch exists, remove the other branches that aren't isOnly
         for(var i = 0; i < branchesFromChildren.length; i++) {
             var branchFromChild = branchesFromChildren[i];
             if(branchFromChild.isOnly) {
@@ -898,7 +930,7 @@ class Tree {
                     }
                     else {
                         if(branchFromChild.isDebug) {
-                            this.error("A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                            utils.error("A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
                         }
                         else {
                             branchesFromChildren.splice(i, 1); // remove this branch
@@ -929,7 +961,7 @@ class Tree {
                 }
                 else {
                     if(branchFromChild.isDebug) {
-                        this.error("A ~ exists under this step, but it's not inside one of the groups being run. Either add it to the list of groups or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                        utils.error("A ~ exists under this step, but it's not inside one of the groups being run. Either add it to the list of groups or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
                     }
                     else {
                         branchesFromChildren.splice(i, 1); // remove this branch
@@ -977,7 +1009,7 @@ class Tree {
                 }
                 else {
                     if(branchFromChild.isDebug) {
-                        this.error("A ~ exists under this step, but it's not inside one of the frequencies allowed to run. Either set its frequency to a higher value or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                        utils.error("A ~ exists under this step, but it's not inside one of the frequencies allowed to run. Either set its frequency to a higher value or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
                     }
                     else {
                         branchesFromChildren.splice(i, 1); // remove this branch
@@ -1127,19 +1159,6 @@ class Tree {
             }
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     /**
