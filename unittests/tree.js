@@ -10391,6 +10391,10 @@ A -
             }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
+        it.skip("keeps all branches when no groups are set", function() {
+
+        });
+
         it.skip("only keeps branches that are part of a group being run", function() {
 
         });
@@ -10418,11 +10422,15 @@ A -
 
         });
 
-        it.skip("removes branches not at or above 'med' frequency", function() {
+        it.skip("keeps all branches when frequency is not set", function() {
+
+        });
+
+        it.skip("keeps branches at or above 'med' frequency", function() {
             // include branches with no frequency set
         });
 
-        it.skip("removes branches not at or above 'high' frequency", function() {
+        it.skip("keeps branches at 'high' frequency", function() {
 
         });
 

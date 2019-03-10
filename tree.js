@@ -637,14 +637,14 @@ class Tree {
 
     /**
      * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
-     * @param {Step} step - Step or StepBlock under this.root to convert to branches (do not set step to a StepBlock unless it's a sequential StepBlock)
+     * @param {Step} step - Step from the tree (this.root) to convert to branches (NOTE: do not set step to a StepBlock unless it's a sequential StepBlock)
+     * @param {Array} [groups] - Array of String, where each string is a group we want run (do include branches with no group or not in at least one group listed here), no group restrictions if this is undefined
+     * @param {String} [frequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in the tree at or below the given step
      * @param {Array} [stepsAbove] - Array of Step, steps that comes above this step, with function calls, etc. already expanded (used to help find function declarations), [] if omitted
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
      * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier)
-     * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
-     * @param {String} [frequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
      * @throws {Error} If a function declaration cannot be found, or if a hook name is invalid
      */
@@ -793,11 +793,6 @@ class Tree {
             if(step.containingStepBlock && !step.containingStepBlock.isSequential) {
                 children = step.containingStepBlock.children;
             }
-        }
-
-        // If branchesFromThisStep is empty, "prime" it with an empty Branch, so that the loops below work
-        if(branchesFromThisStep.length == 0) {
-            branchesFromThisStep.push(new Branch());
         }
 
         // Check if a child is a hook function declaration
@@ -1014,6 +1009,11 @@ class Tree {
         // ***************************************
 
         var branchesBelow = []; // what we're returning - represents all branches at and below this step
+
+        // If branchesFromThisStep is empty, "prime" it with an empty Branch, so that the loops below work
+        if(branchesFromThisStep.length == 0) {
+            branchesFromThisStep.push(new Branch());
+        }
 
         if(isSequential && !(step instanceof StepBlock)) {
             // One big resulting branch, built as follows:
