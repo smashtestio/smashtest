@@ -23,9 +23,16 @@ describe("Branch", function() {
 
             var branch1 = new Branch;
             branch1.steps = [ stepA ];
+            branch1.groups = [ "1" ];
+            branch1.frequency = "low";
+            branch1.isDebug = true;
 
             var branch2 = new Branch;
             branch2.steps = [ stepB, stepC ];
+            branch2.nonParallelId = "ppppp";
+            branch2.frequency = "high";
+            branch2.groups = [ "2", "3" ];
+            branch2.isOnly = true;
 
             branch1.mergeToEnd(branch2);
 
@@ -37,7 +44,12 @@ describe("Branch", function() {
                     { text: "A" },
                     { text: "B" },
                     { text: "C" }
-                ]
+                ],
+                nonParallelId: "ppppp",
+                frequency: "high",
+                groups: [ "1", "2", "3" ],
+                isOnly: true,
+                isDebug: true
             });
         });
 
@@ -205,10 +217,13 @@ describe("Branch", function() {
 
             expect(clonedBranch).to.containSubset({
                 steps: [],
-                prevSequentialBranch: undefined,
+                nonParallelId: undefined,
+                frequency: undefined,
+                groups: undefined,
+                isOnly: undefined,
+                isDebug: undefined,
                 afterEveryBranch: undefined,
-                afterEveryStep: undefined,
-                frequency: undefined
+                afterEveryStep: undefined
             });
 
             expect(branch.steps).to.have.lengthOf(0);
@@ -231,10 +246,13 @@ describe("Branch", function() {
                     { text: "A" },
                     { text: "B" }
                 ],
-                prevSequentialBranch: undefined,
+                nonParallelId: undefined,
+                frequency: undefined,
+                groups: undefined,
+                isOnly: undefined,
+                isDebug: undefined,
                 afterEveryBranch: undefined,
-                afterEveryStep: undefined,
-                frequency: undefined
+                afterEveryStep: undefined
             });
 
             expect(clonedBranch.steps).to.have.lengthOf(2);
@@ -244,9 +262,13 @@ describe("Branch", function() {
                     { text: "A" },
                     { text: "B" }
                 ],
-                prevSequentialBranch: undefined,
+                nonParallelId: undefined,
+                frequency: undefined,
+                groups: undefined,
+                isOnly: undefined,
+                isDebug: undefined,
                 afterEveryBranch: undefined,
-                frequency: undefined
+                afterEveryStep: undefined
             });
 
             expect(branch.steps).to.have.lengthOf(2);
@@ -283,10 +305,12 @@ describe("Branch", function() {
             var branch = new Branch();
             branch.steps = [ stepA, stepB ];
             branch.nonParallelId = "foobarId";
-            branch.afterEveryBranch = [ afterBranch1, afterBranch2 ];
-            branch.afterEveryStep = [ afterBranch3 ];
             branch.frequency = "high";
             branch.groups = ['big', 'small'];
+            branch.isOnly = true;
+            branch.isDebug = true;
+            branch.afterEveryBranch = [ afterBranch1, afterBranch2 ];
+            branch.afterEveryStep = [ afterBranch3 ];
 
             var clonedBranch = branch.clone();
 
@@ -296,6 +320,10 @@ describe("Branch", function() {
                     { text: "B" }
                 ],
                 nonParallelId: "foobarId",
+                frequency: "high",
+                groups: [ "big", "small" ],
+                isOnly: true,
+                isDebug: true,
                 afterEveryBranch: [
                     {
                         steps: [
@@ -315,9 +343,7 @@ describe("Branch", function() {
                             { text: "G" }
                         ]
                     }
-                ],
-                frequency: "high",
-                groups: [ "big", "small" ]
+                ]
             });
 
             expect(clonedBranch.steps).to.have.lengthOf(2);
@@ -328,6 +354,10 @@ describe("Branch", function() {
                     { text: "B" }
                 ],
                 nonParallelId: "foobarId",
+                frequency: "high",
+                groups: [ "big", "small" ],
+                isOnly: true,
+                isDebug: true,
                 afterEveryBranch: [
                     {
                         steps: [
@@ -347,8 +377,7 @@ describe("Branch", function() {
                             { text: "G" }
                         ]
                     }
-                ],
-                frequency: "high"
+                ]
             });
 
             expect(branch.steps).to.have.lengthOf(2);
