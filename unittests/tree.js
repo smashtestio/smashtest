@@ -9813,28 +9813,132 @@ A
         });
 
         it("only keeps a branches under a $", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
 
+    C - $
 
-// meow
+        D -
 
+        E -
 
+G -
+    `);
 
+            var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(2);
 
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(3);
 
-
-
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "D" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "E" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
         });
 
-        it.skip("only keeps branches that intersect under multiple $'s", function() {
-            // multiple isOnly's that intersect only run tests that fall under both (AND)
+        it("only keeps branches that intersect under multiple $'s", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C - $
+
+        D -
+
+        E - $
+
+            F - $
+
+G -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
         });
 
-        it.skip("keeps multiple branches that are under non-intersecting $'s", function() {
-            // multiple isOnly's that do not intersect run tests that fall under either (OR)
+        it("keeps multiple branches that are under non-intersecting $'s", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+    C - $
+
+        D -
+
+        E - $
+
+            F -
+
+    G - $
+
+    H -
+        I $ -
+
+J -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(4);
+            expect(branches[1].steps).to.have.lengthOf(2);
+            expect(branches[2].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "G" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "A" }, { text: "H" }, { text: "I" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
         });
 
-        it.skip("handles $ when it's attached to a step block member", function() {
+        it("handles $ when it's attached to a step block member", function() {
+
+
+
+
+
+
+
+
+
+
 
         });
 
