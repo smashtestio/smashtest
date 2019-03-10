@@ -9929,7 +9929,7 @@ J -
         });
 
         it("handles $ when it's attached to a step block member", function() {
-
+// meow
 
 
 
@@ -9959,12 +9959,15 @@ J -
         it.skip("handles $ inside an * After Everything hook", function() {
         });
 
-        it.skip("isolates the first branch with ~ encountered", function() {
-            // try multiple ~'s on different siblings, only the first one is chosen
+        it.skip("isolates a branch with a single ~", function() {
         });
 
-        it.skip("isolates the first branch with ~ on multiple steps", function() {
+        it.skip("isolates the a branch with ~ on multiple steps", function() {
             // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+        });
+
+        it.skip("throws an error when ~ is on multiple branches", function() {
+
         });
 
         it.skip("handles ~ when it's attached to a step block member", function() {
@@ -9994,9 +9997,7 @@ J -
         it.skip("throws exception if a ~ exists, but is cut off due to $", function() {
 
         });
-    });
 
-    describe("generateBranches()", function() {
         it("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -10007,9 +10008,9 @@ A -
 D -
 `, "file.txt");
 
-            tree.generateBranches();
+            var branches = tree.branchify(tree.root);
 
-            expect(tree.branches).to.containSubsetInOrder([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" },  { text: "B" } ],
                     frequency: 'high'
@@ -10042,9 +10043,9 @@ E -
     F -
 `, "file.txt");
 
-            tree.generateBranches();
+            var branches = tree.branchify(tree.root);
 
-            expect(tree.branches).to.containSubsetInOrder([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='high'" }, { text: "C" } ],
                     frequency: 'high'
@@ -10080,9 +10081,9 @@ A -
 G -
 `, "file.txt");
 
-            tree.generateBranches();
+            var branches = tree.branchify(tree.root);
 
-            expect(tree.branches).to.containSubsetInOrder([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" },  { text: "B" }, { text: "C" }, { text: "{frequency}='high'" } ],
                     frequency: 'high'
@@ -10092,16 +10093,16 @@ G -
                     frequency: 'high'
                 },
                 {
-                    steps: [ { text: "G" } ],
-                    frequency: undefined
-                },
-                {
                     steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='low'" }, { text: "E" } ],
                     frequency: 'low'
                 },
                 {
                     steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='low'" }, { text: "F" } ],
                     frequency: 'low'
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    frequency: undefined
                 }
             ]);
         });
@@ -10116,46 +10117,11 @@ A -
                 C -
 `, "file.txt");
 
-            tree.generateBranches();
+            var branches = tree.branchify(tree.root);
 
-            expect(tree.branches).to.containSubsetInOrder([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" },  { text: "{frequency}='high'" }, { text: "B" }, { text: "{frequency}='low'" }, { text: "C" } ],
-                    frequency: 'low'
-                }
-            ]);
-        });
-
-        it("sorts branches by {frequency}", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    {frequency}='low'
-B -
-
-C -
-    {frequency}='high', {var}='foo'
-D -
-    {frequency}='med'
-`, "file.txt");
-
-            tree.generateBranches();
-
-            expect(tree.branches).to.containSubsetInOrder([
-                {
-                    steps: [ { text: "C" }, { text: "{frequency}='high', {var}='foo'" } ],
-                    frequency: 'high'
-                },
-                {
-                    steps: [ { text: "B" } ],
-                    frequency: undefined
-                },
-                {
-                    steps: [ { text: "D" }, { text: "{frequency}='med'" } ],
-                    frequency: 'med'
-                },
-                {
-                    steps: [ { text: "A" }, { text: "{frequency}='low'" } ],
                     frequency: 'low'
                 }
             ]);
@@ -10177,9 +10143,9 @@ A -
 G -
 `, "file.txt");
 
-            tree.generateBranches();
+            var branches = tree.branchify(tree.root);
 
-            expect(tree.branches).to.containSubsetInOrder([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" } ],
                     groups: [ 'first' ]
@@ -10223,9 +10189,9 @@ A -
 G -
 `, "file.txt");
 
-            tree.generateBranches();
+            var branches = tree.branchify(tree.root);
 
-            expect(tree.branches).to.containSubsetInOrder([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
                     groups: [ 'first', 'second' ]
@@ -10245,6 +10211,273 @@ G -
                 {
                     steps: [ { text: "G" } ],
                     groups: undefined
+                }
+            ]);
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in a branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in a branch", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B -
+            * After Every Branch
+                C - $
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Step
+        B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B -
+            * After Every Step
+                C - $
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything
+    B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a $ is present in an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything
+    B $ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Branch
+        B -
+            * After Every Branch
+                C - ~
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Step
+        B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:4]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    * After Every Step
+        B -
+            * After Every Step
+                C - ~
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:6]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* Before Everything
+    B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* After Everything
+    B ~ -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it.skip("only keeps branches that are part of a group being run", function() {
+
+        });
+
+        it.skip("only keeps branches that are part of a group being run, where each branch has multiple groups, and multiple groups are being run", function() {
+            // include branches with no group
+        });
+
+        it.skip("handles groups inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("handles groups inside an * After Every Step hook", function() {
+        });
+
+        it.skip("handles groups inside a * Before Everything hook", function() {
+        });
+
+        it.skip("handles groups inside an * After Everything hook", function() {
+        });
+
+        it.skip("throws exception if a ~ exists, but is cut off due to a groups restriction", function() {
+        });
+
+        it.skip("keeps all branches when frequency is set to 'low'", function() {
+
+        });
+
+        it.skip("removes branches not at or above 'med' frequency", function() {
+            // include branches with no frequency set
+        });
+
+        it.skip("removes branches not at or above 'high' frequency", function() {
+
+        });
+
+        it.skip("handles frequencies inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("handles frequencies inside an * After Every Step hook", function() {
+        });
+
+        it.skip("handles frequencies inside a * Before Everything hook", function() {
+        });
+
+        it.skip("handles frequencies inside an * After Everything hook", function() {
+        });
+
+        it.skip("throws exception if a ~ exists, but is cut off due to a frequency restriction", function() {
+        });
+
+        it.skip("handles multiple restrictions", function() {
+            // try them all here, all on one big tree (group, frequency, $, ~)
+        });
+    });
+
+    describe("generateBranches()", function() {
+        it("sorts branches by {frequency}", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {frequency}='low'
+B -
+
+C -
+    {frequency}='high', {var}='foo'
+D -
+    {frequency}='med'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "C" }, { text: "{frequency}='high', {var}='foo'" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    frequency: undefined
+                },
+                {
+                    steps: [ { text: "D" }, { text: "{frequency}='med'" } ],
+                    frequency: 'med'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='low'" } ],
+                    frequency: 'low'
                 }
             ]);
         });
@@ -10416,235 +10649,5 @@ K-1 -
             }, "Infinite loop detected");
         });
         */
-
-        it("throws an exception if noDebug is set but a $ is present in a branch", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    B $ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a ~ is present in a branch", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    B ~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a $ is present in an * After Every Branch hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch
-        B $ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:4]");
-
-            tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch
-        B -
-            * After Every Branch
-                C - $
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:6]");
-        });
-
-        it("throws an exception if noDebug is set but a $ is present in an * After Every Step hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Step
-        B $ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:4]");
-
-            tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch
-        B -
-            * After Every Step
-                C - $
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:6]");
-        });
-
-        it("throws an exception if noDebug is set but a $ is present in a * Before Everything hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-* Before Everything
-    B $ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a $ is present in an * After Everything hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-* After Everything
-    B $ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a ~ is present in an * After Every Branch hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch
-        B ~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:4]");
-
-            tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch
-        B -
-            * After Every Branch
-                C - ~
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:6]");
-        });
-
-        it("throws an exception if noDebug is set but a ~ is present in an * After Every Step hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Step
-        B ~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:4]");
-
-            tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Step
-        B -
-            * After Every Step
-                C - ~
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:6]");
-        });
-
-        it("throws an exception if noDebug is set but a ~ is present in a * Before Everything hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-* Before Everything
-    B ~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a ~ is present in an * After Everything hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-* After Everything
-    B ~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it.skip("only keeps branches that are part of a group being run", function() {
-
-        });
-
-        it.skip("only keeps branches that are part of a group being run, where each branch has multiple groups, and multiple groups are being run", function() {
-            // include branches with no group
-        });
-
-        it.skip("ignores groups inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("ignores groups inside an * After Every Step hook", function() {
-        });
-
-        it.skip("ignores groups inside a * Before Everything hook", function() {
-        });
-
-        it.skip("ignores groups inside an * After Everything hook", function() {
-        });
-
-        it.skip("keeps all branches when frequency is set to 'low'", function() {
-
-        });
-
-        it.skip("removes branches not at or above 'med' frequency", function() {
-            // include branches with no frequency set
-        });
-
-        it.skip("removes branches not at or above 'high' frequency", function() {
-
-        });
-
-        it.skip("ignores frequencies inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("ignores frequencies inside an * After Every Step hook", function() {
-        });
-
-        it.skip("ignores frequencies inside a * Before Everything hook", function() {
-        });
-
-        it.skip("ignores frequencies inside an * After Everything hook", function() {
-        });
-
-        it.skip("throws exception if a ~ exists, but is cut off due to a groups restriction", function() {
-        });
-
-        it.skip("throws exception if a ~ exists, but is cut off due to a frequency restriction", function() {
-        });
-
-        it.skip("handles multiple restrictions", function() {
-            // try them all here, all on one big tree (group, frequency, $, ~)
-        });
     });
 });

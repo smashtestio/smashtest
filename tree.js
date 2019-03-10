@@ -642,10 +642,17 @@ class Tree {
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
      * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier)
+     * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
+     * @param {String} [frequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
      * @throws {Error} If a function declaration cannot be found, or if a hook name is invalid
      */
-    branchify(step, stepsAbove, branchIndents, isFunctionCall, isSequential) {
+    branchify(step, groups, frequency, noDebug, stepsAbove, branchIndents, isFunctionCall, isSequential) {
+        // ***************************************
+        // 1) Initialize vars
+        // ***************************************
+
         if(typeof stepsAbove == 'undefined') {
             stepsAbove = [];
         }
@@ -664,9 +671,23 @@ class Tree {
             stepsAbove.push(step.cloneForBranch());
         }
 
+        // Enforce noDebug
+        if(noDebug) {
+            if(step.isDebug) {
+                utils.error("A ~ was found, but the noDebug flag is set", step.filename, step.lineNumber);
+            }
+            else if(step.isOnly) {
+                utils.error("A $ was found, but the noDebug flag is set", step.filename, step.lineNumber);
+            }
+        }
+
+        // ***************************************
+        // 2) Fill branchesFromThisStep with this step
+        //    (which may be multiple branches if this step is a function call, etc.)
+        // ***************************************
+
         var branchesFromThisStep = []; // Array of Branch
 
-        // Fill branchesFromThisStep with this step (which may be multiple branches if this step is a function call, etc.)
         if(step.indents == -1) {
             // We're at the root. Ignore it.
         }
@@ -686,7 +707,7 @@ class Tree {
                 isReplaceVarsInChildren = this.validateVarSettingFunction(step);
             }
 
-            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, stepsAbove, branchIndents + 1, true); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, frequency, noDebug, stepsAbove, branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
@@ -714,7 +735,7 @@ class Tree {
             // Branches from each step block member are attached sequentially to each other
             var bigBranch = new Branch();
             step.steps.forEach(stepInBlock => {
-                var branchesFromThisStepBlockMember = this.branchify(stepInBlock, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                var branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, frequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
                 branchesFromThisStepBlockMember.forEach(branchBelowBlockMember => {
                     bigBranch.mergeToEnd(branchBelowBlockMember);
                 });
@@ -737,14 +758,34 @@ class Tree {
             var branch = new Branch();
             var clonedStep = step.cloneForBranch();
             clonedStep.branchIndents = branchIndents;
+
+            branch.steps.push(clonedStep);
             branch.isOnly = step.isOnly;
             branch.isDebug = step.isDebug;
-            branch.steps.push(clonedStep);
+
+            // Set branch.groups and branch.frequency, if this a {group}= or {frequency}= step
+            if(step.varsBeingSet && step.varsBeingSet.length > 0) {
+                step.varsBeingSet.forEach(varBeingSet => {
+                    if(varBeingSet.name == 'frequency') {
+                        branch.frequency = utils.stripQuotes(varBeingSet.value);
+                        return;
+                    }
+                    else if(varBeingSet.name == 'group') {
+                        if(!branch.groups) {
+                            branch.groups = [];
+                        }
+                        branch.groups = branch.groups.concat(utils.stripQuotes(varBeingSet.value));
+                    }
+                });
+            }
+
             branchesFromThisStep.push(branch);
         }
 
-        // Fill branchesBelow by cross joining branchesFromThisStep with the branches that come from this step's children
-        var branchesBelow = []; // what we're returning
+        // ***************************************
+        // 3) Branchify children of this step, including children that are hooks
+        // ***************************************
+
         var children = step.children;
 
         if(children.length == 0) {
@@ -769,7 +810,7 @@ class Tree {
                 if(canStepText == "after every branch") {
                     this.verifyHookCasing(child, 'After Every Branch');
 
-                    var afterEveryBranchMembers = this.branchify(child, stepsAbove, 1, true);
+                    var afterEveryBranchMembers = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
                     clonedHookStep.branchIndents = 0;
                     afterEveryBranchMembers.forEach(branch => {
@@ -781,7 +822,7 @@ class Tree {
                 else if(canStepText == "after every step") {
                     this.verifyHookCasing(child, 'After Every Step');
 
-                    var afterEveryStepMembers = this.branchify(child, stepsAbove, 1, true);
+                    var afterEveryStepMembers = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
                     clonedHookStep.branchIndents = 0;
                     afterEveryStepMembers.forEach(branch => {
@@ -797,7 +838,7 @@ class Tree {
                         utils.error("A '* Before Everything' function must not be indented (it must be at 0 indents)", step.filename, step.lineNumber + 1);
                     }
 
-                    var newBeforeEverything = this.branchify(child, stepsAbove, 1, true);
+                    var newBeforeEverything = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
                     clonedHookStep.branchIndents = 0;
                     newBeforeEverything.forEach(branch => {
@@ -812,7 +853,7 @@ class Tree {
                         utils.error("An '* After Everything' function must not be indented (it must be at 0 indents)", step.filename, step.lineNumber + 1);
                     }
 
-                    var newAfterEverything = this.branchify(child, stepsAbove, 1, true);
+                    var newAfterEverything = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
                     clonedHookStep.branchIndents = 0;
                     newAfterEverything.forEach(branch => {
@@ -829,7 +870,7 @@ class Tree {
             if(child instanceof StepBlock && !child.isSequential) {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach(step => {
-                    var branchesFromChild = this.branchify(step, stepsAbove, branchIndents, false, isSequential);
+                    var branchesFromChild = this.branchify(step, groups, frequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -838,16 +879,19 @@ class Tree {
             }
             else {
                 // If this child is a step, call branchify() on it normally
-                var branchesFromChild = this.branchify(child, stepsAbove, branchIndents, false, isSequential);
+                var branchesFromChild = this.branchify(child, groups, frequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                 if(branchesFromChild && branchesFromChild.length > 0) {
                     branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
             }
         });
 
-        // If certain branches from children have a $ or ~, remove those branches that don't
+        // ***************************************
+        // 4) Remove branches we don't want run
+        // ***************************************
 
         // Look for $'s
+        // If found, remove branches that don't have a $
         for(var i = 0; i < branchesFromChildren.length; i++) {
             var branchFromChild = branchesFromChildren[i];
             if(branchFromChild.isOnly) {
@@ -871,17 +915,106 @@ class Tree {
             }
         }
 
-        // Look for ~'s
-        for(var i = 0; i < branchesFromChildren.length; i++) {
-            var branchFromChild = branchesFromChildren[i];
-            if(branchFromChild.isDebug) {
-                // A ~ was found. Only keep the first branch encountered, which is this one.
-                branchesFromChildren = [ branchFromChild ];
-                break;
+        // Look for groups
+        // Remove branches not part of at least one of the groups listed inside the param groups (if it exists)
+        if(groups) {
+            for(var i = 0; i < branchesFromChildren.length; i++) {
+                var branchFromChild = branchesFromChildren[i];
+                var isGroupMatched = false;
+                for(var j = 0; j < groups.length; j++) {
+                    var groupAllowedToRun = groups[j];
+                    if(branchFromChild.groups.indexOf(groupAllowedToRun) != -1) {
+                        isGroupMatched = true;
+                        break;
+                    }
+                }
+
+                if(isGroupMatched) {
+                    i++;
+                }
+                else {
+                    if(branchFromChild.isDebug) {
+                        this.error("A ~ exists under this step, but it's not inside one of the groups being run. Either add it to the list of groups or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                    }
+                    else {
+                        branchesFromChildren.splice(i, 1); // remove this branch
+                    }
+                }
             }
         }
 
-        // Attach branches from children onto branchesFromThisStep
+        // Look for frequencies
+        // Remove branches below the minimum frequency in the param frequency (if it exists)
+        if(frequency) {
+            for(var i = 0; i < branchesFromChildren.length; i++) {
+                var branchFromChild = branchesFromChildren[i];
+                var isFreqMatched = false;
+                for(var j = 0; j < groups.length; j++) {
+                    var freqAllowed = freqToNum(frequency);
+                    var freqOfBranch = freqToNum(branchFromChild);
+
+                    if(freqOfBranch >= freqAllowed) {
+                        isFreqMatched = true;
+                        break;
+                    }
+
+                    /**
+                     * @return {Number} The given frequency string ('high', 'med', 'low', undefined) converted into an integer
+                     */
+                    function freqToNum(frequency) {
+                        if(frequency == 'low') {
+                            return 1;
+                        }
+                        else if(frequency == 'med') {
+                            return 2;
+                        }
+                        else if(frequency == 'high') {
+                            return 3;
+                        }
+                        else {
+                            return 2;
+                        }
+                    }
+                }
+
+                if(isFreqMatched) {
+                    i++;
+                }
+                else {
+                    if(branchFromChild.isDebug) {
+                        this.error("A ~ exists under this step, but it's not inside one of the frequencies allowed to run. Either set its frequency to a higher value or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                    }
+                    else {
+                        branchesFromChildren.splice(i, 1); // remove this branch
+                    }
+                }
+            }
+        }
+
+        // Look for ~'s
+        // If found, remove all branches other than the one that's connected with one or more ~'s
+        var found = false;
+        for(var i = 0; i < branchesFromChildren.length; i++) {
+            var branchFromChild = branchesFromChildren[i];
+            if(branchFromChild.isDebug) {
+                if(found) {
+                    // If more than one child branch has isDebug, throw an error
+                    utils.error("You cannot have more than one branch marked with ~'s", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                }
+
+                // A ~ was found. Only keep the first branch encountered, which is this one.
+                branchesFromChildren = [ branchFromChild ];
+                found = true;
+            }
+        }
+
+        // ***************************************
+        // 5) Fill branchesBelow by cross joining branchesFromThisStep with the branches that come from this step's children
+        //    Also put branches from hook children into branchesBelow
+        // ***************************************
+
+        var branchesBelow = []; // what we're returning - represents all branches at and below this step
+
         if(isSequential && !(step instanceof StepBlock)) {
             // One big resulting branch, built as follows:
             // One branchesFromThisStep branch, each child branch, one branchesFromThisStep branch, each child branch, etc.
@@ -949,7 +1082,7 @@ class Tree {
     }
 
     /**
-     * Converts the tree under this.root into an array of Branch in this.branches and removes branches we don't want run
+     * Converts the tree under this.root into an array of Branch in this.branches
      * Called after all of the tree's text has been inputted with parseIn()
      * Gets everything ready for the test runner
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
@@ -959,7 +1092,7 @@ class Tree {
      */
     generateBranches(groups, frequency, noDebug) {
         try {
-            this.branches = this.branchify(this.root);
+            this.branches = this.branchify(this.root, groups, frequency, noDebug);
         }
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
@@ -974,26 +1107,6 @@ class Tree {
                 throw e;
             }
         }
-
-        // Set Branch.frequency and Branch.groups for all branches
-        this.branches.forEach(branch => {
-            branch.steps.forEach(step => {
-                if(step.varsBeingSet && step.varsBeingSet.length > 0) {
-                    step.varsBeingSet.forEach(varBeingSet => {
-                        if(varBeingSet.name == 'frequency') {
-                            branch.frequency = utils.stripQuotes(varBeingSet.value);
-                            // keep running loop in case a later {frequency} variable overrides this one
-                        }
-                        else if(varBeingSet.name == 'group') {
-                            if(!branch.groups) {
-                                branch.groups = [];
-                            }
-                            branch.groups = branch.groups.concat(utils.stripQuotes(varBeingSet.value));
-                        }
-                    });
-                }
-            });
-        });
 
         // Sort by {frequency}, but otherwise keeping the same order
         var highBranches = [];
@@ -1015,33 +1128,6 @@ class Tree {
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
 
-        // Enforce noDebug
-        if(noDebug) {
-            validateNoDebug(this.branches);
-            validateNoDebug(this.beforeEverything);
-            validateNoDebug(this.afterEverything);
-
-            function validateNoDebug(branches) {
-                branches.forEach(branch => {
-                    branch.steps.forEach(step => {
-                        if(step.isDebug) {
-                            utils.error("A ~ was found, but the noDebug flag is set", step.filename, step.lineNumber);
-                        }
-                        else if(step.isOnly) {
-                            utils.error("A $ was found, but the noDebug flag is set", step.filename, step.lineNumber);
-                        }
-                    });
-
-                    if(branch.afterEveryBranch) {
-                        validateNoDebug(branch.afterEveryBranch);
-                    }
-                    if(branch.afterEveryStep) {
-                        validateNoDebug(branch.afterEveryStep);
-                    }
-                });
-
-            }
-        }
 
 
 
