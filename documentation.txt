@@ -35,6 +35,8 @@ Running tests
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
 
+Run tests that failed last time
+
 Configuration
     - Timeouts
     - Max browser instances
@@ -131,23 +133,6 @@ Code blocks
     - Vars accessible in code as global.name (or global["var name"]) or local.name (or local["var name"])
         - Vars that persist from branch to branch are stored in persistant
 
-To-Do (-T)
-    - Marks this branch and those under it as todo
-
-Manual tests (-M)
-    - Marks this branch and those under it as manual
-    - Treated as textual step, but you can ask to generate manual checklist from command line
-
-Debug and REPL (~)
-    - ~ (debug identifier)
-    - Using REPL
-    - Kicking off blank browser and REPL just from the command line
-    - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)
-        - It chooses the branch connecting all ~ steps together
-        - If there are multiple distinct branches with ~'s, it always chooses the first one
-    - Works inside hooks
-    - Throws exception if a ~ exists, but is cut off due to $
-
 Sequential execution (..)
     - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)
         more than once
@@ -168,12 +153,25 @@ Expected failure (#)
     - #
     - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
 
+To-Do (-T)
+    - Marks this branch and those under it as todo
+
+Manual tests (-M)
+    - Marks this branch and those under it as manual
+    - Treated as textual step, but you can ask to generate manual checklist from command line
+
 Only ($)
     - $ = Only run branches under this step, but no debugging.
         - Multiple $'s that intersect only run tests that fall under both (AND)
         - Multiple $'s that do not intersect run tests that fall under either (OR)
 
-Run tests that failed last time
+Debug and REPL (~)
+    - ~ (debug identifier)
+    - Using REPL
+    - Kicking off blank browser and REPL just from the command line
+    - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)
+    - Works inside hooks, but will only isolate a branch inside that hook (won't affect normal branches)
+    - Throws exception if a ~ exists, but is cut off due to $, groups, or frequency
 
 Selective test running
     - Only identifier ($)
