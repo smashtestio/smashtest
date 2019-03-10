@@ -9945,8 +9945,11 @@ A -
 
         I $ -
 
+    P -
+    Q -
     J - $
     K - $
+    R -
 
         L -
 
@@ -10306,35 +10309,271 @@ B -
             ]);
         });
 
-        it.skip("isolates a branch with a single ~", function() {
+        it("isolates a branch with a single ~", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B - ~
+        C -
+    D -
+    E -
+
+F -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
         });
 
-        it.skip("isolates the a branch with ~ on multiple steps", function() {
-            // the first ~ step still gives you multiple branches, but a second ~ narrows it down, etc.
+        it("isolates the a branch with ~ on multiple steps", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B - ~
+
+        E -
+            F -
+
+        G ~ -
+            H -
+
+        I -
+
+J -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "G" }, { text: "H" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
         });
 
-        it.skip("throws an error when ~ is on multiple branches", function() {
+        it("isolates the first branch when ~ is on multiple branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B - ~
+
+        E -
+            F -
+
+        G ~ -
+            H -
+
+        I -
+
+J - ~
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "G" }, { text: "H" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates the first branch when ~ is on multiple branches via a step block", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+C -
+
+    D - ~
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "D" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates the first branch when ~ is on multiple branches via multiple function calls", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* F
+    A - ~
+
+F
+
+B -
+    F
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" }, { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates the first branch when a ~ step has multiple branches underneath it", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - ~
+    B -
+    C -
+    D -
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+
+            tree = new Tree();
+            tree.parseIn(`
+A - ~
+
+    B -
+
+    C -
+`, "file.txt");
+
+            branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("handles ~ when it's attached to a step block member", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+    C - ~
+    D -
+
+        E -
+            F -
+
+        G ~ -
+            H -
+
+        I -
+
+J -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "C" }, { text: "G" }, { text: "H" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("handles ~ when it's inside a function declaration", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+* F
+    A -
+
+    B - ~
+        C -
+        D -
+
+F
+    X -
+    Y -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" }, { text: "B" }, { text: "C" }, { text: "X" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("handles ~ when it's inside an * After Every Branch hook", function() {
+
+// meow
+
+
+
+
+
+
+
 
         });
 
-        it.skip("handles ~ when it's attached to a step block member", function() {
-
+        it.skip("handles ~ when it's inside an * After Every Step hook", function() {
         });
 
-        it.skip("handles ~ when it's inside a function declaration", function() {
-
+        it.skip("handles ~ when it's inside a * Before Everything hook", function() {
         });
 
-        it.skip("doesn't remove steps when ~ is inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside an * After Every Step hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside a * Before Everything hook", function() {
-        });
-
-        it.skip("doesn't remove steps when ~ is inside an * After Everything hook", function() {
+        it.skip("handles ~ when it's is inside an * After Everything hook", function() {
         });
 
         it.skip("handles using multiple $'s and a ~ to isolate a single branch to debug", function() {
@@ -10516,6 +10755,37 @@ G -
             ]);
         });
 
+        it.skip("keeps all branches when frequency is set to 'low'", function() {
+
+        });
+
+        it.skip("keeps all branches when frequency is not set", function() {
+
+        });
+
+        it.skip("keeps branches at or above 'med' frequency", function() {
+            // include branches with no frequency set
+        });
+
+        it.skip("keeps branches at 'high' frequency", function() {
+
+        });
+
+        it.skip("handles frequencies inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("handles frequencies inside an * After Every Step hook", function() {
+        });
+
+        it.skip("handles frequencies inside a * Before Everything hook", function() {
+        });
+
+        it.skip("handles frequencies inside an * After Everything hook", function() {
+        });
+
+        it.skip("throws exception if a ~ exists, but is cut off due to a frequency restriction", function() {
+        });
+
         it("sets multiple groups for a branch", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -10560,6 +10830,33 @@ G -
                     groups: undefined
                 }
             ]);
+        });
+
+        it.skip("keeps all branches when no groups are set", function() {
+
+        });
+
+        it.skip("only keeps branches that are part of a group being run", function() {
+
+        });
+
+        it.skip("only keeps branches that are part of a group being run, where each branch has multiple groups, and multiple groups are being run", function() {
+            // include branches with no group
+        });
+
+        it.skip("handles groups inside an * After Every Branch hook", function() {
+        });
+
+        it.skip("handles groups inside an * After Every Step hook", function() {
+        });
+
+        it.skip("handles groups inside a * Before Everything hook", function() {
+        });
+
+        it.skip("handles groups inside an * After Everything hook", function() {
+        });
+
+        it.skip("throws exception if a ~ exists, but is cut off due to a groups restriction", function() {
         });
 
         it("throws an exception if noDebug is set but a $ is present in a branch", function() {
@@ -10736,64 +11033,6 @@ A -
             assert.throws(() => {
                 tree.branchify(tree.root, undefined, undefined, true);
             }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it.skip("keeps all branches when no groups are set", function() {
-
-        });
-
-        it.skip("only keeps branches that are part of a group being run", function() {
-
-        });
-
-        it.skip("only keeps branches that are part of a group being run, where each branch has multiple groups, and multiple groups are being run", function() {
-            // include branches with no group
-        });
-
-        it.skip("handles groups inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("handles groups inside an * After Every Step hook", function() {
-        });
-
-        it.skip("handles groups inside a * Before Everything hook", function() {
-        });
-
-        it.skip("handles groups inside an * After Everything hook", function() {
-        });
-
-        it.skip("throws exception if a ~ exists, but is cut off due to a groups restriction", function() {
-        });
-
-        it.skip("keeps all branches when frequency is set to 'low'", function() {
-
-        });
-
-        it.skip("keeps all branches when frequency is not set", function() {
-
-        });
-
-        it.skip("keeps branches at or above 'med' frequency", function() {
-            // include branches with no frequency set
-        });
-
-        it.skip("keeps branches at 'high' frequency", function() {
-
-        });
-
-        it.skip("handles frequencies inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("handles frequencies inside an * After Every Step hook", function() {
-        });
-
-        it.skip("handles frequencies inside a * Before Everything hook", function() {
-        });
-
-        it.skip("handles frequencies inside an * After Everything hook", function() {
-        });
-
-        it.skip("throws exception if a ~ exists, but is cut off due to a frequency restriction", function() {
         });
 
         it.skip("handles multiple restrictions", function() {

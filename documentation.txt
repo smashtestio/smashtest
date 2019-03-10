@@ -166,13 +166,16 @@ Only ($)
         - Multiple $'s that do not intersect run tests that fall under either (OR)
         - A $ on one or more step block members will remove all other step block members
 
-Debug and REPL (~)
-    - ~ (debug identifier)
-    - Using REPL
-    - Kicking off blank browser and REPL just from the command line
+Debug (~)
+    - Debug identifier (~)
     - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)
+    - When multiple branches are marked with ~'s, it chooses the first one
     - Works inside hooks, but will only isolate a branch inside that hook (won't affect normal branches)
     - Throws exception if a ~ exists, but is cut off due to $, groups, or frequency
+
+REPL
+    - Using REPL
+    - Kicking off blank browser and REPL just from the command line
 
 Selective test running
     - Only identifier ($)

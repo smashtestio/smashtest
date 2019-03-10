@@ -1020,19 +1020,32 @@ class Tree {
 
         // Look for ~'s
         // If found, remove all branches other than the one that's connected with one or more ~'s
-        var found = false;
+        var branchFound = null;
+
+        // Search for ~ attached to a step block member first
         for(var i = 0; i < branchesFromChildren.length; i++) {
             var branchFromChild = branchesFromChildren[i];
-            if(branchFromChild.isDebug) {
-                if(found) {
-                    // If more than one child branch has isDebug, throw an error
-                    utils.error("You cannot have more than one branch marked with ~'s", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
-                }
-
-                // A ~ was found. Only keep the first branch encountered, which is this one.
-                branchesFromChildren = [ branchFromChild ];
-                found = true;
+            if(branchFromChild.steps[0].originalStepInTree.containingStepBlock && branchFromChild.steps[0].isDebug) {
+                // A ~ was found
+                branchFound = branchFromChild;
+                break;
             }
+        }
+
+        if(!branchFound) {
+            // Search for ~ anywhere in a branch
+            for(var i = 0; i < branchesFromChildren.length; i++) {
+                var branchFromChild = branchesFromChildren[i];
+                if(branchFromChild.isDebug) {
+                    // A ~ was found
+                    branchFound = branchFromChild;
+                    break;
+                }
+            }
+        }
+
+        if(branchFound) {
+            branchesFromChildren = [ branchFound ]; // only keep the one we found
         }
 
         // ***************************************
