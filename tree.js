@@ -690,7 +690,10 @@ class Tree {
 
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
-                branchesFromThisStep = [ new Branch() ];
+                var branch = new Branch();
+                branch.isOnly = step.isOnly;
+                branch.isDebug = step.isDebug;
+                branchesFromThisStep = [ branch ];
                 branchesFromThisStep[0].steps.push(clonedStep);
             }
             else {
@@ -734,6 +737,8 @@ class Tree {
             var branch = new Branch();
             var clonedStep = step.cloneForBranch();
             clonedStep.branchIndents = branchIndents;
+            branch.isOnly = step.isOnly;
+            branch.isDebug = step.isDebug;
             branch.steps.push(clonedStep);
             branchesFromThisStep.push(branch);
         }
@@ -839,6 +844,42 @@ class Tree {
                 }
             }
         });
+
+        // If certain branches from children have a $ or ~, remove those branches that don't
+
+        // Look for $'s
+        for(var i = 0; i < branchesFromChildren.length; i++) {
+            var branchFromChild = branchesFromChildren[i];
+            if(branchFromChild.isOnly) {
+                // A $ was found. Now find all of them.
+                for(var i = 0; i < branchesFromChildren.length;) {
+                    var branchFromChild = branchesFromChildren[i];
+                    if(branchFromChild.isOnly) {
+                        i++; // keep it
+                    }
+                    else {
+                        if(branchFromChild.isDebug) {
+                            this.error("A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                        }
+                        else {
+                            branchesFromChildren.splice(i, 1); // remove this branch
+                        }
+                    }
+                }
+
+                break;
+            }
+        }
+
+        // Look for ~'s
+        for(var i = 0; i < branchesFromChildren.length; i++) {
+            var branchFromChild = branchesFromChildren[i];
+            if(branchFromChild.isDebug) {
+                // A ~ was found. Only keep the first branch encountered, which is this one.
+                branchesFromChildren = [ branchFromChild ];
+                break;
+            }
+        }
 
         // Attach branches from children onto branchesFromThisStep
         if(isSequential && !(step instanceof StepBlock)) {
@@ -1002,7 +1043,7 @@ class Tree {
             }
         }
 
-        
+
 
 
 

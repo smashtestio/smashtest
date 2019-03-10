@@ -143,7 +143,10 @@ Debug and REPL (~)
     - Using REPL
     - Kicking off blank browser and REPL just from the command line
     - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)
+        - It chooses the branch connecting all ~ steps together
+        - If there are multiple distinct branches with ~'s, it always chooses the first one
     - Works inside hooks
+    - Throws exception if a ~ exists, but is cut off due to $
 
 Sequential execution (..)
     - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)

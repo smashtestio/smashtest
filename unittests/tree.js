@@ -9812,7 +9812,7 @@ A
             }, "Maximum call stack size exceeded");
         });
 
-        it.skip("only keeps a branches under a $", function() {
+        it("only keeps a branches under a $", function() {
 
 
 // meow
@@ -9821,14 +9821,17 @@ A
 
 
 
+
+
+
         });
 
         it.skip("only keeps branches that intersect under multiple $'s", function() {
-
+            // multiple isOnly's that intersect only run tests that fall under both (AND)
         });
 
         it.skip("keeps multiple branches that are under non-intersecting $'s", function() {
-
+            // multiple isOnly's that do not intersect run tests that fall under either (OR)
         });
 
         it.skip("handles $ when it's attached to a step block member", function() {
