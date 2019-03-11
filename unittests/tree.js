@@ -11200,7 +11200,7 @@ A -
         });
 
         it("handles frequencies inside an * After Every Step hook", function() {
-            var tree = new Tree();
+            var tree = new Tree();//meow
             tree.parseIn(`
 {frequency}='high'
     A -
@@ -11317,6 +11317,18 @@ A -
             assert.throws(function() {
                 tree.branchify(tree.root, undefined, "high");
             }, "This step contains a ~, but is not above the frequency allowed to run (high). Either set its frequency higher or remove the ~. [file.txt:7]");
+
+            assert.doesNotThrow(function() {
+                tree.branchify(tree.root, undefined, "med");
+            });
+
+            assert.doesNotThrow(function() {
+                tree.branchify(tree.root, undefined, "low");
+            });
+
+            assert.doesNotThrow(function() {
+                tree.branchify(tree.root, undefined, undefined);
+            });
         });
 
         it("sets the groups for a branch", function() {
@@ -11569,32 +11581,201 @@ G -
         });
 
         it("handles groups inside an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{group}='one'
+    A -
+        * After Every Branch
+            {group}='one'
+                B -
+            {group}='two'
+                C -
 
-// meow
+* After Every Branch
+    {group}='one'
+        D -
 
+    {group}='two'
+        E -
 
+`, "file.txt");
 
+            var branches = tree.branchify(tree.root, ["one"]);
 
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[0].afterEveryBranch).to.have.lengthOf(2);
+            expect(branches[0].afterEveryBranch[0].steps).to.have.lengthOf(3);
+            expect(branches[0].afterEveryBranch[1].steps).to.have.lengthOf(3);
 
-
-
-
-
-
-
-
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "{group}='one'" }, { text: "A" } ],
+                    groups: [ 'one' ],
+                    afterEveryBranch: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "{group}='one'" }, { text: "B" } ],
+                            groups: [ 'one' ]
+                        },
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "{group}='one'" }, { text: "D" } ],
+                            groups: [ 'one' ]
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("handles groups inside an * After Every Step hook", function() {
+        it("handles groups inside an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{group}='one'
+    A -
+        * After Every Step
+            {group}='one'
+                B -
+            {group}='two'
+                C -
+
+* After Every Step
+    {group}='one'
+        D -
+
+    {group}='two'
+        E -
+
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, ["one"]);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[0].afterEveryStep).to.have.lengthOf(2);
+            expect(branches[0].afterEveryStep[0].steps).to.have.lengthOf(3);
+            expect(branches[0].afterEveryStep[1].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "{group}='one'" }, { text: "A" } ],
+                    groups: [ 'one' ],
+                    afterEveryStep: [
+                        {
+                            steps: [ { text: "After Every Step" }, { text: "{group}='one'" }, { text: "B" } ],
+                            groups: [ 'one' ]
+                        },
+                        {
+                            steps: [ { text: "After Every Step" }, { text: "{group}='one'" }, { text: "D" } ],
+                            groups: [ 'one' ]
+                        }
+                    ]
+                }
+            ]);
         });
 
-        it.skip("handles groups inside a * Before Everything hook", function() {
+        it("handles groups inside a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{group}='one'
+    A -
+
+* Before Everything
+    {group}='one'
+        D -
+
+    {group}='two'
+        E -
+
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, ["one"]);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(tree.beforeEverything).to.have.lengthOf(1);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "{group}='one'" }, { text: "A" } ],
+                    groups: [ 'one' ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "Before Everything" }, { text: "{group}='one'" }, { text: "D" } ],
+                    groups: [ 'one' ]
+                }
+            ]);
         });
 
-        it.skip("handles groups inside an * After Everything hook", function() {
+        it("handles groups inside an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{group}='one'
+    A -
+
+* After Everything
+    {group}='one'
+        D -
+
+    {group}='two'
+        E -
+
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, ["one"]);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(tree.afterEverything).to.have.lengthOf(1);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "{group}='one'" }, { text: "A" } ],
+                    groups: [ 'one' ]
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "After Everything" }, { text: "{group}='one'" }, { text: "D" } ],
+                    groups: [ 'one' ]
+                }
+            ]);
         });
 
-        it.skip("throws exception if a ~ exists, but is cut off due to a groups restriction", function() {
+        it("throws exception if a ~ exists, but is cut off due to a groups restriction", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {group}='one'
+        B -
+
+    {group}='two'
+        C - ~
+
+        D -
+            {group}='three'
+                E -
+
+    {group}='four'
+        F -
+    G -
+`, "file.txt");
+
+            assert.throws(function() {
+                tree.branchify(tree.root, ["one"]);
+            }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:7]");
+
+            assert.throws(function() {
+                tree.branchify(tree.root, ["one", "three", "four"]);
+            }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:7]");
+
+            assert.doesNotThrow(function() {
+                tree.branchify(tree.root, ["two"]);
+            });
         });
 
         it("throws an exception if noDebug is set but a $ is present in a branch", function() {
@@ -11773,8 +11954,45 @@ A -
             }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
-        it.skip("handles multiple restrictions", function() {
+        it("handles multiple restrictions", function() {
             // try them all here, all on one big tree (group, frequency, $, ~)
+
+
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B $ -
+        {group}='first', {frequency}='low'
+            {group}='second'
+
+    {group}='third'
+        D -
+            {group}='fourth', {group}='first'
+
+        E -
+        F - $ ~
+
+            {group}='sixth'
+                K - ~
+                    {frequency}='high'
+
+        {group}='sixth'
+            L -
+G -
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, ["first", "sixth"], "med");
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(6);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" }, { text: "K" }, { text: "{frequency}='high'" } ],
+                    groups: [ 'third', 'sixth' ],
+                    frequency: 'high'
+                }
+            ]);
         });
     });
 
