@@ -936,8 +936,14 @@ class Tree {
 
         // Remove branches by groups (but only for steps at the top of the tree or hook)
         if(groups && atTop()) {
-            for(var i = 0; i < branchesFromChildren.length; i++) {
+            for(var i = 0; i < branchesFromChildren.length;) {
                 var branchFromChild = branchesFromChildren[i];
+
+                if(!branchFromChild.groups) {
+                    removeBranch();
+                    continue;
+                }
+
                 var isGroupMatched = false;
                 for(var j = 0; j < groups.length; j++) {
                     var groupAllowedToRun = groups[j];
@@ -951,6 +957,10 @@ class Tree {
                     i++;
                 }
                 else {
+                    removeBranch();
+                }
+
+                function removeBranch() {
                     if(branchFromChild.isDebug) {
                         var debugStep = findDebugStep(branchFromChild);
                         utils.error("This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.", debugStep.filename, debugStep.lineNumber);
@@ -1020,7 +1030,7 @@ class Tree {
                 }
             }
 
-            return null;
+            return null; // probably won't be reached
         }
 
         // Remove branches by ~'s

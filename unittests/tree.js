@@ -11337,6 +11337,13 @@ G -
 
             var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(3);
+            expect(branches[2].steps).to.have.lengthOf(3);
+            expect(branches[3].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(1);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" } ],
@@ -11383,6 +11390,13 @@ G -
 
             var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(4);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(4);
+            expect(branches[3].steps).to.have.lengthOf(4);
+            expect(branches[4].steps).to.have.lengthOf(1);
+
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
@@ -11408,29 +11422,167 @@ G -
         });
 
         it("keeps all branches when no groups are set", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        {group}='first'
+            {group}='second'
 
+    {group}='third'
+        D -
+            {group}='fourth', {group}='fifth'
 
-            // meow
+        E -
+        F -
 
+            {group}='sixth'
 
+G -
+`, "file.txt");
 
+            var branches = tree.branchify(tree.root, undefined);
 
+            expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(4);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(4);
+            expect(branches[3].steps).to.have.lengthOf(4);
+            expect(branches[4].steps).to.have.lengthOf(1);
 
-
-
-
-
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
+                    groups: [ 'first', 'second' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "D" }, { text: "{group}='fourth', {group}='fifth'" } ],
+                    groups: [ 'third', 'fourth', 'fifth' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "E" }, { text: "{group}='sixth'" } ],
+                    groups: [ 'third', 'sixth' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" } ],
+                    groups: [ 'third', 'sixth' ]
+                },
+                {
+                    steps: [ { text: "G" } ],
+                    groups: undefined
+                }
+            ]);
         });
 
-        it.skip("only keeps branches that are part of a group being run", function() {
+        it("only keeps branches that are part of a group being run", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        {group}='first'
+            {group}='second'
 
+    {group}='third'
+        D -
+            {group}='fourth', {group}='first'
+
+        E -
+        F -
+
+            {group}='sixth'
+
+G -
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, ["first"]);
+
+            expect(branches).to.have.lengthOf(2);
+            expect(branches[0].steps).to.have.lengthOf(4);
+            expect(branches[1].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
+                    groups: [ 'first', 'second' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "D" }, { text: "{group}='fourth', {group}='first'" } ],
+                    groups: [ 'third', 'fourth', 'first' ]
+                }
+            ]);
         });
 
-        it.skip("only keeps branches that are part of a group being run, where each branch has multiple groups, and multiple groups are being run", function() {
-            // include branches with no group
+        it("only keeps branches that are part of a group being run, and multiple groups are being run", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        {group}='first'
+            {group}='second'
+
+    {group}='third'
+        D -
+            {group}='fourth', {group}='first'
+
+        E -
+        F -
+
+            {group}='sixth'
+                K -
+
+        {group}='sixth'
+            L -
+G -
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, ["first", "sixth"]);
+
+            expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(4);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(5);
+            expect(branches[3].steps).to.have.lengthOf(5);
+            expect(branches[4].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
+                    groups: [ 'first', 'second' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "D" }, { text: "{group}='fourth', {group}='first'" } ],
+                    groups: [ 'third', 'fourth', 'first' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "E" }, { text: "{group}='sixth'" }, { text: "K" } ],
+                    groups: [ 'third', 'sixth' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" }, { text: "K" } ],
+                    groups: [ 'third', 'sixth' ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "{group}='sixth'" }, { text: "L" } ],
+                    groups: [ 'sixth' ]
+                }
+            ]);
         });
 
-        it.skip("handles groups inside an * After Every Branch hook", function() {
+        it("handles groups inside an * After Every Branch hook", function() {
+
+// meow
+
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("handles groups inside an * After Every Step hook", function() {
