@@ -12202,6 +12202,20 @@ K-1 -
     });
 
     describe("serializeBranches()", function() {
+        it("outputs json for an empty tree", function() {
+            var tree = new Tree();
+
+            tree.generateBranches();
+            var json = tree.serializeBranches();
+            var obj = JSON.parse(json);
+
+            expect(obj).to.containSubsetInOrder({
+                branches: [],
+                beforeEverything: [],
+                afterEverything: []
+            });
+        });
+
         it("outputs json for all branches", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -12296,5 +12310,50 @@ A -
                 ]
             });
         });
+    });
+
+    describe("mergeBranches()", function() {
+        it("TEXT", function() {
+
+
+
+
+
+
+
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     });
 });

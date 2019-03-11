@@ -1224,7 +1224,29 @@ class Tree {
         return JSON.stringify(obj);
     }
 
+    /**
+     * Merges the given JSON with this tree's branches and hooks
+     * If a branch in the JSON...
+     *     1) Exists in this.branches/hooks, and it...
+     *         a) Didn't pass (it failed, it didn't run, or it's new)
+     *             It will be included in this.branches/hooks
+     *         b) Passed
+     *             It will be included in this.branches/hook, but marked to not run
+     *     2) No longer exists in this.branches/hooks
+     *         It will remain absent from this.branches/hooks
+     * @param {String} json - A JSON representation of branches and hooks from a past run. Same JSON that serializeBranches() returns.
+     */
     mergeBranches(json) {
+
+
+
+
+
+
+
+
+
+
 
 
 
