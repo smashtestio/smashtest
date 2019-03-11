@@ -110,7 +110,7 @@ class Tree {
 
         // Validate that a non-function declaration isn't using a hook step name
         if(!step.isFunctionDeclaration) {
-            if(['after every branch', 'after every step', 'before everything', 'after everything'].indexOf(step.getHookCanonicalText()) != -1) {
+            if(Constants.HOOK_NAMES.indexOf(step.getHookCanonicalText()) != -1) {
                 utils.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
             }
         }
@@ -768,7 +768,6 @@ class Tree {
                 step.varsBeingSet.forEach(varBeingSet => {
                     if(varBeingSet.name == 'frequency') {
                         branch.frequency = utils.stripQuotes(varBeingSet.value);
-                        return;
                     }
                     else if(varBeingSet.name == 'group') {
                         if(!branch.groups) {
@@ -885,8 +884,7 @@ class Tree {
         // 4) Remove branches we don't want run
         // ***************************************
 
-        // Look for $'s
-
+        // Remove branches by $'s
         // Special case for child branches whose first step is a step block member:
         // If a step block member has a $, discard all other branches, even if they have isOnly set
         for(var i = 0; i < branchesFromChildren.length; i++) {
@@ -903,12 +901,7 @@ class Tree {
                             i++; // keep it
                         }
                         else {
-                            if(branchFromChild.isDebug) {
-                                utils.error("A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
-                            }
-                            else {
-                                branchesFromChildren.splice(i, 1); // remove this branch
-                            }
+                            branchesFromChildren.splice(i, 1); // remove this branch
                         }
                     }
                     else {
@@ -917,7 +910,6 @@ class Tree {
                 }
             }
         }
-
         // Normal case. If an isOnly child branch exists, remove the other branches that aren't isOnly
         for(var i = 0; i < branchesFromChildren.length; i++) {
             var branchFromChild = branchesFromChildren[i];
@@ -942,9 +934,8 @@ class Tree {
             }
         }
 
-        // Look for groups
-        // Remove branches not part of at least one of the groups listed inside the param groups (if it exists)
-        if(groups) {
+        // Remove branches by groups (but only for steps at the top of the tree or hook)
+        if(groups && atTop()) {
             for(var i = 0; i < branchesFromChildren.length; i++) {
                 var branchFromChild = branchesFromChildren[i];
                 var isGroupMatched = false;
@@ -961,7 +952,8 @@ class Tree {
                 }
                 else {
                     if(branchFromChild.isDebug) {
-                        utils.error("A ~ exists under this step, but it's not inside one of the groups being run. Either add it to the list of groups or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                        var debugStep = findDebugStep(branchFromChild);
+                        utils.error("This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
                         branchesFromChildren.splice(i, 1); // remove this branch
@@ -970,55 +962,68 @@ class Tree {
             }
         }
 
-        // Look for frequencies
-        // Remove branches below the minimum frequency in the param frequency (if it exists)
-        if(frequency) {
-            for(var i = 0; i < branchesFromChildren.length; i++) {
+        // Remove branches by frequency (but only for steps at the top of the tree or hook)
+        if(frequency && atTop()) {
+            for(var i = 0; i < branchesFromChildren.length;) {
                 var branchFromChild = branchesFromChildren[i];
-                var isFreqMatched = false;
-                for(var j = 0; j < groups.length; j++) {
-                    var freqAllowed = freqToNum(frequency);
-                    var freqOfBranch = freqToNum(branchFromChild);
+                var freqAllowed = freqToNum(frequency);
+                var freqOfBranch = freqToNum(branchFromChild.frequency);
 
-                    if(freqOfBranch >= freqAllowed) {
-                        isFreqMatched = true;
-                        break;
-                    }
-
-                    /**
-                     * @return {Number} The given frequency string ('high', 'med', 'low', undefined) converted into an integer
-                     */
-                    function freqToNum(frequency) {
-                        if(frequency == 'low') {
-                            return 1;
-                        }
-                        else if(frequency == 'med') {
-                            return 2;
-                        }
-                        else if(frequency == 'high') {
-                            return 3;
-                        }
-                        else {
-                            return 2;
-                        }
-                    }
-                }
-
-                if(isFreqMatched) {
-                    i++;
+                if(freqOfBranch >= freqAllowed) {
+                    i++; // keep it
                 }
                 else {
                     if(branchFromChild.isDebug) {
-                        utils.error("A ~ exists under this step, but it's not inside one of the frequencies allowed to run. Either set its frequency to a higher value or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
+                        var debugStep = findDebugStep(branchFromChild);
+                        utils.error("This step contains a ~, but is not above the frequency allowed to run (" + frequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
                         branchesFromChildren.splice(i, 1); // remove this branch
                     }
                 }
+
+                /**
+                 * @return {Number} The given frequency string ('high', 'med', 'low', undefined) converted into an integer
+                 */
+                function freqToNum(frequency) {
+                    if(frequency == 'low') {
+                        return 1;
+                    }
+                    else if(frequency == 'med') {
+                        return 2;
+                    }
+                    else if(frequency == 'high') {
+                        return 3;
+                    }
+                    else {
+                        return 2;
+                    }
+                }
             }
         }
 
-        // Look for ~'s
+        /**
+         * @return {Boolean} true if this step is at the root step, or at the top of a hook
+         */
+        function atTop() {
+            return step.indents == -1 || Constants.HOOK_NAMES.indexOf(step.getHookCanonicalText()) != -1;
+        }
+
+        /**
+         * @return {Step} The first Step in the given branch to contain a ~, null if nothing found
+         */
+        function findDebugStep(branch) {
+            for(var i = 0; i < branch.steps.length; i++) {
+                var step = branch.steps[i];
+                if(step.isDebug) {
+                    return step;
+                }
+            }
+
+            return null;
+        }
+
+        // Remove branches by ~'s
         // If found, remove all branches other than the one that's connected with one or more ~'s
         var branchFound = null;
 
@@ -1031,7 +1036,6 @@ class Tree {
                 break;
             }
         }
-
         if(!branchFound) {
             // Search for ~ anywhere in a branch
             for(var i = 0; i < branchesFromChildren.length; i++) {
@@ -1043,7 +1047,6 @@ class Tree {
                 }
             }
         }
-
         if(branchFound) {
             branchesFromChildren = [ branchFound ]; // only keep the one we found
         }

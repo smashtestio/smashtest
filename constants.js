@@ -21,3 +21,7 @@ exports.NUMBERS_ONLY_REGEX = /^[0-9\.\,]+$/;
 // PARSE CONFIG
 
 exports.SPACES_PER_INDENT = 4;
+
+// MISC CONSTANTS
+
+exports.HOOK_NAMES = ['after every branch', 'after every step', 'before everything', 'after everything'];

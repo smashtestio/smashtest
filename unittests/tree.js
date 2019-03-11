@@ -10152,7 +10152,9 @@ E -
                     isDebug: undefined,
                     afterEveryBranch: [
                         {
-                            steps: [ { text: "After Every Branch" }, { text: "D" } ]
+                            steps: [ { text: "After Every Branch" }, { text: "D" } ],
+                            isOnly: true,
+                            isDebug: undefined
                         }
                     ]
                 },
@@ -10555,33 +10557,307 @@ F
         });
 
         it("handles ~ when it's inside an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
 
-// meow
+B -
+    * After Every Branch
+        C -
 
+        D - ~
 
+E -
+    * After Every Branch $
+    `);
 
+            var branches = tree.branchify(tree.root);
 
+            expect(branches).to.have.lengthOf(3);
 
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+            expect(branches[2].steps).to.have.lengthOf(1);
 
+            expect(branches[1].afterEveryBranch).to.have.lengthOf(1);
+            expect(branches[1].afterEveryBranch[0].steps).to.have.lengthOf(2);
 
-
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryBranch: undefined
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryBranch: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "D" } ],
+                            isOnly: undefined,
+                            isDebug: true
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "E" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryBranch: undefined
+                }
+            ]);
         });
 
-        it.skip("handles ~ when it's inside an * After Every Step hook", function() {
+        it("handles ~ when it's inside an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+B -
+    * After Every Step
+        C -
+
+        D - ~
+
+E -
+    * After Every Step ~
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(3);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+            expect(branches[2].steps).to.have.lengthOf(1);
+
+            expect(branches[1].afterEveryStep).to.have.lengthOf(1);
+            expect(branches[1].afterEveryStep[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryStep: undefined
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryStep: [
+                        {
+                            steps: [ { text: "After Every Step" }, { text: "D" } ],
+                            isOnly: undefined,
+                            isDebug: true
+                        }
+                    ]
+                },
+                {
+                    steps: [ { text: "E" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                    afterEveryStep: undefined
+                }
+            ]);
         });
 
-        it.skip("handles ~ when it's inside a * Before Everything hook", function() {
+        it("handles ~ when it's inside a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+B -
+
+* Before Everything
+    C -
+
+    D - ~
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+
+            expect(tree.beforeEverything).to.have.lengthOf(1);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: undefined,
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: undefined
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "Before Everything" }, { text: "D" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
         });
 
-        it.skip("handles ~ when it's is inside an * After Everything hook", function() {
+        it("handles ~ when it's is inside an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+B -
+
+* After Everything
+    C -
+
+    D - ~
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[1].steps).to.have.lengthOf(1);
+
+            expect(tree.afterEverything).to.have.lengthOf(1);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isOnly: undefined,
+                    isDebug: undefined
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isOnly: undefined,
+                    isDebug: undefined
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "After Everything" }, { text: "D" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
         });
 
-        it.skip("handles using multiple $'s and a ~ to isolate a single branch to debug", function() {
+        it("handles using multiple $'s and a ~ to isolate a single branch to debug", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B - $
+    C -
 
+        D - $ ~
+            E -
+
+        F -
+
+    G -
+        H -
+
+I -
+    `);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ],
+                    isOnly: true,
+                    isDebug: true,
+                }
+            ]);
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    B - $
+    C -
+
+        D - $
+            E - ~
+
+        F -
+
+    G -
+        H -
+
+I -
+    `);
+
+            branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ],
+                    isOnly: true,
+                    isDebug: true,
+                }
+            ]);
         });
 
-        it.skip("throws exception if a ~ exists, but is cut off due to $", function() {
+        it("throws exception if a ~ exists, but is cut off due to $", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B - $
+    C -
 
+        D - $ ~
+            E -
+
+        F -
+
+    G -
+        H - ~
+
+I -
+`, "file.txt");
+
+            assert.throws(function() {
+                tree.branchify(tree.root);
+            }, "A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~. [file.txt:11]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    B - $
+    C -
+
+        D - $ ~
+            E -
+
+        F -
+
+    G -
+        H -
+
+I - ~
+`, "file.txt");
+
+            assert.throws(function() {
+                tree.branchify(tree.root);
+            }, "A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~. [file.txt:14]");
         });
 
         it("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
@@ -10713,6 +10989,336 @@ A -
             ]);
         });
 
+        it("keeps all branches when frequency is set to 'low'", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {frequency}='high'
+        B -
+
+    {frequency}='med'
+        C -
+
+        D -
+            {frequency}='high'
+                E -
+
+    {frequency}='low'
+        F -
+    G -
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, undefined, "low");
+
+            expect(branches).to.have.lengthOf(5);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "C" } ],
+                    frequency: 'med'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "D" }, { text: "{frequency}='high'" }, { text: "E" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='low'" }, { text: "F" } ],
+                    frequency: 'low'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "G" } ],
+                    frequency: undefined
+                }
+            ]);
+        });
+
+        it("keeps all branches when frequency is not set", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {frequency}='high'
+        B -
+
+    {frequency}='med'
+        C -
+
+        D -
+            {frequency}='high'
+                E -
+
+    {frequency}='low'
+        F -
+    G -
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, undefined, undefined);
+
+            expect(branches).to.have.lengthOf(5);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "C" } ],
+                    frequency: 'med'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "D" }, { text: "{frequency}='high'" }, { text: "E" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='low'" }, { text: "F" } ],
+                    frequency: 'low'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "G" } ],
+                    frequency: undefined
+                }
+            ]);
+        });
+
+        it("keeps branches at or above 'med' frequency", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {frequency}='high'
+        B -
+
+    {frequency}='med'
+        C -
+
+        D -
+            {frequency}='high'
+                E -
+
+    {frequency}='low'
+        F -
+    G -
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, undefined, "med");
+
+            expect(branches).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "C" } ],
+                    frequency: 'med'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "D" }, { text: "{frequency}='high'" }, { text: "E" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "G" } ],
+                    frequency: undefined
+                }
+            ]);
+        });
+
+        it("keeps branches at 'high' frequency", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {frequency}='high'
+        B -
+
+    {frequency}='med'
+        C -
+
+        D -
+            {frequency}='high'
+                E -
+
+    {frequency}='low'
+        F -
+    G -
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, undefined, "high");
+
+            expect(branches).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
+                    frequency: 'high'
+                },
+                {
+                    steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "D" }, { text: "{frequency}='high'" }, { text: "E" } ],
+                    frequency: 'high'
+                }
+            ]);
+        });
+
+        it("handles frequencies inside an * After Every Branch hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{frequency}='high'
+    A -
+        * After Every Branch
+            {frequency}='low'
+                B -
+
+* After Every Branch
+    {frequency}='low'
+        C -
+
+    {frequency}='high'
+        D -
+
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, undefined, "high");
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
+            expect(branches[0].afterEveryBranch[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "{frequency}='high'" }, { text: "A" } ],
+                    frequency: 'high',
+                    afterEveryBranch: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "{frequency}='high'" }, { text: "D" } ],
+                            frequency: 'high'
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("handles frequencies inside an * After Every Step hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{frequency}='high'
+    A -
+        * After Every Step
+            {frequency}='low'
+                B -
+
+* After Every Step
+    {frequency}='low'
+        C -
+
+    {frequency}='high'
+        D -
+
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, undefined, "high");
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].afterEveryStep).to.have.lengthOf(1);
+            expect(branches[0].afterEveryStep[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "{frequency}='high'" }, { text: "A" } ],
+                    frequency: 'high',
+                    afterEveryStep: [
+                        {
+                            steps: [ { text: "After Every Step" }, { text: "{frequency}='high'" }, { text: "D" } ],
+                            frequency: 'high'
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("handles frequencies inside a * Before Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{frequency}='low'
+    A -
+
+* Before Everything
+    {frequency}='low'
+        C -
+
+    {frequency}='high'
+        D -
+
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, undefined, "high");
+
+            expect(branches).to.have.lengthOf(0);
+            expect(tree.beforeEverything).to.have.lengthOf(1);
+            expect(tree.beforeEverything[0].steps).to.have.lengthOf(3);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "Before Everything" }, { text: "{frequency}='high'" }, { text: "D" } ],
+                    frequency: "high"
+                }
+            ]);
+        });
+
+        it("handles frequencies inside an * After Everything hook", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{frequency}='low'
+    A -
+
+* After Everything
+    {frequency}='low'
+        C -
+
+    {frequency}='high'
+        D -
+
+`, "file.txt");
+
+            var branches = tree.branchify(tree.root, undefined, "high");
+
+            expect(branches).to.have.lengthOf(0);
+            expect(tree.afterEverything).to.have.lengthOf(1);
+            expect(tree.afterEverything[0].steps).to.have.lengthOf(3);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "After Everything" }, { text: "{frequency}='high'" }, { text: "D" } ],
+                    frequency: "high"
+                }
+            ]);
+        });
+
+        it("throws exception if a ~ exists, but is cut off due to a frequency restriction", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {frequency}='high'
+        B -
+
+    {frequency}='med'
+        C - ~
+
+        D -
+            {frequency}='high'
+                E -
+
+    {frequency}='low'
+        F -
+    G -
+`, "file.txt");
+
+            assert.throws(function() {
+                tree.branchify(tree.root, undefined, "high");
+            }, "This step contains a ~, but is not above the frequency allowed to run (high). Either set its frequency higher or remove the ~. [file.txt:7]");
+        });
+
         it("sets the groups for a branch", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -10753,37 +11359,6 @@ G -
                     groups: undefined
                 }
             ]);
-        });
-
-        it.skip("keeps all branches when frequency is set to 'low'", function() {
-
-        });
-
-        it.skip("keeps all branches when frequency is not set", function() {
-
-        });
-
-        it.skip("keeps branches at or above 'med' frequency", function() {
-            // include branches with no frequency set
-        });
-
-        it.skip("keeps branches at 'high' frequency", function() {
-
-        });
-
-        it.skip("handles frequencies inside an * After Every Branch hook", function() {
-        });
-
-        it.skip("handles frequencies inside an * After Every Step hook", function() {
-        });
-
-        it.skip("handles frequencies inside a * Before Everything hook", function() {
-        });
-
-        it.skip("handles frequencies inside an * After Everything hook", function() {
-        });
-
-        it.skip("throws exception if a ~ exists, but is cut off due to a frequency restriction", function() {
         });
 
         it("sets multiple groups for a branch", function() {
@@ -10832,7 +11407,18 @@ G -
             ]);
         });
 
-        it.skip("keeps all branches when no groups are set", function() {
+        it("keeps all branches when no groups are set", function() {
+
+
+            // meow
+
+
+
+
+
+
+
+
 
         });
 
