@@ -12200,4 +12200,101 @@ K-1 -
         });
         */
     });
+
+    describe("serializeBranches()", function() {
+        it("outputs json for all branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+    C -
+`);
+
+            tree.generateBranches();
+            var json = tree.serializeBranches();
+            var obj = JSON.parse(json);
+
+            expect(obj).to.containSubsetInOrder({
+                branches: [
+                    {
+                        steps: [ { text: "A" }, { text: "B" } ]
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" } ]
+                    }
+                ],
+                beforeEverything: [],
+                afterEverything: []
+            });
+        });
+
+        it("outputs json for all branches and hooks", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        * After Every Branch
+            D -
+                * After Every Branch
+                    E -
+
+        * After Every Step
+            F -
+
+    C -
+
+* Before Everything
+    G -
+
+* Before Everything
+    H -
+
+* After Everything
+    I -
+`);
+
+            tree.generateBranches();
+            var json = tree.serializeBranches();
+            var obj = JSON.parse(json);
+
+            expect(obj).to.containSubsetInOrder({
+                branches: [
+                    {
+                        steps: [ { text: "A" }, { text: "B" } ],
+                        afterEveryBranch: [
+                            {
+                                steps: [ { text: "After Every Branch" }, { text: "D" } ],
+                                afterEveryBranch: [
+                                    {
+                                        steps: [ { text: "After Every Branch" }, { text: "E" } ]
+                                    }
+                                ]
+                            }
+                        ],
+                        afterEveryStep: [
+                            {
+                                steps: [ { text: "After Every Step" }, { text: "F" } ]
+                            }
+                        ]
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" } ]
+                    }
+                ],
+                beforeEverything: [
+                    {
+                        steps: [ { text: "Before Everything" }, { text: "H" } ]
+                    },
+                    {
+                        steps: [ { text: "Before Everything" }, { text: "G" } ]
+                    }
+                ],
+                afterEverything: [
+                    {
+                        steps: [ { text: "After Everything" }, { text: "I" } ]
+                    }
+                ]
+            });
+        });
+    });
 });

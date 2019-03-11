@@ -133,6 +133,52 @@ describe("Step", function() {
             });
         });
 
+        it("can properly clone with no refernces to outside objects", function() {
+            var C = root.children[0].children[1];
+            var clonedC = C.cloneForBranch(true);
+
+            clonedC.cloneMark = true;
+            C.originalMark = true;
+
+            expect(C).to.containSubset({
+                text: 'C',
+                varsList: [ 'C1', 'C2' ],
+                cloneMark: undefined,
+                originalMark: true,
+                containingStepBlock: undefined,
+                functionDeclarationInTree: { text: "C-orig" },
+                parent: { text: 'A' },
+                children: [
+                    {
+                        text: 'D',
+                        varsList: [ 'D1', 'D2' ],
+                        cloneMark: undefined,
+                        originalMark: undefined,
+                        functionDeclarationInTree: undefined,
+                        parent: {
+                            cloneMark: undefined,
+                            originalMark: true,
+                            originalStepInTree: undefined
+                        },
+                        children: []
+                    }
+                ],
+                originalStepInTree: undefined
+            });
+
+            expect(clonedC).to.containSubset({
+                text: 'C',
+                varsList: [ 'C1', 'C2' ],
+                cloneMark: true,
+                originalMark: undefined,
+                containingStepBlock: undefined,
+                functionDeclarationInTree: undefined,
+                parent: undefined,
+                children: undefined,
+                originalStepInTree: undefined
+            });
+        });
+
         it("can properly clone a step within a step block", function() {
             var E = root.children[1].steps[0];
             var clonedE = E.cloneForBranch();

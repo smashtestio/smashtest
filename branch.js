@@ -63,12 +63,14 @@ class Branch {
     }
 
     /**
+     * Clones this branch
+     * @param {Boolean} [noRefs] - If true, the clone will contain no references to outside objects (such as Step.originalStepInTree)
      * @return {Branch} Cloned version of this branch
      */
-    clone() {
+    clone(noRefs) {
         var clone = new Branch();
         this.steps.forEach(step => {
-            clone.steps.push(step.cloneForBranch());
+            clone.steps.push(step.cloneForBranch(noRefs));
         });
 
         this.nonParallelId ? clone.nonParallelId = this.nonParallelId : null; // if this.nonParallelId doesn't exist, don't do anything (null)
@@ -92,7 +94,7 @@ class Branch {
             }
 
             this.afterEveryBranch.forEach(branch => {
-                clone.afterEveryBranch.push(branch.clone());
+                clone.afterEveryBranch.push(branch.clone(noRefs));
             });
         }
 
@@ -102,7 +104,7 @@ class Branch {
             }
 
             this.afterEveryStep.forEach(branch => {
-                clone.afterEveryStep.push(branch.clone());
+                clone.afterEveryStep.push(branch.clone(noRefs));
             });
         }
 

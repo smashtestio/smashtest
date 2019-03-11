@@ -53,9 +53,10 @@ class Step {
     /**
      * Generates a clone of this Step, ready to be placed into a Branch
      * Cannot be called if this is a StepBlock
+     * @param {Boolean} [noRefs] - If true, the clone will contain no references to outside objects (such as originalStepInTree)
      * @return {Step} A distinct copy of this Step, but with parent, children, containingStepBlock, and functionDeclarationInTree deleted, and originalStepInTree set
      */
-    cloneForBranch() {
+    cloneForBranch(noRefs) {
         // We don't want the clone to walk the tree into other Step objects, such as this.parent
         // Therefore, temporarily remove references to other Steps
         var originalParent = this.parent;
@@ -75,7 +76,9 @@ class Step {
 
         // Clone
         var clone = clonedeep(this);
-        clone.originalStepInTree = originalOriginalStepInTree ? originalOriginalStepInTree : this; // double-cloning a Step retains originalStepInTree pointing at the original step under this.root
+        if(!noRefs) {
+            clone.originalStepInTree = originalOriginalStepInTree ? originalOriginalStepInTree : this; // double-cloning a Step retains originalStepInTree pointing at the original step under this.root
+        }
 
         // Restore originals
         this.parent = originalParent;

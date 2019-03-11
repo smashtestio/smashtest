@@ -1198,5 +1198,46 @@ class Tree {
             utils.error("Every word must be capitalized in a hook function declaration (use '" + correctText + "' instead)", step.filename, step.lineNumber);
         }
     }
+
+    /**
+     * @return {String} JSON representation of this.branches, with references to other objects removed
+     */
+    serializeBranches() {
+        var obj = {
+            branches: [],
+            beforeEverything: [],
+            afterEverything: []
+        };
+
+        this.branches.forEach(branch => {
+            obj.branches.push(branch.clone(true));
+        });
+
+        this.beforeEverything.forEach(branch => {
+            obj.beforeEverything.push(branch.clone(true));
+        });
+
+        this.afterEverything.forEach(branch => {
+            obj.afterEverything.push(branch.clone(true));
+        });
+
+        return JSON.stringify(obj);
+    }
+
+    mergeBranches(json) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
 }
 module.exports = Tree;
