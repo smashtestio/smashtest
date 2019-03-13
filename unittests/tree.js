@@ -266,24 +266,24 @@ describe("Tree", function() {
             var step = tree.parseLine(`Click {button} -T`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isToDo, true);
-            assert.equal(step.isTextualStep, undefined);
+            assert.equal(step.isTextualStep, true);
 
             step = tree.parseLine(`Click {button} + -T ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isToDo, true);
-            assert.equal(step.isTextualStep, undefined);
+            assert.equal(step.isTextualStep, true);
         });
 
         it("parses the manual identifier (-M)", function() {
             var step = tree.parseLine(`Click {button} -M`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isManual, true);
-            assert.equal(step.isTextualStep, undefined);
+            assert.equal(step.isTextualStep, true);
 
             step = tree.parseLine(`Click {button} + -M ~`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isManual, true);
-            assert.equal(step.isTextualStep, undefined);
+            assert.equal(step.isTextualStep, true);
         });
 
         it("parses the textual step identifier (-)", function() {
@@ -11996,6 +11996,70 @@ G -
                 }
             ]);
         });
+
+        it("marks as built-in hooks that are built-in", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+
+* Before Everything
+    K -
+`, "file1.txt", false);
+
+            tree.parseIn(`
+* Before Everything
+    B -
+
+* After Everything
+    C -
+
+* After Every Branch
+    D -
+
+* After Every Step
+    E -
+`, "file2.txt", true);
+
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    afterEveryBranch: [
+                        {
+                            steps: [ { text: "After Every Branch" }, { text: "D" } ],
+                            isBuiltIn: true
+                        }
+                    ],
+                    afterEveryStep: [
+                        {
+                            steps: [ { text: "After Every Step" }, { text: "E" } ],
+                            isBuiltIn: true
+                        }
+                    ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "Before Everything" }, { text: "B" } ],
+                    isBuiltIn: true
+                },
+                {
+                    steps: [ { text: "Before Everything" }, { text: "K" } ],
+                    isBuiltIn: undefined
+                }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "After Everything" }, { text: "C" } ],
+                    isBuiltIn: true
+                }
+            ]);
+        });
     });
 
     describe("generateBranches()", function() {
@@ -12374,7 +12438,7 @@ A -
              currTree.branches[4].steps[1].text = "3 clone-2 step-2";
              currTree.branches[4].steps[2].text = "3 clone-2 step-3";
              currTree.branches[4].isFailed = true;
-             currTree.branches[4].doNotRun = true;
+             currTree.branches[4].passedLastTime = true;
 
              currTree.branches[5].steps[0].text = "3 clone-3 step-1";
              currTree.branches[5].steps[1].text = "3 clone-3 step-2";
@@ -12425,37 +12489,37 @@ A -
              expect(currTree.branches).to.containSubsetInOrder([
                  {
                      steps: [ { text: "1A clone-1 step-1" }, { text: "1A clone-1 step-2" }, { text: "1A clone-1 step-3" } ],
-                     doNotRun: undefined,
+                     passedLastTime: undefined,
                      isPassed: undefined,
                      isFailed: undefined
                  },
                  {
                      steps: [ { text: "1A clone-2 step-1" }, { text: "1A clone-2 step-2" }, { text: "1A clone-2 step-3" } ],
-                     doNotRun: undefined,
+                     passedLastTime: undefined,
                      isPassed: undefined,
                      isFailed: undefined
                  },
                  {
                      steps: [ { text: "1B clone-1 step-1" }, { text: "1B clone-1 step-2" }, { text: "1B clone-1 step-3" } ],
-                     doNotRun: true,
+                     passedLastTime: true,
                      isPassed: undefined,
                      isFailed: undefined
                  },
                  {
                      steps: [ { text: "3 clone-1 step-1" }, { text: "3 clone-1 step-2" }, { text: "3 clone-1 step-3" } ],
-                     doNotRun: undefined,
+                     passedLastTime: undefined,
                      isPassed: undefined,
                      isFailed: undefined
                  },
                  {
                      steps: [ { text: "3 clone-2 step-1" }, { text: "3 clone-2 step-2" }, { text: "3 clone-2 step-3" } ],
-                     doNotRun: undefined,
+                     passedLastTime: undefined,
                      isPassed: undefined,
                      isFailed: undefined
                  },
                  {
                      steps: [ { text: "3 clone-3 step-1" }, { text: "3 clone-3 step-2" }, { text: "3 clone-3 step-3" } ],
-                     doNotRun: undefined,
+                     passedLastTime: undefined,
                      isPassed: undefined,
                      isFailed: undefined
                  }
@@ -12463,8 +12527,181 @@ A -
         });
     });
 
-    describe("getRunnableStepCount()", function() {
-        it("returns the number of steps to be run", function() {
+    describe("getStepCount()", function() {
+        it("returns total number of steps", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.getStepCount(false, false)).to.equal(13);
+        });
+
+        it("returns total number of runnable steps", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].steps[0].isTextualStep = false;
+            tree.branches[0].steps[1].isTextualStep = false;
+            tree.branches[1].passedLastTime = true;
+
+            expect(tree.getStepCount(false, false)).to.equal(13);
+            expect(tree.getStepCount(true, false)).to.equal(2);
+        });
+
+        it("returns total number of complete steps", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].steps[0].isTextualStep = false;
+            tree.branches[0].steps[1].isTextualStep = false;
+            tree.branches[0].isPassed = true;
+            tree.branches[1].isFailed = true;
+            tree.branches[2].passedLastTime = true;
+
+            expect(tree.getStepCount(false, false)).to.equal(13);
+            expect(tree.getStepCount(true, true)).to.equal(2);
+        });
+
+        it("does not count inside hooks", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+            * After Every Branch
+                M -
+
+            * After Every Step
+                N -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+
+* Before Everything
+    O -
+
+* After Everything
+    P -
+`, "file.txt");
+
+            tree.parseIn(`
+* Before Everything
+    W -
+
+* After Everything
+    X -
+
+* After Every Branch
+    Y -
+
+* After Every Step
+    Z -
+`, "builtin.txt", true);
+
+            tree.generateBranches();
+
+            tree.branches[0].steps[0].isTextualStep = false;
+            tree.branches[0].steps[1].isTextualStep = false;
+            tree.branches[0].isPassed = true;
+            tree.branches[1].isFailed = true;
+            tree.branches[2].passedLastTime = true;
+
+            expect(tree.getStepCount(false, false)).to.equal(13);
+            expect(tree.getStepCount(true, true)).to.equal(2);
+        });
+    });
+
+    describe("getPercentComplete()", function() {
+        it("returns percent complete", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches.forEach(branch => {
+                branch.steps.forEach(step => {
+                    step.isTextualStep = false;
+                });
+            });
+            tree.branches[0].isPassed = true;
+            tree.branches[1].isFailed = true;
+            tree.branches[2].passedLastTime = true;
+
+            expect(tree.getPercentComplete()).to.equal(80);
         });
     });
 });

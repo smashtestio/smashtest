@@ -17,10 +17,11 @@ class Branch {
 
         this.isOnly = false;                // If true, a Step in this Branch has a $
         this.isDebug = false;               // If true, a Step in this Branch has a ~
+        this.isBuiltIn = false;             // If true, this is a built-in hook
 
-        this.doNotRun = false;               // if true, do not run this branch, but include it in the report
-        this.isPassed = false;               // true if every step in this branch passed after being run
-        this.isFailed = false;               // true if at least one step in this branch failed after being run
+        this.passedLastTime = false;              // if true, do not run this branch, but include it in the report
+        this.isPassed = false;              // true if every step in this branch passed after being run
+        this.isFailed = false;              // true if at least one step in this branch failed after being run
 
         this.afterEveryBranch = [];         // Array of Branch, the branches to execute after this branch is done
         this.afterEveryStep = [];           // Array of Branch, the branches to execute after each step in this branch is done
@@ -51,8 +52,9 @@ class Branch {
 
         branch.isOnly ? this.isOnly = branch.isOnly : null;
         branch.isDebug ? this.isDebug = branch.isDebug : null;
+        branch.isBuiltIn ? this.isBuiltIn = branch.isBuiltIn : null;
 
-        branch.doNotRun ? this.doNotRun = branch.doNotRun : null;
+        branch.passedLastTime ? this.passedLastTime = branch.passedLastTime : null;
         branch.isPassed ? this.isPassed = branch.isPassed : null;
         branch.isFailed ? this.isFailed = branch.isFailed : null;
 
@@ -99,8 +101,9 @@ class Branch {
 
         this.isOnly ? clone.isOnly = this.isOnly : null;
         this.isDebug ? clone.isDebug = this.isDebug : null;
+        this.isBuiltIn ? clone.isBuiltIn = this.isBuiltIn : null;
 
-        this.doNotRun ? clone.doNotRun = this.doNotRun : null;
+        this.passedLastTime ? clone.passedLastTime = this.passedLastTime : null;
         this.isPassed ? clone.isPassed = this.isPassed : null;
         this.isFailed ? clone.isFailed = this.isFailed : null;
 
@@ -169,7 +172,7 @@ class Branch {
                      }
                  });
              }
-             
+
              return text;
          }
 

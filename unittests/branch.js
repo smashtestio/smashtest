@@ -26,6 +26,7 @@ describe("Branch", function() {
             branch1.groups = [ "1" ];
             branch1.frequency = "low";
             branch1.isDebug = true;
+            branch1.isBuiltIn = true;
             branch1.isPassed = true;
 
             var branch2 = new Branch;
@@ -34,7 +35,7 @@ describe("Branch", function() {
             branch2.frequency = "high";
             branch2.groups = [ "2", "3" ];
             branch2.isOnly = true;
-            branch1.doNotRun = true;
+            branch1.passedLastTime = true;
             branch1.isFailed = true;
 
             branch1.mergeToEnd(branch2);
@@ -53,7 +54,8 @@ describe("Branch", function() {
                 groups: [ "1", "2", "3" ],
                 isOnly: true,
                 isDebug: true,
-                doNotRun: true,
+                isBuiltIn: true,
+                passedLastTime: true,
                 isPassed: true,
                 isFailed: true
             });
@@ -228,7 +230,8 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                doNotRun: undefined,
+                isBuiltIn: undefined,
+                passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
                 afterEveryBranch: undefined,
@@ -260,7 +263,8 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                doNotRun: undefined,
+                isBuiltIn: undefined,
+                passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
                 afterEveryBranch: undefined,
@@ -279,7 +283,8 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                doNotRun: undefined,
+                isBuiltIn: undefined,
+                passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
                 afterEveryBranch: undefined,
@@ -324,7 +329,8 @@ describe("Branch", function() {
             branch.groups = ['big', 'small'];
             branch.isOnly = true;
             branch.isDebug = true;
-            branch.doNotRun = true;
+            branch.isBuiltIn = true;
+            branch.passedLastTime = true;
             branch.isPassed = true;
             branch.isFailed = true;
             branch.afterEveryBranch = [ afterBranch1, afterBranch2 ];
@@ -342,7 +348,8 @@ describe("Branch", function() {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
-                doNotRun: true,
+                isBuiltIn: true,
+                passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
                 afterEveryBranch: [
@@ -379,7 +386,8 @@ describe("Branch", function() {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
-                doNotRun: true,
+                isBuiltIn: true,
+                passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
                 afterEveryBranch: [

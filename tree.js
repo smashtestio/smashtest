@@ -119,9 +119,11 @@ class Tree {
         if(step.identifiers) {
             if(step.identifiers.includes('-T')) {
                 step.isToDo = true;
+                step.isTextualStep = true;
             }
             if(step.identifiers.includes('-M')) {
                 step.isManual = true;
+                step.isTextualStep = true;
             }
             if(step.identifiers.includes('-')) {
                 step.isTextualStep = true;
@@ -809,6 +811,7 @@ class Tree {
                     clonedHookStep.branchIndents = 0;
                     afterEveryBranchMembers.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
+                        branch.isBuiltIn = clonedHookStep.isBuiltIn;
                     });
 
                     afterEveryBranch = afterEveryBranch.concat(afterEveryBranchMembers);
@@ -821,6 +824,7 @@ class Tree {
                     clonedHookStep.branchIndents = 0;
                     afterEveryStepMembers.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
+                        branch.isBuiltIn = clonedHookStep.isBuiltIn;
                     });
 
                     afterEveryStep = afterEveryStep.concat(afterEveryStepMembers);
@@ -837,6 +841,7 @@ class Tree {
                     clonedHookStep.branchIndents = 0;
                     newBeforeEverything.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
+                        branch.isBuiltIn = clonedHookStep.isBuiltIn;
                     });
                     this.beforeEverything = newBeforeEverything.concat(this.beforeEverything); // inserted this way so that built-in hooks get executed first
                 }
@@ -852,6 +857,7 @@ class Tree {
                     clonedHookStep.branchIndents = 0;
                     newAfterEverything.forEach(branch => {
                         branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
+                        branch.isBuiltIn = clonedHookStep.isBuiltIn;
                     });
                     this.afterEverything = this.afterEverything.concat(newAfterEverything); // inserted this way so that built-in hooks get executed last
                 }
@@ -1229,13 +1235,13 @@ class Tree {
      * If a branch...
      *     1) Exists in both previous and current
      *         a) Didn't pass in previous (it failed or it didn't run)
-     *             It will be included in current, with a clean execution state
+     *             It will be included in current
      *         b) Passed in previous
-     *             It will be included in current, but marked to not run and will carry over its execution state from previous
+     *             It will be included in current, but marked to not run
      *     2) Only exists in previous
      *         It will remain absent from current (tester got rid of this branch)
      *     3) Only exists in current
-     *         It will remain included in current, with a clean execution state (this is a new branch)
+     *         It will remain included in current (this is a new branch)
      * @param {String} json - A JSON representation of branches and hooks from a previous run. Same JSON that serializeBranches() returns.
      */
     mergeBranchesFromPrevRun(json) {
@@ -1255,15 +1261,17 @@ class Tree {
                 if(currBranch.equals(prevBranch)) {
                     // 1) This branch exists in both previous and current
                     if(!prevBranch.isPassed) { // failed or didn't run
-                        // 1a) Include in currBranch, with a clean state
-                        delete currBranch.doNotRun;
-                        delete currBranch.isPassed;
-                        delete currBranch.isFailed;
+                        // 1a) Include in currBranch
+                        delete currBranch.passedLastTime;
                     }
                     else {
-                        // 1b) Include in currBranch, but keep state and set doNotRun
-                        currBranch.doNotRun = true;
+                        // 1b) Keep in currBranch, set passedLastTime
+                        currBranch.passedLastTime = true;
                     }
+
+                    // Clean state
+                    delete currBranch.isPassed;
+                    delete currBranch.isFailed;
 
                     found = true;
                     break;
@@ -1272,8 +1280,8 @@ class Tree {
 
             if(!found) {
                 // 3) This branch only exists in current
-                // Include in currBranch, but with a clean state
-                delete currBranch.doNotRun;
+                // Keep in currBranch, clean state
+                delete currBranch.passedLastTime;
                 delete currBranch.isPassed;
                 delete currBranch.isFailed;
             }
@@ -1290,49 +1298,35 @@ class Tree {
     }
 
     /**
+     * Get a count on the number of steps within this.branches. Does not include steps in hooks.
+     * @param {Boolean} runnableOnly - If true, only count runnable steps
+     * @param {Boolean} completeOnly - If true, only count steps that are complete (passed or failed)
      * @return {Number} Number of steps that are to be run
      */
-    getRunnableStepCount() {
+    getStepCount(runnableOnly, completeOnly) {
         var count = 0;
         this.branches.forEach(branch => {
-            if(!branch.doNotRun) {
-                count += branch.steps.length;
+            if(runnableOnly) {
+                if(!branch.passedLastTime) {
+                    if(completeOnly) {
+                        if(branch.isPassed || branch.isFailed) {
+                            branch.steps.forEach(step => {
+                                if(!step.isTextualStep) {
+                                    count++;
+                                }
+                            });
+                        }
+                    }
+                    else {
+                        branch.steps.forEach(step => {
+                            if(!step.isTextualStep) {
+                                count++;
+                            }
+                        });
+                    }
+                }
             }
-        });
-
-        return count;
-
-
-
-
-
-
-
-
-
-
-        
-    }
-
-    /**
-     * @return {Number} Number of steps in total
-     */
-    getTotalStepCount() {
-        var count = 0;
-        this.branches.forEach(branch => {
-            count += branch.steps.length;
-        });
-
-        return count;
-    }
-
-    /**
-     * @return {Number} Number of steps that are to be run and complete
-     */
-    getRunnableCompleteStepCount() {
-        var count = 0;
-        this.branches.forEach(branch => {
-            if((branch.isPassed || branch.isFailed) && !branch.doNotRun) {
+            else {
                 count += branch.steps.length;
             }
         });
@@ -1344,7 +1338,7 @@ class Tree {
      * @return {Number} Percent (0-100) of steps currently being run that are complete
      */
     getPercentComplete() {
-        return (getRunnableCompleteStepCount() / getRunnableStepCount()) * 100;
+        return (this.getStepCount(true, true) / this.getStepCount(true, false)) * 100.0;
     }
 
     /**
