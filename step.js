@@ -47,6 +47,9 @@ class Step {
 
         this.originalStepInTree = {};         // when this step is cloned, the clone's originalStepInTree points to the Step from which it was cloned
         this.branchIndents = 0;               // when this step is included in a Branch, this indicates the number of indents to use when printing the Branch out, so as to preserve function calling hierarchies (i.e., steps under a function are indented under that function's call)
+
+        this.isPassed = false;                // true if this step passed after being run
+        this.isFailed = false;                // true if this step failed after being run
         */
     }
 
@@ -205,6 +208,12 @@ class Step {
 
         var isBuiltIn = this.isBuiltIn || functionDeclarationInTree.isBuiltIn;
         isBuiltIn ? this.isBuiltIn = isBuiltIn : null;
+
+        var isPassed = this.isPassed || functionDeclarationInTree.isPassed;
+        isPassed ? this.isPassed = isPassed : null;
+
+        var isFailed = this.isFailed || functionDeclarationInTree.isFailed;
+        isFailed ? this.isFailed = isFailed : null;
 
         if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
             this.codeBlock = functionDeclarationInTree.codeBlock;

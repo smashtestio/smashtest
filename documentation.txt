@@ -36,6 +36,10 @@ Running tests
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
 
 Only run tests that didn't pass last time
+    - Doesn't run branches that passed last time
+    - Doesn't run branches that have since been removed from the tree
+    - Runs everything else (new branches, branches that failed last time, branches that didn't run last time)
+    - Runs current hooks, regardless of if they passed or not
 
 Configuration
     - Timeouts

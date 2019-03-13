@@ -1225,41 +1225,61 @@ class Tree {
     }
 
     /**
-     * Merges the given JSON with this tree's branches and hooks
-     * If a branch in the JSON...
-     *     1) Exists in this.branches/hooks, and it...
-     *         a) Didn't pass (it failed, it didn't run, or it's new)
-     *             It will be included in this.branches/hooks
-     *         b) Passed
-     *             It will be included in this.branches/hook, but marked to not run
-     *     2) No longer exists in this.branches/hooks
-     *         It will remain absent from this.branches/hooks
-     * @param {String} json - A JSON representation of branches and hooks from a past run. Same JSON that serializeBranches() returns.
+     * Merges the given JSON (previous) with this tree's branches and hooks (current)
+     * If a branch...
+     *     1) Exists in both previous and current
+     *         a) Didn't pass in previous (it failed or it didn't run)
+     *             It will be included in current, with a clean execution state
+     *         b) Passed in previous
+     *             It will be included in current, but marked to not run and will carry over its execution state from previous
+     *     2) Only exists in previous
+     *         It will remain absent from current (tester got rid of this branch)
+     *     3) Only exists in current
+     *         It will remain included in current, with a clean execution state (this is a new branch)
+     * @param {String} json - A JSON representation of branches and hooks from a previous run. Same JSON that serializeBranches() returns.
      */
-    mergeBranches(json) {
+    mergeBranchesFromPrevRun(json) {
+        var previous = JSON.parse(json);
+        var prevBranches = previous.branches;
+        var currBranches = this.branches;
 
+        if(prevBranches.length == 0 && currBranches.length == 0) {
+            return;
+        }
 
+        currBranches.forEach(currBranch => {
+            // Find an equal branch in prevBranches
+            var found = false;
+            for(var i = 0; i < prevBranches.length; i++) {
+                var prevBranch = prevBranches[i];
+                if(currBranch.equals(prevBranch)) {
+                    // 1) This branch exists in both previous and current
+                    if(!prevBranch.isPassed) { // failed or didn't run
+                        // 1a) Include in currBranch, with a clean state
+                        delete currBranch.doNotRun;
+                        delete currBranch.isPassed;
+                        delete currBranch.isFailed;
+                    }
+                    else {
+                        // 1b) Include in currBranch, but keep state and set doNotRun
+                        currBranch.doNotRun = true;
+                    }
 
+                    found = true;
+                    break;
+                }
+            }
 
+            if(!found) {
+                // 3) This branch only exists in current
+                // Include in currBranch, but with a clean state
+                delete currBranch.doNotRun;
+                delete currBranch.isPassed;
+                delete currBranch.isFailed;
+            }
+        });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        // 2) As for branches that only exist in previous, they already don't exist in current, so we're good
     }
 }
 module.exports = Tree;

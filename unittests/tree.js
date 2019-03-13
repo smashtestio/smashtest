@@ -6,6 +6,8 @@ const assert = chai.assert;
 const util = require('util');
 const utils = require('../utils.js');
 const Tree = require('../tree.js');
+const Branch = require('../branch.js');
+const Step = require('../step.js');
 
 chai.use(chaiSubset);
 chai.use(chaiSubsetInOrder);
@@ -12312,48 +12314,152 @@ A -
         });
     });
 
-    describe("mergeBranches()", function() {
-        it("TEXT", function() {
+    describe("mergeBranchesFromPrevRun()", function() {
+        it("merges empty previous branches into empty current branches", function() {
+            var prevTree = new Tree();
+            var currTree = new Tree();
 
+            currTree.generateBranches();
+            prevTree.generateBranches();
+            var prevJson = prevTree.serializeBranches();
 
+            currTree.mergeBranchesFromPrevRun(prevJson);
 
-
-
-
-
+            expect(currTree.branches).to.have.lengthOf(0);
+            expect(currTree.branches).to.containSubsetInOrder([]);
         });
 
+        it("handles a merge", function() {
+            /*
+             * If a branch...
+             *     1) Exists in both previous and current
+             *         a) Didn't pass in previous (it failed or it didn't run)
+             *             It will be included in current, with a clean execution state
+             *         b) Passed in previous
+             *             It will be included in current, but marked to not run and will carry over its execution state from previous
+             *     2) Only exists in previous
+             *         It will remain absent from current (tester got rid of this branch)
+             *     3) Only exists in current
+             *         It will remain included in current, with a clean execution state (this is a new branch)
+             */
 
+             var currTree = new Tree();
 
+             currTree.branches = [ new Branch(), new Branch(), new Branch(), new Branch(), new Branch(), new Branch() ];
+             currTree.branches[0].steps = [ new Step(), new Step(), new Step() ];
+             currTree.branches[1].steps = [ new Step(), new Step(), new Step() ];
+             currTree.branches[2].steps = [ new Step(), new Step(), new Step() ];
+             currTree.branches[3].steps = [ new Step(), new Step(), new Step() ];
+             currTree.branches[4].steps = [ new Step(), new Step(), new Step() ];
+             currTree.branches[5].steps = [ new Step(), new Step(), new Step() ];
 
+             currTree.branches[0].steps[0].text = "1A clone-1 step-1";
+             currTree.branches[0].steps[1].text = "1A clone-1 step-2";
+             currTree.branches[0].steps[2].text = "1A clone-1 step-3";
 
+             currTree.branches[1].steps[0].text = "1A clone-2 step-1";
+             currTree.branches[1].steps[1].text = "1A clone-2 step-2";
+             currTree.branches[1].steps[2].text = "1A clone-2 step-3";
 
+             currTree.branches[2].steps[0].text = "1B clone-1 step-1";
+             currTree.branches[2].steps[1].text = "1B clone-1 step-2";
+             currTree.branches[2].steps[2].text = "1B clone-1 step-3";
 
+             currTree.branches[3].steps[0].text = "3 clone-1 step-1";
+             currTree.branches[3].steps[1].text = "3 clone-1 step-2";
+             currTree.branches[3].steps[2].text = "3 clone-1 step-3";
+             currTree.branches[3].isPassed = true;
 
+             currTree.branches[4].steps[0].text = "3 clone-2 step-1";
+             currTree.branches[4].steps[1].text = "3 clone-2 step-2";
+             currTree.branches[4].steps[2].text = "3 clone-2 step-3";
+             currTree.branches[4].isFailed = true;
+             currTree.branches[4].doNotRun = true;
 
+             currTree.branches[5].steps[0].text = "3 clone-3 step-1";
+             currTree.branches[5].steps[1].text = "3 clone-3 step-2";
+             currTree.branches[5].steps[2].text = "3 clone-3 step-3";
 
+             var prevTree = new Tree();
 
+             prevTree.branches = [ new Branch(), new Branch(), new Branch(), new Branch(), new Branch(), new Branch() ];
+             prevTree.branches[0].steps = [ new Step(), new Step(), new Step() ];
+             prevTree.branches[1].steps = [ new Step(), new Step(), new Step() ];
+             prevTree.branches[2].steps = [ new Step(), new Step(), new Step() ];
+             prevTree.branches[3].steps = [ new Step(), new Step(), new Step() ];
+             prevTree.branches[4].steps = [ new Step(), new Step(), new Step() ];
+             prevTree.branches[5].steps = [ new Step(), new Step(), new Step() ];
 
+             prevTree.branches[0].steps[0].text = "1A clone-1 step-1";
+             prevTree.branches[0].steps[1].text = "1A clone-1 step-2";
+             prevTree.branches[0].steps[2].text = "1A clone-1 step-3";
 
+             prevTree.branches[1].steps[0].text = "1A clone-2 step-1";
+             prevTree.branches[1].steps[1].text = "1A clone-2 step-2";
+             prevTree.branches[1].steps[2].text = "1A clone-2 step-3";
+             prevTree.branches[1].isFailed = true;
 
+             prevTree.branches[2].steps[0].text = "1B clone-1 step-1";
+             prevTree.branches[2].steps[1].text = "1B clone-1 step-2";
+             prevTree.branches[2].steps[2].text = "1B clone-1 step-3";
+             prevTree.branches[2].isPassed = true;
 
+             prevTree.branches[3].steps[0].text = "2 clone-1 step-1";
+             prevTree.branches[3].steps[1].text = "2 clone-1 step-2";
+             prevTree.branches[3].steps[2].text = "2 clone-1 step-3";
+             prevTree.branches[3].isFailed = true;
 
+             prevTree.branches[4].steps[0].text = "2 clone-2 step-1";
+             prevTree.branches[4].steps[1].text = "2 clone-2 step-2";
+             prevTree.branches[4].steps[2].text = "2 clone-2 step-3";
+             prevTree.branches[4].isPassed = true;
 
+             prevTree.branches[5].steps[0].text = "2 clone-3 step-1";
+             prevTree.branches[5].steps[1].text = "2 clone-3 step-2";
+             prevTree.branches[5].steps[2].text = "2 clone-3 step-3";
 
+             var prevJson = prevTree.serializeBranches();
+             currTree.mergeBranchesFromPrevRun(prevJson);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+             expect(currTree.branches).to.have.lengthOf(6);
+             expect(currTree.branches).to.containSubsetInOrder([
+                 {
+                     steps: [ { text: "1A clone-1 step-1" }, { text: "1A clone-1 step-2" }, { text: "1A clone-1 step-3" } ],
+                     doNotRun: undefined,
+                     isPassed: undefined,
+                     isFailed: undefined
+                 },
+                 {
+                     steps: [ { text: "1A clone-2 step-1" }, { text: "1A clone-2 step-2" }, { text: "1A clone-2 step-3" } ],
+                     doNotRun: undefined,
+                     isPassed: undefined,
+                     isFailed: undefined
+                 },
+                 {
+                     steps: [ { text: "1B clone-1 step-1" }, { text: "1B clone-1 step-2" }, { text: "1B clone-1 step-3" } ],
+                     doNotRun: true,
+                     isPassed: undefined,
+                     isFailed: undefined
+                 },
+                 {
+                     steps: [ { text: "3 clone-1 step-1" }, { text: "3 clone-1 step-2" }, { text: "3 clone-1 step-3" } ],
+                     doNotRun: undefined,
+                     isPassed: undefined,
+                     isFailed: undefined
+                 },
+                 {
+                     steps: [ { text: "3 clone-2 step-1" }, { text: "3 clone-2 step-2" }, { text: "3 clone-2 step-3" } ],
+                     doNotRun: undefined,
+                     isPassed: undefined,
+                     isFailed: undefined
+                 },
+                 {
+                     steps: [ { text: "3 clone-3 step-1" }, { text: "3 clone-3 step-2" }, { text: "3 clone-3 step-3" } ],
+                     doNotRun: undefined,
+                     isPassed: undefined,
+                     isFailed: undefined
+                 }
+             ]);
+        });
     });
 });

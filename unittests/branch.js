@@ -26,6 +26,7 @@ describe("Branch", function() {
             branch1.groups = [ "1" ];
             branch1.frequency = "low";
             branch1.isDebug = true;
+            branch1.isPassed = true;
 
             var branch2 = new Branch;
             branch2.steps = [ stepB, stepC ];
@@ -33,6 +34,8 @@ describe("Branch", function() {
             branch2.frequency = "high";
             branch2.groups = [ "2", "3" ];
             branch2.isOnly = true;
+            branch1.doNotRun = true;
+            branch1.isFailed = true;
 
             branch1.mergeToEnd(branch2);
 
@@ -49,7 +52,10 @@ describe("Branch", function() {
                 frequency: "high",
                 groups: [ "1", "2", "3" ],
                 isOnly: true,
-                isDebug: true
+                isDebug: true,
+                doNotRun: true,
+                isPassed: true,
+                isFailed: true
             });
         });
 
@@ -222,6 +228,9 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
+                doNotRun: undefined,
+                isPassed: undefined,
+                isFailed: undefined,
                 afterEveryBranch: undefined,
                 afterEveryStep: undefined
             });
@@ -251,6 +260,9 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
+                doNotRun: undefined,
+                isPassed: undefined,
+                isFailed: undefined,
                 afterEveryBranch: undefined,
                 afterEveryStep: undefined
             });
@@ -267,6 +279,9 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
+                doNotRun: undefined,
+                isPassed: undefined,
+                isFailed: undefined,
                 afterEveryBranch: undefined,
                 afterEveryStep: undefined
             });
@@ -309,6 +324,9 @@ describe("Branch", function() {
             branch.groups = ['big', 'small'];
             branch.isOnly = true;
             branch.isDebug = true;
+            branch.doNotRun = true;
+            branch.isPassed = true;
+            branch.isFailed = true;
             branch.afterEveryBranch = [ afterBranch1, afterBranch2 ];
             branch.afterEveryStep = [ afterBranch3 ];
 
@@ -324,6 +342,9 @@ describe("Branch", function() {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
+                doNotRun: true,
+                isPassed: true,
+                isFailed: true,
                 afterEveryBranch: [
                     {
                         steps: [
@@ -358,6 +379,9 @@ describe("Branch", function() {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
+                doNotRun: true,
+                isPassed: true,
+                isFailed: true,
                 afterEveryBranch: [
                     {
                         steps: [
@@ -406,6 +430,113 @@ describe("Branch", function() {
         B
             C
 `);
+        });
+    });
+
+    describe("equals()", function() {
+        it("finds two empty branches to be equal", function() {
+            var branch1 = new Branch();
+            var branch2 = new Branch();
+
+            expect(branch1.equals(branch2)).to.equal(true);
+        });
+
+        it("finds two equal branches to be equal", function() {
+            var stepA1 = new Step();
+            stepA1.text = 'A';
+            stepA1.identifiers = [ '-' ];
+
+            var stepB1 = new Step();
+            stepB1.text = 'B';
+            stepB1.identifiers = [ '+' ];
+
+            var stepC1 = new Step();
+            stepC1.text = 'C';
+            stepC1.identifiers = [];
+
+            var stepA2 = new Step();
+            stepA2.text = 'A';
+            stepA2.identifiers = [ '-' ];
+
+            var stepB2 = new Step();
+            stepB2.text = 'B';
+            stepB2.identifiers = [ '$', '+' ];
+
+            var stepC2 = new Step();
+            stepC2.text = 'C';
+            stepC2.identifiers = [];
+
+            var branch1 = new Branch();
+            branch1.steps = [ stepA1, stepB1, stepC1 ];
+
+            var branch2 = new Branch();
+            branch2.steps = [ stepA2, stepB2, stepC2 ];
+
+            expect(branch1.equals(branch2)).to.equal(true);
+        });
+
+        it("finds two differently-sized branches to be not equal", function() {
+            var stepA1 = new Step();
+            stepA1.text = 'A';
+            stepA1.identifiers = [ '-' ];
+
+            var stepB1 = new Step();
+            stepB1.text = 'B';
+            stepB1.identifiers = [ '+' ];
+
+            var stepC1 = new Step();
+            stepC1.text = 'C';
+            stepC1.identifiers = [];
+
+            var stepA2 = new Step();
+            stepA2.text = 'A';
+            stepA2.identifiers = [ '-' ];
+
+            var stepB2 = new Step();
+            stepB2.text = 'B';
+            stepB2.identifiers = [ '$', '+' ];
+
+            var branch1 = new Branch();
+            branch1.steps = [ stepA1, stepB1, stepC1 ];
+
+            var branch2 = new Branch();
+            branch2.steps = [ stepA2, stepB2 ];
+
+            expect(branch1.equals(branch2)).to.equal(false);
+        });
+
+        it("finds two branches with different to be not equal", function() {
+            var stepA1 = new Step();
+            stepA1.text = 'A';
+            stepA1.identifiers = [ '-' ];
+
+            var stepB1 = new Step();
+            stepB1.text = 'B';
+            stepB1.identifiers = [ '+' ];
+
+            var stepC1 = new Step();
+            stepC1.text = 'C';
+            stepC1.identifiers = [];
+
+            var stepA2 = new Step();
+            stepA2.text = 'A';
+            stepA2.identifiers = [ '-' ];
+
+            var stepB2 = new Step();
+            stepB2.text = 'K';
+            stepB2.identifiers = [ '$', '+' ];
+
+            var stepC2 = new Step();
+            stepC2.text = 'C';
+            stepC2.identifiers = [];
+
+            var branch1 = new Branch();
+            branch1.steps = [ stepA1, stepB1, stepC1 ];
+
+            var branch2 = new Branch();
+            branch2.steps = [ stepA2, stepB2, stepC2 ];
+
+            expect(branch1.equals(branch2)).to.equal(false);
         });
     });
 });

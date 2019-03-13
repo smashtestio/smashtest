@@ -11,10 +11,16 @@ class Branch {
         OPTIONAL
 
         this.nonParallelId = "";            // When multiple branches cannot be run in parallel (due to +), they are each given the same nonParallelId
+
         this.frequency = "";                // Frequency of this Branch (either 'high', 'med', or 'low')
         this.groups = [];                   // The groups that this Branch is a part of
+
         this.isOnly = false;                // If true, a Step in this Branch has a $
         this.isDebug = false;               // If true, a Step in this Branch has a ~
+
+        this.doNotRun = false;               // if true, do not run this branch, but include it in the report
+        this.isPassed = false;               // true if every step in this branch passed after being run
+        this.isFailed = false;               // true if at least one step in this branch failed after being run
 
         this.afterEveryBranch = [];         // Array of Branch, the branches to execute after this branch is done
         this.afterEveryStep = [];           // Array of Branch, the branches to execute after each step in this branch is done
@@ -31,8 +37,6 @@ class Branch {
         this.steps = this.steps.concat(branch.steps);
 
         branch.nonParallelId ? this.nonParallelId = branch.nonParallelId : null; // if branch.nonParallelId doesn't exist, don't do anything (null)
-        branch.isOnly ? this.isOnly = branch.isOnly : null;
-        branch.isDebug ? this.isDebug = branch.isDebug : null;
         branch.frequency ? this.frequency = branch.frequency : null;
 
         if(branch.groups) {
@@ -44,6 +48,13 @@ class Branch {
                 this.groups.push(group);
             });
         }
+
+        branch.isOnly ? this.isOnly = branch.isOnly : null;
+        branch.isDebug ? this.isDebug = branch.isDebug : null;
+
+        branch.doNotRun ? this.doNotRun = branch.doNotRun : null;
+        branch.isPassed ? this.isPassed = branch.isPassed : null;
+        branch.isFailed ? this.isFailed = branch.isFailed : null;
 
         if(branch.afterEveryBranch) {
             if(!this.afterEveryBranch) {
@@ -74,8 +85,6 @@ class Branch {
         });
 
         this.nonParallelId ? clone.nonParallelId = this.nonParallelId : null; // if this.nonParallelId doesn't exist, don't do anything (null)
-        this.isOnly ? clone.isOnly = this.isOnly : null;
-        this.isDebug ? clone.isDebug = this.isDebug : null;
         this.frequency ? clone.frequency = this.frequency : null;
 
         if(this.groups) {
@@ -87,6 +96,13 @@ class Branch {
                 clone.groups.push(group);
             });
         }
+
+        this.isOnly ? clone.isOnly = this.isOnly : null;
+        this.isDebug ? clone.isDebug = this.isDebug : null;
+
+        this.doNotRun ? clone.doNotRun = this.doNotRun : null;
+        this.isPassed ? clone.isPassed = this.isPassed : null;
+        this.isFailed ? clone.isFailed = this.isFailed : null;
 
         if(this.afterEveryBranch) {
             if(!clone.afterEveryBranch) {
@@ -129,5 +145,35 @@ class Branch {
 
         return output;
     }
+
+    /**
+     * @return {Boolean} true if the given branch's steps are equal to this brach's steps, false otherwise
+     */
+     equals(branch) {
+         if(this.steps.length != branch.steps.length) {
+             return false;
+         }
+
+         for(var i = 0; i < this.steps.length; i++) {
+             if(getCanonicalStepText(this.steps[i]) != getCanonicalStepText(branch.steps[i])) {
+                 return false;
+             }
+         }
+
+         function getCanonicalStepText(step) {
+             var text = step.text.replace(/\s+/g, ' ');
+             if(step.identifiers) {
+                 step.identifiers.forEach(identifier => {
+                     if(identifier != '~' && identifier != '$') {
+                         text += ' ' + identifier;
+                     }
+                 });
+             }
+             
+             return text;
+         }
+
+         return true;
+     }
 }
 module.exports = Branch;
