@@ -1281,5 +1281,105 @@ class Tree {
 
         // 2) As for branches that only exist in previous, they already don't exist in current, so we're good
     }
+
+    /**
+     * @return {String} HTML report of this tree's current state
+     */
+    generateReport(reporter) {
+        return reporter.generateReport(this);
+    }
+
+    /**
+     * @return {Number} Number of steps that are to be run
+     */
+    getRunnableStepCount() {
+        var count = 0;
+        this.branches.forEach(branch => {
+            if(!branch.doNotRun) {
+                count += branch.steps.length;
+            }
+        });
+
+        return count;
+
+
+
+
+
+
+
+
+
+
+        
+    }
+
+    /**
+     * @return {Number} Number of steps in total
+     */
+    getTotalStepCount() {
+        var count = 0;
+        this.branches.forEach(branch => {
+            count += branch.steps.length;
+        });
+
+        return count;
+    }
+
+    /**
+     * @return {Number} Number of steps that are to be run and complete
+     */
+    getRunnableCompleteStepCount() {
+        var count = 0;
+        this.branches.forEach(branch => {
+            if((branch.isPassed || branch.isFailed) && !branch.doNotRun) {
+                count += branch.steps.length;
+            }
+        });
+
+        return count;
+    }
+
+    /**
+     * @return {Number} Percent (0-100) of steps currently being run that are complete
+     */
+    getPercentComplete() {
+        return (getRunnableCompleteStepCount() / getRunnableStepCount()) * 100;
+    }
+
+    /**
+     * Marks the given branch as passed
+     */
+    markBranchPassed(branch) {
+        branch.isPassed = true;
+    }
+
+    /**
+     * Marks the given branch as failed
+     */
+    markBranchFailed(branch) {
+        branch.isFailed = true;
+    }
+
+    /**
+     * Finds a branch not yet run and not currently being run and marks it for the caller
+     * @param {String} mark - A string to mark the found branch with
+     * @return {Branch} The branch that was found, or null if nothing found
+     */
+    nextBranch(mark) {
+
+    }
+
+    markStepPassed(branch, step) {
+
+    }
+
+    markStepFailed(branch, step) {
+
+    }
+
+    nextStep(branch) {
+
+    }
 }
 module.exports = Tree;

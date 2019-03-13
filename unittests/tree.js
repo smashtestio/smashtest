@@ -12462,4 +12462,9 @@ A -
              ]);
         });
     });
+
+    describe("getRunnableStepCount()", function() {
+        it("returns the number of steps to be run", function() {
+        });
+    });
 });
