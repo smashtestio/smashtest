@@ -1359,6 +1359,7 @@ class Tree {
     markBranchPassed(branch) {
         branch.isPassed = true;
         delete branch.isFailed;
+        delete branch.isRunning;
     }
 
     /**
@@ -1367,35 +1368,88 @@ class Tree {
     markBranchFailed(branch) {
         branch.isFailed = true;
         delete branch.isPassed;
+        delete branch.isRunning;
     }
 
     /**
-     * Finds a branch not yet run and not currently being run and marks it for the caller
-     * @param {String} mark - A string to mark the found branch with
-     * @return {Branch} The branch that was found, or null if nothing found
+     * Finds a branch that hasn't run yet and marks it for the caller
+     * @return {Branch} The chosen Branch, or 'wait' if a branch will become available in the future, or null if nothing left at all
      */
-    nextBranch(mark) {
+    nextBranch() {
+        // Gives out Before Everything branches, then once they're exhausted, gives out normal branches,
+        // then when they're exhausted, gives out After Everything branches
 
+        var branch = findBranchNotYetTaken(this.beforeEverything);
+        if(branch) {
+            branch.isRunning = true;
+            return branch;
+        }
+        else if(isBranchStillRunning(this.beforeEverything)) {
+            return 'wait'; // we still need to wait for all beforeEverything branches to finish before we start handing out normal branches
+        }
 
+        branch = findBranchNotYetTaken(this.branches);
+        if(branch) {
+            branch.isRunning = true;
+            return branch;
+        }
+        else if(isBranchStillRunning(this.branches)) {
+            return 'wait'; // we still need to wait for all normal branches to finish before we start handing out afterEverything branches
+        }
 
+        branch = findBranchNotYetTaken(this.afterBranches);
+        if(branch) {
+            branch.isRunning = true;
+            return branch;
+        }
+        else {
+            return null;
+        }
 
+        /**
+         * @return {Boolean} true if at least one branch from branches is still running, false otherwise
+         */
+        function isBranchStillRunning(branches) {
+            for(var i = 0; i < branches.length; i++) {
+                if(branches[i].isRunning) {
+                    return true;
+                }
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+            return false;
+        }
     }
 
+    /**
+     * @return {Branch} A branch not yet taken from branches, null if nothing found
+     */
+    findBranchNotYetTaken(branches) {
+        for(var i = 0; i < branches.length; i++) {
+            var branch = branches[i];
+            if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.passedLastTime) {
+                if(branch.nonParallelId) {
+                    // If a branch's nonParallelId is set, check if a previous branch with that id is still executing by another thread
+                    var found = false;
+                    for(var j = 0; j < branches.length; j++) {
+                        var b = branches[j];
+                        if(b.nonParallelId == branch.nonParallelId && b.isRunning) {
+                            found = true;
+                            break;
+                        }
+                    }
 
+                    if(found) {
+                        // You can't touch this branch yet, another branch with the same nonParallelId is still executing
+                        continue;
+                    }
+                }
+
+                return branch;
+            }
+        }
+
+        return null;
+    }
 
     markStepPassed(branch, step) {
         step.isPassed = true;

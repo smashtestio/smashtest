@@ -12722,4 +12722,46 @@ F -
             expect(tree.getPercentComplete()).to.equal(33.33333333333333);
         });
     });
+
+    describe("findBranchNotYetTaken()", function() {
+        it("finds a branch not yet taken, skipping over those with a running branch with the same nonParallelId", function() {
+
+
+
+
+
+
+
+
+
+
+
+        });
+
+        it.skip("returns null when nothing found", function() {
+        });
+    });
+
+    describe("nextBranch()", function() {
+        it.skip("returns a Before Everything branch", function() {
+        });
+
+        it.skip("returns wait if Before Everything branches are still running", function() {
+        });
+
+        it.skip("returns a normal branch", function() {
+        });
+
+        it.skip("returns wait if normal branches are still running", function() {
+        });
+
+        it.skip("returns an After Everything branch", function() {
+        });
+
+        it.skip("returns null if After Everything branches are still running", function() {
+        });
+
+        it.skip("returns null if all branches finished running", function() {
+        });
+    });
 });

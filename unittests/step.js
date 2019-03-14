@@ -558,6 +558,7 @@ describe("Step", function() {
             functionDeclarationInTree.isBuiltIn = true;
             functionDeclarationInTree.isPassed = true;
             functionDeclarationInTree.isFailed = true;
+            functionDeclarationInTree.isRunning = true;
 
             step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
@@ -571,6 +572,7 @@ describe("Step", function() {
             expect(step.isBuiltIn).to.equal(true);
             expect(step.isPassed).to.equal(true);
             expect(step.isFailed).to.equal(true);
+            expect(step.isRunning).to.equal(true);
         });
 
         it("merges in function declaration with all identifiers missing", function() {
@@ -590,6 +592,7 @@ describe("Step", function() {
             expect(step.isBuiltIn).to.equal(undefined);
             expect(step.isPassed).to.equal(undefined);
             expect(step.isFailed).to.equal(undefined);
+            expect(step.isRunning).to.equal(undefined);
         });
 
         it("merges in code block", function() {

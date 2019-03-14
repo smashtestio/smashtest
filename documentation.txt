@@ -214,3 +214,5 @@ Hook steps
         - after all branches end, execute this
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
+    - Hook steps won't have a pass/fail state. They're not there to verify, they're there to setup/teardown/report.
+    - Their execution is just repetitive background, and any failures are noted as from a hook and put into the current branch/step

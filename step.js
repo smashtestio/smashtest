@@ -50,6 +50,7 @@ class Step {
 
         this.isPassed = false;                // true if this step passed after being run
         this.isFailed = false;                // true if this step failed after being run
+        this.isRunning = false;               // true if this step is currently running
         */
     }
 
@@ -214,6 +215,9 @@ class Step {
 
         var isFailed = this.isFailed || functionDeclarationInTree.isFailed;
         isFailed ? this.isFailed = isFailed : null;
+
+        var isRunning = this.isRunning || functionDeclarationInTree.isRunning;
+        isRunning ? this.isRunning = isRunning : null;
 
         if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
             this.codeBlock = functionDeclarationInTree.codeBlock;
