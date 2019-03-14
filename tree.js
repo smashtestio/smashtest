@@ -103,8 +103,14 @@ class Tree {
         if(matches[1]) {
             step.isFunctionDeclaration = matches[1].trim() == '*';
 
-            if(step.isFunctionDeclaration && step.text.match(Constants.STRING_LITERAL_REGEX)) {
-                utils.error("A * Function declaration cannot have 'strings' inside of it", filename, lineNumber);
+            if(step.isFunctionDeclaration) {
+                if(step.text.match(Constants.STRING_LITERAL_REGEX)) {
+                    utils.error("A * Function declaration cannot have 'strings' inside of it", filename, lineNumber);
+                }
+
+                if(Constants.HOOK_BLACKLIST.indexOf(step.getHookCanonicalText()) != -1) {
+                    utils.error("This hook type is not yet supported", filename, lineNumber);
+                }
             }
         }
 
@@ -1309,20 +1315,26 @@ class Tree {
             if(runnableOnly) {
                 if(!branch.passedLastTime) {
                     if(completeOnly) {
-                        if(branch.isPassed || branch.isFailed) {
-                            branch.steps.forEach(step => {
-                                if(!step.isTextualStep) {
-                                    count++;
-                                }
-                            });
+                        for(var i = 0; i < branch.steps.length; i++) {
+                            var step = branch.steps[i];
+                            if(step.isManual || step.isToDo) {
+                                break;
+                            }
+                            else if((step.isPassed || step.isFailed) && !step.isTextualStep) {
+                                count++;
+                            }
                         }
                     }
                     else {
-                        branch.steps.forEach(step => {
-                            if(!step.isTextualStep) {
+                        for(var i = 0; i < branch.steps.length; i++) {
+                            var step = branch.steps[i];
+                            if(step.isManual || step.isToDo) {
+                                break;
+                            }
+                            else if(!step.isTextualStep) {
                                 count++;
                             }
-                        });
+                        }
                     }
                 }
             }
@@ -1346,6 +1358,7 @@ class Tree {
      */
     markBranchPassed(branch) {
         branch.isPassed = true;
+        delete branch.isFailed;
     }
 
     /**
@@ -1353,6 +1366,7 @@ class Tree {
      */
     markBranchFailed(branch) {
         branch.isFailed = true;
+        delete branch.isPassed;
     }
 
     /**
@@ -1362,10 +1376,30 @@ class Tree {
      */
     nextBranch(mark) {
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
-    markStepPassed(branch, step) {
 
+
+    markStepPassed(branch, step) {
+        step.isPassed = true;
+        delete step.isFailed;
     }
 
     markStepFailed(branch, step) {

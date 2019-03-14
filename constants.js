@@ -25,3 +25,4 @@ exports.SPACES_PER_INDENT = 4;
 // MISC CONSTANTS
 
 exports.HOOK_NAMES = ['after every branch', 'after every step', 'before everything', 'after everything'];
+exports.HOOK_BLACKLIST = ['before every branch', 'before every step'];

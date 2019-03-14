@@ -122,7 +122,7 @@ describe("Tree", function() {
             }, "Invalid step name [file.txt:10]");
         });
 
-        it("throws an error if a step has the name of a hook function declaration", function() {
+        it("throws an error if a step has the name of a hook", function() {
             assert.throws(() => {
                 tree.parseLine(`After Every Branch`, "file.txt", 10);
             }, "You cannot have a function call with that name. That's reserved for hook function declarations. [file.txt:10]");
@@ -138,6 +138,24 @@ describe("Tree", function() {
             assert.throws(() => {
                 tree.parseLine(` AFTER EVERYTHING `, "file.txt", 10);
             }, "You cannot have a function call with that name. That's reserved for hook function declarations. [file.txt:10]");
+        });
+
+        it("throws an error if a function declaration has a blacklisted hook name", function() {
+            assert.throws(() => {
+                tree.parseLine(`* Before Every Branch`, "file.txt", 10);
+            }, "This hook type is not yet supported [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`    *  Before EVERY   Branch `, "file.txt", 10);
+            }, "This hook type is not yet supported [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`* Before Every Step`, "file.txt", 10);
+            }, "This hook type is not yet supported [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`    *  Before   Every  STEP    `, "file.txt", 10);
+            }, "This hook type is not yet supported [file.txt:10]");
         });
 
         it("parses a line with a {variable}", function() {
@@ -12603,9 +12621,9 @@ F -
             tree.generateBranches();
 
             tree.branches[0].steps[0].isTextualStep = false;
+            tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isTextualStep = false;
-            tree.branches[0].isPassed = true;
-            tree.branches[1].isFailed = true;
+            tree.branches[0].steps[1].isFailed = true;
             tree.branches[2].passedLastTime = true;
 
             expect(tree.getStepCount(false, false)).to.equal(13);
@@ -12660,9 +12678,9 @@ F -
             tree.generateBranches();
 
             tree.branches[0].steps[0].isTextualStep = false;
+            tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isTextualStep = false;
-            tree.branches[0].isPassed = true;
-            tree.branches[1].isFailed = true;
+            tree.branches[0].steps[1].isFailed = true;
             tree.branches[2].passedLastTime = true;
 
             expect(tree.getStepCount(false, false)).to.equal(13);
@@ -12697,11 +12715,11 @@ F -
                     step.isTextualStep = false;
                 });
             });
-            tree.branches[0].isPassed = true;
-            tree.branches[1].isFailed = true;
-            tree.branches[2].passedLastTime = true;
+            tree.branches[0].steps[0].isPassed = true;
+            tree.branches[0].steps[1].isFailed = true;
+            tree.branches[1].passedLastTime = true;
 
-            expect(tree.getPercentComplete()).to.equal(80);
+            expect(tree.getPercentComplete()).to.equal(33.33333333333333);
         });
     });
 });
