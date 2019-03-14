@@ -150,13 +150,17 @@ class Branch {
 
         if(this.beforeEveryBranch) {
             this.beforeEveryBranch.forEach(branch => {
-                output += '\n' + branch.output("* Before Every Branch", startIndent + 1);
+                if(!branch.isBuiltIn) {
+                    output += '\n' + branch.output("* Before Every Branch", startIndent + 1);
+                }
             });
         }
 
         if(this.afterEveryBranch) {
             this.afterEveryBranch.forEach(branch => {
-                output += '\n' + branch.output("* After Every Branch", startIndent + 1);
+                if(!branch.isBuiltIn) {
+                    output += '\n' + branch.output("* After Every Branch", startIndent + 1);
+                }
             });
         }
 
