@@ -429,14 +429,68 @@ describe("Branch", function() {
             var stepC = new Step();
             stepC.text = "C";
             stepC.branchIndents = 2;
+            stepC.isBuiltIn = true;
 
             var branch = new Branch;
             branch.steps = [ stepA, stepB, stepC ];
 
             expect(branch.output("Foo")).to.equal(`Foo ..
-    A
-        B
+    A -
+        B -
             C
+`);
+        });
+
+        it("outputs the right text, including hooks", function() {
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.branchIndents = 0;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.branchIndents = 0;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.branchIndents = 0;
+
+            var branchA = new Branch();
+            branchA.steps = [ stepA, stepB, stepC ];
+
+            var branchB = new Branch();
+            branchB.steps = [ stepA, stepC ];
+
+            var branchC = new Branch();
+            branchC.steps = [ stepB ];
+
+            var branchD = new Branch();
+            branchD.steps = [ stepC ];
+
+            var branchE = new Branch();
+            branchE.steps = [ stepA, stepB ];
+
+            branchA.beforeEveryBranch = [ branchB, branchC ];
+            branchC.beforeEveryBranch = [ branchD ];
+            branchA.afterEveryBranch = [ branchE ];
+
+            expect(branchA.output("Foo")).to.equal(`Foo ..
+    A -
+    B -
+    C -
+
+    * Before Every Branch ..
+        A -
+        C -
+
+    * Before Every Branch ..
+        B -
+
+        * Before Every Branch ..
+            C -
+
+    * After Every Branch ..
+        A -
+        B -
 `);
         });
     });

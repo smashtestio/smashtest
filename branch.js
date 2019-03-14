@@ -133,18 +133,42 @@ class Branch {
     /**
      * @return {String} The string representation of Branch
      */
-    output(branchName) {
-        var output = branchName + ' ..\n';
+    output(branchName, startIndent) {
+        if(typeof startIndent == 'undefined') {
+            startIndent = 0;
+        }
+
+        var output = spaces(startIndent) + branchName + ' ..\n';
 
         this.steps.forEach(step => {
-            for(var i = 0; i <= step.branchIndents; i++) {
+            var text = step.text;
+            if(!step.isBuiltIn) {
+                text += ' -';
+            }
+            output += spaces(step.branchIndents + startIndent + 1) + text + '\n';
+        });
+
+        if(this.beforeEveryBranch) {
+            this.beforeEveryBranch.forEach(branch => {
+                output += '\n' + branch.output("* Before Every Branch", startIndent + 1);
+            });
+        }
+
+        if(this.afterEveryBranch) {
+            this.afterEveryBranch.forEach(branch => {
+                output += '\n' + branch.output("* After Every Branch", startIndent + 1);
+            });
+        }
+
+        function spaces(indents) {
+            var out = '';
+            for(var i = 0; i < indents; i++) {
                 for (var j = 0; j < Constants.SPACES_PER_INDENT; j++) {
-                    output += ' ';
+                    out += ' ';
                 }
             }
-
-            output += step.text + '\n';
-        });
+            return out;
+        }
 
         return output;
     }
