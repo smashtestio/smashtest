@@ -15,6 +15,9 @@ class Branch {
         this.frequency = "";                // Frequency of this Branch (either 'high', 'med', or 'low')
         this.groups = [];                   // The groups that this Branch is a part of
 
+        this.afterEveryBranch = [];         // Array of Branch, the branches to execute after this branch is done
+        this.afterEveryStep = [];           // Array of Branch, the branches to execute after each step in this branch is done
+
         this.isOnly = false;                // If true, a Step in this Branch has a $
         this.isDebug = false;               // If true, a Step in this Branch has a ~
         this.isBuiltIn = false;             // If true, this is a built-in hook
@@ -24,9 +27,6 @@ class Branch {
         this.isFailed = false;              // true if at least one step in this branch failed after being run
         this.isSkipped = false;             // true if this branch was skipped after an attempted run
         this.isRunning = false;             // true if this branch is currently running
-
-        this.afterEveryBranch = [];         // Array of Branch, the branches to execute after this branch is done
-        this.afterEveryStep = [];           // Array of Branch, the branches to execute after each step in this branch is done
         */
     }
 

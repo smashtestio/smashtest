@@ -1487,47 +1487,143 @@ class Tree {
     }
 
     /**
-     * Marks the given step in the given branch as passed
+     * Marks the given step in the given branch as passed (but does not clear step.isRunning)
      * Marks the branch passed if all its steps passed
      * @param {Branch} branch - The Branch that contains the step
      * @param {Step} step - The Step inside branch to mark passed
      */
     markStepPassed(branch, step) {
-        // TODO: use markBranchPassed()
-
-
-
-
-
         step.isPassed = true;
         delete step.isFailed;
+
+        // If this is the very last step in the branch (including hooks), mark the branch as passed/failed
+        if(nextStep(branch, false) == null) {
+            // Fail the branch if at least one step failed
+            if(failedStepExists(branch)) {
+                this.markBranchFailed(branch);
+            }
+            else {
+                this.markBranchPassed(branch);
+            }
+
+            /**
+             * @return {Boolean} True if there is a step (including hooks) that failed within the given branch
+             */
+            function failedStepExists(branch) {
+                for(var i = 0; i < branch.steps.length; i++) {
+                    var step = branch.steps[i];
+                    if(step.isFailed) {
+                        return true;
+                    }
+
+                    if(step.afterEveryBranch) {
+                        for(var j = 0; j < step.afterEveryBranch.length; j++) {
+                            if(failedStepExists(step.afterEveryBranch[j])) {
+                                return true;
+                            }
+                        }
+                    }
+
+                    if(step.afterEveryStep) {
+                        for(var j = 0; j < step.afterEveryStep.length; j++) {
+                            if(failedStepExists(step.afterEveryStep[j])) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
     }
 
     /**
-     * Marks the given step in the given branch as failed
+     * Marks the given step in the given branch as failed (but does not clear step.isRunning)
      * @param {Branch} branch - The Branch that contains the step
      * @param {Step} step - The Step inside branch to mark failed
+     * @param {Error} error - The Error object that was thrown
      * @param {Boolean} failBranch - If true, fail the whole branch too
      * @param {Boolean} skipsRepeats - If true, skips every other branch whose first N steps are identical to this one's (up until the step being failed)
      */
-    markStepFailed(branch, step, failBranch, skipsRepeats) {
+    markStepFailed(branch, step, error, failBranch, skipsRepeats) {
+        step.isFailed = true;
+        step.error = error;
 
+        if(failBranch) {
+            this.markBranchFailed(branch);
+        }
 
-
-
-
-
-
-
-
-
-
-
-
+        if(skipsRepeats) {
+            var n = branch.steps.indexOf(step);
+            if(n != -1) {
+                var branchesToSkip = this.findSimilarBranches(branch, n + 1, branches);
+                branchesToSkip.forEach(branchToSkip => {
+                    if(!this.branchCompleteOrRunning(branchToSkip)) { // let it finish running on its own
+                        branchToSkip.isSkipped = true;
+                    }
+                });
+            }
+        }
     }
 
-    nextStep(branch) {
+    /**
+     * Returns the next step in the given branch, or null if no steps are left
+     * @param {Branch} branch - The branch to look in
+     * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
+     * @param {Boolean} [skipsRepeats] - If true, if the next step is a -T or -M, skips every other branch whose first N steps are identical to this one's (up until the -T or -M step)
+     * @return {Step} The next step in the given branch, null if there are none left
+     */
+    nextStep(branch, advance, skipsRepeats) {
+        var runningStep = null;
+        var nextStep = null;
+        for(var i = 0; i < branch.steps.length; i++) {
+            var step = branch.steps[i];
+            if(step.isRunning) {
+                runningStep = step;
+                if(i + 1 < branch.steps.length) {
+                    nextStep = branch.steps[i + 1];
+                }
 
+                break;
+            }
+        }
+
+        if(!runningStep && branch.steps.length > 0) {
+            nextStep = branch.steps[0];
+        }
+
+        // Advance the running step from runningStep to nextStep
+        if(advance) {
+            if(runningStep) {
+                delete runningStep.isRunning;
+            }
+            if(nextStep) {
+                nextStep.isRunning = true;
+            }
+        }
+
+        // Skip other repeat branches if the next step is a -T or -M
+        if(skipsRepeats && nextStep && (nextStep.isManual || nextStep.isToDo)) {
+            var n = branch.steps.indexOf(nextStep);
+            if(n != -1) {
+                var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
+                branchesToSkip.forEach(branchToSkip => {
+                    if(!this.branchCompleteOrRunning(branchToSkip)) { // let it finish running on its own
+                        branchToSkip.isSkipped = true;
+                    }
+                });
+            }
+        }
+
+        return nextStep;
+    }
+
+    /**
+     * @return {Boolean} True if the given branch is complete or still running
+     */
+    branchCompleteOrRunning(branch) {
+        return branch.isRunning || branch.isPassed || branch.isFailed || branch.isSkipped;
     }
 }
 module.exports = Tree;
