@@ -35,10 +35,6 @@ describe("Branch", function() {
             branch2.frequency = "high";
             branch2.groups = [ "2", "3" ];
             branch2.isOnly = true;
-            branch1.passedLastTime = true;
-            branch1.isFailed = true;
-            branch1.isSkipped = true;
-            branch1.isRunning = true;
 
             branch1.mergeToEnd(branch2);
 
@@ -56,12 +52,7 @@ describe("Branch", function() {
                 groups: [ "1", "2", "3" ],
                 isOnly: true,
                 isDebug: true,
-                isBuiltIn: true,
-                passedLastTime: true,
-                isPassed: true,
-                isFailed: true,
-                isSkipped: true,
-                isRunning: true
+                isBuiltIn: true
             });
         });
 

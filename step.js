@@ -210,15 +210,6 @@ class Step {
         var isBuiltIn = this.isBuiltIn || functionDeclarationInTree.isBuiltIn;
         isBuiltIn ? this.isBuiltIn = isBuiltIn : null;
 
-        var isPassed = this.isPassed || functionDeclarationInTree.isPassed;
-        isPassed ? this.isPassed = isPassed : null;
-
-        var isFailed = this.isFailed || functionDeclarationInTree.isFailed;
-        isFailed ? this.isFailed = isFailed : null;
-
-        var isRunning = this.isRunning || functionDeclarationInTree.isRunning;
-        isRunning ? this.isRunning = isRunning : null;
-
         if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
             this.codeBlock = functionDeclarationInTree.codeBlock;
         }

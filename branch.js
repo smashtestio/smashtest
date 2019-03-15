@@ -56,12 +56,6 @@ class Branch {
         branch.isDebug ? this.isDebug = branch.isDebug : null;
         branch.isBuiltIn ? this.isBuiltIn = branch.isBuiltIn : null;
 
-        branch.passedLastTime ? this.passedLastTime = branch.passedLastTime : null;
-        branch.isPassed ? this.isPassed = branch.isPassed : null;
-        branch.isFailed ? this.isFailed = branch.isFailed : null;
-        branch.isSkipped ? this.isSkipped = branch.isSkipped : null;
-        branch.isRunning ? this.isRunning = branch.isRunning : null;
-
         if(branch.afterEveryBranch) {
             if(!this.afterEveryBranch) {
                 this.afterEveryBranch = [];
@@ -90,8 +84,12 @@ class Branch {
             clone.steps.push(step.cloneForBranch(noRefs));
         });
 
-        this.nonParallelId ? clone.nonParallelId = this.nonParallelId : null; // if this.nonParallelId doesn't exist, don't do anything (null)
-        this.frequency ? clone.frequency = this.frequency : null;
+        // Copy booleans and strings
+        for(var attr in this) {
+            if(this.hasOwnProperty(attr) && (typeof this[attr] == 'boolean' || typeof this[attr] == 'string')) {
+                clone[attr] = this[attr];
+            }
+        }
 
         if(this.groups) {
             if(typeof clone.groups == 'undefined') {
@@ -102,16 +100,6 @@ class Branch {
                 clone.groups.push(group);
             });
         }
-
-        this.isOnly ? clone.isOnly = this.isOnly : null;
-        this.isDebug ? clone.isDebug = this.isDebug : null;
-        this.isBuiltIn ? clone.isBuiltIn = this.isBuiltIn : null;
-
-        this.passedLastTime ? clone.passedLastTime = this.passedLastTime : null;
-        this.isPassed ? clone.isPassed = this.isPassed : null;
-        this.isFailed ? clone.isFailed = this.isFailed : null;
-        this.isSkipped ? clone.isSkipped = this.isSkipped : null;
-        this.isRunning ? clone.isRunning = this.isRunning : null;
 
         if(this.afterEveryBranch) {
             if(!clone.afterEveryBranch) {
