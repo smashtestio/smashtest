@@ -1379,7 +1379,7 @@ class Tree {
         // Gives out Before Everything branches, then once they're exhausted, gives out normal branches,
         // then when they're exhausted, gives out After Everything branches
 
-        var branch = findBranchNotYetTaken(this.beforeEverything);
+        var branch = this.findBranchNotYetTaken(this.beforeEverything);
         if(branch) {
             branch.isRunning = true;
             return branch;
@@ -1388,7 +1388,7 @@ class Tree {
             return 'wait'; // we still need to wait for all beforeEverything branches to finish before we start handing out normal branches
         }
 
-        branch = findBranchNotYetTaken(this.branches);
+        branch = this.findBranchNotYetTaken(this.branches);
         if(branch) {
             branch.isRunning = true;
             return branch;
@@ -1397,7 +1397,7 @@ class Tree {
             return 'wait'; // we still need to wait for all normal branches to finish before we start handing out afterEverything branches
         }
 
-        branch = findBranchNotYetTaken(this.afterBranches);
+        branch = this.findBranchNotYetTaken(this.afterEverything);
         if(branch) {
             branch.isRunning = true;
             return branch;
@@ -1410,6 +1410,10 @@ class Tree {
          * @return {Boolean} true if at least one branch from branches is still running, false otherwise
          */
         function isBranchStillRunning(branches) {
+            if(!branches) {
+                return null;
+            }
+
             for(var i = 0; i < branches.length; i++) {
                 if(branches[i].isRunning) {
                     return true;
@@ -1424,6 +1428,10 @@ class Tree {
      * @return {Branch} A branch not yet taken from branches, null if nothing found
      */
     findBranchNotYetTaken(branches) {
+        if(!branches) {
+            return null;
+        }
+
         for(var i = 0; i < branches.length; i++) {
             var branch = branches[i];
             if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.passedLastTime) {

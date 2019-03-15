@@ -12725,43 +12725,188 @@ F -
 
     describe("findBranchNotYetTaken()", function() {
         it("finds a branch not yet taken, skipping over those with a running branch with the same nonParallelId", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - +
+    B -
+        C -
+        D -
+        E -
 
+F -
 
+G -
+`, "file.txt");
 
+            tree.generateBranches();
 
+            expect(tree.findBranchNotYetTaken(tree.branches)).to.containSubsetInOrder({
+                steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
+            });
 
+            tree.branches[0].isRunning = true;
+            tree.branches[0].steps[0].isPassed = true;
+            tree.branches[0].steps[1].isRunning = true;
 
-
-
-
-
-
+            expect(tree.findBranchNotYetTaken(tree.branches)).to.containSubsetInOrder({
+                steps: [ { text: "F" } ]
+            });
         });
 
-        it.skip("returns null when nothing found", function() {
+        it("returns null when nothing found", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - +
+    B -
+        C -
+        D -
+        E -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.findBranchNotYetTaken(tree.branches)).to.containSubsetInOrder({
+                steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
+            });
+
+            tree.branches[0].isRunning = true;
+            tree.branches[0].steps[0].isPassed = true;
+            tree.branches[0].steps[1].isRunning = true;
+
+            expect(tree.findBranchNotYetTaken(tree.branches)).to.equal(null);
+
+            tree.branches[0].isPassed = true;
+            tree.branches[1].isPassed = true;
+            tree.branches[2].isPassed = true;
+            delete tree.branches[0].isPassed;
+            delete tree.branches[1].isPassed;
+            delete tree.branches[2].isPassed;
+
+            expect(tree.findBranchNotYetTaken(tree.branches)).to.equal(null);
         });
     });
 
     describe("nextBranch()", function() {
-        it.skip("returns a Before Everything branch", function() {
+        var tree = new Tree();
+        tree.parseIn(`
+* Before Everything
+    B1 -
+    B2 -
+
+A - +
+    B -
+        C -
+        D -
+        E -
+
+F -
+
+G -
+
+* After Everything
+    A1 -
+    A2 -
+`, "file.txt");
+
+        tree.generateBranches();
+
+        it("returns a Before Everything branch", function() {
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "Before Everything" }, { text: "B1" } ]
+            });
+
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "Before Everything" }, { text: "B2" } ]
+            });
         });
 
-        it.skip("returns wait if Before Everything branches are still running", function() {
+        it("returns wait if Before Everything branches are still running", function() {
+            expect(tree.nextBranch()).to.equal('wait');
+            expect(tree.nextBranch()).to.equal('wait');
         });
 
-        it.skip("returns a normal branch", function() {
+        it("returns a normal branch", function() {
+            delete tree.beforeEverything[0].isRunning;
+            delete tree.beforeEverything[1].isRunning;
+            tree.beforeEverything[0].isPassed = true;
+            tree.beforeEverything[1].isFailed = true;
+
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
+            });
+
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "F" } ]
+            });
+
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "G" } ]
+            });
+
+            expect(tree.nextBranch()).to.equal('wait');
+
+            delete tree.branches[0].isRunning;
+            tree.branches[0].isPassed = true;
+
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "A" }, { text: "B" }, { text: "D" } ]
+            });
+
+            expect(tree.nextBranch()).to.equal('wait');
+
+            delete tree.branches[1].isRunning;
+            tree.branches[1].isFailed = true;
+
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "A" }, { text: "B" }, { text: "E" } ]
+            });
         });
 
-        it.skip("returns wait if normal branches are still running", function() {
+        it("returns wait if normal branches are still running", function() {
+            expect(tree.nextBranch()).to.equal('wait');
+            expect(tree.nextBranch()).to.equal('wait');
+
+            delete tree.branches[2].isRunning;
+            delete tree.branches[3].isRunning;
+            tree.branches[2].isFailed = true;
+            tree.branches[3].isPassed = true;
+
+            expect(tree.nextBranch()).to.equal('wait');
         });
 
-        it.skip("returns an After Everything branch", function() {
+        it("returns an After Everything branch", function() {
+            delete tree.branches[4].isRunning;
+            tree.branches[4].isPassed = true;
+
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "After Everything" }, { text: "A1" } ]
+            });
+
+            expect(tree.nextBranch()).to.containSubsetInOrder({
+                steps: [ { text: "After Everything" }, { text: "A2" } ]
+            });
         });
 
-        it.skip("returns null if After Everything branches are still running", function() {
+        it("returns null if After Everything branches are still running", function() {
+            expect(tree.nextBranch()).to.equal(null);
+            expect(tree.nextBranch()).to.equal(null);
         });
 
-        it.skip("returns null if all branches finished running", function() {
+        it("returns null if all branches finished running", function() {
+            delete tree.afterEverything[0].isRunning;
+            delete tree.afterEverything[1].isRunning;
+            tree.afterEverything[0].isPassed = true;
+            tree.afterEverything[1].isFailed = true;
+
+            expect(tree.nextBranch()).to.equal(null);
+            expect(tree.nextBranch()).to.equal(null);
+        });
+
+        it("returns null on an empty tree", function() {
+            tree = new Tree();
+            tree.generateBranches();
+
+            expect(tree.nextBranch()).to.equal(null);
         });
     });
 });
