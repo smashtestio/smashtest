@@ -1483,15 +1483,7 @@ class Tree {
             }
         });
 
-
-
-
-
-
-
-
-
-
+        return foundBranches;
     }
 
     /**
