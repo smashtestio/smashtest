@@ -172,14 +172,28 @@ class Branch {
     }
 
     /**
+     * Returns whether or not this branch equals another
+     * @param {Branch} branch - The branch we're comparing to this one
+     * @param {Number} [n] - Only compare the first N steps, no limit if omitted
      * @return {Boolean} true if the given branch's steps are equal to this brach's steps, false otherwise
      */
-     equals(branch) {
-         if(this.steps.length != branch.steps.length) {
+     equals(branch, n) {
+         var thisLen = this.steps.length;
+         var branchLen = branch.steps.length;
+         if(typeof n != 'undefined') {
+             if(n < thisLen) {
+                 thisLen = n;
+             }
+             if(n < branchLen) {
+                 branchLen = n;
+             }
+         }
+
+         if(thisLen != branchLen) {
              return false;
          }
 
-         for(var i = 0; i < this.steps.length; i++) {
+         for(var i = 0; i < thisLen; i++) {
              if(getCanonicalStepText(this.steps[i]) != getCanonicalStepText(branch.steps[i])) {
                  return false;
              }

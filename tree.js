@@ -1476,6 +1476,13 @@ class Tree {
      * @return {Array} Array of Branch - branches whose first N steps are the same as the given's branch's first N steps
      */
     findSimilarBranches(branch, n, branches) {
+        var foundBranches = [];
+        branches.forEach(b => {
+            if(branch.equals(b, n)) {
+                foundBranches.push(b);
+            }
+        });
+
 
 
 

@@ -508,6 +508,7 @@ describe("Branch", function() {
             var branch2 = new Branch();
 
             expect(branch1.equals(branch2)).to.equal(true);
+            expect(branch1.equals(branch2, 1)).to.equal(true);
         });
 
         it("finds two equal branches to be equal", function() {
@@ -542,6 +543,9 @@ describe("Branch", function() {
             branch2.steps = [ stepA2, stepB2, stepC2 ];
 
             expect(branch1.equals(branch2)).to.equal(true);
+            expect(branch1.equals(branch2, 3)).to.equal(true);
+            expect(branch1.equals(branch2, 2)).to.equal(true);
+            expect(branch1.equals(branch2, 1)).to.equal(true);
         });
 
         it("finds two differently-sized branches to be not equal", function() {
@@ -572,9 +576,11 @@ describe("Branch", function() {
             branch2.steps = [ stepA2, stepB2 ];
 
             expect(branch1.equals(branch2)).to.equal(false);
+            expect(branch1.equals(branch2, 3)).to.equal(false);
+            expect(branch1.equals(branch2, 4)).to.equal(false);
         });
 
-        it("finds two branches with different to be not equal", function() {
+        it("finds two differently-sized branches to be equal if the first N steps are the same", function() {
             var stepA1 = new Step();
             stepA1.text = 'A';
             stepA1.identifiers = [ '-' ];
@@ -592,8 +598,39 @@ describe("Branch", function() {
             stepA2.identifiers = [ '-' ];
 
             var stepB2 = new Step();
-            stepB2.text = 'K';
+            stepB2.text = 'B';
             stepB2.identifiers = [ '$', '+' ];
+
+            var branch1 = new Branch();
+            branch1.steps = [ stepA1, stepB1, stepC1 ];
+
+            var branch2 = new Branch();
+            branch2.steps = [ stepA2, stepB2 ];
+
+            expect(branch1.equals(branch2, 1)).to.equal(true);
+            expect(branch1.equals(branch2, 2)).to.equal(true);
+        });
+
+        it("finds two branches with different steps to be not equal", function() {
+            var stepA1 = new Step();
+            stepA1.text = 'A';
+            stepA1.identifiers = [ '-' ];
+
+            var stepB1 = new Step();
+            stepB1.text = 'B';
+            stepB1.identifiers = [ '+' ];
+
+            var stepC1 = new Step();
+            stepC1.text = 'C';
+            stepC1.identifiers = [];
+
+            var stepA2 = new Step();
+            stepA2.text = 'A';
+            stepA2.identifiers = [ '-' ];
+
+            var stepK2 = new Step();
+            stepK2.text = 'K';
+            stepK2.identifiers = [ '$', '+' ];
 
             var stepC2 = new Step();
             stepC2.text = 'C';
@@ -603,9 +640,44 @@ describe("Branch", function() {
             branch1.steps = [ stepA1, stepB1, stepC1 ];
 
             var branch2 = new Branch();
-            branch2.steps = [ stepA2, stepB2, stepC2 ];
+            branch2.steps = [ stepA2, stepK2, stepC2 ];
 
             expect(branch1.equals(branch2)).to.equal(false);
+            expect(branch1.equals(branch2, 2)).to.equal(false);
+        });
+
+        it("finds two branches with different steps to be equal if the first N steps are the same", function() {
+            var stepA1 = new Step();
+            stepA1.text = 'A';
+            stepA1.identifiers = [ '-' ];
+
+            var stepB1 = new Step();
+            stepB1.text = 'B';
+            stepB1.identifiers = [ '+' ];
+
+            var stepC1 = new Step();
+            stepC1.text = 'C';
+            stepC1.identifiers = [];
+
+            var stepA2 = new Step();
+            stepA2.text = 'A';
+            stepA2.identifiers = [ '-' ];
+
+            var stepK2 = new Step();
+            stepK2.text = 'K';
+            stepK2.identifiers = [ '$', '+' ];
+
+            var stepC2 = new Step();
+            stepC2.text = 'C';
+            stepC2.identifiers = [];
+
+            var branch1 = new Branch();
+            branch1.steps = [ stepA1, stepB1, stepC1 ];
+
+            var branch2 = new Branch();
+            branch2.steps = [ stepA2, stepK2, stepC2 ];
+
+            expect(branch1.equals(branch2, 1)).to.equal(true);
         });
     });
 });
