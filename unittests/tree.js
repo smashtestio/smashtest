@@ -12630,6 +12630,26 @@ F -
             expect(tree.getStepCount(true, true)).to.equal(2);
         });
 
+        it("returns total number of complete steps when there are skipped branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+        C -
+        D -
+
+            E -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].isSkipped = true;
+
+            expect(tree.getStepCount(false, false)).to.equal(8);
+            expect(tree.getStepCount(true, true)).to.equal(4);
+        });
+
         it("does not count inside hooks", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -12846,7 +12866,7 @@ G -
             expect(tree.nextBranch()).to.equal('wait');
 
             delete tree.branches[0].isRunning;
-            tree.branches[0].isPassed = true;
+            tree.branches[0].isSkipped = true;
 
             expect(tree.nextBranch()).to.containSubsetInOrder({
                 steps: [ { text: "A" }, { text: "B" }, { text: "D" } ]
@@ -12907,6 +12927,30 @@ G -
             tree.generateBranches();
 
             expect(tree.nextBranch()).to.equal(null);
+        });
+    });
+
+    describe("findSimilarBranches()", function() {
+        it("TEXT", function() {
+
+        });
+    });
+
+    describe("markStepPassed()", function() {
+        it("TEXT", function() {
+
+        });
+    });
+
+    describe("markStepFailed()", function() {
+        it("TEXT", function() {
+
+        });
+    });
+
+    describe("nextStep()", function() {
+        it("TEXT", function() {
+
         });
     });
 });

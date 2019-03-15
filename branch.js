@@ -22,6 +22,7 @@ class Branch {
         this.passedLastTime = false;        // if true, do not run this branch, but include it in the report
         this.isPassed = false;              // true if every step in this branch passed after being run
         this.isFailed = false;              // true if at least one step in this branch failed after being run
+        this.isSkipped = false;             // true if this branch was skipped after an attempted run
         this.isRunning = false;             // true if this branch is currently running
 
         this.afterEveryBranch = [];         // Array of Branch, the branches to execute after this branch is done
@@ -58,6 +59,7 @@ class Branch {
         branch.passedLastTime ? this.passedLastTime = branch.passedLastTime : null;
         branch.isPassed ? this.isPassed = branch.isPassed : null;
         branch.isFailed ? this.isFailed = branch.isFailed : null;
+        branch.isSkipped ? this.isSkipped = branch.isSkipped : null;
         branch.isRunning ? this.isRunning = branch.isRunning : null;
 
         if(branch.afterEveryBranch) {
@@ -108,6 +110,7 @@ class Branch {
         this.passedLastTime ? clone.passedLastTime = this.passedLastTime : null;
         this.isPassed ? clone.isPassed = this.isPassed : null;
         this.isFailed ? clone.isFailed = this.isFailed : null;
+        this.isSkipped ? clone.isSkipped = this.isSkipped : null;
         this.isRunning ? clone.isRunning = this.isRunning : null;
 
         if(this.afterEveryBranch) {

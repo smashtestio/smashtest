@@ -1278,6 +1278,7 @@ class Tree {
                     // Clean state
                     delete currBranch.isPassed;
                     delete currBranch.isFailed;
+                    delete currBranch.isSkipped;
 
                     found = true;
                     break;
@@ -1290,6 +1291,7 @@ class Tree {
                 delete currBranch.passedLastTime;
                 delete currBranch.isPassed;
                 delete currBranch.isFailed;
+                delete currBranch.isSkipped;
             }
         });
 
@@ -1315,13 +1317,18 @@ class Tree {
             if(runnableOnly) {
                 if(!branch.passedLastTime) {
                     if(completeOnly) {
-                        for(var i = 0; i < branch.steps.length; i++) {
-                            var step = branch.steps[i];
-                            if(step.isManual || step.isToDo) {
-                                break;
-                            }
-                            else if((step.isPassed || step.isFailed) && !step.isTextualStep) {
-                                count++;
+                        if(branch.isSkipped) {
+                            count += branch.steps.length;
+                        }
+                        else {
+                            for(var i = 0; i < branch.steps.length; i++) {
+                                var step = branch.steps[i];
+                                if(step.isManual || step.isToDo) {
+                                    break;
+                                }
+                                else if((step.isPassed || step.isFailed) && !step.isTextualStep) {
+                                    count++;
+                                }
                             }
                         }
                     }
@@ -1351,24 +1358,6 @@ class Tree {
      */
     getPercentComplete() {
         return (this.getStepCount(true, true) / this.getStepCount(true, false)) * 100.0;
-    }
-
-    /**
-     * Marks the given branch as passed
-     */
-    markBranchPassed(branch) {
-        branch.isPassed = true;
-        delete branch.isFailed;
-        delete branch.isRunning;
-    }
-
-    /**
-     * Marks the given branch as failed
-     */
-    markBranchFailed(branch) {
-        branch.isFailed = true;
-        delete branch.isPassed;
-        delete branch.isRunning;
     }
 
     /**
@@ -1434,7 +1423,7 @@ class Tree {
 
         for(var i = 0; i < branches.length; i++) {
             var branch = branches[i];
-            if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.passedLastTime) {
+            if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {
                 if(branch.nonParallelId) {
                     // If a branch's nonParallelId is set, check if a previous branch with that id is still executing by another thread
                     var found = false;
@@ -1459,12 +1448,82 @@ class Tree {
         return null;
     }
 
+    /**
+     * Marks the given branch as passed
+     */
+    markBranchPassed(branch) {
+        branch.isPassed = true;
+        delete branch.isFailed;
+        delete branch.isSkipped;
+        delete branch.isRunning;
+    }
+
+    /**
+     * Marks the given branch as failed
+     */
+    markBranchFailed(branch) {
+        branch.isFailed = true;
+        delete branch.isPassed;
+        delete branch.isSkipped;
+        delete branch.isRunning;
+    }
+
+    /**
+     * Finds all other branches whose first N steps are the same as the first N steps of a given branch
+     * @param {Branch} branch - The given branch
+     * @param {Number} n - The number of steps to look at
+     * @param {Array} branches - The pool of branches to look in
+     * @return {Array} Array of Branch - branches whose first N steps are the same as the given's branch's first N steps
+     */
+    findSimilarBranches(branch, n, branches) {
+
+
+
+
+
+
+
+
+
+    }
+
+    /**
+     * Marks the given step in the given branch as passed
+     * Marks the branch passed if all its steps passed
+     * @param {Branch} branch - The Branch that contains the step
+     * @param {Step} step - The Step inside branch to mark passed
+     */
     markStepPassed(branch, step) {
+        // TODO: use markBranchPassed()
+
+
+
+
+
         step.isPassed = true;
         delete step.isFailed;
     }
 
-    markStepFailed(branch, step) {
+    /**
+     * Marks the given step in the given branch as failed
+     * @param {Branch} branch - The Branch that contains the step
+     * @param {Step} step - The Step inside branch to mark failed
+     * @param {Boolean} failBranch - If true, fail the whole branch too
+     * @param {Boolean} skipsRepeats - If true, skips every other branch whose first N steps are identical to this one's (up until the step being failed)
+     */
+    markStepFailed(branch, step, failBranch, skipsRepeats) {
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 

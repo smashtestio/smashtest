@@ -37,6 +37,7 @@ describe("Branch", function() {
             branch2.isOnly = true;
             branch1.passedLastTime = true;
             branch1.isFailed = true;
+            branch1.isSkipped = true;
             branch1.isRunning = true;
 
             branch1.mergeToEnd(branch2);
@@ -59,6 +60,7 @@ describe("Branch", function() {
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
+                isSkipped: true,
                 isRunning: true
             });
         });
@@ -236,6 +238,7 @@ describe("Branch", function() {
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
+                isSkipped: undefined,
                 isRunning: undefined,
                 afterEveryBranch: undefined,
                 afterEveryStep: undefined
@@ -270,6 +273,7 @@ describe("Branch", function() {
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
+                isSkipped: undefined,
                 isRunning: undefined,
                 afterEveryBranch: undefined,
                 afterEveryStep: undefined
@@ -291,6 +295,7 @@ describe("Branch", function() {
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
+                isSkipped: undefined,
                 isRunning: undefined,
                 afterEveryBranch: undefined,
                 afterEveryStep: undefined
@@ -338,6 +343,7 @@ describe("Branch", function() {
             branch.passedLastTime = true;
             branch.isPassed = true;
             branch.isFailed = true;
+            branch.isSkipped = true;
             branch.isRunning = true,
             branch.afterEveryBranch = [ afterBranch1, afterBranch2 ];
             branch.afterEveryStep = [ afterBranch3 ];
@@ -358,6 +364,7 @@ describe("Branch", function() {
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
+                isSkipped: true,
                 isRunning: true,
                 afterEveryBranch: [
                     {
@@ -397,6 +404,7 @@ describe("Branch", function() {
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
+                isSkipped: true,
                 isRunning: true,
                 afterEveryBranch: [
                     {
