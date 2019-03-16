@@ -13103,51 +13103,380 @@ G -
 
     describe("markStepPassed()", function() {
         it("marks a step passed", function() {
+            var tree = new Tree();
 
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isRunning = true;
 
+            var stepB = new Step();
+            stepB.text = "B";
 
+            var stepC = new Step();
+            stepC.text = "C";
 
+            var stepD = new Step();
+            stepD.text = "D";
 
+            var branch = new Branch();
 
+            branch.steps = [ stepA, stepB, stepC, stepD ];
 
+            tree.markStepPassed(branch, stepA);
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isPassed: true, isRunning: true },
+                    { text: "B", isPassed: undefined },
+                    { text: "C", isPassed: undefined },
+                    { text: "D", isPassed: undefined }
+                ],
+                isPassed: undefined,
+                isFailed: undefined
+            });
         });
 
-        it.skip("marks a branch passed when the last step is passed", function() {
+        it("marks a branch passed when the last step is passed", function() {
+            var tree = new Tree();
 
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isRunning = true;
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.markStepPassed(branch, stepD);
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isPassed: true },
+                    { text: "B", isPassed: true },
+                    { text: "C", isPassed: true },
+                    { text: "D", isPassed: true, isRunning: true }
+                ],
+                isPassed: true,
+                isFailed: undefined
+            });
         });
 
-        it.skip("marks a branch failed when the last step is passed", function() {
+        it("marks a branch failed when the last step is passed", function() {
+            var tree = new Tree();
 
-        });
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
 
-        it.skip("marks a branch failed when the last step is passed and where an After Every Branch step is failed", function() {
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isFailed = true;
 
-        });
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
 
-        it.skip("marks a branch failed when the last step is passed and where an After Every Step step is failed", function() {
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isRunning = true;
 
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.markStepPassed(branch, stepD);
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isPassed: true },
+                    { text: "B", isFailed: true },
+                    { text: "C", isPassed: true },
+                    { text: "D", isPassed: true, isRunning: true }
+                ],
+                isPassed: undefined,
+                isFailed: true
+            });
         });
     });
 
     describe("markStepFailed()", function() {
-        it.skip("marks a step failed and sets its error", function() {
+        it("marks a step failed and sets its error", function() {
+            var tree = new Tree();
 
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isRunning = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+
+            var stepC = new Step();
+            stepC.text = "C";
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.markStepFailed(branch, stepA, new Error("foobar"));
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isFailed: true, isRunning: true },
+                    { text: "B", isFailed: undefined },
+                    { text: "C", isFailed: undefined },
+                    { text: "D", isFailed: undefined }
+                ],
+                isPassed: undefined,
+                isFailed: undefined
+            });
+
+            expect(stepA.error.message).to.equal("foobar");
         });
 
-        it.skip("marks a branch failed when the last step is failed", function() {
+        it("marks a branch failed when the last step is failed", function() {
+            var tree = new Tree();
 
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isRunning = true;
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.markStepFailed(branch, stepD, new Error("foobar"));
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isFailed: undefined },
+                    { text: "B", isFailed: undefined },
+                    { text: "C", isFailed: undefined },
+                    { text: "D", isFailed: true, isRunning: true }
+                ],
+                isPassed: undefined,
+                isFailed: true
+            });
+
+            expect(stepD.error.message).to.equal("foobar");
         });
 
-        it.skip("skips repeat branches", function() {
+        it("marks a branch failed before we reach the last step", function() {
+            var tree = new Tree();
 
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isRunning = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.markStepFailed(branch, stepC, new Error("foobar"), true);
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isFailed: undefined },
+                    { text: "B", isFailed: undefined },
+                    { text: "C", isFailed: true, isRunning: true },
+                    { text: "D", isFailed: undefined }
+                ],
+                isPassed: undefined,
+                isFailed: true
+            });
+
+            expect(stepC.error.message).to.equal("foobar");
         });
 
-        it.skip("doesn't skip a repeat branch if it's currently running", function() {
+        it("skips repeat branches", function() {
+            var tree = new Tree();
 
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isRunning = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch1 = new Branch();
+            var branch2 = new Branch();
+            var branch3 = new Branch();
+            var branch4 = new Branch();
+
+            branch1.steps = [ stepA, stepB, stepC, stepD ];
+            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
+            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
+            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
+
+            tree.branches = [ branch2, branch1, branch3, branch4 ];
+
+            tree.markStepFailed(branch1, stepC, new Error("foobar"), true, true);
+
+            expect(branch1).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isFailed: undefined },
+                    { text: "B", isFailed: undefined },
+                    { text: "C", isFailed: true, isRunning: true },
+                    { text: "D", isFailed: undefined }
+                ],
+                isPassed: undefined,
+                isFailed: true
+            });
+
+            expect(stepC.error.message).to.equal("foobar");
+
+            expect(branch2.isSkipped).to.equal(true);
+            expect(branch3.isSkipped).to.equal(true);
+            expect(branch4.isSkipped).to.equal(undefined);
         });
 
-        it.skip("doesn't skip a repeat branch if it already ran", function() {
+        it("doesn't skip a repeat branch if it's currently running", function() {
+            var tree = new Tree();
 
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isRunning = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch1 = new Branch();
+            var branch2 = new Branch();
+            var branch3 = new Branch();
+            var branch4 = new Branch();
+
+            branch1.steps = [ stepA, stepB, stepC, stepD ];
+            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
+            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
+            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
+
+            branch3.isRunning = true;
+
+            tree.branches = [ branch2, branch1, branch3, branch4 ];
+
+            tree.markStepFailed(branch1, stepC, new Error("foobar"), true, true);
+
+            expect(branch1).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isFailed: undefined },
+                    { text: "B", isFailed: undefined },
+                    { text: "C", isFailed: true, isRunning: true },
+                    { text: "D", isFailed: undefined }
+                ],
+                isPassed: undefined,
+                isFailed: true
+            });
+
+            expect(stepC.error.message).to.equal("foobar");
+
+            expect(branch2.isSkipped).to.equal(true);
+            expect(branch3.isSkipped).to.equal(undefined);
+            expect(branch4.isSkipped).to.equal(undefined);
+        });
+
+        it("doesn't skip a repeat branch if it already ran", function() {
+            var tree = new Tree();
+
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isRunning = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch1 = new Branch();
+            var branch2 = new Branch();
+            var branch3 = new Branch();
+            var branch4 = new Branch();
+
+            branch1.steps = [ stepA, stepB, stepC, stepD ];
+            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
+            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
+            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
+
+            branch3.isPassed = true;
+
+            tree.branches = [ branch2, branch1, branch3, branch4 ];
+
+            tree.markStepFailed(branch1, stepC, new Error("foobar"), true, true);
+
+            expect(branch1).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isFailed: undefined },
+                    { text: "B", isFailed: undefined },
+                    { text: "C", isFailed: true, isRunning: true },
+                    { text: "D", isFailed: undefined }
+                ],
+                isPassed: undefined,
+                isFailed: true
+            });
+
+            expect(stepC.error.message).to.equal("foobar");
+
+            expect(branch2.isSkipped).to.equal(true);
+            expect(branch3.isSkipped).to.equal(undefined);
+            expect(branch4.isSkipped).to.equal(undefined);
         });
     });
 

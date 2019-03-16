@@ -1489,7 +1489,7 @@ class Tree {
         delete step.isFailed;
 
         // If this is the very last step in the branch, mark the branch as passed/failed
-        if(nextStep(branch, false) == null) {
+        if(this.nextStep(branch, false) == null) {
             // Fail the branch if at least one step failed
             var failedStepExists = false;
 
@@ -1515,27 +1515,26 @@ class Tree {
      * @param {Branch} branch - The Branch that contains the step
      * @param {Step} step - The Step inside branch to mark failed
      * @param {Error} error - The Error object that was thrown
-     * @param {Boolean} skipsRepeats - If true, skips every other branch whose first N steps are identical to this one's (up until the step being failed)
+     * @param {Boolean} failBranchNow - If true, fails the whole branch immediately
+     * @param {Boolean} skipsRepeats - If true, skips every other branch in this.branches whose first N steps are identical to this one's (up until the step being failed)
      */
-    markStepFailed(branch, step, error, skipsRepeats) {
+    markStepFailed(branch, step, error, failBranchNow, skipsRepeats) {
         step.isFailed = true;
         step.error = error;
 
         // If this is the very last step in the branch, mark the branch as failed
-        if(nextStep(branch, false) == null) {
+        if(failBranchNow || this.nextStep(branch, false) == null) {
             this.markBranchFailed(branch);
         }
 
         if(skipsRepeats) {
             var n = branch.steps.indexOf(step);
-            if(n != -1) {
-                var branchesToSkip = this.findSimilarBranches(branch, n + 1, branches);
-                branchesToSkip.forEach(branchToSkip => {
-                    if(!this.branchCompleteOrRunning(branchToSkip)) { // let it finish running on its own
-                        branchToSkip.isSkipped = true;
-                    }
-                });
-            }
+            var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
+            branchesToSkip.forEach(branchToSkip => {
+                if(!this.branchCompleteOrRunning(branchToSkip)) { // let it finish running on its own
+                    branchToSkip.isSkipped = true;
+                }
+            });
         }
     }
 
