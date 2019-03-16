@@ -12931,25 +12931,197 @@ G -
     });
 
     describe("findSimilarBranches()", function() {
-        it("TEXT", function() {
+        it("handles empty branches", function() {
+            var tree = new Tree();
 
+            var branch1 = new Branch();
+            var branch2 = new Branch();
+
+            branches = [ branch1, branch2 ];
+
+            var similarBranches = tree.findSimilarBranches(branch1, 1, branches);
+            expect(similarBranches).to.have.lengthOf(1);
+            expect(similarBranches).to.containSubsetInOrder([
+                {
+                    steps: []
+                }
+            ]);
+        });
+
+        it("finds similar branches", function() {
+            var tree = new Tree();
+
+            var stepA = new Step();
+            stepA.text = "A";
+
+            var stepB = new Step();
+            stepB.text = "B";
+
+            var stepC = new Step();
+            stepC.text = "C";
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch1 = new Branch();
+            var branch2 = new Branch();
+            var branch3 = new Branch();
+            var branch4 = new Branch();
+
+            branch1.steps.push(stepA.cloneForBranch());
+            branch1.steps.push(stepB.cloneForBranch());
+            branch1.steps.push(stepC.cloneForBranch());
+            branch1.steps.push(stepD.cloneForBranch());
+
+            branch2.steps.push(stepA.cloneForBranch());
+            branch2.steps.push(stepB.cloneForBranch());
+            branch2.steps.push(stepD.cloneForBranch());
+
+            branch3.steps.push(stepA.cloneForBranch());
+            branch3.steps.push(stepB.cloneForBranch());
+            branch3.steps.push(stepC.cloneForBranch());
+
+            branch4.steps.push(stepC.cloneForBranch());
+            branch4.steps.push(stepB.cloneForBranch());
+            branch4.steps.push(stepA.cloneForBranch());
+
+            branches = [ branch1, branch2, branch3, branch4 ];
+
+            var similarBranches = tree.findSimilarBranches(branch1, 1, branches);
+            expect(similarBranches).to.have.lengthOf(2);
+            expect(similarBranches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "D" } ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
+                }
+            ]);
+
+            similarBranches = tree.findSimilarBranches(branch1, 2, branches);
+            expect(similarBranches).to.have.lengthOf(2);
+            expect(similarBranches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "D" } ]
+                },
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
+                }
+            ]);
+
+            similarBranches = tree.findSimilarBranches(branch1, 3, branches);
+            expect(similarBranches).to.have.lengthOf(1);
+            expect(similarBranches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
+                }
+            ]);
+
+            similarBranches = tree.findSimilarBranches(branch1, 4, branches);
+            expect(similarBranches).to.have.lengthOf(0);
+
+            similarBranches = tree.findSimilarBranches(branch3, 3, branches);
+            expect(similarBranches).to.have.lengthOf(1);
+            expect(similarBranches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" } ]
+                }
+            ]);
         });
     });
 
     describe("markStepPassed()", function() {
-        it("TEXT", function() {
+        it("marks a step passed", function() {
+
+
+
+
+
+
+
+        });
+
+        it.skip("marks a branch passed when the last step is passed", function() {
+
+        });
+
+        it.skip("marks a branch failed when the last step is passed", function() {
+
+        });
+
+        it.skip("marks a branch failed when the last step is passed and where an After Every Branch step is failed", function() {
+
+        });
+
+        it.skip("marks a branch failed when the last step is passed and where an After Every Step step is failed", function() {
 
         });
     });
 
     describe("markStepFailed()", function() {
-        it("TEXT", function() {
+        it.skip("marks a step failed and sets its error", function() {
+
+        });
+
+        it.skip("marks a branch failed when the last step is failed", function() {
+
+        });
+
+        it.skip("skips repeat branches", function() {
+
+        });
+
+        it.skip("doesn't skip a repeat branch if it's currently running", function() {
+
+        });
+
+        it.skip("doesn't skip a repeat branch if it already ran", function() {
 
         });
     });
 
     describe("nextStep()", function() {
-        it("TEXT", function() {
+        it.skip("returns the first step if nothing is running yet, without advancing", function() {
+
+        });
+
+        it.skip("returns the next step if one is currently running, without advancing", function() {
+
+        });
+
+        it.skip("returns null if the last step is currently running, without advancing", function() {
+
+        });
+
+        it.skip("returns the first step if nothing is running yet, with advancing", function() {
+
+        });
+
+        it.skip("returns the next step if one is currently running, with advancing", function() {
+
+        });
+
+        it.skip("returns null if the last step is currently running, with advancing", function() {
+
+        });
+
+        it.skip("skips repeat branches if next step is an -M", function() {
+
+        });
+
+        it.skip("skips repeat branches if next step is a -T", function() {
+
+        });
+
+        it.skip("doesn't skips repeat branches if the next step isn't an -M or -T", function() {
+
+        });
+
+        it.skip("doesn't skip a repeat branch if it's currently running", function() {
+
+        });
+
+        it.skip("doesn't skip a repeat branch if it already ran", function() {
 
         });
     });

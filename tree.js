@@ -1478,7 +1478,7 @@ class Tree {
     findSimilarBranches(branch, n, branches) {
         var foundBranches = [];
         branches.forEach(b => {
-            if(branch.equals(b, n)) {
+            if(branch !== b && branch.equals(b, n)) {
                 foundBranches.push(b);
             }
         });
@@ -1496,44 +1496,24 @@ class Tree {
         step.isPassed = true;
         delete step.isFailed;
 
-        // If this is the very last step in the branch (including hooks), mark the branch as passed/failed
+        // If this is the very last step in the branch, mark the branch as passed/failed
         if(nextStep(branch, false) == null) {
             // Fail the branch if at least one step failed
-            if(failedStepExists(branch)) {
+            var failedStepExists = false;
+
+            for(var i = 0; i < branch.steps.length; i++) {
+                var step = branch.steps[i];
+                if(step.isFailed) {
+                    failedStepExists = true;
+                    break;
+                }
+            }
+
+            if(failedStepExists) {
                 this.markBranchFailed(branch);
             }
             else {
                 this.markBranchPassed(branch);
-            }
-
-            /**
-             * @return {Boolean} True if there is a step (including hooks) that failed within the given branch
-             */
-            function failedStepExists(branch) {
-                for(var i = 0; i < branch.steps.length; i++) {
-                    var step = branch.steps[i];
-                    if(step.isFailed) {
-                        return true;
-                    }
-
-                    if(step.afterEveryBranch) {
-                        for(var j = 0; j < step.afterEveryBranch.length; j++) {
-                            if(failedStepExists(step.afterEveryBranch[j])) {
-                                return true;
-                            }
-                        }
-                    }
-
-                    if(step.afterEveryStep) {
-                        for(var j = 0; j < step.afterEveryStep.length; j++) {
-                            if(failedStepExists(step.afterEveryStep[j])) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-
-                return false;
             }
         }
     }
@@ -1543,14 +1523,14 @@ class Tree {
      * @param {Branch} branch - The Branch that contains the step
      * @param {Step} step - The Step inside branch to mark failed
      * @param {Error} error - The Error object that was thrown
-     * @param {Boolean} failBranch - If true, fail the whole branch too
      * @param {Boolean} skipsRepeats - If true, skips every other branch whose first N steps are identical to this one's (up until the step being failed)
      */
-    markStepFailed(branch, step, error, failBranch, skipsRepeats) {
+    markStepFailed(branch, step, error, skipsRepeats) {
         step.isFailed = true;
         step.error = error;
 
-        if(failBranch) {
+        // If this is the very last step in the branch, mark the branch as failed
+        if(nextStep(branch, false) == null) {
             this.markBranchFailed(branch);
         }
 
