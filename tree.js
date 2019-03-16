@@ -1577,14 +1577,12 @@ class Tree {
         // Skip other repeat branches if the next step is a -T or -M
         if(skipsRepeats && nextStep && (nextStep.isManual || nextStep.isToDo)) {
             var n = branch.steps.indexOf(nextStep);
-            if(n != -1) {
-                var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
-                branchesToSkip.forEach(branchToSkip => {
-                    if(!this.branchCompleteOrRunning(branchToSkip)) { // let it finish running on its own
-                        branchToSkip.isSkipped = true;
-                    }
-                });
-            }
+            var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
+            branchesToSkip.forEach(branchToSkip => {
+                if(!this.branchCompleteOrRunning(branchToSkip)) { // let it finish running on its own
+                    branchToSkip.isSkipped = true;
+                }
+            });
         }
 
         return nextStep;
