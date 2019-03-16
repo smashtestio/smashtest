@@ -1399,10 +1399,6 @@ class Tree {
          * @return {Boolean} true if at least one branch from branches is still running, false otherwise
          */
         function isBranchStillRunning(branches) {
-            if(!branches) {
-                return null;
-            }
-
             for(var i = 0; i < branches.length; i++) {
                 if(branches[i].isRunning) {
                     return true;
@@ -1417,10 +1413,6 @@ class Tree {
      * @return {Branch} A branch not yet taken from branches, null if nothing found
      */
     findBranchNotYetTaken(branches) {
-        if(!branches) {
-            return null;
-        }
-
         for(var i = 0; i < branches.length; i++) {
             var branch = branches[i];
             if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {

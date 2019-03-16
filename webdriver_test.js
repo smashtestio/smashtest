@@ -13,5 +13,7 @@ var webdriverio = require('webdriverio');
     const title = await browser.getTitle();
     console.log('Title was: ' + title);
 
+    await browser.debug();
+
     await browser.deleteSession();
 })().catch((e) => console.error(e));
