@@ -1562,7 +1562,7 @@ class Tree {
             var n = branch.steps.indexOf(step);
             var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
             branchesToSkip.forEach(branchToSkip => {
-                if(!this.branchCompleteOrRunning(branchToSkip)) { // let it finish running on its own
+                if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
                     branchToSkip.isSkipped = true;
                 }
             });
@@ -1570,13 +1570,17 @@ class Tree {
     }
 
     /**
-     * Returns the next step in the given branch, or null if no steps are left
+     * Returns the next step in the given branch, or null if no steps are left or the branch already failed/skipped
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
      * @param {Boolean} [skipsRepeats] - If true, if the next step is a -T or -M, skips every other branch whose first N steps are identical to this one's (up until the -T or -M step)
      * @return {Step} The next step in the given branch, null if there are none left
      */
     nextStep(branch, advance, skipsRepeats) {
+        if(branch.isFailed || branch.isSkipped) {
+            return null;
+        }
+
         var runningStep = null;
         var nextStep = null;
         for(var i = 0; i < branch.steps.length; i++) {
@@ -1610,20 +1614,13 @@ class Tree {
             var n = branch.steps.indexOf(nextStep);
             var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
             branchesToSkip.forEach(branchToSkip => {
-                if(!this.branchCompleteOrRunning(branchToSkip)) { // let it finish running on its own
+                if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
                     branchToSkip.isSkipped = true;
                 }
             });
         }
 
         return nextStep;
-    }
-
-    /**
-     * @return {Boolean} True if the given branch is complete or still running
-     */
-    branchCompleteOrRunning(branch) {
-        return branch.isRunning || branch.isPassed || branch.isFailed || branch.isSkipped;
     }
 }
 module.exports = Tree;

@@ -13623,6 +13623,21 @@ G -
     });
 
     describe("nextStep()", function() {
+        it("returns null if the branch failed or skipped", function() {
+            var tree = new Tree();
+            var branch = new Branch();
+            tree.branches = [ branch ];
+
+            branch.isFailed = true;
+
+            expect(tree.nextStep(branch, false, false)).to.equal(null);
+
+            delete branch.isFailed;
+            branch.isSkipped = true;
+
+            expect(tree.nextStep(branch, false, false)).to.equal(null);
+        });
+
         it("returns the first step if nothing is running yet, without advancing", function() {
             var tree = new Tree();
 

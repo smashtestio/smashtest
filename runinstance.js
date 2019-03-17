@@ -5,13 +5,13 @@ class RunInstance {
     constructor(runner) {
         this.runner = runner;
 
-        this.tree = this.runner.tree;               // Tree currently being executed
+        this.tree = this.runner.tree;                   // Tree currently being executed
         this.currBranch = null;                         // Branch currently being executed
         this.currStep = null;                           // Step currently being executed
 
         this.isPaused = false;                          // true if we're currently paused
 
-        this.persistant = this.runner.persistant;   // persistant variables
+        this.persistant = this.runner.persistant;       // persistant variables
         this.global = [];                               // global variables
         this.local = [];                                // local variables
     }
@@ -21,29 +21,39 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved with true once done executing, or gets resolved with false if a branch was paused
      */
     run() {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             this.currBranch = this.tree.nextBranch();
             while(this.currBranch) {
                 if(this.currBranch == 'wait') {
-
-
-
-
-
+                    // wait 1 sec
+                    await new Promise((resolve, reject) => {
+                        setTimeout(() => { resolve(); }, 1000);
+                    });
                 }
                 else { // this.currBranch is an actual Branch
-                    // Remember, Tree.nextBranch() handles the whole Before/After Everything thing
+                    this.currStep = this.tree.nextStep(this.currBranch, true, true);
+                    while(this.currStep) {
+                        runStep(this.currStep);
 
+                        if(this.isPaused) { // the current step caused a pause
+                            resolve(false);
+                            break;
+                        }
 
+                        this.currStep = this.tree.nextStep(this.currBranch, true, true);
+                    }
 
+                    // NOTE: Tree.nextBranch() handles serving up Before/After Everything branches
+                    // NOTE: Tree.nextStep() handles serving up After Every Branch steps
 
-
-
-                    // TODO: look to this.runner.pauseOnFail and this.runner.runOneStep (which you must clear right after)
-                    // TODO: set this.isPaused when a pause occurs
-
-
-
+                    // Execute After Every Branch hooks
+                    this.local.successful = this.currBranch.isPassed;
+                    this.local.error = this.currBranch.error;
+                    this.currBranch.afterEveryBranch.forEach(branch => {
+                        branch.steps.forEach(step => {
+                            runStep(step);
+                        });
+                    });
                 }
 
                 this.currBranch = this.tree.nextBranch();
@@ -54,13 +64,17 @@ class RunInstance {
     }
 
     /**
-     * Runs the given Step
-     * @param {Step} step - The Step to run
+     * Runs the given step
+     * Sets this.isPaused if the step requires execution to pause
+     * Sets passed/failed status on step, sets the step's error and log
      */
-    async runStep(step) {
+    runStep(step) {
         // TODO: code blocks are eval()ed here
 
+        // TODO: look to this.runner.pauseOnFail and this.runner.runOneStep (which you must clear right after)
+        // TODO: set this.isPaused when a pause occurs
 
+        // TODO: marks step as passed/failed (using existing Tree functions), and sets its error and log (via log())
 
 
 
@@ -87,11 +101,18 @@ class RunInstance {
      */
     log(str) {
         if(this.currStep) {
-            if(typeof this.currStep.log == 'undefined') {
-                this.currStep.log = '';
+            logToObj(this.currStep)
+        }
+        else if(this.currBranch) {
+            logToObj(this.currBranch)
+        }
+
+        function logToObj(obj) {
+            if(typeof obj.log == 'undefined') {
+                obj.log = '';
             }
 
-            this.currStep.log += str + '\n';
+            obj.log += str + '\n';
         }
     }
 

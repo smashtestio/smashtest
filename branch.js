@@ -27,6 +27,9 @@ class Branch {
         this.isFailed = false;              // true if at least one step in this branch failed after being run
         this.isSkipped = false;             // true if this branch was skipped after an attempted run
         this.isRunning = false;             // true if this branch is currently running
+
+        this.error = {};                    // if this branch failed, this is the Error that was thrown (only for failure that occurs within the branch but not within a particular step)
+        this.log = "";                      // string of logs related to this branch (logs related to the branch but not to a particular step)
         */
     }
 
@@ -213,6 +216,20 @@ class Branch {
          }
 
          return true;
+     }
+
+     /**
+      * @return {Boolean} True if this branch completed already
+      */
+     isComplete() {
+         return this.isPassed || this.isFailed || this.isSkipped || this.passedLastTime;
+     }
+
+     /**
+      * @return {Boolean} True if this branch completed already or is still running
+      */
+     isCompleteOrRunning() {
+         return this.isRunning || this.isComplete();
      }
 }
 module.exports = Branch;
