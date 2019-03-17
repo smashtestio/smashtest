@@ -53,6 +53,7 @@ class Step {
         this.isRunning = false;               // true if this step is currently running
 
         this.error = {};                      // if this step failed, this is the Error that was thrown
+        this.log = "";                        // string of logs related to this step
         */
     }
 

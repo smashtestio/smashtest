@@ -34,7 +34,7 @@ Running tests
             - All files are merged into one big one, and everything at the top level is accessible to everything in other files
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
-    - If a step irrevokably fails, all other branches that go through that step will be skipped
+    - If a step irrevokably fails, all other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
 
 Only run tests that didn't pass last time
     - Doesn't run branches that passed last time
