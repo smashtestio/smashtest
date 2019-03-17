@@ -9,13 +9,65 @@ const Runner = require('../runner.js');
 chai.use(chaiSubset);
 
 describe("Runner", function() {
-    describe("runTests()", function() {
-        it.skip("TEXT", function() {
+    describe("run()", function() {
+        it("throws an error when pauseOnFail is set but maxInstances isn't 1", function() {
+            var runner = new Runner();
+            var tree = new Tree();
+
+            runner.pauseOnFail = true;
+            runner.maxInstances = 2;
+            runner.tree = tree;
+
+            assert.throws(() => {
+                runner.run();
+            }, "maxInstances must be set to 1 since pauseOnFail is on");
+        });
+
+        it("throws an error when a ~ step exists but maxInstances isn't 1", function() {
+            var runner = new Runner();
+            var tree = new Tree();
+
+            tree.parseIn(`
+A -
+    B - ~
+C -
+`);
+            tree.generateBranches();
+
+            runner.maxInstances = 5;
+            runner.tree = tree;
+
+            assert.throws(() => {
+                runner.run();
+            }, "maxInstances must be set to 1 since a ~ step exists");
+        });
+
+        it.skip("can spawn a single run instance that pauses", function() {
+        });
+
+        it.skip("can spawn a single run instance that completes", function() {
+        });
+
+        it.skip("can spawn a mulitple run instances, all of which complete", function() {
         });
     });
 
-    describe("resumeTests()", function() {
-        it.skip("TEXT", function() {
+    describe("runNextStep()", function() {
+        it.skip("runs the next step, then pauses again", function() {
+        });
+    });
+
+    describe("injectAndRun()", function() {
+        it.skip("injects a tree and runs it, then pauses again", function() {
+        });
+
+        it.skip("rejects a tree with multiple branches", function() {
+        });
+
+        it.skip("rejects a tree with a * Before Everything hook", function() {
+        });
+
+        it.skip("rejects a tree with an * After Everything hook", function() {
         });
     });
 });

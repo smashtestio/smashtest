@@ -15,6 +15,10 @@ class RunInstance {
         return new Promise((resolve, reject) => {
 
 
+            // TODO: look to this.testRunner.pauseOnFail and this.testRunner.runOneStep (which you must clear right after)
+
+
+
 
 
 
@@ -51,3 +55,4 @@ class RunInstance {
 
     }
 }
+module.exports = RunInstance;

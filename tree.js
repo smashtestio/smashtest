@@ -17,6 +17,7 @@ class Tree {
         this.afterEverything = [];           // Array of Step, the steps (and their children) to execute after all branches (tests)
 
         this.latestBranchifiedStep = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
+        this.isDebug = false;                // true if at least one step has isDebug (~) set
     }
 
     /**
@@ -687,6 +688,11 @@ class Tree {
             else if(step.isOnly) {
                 utils.error("A $ was found, but the noDebug flag is set", step.filename, step.lineNumber);
             }
+        }
+
+        // Set this.isDebug
+        if(step.isDebug) {
+            this.isDebug = true;
         }
 
         // ***************************************
