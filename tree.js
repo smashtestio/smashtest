@@ -1312,9 +1312,34 @@ class Tree {
     }
 
     /**
+     * Get a count on the number of branches within this.branches
+     * @param {Boolean} runnableOnly - If true, only count runnable branches (i.e., those that passed last time don't count, if we're only running branches not passed)
+     * @param {Boolean} completeOnly - If true, only count branches that are complete (passed, failed, or skipped)
+     * @return {Number} Number of branches
+     */
+    getBranchCount(runnableOnly, completeOnly) {
+        var count = 0;
+        for(var i = 0; i < this.branches.length; i++) {
+            var branch = this.branches[i];
+
+            if(runnableOnly && branch.passedLastTime) {
+                continue;
+            }
+
+            if(completeOnly && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {
+                continue;
+            }
+
+            count++;
+        }
+
+        return count;
+    }
+
+    /**
      * Get a count on the number of steps within this.branches. Does not include steps in hooks.
      * @param {Boolean} runnableOnly - If true, only count runnable steps
-     * @param {Boolean} completeOnly - If true, only count steps that are complete (passed or failed)
+     * @param {Boolean} completeOnly - If true, only count steps that are complete (passed, failed, or skipped)
      * @return {Number} Number of steps that are to be run
      */
     getStepCount(runnableOnly, completeOnly) {

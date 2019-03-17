@@ -12545,6 +12545,148 @@ A -
         });
     });
 
+    describe("getBranchCount()", function() {
+        it("returns total number of branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.getBranchCount(false, false)).to.equal(4);
+        });
+
+        it("returns total number of runnable branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].passedLastTime = true;
+
+            expect(tree.getBranchCount(true, false)).to.equal(3);
+        });
+
+        it("returns total number of complete branches", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].passedLastTime = true;
+            tree.branches[2].isFailed = true;
+
+            expect(tree.getBranchCount(true, true)).to.equal(1);
+            expect(tree.getBranchCount(false, true)).to.equal(2);
+
+            delete tree.branches[2].isFailed;
+            tree.branches[2].isSkipped = true;
+
+            expect(tree.getBranchCount(true, true)).to.equal(1);
+            expect(tree.getBranchCount(false, true)).to.equal(2);
+
+            delete tree.branches[0].passedLastTime;
+            tree.branches[0].isPassed = true;
+
+            expect(tree.getBranchCount(true, true)).to.equal(2);
+            expect(tree.getBranchCount(false, true)).to.equal(2);
+        });
+
+        it("does not count inside hooks", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - $
+    B -
+
+        C -
+        D -
+
+            E -
+
+            * After Every Branch
+                M -
+
+            * After Every Step
+                N -
+
+    H -T
+        I -
+    J -M
+
+F -
+    G -
+
+* Before Everything
+    O -
+
+* After Everything
+    P -
+`, "file.txt");
+
+            tree.parseIn(`
+* Before Everything
+    W -
+
+* After Everything
+    X -
+
+* After Every Branch
+    Y -
+
+* After Every Step
+    Z -
+`, "builtin.txt", true);
+
+            tree.generateBranches();
+
+            expect(tree.getBranchCount(false, false)).to.equal(4);
+        });
+    });
+
     describe("getStepCount()", function() {
         it("returns total number of steps", function() {
             var tree = new Tree();
