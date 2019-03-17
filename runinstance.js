@@ -8,19 +8,46 @@ class RunInstance {
     }
 
     /**
-     * Runs the given branch
-     * @param {Branch} branch - The Branch to run
+     * Grabs branches and steps from this.testRunner.tree and executes them. Exits when there's nothing left to execute, or if a pause occurs
+     * @return {Promise} Promise that gets resolved with true once done executing, or gets resolved with false if a branch was paused
      */
-    runBranch(branch) {
-        // probably calls something in this.testRunner
+    run() {
+        return new Promise((resolve, reject) => {
+
+
+
+
+
+
+
+        });
     }
 
     /**
      * Runs the given Step
      * @param {Step} step - The Step to run
      */
-    runStep(step) {
-        // TODO:
-        // code blocks are eval()ed here
+    async runStep(step) {
+        // TODO: code blocks are eval()ed here
+
+
+
+
+
+    }
+
+    /**
+     * @return {Tree} The tree associated with the runner
+     */
+    getTree() {
+        return this.testRunner.tree;
+    }
+
+    getCurrentBranch() {
+
+    }
+
+    getCurrentStep() {
+
     }
 }

@@ -180,6 +180,9 @@ Debug (~)
     - When multiple branches are marked with ~'s, it chooses the first one
     - Works inside hooks, but will only isolate a branch inside that hook (won't affect normal branches)
     - Throws exception if a ~ exists, but is cut off due to $, groups, or frequency
+    - maxInstances must be 1 if a ~ exists anywhere
+    - pauseOnFail command line flag will pause if a step fails and open up the REPL
+        - maxInstances must be set to 1 (because multiple browsers will be unmanageable)
 
 REPL
     - Using REPL
@@ -196,7 +199,7 @@ Selective test running
         - The value of {frequency} at the leaf is what controls the frequency of that branch
         - Branches are also run in order of frequency, from high to low, where no frequency is med
         - Recommended to sort the children of a step by their frequency
-    - When {noDebug} is set to true, or the noDebug command line flag is set, a ~ or $ anywhere in your tree will cause an error
+    - When noDebug command line flag is set, a ~ or $ anywhere in your tree will cause an error
         - Great for making sure you're not debug prior to committing test files to CI
 
 Mocking APIs

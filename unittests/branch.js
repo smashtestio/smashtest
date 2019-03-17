@@ -133,83 +133,83 @@ describe("Branch", function() {
                 ]
             });
         });
-    });
 
-    it("merges afterEveryStep", function() {
-        var stepA = new Step();
-        stepA.text = "A";
+        it("merges afterEveryStep", function() {
+            var stepA = new Step();
+            stepA.text = "A";
 
-        var stepB = new Step();
-        stepB.text = "B";
+            var stepB = new Step();
+            stepB.text = "B";
 
-        var stepC = new Step();
-        stepC.text = "C";
+            var stepC = new Step();
+            stepC.text = "C";
 
-        var stepD = new Step();
-        stepD.text = "D";
+            var stepD = new Step();
+            stepD.text = "D";
 
-        var stepE = new Step();
-        stepE.text = "E";
+            var stepE = new Step();
+            stepE.text = "E";
 
-        var stepF = new Step();
-        stepF.text = "F";
+            var stepF = new Step();
+            stepF.text = "F";
 
-        var stepG = new Step();
-        stepG.text = "G";
+            var stepG = new Step();
+            stepG.text = "G";
 
-        var branch1 = new Branch;
-        branch1.steps = [ stepA ];
+            var branch1 = new Branch;
+            branch1.steps = [ stepA ];
 
-        var branch2 = new Branch;
-        branch2.steps = [ stepB, stepC ];
+            var branch2 = new Branch;
+            branch2.steps = [ stepB, stepC ];
 
-        var branch3 = new Branch;
-        branch3.steps = [ stepD, stepE ];
+            var branch3 = new Branch;
+            branch3.steps = [ stepD, stepE ];
 
-        var branch4 = new Branch;
-        branch4.steps = [ stepF ];
+            var branch4 = new Branch;
+            branch4.steps = [ stepF ];
 
-        var branch5 = new Branch;
-        branch5.steps = [ stepG ];
+            var branch5 = new Branch;
+            branch5.steps = [ stepG ];
 
-        branch1.afterEveryStep = [ branch3 ];
-        branch2.afterEveryStep = [ branch4, branch5 ];
-        branch1.mergeToEnd(branch2);
+            branch1.afterEveryStep = [ branch3 ];
+            branch2.afterEveryStep = [ branch4, branch5 ];
+            branch1.mergeToEnd(branch2);
 
-        expect(branch1.steps.length).to.equal(3);
-        expect(branch2.steps.length).to.equal(2);
+            expect(branch1.steps.length).to.equal(3);
+            expect(branch2.steps.length).to.equal(2);
 
-        expect(branch1.afterEveryStep.length).to.equal(3);
-        expect(branch2.afterEveryStep.length).to.equal(2);
+            expect(branch1.afterEveryStep.length).to.equal(3);
+            expect(branch2.afterEveryStep.length).to.equal(2);
 
-        expect(branch1.afterEveryStep[0].steps.length).to.equal(1);
-        expect(branch1.afterEveryStep[1].steps.length).to.equal(1);
-        expect(branch1.afterEveryStep[2].steps.length).to.equal(2);
+            expect(branch1.afterEveryStep[0].steps.length).to.equal(1);
+            expect(branch1.afterEveryStep[1].steps.length).to.equal(1);
+            expect(branch1.afterEveryStep[2].steps.length).to.equal(2);
 
-        expect(branch1).to.containSubsetInOrder({
-            steps: [
-                { text: "A" },
-                { text: "B" },
-                { text: "C" }
-            ],
-            afterEveryStep: [
-                {
-                    steps: [
-                        { text: "F" }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "G" }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "D" },
-                        { text: "E" }
-                    ]
-                }
-            ]
+            expect(branch1).to.containSubsetInOrder({
+                steps: [
+                    { text: "A" },
+                    { text: "B" },
+                    { text: "C" }
+                ],
+                afterEveryStep: [
+                    {
+                        steps: [
+                            { text: "F" }
+                        ]
+                    },
+                    {
+                        steps: [
+                            { text: "G" }
+                        ]
+                    },
+                    {
+                        steps: [
+                            { text: "D" },
+                            { text: "E" }
+                        ]
+                    }
+                ]
+            });
         });
     });
 

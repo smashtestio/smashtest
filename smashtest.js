@@ -55,8 +55,7 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
 
 
 
-                        // TODO: get rid of this
-                        print(tree.root);
+                        
                     })
                     .catch(function(err) {
                         console.error(err);
@@ -65,10 +64,3 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
         });
     }
 });
-
-/**
- * Outputs obj to console.log
- */
-function print(obj) {
-    console.log(util.inspect(obj, false, null, true));
-}
