@@ -2,22 +2,22 @@
  * Represents a running test instance. Kind of like a "thread".
  */
 class RunInstance {
-    constructor(testRunner) {
-        this.testRunner = testRunner;
+    constructor(runner) {
+        this.runner = runner;
 
-        this.tree = this.testRunner.tree;               // Tree currently being executed
+        this.tree = this.runner.tree;               // Tree currently being executed
         this.currBranch = null;                         // Branch currently being executed
         this.currStep = null;                           // Step currently being executed
 
         this.isPaused = false;                          // true if we're currently paused
 
-        this.persistant = this.testRunner.persistant;   // persistant variables
+        this.persistant = this.runner.persistant;   // persistant variables
         this.global = [];                               // global variables
         this.local = [];                                // local variables
     }
 
     /**
-     * Grabs branches and steps from this.testRunner.tree and executes them. Exits when there's nothing left to execute, or if a pause occurs.
+     * Grabs branches and steps from this.tree and executes them. Exits when there's nothing left to execute, or if a pause occurs.
      * @return {Promise} Promise that gets resolved with true once done executing, or gets resolved with false if a branch was paused
      */
     run() {
@@ -39,7 +39,7 @@ class RunInstance {
 
 
 
-                    // TODO: look to this.testRunner.pauseOnFail and this.testRunner.runOneStep (which you must clear right after)
+                    // TODO: look to this.runner.pauseOnFail and this.runner.runOneStep (which you must clear right after)
                     // TODO: set this.isPaused when a pause occurs
 
 
@@ -67,6 +67,22 @@ class RunInstance {
     }
 
     /**
+     * Runs the given branch, then pauses
+     * Call when already paused
+     */
+    injectAndRun(branch) {
+        if(!this.isPaused) {
+            return; // fail gracefully
+        }
+
+
+
+
+
+
+    }
+
+    /**
      * Logs the given string to the current step
      */
     log(str) {
@@ -83,7 +99,7 @@ class RunInstance {
      * @return {Tree} The tree associated with the runner
      */
     getTree() {
-        return this.testRunner.tree;
+        return this.runner.tree;
     }
 
     /**
