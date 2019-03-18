@@ -21,6 +21,8 @@ class Runner {
 
         this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
         this.runInstancePromises = [];   // the promises returned from each RunInstance object
+
+        this.reporter = {};              // the reporter to use for reports
     }
 
     /**

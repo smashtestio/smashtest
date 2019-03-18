@@ -69,8 +69,6 @@ class RunInstance {
      * Sets passed/failed status on step, sets the step's error and log
      */
     runStep(step) {
-        // TODO: code blocks are eval()ed here
-
         // TODO: look to this.runner.pauseOnFail and this.runner.runOneStep (which you must clear right after)
         // TODO: set this.isPaused when a pause occurs
 
@@ -78,6 +76,28 @@ class RunInstance {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // TODO: execute After Every Step branches in a loop
+
+
+
+
+
+
+
+        this.tree.generateReport(this.runner.reporter);
     }
 
     /**

@@ -37,14 +37,18 @@ Running tests
     - If a step irrevokably fails, all other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
 
 Only run tests that didn't pass last time
+    - -rerunNotPassed
     - Doesn't run branches that passed last time
     - Doesn't run branches that have since been removed from the tree
     - Runs everything else (new branches, branches that failed last time, branches that didn't run last time)
     - Runs current hooks, regardless of if they passed or not
 
 Configuration
-    - Timeouts
-    - Max browser instances
+    - -maxInstances
+    - -noDebug
+    - -pauseOnFail
+    - -rerunNotPassed
+    - Timeouts are set by each step on a case-by-case basis
 
 Output
     - Console
