@@ -47,6 +47,25 @@ describe("RunInstance", function() {
     });
 
     describe("runStep()", function() {
+        it.skip("pauses when a ~ step is encountered", function() {
+        });
+
+        it.skip("pauses when runOneStep is set and after running one step", function() {
+        });
+
+        it.skip("doesn't pause when runOneStep is not set and after running one step", function() {
+        });
+
+        it.skip("pauses when pauseOnFail is set and a step fails", function() {
+        });
+
+        it.skip("doesn't pause when pauseOnFail is not set and a step fails", function() {
+        });
+
+
+
+
+
         it.skip("runs an After Every Step hook and sets its local vars", function() {
             // local vars are successful and error
         });

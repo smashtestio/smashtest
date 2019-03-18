@@ -21,6 +21,7 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved with true once done executing, or gets resolved with false if a branch was paused
      */
     run() {
+        this.isPaused = false;
         return new Promise(async (resolve, reject) => {
             this.currBranch = this.tree.nextBranch();
             while(this.currBranch) {
@@ -69,6 +70,11 @@ class RunInstance {
      * Sets passed/failed status on step, sets the step's error and log
      */
     runStep(step) {
+        if(step.isDebug) {
+            this.isPaused = true;
+            return;
+        }
+
         try {
             if(typeof step.codeBlock != 'undefined') {
                 var code = step.codeBlock;
@@ -89,12 +95,6 @@ class RunInstance {
 
 
 
-            // TODO: look to this.runner.pauseOnFail and this.runner.runOneStep (which you must clear right after)
-            // TODO: set this.isPaused when a pause occurs
-
-
-
-
 
 
 
@@ -102,6 +102,19 @@ class RunInstance {
         }
         catch(e) {
             this.tree.markStepFailed(this.currBranch, step, e, e.failBranchNow, true);
+
+            // TODO: marks step as passed/failed (using existing Tree functions), and sets its error and log (via log())
+
+
+
+
+
+
+            if(this.runner.pauseOnFail) {
+                this.runner.pauseOnFail = false;
+                this.isPaused = true;
+                return;
+            }
         }
 
         // TODO: marks step as passed/failed (using existing Tree functions), and sets its error and log (via log())
@@ -125,6 +138,12 @@ class RunInstance {
 
         // Update the report
         this.tree.generateReport(this.runner.reporter);
+
+        // If we're only meant to run one step before a pause
+        if(this.runner.runOneStep) {
+            this.runner.runOneStep = false;
+            this.isPaused = true;
+        }
     }
 
     /**
