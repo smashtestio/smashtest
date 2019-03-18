@@ -1521,23 +1521,30 @@ class Tree {
 
         // If this is the very last step in the branch, mark the branch as passed/failed
         if(this.nextStep(branch, false) == null) {
-            // Fail the branch if at least one step failed
-            var failedStepExists = false;
+            this.finishOffBranch(branch);
+        }
+    }
 
-            for(var i = 0; i < branch.steps.length; i++) {
-                var step = branch.steps[i];
-                if(step.isFailed) {
-                    failedStepExists = true;
-                    break;
-                }
-            }
+    /**
+     * Marks the branch passed if all steps passed, failed if at least one step failed
+     */
+    finishOffBranch(branch) {
+        // Fail the branch if at least one step failed
+        var failedStepExists = false;
 
-            if(failedStepExists) {
-                this.markBranchFailed(branch);
+        for(var i = 0; i < branch.steps.length; i++) {
+            var step = branch.steps[i];
+            if(step.isFailed) {
+                failedStepExists = true;
+                break;
             }
-            else {
-                this.markBranchPassed(branch);
-            }
+        }
+
+        if(failedStepExists) {
+            this.markBranchFailed(branch);
+        }
+        else {
+            this.markBranchPassed(branch);
         }
     }
 
@@ -1570,7 +1577,7 @@ class Tree {
     }
 
     /**
-     * Returns the next step in the given branch, or null if no steps are left or the branch already failed/skipped
+     * Returns the next step in the given branch, or null if no steps are left, the next step is a -T or -M, or the branch already failed/skipped
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
      * @param {Boolean} [skipsRepeats] - If true, if the next step is a -T or -M, skips every other branch whose first N steps are identical to this one's (up until the -T or -M step)
@@ -1609,15 +1616,23 @@ class Tree {
             }
         }
 
-        // Skip other repeat branches if the next step is a -T or -M
-        if(skipsRepeats && nextStep && (nextStep.isManual || nextStep.isToDo)) {
-            var n = branch.steps.indexOf(nextStep);
-            var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
-            branchesToSkip.forEach(branchToSkip => {
-                if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
-                    branchToSkip.isSkipped = true;
-                }
-            });
+        // End the branch if next step is a -T or -M
+        if(nextStep && (nextStep.isManual || nextStep.isToDo)) {
+            delete nextStep.isRunning;
+
+            // Skip other repeat branches
+            if(skipsRepeats) {
+                var n = branch.steps.indexOf(nextStep);
+                var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
+                branchesToSkip.forEach(branchToSkip => {
+                    if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
+                        branchToSkip.isSkipped = true;
+                    }
+                });
+            }
+
+            this.finishOffBranch(branch);
+            return null;
         }
 
         return nextStep;

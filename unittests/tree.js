@@ -13353,6 +13353,70 @@ G -
         });
     });
 
+    describe("finishOffBranch()", function() {
+        it("marks a branch passed when all steps passed", function() {
+            var tree = new Tree();
+
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isPassed = true;
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.finishOffBranch(branch);
+
+            expect(branch).to.containSubsetInOrder({
+                isPassed: true,
+                isFailed: undefined
+            });
+        });
+
+        it("marks a branch failed when one of the steps failed", function() {
+            var tree = new Tree();
+
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isFailed = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isPassed = true;
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.finishOffBranch(branch);
+
+            expect(branch).to.containSubsetInOrder({
+                isPassed: undefined,
+                isFailed: true
+            });
+        });
+    });
+
     describe("markStepFailed()", function() {
         it("marks a step failed and sets its error", function() {
             var tree = new Tree();
@@ -13812,7 +13876,7 @@ G -
             });
         });
 
-        it("skips repeat branches if next step is an -M", function() {
+        it("skips repeat branches and end this branch if next step is an -M", function() {
             var tree = new Tree();
 
             var stepA = new Step();
@@ -13842,22 +13906,26 @@ G -
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            expect(tree.nextStep(branch1, true, true)).to.containSubsetInOrder({
-                text: "C",
-                isRunning: true
-            });
+            expect(tree.nextStep(branch1, true, true)).to.equal(null);
 
             expect(stepB).to.containSubsetInOrder({
                 text: "B",
                 isRunning: undefined
             });
 
+            expect(stepC).to.containSubsetInOrder({
+                text: "C",
+                isRunning: undefined
+            });
+
+            expect(branch1.isPassed).to.equal(true);
+            expect(branch1.isSkipped).to.equal(undefined);
             expect(branch2.isSkipped).to.equal(true);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
         });
 
-        it("skips repeat branches if next step is a -T", function() {
+        it("skips repeat branches and end this branch if next step is a -T", function() {
             var tree = new Tree();
 
             var stepA = new Step();
@@ -13887,16 +13955,20 @@ G -
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            expect(tree.nextStep(branch1, true, true)).to.containSubsetInOrder({
-                text: "C",
-                isRunning: true
-            });
+            expect(tree.nextStep(branch1, true, true)).to.equal(null);
 
             expect(stepB).to.containSubsetInOrder({
                 text: "B",
                 isRunning: undefined
             });
 
+            expect(stepC).to.containSubsetInOrder({
+                text: "C",
+                isRunning: undefined
+            });
+
+            expect(branch1.isPassed).to.equal(true);
+            expect(branch1.isSkipped).to.equal(undefined);
             expect(branch2.isSkipped).to.equal(true);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
@@ -13978,16 +14050,15 @@ G -
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            expect(tree.nextStep(branch1, true, true)).to.containSubsetInOrder({
-                text: "C",
-                isRunning: true
-            });
+            expect(tree.nextStep(branch1, true, true)).to.equal(null);
 
             expect(stepB).to.containSubsetInOrder({
                 text: "B",
                 isRunning: undefined
             });
 
+            expect(branch1.isPassed).to.equal(true);
+            expect(branch1.isSkipped).to.equal(undefined);
             expect(branch2.isSkipped).to.equal(undefined);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
@@ -14025,16 +14096,15 @@ G -
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            expect(tree.nextStep(branch1, true, true)).to.containSubsetInOrder({
-                text: "C",
-                isRunning: true
-            });
+            expect(tree.nextStep(branch1, true, true)).to.equal(null);
 
             expect(stepB).to.containSubsetInOrder({
                 text: "B",
                 isRunning: undefined
             });
 
+            expect(branch1.isPassed).to.equal(true);
+            expect(branch1.isSkipped).to.equal(undefined);
             expect(branch2.isSkipped).to.equal(undefined);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);

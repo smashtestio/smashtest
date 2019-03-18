@@ -47,7 +47,21 @@ describe("RunInstance", function() {
     });
 
     describe("runStep()", function() {
-        it.skip("TEXT", function() {
+        it.skip("runs an After Every Step hook and sets its local vars", function() {
+            // local vars are successful and error
+        });
+
+        it.skip("runs multiple After Every Step hooks", function() {
+        });
+
+        it.skip("handles an error inside an After Every Step hook", function() {
+            // error goes into the Branch object, but Branch doesn't fail
+        });
+
+        it.skip("handles pauses from inside an After Every Step hook", function() {
+        });
+
+        it.skip("updates the report", function() {
         });
     });
 

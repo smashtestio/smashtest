@@ -69,8 +69,40 @@ class RunInstance {
      * Sets passed/failed status on step, sets the step's error and log
      */
     runStep(step) {
-        // TODO: look to this.runner.pauseOnFail and this.runner.runOneStep (which you must clear right after)
-        // TODO: set this.isPaused when a pause occurs
+        try {
+            if(typeof step.codeBlock != 'undefined') {
+                var code = step.codeBlock;
+
+
+
+
+
+
+                eval(code);
+            }
+
+
+
+
+
+
+
+
+
+            // TODO: look to this.runner.pauseOnFail and this.runner.runOneStep (which you must clear right after)
+            // TODO: set this.isPaused when a pause occurs
+
+
+
+
+
+
+
+
+        }
+        catch(e) {
+            this.tree.markStepFailed(this.currBranch, step, e, e.failBranchNow, true);
+        }
 
         // TODO: marks step as passed/failed (using existing Tree functions), and sets its error and log (via log())
 
@@ -82,21 +114,16 @@ class RunInstance {
 
 
 
+        // Execute After Every Step hooks
+        this.local.successful = this.currStep.isPassed;
+        this.local.error = this.currStep.error;
+        this.currBranch.afterEveryStep.forEach(branch => {
+            branch.steps.forEach(step => {
+                runStep(step);
+            });
+        });
 
-
-
-
-
-
-
-        // TODO: execute After Every Step branches in a loop
-
-
-
-
-
-
-
+        // Update the report
         this.tree.generateReport(this.runner.reporter);
     }
 
