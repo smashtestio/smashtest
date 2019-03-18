@@ -51,6 +51,7 @@ class Step {
         this.isPassed = false;                // true if this step passed after being run
         this.isFailed = false;                // true if this step failed after being run
         this.isRunning = false;               // true if this step is currently running
+        this.asExpected = false;              // true if the passed/failed state is as expected
 
         this.error = {};                      // if this step failed, this is the Error that was thrown
         this.log = "";                        // string of logs related to this step

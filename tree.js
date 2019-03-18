@@ -1470,23 +1470,21 @@ class Tree {
     }
 
     /**
-     * Marks the given branch as passed
+     * Marks the given branch as passed or failed
      */
-    markBranchPassed(branch) {
-        branch.isPassed = true;
-        delete branch.isFailed;
-        delete branch.isSkipped;
-        delete branch.isRunning;
-    }
-
-    /**
-     * Marks the given branch as failed
-     */
-    markBranchFailed(branch) {
-        branch.isFailed = true;
-        delete branch.isPassed;
-        delete branch.isSkipped;
-        delete branch.isRunning;
+    markBranch(branch, isPassed) {
+        if(isPassed) {
+            branch.isPassed = true;
+            delete branch.isFailed;
+            delete branch.isSkipped;
+            delete branch.isRunning;
+        }
+        else {
+            branch.isFailed = true;
+            delete branch.isPassed;
+            delete branch.isSkipped;
+            delete branch.isRunning;
+        }
     }
 
     /**
@@ -1508,69 +1506,66 @@ class Tree {
     }
 
     /**
-     * Marks the given step in the given branch as passed (but does not clear step.isRunning)
-     * Marks the branch passed if all its steps passed
-     * @param {Branch} branch - The Branch that contains the step
-     * @param {Step} step - The Step inside branch to mark passed
-     */
-    markStepPassed(branch, step) {
-        step.isPassed = true;
-        delete step.isFailed;
-
-        // If this is the very last step in the branch, mark the branch as passed/failed
-        if(this.nextStep(branch, false) == null) {
-            this.finishOffBranch(branch);
-        }
-    }
-
-    /**
-     * Marks the branch passed if all steps passed, failed if at least one step failed
+     * Marks the branch passed if all steps passed, failed if at least one step passed or failed not as expected
      */
     finishOffBranch(branch) {
-        // Fail the branch if at least one step failed
-        var failedStepExists = false;
+        var badStepExists = false;
 
         for(var i = 0; i < branch.steps.length; i++) {
             var step = branch.steps[i];
-            if(step.isFailed) {
-                failedStepExists = true;
+            if(step.asExpected === false) { // we're looking for false, not undefined
+                badStepExists = true;
                 break;
             }
         }
 
-        if(failedStepExists) {
-            this.markBranchFailed(branch);
+        if(badStepExists) {
+            this.markBranch(branch, false);
         }
         else {
-            this.markBranchPassed(branch);
+            this.markBranch(branch, true);
         }
     }
 
     /**
-     * Marks the given step in the given branch as failed (but does not clear step.isRunning)
+     * Marks the given step in the given branch as passed or failed (but does not clear step.isRunning)
+     * Passes or fails the branch if step is the last step, or if finishBranchNow is set
      * @param {Branch} branch - The Branch that contains the step
-     * @param {Step} step - The Step inside branch to mark failed
-     * @param {Error} error - The Error object that was thrown
-     * @param {Boolean} failBranchNow - If true, fails the whole branch immediately
-     * @param {Boolean} skipsRepeats - If true, skips every other branch in this.branches whose first N steps are identical to this one's (up until the step being failed)
+     * @param {Step} step - The Step to mark
+     * @param {Boolean} isPassed - If true, marks the step as passed, if false, marks the step as failed
+     * @param {Boolean} asExpected - If true, the value of isPassed was expected, false otherwise
+     * @param {Error} [error] - The Error object thrown during the execution of the step, if any
+     * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
+     * @param {Boolean} [skipsRepeats] - If true, skips every other branch in this.branches whose first N steps are identical to this one's (up until this step)
      */
-    markStepFailed(branch, step, error, failBranchNow, skipsRepeats) {
-        step.isFailed = true;
-        step.error = error;
-
-        // If this is the very last step in the branch, mark the branch as failed
-        if(failBranchNow || this.nextStep(branch, false) == null) {
-            this.markBranchFailed(branch);
+    markStep(branch, step, isPassed, asExpected, error, finishBranchNow, skipsRepeats) {
+        if(isPassed) {
+            step.isPassed = true;
+            delete step.isFailed;
+            delete step.isSkipped;
+        }
+        else {
+            step.isFailed = true;
+            delete step.isPassed;
+            delete step.isSkipped;
         }
 
-        if(skipsRepeats) {
-            var n = branch.steps.indexOf(step);
-            var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
-            branchesToSkip.forEach(branchToSkip => {
-                if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
-                    branchToSkip.isSkipped = true;
-                }
-            });
+        step.asExpected = asExpected;
+        step.error = error;
+
+        // If this is the very last step in the branch, mark the branch as passed/failed
+        if(finishBranchNow || this.nextStep(branch, false) == null) {
+            this.finishOffBranch(branch);
+            
+            if(skipsRepeats) {
+                var n = branch.steps.indexOf(step);
+                var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
+                branchesToSkip.forEach(branchToSkip => {
+                    if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
+                        branchToSkip.isSkipped = true;
+                    }
+                });
+            }
         }
     }
 

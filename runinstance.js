@@ -75,6 +75,8 @@ class RunInstance {
             return;
         }
 
+        var failError = null;
+
         try {
             if(typeof step.codeBlock != 'undefined') {
                 var code = step.codeBlock;
@@ -101,23 +103,41 @@ class RunInstance {
 
         }
         catch(e) {
-            this.tree.markStepFailed(this.currBranch, step, e, e.failBranchNow, true);
-
-            // TODO: marks step as passed/failed (using existing Tree functions), and sets its error and log (via log())
-
-
-
-
-
-
-            if(this.runner.pauseOnFail) {
-                this.runner.pauseOnFail = false;
-                this.isPaused = true;
-                return;
-            }
+            failError = e;
         }
 
         // TODO: marks step as passed/failed (using existing Tree functions), and sets its error and log (via log())
+
+        if(step.isExpectedFail) {
+            if(failError) {
+                this.tree.markStep(this.currBranch, step, false, true, failError, failError.failBranchNow, true);
+            }
+            else {
+                // TODO: create your own error about the # being violated
+                failError = new Error("BLAH");
+
+
+
+
+
+                this.tree.markStep(this.currBranch, step, false, false, failError, false);
+            }
+        }
+        else { // fail is not expected
+            if(failError) {
+                this.tree.markStep(this.currBranch, step, false, false, failError, failError.failBranchNow, true);
+
+                if(this.runner.pauseOnFail) {
+                    this.runner.pauseOnFail = false;
+                    this.isPaused = true;
+                    return;
+                }
+            }
+            else {
+                this.tree.markStep(this.currBranch, step, true, true); // mark step passed
+            }
+        }
+
 
 
 
