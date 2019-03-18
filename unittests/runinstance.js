@@ -62,6 +62,21 @@ describe("RunInstance", function() {
         it.skip("doesn't pause when pauseOnFail is not set and a step fails", function() {
         });
 
+        it.skip("marks a step as failed when it fails", function() {
+            // also sets error and log in the step
+        });
+
+        it.skip("marks a step as passed when it passes", function() {
+        });
+
+        it.skip("executes a code block step", function() {
+        });
+
+        it.skip("handles bad syntax in a code block step", function() {
+        });
+
+
+
 
 
 
