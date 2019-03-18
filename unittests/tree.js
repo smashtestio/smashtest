@@ -13876,6 +13876,104 @@ G -
             });
         });
 
+        it("ends the branch if the next step is an -M", function() {
+            var tree = new Tree();
+
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isRunning = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isManual = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch1 = new Branch();
+            var branch2 = new Branch();
+            var branch3 = new Branch();
+            var branch4 = new Branch();
+
+            branch1.steps = [ stepA, stepB, stepC, stepD ];
+            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
+            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
+            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
+
+            tree.branches = [ branch2, branch1, branch3, branch4 ];
+
+            expect(tree.nextStep(branch1, true, false)).to.equal(null);
+
+            expect(stepB).to.containSubsetInOrder({
+                text: "B",
+                isRunning: undefined
+            });
+
+            expect(stepC).to.containSubsetInOrder({
+                text: "C",
+                isRunning: undefined
+            });
+
+            expect(branch1.isPassed).to.equal(true);
+            expect(branch1.isSkipped).to.equal(undefined);
+            expect(branch2.isSkipped).to.equal(undefined);
+            expect(branch3.isSkipped).to.equal(undefined);
+            expect(branch4.isSkipped).to.equal(undefined);
+        });
+
+        it("ends the branch if the next step is a -T", function() {
+            var tree = new Tree();
+
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isRunning = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isToDo = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch1 = new Branch();
+            var branch2 = new Branch();
+            var branch3 = new Branch();
+            var branch4 = new Branch();
+
+            branch1.steps = [ stepA, stepB, stepC, stepD ];
+            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
+            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
+            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
+
+            tree.branches = [ branch2, branch1, branch3, branch4 ];
+
+            expect(tree.nextStep(branch1, true, false)).to.equal(null);
+
+            expect(stepB).to.containSubsetInOrder({
+                text: "B",
+                isRunning: undefined
+            });
+
+            expect(stepC).to.containSubsetInOrder({
+                text: "C",
+                isRunning: undefined
+            });
+
+            expect(branch1.isPassed).to.equal(true);
+            expect(branch1.isSkipped).to.equal(undefined);
+            expect(branch2.isSkipped).to.equal(undefined);
+            expect(branch3.isSkipped).to.equal(undefined);
+            expect(branch4.isSkipped).to.equal(undefined);
+        });
+
         it("skips repeat branches and end this branch if next step is an -M", function() {
             var tree = new Tree();
 

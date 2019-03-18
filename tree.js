@@ -102,16 +102,14 @@ class Tree {
 
         // * Function Declaration
         if(matches[1]) {
-            step.isFunctionDeclaration = matches[1].trim() == '*';
+            step.isFunctionDeclaration = true;
 
-            if(step.isFunctionDeclaration) {
-                if(step.text.match(Constants.STRING_LITERAL_REGEX)) {
-                    utils.error("A * Function declaration cannot have 'strings' inside of it", filename, lineNumber);
-                }
+            if(step.text.match(Constants.STRING_LITERAL_REGEX)) {
+                utils.error("A * Function declaration cannot have 'strings' inside of it", filename, lineNumber);
+            }
 
-                if(Constants.HOOK_BLACKLIST.indexOf(step.getHookCanonicalText()) != -1) {
-                    utils.error("This hook type is not yet supported", filename, lineNumber);
-                }
+            if(Constants.HOOK_BLACKLIST.indexOf(step.getHookCanonicalText()) != -1) {
+                utils.error("This hook type is not yet supported", filename, lineNumber);
             }
         }
 
