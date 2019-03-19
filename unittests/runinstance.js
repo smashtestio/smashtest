@@ -59,14 +59,26 @@ describe("RunInstance", function() {
         it.skip("pauses when pauseOnFail is set and a step fails", function() {
         });
 
+        it.skip("pauses when pauseOnFail is set and a step unexpectedly passes", function() {
+        });
+
         it.skip("doesn't pause when pauseOnFail is not set and a step fails", function() {
         });
 
-        it.skip("marks a step as failed when it fails", function() {
-            // also sets error and log in the step
+        it.skip("marks a step as expectedly failed when it expectedly fails", function() {
+            // also sets asExpected, error, and log in the step
         });
 
-        it.skip("marks a step as passed when it passes", function() {
+        it.skip("marks a step as unexpectedly failed when it unexpectedly fails", function() {
+            // also sets asExpected, error, and log in the step
+        });
+
+        it.skip("marks a step as expectedly passed when it expectedly passes", function() {
+            // also sets asExpected, error, and log in the step
+        });
+
+        it.skip("marks a step as unexpectedly passed when it unexpectedly passes", function() {
+            // also sets asExpected, error, and log in the step
         });
 
         it.skip("executes a code block step", function() {

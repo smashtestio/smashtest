@@ -106,38 +106,36 @@ class RunInstance {
             failError = e;
         }
 
-        // TODO: marks step as passed/failed (using existing Tree functions), and sets its error and log (via log())
-
+        // Marks the step as passed/failed, sets the step's asExpected, error, and log
+        var isPassed = false;
+        var asExpected = false;
         if(step.isExpectedFail) {
             if(failError) {
-                this.tree.markStep(this.currBranch, step, false, true, failError, failError.failBranchNow, true);
+                isPassed = false;
+                asExpected = true;
             }
             else {
-                // TODO: create your own error about the # being violated
-                failError = new Error("BLAH");
+                failError = utils.createError("This step passed, but it was expected to fail (#)", step.filename, step.lineNumber);
 
-
-
-
-
-                this.tree.markStep(this.currBranch, step, false, false, failError, false);
+                isPassed = true;
+                asExpected = false;
             }
         }
         else { // fail is not expected
             if(failError) {
-                this.tree.markStep(this.currBranch, step, false, false, failError, failError.failBranchNow, true);
-
-                if(this.runner.pauseOnFail) {
-                    this.runner.pauseOnFail = false;
-                    this.isPaused = true;
-                    return;
-                }
+                isPassed = false;
+                asExpected = false;
             }
             else {
-                this.tree.markStep(this.currBranch, step, true, true); // mark step passed
+                isPassed = true;
+                asExpected = true;
             }
         }
 
+        this.tree.markStep(this.currBranch, step, isPassed, asExpected, failError, failError ? failError.failBranchNow : false, true);
+
+        // TODO: If step is a hook where an error is thrown, make sure the error's filename/lineNumber is from step
+        // but the error obj is attached to this.currStep
 
 
 
@@ -145,7 +143,12 @@ class RunInstance {
 
 
 
-
+        // Pause if the step failed or is unexpected
+        if(this.runner.pauseOnFail && (!isPassed || !asExpected)) {
+            this.runner.pauseOnFail = false;
+            this.isPaused = true;
+            return;
+        }
 
         // Execute After Every Step hooks
         this.local.successful = this.currStep.isPassed;

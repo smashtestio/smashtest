@@ -25,11 +25,18 @@ exports.hasQuotes = function(str) {
  * @throws {Error}
  */
 exports.error = function(msg, filename, lineNumber) {
+    throw exports.createError(msg, filename, lineNumber);
+}
+
+/**
+ * @return {Error} An Error with the given message, filename, and line number
+ */
+exports.createError = function(msg, filename, lineNumber) {
     if(filename && lineNumber) {
-        throw new Error(msg + " [" + filename + ":" + lineNumber + "]");
+        return new Error(msg + " [" + filename + ":" + lineNumber + "]");
     }
     else {
-        throw new Error(msg);
+        return new Error(msg);
     }
 }
 
