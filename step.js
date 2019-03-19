@@ -120,7 +120,7 @@ class Step {
      * NOTE: Only use this function if this step is a hook function declaration
      */
     getHookCanonicalText() {
-        return this.text.trim().toLowerCase().replace(/\s+/g, ' ');
+        return utils.canonicalize(this.text);
     }
 
     /**

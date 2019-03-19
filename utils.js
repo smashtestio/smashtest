@@ -25,18 +25,11 @@ exports.hasQuotes = function(str) {
  * @throws {Error}
  */
 exports.error = function(msg, filename, lineNumber) {
-    throw exports.createError(msg, filename, lineNumber);
-}
-
-/**
- * @return {Error} An Error with the given message, filename, and line number
- */
-exports.createError = function(msg, filename, lineNumber) {
     if(filename && lineNumber) {
-        return new Error(msg + " [" + filename + ":" + lineNumber + "]");
+        throw new Error(msg + " [" + filename + ":" + lineNumber + "]");
     }
     else {
-        return new Error(msg);
+        throw new Error(msg);
     }
 }
 
@@ -66,4 +59,11 @@ exports.randomId = function() {
         id += Math.random().toString(36).substr(2, 34);
     }
     return id;
+}
+
+/**
+ * @return {String} text, but in a canonical format (trimmed, all lowercase, and all whitespace replaced with a single space)
+ */
+exports.canonicalize = function(text) {
+    return text.trim().toLowerCase().replace(/\s+/g, ' ');
 }

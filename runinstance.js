@@ -81,12 +81,18 @@ class RunInstance {
             if(typeof step.codeBlock != 'undefined') {
                 var code = step.codeBlock;
 
+                if(utils.canonicalize(step.text) == "execute in browser") {
+                    this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
+                }
+                else {
 
 
 
 
 
-                eval(code);
+
+                    eval(code);
+                }
             }
 
 
@@ -104,6 +110,8 @@ class RunInstance {
         }
         catch(e) {
             failError = e;
+            failError.filename = step.filename;
+            failError.lineNumber = step.lineNumber;
         }
 
         // Marks the step as passed/failed, sets the step's asExpected, error, and log
@@ -115,7 +123,9 @@ class RunInstance {
                 asExpected = true;
             }
             else {
-                failError = utils.createError("This step passed, but it was expected to fail (#)", step.filename, step.lineNumber);
+                failError = new Error("This step passed, but it was expected to fail (#)");
+                failError.filename = step.filename;
+                failError.lineNumber = step.lineNumber;
 
                 isPassed = true;
                 asExpected = false;
@@ -132,16 +142,15 @@ class RunInstance {
             }
         }
 
-        this.tree.markStep(this.currBranch, step, isPassed, asExpected, failError, failError ? failError.failBranchNow : false, true);
-
-        // TODO: If step is a hook where an error is thrown, make sure the error's filename/lineNumber is from step
-        // but the error obj is attached to this.currStep
-
-
-
-
-
-
+        if(this.currStep) {
+            this.tree.markStep(this.currBranch, this.currStep, isPassed, asExpected, failError, failError ? failError.failBranchNow : false, true);
+            // NOTE: markStep() is called on this.currStep, rather than step, so that if step is an After Every Step, the error obj is not attached to it
+        }
+        else { // happens when an After Every Branch step is being executed
+            // Attach the error to the Branch and fail it
+            this.currBranch.error = failError;
+            this.tree.markBranch(this.currBranch, false);
+        }
 
         // Pause if the step failed or is unexpected
         if(this.runner.pauseOnFail && (!isPassed || !asExpected)) {

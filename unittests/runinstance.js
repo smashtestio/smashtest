@@ -87,6 +87,9 @@ describe("RunInstance", function() {
         it.skip("handles bad syntax in a code block step", function() {
         });
 
+        it.skip("runs an Execute in browser step", function() {
+        });
+
 
 
 
@@ -101,7 +104,21 @@ describe("RunInstance", function() {
         });
 
         it.skip("handles an error inside an After Every Step hook", function() {
-            // error goes into the Branch object, but Branch doesn't fail
+            // error goes into the normal step obj, error.filename/lineNumber point at the hook
+        });
+
+        it.skip("handles pauses from inside an After Every Step hook", function() {
+        });
+
+        it.skip("runs an After Every Branch hook and sets its local vars", function() {
+            // local vars are successful and error
+        });
+
+        it.skip("runs multiple After Every Branch hooks", function() {
+        });
+
+        it.skip("handles an error inside an After Every Branch hook", function() {
+            // error goes into the branch obj, error.filename/lineNumber point at the hook, branch is failed
         });
 
         it.skip("handles pauses from inside an After Every Step hook", function() {
