@@ -1336,57 +1336,40 @@ class Tree {
 
     /**
      * Get a count on the number of steps within this.branches. Does not include steps in hooks.
-     * @param {Boolean} runnableOnly - If true, only count runnable steps
-     * @param {Boolean} completeOnly - If true, only count steps that are complete (passed, failed, or skipped)
-     * @return {Number} Number of steps that are to be run
+     * @param {Boolean} [runnableOnly] - If true, do not include branches that passed previously, or steps at or below a -T or -M
+     * @param {Boolean} [completeOnly] - If true, only include steps that are complete (passed, failed, or skipped over)
+     * @param {Boolean} [unexpectedOnly] - If true, only include steps that are complete and have an unexpected result
+     * @return {Number} Total number of steps
      */
-    getStepCount(runnableOnly, completeOnly) {
+    getStepCount(runnableOnly, completeOnly, unexpectedOnly) {
         var count = 0;
-        this.branches.forEach(branch => {
-            if(runnableOnly) {
-                if(!branch.passedLastTime) {
-                    if(completeOnly) {
-                        if(branch.isSkipped) {
-                            count += branch.steps.length;
-                        }
-                        else {
-                            for(var i = 0; i < branch.steps.length; i++) {
-                                var step = branch.steps[i];
-                                if(step.isManual || step.isToDo) {
-                                    break;
-                                }
-                                else if((step.isPassed || step.isFailed) && !step.isTextualStep) {
-                                    count++;
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        for(var i = 0; i < branch.steps.length; i++) {
-                            var step = branch.steps[i];
-                            if(step.isManual || step.isToDo) {
-                                break;
-                            }
-                            else if(!step.isTextualStep) {
-                                count++;
-                            }
-                        }
-                    }
+        for(var i = 0; i < this.branches.length; i++) {
+            var branch = this.branches[i];
+
+            if(runnableOnly && branch.passedLastTime) {
+                continue;
+            }
+
+            for(var j = 0; j < branch.steps.length; j++) {
+                var step = branch.steps[j];
+
+                if(runnableOnly && (step.isToDo || step.isManual)) {
+                    break; // go to next branch
                 }
+
+                if(completeOnly && !step.isPassed && !step.isFailed && !branch.isPassed && !branch.isFailed && !branch.isSkipped) {
+                    continue;
+                }
+
+                if(unexpectedOnly && step.asExpected) {
+                    continue;
+                }
+
+                count++;
             }
-            else {
-                count += branch.steps.length;
-            }
-        });
+        }
 
         return count;
-    }
-
-    /**
-     * @return {Number} Percent (0-100) of steps currently being run that are complete
-     */
-    getPercentComplete() {
-        return (this.getStepCount(true, true) / this.getStepCount(true, false)) * 100.0;
     }
 
     /**
@@ -1556,7 +1539,7 @@ class Tree {
         // If this is the very last step in the branch, mark the branch as passed/failed
         if(finishBranchNow || this.nextStep(branch, false) == null) {
             this.finishOffBranch(branch);
-            
+
             if(skipsRepeats) {
                 var n = branch.steps.indexOf(step);
                 var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);

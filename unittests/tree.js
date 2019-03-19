@@ -12709,7 +12709,7 @@ F -
 
             tree.generateBranches();
 
-            expect(tree.getStepCount(false, false)).to.equal(13);
+            expect(tree.getStepCount()).to.equal(13);
         });
 
         it("returns total number of runnable steps", function() {
@@ -12733,12 +12733,12 @@ F -
 
             tree.generateBranches();
 
-            tree.branches[0].steps[0].isTextualStep = false;
-            tree.branches[0].steps[1].isTextualStep = false;
+            expect(tree.getStepCount(false)).to.equal(13);
+            expect(tree.getStepCount(true)).to.equal(10);
+
             tree.branches[1].passedLastTime = true;
 
-            expect(tree.getStepCount(false, false)).to.equal(13);
-            expect(tree.getStepCount(true, false)).to.equal(2);
+            expect(tree.getStepCount(true)).to.equal(6);
         });
 
         it("returns total number of complete steps", function() {
@@ -12762,13 +12762,11 @@ F -
 
             tree.generateBranches();
 
-            tree.branches[0].steps[0].isTextualStep = false;
             tree.branches[0].steps[0].isPassed = true;
-            tree.branches[0].steps[1].isTextualStep = false;
             tree.branches[0].steps[1].isFailed = true;
             tree.branches[2].passedLastTime = true;
 
-            expect(tree.getStepCount(false, false)).to.equal(13);
+            expect(tree.getStepCount(false)).to.equal(13);
             expect(tree.getStepCount(true, true)).to.equal(2);
         });
 
@@ -12788,7 +12786,7 @@ A -
 
             tree.branches[0].isSkipped = true;
 
-            expect(tree.getStepCount(false, false)).to.equal(8);
+            expect(tree.getStepCount(false)).to.equal(8);
             expect(tree.getStepCount(true, true)).to.equal(4);
         });
 
@@ -12839,49 +12837,38 @@ F -
 
             tree.generateBranches();
 
-            tree.branches[0].steps[0].isTextualStep = false;
             tree.branches[0].steps[0].isPassed = true;
-            tree.branches[0].steps[1].isTextualStep = false;
             tree.branches[0].steps[1].isFailed = true;
             tree.branches[2].passedLastTime = true;
 
-            expect(tree.getStepCount(false, false)).to.equal(13);
+            expect(tree.getStepCount(false)).to.equal(13);
             expect(tree.getStepCount(true, true)).to.equal(2);
         });
-    });
 
-    describe("getPercentComplete()", function() {
-        it("returns percent complete", function() {
+        it("returns total number of unexpected steps", function() {
             var tree = new Tree();
             tree.parseIn(`
-A - $
+A -
     B -
 
         C -
         D -
 
             E -
-
-    H -T
-        I -
-    J -M
-
-F -
-    G -
 `, "file.txt");
 
             tree.generateBranches();
 
-            tree.branches.forEach(branch => {
-                branch.steps.forEach(step => {
-                    step.isTextualStep = false;
-                });
-            });
-            tree.branches[0].steps[0].isPassed = true;
-            tree.branches[0].steps[1].isFailed = true;
-            tree.branches[1].passedLastTime = true;
+            tree.branches[0].steps[0].asExpected = true;
+            tree.branches[0].steps[1].asExpected = false;
+            tree.branches[0].steps[2].asExpected = false;
+            tree.branches[0].steps[3].asExpected = true;
 
-            expect(tree.getPercentComplete()).to.equal(33.33333333333333);
+            tree.branches[1].steps[0].asExpected = true;
+            tree.branches[1].steps[1].asExpected = false;
+            tree.branches[1].steps[2].asExpected = false;
+
+            expect(tree.getStepCount(true, false, true)).to.equal(5);
         });
     });
 
