@@ -31,6 +31,10 @@ describe("RunInstance", function() {
         it.skip("handles a step that pauses execution", function() {
         });
 
+        it.skip("handles a resume from a previous pause", function() {
+            // just call run() again after the pause
+        });
+
         it.skip("runs an After Every Branch hook and sets its local vars", function() {
             // local vars are successful and error
         });
@@ -43,6 +47,9 @@ describe("RunInstance", function() {
         });
 
         it.skip("handles pauses from inside an After Every Branch hook", function() {
+        });
+
+        it.skip("handles resumes from pauses from inside an After Every Branch hook", function() {
         });
     });
 
