@@ -1506,15 +1506,15 @@ class Tree {
     /**
      * Marks the given step in the given branch as passed or failed (but does not clear step.isRunning)
      * Passes or fails the branch if step is the last step, or if finishBranchNow is set
-     * @param {Branch} branch - The Branch that contains the step
      * @param {Step} step - The Step to mark
+     * @param {Branch} branch - The Branch that contains the step
      * @param {Boolean} isPassed - If true, marks the step as passed, if false, marks the step as failed
      * @param {Boolean} asExpected - If true, the value of isPassed was expected, false otherwise
      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
      * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
      * @param {Boolean} [skipsRepeats] - If true, skips every other branch in this.branches whose first N steps are identical to this one's (up until this step)
      */
-    markStep(branch, step, isPassed, asExpected, error, finishBranchNow, skipsRepeats) {
+    markStep(step, branch, isPassed, asExpected, error, finishBranchNow, skipsRepeats) {
         if(isPassed) {
             step.isPassed = true;
             delete step.isFailed;

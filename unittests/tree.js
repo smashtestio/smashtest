@@ -13393,7 +13393,7 @@ G -
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(branch, stepA, true, true);
+            tree.markStep(stepA, branch, true, true);
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
@@ -13433,7 +13433,7 @@ G -
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(branch, stepD, true, true);
+            tree.markStep(stepD, branch, true, true);
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
@@ -13473,7 +13473,7 @@ G -
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(branch, stepD, true, true);
+            tree.markStep(stepD, branch, true, true);
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
@@ -13507,7 +13507,7 @@ G -
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(branch, stepA, false, false, new Error("foobar"));
+            tree.markStep(stepA, branch, false, false, new Error("foobar"));
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
@@ -13549,7 +13549,7 @@ G -
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(branch, stepD, false, false, new Error("foobar"));
+            tree.markStep(stepD, branch, false, false, new Error("foobar"));
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
@@ -13589,7 +13589,7 @@ G -
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(branch, stepC, false, false, new Error("foobar"), true);
+            tree.markStep(stepC, branch, false, false, new Error("foobar"), true);
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
@@ -13637,7 +13637,7 @@ G -
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            tree.markStep(branch1, stepC, false, false, new Error("foobar"), true, true);
+            tree.markStep(stepC, branch1, false, false, new Error("foobar"), true, true);
 
             expect(branch1).to.containSubsetInOrder({
                 steps: [
@@ -13691,7 +13691,7 @@ G -
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            tree.markStep(branch1, stepC, false, false, new Error("foobar"), true, true);
+            tree.markStep(stepC, branch1, false, false, new Error("foobar"), true, true);
 
             expect(branch1).to.containSubsetInOrder({
                 steps: [
@@ -13745,7 +13745,7 @@ G -
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            tree.markStep(branch1, stepC, false, false, new Error("foobar"), true, true);
+            tree.markStep(stepC, branch1, false, false, new Error("foobar"), true, true);
 
             expect(branch1).to.containSubsetInOrder({
                 steps: [
