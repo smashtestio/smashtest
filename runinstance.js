@@ -34,17 +34,15 @@ class RunInstance {
                     });
                 }
                 else { // this.currBranch is an actual Branch
-                    var prevStep = this.tree.runningStep(this.currBranch);
                     this.currStep = this.tree.nextStep(this.currBranch, true, true);
                     while(this.currStep) {
-                        runStep(this.currStep, prevStep);
+                        runStep(this.currStep, this.currBranch);
 
                         if(this.isPaused) { // the current step caused a pause
                             resolve(false);
                             break;
                         }
 
-                        prevStep = this.currStep;
                         this.currStep = this.tree.nextStep(this.currBranch, true, true);
                     }
 
@@ -55,11 +53,9 @@ class RunInstance {
                     this.local.successful = this.currBranch.isPassed;
                     this.local.error = this.currBranch.error;
                     this.currBranch.afterEveryBranch.forEach(branch => {
-                        for(var i = 0; i < branch.steps.length; i++) {
-                            var s = branch.steps[i];
-                            var prev = i >= 1 ? branch.steps[i-1] : null;
-                            runStep(s, prev);
-                        }
+                        branch.steps.forEach(s => {
+                            runStep(s, branch);
+                        });
                     });
                 }
 
@@ -71,16 +67,22 @@ class RunInstance {
     }
 
     /**
-     * Runs the given step
+     * Executes a step
      * Sets this.isPaused if the step requires execution to pause
      * Sets passed/failed status on step, sets the step's error and log
      * @param {Step} step - The Step to run
-     * @param {Step} [prevStep] - The previous Step, if any
+     * @param {Branch} branch - The branch that contains the step to run
      */
-    runStep(step, prevStep) {
+    runStep(step, branch) {
         if(step.isDebug) {
             this.isPaused = true;
             return;
+        }
+
+        var prevStep = null;
+        var index = branch.steps.indexOf(step);
+        if(index >= 1) {
+            prevStep = branch.steps[index - 1];
         }
 
         // Replace {vars}/{{vars}} in the step's text
@@ -222,11 +224,9 @@ class RunInstance {
         this.local.successful = step.isPassed;
         this.local.error = step.error;
         this.currBranch.afterEveryStep.forEach(branch => {
-            for(var i = 0; i < branch.steps.length; i++) {
-                var s = branch.steps[i];
-                var prev = i >= 1 ? branch.steps[i-1] : null;
-                runStep(s, prev);
-            }
+            branch.steps.forEach(s => {
+                runStep(s, branch);
+            });
         });
 
         // Update the report
