@@ -12,8 +12,10 @@ class RunInstance {
         this.isPaused = false;                          // true if we're currently paused
 
         this.persistant = this.runner.persistant;       // persistant variables
-        this.global = [];                               // global variables
-        this.local = [];                                // local variables
+        this.global = {};                               // global variables
+        this.local = {};                                // local variables
+
+        this.localStack = [];                           // Array of objects, where each object stores local vars
     }
 
     /**
@@ -68,19 +70,69 @@ class RunInstance {
      * Runs the given step
      * Sets this.isPaused if the step requires execution to pause
      * Sets passed/failed status on step, sets the step's error and log
+     * @param {Step} step - The Step to run
+     * @param {Step} [prevStep] - The previous Step, if any
      */
-    runStep(step) {
+    runStep(step, prevStep) {
         if(step.isDebug) {
             this.isPaused = true;
             return;
         }
 
-        var failError = null;
+        // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
+        if(prevStep) {
+            if(step.branchIndents > prevStep.branchIndents) {
+                // Push existing local var context to stack, create fresh local var context
+                this.localStack.push(this.local);
+                this.local = {};
+            }
+            else if(step.branchIndents < prevStep.branchIndents) {
+                // Pop one local var context for every branchIndents decrement
+                var diff = prevStep.branchIndents - step.branchIndents;
+                for(var i = 0; i < diff; i++) {
+                    this.local = this.localStack.pop();
+                }
+            }
+        }
 
-        try {
-            if(typeof step.codeBlock != 'undefined') {
-                var code = step.codeBlock;
+        /*
+        this.localStack.push(this.local);
+        this.local = {};
 
+
+        */
+
+
+
+
+        // Step is a function call
+        if(step.isFunctionCall) {
+
+
+
+
+
+
+
+        }
+        else {
+            if(step.varsBeingSet.length > 0) {
+                // Step is {var}='str' [, {var2}='str', etc.]
+                // TODO
+
+
+
+
+
+            }
+        }
+
+        // Step has a code block to execute
+        if(typeof step.codeBlock != 'undefined') {
+            var code = step.codeBlock;
+            var error = null;
+
+            try {
                 if(utils.canonicalize(step.text) == "execute in browser") {
                     this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
                 }
@@ -92,88 +144,87 @@ class RunInstance {
 
 
                     eval(code);
+
+                    // Step is {var} = Func
+                    if(step.isFunctionCall && step.varsBeingSet.length == 1) {
+                        // TODO: grab return value from code and assign it to {var}
+
+
+
+
+
+
+
+                    }
+                }
+            }
+            catch(e) {
+                error = e;
+                error.filename = step.filename;
+                error.lineNumber = step.lineNumber;
+            }
+
+            // Marks the step as passed/failed, sets the step's asExpected, error, and log
+            var isPassed = false;
+            var asExpected = false;
+            if(step.isExpectedFail) {
+                if(error) {
+                    isPassed = false;
+                    asExpected = true;
+                }
+                else {
+                    error = new Error("This step passed, but it was expected to fail (#)");
+                    error.filename = step.filename;
+                    error.lineNumber = step.lineNumber;
+
+                    isPassed = true;
+                    asExpected = false;
+                }
+            }
+            else { // fail is not expected
+                if(error) {
+                    isPassed = false;
+                    asExpected = false;
+                }
+                else {
+                    isPassed = true;
+                    asExpected = true;
                 }
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-        catch(e) {
-            failError = e;
-            failError.filename = step.filename;
-            failError.lineNumber = step.lineNumber;
-        }
-
-        // Marks the step as passed/failed, sets the step's asExpected, error, and log
-        var isPassed = false;
-        var asExpected = false;
-        if(step.isExpectedFail) {
-            if(failError) {
-                isPassed = false;
-                asExpected = true;
+            if(this.currStep) {
+                this.tree.markStep(this.currBranch, this.currStep, isPassed, asExpected, error, error ? error.failBranchNow : false, true);
+                // NOTE: markStep() is called on this.currStep, rather than step, so that if step is an After Every Step, the error obj is not attached to it
             }
-            else {
-                failError = new Error("This step passed, but it was expected to fail (#)");
-                failError.filename = step.filename;
-                failError.lineNumber = step.lineNumber;
-
-                isPassed = true;
-                asExpected = false;
+            else { // happens when an After Every Branch step is being executed
+                // Attach the error to the Branch and fail it
+                this.currBranch.error = error;
+                this.tree.markBranch(this.currBranch, false);
             }
-        }
-        else { // fail is not expected
-            if(failError) {
-                isPassed = false;
-                asExpected = false;
-            }
-            else {
-                isPassed = true;
-                asExpected = true;
-            }
-        }
 
-        if(this.currStep) {
-            this.tree.markStep(this.currBranch, this.currStep, isPassed, asExpected, failError, failError ? failError.failBranchNow : false, true);
-            // NOTE: markStep() is called on this.currStep, rather than step, so that if step is an After Every Step, the error obj is not attached to it
-        }
-        else { // happens when an After Every Branch step is being executed
-            // Attach the error to the Branch and fail it
-            this.currBranch.error = failError;
-            this.tree.markBranch(this.currBranch, false);
-        }
-
-        // Pause if the step failed or is unexpected
-        if(this.runner.pauseOnFail && (!isPassed || !asExpected)) {
-            this.runner.pauseOnFail = false;
-            this.isPaused = true;
-            return;
+            // Pause if the step failed or is unexpected
+            if(this.runner.pauseOnFail && (!isPassed || !asExpected)) {
+                this.runner.pauseOnFail = false;
+                this.isPaused = true;
+                return;
+            }
         }
 
         // Execute After Every Step hooks
-        this.local.successful = this.currStep.isPassed;
-        this.local.error = this.currStep.error;
+        this.local.successful = step.isPassed;
+        this.local.error = step.error;
         this.currBranch.afterEveryStep.forEach(branch => {
-            branch.steps.forEach(step => {
-                runStep(step);
+            branch.steps.forEach(s => {
+                runStep(s);
             });
         });
 
         // Update the report
-        this.tree.generateReport(this.runner.reporter);
+        this.runner.reporter.generateReport();
 
         // If we're only meant to run one step before a pause
         if(this.runner.runOneStep) {
-            this.runner.runOneStep = false;
+            this.runner.runOneStep = false; // clear out flag
             this.isPaused = true;
         }
     }

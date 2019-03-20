@@ -1303,13 +1303,6 @@ class Tree {
     }
 
     /**
-     * @return {String} HTML report of this tree's current state
-     */
-    generateReport(reporter) {
-        return reporter.generateReport(this);
-    }
-
-    /**
      * Get a count on the number of branches within this.branches
      * @param {Boolean} runnableOnly - If true, only count runnable branches (i.e., those that passed last time don't count, if we're only running branches not passed)
      * @param {Boolean} completeOnly - If true, only count branches that are complete (passed, failed, or skipped)

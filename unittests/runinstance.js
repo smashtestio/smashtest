@@ -90,6 +90,18 @@ describe("RunInstance", function() {
         it.skip("runs an Execute in browser step", function() {
         });
 
+        it.skip("creates a fresh local var context within a function call", function() {
+            // branchIndents increased by 1
+        });
+
+        it.skip("reinstates previous local var contexts when exiting a function call", function() {
+            // branchIndents fell by 1
+        });
+
+        it.skip("reinstates previous local var contexts when exiting multiple levels of function calls", function() {
+            // branchIndents fell by 2 or more
+        });
+
 
 
 
