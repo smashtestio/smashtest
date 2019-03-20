@@ -34,15 +34,17 @@ class RunInstance {
                     });
                 }
                 else { // this.currBranch is an actual Branch
+                    var prevStep = this.tree.runningStep(this.currBranch);
                     this.currStep = this.tree.nextStep(this.currBranch, true, true);
                     while(this.currStep) {
-                        runStep(this.currStep);
+                        runStep(this.currStep, prevStep);
 
                         if(this.isPaused) { // the current step caused a pause
                             resolve(false);
                             break;
                         }
 
+                        prevStep = this.currStep;
                         this.currStep = this.tree.nextStep(this.currBranch, true, true);
                     }
 
@@ -53,9 +55,11 @@ class RunInstance {
                     this.local.successful = this.currBranch.isPassed;
                     this.local.error = this.currBranch.error;
                     this.currBranch.afterEveryBranch.forEach(branch => {
-                        branch.steps.forEach(step => {
-                            runStep(step);
-                        });
+                        for(var i = 0; i < branch.steps.length; i++) {
+                            var s = branch.steps[i];
+                            var prev = i >= 1 ? branch.steps[i-1] : null;
+                            runStep(s, prev);
+                        }
                     });
                 }
 
@@ -79,12 +83,35 @@ class RunInstance {
             return;
         }
 
+        // Replace {vars}/{{vars}} in the step's text
+        // TODO
+
+
+
+
+
+
+
+
+
         // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
         if(prevStep) {
             if(step.branchIndents > prevStep.branchIndents) {
                 // Push existing local var context to stack, create fresh local var context
                 this.localStack.push(this.local);
                 this.local = {};
+
+                if(step.isFunctionCall) {
+                    // Set {{local vars}} based on function declaration signature (in original step in tree) and step's function call signature
+                    // TODO
+                    // TODO: this is where ElementFinders are converted to objects too
+
+
+
+
+
+
+                }
             }
             else if(step.branchIndents < prevStep.branchIndents) {
                 // Pop one local var context for every branchIndents decrement
@@ -95,18 +122,9 @@ class RunInstance {
             }
         }
 
-        /*
-        this.localStack.push(this.local);
-        this.local = {};
-
-
-        */
-
-
-
-
-        // Step is a function call
-        if(step.isFunctionCall) {
+        // Step is {var}='str' [, {var2}='str', etc.]
+        if(!step.isFunctionCall && step.varsBeingSet.length > 0) {
+            // TODO
 
 
 
@@ -114,17 +132,7 @@ class RunInstance {
 
 
 
-        }
-        else {
-            if(step.varsBeingSet.length > 0) {
-                // Step is {var}='str' [, {var2}='str', etc.]
-                // TODO
 
-
-
-
-
-            }
         }
 
         // Step has a code block to execute
@@ -214,9 +222,11 @@ class RunInstance {
         this.local.successful = step.isPassed;
         this.local.error = step.error;
         this.currBranch.afterEveryStep.forEach(branch => {
-            branch.steps.forEach(s => {
-                runStep(s);
-            });
+            for(var i = 0; i < branch.steps.length; i++) {
+                var s = branch.steps[i];
+                var prev = i >= 1 ? branch.steps[i-1] : null;
+                runStep(s, prev);
+            }
         });
 
         // Update the report

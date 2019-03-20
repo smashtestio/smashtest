@@ -94,11 +94,11 @@ describe("RunInstance", function() {
             // branchIndents increased by 1
         });
 
-        it.skip("reinstates previous local var contexts when exiting a function call", function() {
+        it.skip("clears local vars and reinstates previous local var context when exiting a function call", function() {
             // branchIndents fell by 1
         });
 
-        it.skip("reinstates previous local var contexts when exiting multiple levels of function calls", function() {
+        it.skip("clears local vars and reinstates previous local var context when exiting multiple levels of function calls", function() {
             // branchIndents fell by 2 or more
         });
 

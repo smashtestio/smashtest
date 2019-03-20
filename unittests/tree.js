@@ -13766,6 +13766,58 @@ G -
         });
     });
 
+    describe("runningStep()", function() {
+        it("returns null if no step is running", function() {
+            var tree = new Tree();
+
+            var stepA = new Step();
+            stepA.text = "A";
+
+            var stepB = new Step();
+            stepB.text = "B";
+
+            var stepC = new Step();
+            stepC.text = "C";
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch = new Branch();
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.branches = [ branch ];
+
+            expect(tree.runningStep(branch)).to.equal(null);
+        });
+
+        it("returns the running step", function() {
+            var tree = new Tree();
+
+            var stepA = new Step();
+            stepA.text = "A";
+
+            var stepB = new Step();
+            stepB.text = "B";
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isRunning = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+
+            var branch = new Branch();
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.branches = [ branch ];
+
+            expect(tree.runningStep(branch)).to.containSubsetInOrder({
+                text: "C",
+                isRunning: true
+            });
+        });
+    });
+
     describe("nextStep()", function() {
         it("returns null if the branch failed or skipped", function() {
             var tree = new Tree();

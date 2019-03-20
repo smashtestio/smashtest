@@ -1546,6 +1546,20 @@ class Tree {
     }
 
     /**
+     * Gets the currently running step in the given branch, null if there is none
+     */
+    runningStep(branch) {
+        for(var i = 0; i < branch.steps.length; i++) {
+            var step = branch.steps[i];
+            if(step.isRunning) {
+                return step;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Returns the next step in the given branch, or null if no steps are left, the next step is a -T or -M, or the branch already failed/skipped
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
