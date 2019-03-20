@@ -3,9 +3,9 @@ const chaiSubset = require('chai-subset');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
-const utils = require('../utils.js');
-const Step = require('../step.js');
-const Branch = require('../branch.js');
+const utils = require('../../utils.js');
+const Step = require('../../step.js');
+const Branch = require('../../branch.js');
 
 chai.use(chaiSubset);
 

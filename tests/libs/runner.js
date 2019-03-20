@@ -3,8 +3,8 @@ const chaiSubset = require('chai-subset');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
-const Tree = require('../tree.js');
-const Runner = require('../runner.js');
+const Tree = require('../../tree.js');
+const Runner = require('../../runner.js');
 
 chai.use(chaiSubset);
 

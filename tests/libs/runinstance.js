@@ -3,11 +3,11 @@ const chaiSubset = require('chai-subset');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
-const Step = require('../step.js');
-const Branch = require('../branch.js');
-const Tree = require('../tree.js');
-const Runner = require('../runner.js');
-const RunInstance = require('../runinstance.js');
+const Step = require('../../step.js');
+const Branch = require('../../branch.js');
+const Tree = require('../../tree.js');
+const Runner = require('../../runner.js');
+const RunInstance = require('../../runinstance.js');
 
 chai.use(chaiSubset);
 
@@ -50,6 +50,15 @@ describe("RunInstance", function() {
         });
 
         it.skip("handles resumes from pauses from inside an After Every Branch hook", function() {
+        });
+
+        it.skip("a {var} declared in a branch is accessible in an After Every Branch hook", function() {
+        });
+
+        it.skip("a {{var}} declared in a branch is accessible in an After Every Branch hook", function() {
+        });
+
+        it.skip("clears local and global variables between different branches", function() {
         });
     });
 
@@ -109,6 +118,30 @@ describe("RunInstance", function() {
             // branchIndents fell by 2 or more
         });
 
+        it.skip("a {var} is accessible in a later step", function() {
+        });
+
+        it.skip("a {var} is accessible inside function calls", function() {
+        });
+
+        it.skip("a {var} declared inside a function call is accessible in steps after the function call", function() {
+        });
+
+        it.skip("a {var} declared in a branch is accessible in an After Every Step hook", function() {
+        });
+
+        it.skip("a {{var}} is accessible in a later step", function() {
+        });
+
+        it.skip("a {{var}} is not accessible inside function calls", function() {
+        });
+
+        it.skip("a {{var}} declared inside a function call is not accessible in steps after the function call", function() {
+        });
+
+        it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook", function() {
+        });
+
 
 
 
@@ -144,6 +177,36 @@ describe("RunInstance", function() {
         });
 
         it.skip("updates the report", function() {
+        });
+    });
+
+    describe("replaceVars()", function() {
+        it.skip("replaces {vars} and {{vars}} with their values", function() {
+        });
+
+        it.skip("doesn't affect a string that doesn't contain variables", function() {
+        });
+    });
+
+    describe("findVarValue()", function() {
+        it.skip("returns the value of a variable that's already set", function() {
+        });
+
+        it.skip("returns the value of a variable that's not set yet and whose eventual value is a plain string", function() {
+        });
+
+        it.skip("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
+            // if the original step is A, and its vars are defined in B, then's B's vars are defined
+            // 1) before A, 2) between A and B, and 3) after B
+        });
+
+        it.skip("returns the value of a variable that's not set yet and whose eventual value is generated from a code block function", function() {
+        });
+
+        it.skip("throws an error if the variable's value is never set", function() {
+        });
+
+        it.skip("throws an error if the variable's value contains more variables, but one of those variables is never set", function() {
         });
     });
 

@@ -4,10 +4,10 @@ const chaiSubsetInOrder = require('chai-subset-in-order');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
-const utils = require('../utils.js');
-const Tree = require('../tree.js');
-const Branch = require('../branch.js');
-const Step = require('../step.js');
+const utils = require('../../utils.js');
+const Tree = require('../../tree.js');
+const Branch = require('../../branch.js');
+const Step = require('../../step.js');
 
 chai.use(chaiSubset);
 chai.use(chaiSubsetInOrder);
