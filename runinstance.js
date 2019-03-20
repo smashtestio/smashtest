@@ -36,7 +36,7 @@ class RunInstance {
                 else { // this.currBranch is an actual Branch
                     this.currStep = this.tree.nextStep(this.currBranch, true, true);
                     while(this.currStep) {
-                        runStep(this.currStep, this.currBranch);
+                        runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
 
                         if(this.isPaused) { // the current step caused a pause
                             resolve(false);
@@ -52,14 +52,19 @@ class RunInstance {
                     // Execute After Every Branch hooks
                     this.local.successful = this.currBranch.isPassed;
                     this.local.error = this.currBranch.error;
-                    this.currBranch.afterEveryBranch.forEach(branch => {
-                        branch.steps.forEach(s => {
-                            runStep(s, branch);
+                    this.currBranch.afterEveryBranch.forEach(b => {
+                        b.steps.forEach(s => {
+                            runStep(s, b, null, this.currBranch);
                         });
                     });
                 }
 
                 this.currBranch = this.tree.nextBranch();
+
+                // clear variable state
+                this.global = {};
+                this.local = {};
+                this.localStack = [];
             }
 
             resolve(!this.isPaused);
@@ -70,10 +75,12 @@ class RunInstance {
      * Executes a step
      * Sets this.isPaused if the step requires execution to pause
      * Sets passed/failed status on step, sets the step's error and log
-     * @param {Step} step - The Step to run
-     * @param {Branch} branch - The branch that contains the step to run
+     * @param {Step} step - The Step to execute
+     * @param {Branch} branch - The branch that contains the step to execute
+     * @param {Step} stepToTakeError - The Step that will take the Error object (usually the same as step), null if branchToTakeError should take the error
+     * @param {Branch} branchToTakeError - The Branch that will take the Error object (usually the same as branch)
      */
-    runStep(step, branch) {
+    runStep(step, branch, stepToTakeError, branchToTakeError) {
         if(step.isDebug) {
             this.isPaused = true;
             return;
@@ -202,14 +209,13 @@ class RunInstance {
                 }
             }
 
-            if(this.currStep) {
-                this.tree.markStep(this.currBranch, this.currStep, isPassed, asExpected, error, error ? error.failBranchNow : false, true);
-                // NOTE: markStep() is called on this.currStep, rather than step, so that if step is an After Every Step, the error obj is not attached to it
+            if(stepToTakeError) {
+                this.tree.markStep(branchToTakeError, stepToTakeError, isPassed, asExpected, error, error ? error.failBranchNow : false, true);
             }
-            else { // happens when an After Every Branch step is being executed
+            else {
                 // Attach the error to the Branch and fail it
-                this.currBranch.error = error;
-                this.tree.markBranch(this.currBranch, false);
+                branchToTakeError.error = error;
+                this.tree.markBranch(branchToTakeError, false);
             }
 
             // Pause if the step failed or is unexpected
@@ -223,9 +229,9 @@ class RunInstance {
         // Execute After Every Step hooks
         this.local.successful = step.isPassed;
         this.local.error = step.error;
-        this.currBranch.afterEveryStep.forEach(branch => {
-            branch.steps.forEach(s => {
-                runStep(s, branch);
+        this.currBranch.afterEveryStep.forEach(b => {
+            b.steps.forEach(s => {
+                runStep(s, b, this.currStep, this.currBranch);
             });
         });
 
@@ -237,6 +243,20 @@ class RunInstance {
             this.runner.runOneStep = false; // clear out flag
             this.isPaused = true;
         }
+    }
+
+    /**
+     * Replaces vars in text with their values at the current step and branch
+     */
+    replaceVars(text) {
+
+    }
+
+    /**
+     * @return {String} Value of the given variable at the current step and branch
+     */
+    findVarValue(varname) {
+
     }
 
     /**

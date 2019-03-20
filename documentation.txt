@@ -48,6 +48,7 @@ Configuration
     - -noDebug
     - -pauseOnFail
     - -rerunNotPassed
+    - -noScreenshotOnFail
     - Timeouts are set by each step on a case-by-case basis
 
 Output
@@ -87,8 +88,9 @@ ElementFinders
 Functions
     - Calling
         - Examples of calls (include vars, strings, vars within strings, and elementFinders)
-        - Function {var} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
-            - All function inputs are either {vars}, "strings", or [ElementFinders]
+        - Function {{var}} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
+            - All function inputs are either {{vars}}, "strings", or [ElementFinders]
+            - {{vars}} in a function declaration must all be {{local}}, not {global}
         - Finds closest matching function declaration in the tree, otherwise looks to built-in functions
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
             - Show example
@@ -98,6 +100,7 @@ Functions
             - First look to siblings, then to siblings of parent, etc.
             - Match custom functions first, then primitive built-in functions
             - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
+                - Functions and {vars} declared inside a function are accessible to children of the caller step
     - Examples
         - Using functions to encapsulate common steps
         - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)
@@ -107,8 +110,12 @@ Functions
 
 Variables
     - Types of vars
-        - {var} is global (steps below the function call will have access to {var})
-        - {{var}} is internal to the function (it goes out of scope at the end of the function)
+        - {var} is global
+            - steps below will have access to {var}, which includes inside function calls
+            - accessible within After Every Branch/Step hooks, for hooks that apply to branches where the var was declared
+        - {{var}} is internal to the function
+            - it goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
+            - accessible within After Every Branch/Step hooks, when those hooks are defined in the same scope as the variable
     - Setting vars
         - {var} = 'String' (or "String")
         - {var} = Function with a code block
