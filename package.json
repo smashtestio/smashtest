@@ -18,6 +18,6 @@
     "util": "^0.11.1"
   },
   "scripts": {
-    "test": "nyc --reporter=lcov mocha unittests/*.js"
+    "test": "nyc --reporter=lcov mocha tests/libs/*.js"
   }
 }

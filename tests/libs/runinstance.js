@@ -275,7 +275,8 @@ A -
     {{var2}} = 'value2'
         {var1}='{{var2}} {var 3} . {var0}'
             {var 3}= "-{{var 4}}-"
-                {{ var 4 }}=" value 4 "
+                B -
+                    {{ var 4 }}=" value 4 "
 `, "file.txt");
 
             tree.generateBranches();
@@ -287,7 +288,7 @@ A -
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value2 - value 4 - . value0");
             expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {{var2}} is being set by a later step at file.txt:3
-The value of variable {{var 4}} is being set by a later step at file.txt:6
+The value of variable {{var 4}} is being set by a later step at file.txt:7
 The value of variable {var 3} is being set by a later step at file.txt:5
 The value of variable {var1} is being set by a later step at file.txt:4
 `);
