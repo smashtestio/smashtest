@@ -80,9 +80,11 @@ describe("RunInstance", function() {
         });
 
         it.skip("executes a function call with {{variables}} in its function declaration, passing in {variables}", function() {
+            // trim vars
         });
 
         it.skip("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", function() {
+            // trim vars
         });
 
         it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", function() {
@@ -125,15 +127,18 @@ describe("RunInstance", function() {
         });
 
         it.skip("executes a {var1} = '{var2} {{var3}} etc.' step", function() {
+            // trim vars
         });
 
         it.skip("executes a {var1} = '{var2} {{var3}} etc.' step that needs to look down the branch for the values of some variables", function() {
+            // trim vars
         });
 
         it.skip("throws an error when vars reference each other in an infinite loop", function() {
         });
 
         it.skip("executes a {var1} = 'string1', {{var2}} = 'string2', etc. step", function() {
+            // trim vars
         });
 
         it.skip("executes a {var} = Text { code block } step", function() {
@@ -145,14 +150,31 @@ describe("RunInstance", function() {
         it.skip("executes a {var} = Function step, where the function declaration is in {x}='value' format", function() {
         });
 
-        it.skip("allows a code block to get and set variables via the local, global, and persistent objects", function() {
+        it.skip("allows a code block to get variables via the local, global, and persistent objects", function() {
         });
 
-        it.skip("allows a code block to get and set a passed-in {{variable}} as a plain js variable", function() {
+        it.skip("makes a passed-in {variable} accessible as a plain js variable inside a code block", function() {
+            // verify the change reflected in the global obj after the function ran
+        });
+
+        it.skip("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", function() {
             // verify the change reflected in the local obj after the function ran
         });
 
-        it.skip("does not allow a code block in a function declaration to access a passed-in {{variable}} that has whitespace in its name", function() {
+        it.skip("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", function() {
+            // whitelisted chars = [A-Za-z0-9\-\_\.]
+        });
+
+        it.skip("makes a {variable} accessible as a plain js variable inside a code block", function() {
+            // verify the change reflected in the global obj after the function ran
+        });
+
+        it.skip("makes a {{variable}} accessible as a plain js variable inside a code block", function() {
+            // verify the change reflected in the local obj after the function ran
+        });
+
+        it.skip("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", function() {
+            // whitelisted chars = [A-Za-z0-9\-\_\.]
         });
 
         it.skip("runs an Execute in browser step", function() {
@@ -304,6 +326,83 @@ A -
             var runInstance = new RunInstance(runner);
 
             expect(runInstance.replaceVars("foo bar", tree.branches[0].steps[0], tree.branches[0])).to.equal("foo bar");
+        });
+    });
+
+    describe("evalCodeBlock()", function() {
+        it("evals a code and returns a value", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.evalCodeBlock("return 5;")).to.equal(5);
+        });
+
+        it("makes the persistent, global, and local objects available", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+            runInstance.persistent.a = "A";
+            runInstance.global.b = "B";
+            runInstance.local.c = "C";
+
+            expect(runInstance.evalCodeBlock("return persistent.a;")).to.equal("A");
+            expect(runInstance.evalCodeBlock("return global.b;")).to.equal("B");
+            expect(runInstance.evalCodeBlock("return local.c;")).to.equal("C");
+
+            runInstance.evalCodeBlock("persistent.a = 'AA'; global.b = 'BB'; local.c = 'CC';");
+
+            expect(runInstance.persistent.a).to.equal("AA");
+            expect(runInstance.global.b).to.equal("BB");
+            expect(runInstance.local.c).to.equal("CC");
+        });
+
+        it("makes persistent, global, and local variables available as js variables", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+            runInstance.persistent.a = "A";
+            runInstance.global.b = "B";
+            runInstance.local.c = "C";
+
+            expect(runInstance.evalCodeBlock("return a;")).to.equal("A");
+            expect(runInstance.evalCodeBlock("return b;")).to.equal("B");
+            expect(runInstance.evalCodeBlock("return c;")).to.equal("C");
+        });
+
+        it("makes a local variable accessible as a js variable if both a local and global variable share the same name", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+            runInstance.global.b = "B";
+            runInstance.local.b = "C";
+
+            expect(runInstance.evalCodeBlock("return b;")).to.equal("C");
+        });
+
+        it("makes a global variable accessible as a js variable if both a global and persistent variable share the same name", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+            runInstance.persistent.b = "B";
+            runInstance.global.b = "C";
+
+            expect(runInstance.evalCodeBlock("return b;")).to.equal("C");
+        });
+
+        it("makes a local variable accessible as a js variable if both a local and persistent variable share the same name", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+            runInstance.persistent.b = "B";
+            runInstance.local.b = "C";
+
+            expect(runInstance.evalCodeBlock("return b;")).to.equal("C");
+        });
+
+        it("does not make a variable available as js variable if its name contains non-whitelisted characters", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+            runInstance.persistent[" one two "] = "A";
+            runInstance.global["three four"] = "B";
+            runInstance.local["five>six"] = "C";
+            runInstance.local["seven"] = "D";
+
+            expect(runInstance.evalCodeBlock("return seven;")).to.equal("D");
         });
     });
 

@@ -252,7 +252,34 @@ class RunInstance {
      * @return What the code returns via the return keyword
      */
     evalCodeBlock(code) {
-        code = "(function(){\n" + code + "\n})();" // surround in function to handle return keyword in code
+        // Make global, local, and persistent accessible as js vars
+        var header = "";
+        header += "var persistent = runInstance.persistent;\n";
+        header += "var global = runInstance.global;\n";
+        header += "var local = runInstance.local;\n";
+
+        // Load persistent into js vars
+        for(var varname in this.persistent) {
+            if(this.persistent.hasOwnProperty(varname) && varname.match(/^[A-Za-z0-9\-\_\.]+$/)) {
+                header += "var " + varname + " = persistent['" + varname + "'];\n";
+            }
+        }
+
+        // Load global into js vars
+        for(var varname in this.global) {
+            if(this.global.hasOwnProperty(varname) && varname.match(/^[A-Za-z0-9\-\_\.]+$/)) {
+                header += "var " + varname + " = global['" + varname + "'];\n";
+            }
+        }
+
+        // Load local into js vars, potentially overriding global vars
+        for(var varname in this.local) {
+            if(this.local.hasOwnProperty(varname) && varname.match(/^[A-Za-z0-9\-\_\.]+$/)) {
+                header += "var " + varname + " = local['" + varname + "'];\n";
+            }
+        }
+
+        code = "(function(runInstance){\n" + header + "\n" + code + "\n})(this);" // surround in function to handle return keyword in code
         return eval(code);
     }
 

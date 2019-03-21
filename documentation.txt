@@ -163,8 +163,15 @@ Code blocks
     - Only lines after the { line and before the } count as part of the code block
     - Vars accessible in code as global.name (or global["var name"]) or local.name (or local["var name"])
         - Vars that persist from branch to branch are stored in persistent
+        - You can access vars as a regular js var (e.g., local.var1 is the same as just var1)
+            - However, you cannot set values of vars this way. Their values won't persist past the end of the code block.
+                For that, you have to use persistent.varname, global.varname, or local.varname
+            - When persistent, global, and local vars share the same name, the js var will be set according to this precedence: local, global, persistent
+            - Vars whose names have anything but [A-Za-z0-9\-\_\.] won't be converted to js vars
+    - Access RunInstance object via runInstance variable
     - Pitfalls
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
+        - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Set persistent.varname, global.varname, or local.varname instead.
 
 Sequential execution (..)
     - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)

@@ -41,6 +41,13 @@ exports.log = function(obj) {
 }
 
 /**
+ * @return {String} text only with \ and ' escaped to \\ and \'
+ */
+exports.escapeSingleQuotes = function(text) {
+    return text.replace(/\\/g, '\\\\').replace(/'/g, '\\\'');
+}
+
+/**
  * Prints an array of branches to console
  * @param {Array} Array of Branch to print out
  */
