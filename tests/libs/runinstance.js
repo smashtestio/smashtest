@@ -103,6 +103,18 @@ describe("RunInstance", function() {
         it.skip("executes a function call where the function has no steps inside of it", function() {
         });
 
+        it.skip("allows {{variables}} passed in through a function call to be accessed by steps inside the function", function() {
+        });
+
+        it.skip("allows {{variables}} passed in through a function call to be accessed by the function's code block", function() {
+        });
+
+        it.skip("ignores {{variables}} inside the text of a textual step", function() {
+        });
+
+        it.skip("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", function() {
+        });
+
         it.skip("executes a {var} = 'string' step", function() {
         });
 

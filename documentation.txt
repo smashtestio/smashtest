@@ -111,11 +111,13 @@ Functions
 Variables
     - Types of vars
         - {var} is global
-            - steps below will have access to {var}, which includes inside function calls
-            - accessible within After Every Branch/Step hooks, for hooks that apply to branches where the var was declared
+            - Exists for the life of the branch
+            - Steps below where {var} is declared will have access to {var}, which includes inside function calls
+            - If {var} is declared inside a function, it will be accessible in the caller after the function call step
+            - Accessible within After Every Branch/Step hooks, for hooks that apply to branches where the var was declared
         - {{var}} is internal to the function
-            - it goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
-            - accessible within After Every Branch/Step hooks, when those hooks are defined in the same scope as the variable
+            - Goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
+            - Accessible within After Every Branch/Step hooks, when those hooks are defined in the same scope as the variable
     - Where to use them (they are replaced with their value)
         - Function call
             F {var1} {{var2}}
@@ -142,6 +144,7 @@ Variables
     - Accessing in code blocks
         - {var1} is global.var1 or global["var1"]
         - {{var2}} is var2, local.var2, or local["var2"]
+        - persistent vars exist from branch to branch, for the life of the whole test run and are only accessible via persistent.varname or persistent["varname"]
     - Pitfalls
         - Cannot have a \ in the name of a variable
         - Whitespace in front of and behind a variable name doesn't count
