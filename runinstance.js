@@ -1,3 +1,6 @@
+const Constants = require('./constants.js');
+const utils = require('./utils.js');
+
 /**
  * Represents a running test instance. Kind of like a "thread".
  */
@@ -254,19 +257,21 @@ class RunInstance {
     }
 
     /**
-     * Replaces vars in text with their values at the given step and branch
+     * @return {String} text, with vars replaced with their values at the given step and branch
      */
     replaceVars(text, step, branch) {
-        matches = text.match(Constants.VAR_REGEX);
+        var matches = text.match(Constants.VAR_REGEX);
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
                 var name = match.replace(/\{|\}/g, '').trim();
                 var isLocal = match.startsWith('{{');
                 var value = this.findVarValue(name, isLocal, step, branch);
-                text.replace(match, value);
+                text = text.replace(match, value);
             }
         }
+
+        return text;
     }
 
     /**

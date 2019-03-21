@@ -182,7 +182,43 @@ describe("RunInstance", function() {
 
     describe("replaceVars()", function() {
         it("replaces {vars} and {{vars}} with their values", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='value1'
+        {{var2}} = 'value2'
+            {var 3}= "value 3"
+                {{ var 4 }}=" value 4 "
+`, "file.txt");
 
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global.var0 = "value0";
+
+            expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{var 3}-{{var 4}}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4 ");
+        });
+
+        it("doesn't affect a string that doesn't contain variables", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.replaceVars("foo bar", tree.branches[0].steps[0], tree.branches[0])).to.equal("foo bar");
+        });
+    });
+
+    describe("findVarValue()", function() {
+        it("returns the value of a local variable that's already set", function() {
 
 
 
@@ -193,14 +229,6 @@ describe("RunInstance", function() {
 
 
             
-        });
-
-        it.skip("doesn't affect a string that doesn't contain variables", function() {
-        });
-    });
-
-    describe("findVarValue()", function() {
-        it.skip("returns the value of a local variable that's already set", function() {
         });
 
         it.skip("returns the value of a global variable that's already set", function() {
