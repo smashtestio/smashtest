@@ -268,8 +268,8 @@ describe("Tree", function() {
         });
 
         it("parses an approved function call with a code block", function() {
-            var step = tree.parseLine(`Execute  in browser  + { `, "file.txt", 10);
-            assert.equal(step.text, `Execute  in browser`);
+            var step = tree.parseLine(`Execute  In Browser  + { `, "file.txt", 10);
+            assert.equal(step.text, `Execute  In Browser`);
             assert.equal(step.codeBlock, ' ');
         });
 
@@ -278,6 +278,20 @@ describe("Tree", function() {
             assert.equal(step.text, `Something here`);
             assert.equal(step.codeBlock, ' // comment here');
             assert.equal(step.comment, undefined);
+        });
+
+        it("throws an error if an Execute In Browser step with code block is in the wrong case", function() {
+            assert.throws(() => {
+                tree.parseLine(`Execute in browser {`, "file.txt", 10);
+            }, "Every word must be capitalized (use 'Execute In Browser' instead) [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`execute in browser {`, "file.txt", 10);
+            }, "Every word must be capitalized (use 'Execute In Browser' instead) [file.txt:10]");
+
+            assert.doesNotThrow(() => {
+                tree.parseLine(`    Execute  In   Browser  {`, "file.txt", 10);
+            });
         });
 
         it("parses the to-do identifier (-T)", function() {
@@ -8187,7 +8201,7 @@ E -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "Every word must be capitalized in a hook function declaration (use 'After Every Branch' instead) [file.txt:6]");
+            }, "Every word must be capitalized (use 'After Every Branch' instead) [file.txt:6]");
         });
 
         it("accepts varying amounts of whitespace in the * After Every Branch hook", function() {
@@ -9008,7 +9022,7 @@ E -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "Every word must be capitalized in a hook function declaration (use 'After Every Step' instead) [file.txt:6]");
+            }, "Every word must be capitalized (use 'After Every Step' instead) [file.txt:6]");
         });
 
         it("accepts varying amounts of whitespace in the * After Every Step hook", function() {
@@ -9264,7 +9278,7 @@ A -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "Every word must be capitalized in a hook function declaration (use 'Before Everything' instead) [file.txt:2]");
+            }, "Every word must be capitalized (use 'Before Everything' instead) [file.txt:2]");
         });
 
         it("accepts the * Before Everything hook with varying amounts of whitespace", function() {
@@ -9525,7 +9539,7 @@ A -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "Every word must be capitalized in a hook function declaration (use 'After Everything' instead) [file.txt:2]");
+            }, "Every word must be capitalized (use 'After Everything' instead) [file.txt:2]");
         });
 
         it("accepts the * After Everything hook with varying amounts of whitespace", function() {

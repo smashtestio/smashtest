@@ -154,6 +154,11 @@ class Tree {
             }
         }
 
+        // Validate Execute in browser steps
+        if(typeof step.codeBlock != 'undefined' && utils.canonicalize(step.text) == "execute in browser") {
+            this.verifyCasing(step, "Execute In Browser");
+        }
+
         // Steps that set variables
         if(step.text.match(Constants.VARS_SET_REGEX)) {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
@@ -814,7 +819,7 @@ class Tree {
                 var canStepText = child.getHookCanonicalText();
                 var stepText = child.text.trim().replace(/\s+/g, ' ');
                 if(canStepText == "after every branch") {
-                    this.verifyHookCasing(child, 'After Every Branch');
+                    this.verifyCasing(child, 'After Every Branch');
 
                     var afterEveryBranchMembers = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
@@ -827,7 +832,7 @@ class Tree {
                     afterEveryBranch = afterEveryBranch.concat(afterEveryBranchMembers);
                 }
                 else if(canStepText == "after every step") {
-                    this.verifyHookCasing(child, 'After Every Step');
+                    this.verifyCasing(child, 'After Every Step');
 
                     var afterEveryStepMembers = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
                     var clonedHookStep = child.cloneAsFunctionCall();
@@ -840,7 +845,7 @@ class Tree {
                     afterEveryStep = afterEveryStep.concat(afterEveryStepMembers);
                 }
                 else if(canStepText == "before everything") {
-                    this.verifyHookCasing(child, 'Before Everything');
+                    this.verifyCasing(child, 'Before Everything');
 
                     if(child.indents != 0) {
                         utils.error("A '* Before Everything' function must not be indented (it must be at 0 indents)", step.filename, step.lineNumber + 1);
@@ -856,7 +861,7 @@ class Tree {
                     this.beforeEverything = newBeforeEverything.concat(this.beforeEverything); // inserted this way so that built-in hooks get executed first
                 }
                 else if(canStepText == "after everything") {
-                    this.verifyHookCasing(child, 'After Everything');
+                    this.verifyCasing(child, 'After Everything');
 
                     if(child.indents != 0) {
                         utils.error("An '* After Everything' function must not be indented (it must be at 0 indents)", step.filename, step.lineNumber + 1);
@@ -1204,14 +1209,14 @@ class Tree {
     }
 
     /**
-     * Verifies correct casing in a hook's text
+     * Verifies correct casing in a step's text
      * @param {Step} step - The step to verify
      * @param {String} correctText - The correct way to spell step's text
      * @throws {Error} That step is not in the right casing
      */
-    verifyHookCasing(step, correctText) {
+    verifyCasing(step, correctText) {
         if(step.text.trim().replace(/\s+/g, ' ') != correctText) {
-            utils.error("Every word must be capitalized in a hook function declaration (use '" + correctText + "' instead)", step.filename, step.lineNumber);
+            utils.error("Every word must be capitalized (use '" + correctText + "' instead)", step.filename, step.lineNumber);
         }
     }
 

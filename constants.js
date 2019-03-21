@@ -11,7 +11,7 @@ exports.VARS_SET_REGEX = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*((
 // Matches {var} or {{var}}
 exports.VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
 // Matches [text]
-exports.BRACKET_REGEX = /\[[^\[\]\\]+\]/g;
+exports.BRACKET_REGEX = /(?<!(\\\\)*\\)\[[^\[\]\\]+\]/g;
 // Matches an ElementFinder in this format:
 // OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')
 exports.ELEMENTFINDER_REGEX = /^\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*$/;

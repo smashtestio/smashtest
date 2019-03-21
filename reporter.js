@@ -7,6 +7,7 @@ class Reporter {
         this.path = "";                 // absolute path on disk to report file
 
         this.htmlReport = "";           // the generated html report is stored here
+        this.name = "";                 // name of the report
     }
 
     /**
@@ -15,6 +16,6 @@ class Reporter {
     generateReport() {
 
 
-
+        // Set this.htmlReport and this.name
     }
 }
