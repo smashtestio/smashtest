@@ -533,6 +533,7 @@ describe("Step", function() {
             step.isToDo = true;
 
             var functionDeclarationInTree = new Step();
+            functionDeclarationInTree.text = "T";
             functionDeclarationInTree.isToDo = true;
             functionDeclarationInTree.isManual = true;
 
@@ -542,12 +543,14 @@ describe("Step", function() {
             expect(step.isManual).to.equal(true);
             expect(step.isDebug).to.equal(undefined);
             expect(step.isBuiltIn).to.equal(undefined);
+            expect(step.functionDeclarationText).to.equal("T");
         });
 
         it("merges in function declaration with all identifiers set to false", function() {
             var step = new Step();
 
             var functionDeclarationInTree = new Step();
+            functionDeclarationInTree.text = "T";
             functionDeclarationInTree.isToDo = true;
             functionDeclarationInTree.isManual = true;
             functionDeclarationInTree.isDebug = true;
@@ -567,6 +570,7 @@ describe("Step", function() {
             expect(step.isSequential).to.equal(true);
             expect(step.isExpectedFail).to.equal(true);
             expect(step.isBuiltIn).to.equal(true);
+            expect(step.functionDeclarationText).to.equal("T");
         });
 
         it("merges in function declaration with all identifiers missing", function() {
@@ -584,6 +588,7 @@ describe("Step", function() {
             expect(step.isSequential).to.equal(undefined);
             expect(step.isExpectedFail).to.equal(undefined);
             expect(step.isBuiltIn).to.equal(undefined);
+            expect(step.functionDeclarationText).to.equal(undefined);
         });
 
         it("merges in code block", function() {

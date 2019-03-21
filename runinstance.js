@@ -114,7 +114,7 @@ class RunInstance {
                 this.local = {};
 
                 if(step.isFunctionCall) {
-                    // Set {{local vars}} based on function declaration signature (in original step in tree) and step's function call signature
+                    // Set {{local vars}} based on function declaration signature (step.functionDeclarationText) and step's function call signature
                     // TODO
                     // TODO: this is where ElementFinders are converted to objects too
 

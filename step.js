@@ -28,6 +28,7 @@ class Step {
         this.isFunctionCall = false;          // true if this step is a function call
         this.isTextualStep = false;           // true if this step is textual (-) and not a function call
         this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
+        this.functionDeclarationText = "";    // if this step is a function call, this is set to the corresponding function declaration's text
 
         this.isToDo = false;                  // true if this step has the To Do identifier (-T)
         this.isManual = false;                // true if this step has the manual identifier (-M)
@@ -186,6 +187,7 @@ class Step {
     /**
      * Merges functionDeclarationInTree into this Step (identifier booleans are OR'ed in from functionDeclarationInTree into this)
      * If this.functionDeclarationInTree has a code block, it is copied into this
+     * this.functionDeclarationText is set to the function declaration's text
      * This step must be a function call
      * @param {Step} functionDeclarationInTree - The function declaration that corresponds to this step
      */
@@ -217,6 +219,8 @@ class Step {
         if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
             this.codeBlock = functionDeclarationInTree.codeBlock;
         }
+
+        this.functionDeclarationText = functionDeclarationInTree.text;
     }
 
     /**
