@@ -307,7 +307,7 @@ class RunInstance {
                         var value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)
-                            value = evalCodeBlock(s.codeBlock);
+                            value = this.evalCodeBlock(s.codeBlock);
                         }
                         else {
                             // {varname}='string'

@@ -219,37 +219,149 @@ A -
 
     describe("findVarValue()", function() {
         it("returns the value of a local variable that's already set", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+`, "file.txt");
 
+            tree.generateBranches();
 
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.local.var0 = "value0";
 
-
-
-
-
-
-
-            
+            expect(runInstance.findVarValue("var0", true, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
         });
 
-        it.skip("returns the value of a global variable that's already set", function() {
+        it("returns the value of a global variable that's already set", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global.var0 = "value0";
+
+            expect(runInstance.findVarValue("var0", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
         });
 
-        it.skip("returns the value of a variable that's not set yet and whose eventual value is a plain string", function() {
-            // verify a look-down was logged
+        it("returns the value of a variable that's not set yet and whose eventual value is a plain string", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}="value1"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var1} is being set by a later step at file.txt:3\n");
         });
 
-        it.skip("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
-            // if the original step is A, and its vars are defined in B, then's B's vars are defined
-            // 1) before A, 2) between A and B, and 3) after B
+        it("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
+            // If the original step is A, and its vars are defined in B, then's B's vars are defined 1) before A, 2) between A and B, and 3) after B
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {{var2}} = 'value2'
+        {var1}='{{var2}} {var 3} . {var0}'
+            {var 3}= "-{{var 4}}-"
+                {{ var 4 }}=" value 4 "
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global.var0 = "value0";
+
+            expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value2 - value 4 - . value0");
+            expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {{var2}} is being set by a later step at file.txt:3
+The value of variable {{var 4}} is being set by a later step at file.txt:6
+The value of variable {var 3} is being set by a later step at file.txt:5
+The value of variable {var1} is being set by a later step at file.txt:4
+`);
         });
 
-        it.skip("returns the value of a variable that's not set yet and whose eventual value is generated from a code block function", function() {
+        it("returns the value of a variable that's not set yet and whose eventual value is generated from a code block function", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1} = F {
+        return "foobar";
+    }
+
+        {var2} = F2
+
+        * F2 {
+            return "blah";
+        }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("foobar");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var1} is being set by a later step at file.txt:3\n");
+
+            expect(runInstance.findVarValue("var2", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("blah");
+            expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {var1} is being set by a later step at file.txt:3
+The value of variable {var2} is being set by a later step at file.txt:7
+`);
         });
 
-        it.skip("throws an error if the variable's value is never set", function() {
+        it("throws an error if the variable's value is never set", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}="value1"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            assert.throws(() => {
+                runInstance.findVarValue("var2", false, tree.branches[0].steps[0], tree.branches[0]);
+            }, "The variable {var2} is never set, but is needed for this step [file.txt:2]");
         });
 
-        it.skip("throws an error if the variable's value contains more variables, but one of those variables is never set", function() {
+        it("throws an error if the variable's value contains more variables, but one of those variables is never set", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}="-{{var2}}-"
+        {{var3}}="-{var4}-"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            assert.throws(() => {
+                runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0]);
+            }, "The variable {{var2}} is never set, but is needed for this step [file.txt:2]");
+
+            assert.throws(() => {
+                runInstance.findVarValue("var3", true, tree.branches[0].steps[0], tree.branches[0]);
+            }, "The variable {var4} is never set, but is needed for this step [file.txt:2]");
         });
     });
 
