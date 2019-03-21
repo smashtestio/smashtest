@@ -63,6 +63,96 @@ describe("RunInstance", function() {
     });
 
     describe("runStep()", function() {
+        it.skip("executes a textual step", function() {
+        });
+
+        it.skip("executes a step with a code block", function() {
+            // have code block set a flag in RunInstance, then verify here that this flag was set
+        });
+
+        it.skip("executes a function call with no {{variables}} in its function declaration", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings'", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in {variables}", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders]", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders containing {variables}]", function() {
+        });
+
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", {variables}, and [ElementFinders]", function() {
+        });
+
+        it.skip("executes a function call where the function has no steps inside of it", function() {
+        });
+
+        it.skip("executes a {var} = 'string' step", function() {
+        });
+
+        it.skip("executes a {{var}} = 'string' step", function() {
+        });
+
+        it.skip("executes a {var} = '{other var}' step", function() {
+        });
+
+        it.skip("executes a {var1} = '{var2} {{var3}} etc.' step", function() {
+        });
+
+        it.skip("executes a {var1} = '{var2} {{var3}} etc.' step that needs to look down the branch for the values of some variables", function() {
+        });
+
+        it.skip("throws an error when vars reference each other in an infinite loop", function() {
+        });
+
+        it.skip("executes a {var1} = 'string1', {{var2}} = 'string2', etc. step", function() {
+        });
+
+        it.skip("executes a {var} = Text { code block } step", function() {
+        });
+
+        it.skip("executes a {var} = Function step, where the function declaration has a code block that returns a value", function() {
+        });
+
+        it.skip("executes a {var} = Function step, where the function declaration is in {x}='value' format", function() {
+        });
+
+        it.skip("allows a code block to get and set variables via the local, global, and persistent objects", function() {
+        });
+
+        it.skip("allows a code block to get and set a passed-in {{variable}} as a plain js variable", function() {
+            // verify the change reflected in the local obj after the function ran
+        });
+
+        it.skip("does not allow a code block in a function declaration to access a passed-in {{variable}} that has whitespace in its name", function() {
+        });
+
+        it.skip("runs an Execute in browser step", function() {
+            // inject runinstance.execInBrowser(code) function first
+        });
+
+        it.skip("executes a step that throws an error", function() {
+        });
+
+        it.skip("executes a step that logs", function() {
+        });
+
         it.skip("pauses when a ~ step is encountered", function() {
         });
 
@@ -97,13 +187,7 @@ describe("RunInstance", function() {
             // also sets asExpected, error, and log in the step
         });
 
-        it.skip("executes a code block step", function() {
-        });
-
         it.skip("handles bad syntax in a code block step", function() {
-        });
-
-        it.skip("runs an Execute in browser step", function() {
         });
 
         it.skip("creates a fresh local var context within a function call", function() {
@@ -141,12 +225,6 @@ describe("RunInstance", function() {
 
         it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook", function() {
         });
-
-
-
-
-
-
 
         it.skip("runs an After Every Step hook and sets its local vars", function() {
             // local vars are successful and error

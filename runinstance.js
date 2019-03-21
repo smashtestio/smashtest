@@ -14,7 +14,7 @@ class RunInstance {
 
         this.isPaused = false;                          // true if we're currently paused
 
-        this.persistant = this.runner.persistant;       // persistant variables
+        this.persistent = this.runner.persistent;       // persistent variables
         this.global = {};                               // global variables
         this.local = {};                                // local variables
 
@@ -298,7 +298,7 @@ class RunInstance {
 
         // Go down the branch looking for {varname}= or {{varname}}=
         var index = branch.steps.indexOf(step);
-        for(var i = index + 1; i < branch.steps.length; i++) {
+        for(var i = index; i < branch.steps.length; i++) {
             var s = branch.steps[i];
             if(s.varsBeingSet) {
                 for(var j = 0; j < s.varsBeingSet.length; j++) {

@@ -159,7 +159,7 @@ Code blocks
     - +, .., etc. characters applied come after the step text and before the {
     - Only lines after the { line and before the } count as part of the code block
     - Vars accessible in code as global.name (or global["var name"]) or local.name (or local["var name"])
-        - Vars that persist from branch to branch are stored in persistant
+        - Vars that persist from branch to branch are stored in persistent
     - Pitfalls
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
 
