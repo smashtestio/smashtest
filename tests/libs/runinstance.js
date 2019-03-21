@@ -265,7 +265,7 @@ describe("RunInstance", function() {
 A -
     {var1}='value1'
         {{var2}} = 'value2'
-            {var 3}= "value 3"
+            {var 3}= "value 3", {{var5}} ='value5',{var6}="value6"
                 {{ var 4 }}=" value 4 "
 `, "file.txt");
 
@@ -276,7 +276,7 @@ A -
             var runInstance = new RunInstance(runner);
             runInstance.global.var0 = "value0";
 
-            expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{var 3}-{{var 4}}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4 ");
+            expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{var 3}-{{var 4}}  {{var5}} {var6}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
         });
 
         it("doesn't affect a string that doesn't contain variables", function() {
