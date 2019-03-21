@@ -159,8 +159,7 @@ class RunInstance {
 
 
 
-
-                    eval(code);
+                    this.evalCodeBlock(code);
 
                     // Step is {var} = Func
                     if(step.isFunctionCall && step.varsBeingSet.length == 1) {
@@ -246,17 +245,80 @@ class RunInstance {
     }
 
     /**
-     * Replaces vars in text with their values at the current step and branch
+     * Evals the given code block
+     * @return What the code returns via the return keyword
      */
-    replaceVars(text) {
-
+    evalCodeBlock(code) {
+        code = "(function(){\n" + code + "\n})();" // surround in function to handle return keyword in code
+        return eval(code);
     }
 
     /**
-     * @return {String} Value of the given variable at the current step and branch
+     * Replaces vars in text with their values at the given step and branch
      */
-    findVarValue(varname) {
+    replaceVars(text, step, branch) {
+        matches = text.match(Constants.VAR_REGEX);
+        if(matches) {
+            for(var i = 0; i < matches.length; i++) {
+                var match = matches[i];
+                var name = match.replace(/\{|\}/g, '').trim();
+                var isLocal = match.startsWith('{{');
+                var value = this.findVarValue(name, isLocal, step, branch);
+                text.replace(match, value);
+            }
+        }
+    }
 
+    /**
+     * @return {String} Value of the given variable at the given step and branch
+     * @throws {Error} If the variable is never set
+     */
+    findVarValue(varname, isLocal, step, branch) {
+        // If var is already set, return it immediately
+        var container = this.global;
+        if(isLocal) {
+            container = this.local;
+        }
+        if(typeof container[varname] != 'undefined') {
+            return container[varname];
+        }
+
+        var variableFull = "";
+        if(isLocal) {
+            variableFull = "{{" + varname + "}}";
+        }
+        else {
+            variableFull = "{" + varname + "}";
+        }
+
+        // Go down the branch looking for {varname}= or {{varname}}=
+        var index = branch.steps.indexOf(step);
+        for(var i = index + 1; i < branch.steps.length; i++) {
+            var s = branch.steps[i];
+            if(s.varsBeingSet) {
+                for(var j = 0; j < s.varsBeingSet.length; j++) {
+                    var varBeingSet = s.varsBeingSet[j];
+                    if(varBeingSet.name == varname && varBeingSet.isLocal == isLocal) {
+                        var value = null;
+                        if(typeof s.codeBlock != 'undefined') {
+                            // {varname}=Function (w/ code block)
+                            value = evalCodeBlock(s.codeBlock);
+                        }
+                        else {
+                            // {varname}='string'
+                            value = utils.stripQuotes(varBeingSet.value);
+                        }
+
+                        value = this.replaceVars(value, step, branch); // recursive call, start at original step passed in
+                        this.log("The value of variable " + variableFull + " is being set by a later step at " + s.filename + ":" + s.lineNumber, step, branch);
+                        return value;
+                    }
+                }
+            }
+        }
+
+        // Not found
+        utils.error("The variable " + variableFull + " is never set, but is needed for this step", step.filename, step.lineNumber);
     }
 
     /**
@@ -276,14 +338,14 @@ class RunInstance {
     }
 
     /**
-     * Logs the given string to the current step
+     * Logs the given string to the given step or branch
      */
-    log(str) {
-        if(this.currStep) {
-            logToObj(this.currStep)
+    log(str, step, branch) {
+        if(step) {
+            logToObj(step);
         }
-        else if(this.currBranch) {
-            logToObj(this.currBranch)
+        else if(branch) {
+            logToObj(branch);
         }
 
         function logToObj(obj) {

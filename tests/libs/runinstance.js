@@ -181,7 +181,18 @@ describe("RunInstance", function() {
     });
 
     describe("replaceVars()", function() {
-        it.skip("replaces {vars} and {{vars}} with their values", function() {
+        it("replaces {vars} and {{vars}} with their values", function() {
+
+
+
+
+
+
+
+
+
+
+            
         });
 
         it.skip("doesn't affect a string that doesn't contain variables", function() {
@@ -189,10 +200,14 @@ describe("RunInstance", function() {
     });
 
     describe("findVarValue()", function() {
-        it.skip("returns the value of a variable that's already set", function() {
+        it.skip("returns the value of a local variable that's already set", function() {
+        });
+
+        it.skip("returns the value of a global variable that's already set", function() {
         });
 
         it.skip("returns the value of a variable that's not set yet and whose eventual value is a plain string", function() {
+            // verify a look-down was logged
         });
 
         it.skip("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
@@ -211,59 +226,56 @@ describe("RunInstance", function() {
     });
 
     describe("log()", function() {
-        it("logs a string to the current step, where no other logs exist", function() {
+        it("logs a string to a step, where no other logs exist", function() {
             var step = new Step();
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            runInstance.currStep = step;
-            runInstance.log("foobar");
+            runInstance.log("foobar", step);
 
             expect(step.log).to.equal("foobar\n");
         });
 
-        it("logs a string to the current step, where other logs exist", function() {
+        it("logs a string to a step, where other logs exist", function() {
             var step = new Step();
+            var branch = new Branch();
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            runInstance.currStep = step;
             step.log = "foo\n";
-            runInstance.log("bar");
+            runInstance.log("bar", step, branch);
 
             expect(step.log).to.equal("foo\nbar\n");
         });
 
-        it("logs a string to the current branch, where no other logs exist and where there is no current step", function() {
+        it("logs a string to a branch, where no other logs exist and where there is no step", function() {
             var branch = new Branch();
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            runInstance.currBranch = branch;
-            runInstance.log("foobar");
+            runInstance.log("foobar", null, branch);
 
             expect(branch.log).to.equal("foobar\n");
         });
 
-        it("logs a string to the current branch, where other logs exist and where there is no current step", function() {
+        it("logs a string to a branch, where other logs exist and where there is no step", function() {
             var branch = new Branch();
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            runInstance.currBranch = branch;
             branch.log = "foo\n";
-            runInstance.log("bar");
+            runInstance.log("bar", null, branch);
 
             expect(branch.log).to.equal("foo\nbar\n");
         });
 
-        it("fails silently when there is no current step or branch", function() {
+        it("fails silently when there is no step or branch", function() {
             var step = new Step();
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
             assert.doesNotThrow(() => {
-                runInstance.log("foobar");
+                runInstance.log("foobar", null, null);
             });
         });
     });
