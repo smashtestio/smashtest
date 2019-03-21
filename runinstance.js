@@ -96,7 +96,23 @@ class RunInstance {
         }
 
         // Replace {vars}/{{vars}} inside 'strings' and [ElementFinders]
-        // TODO
+        step.processedText = step.text + '';
+        replaceVarsInStep(Constants.STRING_LITERAL_REGEX);
+        replaceVarsInStep(Constants.BRACKET_REGEX);
+
+        function replaceVarsInStep(regex) {
+            var matches = step.processedText.match(regex);
+            if(matches) {
+                matches.forEach(match => {
+                    var text = utils.stripQuotes(match);
+                    text = this.replaceVars(text, step, branch);
+                    step.processedText = step.processedText.replace(match, text);
+                });
+            }
+        }
+
+
+
 
 
 
