@@ -95,7 +95,7 @@ class RunInstance {
             prevStep = branch.steps[index - 1];
         }
 
-        // Replace {vars}/{{vars}} in the step's text
+        // Replace {vars}/{{vars}} inside 'strings' and [ElementFinders]
         // TODO
 
 

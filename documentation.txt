@@ -116,8 +116,17 @@ Variables
         - {{var}} is internal to the function
             - it goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
             - accessible within After Every Branch/Step hooks, when those hooks are defined in the same scope as the variable
+    - Where to use them (they are replaced with their value)
+        - Function call
+            F {var1} {{var2}}
+        - String literal
+            'string literal {var1}' or "string literal {{var2}}"
+        - ElementFinder
+            [{ord}th '{var1}' box next to '{{var2}}']
+                Note: "th" can be applied to any number
     - Setting vars
         - {var} = 'String' (or "String")
+            - To clone a var, use {var}='{var2}'
         - {var} = Function with a code block
             - Code Function returns a string (actually any kind of js value will work)
             - Could be {var} = Text { code block that returns something }
@@ -126,10 +135,13 @@ Variables
                 - No children
             - Separate branches will be created, each setting {var} to each 'value' encountered to the right of {x}
             - You can name {x} whatever you want, but the convention is {x}
-    - In a line that's {var1}=Step1, {var2}=Step2, do not accept Functions* in Step1/2/etc.
+    - In a line that's {var1}=Step1, {var2}=Step2, do not accept Function Calls in Step1/2/etc.
         - (In other words, if there are multiple vars being set, each Step must be a string literal)
     - Using {vars} that will be defined later in the branch
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
+    - Accessing in code blocks
+        - {var1} is global.var1 or global["var1"]
+        - {{var2}} is var2, local.var2, or local["var2"]
     - Pitfalls
         - Cannot have a \ in the name of a variable
         - Whitespace in front of and behind a variable name doesn't count
@@ -148,6 +160,8 @@ Code blocks
     - Only lines after the { line and before the } count as part of the code block
     - Vars accessible in code as global.name (or global["var name"]) or local.name (or local["var name"])
         - Vars that persist from branch to branch are stored in persistant
+    - Pitfalls
+        - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
 
 Sequential execution (..)
     - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)
