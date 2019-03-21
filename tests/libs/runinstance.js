@@ -351,8 +351,8 @@ A -
             tree.parseIn(`
 A -
     {{var2}} = 'value2'
-        {var1}='{{var2}} {var 3} . {var0}'
-            {var 3}= "-{{var 4}}-"
+        {var1}='{{var2}} {var 3} . {var0} {{var5}}'
+            {var 3}= "-{{var 4}}-", {{var5}}='value5'
                 B -
                     {{ var 4 }}=" value 4 "
 `, "file.txt");
@@ -364,10 +364,11 @@ A -
             var runInstance = new RunInstance(runner);
             runInstance.global.var0 = "value0";
 
-            expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value2 - value 4 - . value0");
+            expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value2 - value 4 - . value0 value5");
             expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {{var2}} is being set by a later step at file.txt:3
 The value of variable {{var 4}} is being set by a later step at file.txt:7
 The value of variable {var 3} is being set by a later step at file.txt:5
+The value of variable {{var5}} is being set by a later step at file.txt:5
 The value of variable {var1} is being set by a later step at file.txt:4
 `);
         });
