@@ -134,9 +134,6 @@ describe("RunInstance", function() {
             // trim vars
         });
 
-        it.skip("throws an error when vars reference each other in an infinite loop", function() {
-        });
-
         it.skip("executes a {var1} = 'string1', {{var2}} = 'string2', etc. step", function() {
             // trim vars
         });
@@ -326,6 +323,42 @@ A -
             var runInstance = new RunInstance(runner);
 
             expect(runInstance.replaceVars("foo bar", tree.branches[0].steps[0], tree.branches[0])).to.equal("foo bar");
+        });
+
+        it("throws an error when vars reference each other in an infinite loop", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='{var1}'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            assert.throws(() => {
+                runInstance.replaceVars("{var1}", tree.branches[0].steps[0], tree.branches[0]);
+            }, "Infinite loop detected amongst variable references [file.txt:2]");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='{var2} {var3}'
+        {var2}='foo'
+            {var3}='bar{var1}'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            assert.throws(() => {
+                runInstance.replaceVars("{var1}", tree.branches[0].steps[0], tree.branches[0]);
+            }, "Infinite loop detected amongst variable references [file.txt:2]");
         });
     });
 

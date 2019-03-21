@@ -285,6 +285,7 @@ class RunInstance {
 
     /**
      * @return {String} text, with vars replaced with their values at the given step and branch
+     * @throws {Error} If there's a variable inside text that's never set
      */
     replaceVars(text, step, branch) {
         var matches = text.match(Constants.VAR_REGEX);
@@ -293,7 +294,20 @@ class RunInstance {
                 var match = matches[i];
                 var name = match.replace(/\{|\}/g, '').trim();
                 var isLocal = match.startsWith('{{');
-                var value = this.findVarValue(name, isLocal, step, branch);
+                var value = null;
+
+                try {
+                    value = this.findVarValue(name, isLocal, step, branch);
+                }
+                catch(e) {
+                    if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
+                        utils.error("Infinite loop detected amongst variable references", step.filename, step.lineNumber);
+                    }
+                    else {
+                        throw e; // re-throw
+                    }
+                }
+
                 text = text.replace(match, value);
             }
         }
