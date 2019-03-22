@@ -23,54 +23,50 @@ class RunInstance {
 
     /**
      * Grabs branches and steps from this.tree and executes them. Exits when there's nothing left to execute, or if a pause occurs.
-     * @return {Promise} Promise that gets resolved with true once done executing, or gets resolved with false if a branch was paused
+     * @return {Promise} Promise that gets resolved once done executing
      */
-    run() {
+    async run() {
         this.isPaused = false;
-        return new Promise(async (resolve, reject) => {
-            this.currBranch = this.tree.nextBranch();
-            while(this.currBranch) {
-                if(this.currBranch == 'wait') {
-                    // wait 1 sec
-                    await new Promise((resolve, reject) => {
-                        setTimeout(() => { resolve(); }, 1000);
-                    });
-                }
-                else { // this.currBranch is an actual Branch
+        this.currBranch = this.tree.nextBranch();
+        while(this.currBranch) {
+            if(this.currBranch == 'wait') {
+                // wait 1 sec
+                await new Promise((resolve, reject) => {
+                    setTimeout(() => { resolve(); }, 1000);
+                });
+            }
+            else { // this.currBranch is an actual Branch
+                this.currStep = this.tree.nextStep(this.currBranch, true, true);
+                while(this.currStep) {
+                    await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
+
+                    if(this.isPaused) { // the current step caused a pause
+                        resolve(false);
+                        return;
+                    }
+
                     this.currStep = this.tree.nextStep(this.currBranch, true, true);
-                    while(this.currStep) {
-                        await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
-
-                        if(this.isPaused) { // the current step caused a pause
-                            resolve(false);
-                            return;
-                        }
-
-                        this.currStep = this.tree.nextStep(this.currBranch, true, true);
-                    }
-
-                    // Execute After Every Branch hooks
-                    this.local.successful = this.currBranch.isPassed;
-                    this.local.error = this.currBranch.error;
-                    for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-                        var b = this.currBranch.afterEveryBranch[i];
-                        for(var j = 0; j < b.steps.length; j++) {
-                            var s = b.steps[j];
-                            await runStep(s, b, null, this.currBranch);
-                        }
-                    }
                 }
 
-                this.currBranch = this.tree.nextBranch(); // NOTE: Tree.nextBranch() handles serving up Before/After Everything branches
-
-                // clear variable state
-                this.global = {};
-                this.local = {};
-                this.localStack = [];
+                // Execute After Every Branch hooks
+                this.local.successful = this.currBranch.isPassed;
+                this.local.error = this.currBranch.error;
+                for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
+                    var b = this.currBranch.afterEveryBranch[i];
+                    for(var j = 0; j < b.steps.length; j++) {
+                        var s = b.steps[j];
+                        await runStep(s, b, null, this.currBranch);
+                    }
+                }
             }
 
-            resolve(!this.isPaused);
-        });
+            this.currBranch = this.tree.nextBranch(); // NOTE: Tree.nextBranch() handles serving up Before/After Everything branches
+
+            // clear variable state
+            this.global = {};
+            this.local = {};
+            this.localStack = [];
+        }
     }
 
     /**
@@ -81,6 +77,7 @@ class RunInstance {
      * @param {Branch} branch - The branch that contains the step to execute
      * @param {Step} stepToTakeError - The Step that will take the Error object (usually the same as step), null if branchToTakeError should take the error
      * @param {Branch} branchToTakeError - The Branch that will take the Error object (usually the same as branch)
+     * @return {Promise} Promise that gets resolved when the step finishes execution
      */
     async runStep(step, branch, stepToTakeError, branchToTakeError) {
         if(step.isDebug) {

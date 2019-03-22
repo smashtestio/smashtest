@@ -57,17 +57,8 @@ C -
         });
     });
 
-    describe("injectAndRun()", function() {
-        it.skip("injects a tree and runs it, then pauses again", function() {
-        });
-
-        it.skip("rejects a tree with multiple branches", function() {
-        });
-
-        it.skip("rejects a tree with a * Before Everything hook", function() {
-        });
-
-        it.skip("rejects a tree with an * After Everything hook", function() {
+    describe("injectStep()", function() {
+        it.skip("injects a step and runs it, then pauses again", function() {
         });
     });
 });
