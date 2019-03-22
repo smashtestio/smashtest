@@ -56,7 +56,7 @@ describe("Branch", function() {
             });
         });
 
-        it("merges afterEveryBranch", function() {
+        it("merges hook arrays", function() {
             var stepA = new Step();
             stepA.text = "A";
 
@@ -84,130 +84,52 @@ describe("Branch", function() {
             var branch2 = new Branch;
             branch2.steps = [ stepB, stepC ];
 
-            var branch3 = new Branch;
-            branch3.steps = [ stepD, stepE ];
+            branch1.beforeEveryBranch = [ stepG, stepE ];
+            branch2.beforeEveryBranch = [ stepF ];
 
-            var branch4 = new Branch;
-            branch4.steps = [ stepF ];
+            branch1.afterEveryBranch = [ stepE ];
+            branch2.afterEveryBranch = [ stepF, stepG ];
 
-            var branch5 = new Branch;
-            branch5.steps = [ stepG ];
+            branch1.beforeEveryStep = [ stepG, stepF ];
+            branch2.beforeEveryStep = [ stepE ];
 
-            branch1.afterEveryBranch = [ branch3 ];
-            branch2.afterEveryBranch = [ branch4, branch5 ];
+            branch1.afterEveryStep = [ stepG ];
+            branch2.afterEveryStep = [ stepE, stepF ];
+
             branch1.mergeToEnd(branch2);
 
             expect(branch1.steps.length).to.equal(3);
             expect(branch2.steps.length).to.equal(2);
+
+            expect(branch1.beforeEveryBranch.length).to.equal(3);
+            expect(branch2.beforeEveryBranch.length).to.equal(1);
 
             expect(branch1.afterEveryBranch.length).to.equal(3);
             expect(branch2.afterEveryBranch.length).to.equal(2);
 
-            expect(branch1.afterEveryBranch[0].steps.length).to.equal(1);
-            expect(branch1.afterEveryBranch[1].steps.length).to.equal(1);
-            expect(branch1.afterEveryBranch[2].steps.length).to.equal(2);
-
-            expect(branch1).to.containSubsetInOrder({
-                steps: [
-                    { text: "A" },
-                    { text: "B" },
-                    { text: "C" }
-                ],
-                afterEveryBranch: [
-                    {
-                        steps: [
-                            { text: "F" }
-                        ]
-                    },
-                    {
-                        steps: [
-                            { text: "G" }
-                        ]
-                    },
-                    {
-                        steps: [
-                            { text: "D" },
-                            { text: "E" }
-                        ]
-                    }
-                ]
-            });
-        });
-
-        it("merges afterEveryStep", function() {
-            var stepA = new Step();
-            stepA.text = "A";
-
-            var stepB = new Step();
-            stepB.text = "B";
-
-            var stepC = new Step();
-            stepC.text = "C";
-
-            var stepD = new Step();
-            stepD.text = "D";
-
-            var stepE = new Step();
-            stepE.text = "E";
-
-            var stepF = new Step();
-            stepF.text = "F";
-
-            var stepG = new Step();
-            stepG.text = "G";
-
-            var branch1 = new Branch;
-            branch1.steps = [ stepA ];
-
-            var branch2 = new Branch;
-            branch2.steps = [ stepB, stepC ];
-
-            var branch3 = new Branch;
-            branch3.steps = [ stepD, stepE ];
-
-            var branch4 = new Branch;
-            branch4.steps = [ stepF ];
-
-            var branch5 = new Branch;
-            branch5.steps = [ stepG ];
-
-            branch1.afterEveryStep = [ branch3 ];
-            branch2.afterEveryStep = [ branch4, branch5 ];
-            branch1.mergeToEnd(branch2);
-
-            expect(branch1.steps.length).to.equal(3);
-            expect(branch2.steps.length).to.equal(2);
+            expect(branch1.beforeEveryStep.length).to.equal(3);
+            expect(branch2.beforeEveryStep.length).to.equal(1);
 
             expect(branch1.afterEveryStep.length).to.equal(3);
             expect(branch2.afterEveryStep.length).to.equal(2);
 
-            expect(branch1.afterEveryStep[0].steps.length).to.equal(1);
-            expect(branch1.afterEveryStep[1].steps.length).to.equal(1);
-            expect(branch1.afterEveryStep[2].steps.length).to.equal(2);
-
             expect(branch1).to.containSubsetInOrder({
                 steps: [
                     { text: "A" },
                     { text: "B" },
                     { text: "C" }
                 ],
+                beforeEveryBranch: [
+                    { text: "F" }, { text: "G" }, { text: "E" }
+                ],
+                afterEveryBranch: [
+                    { text: "E" }, { text: "F" }, { text: "G" }
+                ],
+                beforeEveryStep: [
+                    { text: "E" }, { text: "G" }, { text: "F" }
+                ],
                 afterEveryStep: [
-                    {
-                        steps: [
-                            { text: "F" }
-                        ]
-                    },
-                    {
-                        steps: [
-                            { text: "G" }
-                        ]
-                    },
-                    {
-                        steps: [
-                            { text: "D" },
-                            { text: "E" }
-                        ]
-                    }
+                    { text: "G" }, { text: "E" }, { text: "F" }
                 ]
             });
         });
@@ -231,7 +153,9 @@ describe("Branch", function() {
                 isFailed: undefined,
                 isSkipped: undefined,
                 isRunning: undefined,
+                beforeEveryBranch: undefined,
                 afterEveryBranch: undefined,
+                beforeEveryStep: undefined,
                 afterEveryStep: undefined
             });
 
@@ -266,7 +190,9 @@ describe("Branch", function() {
                 isFailed: undefined,
                 isSkipped: undefined,
                 isRunning: undefined,
+                beforeEveryBranch: undefined,
                 afterEveryBranch: undefined,
+                beforeEveryStep: undefined,
                 afterEveryStep: undefined
             });
 
@@ -288,7 +214,9 @@ describe("Branch", function() {
                 isFailed: undefined,
                 isSkipped: undefined,
                 isRunning: undefined,
+                beforeEveryBranch: undefined,
                 afterEveryBranch: undefined,
+                beforeEveryStep: undefined,
                 afterEveryStep: undefined
             });
 
@@ -336,8 +264,10 @@ describe("Branch", function() {
             branch.isFailed = true;
             branch.isSkipped = true;
             branch.isRunning = true,
-            branch.afterEveryBranch = [ afterBranch1, afterBranch2 ];
-            branch.afterEveryStep = [ afterBranch3 ];
+            branch.beforeEveryBranch = [ stepD ];
+            branch.afterEveryBranch = [ stepD, stepE ];
+            branch.beforeEveryStep = [ stepG ];
+            branch.afterEveryStep = [ stepF, stepG ];
 
             var clonedBranch = branch.clone();
 
@@ -357,25 +287,19 @@ describe("Branch", function() {
                 isFailed: true,
                 isSkipped: true,
                 isRunning: true,
+                beforeEveryBranch: [
+                    { text: "D" }
+                ],
                 afterEveryBranch: [
-                    {
-                        steps: [
-                            { text: "D" },
-                            { text: "E" }
-                        ]
-                    },
-                    {
-                        steps: [
-                            { text: "F" }
-                        ]
-                    }
+                    { text: "D" },
+                    { text: "E" }
+                ],
+                beforeEveryStep: [
+                    { text: "G" }
                 ],
                 afterEveryStep: [
-                    {
-                        steps: [
-                            { text: "G" }
-                        ]
-                    }
+                    { text: "F" },
+                    { text: "G" }
                 ]
             });
 
@@ -397,25 +321,19 @@ describe("Branch", function() {
                 isFailed: true,
                 isSkipped: true,
                 isRunning: true,
+                beforeEveryBranch: [
+                    { text: "D" }
+                ],
                 afterEveryBranch: [
-                    {
-                        steps: [
-                            { text: "D" },
-                            { text: "E" }
-                        ]
-                    },
-                    {
-                        steps: [
-                            { text: "F" }
-                        ]
-                    }
+                    { text: "D" },
+                    { text: "E" }
+                ],
+                beforeEveryStep: [
+                    { text: "G" }
                 ],
                 afterEveryStep: [
-                    {
-                        steps: [
-                            { text: "G" }
-                        ]
-                    }
+                    { text: "F" },
+                    { text: "G" }
                 ]
             });
 
@@ -445,59 +363,6 @@ describe("Branch", function() {
     A -
         B -
             C
-`);
-        });
-
-        it("outputs the right text, including hooks", function() {
-            var stepA = new Step();
-            stepA.text = "A";
-            stepA.branchIndents = 0;
-
-            var stepB = new Step();
-            stepB.text = "B";
-            stepB.branchIndents = 0;
-
-            var stepC = new Step();
-            stepC.text = "C";
-            stepC.branchIndents = 0;
-
-            var branchA = new Branch();
-            branchA.steps = [ stepA, stepB, stepC ];
-
-            var branchB = new Branch();
-            branchB.steps = [ stepA, stepC ];
-
-            var branchC = new Branch();
-            branchC.steps = [ stepB ];
-
-            var branchD = new Branch();
-            branchD.steps = [ stepC ];
-
-            var branchE = new Branch();
-            branchE.steps = [ stepA, stepB ];
-
-            branchA.beforeEveryBranch = [ branchB, branchC ];
-            branchC.beforeEveryBranch = [ branchD ];
-            branchA.afterEveryBranch = [ branchE ];
-
-            expect(branchA.output("Foo")).to.equal(`Foo ..
-    A -
-    B -
-    C -
-
-    * Before Every Branch ..
-        A -
-        C -
-
-    * Before Every Branch ..
-        B -
-
-        * Before Every Branch ..
-            C -
-
-    * After Every Branch ..
-        A -
-        B -
 `);
         });
     });

@@ -1,4 +1,5 @@
 const Constants = require('./constants.js');
+const Branch = require('./branch.js');
 const utils = require('./utils.js');
 
 /**
@@ -29,43 +30,38 @@ class RunInstance {
         this.isPaused = false;
         this.currBranch = this.tree.nextBranch();
         while(this.currBranch) {
-            if(this.currBranch == 'wait') {
-                // wait 1 sec
-                await new Promise((resolve, reject) => {
-                    setTimeout(() => { resolve(); }, 1000);
-                });
+            // Execute Before Every Branch steps
+            for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
+                var s = this.currBranch.beforeEveryBranch[i];
+                await runStep(s, null, null, this.currBranch);
             }
-            else { // this.currBranch is an actual Branch
+
+            // Execute steps in the branch
+            this.currStep = this.tree.nextStep(this.currBranch, true, true);
+            while(this.currStep) {
+                await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
+
+                if(this.isPaused) { // the current step caused a pause
+                    return;
+                }
+
                 this.currStep = this.tree.nextStep(this.currBranch, true, true);
-                while(this.currStep) {
-                    await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
-
-                    if(this.isPaused) { // the current step caused a pause
-                        resolve(false);
-                        return;
-                    }
-
-                    this.currStep = this.tree.nextStep(this.currBranch, true, true);
-                }
-
-                // Execute After Every Branch hooks
-                this.local.successful = this.currBranch.isPassed;
-                this.local.error = this.currBranch.error;
-                for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-                    var b = this.currBranch.afterEveryBranch[i];
-                    for(var j = 0; j < b.steps.length; j++) {
-                        var s = b.steps[j];
-                        await runStep(s, b, null, this.currBranch);
-                    }
-                }
             }
 
-            this.currBranch = this.tree.nextBranch(); // NOTE: Tree.nextBranch() handles serving up Before/After Everything branches
+            // Execute After Every Branch steps
+            this.local.successful = this.currBranch.isPassed;
+            this.local.error = this.currBranch.error;
+            for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
+                var s = this.currBranch.afterEveryBranch[i];
+                await runStep(s, null, null, this.currBranch);
+            }
 
             // clear variable state
             this.global = {};
             this.local = {};
             this.localStack = [];
+
+            this.currBranch = this.tree.nextBranch();
         }
     }
 
@@ -74,7 +70,7 @@ class RunInstance {
      * Sets this.isPaused if the step requires execution to pause
      * Sets passed/failed status on step, sets the step's error and log
      * @param {Step} step - The Step to execute
-     * @param {Branch} branch - The branch that contains the step to execute
+     * @param {Branch} [branch] - The branch that contains the step to execute, if any
      * @param {Step} stepToTakeError - The Step that will take the Error object (usually the same as step), null if branchToTakeError should take the error
      * @param {Branch} branchToTakeError - The Branch that will take the Error object (usually the same as branch)
      * @return {Promise} Promise that gets resolved when the step finishes execution
@@ -85,10 +81,20 @@ class RunInstance {
             return;
         }
 
+        // Execute Before Every Step hooks
+        if(branch) {
+            for(var i = 0; i < branch.beforeEveryStep.length; i++) {
+                var s = branch.beforeEveryStep[i];
+                await runStep(s, null, this.currStep, this.currBranch);
+            }
+        }
+
         var prevStep = null;
-        var index = branch.steps.indexOf(step);
-        if(index >= 1) {
-            prevStep = branch.steps[index - 1];
+        if(branch) {
+            var index = branch.steps.indexOf(step);
+            if(index >= 1) {
+                prevStep = branch.steps[index - 1];
+            }
         }
 
         // For function call steps, replace {vars}/{{vars}} inside 'strings' and [ElementFinders]
@@ -122,7 +128,6 @@ class RunInstance {
                     // Set {{local vars}} based on function declaration signature (step.functionDeclarationText) and step's function call signature
 
                     // TODO
-                    // TODO: this is where ElementFinders are converted to objects too
 
 
 
@@ -239,13 +244,14 @@ class RunInstance {
         }
 
         // Execute After Every Step hooks
-        this.local.successful = step.isPassed;
-        this.local.error = step.error;
-        branch.afterEveryStep.forEach(b => {
-            b.steps.forEach(s => {
-                runStep(s, b, this.currStep, this.currBranch);
-            });
-        });
+        if(branch) {
+            this.local.successful = step.isPassed;
+            this.local.error = step.error;
+            for(var i = 0; i < branch.afterEveryStep.length; i++) {
+                var s = branch.afterEveryStep[i];
+                await runStep(s, null, this.currStep, this.currBranch);
+            }
+        }
 
         // Update the report
         this.runner.reporter.generateReport();
@@ -301,7 +307,10 @@ class RunInstance {
     }
 
     /**
-     * @return {String} text, with vars replaced with their values at the given step and branch
+     * @param {String} text - The text whose vars the replace
+     * @param {Step} step - We're finiding the value of variables at this step
+     * @param {Branch} [branch] - The branch containing step, if any
+     * @return {String} text, with vars replaced with their values
      * @throws {Error} If there's a variable inside text that's never set
      */
     replaceVars(text, step, branch) {
@@ -333,6 +342,10 @@ class RunInstance {
     }
 
     /**
+     * @param {String} varname - The name of the variable, without braces
+     * @param {Boolean} isLocal - True of the variable is local, false if it's global
+     * @param {Step} step - We're finiding the value of the variable at this step
+     * @param {Branch} [branch] - The branch containing step, if any
      * @return {String} Value of the given variable at the given step and branch
      * @throws {Error} If the variable is never set
      */
@@ -355,6 +368,12 @@ class RunInstance {
         }
 
         // Go down the branch looking for {varname}= or {{varname}}=
+
+        if(!branch) {
+            branch = new Branch(); // temp branch that's going to be a container for the step
+            branch.steps.push(step);
+        }
+
         var index = branch.steps.indexOf(step);
         for(var i = index; i < branch.steps.length; i++) {
             var s = branch.steps[i];

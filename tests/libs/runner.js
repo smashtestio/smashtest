@@ -1,5 +1,6 @@
 const chai = require('chai');
 const chaiSubset = require('chai-subset');
+const chaiAsPromised = require("chai-as-promised");
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
@@ -7,10 +8,11 @@ const Tree = require('../../tree.js');
 const Runner = require('../../runner.js');
 
 chai.use(chaiSubset);
+chai.use(chaiAsPromised);
 
 describe("Runner", function() {
     describe("run()", function() {
-        it("throws an error when pauseOnFail is set but maxInstances isn't 1", function() {
+        it("throws an error when pauseOnFail is set but maxInstances isn't 1", async function() {
             var runner = new Runner();
             var tree = new Tree();
 
@@ -18,12 +20,10 @@ describe("Runner", function() {
             runner.maxInstances = 2;
             runner.tree = tree;
 
-            assert.throws(() => {
-                runner.run();
-            }, "maxInstances must be set to 1 since pauseOnFail is on");
+            await expect(runner.run()).to.be.rejectedWith("maxInstances must be set to 1 since pauseOnFail is on");
         });
 
-        it("throws an error when a ~ step exists but maxInstances isn't 1", function() {
+        it("throws an error when a ~ step exists but maxInstances isn't 1", async function() {
             var runner = new Runner();
             var tree = new Tree();
 
@@ -37,18 +37,28 @@ C -
             runner.maxInstances = 5;
             runner.tree = tree;
 
-            assert.throws(() => {
-                runner.run();
-            }, "maxInstances must be set to 1 since a ~ step exists");
+            await expect(runner.run()).to.be.rejectedWith("maxInstances must be set to 1 since a ~ step exists");
         });
 
         it.skip("can spawn a single run instance that pauses", function() {
+        });
+
+        it.skip("can resume a paused run instance", function() {
         });
 
         it.skip("can spawn a single run instance that completes", function() {
         });
 
         it.skip("can spawn a mulitple run instances, all of which complete", function() {
+        });
+
+        it.skip("runs all Before Everything steps", function() {
+        });
+
+        it.skip("runs all After Everything steps", function() {
+        });
+
+        it.skip("runs all After Everything steps but not the Before Everything steps on resume", function() {
         });
     });
 

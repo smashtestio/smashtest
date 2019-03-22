@@ -33,4 +33,10 @@ describe("Utils", function() {
             expect(utils.hasQuotes(`  foobar  `)).to.equal(false);
         });
     });
+
+    describe("canonicalize()", function() {
+        it("generates canonical text", function() {
+            expect(utils.canonicalize(" After   EVERY Branch  ")).to.equal("after every branch");
+        });
+    });
 });

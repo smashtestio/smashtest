@@ -119,14 +119,6 @@ class Step {
     }
 
     /**
-     * @return {String} The text of this step, but in a canonical format (trimmed, all lowercase, and all whitespace replaced with a single space)
-     * NOTE: Only use this function if this step is a hook function declaration
-     */
-    getHookCanonicalText() {
-        return utils.canonicalize(this.text);
-    }
-
-    /**
      * Checks to see if this step, which is a function call, matches the given function declaration
      * @param {Step} functionDeclaration - A function declaration step
      * @return {Boolean} true if they match, false if they don't

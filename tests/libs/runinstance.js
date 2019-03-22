@@ -339,6 +339,22 @@ A -
             expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{var 3}-{{var 4}}  {{var5}} {var6}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
         });
 
+        it("handles a branch of null", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1}='value1'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global.var0 = "value0";
+
+            expect(runInstance.replaceVars("{var1} {var1}", tree.branches[0].steps[0], null)).to.equal("value1 value1");
+        });
+
         it("doesn't affect a string that doesn't contain variables", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -506,6 +522,21 @@ A -
             runInstance.global.var0 = "value0";
 
             expect(runInstance.findVarValue("var0", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
+        });
+
+        it("returns the value of a variable that's set on the same line, and with a branch of null", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1}='value1'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], null)).to.equal("value1");
         });
 
         it("returns the value of a variable that's not set yet and whose eventual value is a plain string", function() {

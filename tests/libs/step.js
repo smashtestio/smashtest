@@ -341,15 +341,6 @@ describe("Step", function() {
         });
     });
 
-    describe("getHookCanonicalText()", function() {
-        it("generates canonical text for hooks", function() {
-            var step = new Step();
-
-            step.text = " After   EVERY Branch  ";
-            expect(step.getHookCanonicalText()).to.equal("after every branch");
-        });
-    });
-
     describe("isFunctionMatch()", function() {
         var functionDeclaration = new Step();
         var functionCall = new Step();

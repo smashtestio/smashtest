@@ -15,8 +15,10 @@ class Branch {
         this.frequency = "";                // Frequency of this Branch (either 'high', 'med', or 'low')
         this.groups = [];                   // The groups that this Branch is a part of
 
-        this.afterEveryBranch = [];         // Array of Branch, the branches to execute after this branch is done
-        this.afterEveryStep = [];           // Array of Branch, the branches to execute after each step in this branch is done
+        this.beforeEveryBranch = [];        // Array of Step, the steps to execute before this branch starts
+        this.afterEveryBranch = [];         // Array of Step, the steps to execute after this branch is done
+        this.beforeEveryStep = [];          // Array of Step, the steps to execute before each step in this branch starts
+        this.afterEveryStep = [];           // Array of Step, the steps to execute after each step in this branch is done
 
         this.isOnly = false;                // If true, a Step in this Branch has a $
         this.isDebug = false;               // If true, a Step in this Branch has a ~
@@ -34,9 +36,7 @@ class Branch {
     }
 
     /**
-     * Attaches branch.steps to the end of this.steps
-     * Attaches branch.afterEveryBranch to the end of this.afterEveryBranch (so that built-in comes last)
-     * Attaches branch.afterEveryStep to the end of this.afterEveryStep (so that built-in comes last)
+     * Attaches the steps and hooks of the given Branch to the end of this Branch
      * Copies over the other members, if they exist in branch
      */
     mergeToEnd(branch) {
@@ -59,20 +59,40 @@ class Branch {
         branch.isDebug ? this.isDebug = branch.isDebug : null;
         branch.isBuiltIn ? this.isBuiltIn = branch.isBuiltIn : null;
 
+        // Attach branch.beforeEveryBranch to the beginning of this.beforeEveryBranch (so that built-in comes first)
+        if(branch.beforeEveryBranch) {
+            if(!this.beforeEveryBranch) {
+                this.beforeEveryBranch = [];
+            }
+
+            this.beforeEveryBranch = branch.beforeEveryBranch.concat(this.beforeEveryBranch);
+        }
+
+        // Attach branch.afterEveryBranch to the end of this.afterEveryBranch (so that built-in comes last)
         if(branch.afterEveryBranch) {
             if(!this.afterEveryBranch) {
                 this.afterEveryBranch = [];
             }
 
-            this.afterEveryBranch = branch.afterEveryBranch.concat(this.afterEveryBranch);
+            this.afterEveryBranch = this.afterEveryBranch.concat(branch.afterEveryBranch);
         }
 
+        // Attach branch.beforeEveryStep to the beginning of this.beforeEveryStep (so that built-in comes first)
+        if(branch.beforeEveryStep) {
+            if(!this.beforeEveryStep) {
+                this.beforeEveryStep = [];
+            }
+
+            this.beforeEveryStep = branch.beforeEveryStep.concat(this.beforeEveryStep);
+        }
+
+        // Attach branch.afterEveryStep to the end of this.afterEveryStep (so that built-in comes last)
         if(branch.afterEveryStep) {
             if(!this.afterEveryStep) {
                 this.afterEveryStep = [];
             }
 
-            this.afterEveryStep = branch.afterEveryStep.concat(this.afterEveryStep);
+            this.afterEveryStep = this.afterEveryStep.concat(branch.afterEveryStep);
         }
     }
 
@@ -95,33 +115,24 @@ class Branch {
         }
 
         if(this.groups) {
-            if(typeof clone.groups == 'undefined') {
-                clone.groups = [];
-            }
-
+            clone.groups = [];
             this.groups.forEach(group => {
                 clone.groups.push(group);
             });
         }
 
-        if(this.afterEveryBranch) {
-            if(!clone.afterEveryBranch) {
-                clone.afterEveryBranch = [];
+        cloneHookArray("beforeEveryBranch", this);
+        cloneHookArray("afterEveryBranch", this);
+        cloneHookArray("beforeEveryStep", this);
+        cloneHookArray("afterEveryStep", this);
+
+        function cloneHookArray(name, self) {
+            if(self[name]) {
+                clone[name] = [];
+                self[name].forEach(step => {
+                    clone[name].push(step.cloneForBranch(noRefs));
+                });
             }
-
-            this.afterEveryBranch.forEach(branch => {
-                clone.afterEveryBranch.push(branch.clone(noRefs));
-            });
-        }
-
-        if(this.afterEveryStep) {
-            if(!clone.afterEveryStep) {
-                clone.afterEveryStep = [];
-            }
-
-            this.afterEveryStep.forEach(branch => {
-                clone.afterEveryStep.push(branch.clone(noRefs));
-            });
         }
 
         return clone;
@@ -145,22 +156,6 @@ class Branch {
             output += spaces(step.branchIndents + startIndent + 1) + text + '\n';
         });
 
-        if(this.beforeEveryBranch) {
-            this.beforeEveryBranch.forEach(branch => {
-                if(!branch.isBuiltIn) {
-                    output += '\n' + branch.output("* Before Every Branch", startIndent + 1);
-                }
-            });
-        }
-
-        if(this.afterEveryBranch) {
-            this.afterEveryBranch.forEach(branch => {
-                if(!branch.isBuiltIn) {
-                    output += '\n' + branch.output("* After Every Branch", startIndent + 1);
-                }
-            });
-        }
-
         function spaces(indents) {
             var out = '';
             for(var i = 0; i < indents; i++) {
@@ -176,6 +171,7 @@ class Branch {
 
     /**
      * Returns whether or not this branch equals another
+     * Does not take hooks into account
      * @param {Branch} branch - The branch we're comparing to this one
      * @param {Number} [n] - Only compare the first N steps, no limit if omitted
      * @return {Boolean} true if the given branch's steps are equal to this brach's steps, false otherwise

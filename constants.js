@@ -22,5 +22,5 @@ exports.NUMBERS_ONLY_REGEX = /^[0-9\.\,]+$/;
 exports.SPACES_PER_INDENT = 4;
 
 // MISC CONSTANTS
-exports.HOOK_NAMES = ['after every branch', 'after every step', 'before everything', 'after everything'];
-exports.HOOK_BLACKLIST = ['before every branch', 'before every step'];
+exports.HOOK_NAMES_CANON = ['before every branch', 'after every branch', 'before every step', 'after every step', 'before everything', 'after everything'];
+exports.HOOK_NAMES =       ['Before Every Branch', 'After Every Branch', 'Before Every Step', 'After Every Step', 'Before Everything', 'After Everything'];

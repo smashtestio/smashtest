@@ -108,15 +108,11 @@ class Tree {
             if(step.text.match(Constants.STRING_LITERAL_REGEX)) {
                 utils.error("A * Function declaration cannot have 'strings' inside of it", filename, lineNumber);
             }
-
-            if(Constants.HOOK_BLACKLIST.indexOf(step.getHookCanonicalText()) != -1) {
-                utils.error("This hook type is not yet supported", filename, lineNumber);
-            }
         }
 
         // Validate that a non-function declaration isn't using a hook step name
         if(!step.isFunctionDeclaration) {
-            if(Constants.HOOK_NAMES.indexOf(step.getHookCanonicalText()) != -1) {
+            if(Constants.HOOK_NAMES_CANON.indexOf(utils.canonicalize(step.text)) != -1) {
                 utils.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
             }
         }
@@ -158,6 +154,19 @@ class Tree {
         // Validate Execute in browser steps
         if(typeof step.codeBlock != 'undefined' && utils.canonicalize(step.text) == "execute in browser") {
             this.verifyCasing(step, "Execute In Browser");
+        }
+
+        // Validate hook steps
+        if(step.isFunctionDeclaration) {
+            var canStepText = utils.canonicalize(step.text);
+            var stepText = step.text.trim().replace(/\s+/g, ' ');
+            var index = Constants.HOOK_NAMES_CANON.indexOf(canStepText);
+            if(index != -1) {
+                this.verifyCasing(step, Constants.HOOK_NAMES[index]);
+                if(typeof step.codeBlock == 'undefined') {
+                    utils.error("A hook must have a code block", filename, lineNumber);
+                }
+            }
         }
 
         // Steps that set variables
@@ -649,7 +658,7 @@ class Tree {
     }
 
     /**
-     * Converts step and its children into branches. Expands functions, step blocks, hooks, etc.
+     * Converts step and its children into branches. Expands functions, step blocks, etc.
      * @param {Step} step - Step from the tree (this.root) to convert to branches (NOTE: do not set step to a StepBlock unless it's a sequential StepBlock)
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do include branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [frequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
@@ -659,7 +668,7 @@ class Tree {
      * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
      * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier)
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
-     * @throws {Error} If a function declaration cannot be found, or if a hook name is invalid
+     * @throws {Error} If a function declaration cannot be found, or if a hook has children (which is not allowed)
      */
     branchify(step, groups, frequency, noDebug, stepsAbove, branchIndents, isFunctionCall, isSequential) {
         // ***************************************
@@ -813,69 +822,45 @@ class Tree {
         }
 
         // Check if a child is a hook function declaration
+        var beforeEveryBranch = [];
         var afterEveryBranch = [];
+        var beforeEveryStep = [];
         var afterEveryStep = [];
         children.forEach(child => {
-            if(child.isFunctionDeclaration) {
-                var canStepText = child.getHookCanonicalText();
-                var stepText = child.text.trim().replace(/\s+/g, ' ');
-                if(canStepText == "after every branch") {
-                    this.verifyCasing(child, 'After Every Branch');
+            var canStepText = utils.canonicalize(child.text ? child.text : '');
+            if(child.isFunctionDeclaration && Constants.HOOK_NAMES_CANON.indexOf(canStepText) != -1) {
+                var clonedHookStep = child.cloneAsFunctionCall();
+                clonedHookStep.branchIndents = 0;
 
-                    var afterEveryBranchMembers = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
-                    var clonedHookStep = child.cloneAsFunctionCall();
-                    clonedHookStep.branchIndents = 0;
-                    afterEveryBranchMembers.forEach(branch => {
-                        branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
-                        branch.isBuiltIn = clonedHookStep.isBuiltIn;
-                    });
+                if(child.children.length > 0) {
+                    utils.error("A hook declaration cannot have children", child.filename, child.lineNumber);
+                }
 
-                    afterEveryBranch = afterEveryBranch.concat(afterEveryBranchMembers);
+                if(canStepText == "before every branch") {
+                    beforeEveryBranch.unshift(clonedHookStep);
+                }
+                else if(canStepText == "after every branch") {
+                    afterEveryBranch.push(clonedHookStep);
+                }
+                else if(canStepText == "before every step") {
+                    beforeEveryStep.unshift(clonedHookStep);
                 }
                 else if(canStepText == "after every step") {
-                    this.verifyCasing(child, 'After Every Step');
-
-                    var afterEveryStepMembers = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
-                    var clonedHookStep = child.cloneAsFunctionCall();
-                    clonedHookStep.branchIndents = 0;
-                    afterEveryStepMembers.forEach(branch => {
-                        branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
-                        branch.isBuiltIn = clonedHookStep.isBuiltIn;
-                    });
-
-                    afterEveryStep = afterEveryStep.concat(afterEveryStepMembers);
+                    afterEveryStep.push(clonedHookStep);
                 }
                 else if(canStepText == "before everything") {
-                    this.verifyCasing(child, 'Before Everything');
-
                     if(child.indents != 0) {
-                        utils.error("A '* Before Everything' function must not be indented (it must be at 0 indents)", step.filename, step.lineNumber + 1);
+                        utils.error("A '* Before Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
                     }
 
-                    var newBeforeEverything = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
-                    var clonedHookStep = child.cloneAsFunctionCall();
-                    clonedHookStep.branchIndents = 0;
-                    newBeforeEverything.forEach(branch => {
-                        branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
-                        branch.isBuiltIn = clonedHookStep.isBuiltIn;
-                    });
-                    this.beforeEverything = newBeforeEverything.concat(this.beforeEverything); // inserted this way so that built-in hooks get executed first
+                    this.beforeEverything.unshift(clonedHookStep); // inserted this way so that built-in hooks get executed first
                 }
                 else if(canStepText == "after everything") {
-                    this.verifyCasing(child, 'After Everything');
-
                     if(child.indents != 0) {
-                        utils.error("An '* After Everything' function must not be indented (it must be at 0 indents)", step.filename, step.lineNumber + 1);
+                        utils.error("An '* After Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
                     }
 
-                    var newAfterEverything = this.branchify(child, groups, frequency, noDebug, stepsAbove, 1, true);
-                    var clonedHookStep = child.cloneAsFunctionCall();
-                    clonedHookStep.branchIndents = 0;
-                    newAfterEverything.forEach(branch => {
-                        branch.steps.unshift(clonedHookStep); // attach this child, converted into a function call, to the top of each branch (thereby preserving its text, identifiers, etc.)
-                        branch.isBuiltIn = clonedHookStep.isBuiltIn;
-                    });
-                    this.afterEverything = this.afterEverything.concat(newAfterEverything); // inserted this way so that built-in hooks get executed last
+                    this.afterEverything.push(clonedHookStep); // inserted this way so that built-in hooks get executed last
                 }
             }
         });
@@ -956,8 +941,8 @@ class Tree {
             }
         }
 
-        // Remove branches by groups (but only for steps at the top of the tree or hook)
-        if(groups && atTop()) {
+        // Remove branches by groups (but only for steps at the top of the tree)
+        if(groups && step.indents == -1) {
             for(var i = 0; i < branchesFromChildren.length;) {
                 var branchFromChild = branchesFromChildren[i];
 
@@ -994,8 +979,8 @@ class Tree {
             }
         }
 
-        // Remove branches by frequency (but only for steps at the top of the tree or hook)
-        if(frequency && atTop()) {
+        // Remove branches by frequency (but only for steps at the top of the tree)
+        if(frequency && step.indents == -1) {
             for(var i = 0; i < branchesFromChildren.length;) {
                 var branchFromChild = branchesFromChildren[i];
                 var freqAllowed = freqToNum(frequency);
@@ -1032,13 +1017,6 @@ class Tree {
                     }
                 }
             }
-        }
-
-        /**
-         * @return {Boolean} true if this step is at the root step, or at the top of a hook
-         */
-        function atTop() {
-            return step.indents == -1 || Constants.HOOK_NAMES.indexOf(step.getHookCanonicalText()) != -1;
         }
 
         /**
@@ -1126,15 +1104,41 @@ class Tree {
             }
         }
 
+        // Attach beforeEveryBranch to each branch below
+        if(beforeEveryBranch && beforeEveryBranch.length > 0) {
+            branchesBelow.forEach(branchBelow => {
+                beforeEveryBranch.forEach(s => {
+                    if(!branchBelow.beforeEveryBranch) {
+                        branchBelow.beforeEveryBranch = [];
+                    }
+
+                    branchBelow.beforeEveryBranch.push(s.cloneForBranch());
+                });
+            });
+        }
+
         // Attach afterEveryBranch to each branch below
         if(afterEveryBranch && afterEveryBranch.length > 0) {
             branchesBelow.forEach(branchBelow => {
-                afterEveryBranch.forEach(afterBranch => {
+                afterEveryBranch.forEach(s => {
                     if(!branchBelow.afterEveryBranch) {
                         branchBelow.afterEveryBranch = [];
                     }
 
-                    branchBelow.afterEveryBranch.push(afterBranch.clone());
+                    branchBelow.afterEveryBranch.push(s.cloneForBranch());
+                });
+            });
+        }
+
+        // Attach beforeEveryStep to each branch below
+        if(beforeEveryStep && beforeEveryStep.length > 0) {
+            branchesBelow.forEach(branchBelow => {
+                beforeEveryStep.forEach(s => {
+                    if(!branchBelow.beforeEveryStep) {
+                        branchBelow.beforeEveryStep = [];
+                    }
+
+                    branchBelow.beforeEveryStep.push(s.cloneForBranch());
                 });
             });
         }
@@ -1142,12 +1146,12 @@ class Tree {
         // Attach afterEveryStep to each branch below
         if(afterEveryStep && afterEveryStep.length > 0) {
             branchesBelow.forEach(branchBelow => {
-                afterEveryStep.forEach(afterBranch => {
+                afterEveryStep.forEach(s => {
                     if(!branchBelow.afterEveryStep) {
                         branchBelow.afterEveryStep = [];
                     }
 
-                    branchBelow.afterEveryStep.push(afterBranch.clone());
+                    branchBelow.afterEveryStep.push(s.cloneForBranch());
                 });
             });
         }
@@ -1235,12 +1239,12 @@ class Tree {
             obj.branches.push(branch.clone(true));
         });
 
-        this.beforeEverything.forEach(branch => {
-            obj.beforeEverything.push(branch.clone(true));
+        this.beforeEverything.forEach(s => {
+            obj.beforeEverything.push(s.cloneForBranch(true));
         });
 
-        this.afterEverything.forEach(branch => {
-            obj.afterEverything.push(branch.clone(true));
+        this.afterEverything.forEach(s => {
+            obj.afterEverything.push(s.cloneForBranch(true));
         });
 
         return JSON.stringify(obj);
@@ -1373,65 +1377,18 @@ class Tree {
 
     /**
      * Finds a branch that hasn't run yet and marks it for the caller
-     * @return {Branch} The chosen Branch, or 'wait' if a branch will become available in the future, or null if nothing left at all
+     * @return {Branch} The chosen Branch, or null if nothing left at all
      */
     nextBranch() {
-        // Gives out Before Everything branches, then once they're exhausted, gives out normal branches,
-        // then when they're exhausted, gives out After Everything branches
-
-        var branch = this.findBranchNotYetTaken(this.beforeEverything);
-        if(branch) {
-            branch.isRunning = true;
-            return branch;
-        }
-        else if(isBranchStillRunning(this.beforeEverything)) {
-            return 'wait'; // we still need to wait for all beforeEverything branches to finish before we start handing out normal branches
-        }
-
-        branch = this.findBranchNotYetTaken(this.branches);
-        if(branch) {
-            branch.isRunning = true;
-            return branch;
-        }
-        else if(isBranchStillRunning(this.branches)) {
-            return 'wait'; // we still need to wait for all normal branches to finish before we start handing out afterEverything branches
-        }
-
-        branch = this.findBranchNotYetTaken(this.afterEverything);
-        if(branch) {
-            branch.isRunning = true;
-            return branch;
-        }
-        else {
-            return null;
-        }
-
-        /**
-         * @return {Boolean} true if at least one branch from branches is still running, false otherwise
-         */
-        function isBranchStillRunning(branches) {
-            for(var i = 0; i < branches.length; i++) {
-                if(branches[i].isRunning) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
-
-    /**
-     * @return {Branch} A branch not yet taken from branches, null if nothing found
-     */
-    findBranchNotYetTaken(branches) {
-        for(var i = 0; i < branches.length; i++) {
-            var branch = branches[i];
+        var branchNotYetTaken = null;
+        for(var i = 0; i < this.branches.length; i++) {
+            var branch = this.branches[i];
             if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {
                 if(branch.nonParallelId) {
                     // If a branch's nonParallelId is set, check if a previous branch with that id is still executing by another thread
                     var found = false;
-                    for(var j = 0; j < branches.length; j++) {
-                        var b = branches[j];
+                    for(var j = 0; j < this.branches.length; j++) {
+                        var b = this.branches[j];
                         if(b.nonParallelId == branch.nonParallelId && b.isRunning) {
                             found = true;
                             break;
@@ -1444,11 +1401,18 @@ class Tree {
                     }
                 }
 
-                return branch;
+                branchNotYetTaken = branch;
+                break;
             }
         }
 
-        return null;
+        if(branchNotYetTaken) {
+            branchNotYetTaken.isRunning = true;
+            return branchNotYetTaken;
+        }
+        else {
+            return null;
+        }
     }
 
     /**

@@ -114,10 +114,9 @@ Variables
             - Exists for the life of the branch
             - Steps below where {var} is declared will have access to {var}, which includes inside function calls
             - If {var} is declared inside a function, it will be accessible in the caller after the function call step
-            - Accessible within After Every Branch/Step hooks, for hooks that apply to branches where the var was declared
+            - Accessible within Every Branch/Step hooks, for hooks that apply to branches where the var was declared
         - {{var}} is internal to the function
             - Goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
-            - Accessible within After Every Branch/Step hooks, when those hooks are defined in the same scope as the variable
     - Where to use them (they are replaced with their value)
         - Function call
             F {var1} {{var2}}
@@ -214,7 +213,6 @@ Debug (~)
     - Debug identifier (~)
     - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)
     - When multiple branches are marked with ~'s, it chooses the first one
-    - Works inside hooks, but will only isolate a branch inside that hook (won't affect normal branches)
     - Throws exception if a ~ exists, but is cut off due to $, groups, or frequency
     - maxInstances must be 1 if a ~ exists anywhere
     - pauseOnFail command line flag will pause if a step fails (or unexpectedly passes) and open up the REPL
@@ -241,14 +239,16 @@ Selective test running
 Mocking APIs
 
 Hook steps
+    - * Before Every Branch
+        - runs before every branch that goes through this function declaration's parent
     - * After Every Branch
-        - {successful} = true if passed, false if failed
-        - {error} = the Error object, if failed
-        - attached to the end of every leaf under this function declaration's parent
-        - For "Before Every Branch", just insert a step on top of all the branches you want to cover
+        - {{successful}} = true if branch passed, false if failed
+        - {{error}} = the Error object, if failed
+        - runs after every leaf under this function declaration's parent
+    - * Before Every Step
     - * After Every Step
-        - {successful} = true if passed, false if failed
-        - {error} = the Error object, if failed
+        - {{successful}} = true if step passed, false if failed
+        - {{error}} = the Error object, if failed
     - * Before Everything
         - before any branches begin, execute this
         - only valid at 0 indents
@@ -257,5 +257,6 @@ Hook steps
         - after all branches end, execute this
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
-    - Hook steps won't have a pass/fail state. They're not there to verify, they're there to setup/teardown/report.
-    - Their execution is just repetitive background, and any failures are noted as from a hook and put into the current branch/step
+    - Code blocks only. They cannot have children.
+    - These are recommended for internal framework stuff, like reporting (setup/teardown too, though that's really part of the test itself)
+    - Hook steps won't have a pass/fail state. If a hook step fails, the step/branch it corresponds to will take the error.
