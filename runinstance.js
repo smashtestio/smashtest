@@ -39,7 +39,7 @@ class RunInstance {
                 else { // this.currBranch is an actual Branch
                     this.currStep = this.tree.nextStep(this.currBranch, true, true);
                     while(this.currStep) {
-                        this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
+                        await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
 
                         if(this.isPaused) { // the current step caused a pause
                             resolve(false);
@@ -54,7 +54,7 @@ class RunInstance {
                     this.local.error = this.currBranch.error;
                     this.currBranch.afterEveryBranch.forEach(b => {
                         b.steps.forEach(s => {
-                            runStep(s, b, null, this.currBranch);
+                            await runStep(s, b, null, this.currBranch);
                         });
                     });
                 }
@@ -391,18 +391,15 @@ class RunInstance {
      * Call when already paused
      * @param {Step} step - The step to run
      * @return {Promise} Promise that gets resolved once done executing
-     * @throws {Error} If tree has more than one branch
      */
-    injectStep(step) {
+    async injectStep(step) {
         if(!this.isPaused) {
             return; // fail gracefully
         }
 
-        return new Promise(async (resolve, reject) => {
-            this.isPaused = false; // un-pause for now
-            this.runStep(step, this.currBranch, step, this.currBranch);
-            this.isPaused = true;
-        });
+        this.isPaused = false; // un-pause for now
+        await this.runStep(step, this.currBranch, step, this.currBranch);
+        this.isPaused = true;
     }
 
     /**

@@ -365,11 +365,18 @@ A -
     });
 
     describe("evalCodeBlock()", function() {
-        it("evals a code and returns a value", async function() {
+        it("evals a code and returns a value asynchonously", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
             await expect(runInstance.evalCodeBlock("return 5;")).to.eventually.equal(5);
+        });
+
+        it("evals a code and returns a value synchronously", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.evalCodeBlock("return 5;", true)).to.equal(5);
         });
 
         it("makes the persistent, global, and local objects available", async function() {
@@ -650,55 +657,18 @@ A -
         it.skip("fails gracefully if RunInstance is not currently paused", function() {
         });
 
-        it.skip("throws an exception if the given tree has 0 branches", function() {
+        it.skip("runs a step, then pauses again", function() {
         });
 
-        it.skip("throws an exception if the given tree has more than 1 branch", function() {
+        it.skip("step has access to {{vars}} and {vars} that were defined at the pause", function() {
         });
 
-        it.skip("runs a branch of steps while execution is paused", function() {
-            // execution remains paused after this
+        it.skip("attaches an error to the step passed in if it fails", function() {
+            // and doesn't attach the error to this.currStep or this.currBranch
         });
 
-        it.skip("runs a branch of steps, containing After Every Branch hooks, while execution is paused", function() {
-        });
-
-        it.skip("runs a branch of steps, containing After Every Step hooks, while execution is paused", function() {
-        });
-
-        it.skip("runs a branch of steps while execution is paused on an After Every Branch step", function() {
-            // execution remains paused after this
-        });
-
-        it.skip("runs a branch of steps, containing After Every Branch hooks, while execution is paused on an After Every Branch step", function() {
-        });
-
-        it.skip("runs a branch of steps, containing After Every Step hooks, while execution is paused on an After Every Branch step", function() {
-        });
-
-        it.skip("runs a branch of steps while execution is paused on an After Every Step step", function() {
-            // execution remains paused after this
-        });
-
-        it.skip("runs a branch of steps, containing After Every Branch hooks, while execution is paused on an After Every Step step", function() {
-        });
-
-        it.skip("runs a branch of steps, containing After Every Step hooks, while execution is paused on an After Every Step step", function() {
-        });
-
-        it.skip("attaches errors to the corresponding step in the given tree", function() {
-        });
-
-        it.skip("attaches errors during After Every Step steps to the corresponding step in the given tree", function() {
-        });
-
-        it.skip("attaches errors during After Every Branch steps to the corresponding branch in the given tree", function() {
-        });
-
-        it.skip("ends execution of the given tree and keeps the RunInstance at a pause if a pause occurs from inside the given tree", function() {
-        });
-
-        it.skip("the RunInstance can flawlessly resume from a pause, after an injected tree has run", function() {
+        it.skip("the RunInstance can flawlessly resume from a pause, after an injected step has run", function() {
+            // make sure the right next step is executed
         });
     });
 });

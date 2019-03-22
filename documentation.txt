@@ -141,6 +141,7 @@ Variables
         - (In other words, if there are multiple vars being set, each Step must be a string literal)
     - Using {vars} that will be defined later in the branch
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
+        - If you're setting the {var} = Function Call, the function call's code block must be synchronous
     - Accessing in code blocks
         - {var1} is global.var1 or global["var1"]
         - {{var2}} is var2, local.var2, or local["var2"]
