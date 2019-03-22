@@ -258,5 +258,23 @@ Hook steps
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
     - Code blocks only. They cannot have children.
-    - These are recommended for internal framework stuff, like reporting (setup/teardown too, though that's really part of the test itself)
+    - These are recommended for internal framework stuff, like reporting (so you can run this code whether or not the step failed)
+        - Setup/teardown too, though that should really be part of the test itself
+            i.e.,
+            My Test -
+                ..
+                Setup
+                Steps
+                Teardown
+
+            * Setup
+                A (includes the same login as teardown, to clear out old state)
+
+            * Steps
+                B
+                    C
+                D
+
+            * Teardown
+                E
     - Hook steps won't have a pass/fail state. If a hook step fails, the step/branch it corresponds to will take the error.
