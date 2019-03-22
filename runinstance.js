@@ -52,11 +52,13 @@ class RunInstance {
                     // Execute After Every Branch hooks
                     this.local.successful = this.currBranch.isPassed;
                     this.local.error = this.currBranch.error;
-                    this.currBranch.afterEveryBranch.forEach(b => {
-                        b.steps.forEach(s => {
+                    for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
+                        var b = this.currBranch.afterEveryBranch[i];
+                        for(var j = 0; j < b.steps.length; j++) {
+                            var s = b.steps[j];
                             await runStep(s, b, null, this.currBranch);
-                        });
-                    });
+                        }
+                    }
                 }
 
                 this.currBranch = this.tree.nextBranch(); // NOTE: Tree.nextBranch() handles serving up Before/After Everything branches
