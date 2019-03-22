@@ -7021,39 +7021,22 @@ C
     `);
             var branches = tree.branchify(tree.root);
 
-            expect(branches).to.have.lengthOf(4);
-            expect(branches[0].steps).to.have.lengthOf(6);
-            expect(branches[1].steps).to.have.lengthOf(6);
-            expect(branches[2].steps).to.have.lengthOf(5);
-            expect(branches[3].steps).to.have.lengthOf(5);
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(10);
 
+            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("A");
             expect(branches[0].steps[1].text).to.equal("G");
             expect(branches[0].steps[2].text).to.equal("H");
-            expect(branches[0].steps[3].text).to.equal("B");
-            expect(branches[0].steps[4].text).to.equal("C");
-            expect(branches[0].steps[5].text).to.equal("I");
+            expect(branches[0].steps[3].text).to.equal("A");
+            expect(branches[0].steps[4].text).to.equal("J");
+            expect(branches[0].steps[5].text).to.equal("B");
+            expect(branches[0].steps[6].text).to.equal("C");
+            expect(branches[0].steps[7].text).to.equal("I");
+            expect(branches[0].steps[8].text).to.equal("C");
+            expect(branches[0].steps[9].text).to.equal("K");
 
-            expect(branches[1].steps[0].text).to.equal("A");
-            expect(branches[1].steps[1].text).to.equal("G");
-            expect(branches[1].steps[2].text).to.equal("H");
-            expect(branches[1].steps[3].text).to.equal("B");
-            expect(branches[1].steps[4].text).to.equal("C");
-            expect(branches[1].steps[5].text).to.equal("K");
-
-            expect(branches[2].steps[0].text).to.equal("A");
-            expect(branches[2].steps[1].text).to.equal("J");
-            expect(branches[2].steps[2].text).to.equal("B");
-            expect(branches[2].steps[3].text).to.equal("C");
-            expect(branches[2].steps[4].text).to.equal("I");
-
-            expect(branches[3].steps[0].text).to.equal("A");
-            expect(branches[3].steps[1].text).to.equal("J");
-            expect(branches[3].steps[2].text).to.equal("B");
-            expect(branches[3].steps[3].text).to.equal("C");
-            expect(branches[3].steps[4].text).to.equal("K");
-
-            expect(branches).to.containSubsetInOrder([
+            expect(branches).to.containSubset([
                 {
                     steps: [
                         {
@@ -7071,59 +7054,6 @@ C
                             branchIndents: 1,
                             isSequential: undefined
                         },
-                        {
-                            text: "B",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "C",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "I",
-                            branchIndents: 1,
-                            isSequential: undefined
-                        }
-                    ]
-                },
-                {
-                    steps: [
-                        {
-                            text: "A",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "G",
-                            branchIndents: 1,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "H",
-                            branchIndents: 1,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "B",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "C",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "K",
-                            branchIndents: 1,
-                            isSequential: undefined
-                        }
-                    ]
-                },
-                {
-                    steps: [
                         {
                             text: "A",
                             branchIndents: 0,
@@ -7147,25 +7077,6 @@ C
                         {
                             text: "I",
                             branchIndents: 1,
-                            isSequential: undefined
-                        }
-                    ]
-                },
-                {
-                    steps: [
-                        {
-                            text: "A",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "J",
-                            branchIndents: 1,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "B",
-                            branchIndents: 0,
                             isSequential: undefined
                         },
                         {
@@ -7208,251 +7119,236 @@ C
     `);
             var branches = tree.branchify(tree.root);
 
-            expect(branches).to.have.lengthOf(12);
-            expect(branches[0].steps).to.have.lengthOf(7);
-            expect(branches[1].steps).to.have.lengthOf(8);
-            expect(branches[2].steps).to.have.lengthOf(8);
-            expect(branches[3].steps).to.have.lengthOf(7);
-            expect(branches[4].steps).to.have.lengthOf(8);
-            expect(branches[5].steps).to.have.lengthOf(8);
-            expect(branches[6].steps).to.have.lengthOf(6);
-            expect(branches[7].steps).to.have.lengthOf(7);
-            expect(branches[8].steps).to.have.lengthOf(7);
-            expect(branches[9].steps).to.have.lengthOf(6);
-            expect(branches[10].steps).to.have.lengthOf(7);
-            expect(branches[11].steps).to.have.lengthOf(7);
+            expect(branches).to.have.lengthOf(3);
+            expect(branches[0].steps).to.have.lengthOf(11);
+            expect(branches[1].steps).to.have.lengthOf(12);
+            expect(branches[2].steps).to.have.lengthOf(12);
 
+            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("A");
             expect(branches[0].steps[1].text).to.equal("G");
             expect(branches[0].steps[2].text).to.equal("H");
-            expect(branches[0].steps[3].text).to.equal("B");
-            expect(branches[0].steps[4].text).to.equal("C");
-            expect(branches[0].steps[5].text).to.equal("I");
-            expect(branches[0].steps[6].text).to.equal("L");
+            expect(branches[0].steps[3].text).to.equal("A");
+            expect(branches[0].steps[4].text).to.equal("J");
+            expect(branches[0].steps[5].text).to.equal("B");
+            expect(branches[0].steps[6].text).to.equal("C");
+            expect(branches[0].steps[7].text).to.equal("I");
+            expect(branches[0].steps[8].text).to.equal("C");
+            expect(branches[0].steps[9].text).to.equal("K");
+            expect(branches[0].steps[10].text).to.equal("L");
 
             expect(branches[1].steps[0].text).to.equal("A");
             expect(branches[1].steps[1].text).to.equal("G");
             expect(branches[1].steps[2].text).to.equal("H");
-            expect(branches[1].steps[3].text).to.equal("B");
-            expect(branches[1].steps[4].text).to.equal("C");
-            expect(branches[1].steps[5].text).to.equal("I");
-            expect(branches[1].steps[6].text).to.equal("M");
-            expect(branches[1].steps[7].text).to.equal("N");
+            expect(branches[1].steps[3].text).to.equal("A");
+            expect(branches[1].steps[4].text).to.equal("J");
+            expect(branches[1].steps[5].text).to.equal("B");
+            expect(branches[1].steps[6].text).to.equal("C");
+            expect(branches[1].steps[7].text).to.equal("I");
+            expect(branches[1].steps[8].text).to.equal("C");
+            expect(branches[1].steps[9].text).to.equal("K");
+            expect(branches[1].steps[10].text).to.equal("M");
+            expect(branches[1].steps[11].text).to.equal("N");
 
             expect(branches[2].steps[0].text).to.equal("A");
             expect(branches[2].steps[1].text).to.equal("G");
             expect(branches[2].steps[2].text).to.equal("H");
-            expect(branches[2].steps[3].text).to.equal("B");
-            expect(branches[2].steps[4].text).to.equal("C");
-            expect(branches[2].steps[5].text).to.equal("I");
-            expect(branches[2].steps[6].text).to.equal("M");
-            expect(branches[2].steps[7].text).to.equal("O");
+            expect(branches[2].steps[3].text).to.equal("A");
+            expect(branches[2].steps[4].text).to.equal("J");
+            expect(branches[2].steps[5].text).to.equal("B");
+            expect(branches[2].steps[6].text).to.equal("C");
+            expect(branches[2].steps[7].text).to.equal("I");
+            expect(branches[2].steps[8].text).to.equal("C");
+            expect(branches[2].steps[9].text).to.equal("K");
+            expect(branches[2].steps[10].text).to.equal("M");
+            expect(branches[2].steps[11].text).to.equal("O");
 
-            expect(branches[3].steps[0].text).to.equal("A");
-            expect(branches[3].steps[1].text).to.equal("G");
-            expect(branches[3].steps[2].text).to.equal("H");
-            expect(branches[3].steps[3].text).to.equal("B");
-            expect(branches[3].steps[4].text).to.equal("C");
-            expect(branches[3].steps[5].text).to.equal("K");
-            expect(branches[3].steps[6].text).to.equal("L");
-
-            expect(branches[4].steps[0].text).to.equal("A");
-            expect(branches[4].steps[1].text).to.equal("G");
-            expect(branches[4].steps[2].text).to.equal("H");
-            expect(branches[4].steps[3].text).to.equal("B");
-            expect(branches[4].steps[4].text).to.equal("C");
-            expect(branches[4].steps[5].text).to.equal("K");
-            expect(branches[4].steps[6].text).to.equal("M");
-            expect(branches[4].steps[7].text).to.equal("N");
-
-            expect(branches[5].steps[0].text).to.equal("A");
-            expect(branches[5].steps[1].text).to.equal("G");
-            expect(branches[5].steps[2].text).to.equal("H");
-            expect(branches[5].steps[3].text).to.equal("B");
-            expect(branches[5].steps[4].text).to.equal("C");
-            expect(branches[5].steps[5].text).to.equal("K");
-            expect(branches[5].steps[6].text).to.equal("M");
-            expect(branches[5].steps[7].text).to.equal("O");
-
-            expect(branches[6].steps[0].text).to.equal("A");
-            expect(branches[6].steps[1].text).to.equal("J");
-            expect(branches[6].steps[2].text).to.equal("B");
-            expect(branches[6].steps[3].text).to.equal("C");
-            expect(branches[6].steps[4].text).to.equal("I");
-            expect(branches[6].steps[5].text).to.equal("L");
-
-            expect(branches[7].steps[0].text).to.equal("A");
-            expect(branches[7].steps[1].text).to.equal("J");
-            expect(branches[7].steps[2].text).to.equal("B");
-            expect(branches[7].steps[3].text).to.equal("C");
-            expect(branches[7].steps[4].text).to.equal("I");
-            expect(branches[7].steps[5].text).to.equal("M");
-            expect(branches[7].steps[6].text).to.equal("N");
-
-            expect(branches[8].steps[0].text).to.equal("A");
-            expect(branches[8].steps[1].text).to.equal("J");
-            expect(branches[8].steps[2].text).to.equal("B");
-            expect(branches[8].steps[3].text).to.equal("C");
-            expect(branches[8].steps[4].text).to.equal("I");
-            expect(branches[8].steps[5].text).to.equal("M");
-            expect(branches[8].steps[6].text).to.equal("O");
-
-            expect(branches[9].steps[0].text).to.equal("A");
-            expect(branches[9].steps[1].text).to.equal("J");
-            expect(branches[9].steps[2].text).to.equal("B");
-            expect(branches[9].steps[3].text).to.equal("C");
-            expect(branches[9].steps[4].text).to.equal("K");
-            expect(branches[9].steps[5].text).to.equal("L");
-
-            expect(branches[10].steps[0].text).to.equal("A");
-            expect(branches[10].steps[1].text).to.equal("J");
-            expect(branches[10].steps[2].text).to.equal("B");
-            expect(branches[10].steps[3].text).to.equal("C");
-            expect(branches[10].steps[4].text).to.equal("K");
-            expect(branches[10].steps[5].text).to.equal("M");
-            expect(branches[10].steps[6].text).to.equal("N");
-
-            expect(branches[11].steps[0].text).to.equal("A");
-            expect(branches[11].steps[1].text).to.equal("J");
-            expect(branches[11].steps[2].text).to.equal("B");
-            expect(branches[11].steps[3].text).to.equal("C");
-            expect(branches[11].steps[4].text).to.equal("K");
-            expect(branches[11].steps[5].text).to.equal("M");
-            expect(branches[11].steps[6].text).to.equal("O");
-
-            expect(branches).to.containSubsetInOrder([
+            expect(branches).to.containSubset([
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "L", branchIndents: 0, isSequential: undefined }
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "G",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "J",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "I",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "K",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "L",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "N", branchIndents: 0, isSequential: undefined }
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "G",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "J",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "I",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "K",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "M",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "N",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "O", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "L", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "N", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "O", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "L", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "N", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "O", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "L", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "N", branchIndents: 0, isSequential: undefined }
-                    ]
-                },
-                {
-                    steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "O", branchIndents: 0, isSequential: undefined }
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "G",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "J",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "I",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "K",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "M",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "O",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
                     ]
                 }
             ]);
@@ -7518,23 +7414,19 @@ B -
     `);
             var branches = tree.branchify(tree.root);
 
-            expect(branches).to.have.lengthOf(2);
-            expect(branches[0].steps).to.have.lengthOf(5);
-            expect(branches[1].steps).to.have.lengthOf(5);
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(7);
 
+            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("A");
             expect(branches[0].steps[1].text).to.equal("B");
             expect(branches[0].steps[2].text).to.equal("C");
             expect(branches[0].steps[3].text).to.equal("E");
-            expect(branches[0].steps[4].text).to.equal("D");
+            expect(branches[0].steps[4].text).to.equal("C");
+            expect(branches[0].steps[5].text).to.equal("F");
+            expect(branches[0].steps[6].text).to.equal("D");
 
-            expect(branches[1].steps[0].text).to.equal("A");
-            expect(branches[1].steps[1].text).to.equal("B");
-            expect(branches[1].steps[2].text).to.equal("C");
-            expect(branches[1].steps[3].text).to.equal("F");
-            expect(branches[1].steps[4].text).to.equal("D");
-
-            expect(branches).to.containSubsetInOrder([
+            expect(branches).to.containSubset([
                 {
                     steps: [
                         {
@@ -7555,25 +7447,6 @@ B -
                         {
                             text: "E",
                             branchIndents: 1,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "D",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        }
-                    ]
-                },
-                {
-                    steps: [
-                        {
-                            text: "A",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "B",
-                            branchIndents: 0,
                             isSequential: undefined
                         },
                         {
