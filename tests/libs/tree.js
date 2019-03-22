@@ -552,32 +552,32 @@ describe("Tree", function() {
             var step = tree.parseLine(`Click ['Login' box]`, "file.txt", 10);
             assert.equal(step.text, `Click ['Login' box]`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {name: "'Login' box", elementFinder: {text: 'Login', variable: 'box'}} ]);
+            assert.deepEqual(step.elementFinderList, [ {text: "'Login' box", elementFinder: {text: 'Login', variable: 'box'}} ]);
 
             step = tree.parseLine(`Click ['Login']`, "file.txt", 10);
             assert.equal(step.text, `Click ['Login']`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {name: "'Login'", elementFinder: {text: 'Login'}} ]);
+            assert.deepEqual(step.elementFinderList, [ {text: "'Login'", elementFinder: {text: 'Login'}} ]);
 
             step = tree.parseLine(`Click [ 4th 'Login' box  next to  "blah" ]`, "file.txt", 10);
             assert.equal(step.text, `Click [ 4th 'Login' box  next to  "blah" ]`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {name: "4th 'Login' box  next to  \"blah\"", elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'blah'}} ]);
+            assert.deepEqual(step.elementFinderList, [ {text: "4th 'Login' box  next to  \"blah\"", elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'blah'}} ]);
 
             step = tree.parseLine(`Click [ 'Login' next to "blah" ]`, "file.txt", 10);
             assert.equal(step.text, `Click [ 'Login' next to "blah" ]`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {name: "'Login' next to \"blah\"", elementFinder: {text: 'Login', nextTo: 'blah'}} ]);
+            assert.deepEqual(step.elementFinderList, [ {text: "'Login' next to \"blah\"", elementFinder: {text: 'Login', nextTo: 'blah'}} ]);
 
             step = tree.parseLine(`Click [box next to "blah"]`, "file.txt", 10);
             assert.equal(step.text, `Click [box next to "blah"]`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {name: "box next to \"blah\"", elementFinder: {variable: 'box', nextTo: 'blah'}} ]);
+            assert.deepEqual(step.elementFinderList, [ {text: "box next to \"blah\"", elementFinder: {variable: 'box', nextTo: 'blah'}} ]);
 
             step = tree.parseLine(`Click ['Login'] and [ 4th 'Login' box  next to  "blah" ]`, "file.txt", 10);
             assert.equal(step.text, `Click ['Login'] and [ 4th 'Login' box  next to  "blah" ]`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {name: "'Login'", elementFinder: {text: 'Login'}}, {name: "4th 'Login' box  next to  \"blah\"", elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'blah'}} ]);
+            assert.deepEqual(step.elementFinderList, [ {text: "'Login'", elementFinder: {text: 'Login'}}, {text: "4th 'Login' box  next to  \"blah\"", elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'blah'}} ]);
         });
 
         it("throws an error when a [bracketed string] is not a valid elementFinder", function() {

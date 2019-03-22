@@ -1,6 +1,7 @@
 const Step = require('./step.js');
 const StepBlock = require('./stepblock.js');
 const Branch = require('./branch.js');
+const ElementFinder = require('./elementfinder.js');
 const Constants = require('./constants.js');
 const util = require('util');
 const utils = require('./utils.js');
@@ -255,16 +256,16 @@ class Tree {
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
-                var name = match.replace(/\[|\]/g, '').trim();
+                var text = match.replace(/\[|\]/g, '').trim();
 
-                var elementFinder = this.parseElementFinder(name);
+                var elementFinder = this.parseElementFinder(text);
                 if(elementFinder) {
                     if(!step.elementFinderList) {
                         step.elementFinderList = [];
                     }
 
                     step.elementFinderList.push({
-                        name: name,
+                        text: text,
                         elementFinder: elementFinder
                     });
                 }
@@ -300,7 +301,7 @@ class Tree {
     /**
      * Parses text inside brackets into an ElementFinder
      * @param {String} text - The text to parse, without the brackets ([])
-     * @return {Object} An object containing ElementFinder components (ordinal, text, variable, nextTo - any one of which can be undefined), or null if this is not a valid ElementFinder
+     * @return {ElementFinder} The ElementFinder, or null if this is not a valid ElementFinder
      */
     parseElementFinder(name) {
         var matches = name.match(Constants.ELEMENTFINDER_REGEX);
@@ -317,7 +318,7 @@ class Tree {
                 return null; // NOTE: probably unreachable because a "next to" by itself won't get matched by the regex
             }
 
-            var elementFinder = {};
+            var elementFinder = new ElementFinder();
 
             if(ordinal) {
                 elementFinder.ordinal = parseInt(ordinal);
