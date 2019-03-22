@@ -231,5 +231,45 @@ class Branch {
      isCompleteOrRunning() {
          return this.isRunning || this.isComplete();
      }
+
+     /**
+      * Marks this branch as passed or failed
+      */
+     markBranch(isPassed) {
+         if(isPassed) {
+             this.isPassed = true;
+             delete this.isFailed;
+             delete this.isSkipped;
+             delete this.isRunning;
+         }
+         else {
+             this.isFailed = true;
+             delete this.isPassed;
+             delete this.isSkipped;
+             delete this.isRunning;
+         }
+     }
+
+     /**
+      * Marks this branch passed if all steps passed, failed if at least one step passed or failed not as expected
+      */
+     finishOffBranch() {
+         var badStepExists = false;
+
+         for(var i = 0; i < this.steps.length; i++) {
+             var step = this.steps[i];
+             if(step.asExpected === false) { // we're looking for false, not undefined
+                 badStepExists = true;
+                 break;
+             }
+         }
+
+         if(badStepExists) {
+             this.markBranch(false);
+         }
+         else {
+             this.markBranch(true);
+         }
+     }
 }
 module.exports = Branch;

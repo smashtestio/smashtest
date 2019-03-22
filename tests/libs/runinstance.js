@@ -1,5 +1,6 @@
 const chai = require('chai');
 const chaiSubset = require('chai-subset');
+const chaiAsPromised = require("chai-as-promised");
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
@@ -10,6 +11,7 @@ const Runner = require('../../runner.js');
 const RunInstance = require('../../runinstance.js');
 
 chai.use(chaiSubset);
+chai.use(chaiAsPromised);
 
 describe("RunInstance", function() {
     describe("run()", function() {
@@ -357,77 +359,77 @@ A -
             var runInstance = new RunInstance(runner);
 
             assert.throws(() => {
-                runInstance.replaceVars("{var1}", tree.branches[0].steps[0], tree.branches[0]);
+                expect(runInstance.replaceVars("{var1}", tree.branches[0].steps[0], tree.branches[0]));
             }, "Infinite loop detected amongst variable references [file.txt:2]");
         });
     });
 
     describe("evalCodeBlock()", function() {
-        it("evals a code and returns a value", function() {
+        it("evals a code and returns a value", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("return 5;")).to.equal(5);
+            await expect(runInstance.evalCodeBlock("return 5;")).to.eventually.equal(5);
         });
 
-        it("makes the persistent, global, and local objects available", function() {
+        it("makes the persistent, global, and local objects available", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
             runInstance.persistent.a = "A";
             runInstance.global.b = "B";
             runInstance.local.c = "C";
 
-            expect(runInstance.evalCodeBlock("return persistent.a;")).to.equal("A");
-            expect(runInstance.evalCodeBlock("return global.b;")).to.equal("B");
-            expect(runInstance.evalCodeBlock("return local.c;")).to.equal("C");
+            await expect(runInstance.evalCodeBlock("return persistent.a;")).to.eventually.equal("A");
+            await expect(runInstance.evalCodeBlock("return global.b;")).to.eventually.equal("B");
+            await expect(runInstance.evalCodeBlock("return local.c;")).to.eventually.equal("C");
 
-            runInstance.evalCodeBlock("persistent.a = 'AA'; global.b = 'BB'; local.c = 'CC';");
+            await runInstance.evalCodeBlock("persistent.a = 'AA'; global.b = 'BB'; local.c = 'CC';");
 
             expect(runInstance.persistent.a).to.equal("AA");
             expect(runInstance.global.b).to.equal("BB");
             expect(runInstance.local.c).to.equal("CC");
         });
 
-        it("makes persistent, global, and local variables available as js variables", function() {
+        it("makes persistent, global, and local variables available as js variables", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
             runInstance.persistent.a = "A";
             runInstance.global.b = "B";
             runInstance.local.c = "C";
 
-            expect(runInstance.evalCodeBlock("return a;")).to.equal("A");
-            expect(runInstance.evalCodeBlock("return b;")).to.equal("B");
-            expect(runInstance.evalCodeBlock("return c;")).to.equal("C");
+            await expect(runInstance.evalCodeBlock("return a;")).to.eventually.equal("A");
+            await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("B");
+            await expect(runInstance.evalCodeBlock("return c;")).to.eventually.equal("C");
         });
 
-        it("makes a local variable accessible as a js variable if both a local and global variable share the same name", function() {
+        it("makes a local variable accessible as a js variable if both a local and global variable share the same name", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
             runInstance.global.b = "B";
             runInstance.local.b = "C";
 
-            expect(runInstance.evalCodeBlock("return b;")).to.equal("C");
+            await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
 
-        it("makes a global variable accessible as a js variable if both a global and persistent variable share the same name", function() {
+        it("makes a global variable accessible as a js variable if both a global and persistent variable share the same name", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
             runInstance.persistent.b = "B";
             runInstance.global.b = "C";
 
-            expect(runInstance.evalCodeBlock("return b;")).to.equal("C");
+            await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
 
-        it("makes a local variable accessible as a js variable if both a local and persistent variable share the same name", function() {
+        it("makes a local variable accessible as a js variable if both a local and persistent variable share the same name", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
             runInstance.persistent.b = "B";
             runInstance.local.b = "C";
 
-            expect(runInstance.evalCodeBlock("return b;")).to.equal("C");
+            await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
 
-        it("does not make a variable available as js variable if its name contains non-whitelisted characters", function() {
+        it("does not make a variable available as js variable if its name contains non-whitelisted characters", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
             runInstance.persistent[" one two "] = "A";
@@ -435,7 +437,7 @@ A -
             runInstance.local["five>six"] = "C";
             runInstance.local["seven"] = "D";
 
-            expect(runInstance.evalCodeBlock("return seven;")).to.equal("D");
+            await expect(runInstance.evalCodeBlock("return seven;")).to.eventually.equal("D");
         });
     });
 
@@ -517,7 +519,7 @@ The value of variable {var1} is being set by a later step at file.txt:4
 `);
         });
 
-        it("returns the value of a variable that's not set yet and whose eventual value is generated from a code block function", function() {
+        it("returns the value of a variable that's not set yet and whose eventual value is generated from a sync code block function", function() {
             var tree = new Tree();
             tree.parseIn(`
 A -
@@ -641,6 +643,62 @@ A -
             assert.doesNotThrow(() => {
                 runInstance.log("foobar", null, null);
             });
+        });
+    });
+
+    describe("injectAndRun()", function() {
+        it.skip("fails gracefully if RunInstance is not currently paused", function() {
+        });
+
+        it.skip("throws an exception if the given tree has 0 branches", function() {
+        });
+
+        it.skip("throws an exception if the given tree has more than 1 branch", function() {
+        });
+
+        it.skip("runs a branch of steps while execution is paused", function() {
+            // execution remains paused after this
+        });
+
+        it.skip("runs a branch of steps, containing After Every Branch hooks, while execution is paused", function() {
+        });
+
+        it.skip("runs a branch of steps, containing After Every Step hooks, while execution is paused", function() {
+        });
+
+        it.skip("runs a branch of steps while execution is paused on an After Every Branch step", function() {
+            // execution remains paused after this
+        });
+
+        it.skip("runs a branch of steps, containing After Every Branch hooks, while execution is paused on an After Every Branch step", function() {
+        });
+
+        it.skip("runs a branch of steps, containing After Every Step hooks, while execution is paused on an After Every Branch step", function() {
+        });
+
+        it.skip("runs a branch of steps while execution is paused on an After Every Step step", function() {
+            // execution remains paused after this
+        });
+
+        it.skip("runs a branch of steps, containing After Every Branch hooks, while execution is paused on an After Every Step step", function() {
+        });
+
+        it.skip("runs a branch of steps, containing After Every Step hooks, while execution is paused on an After Every Step step", function() {
+        });
+
+        it.skip("attaches errors to the corresponding step in the given tree", function() {
+        });
+
+        it.skip("attaches errors during After Every Step steps to the corresponding step in the given tree", function() {
+        });
+
+        it.skip("attaches errors during After Every Branch steps to the corresponding branch in the given tree", function() {
+        });
+
+        it.skip("ends execution of the given tree and keeps the RunInstance at a pause if a pause occurs from inside the given tree", function() {
+        });
+
+        it.skip("the RunInstance can flawlessly resume from a pause, after an injected tree has run", function() {
         });
     });
 });

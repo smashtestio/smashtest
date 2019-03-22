@@ -680,4 +680,138 @@ describe("Branch", function() {
             expect(branch1.equals(branch2, 1)).to.equal(true);
         });
     });
+
+    describe("finishOffBranch()", function() {
+        it("marks a branch passed when all steps passed as expected", function() {
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.asExpected = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+            stepB.asExpected = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+            stepC.asExpected = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isPassed = true;
+            stepD.asExpected = true;
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            branch.finishOffBranch();
+
+            expect(branch).to.containSubsetInOrder({
+                isPassed: true,
+                isFailed: undefined
+            });
+        });
+
+        it("marks a branch passed when all steps passed or failed as expected", function() {
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.asExpected = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+            stepB.asExpected = true;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isFailed = true;
+            stepC.asExpected = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isPassed = true;
+            stepD.asExpected = true;
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            branch.finishOffBranch();
+
+            expect(branch).to.containSubsetInOrder({
+                isPassed: true,
+                isFailed: undefined
+            });
+        });
+
+        it("marks a branch failed when one of the steps failed not as expected", function() {
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.asExpected = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isFailed = true;
+            stepB.asExpected = false;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+            stepC.asExpected = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isPassed = true;
+            stepD.asExpected = true;
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            branch.finishOffBranch();
+
+            expect(branch).to.containSubsetInOrder({
+                isPassed: undefined,
+                isFailed: true
+            });
+        });
+
+        it("marks a branch failed when one of the steps passed not as expected", function() {
+            var stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.asExpected = true;
+
+            var stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+            stepB.asExpected = false;
+
+            var stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+            stepC.asExpected = true;
+
+            var stepD = new Step();
+            stepD.text = "D";
+            stepD.isPassed = true;
+            stepD.asExpected = true;
+
+            var branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            branch.finishOffBranch();
+
+            expect(branch).to.containSubsetInOrder({
+                isPassed: undefined,
+                isFailed: true
+            });
+        });
+    });
 });

@@ -39,18 +39,15 @@ class RunInstance {
                 else { // this.currBranch is an actual Branch
                     this.currStep = this.tree.nextStep(this.currBranch, true, true);
                     while(this.currStep) {
-                        runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
+                        this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
 
                         if(this.isPaused) { // the current step caused a pause
                             resolve(false);
-                            break;
+                            return;
                         }
 
                         this.currStep = this.tree.nextStep(this.currBranch, true, true);
                     }
-
-                    // NOTE: Tree.nextBranch() handles serving up Before/After Everything branches
-                    // NOTE: Tree.nextStep() handles serving up After Every Branch steps
 
                     // Execute After Every Branch hooks
                     this.local.successful = this.currBranch.isPassed;
@@ -62,7 +59,7 @@ class RunInstance {
                     });
                 }
 
-                this.currBranch = this.tree.nextBranch();
+                this.currBranch = this.tree.nextBranch(); // NOTE: Tree.nextBranch() handles serving up Before/After Everything branches
 
                 // clear variable state
                 this.global = {};
@@ -83,7 +80,7 @@ class RunInstance {
      * @param {Step} stepToTakeError - The Step that will take the Error object (usually the same as step), null if branchToTakeError should take the error
      * @param {Branch} branchToTakeError - The Branch that will take the Error object (usually the same as branch)
      */
-    runStep(step, branch, stepToTakeError, branchToTakeError) {
+    async runStep(step, branch, stepToTakeError, branchToTakeError) {
         if(step.isDebug) {
             this.isPaused = true;
             return;
@@ -95,32 +92,24 @@ class RunInstance {
             prevStep = branch.steps[index - 1];
         }
 
-        // Replace {vars}/{{vars}} inside 'strings' and [ElementFinders]
-        step.processedText = step.text + '';
-        replaceVarsInStep(Constants.STRING_LITERAL_REGEX);
-        replaceVarsInStep(Constants.BRACKET_REGEX);
+        // For function call steps, replace {vars}/{{vars}} inside 'strings' and [ElementFinders]
+        if(step.isFunctionCall) {
+            step.processedText = step.text + '';
+            replaceVarsInStep(Constants.STRING_LITERAL_REGEX);
+            replaceVarsInStep(Constants.BRACKET_REGEX);
 
-        function replaceVarsInStep(regex) {
-            var matches = step.processedText.match(regex);
-            if(matches) {
-                matches.forEach(match => {
-                    var text = utils.stripQuotes(match);
-                    text = this.replaceVars(text, step, branch);
-                    step.processedText = step.processedText.replace(match, text);
-                });
+            function replaceVarsInStep(regex) {
+                var matches = step.processedText.match(regex);
+                if(matches) {
+                    for(var i = 0; i < matches.length; i++) {
+                        var match = matches[i];
+                        var text = utils.stripQuotes(match);
+                        text = this.replaceVars(text, step, branch);
+                        step.processedText = step.processedText.replace(match, text);
+                    }
+                }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
 
         // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
         if(prevStep) {
@@ -129,10 +118,17 @@ class RunInstance {
                 this.localStack.push(this.local);
                 this.local = {};
 
-                if(step.isFunctionCall) {
+                if(prevStep.isFunctionCall) {
+                    // This is the first step inside a function call
                     // Set {{local vars}} based on function declaration signature (step.functionDeclarationText) and step's function call signature
+
                     // TODO
                     // TODO: this is where ElementFinders are converted to objects too
+
+
+
+
+
 
 
 
@@ -152,15 +148,15 @@ class RunInstance {
 
         // Step is {var}='str' [, {var2}='str', etc.]
         if(!step.isFunctionCall && step.varsBeingSet.length > 0) {
-            // TODO
-
-
-
-
-
-
-
-
+            for(var i = 0; i < step.varsBeingSet.length; i++) {
+                var varBeingSet = step.varsBeingSet[i];
+                if(varBeingSet.isLocal) {
+                    this.local[varBeingSet.name] = this.replaceVars(varBeingSet.value, step, branch);
+                }
+                else {
+                    this.global[varBeingSet.name] = this.replaceVars(varBeingSet.value, step, branch);
+                }
+            }
         }
 
         // Step has a code block to execute
@@ -170,7 +166,7 @@ class RunInstance {
 
             try {
                 if(utils.canonicalize(step.text) == "execute in browser") {
-                    this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
+                    await this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
                 }
                 else {
 
@@ -178,7 +174,7 @@ class RunInstance {
 
 
 
-                    this.evalCodeBlock(code);
+                    await this.evalCodeBlock(code);
 
                     // Step is {var} = Func
                     if(step.isFunctionCall && step.varsBeingSet.length == 1) {
@@ -247,7 +243,7 @@ class RunInstance {
         // Execute After Every Step hooks
         this.local.successful = step.isPassed;
         this.local.error = step.error;
-        this.currBranch.afterEveryStep.forEach(b => {
+        branch.afterEveryStep.forEach(b => {
             b.steps.forEach(s => {
                 runStep(s, b, this.currStep, this.currBranch);
             });
@@ -265,9 +261,11 @@ class RunInstance {
 
     /**
      * Evals the given code block
+     * @param {String} code - JS code to eval
+     * @param {Boolean} [isSync] - If true, executes code synchronously, otherwise executes code asynchonously and returns a Promise
      * @return What the code returns via the return keyword
      */
-    evalCodeBlock(code) {
+    evalCodeBlock(code, isSync) {
         // Make global, local, and persistent accessible as js vars
         var header = "";
         header += "var persistent = runInstance.persistent;\n";
@@ -295,7 +293,12 @@ class RunInstance {
             }
         }
 
-        code = "(function(runInstance){\n" + header + "\n" + code + "\n})(this);" // surround in function to handle return keyword in code
+        code = `
+            (` + (isSync ? `` : `async`) + ` function(runInstance) {
+                ` + header + `
+                ` + code + `
+            })(this);`
+
         return eval(code);
     }
 
@@ -364,7 +367,7 @@ class RunInstance {
                         var value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlock(s.codeBlock);
+                            value = this.evalCodeBlock(s.codeBlock, true);
                         }
                         else {
                             // {varname}='string'
@@ -384,19 +387,22 @@ class RunInstance {
     }
 
     /**
-     * Runs the given branch, then pauses
+     * Runs the given step, then pauses again
      * Call when already paused
+     * @param {Step} step - The step to run
+     * @return {Promise} Promise that gets resolved once done executing
+     * @throws {Error} If tree has more than one branch
      */
-    injectAndRun(branch) {
+    injectStep(step) {
         if(!this.isPaused) {
             return; // fail gracefully
         }
 
-
-
-
-
-
+        return new Promise(async (resolve, reject) => {
+            this.isPaused = false; // un-pause for now
+            this.runStep(step, this.currBranch, step, this.currBranch);
+            this.isPaused = true;
+        });
     }
 
     /**

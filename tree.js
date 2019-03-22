@@ -1451,24 +1451,6 @@ class Tree {
     }
 
     /**
-     * Marks the given branch as passed or failed
-     */
-    markBranch(branch, isPassed) {
-        if(isPassed) {
-            branch.isPassed = true;
-            delete branch.isFailed;
-            delete branch.isSkipped;
-            delete branch.isRunning;
-        }
-        else {
-            branch.isFailed = true;
-            delete branch.isPassed;
-            delete branch.isSkipped;
-            delete branch.isRunning;
-        }
-    }
-
-    /**
      * Finds all other branches whose first N steps are the same as the first N steps of a given branch
      * @param {Branch} branch - The given branch
      * @param {Number} n - The number of steps to look at
@@ -1484,28 +1466,6 @@ class Tree {
         });
 
         return foundBranches;
-    }
-
-    /**
-     * Marks the branch passed if all steps passed, failed if at least one step passed or failed not as expected
-     */
-    finishOffBranch(branch) {
-        var badStepExists = false;
-
-        for(var i = 0; i < branch.steps.length; i++) {
-            var step = branch.steps[i];
-            if(step.asExpected === false) { // we're looking for false, not undefined
-                badStepExists = true;
-                break;
-            }
-        }
-
-        if(badStepExists) {
-            this.markBranch(branch, false);
-        }
-        else {
-            this.markBranch(branch, true);
-        }
     }
 
     /**
@@ -1536,7 +1496,7 @@ class Tree {
 
         // If this is the very last step in the branch, mark the branch as passed/failed
         if(finishBranchNow || this.nextStep(branch, false) == null) {
-            this.finishOffBranch(branch);
+            branch.finishOffBranch();
 
             if(skipsRepeats) {
                 var n = branch.steps.indexOf(step);
@@ -1605,7 +1565,7 @@ class Tree {
                 });
             }
 
-            this.finishOffBranch(branch);
+            branch.finishOffBranch();
             return null;
         }
 
