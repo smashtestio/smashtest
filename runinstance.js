@@ -234,7 +234,6 @@ class RunInstance {
 
             // Pause if the step failed or is unexpected
             if(this.runner.pauseOnFail && (!isPassed || !asExpected)) {
-                this.runner.pauseOnFail = false;
                 this.isPaused = true;
                 return;
             }

@@ -104,6 +104,33 @@ describe("RunInstance", function() {
         it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", {variables}, and [ElementFinders]", function() {
         });
 
+        it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", function() {
+        });
+
+        it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", function() {
+        });
+
+        it.skip("throws an error if a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", function() {
+        });
+
+        it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", function() {
+        });
+
+        it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", function() {
+        });
+
+        it.skip("throws an error if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", function() {
+        });
+
+        it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", function() {
+        });
+
+        it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", function() {
+        });
+
+        it.skip("throws an error if a function call has an [ElementFinder] containing a var passed in and that var is only set in a later step, which is an asynchronous code block", function() {
+        });
+
         it.skip("executes a function call where the function has no steps inside of it", function() {
         });
 
