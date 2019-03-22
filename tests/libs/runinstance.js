@@ -15,19 +15,16 @@ chai.use(chaiAsPromised);
 
 describe("RunInstance", function() {
     describe("run()", function() {
-        it.skip("runs a branches it pulls from the tree", function() {
+        it.skip("runs a branch it pulls from the tree", function() {
         });
 
-        it.skip("waits while other RunInstances finish Before Everything hooks that are already running", function() {
+        it.skip("runs multiple branches it pulls from the tree", function() {
         });
 
-        it.skip("waits while other RunInstances finish steps before moving on to After Everything hooks", function() {
+        it.skip("handles a step that fails but doesn't stop execution", function() {
         });
 
-        it.skip("handles a step that fails", function() {
-        });
-
-        it.skip("handles a step that fails the whole branch", function() {
+        it.skip("handles a step that fails and ends executing the branch", function() {
         });
 
         it.skip("handles a step that pauses execution", function() {
@@ -37,27 +34,37 @@ describe("RunInstance", function() {
             // just call run() again after the pause
         });
 
+        it.skip("runs a Before Every Branch hook", function() {
+        });
+
         it.skip("runs an After Every Branch hook and sets its local vars", function() {
             // local vars are successful and error
         });
 
-        it.skip("runs multiple After Every Branch hooks", function() {
+        it.skip("runs multiple Before Every Branch and After Every Branch hooks", function() {
+        });
+
+        it.skip("handles an error inside a Before Every Branch hook", function() {
+            // error goes into the Branch object, but Branch doesn't fail
         });
 
         it.skip("handles an error inside an After Every Branch hook", function() {
             // error goes into the Branch object, but Branch doesn't fail
         });
 
-        it.skip("handles pauses from inside an After Every Branch hook", function() {
+        it.skip("handles a pause from inside a Before Every Branch hook", function() {
+        });
+
+        it.skip("handles a pause from inside an After Every Branch hook", function() {
+        });
+
+        it.skip("handles resumes from pauses from inside a Before Every Branch hook", function() {
         });
 
         it.skip("handles resumes from pauses from inside an After Every Branch hook", function() {
         });
 
-        it.skip("a {var} declared in a branch is accessible in an After Every Branch hook", function() {
-        });
-
-        it.skip("a {{var}} declared in a branch is accessible in an After Every Branch hook", function() {
+        it.skip("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", function() {
         });
 
         it.skip("clears local and global variables between different branches", function() {
@@ -203,7 +210,7 @@ describe("RunInstance", function() {
             // whitelisted chars = [A-Za-z0-9\-\_\.]
         });
 
-        it.skip("runs an Execute in browser step", function() {
+        it.skip("runs an Execute In Browser step", function() {
             // inject runinstance.execInBrowser(code) function first
         });
 
@@ -283,32 +290,28 @@ describe("RunInstance", function() {
         it.skip("a {{var}} declared inside a function call is not accessible in steps after the function call", function() {
         });
 
-        it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook", function() {
+        it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", function() {
+        });
+
+        it.skip("runs a Before Every Step hook", function() {
         });
 
         it.skip("runs an After Every Step hook and sets its local vars", function() {
             // local vars are successful and error
         });
 
-        it.skip("runs multiple After Every Step hooks", function() {
+        it.skip("runs multiple Before Every Step and After Every Step hooks", function() {
+        });
+
+        it.skip("handles an error inside a Before Every Step hook", function() {
+            // error goes into the normal step obj, error.filename/lineNumber point at the hook
         });
 
         it.skip("handles an error inside an After Every Step hook", function() {
             // error goes into the normal step obj, error.filename/lineNumber point at the hook
         });
 
-        it.skip("handles pauses from inside an After Every Step hook", function() {
-        });
-
-        it.skip("runs an After Every Branch hook and sets its local vars", function() {
-            // local vars are successful and error
-        });
-
-        it.skip("runs multiple After Every Branch hooks", function() {
-        });
-
-        it.skip("handles an error inside an After Every Branch hook", function() {
-            // error goes into the branch obj, error.filename/lineNumber point at the hook, branch is failed
+        it.skip("handles pauses from inside a Before Every Step hook", function() {
         });
 
         it.skip("handles pauses from inside an After Every Step hook", function() {

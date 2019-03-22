@@ -60,6 +60,20 @@ C -
 
         it.skip("runs all After Everything steps but not the Before Everything steps on resume", function() {
         });
+
+        it.skip("stores errors from Before Everything steps and pauses execution", function() {
+            // within the hook step itself
+        });
+
+        it.skip("stores errors from After Everything steps and pauses execution", function() {
+            // within the hook step itself
+        });
+
+        it.skip("stores errors from Before Everything steps and continues execution", function() {
+        });
+
+        it.skip("stores errors from After Everything steps and continues execution", function() {
+        });
     });
 
     describe("runNextStep()", function() {

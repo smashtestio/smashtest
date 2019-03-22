@@ -69,6 +69,7 @@ Step blocks
         - Give an example
     - .. at the top of a step block means sequential execution. Kind of like if we indented every step into a tree.
         - .. must be at the same indentation as vertical list
+        - Function in the list with multiple branches will cause the list to branch (give example - like the one in the Hooks section below)
 
 Textual steps (-)
 
