@@ -759,26 +759,15 @@ class Tree {
             }
         }
         else if(step instanceof StepBlock && step.isSequential) { // sequential step block (with a .. on top)
-            // Branches from each step block member are cross joined sequentially to each other
-            var branchesInThisStepBlock = [];
+            // Branches from each step block member are attached sequentially to each other
+            var bigBranch = new Branch();
             step.steps.forEach(stepInBlock => {
                 var branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, frequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
-                if(branchesInThisStepBlock.length == 0) {
-                    branchesInThisStepBlock = branchesFromThisStepBlockMember;
-                }
-                else {
-                    var newBranchesInThisStepBlock = [];
-                    branchesInThisStepBlock.forEach(branchInThisStepBlock => {
-                        branchesFromThisStepBlockMember.forEach(branchBelowBlockMember => {
-                            var b = branchInThisStepBlock.clone();
-                            b.mergeToEnd(branchBelowBlockMember);
-                            newBranchesInThisStepBlock.push(b);
-                        });
-                    });
-                    branchesInThisStepBlock = newBranchesInThisStepBlock;
-                }
+                branchesFromThisStepBlockMember.forEach(branchBelowBlockMember => {
+                    bigBranch.mergeToEnd(branchBelowBlockMember);
+                });
             });
-            branchesFromThisStep = branchesInThisStepBlock;
+            branchesFromThisStep.push(bigBranch);
 
             // NOTE: branchify() is not called on step blocks unless they are sequential
         }
