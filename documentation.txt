@@ -263,9 +263,10 @@ Hook steps
         - Setup/teardown too, though that should really be part of the test itself
             i.e.,
             My Test -
+                ..
                 Setup
-                    Steps
-                        Teardown
+                Steps
+                Teardown
 
             * Setup
                 A (includes the same login as teardown, to clear out old state)
