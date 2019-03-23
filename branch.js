@@ -267,5 +267,16 @@ class Branch {
              this.markBranch(true);
          }
      }
+
+     /**
+      * Logs the given text to this Branch
+      */
+     appendToLog(text) {
+         if(!this.log) {
+             this.log = "";
+         }
+
+         this.log += text + "\n";
+     }
 }
 module.exports = Branch;

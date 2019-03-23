@@ -228,5 +228,16 @@ class Step {
         clone.isFunctionCall = true;
         return clone;
     }
+
+    /**
+     * Logs the given text to this Step
+     */
+    appendToLog(text) {
+        if(!this.log) {
+            this.log = "";
+        }
+
+        this.log += text + "\n";
+    }
 }
 module.exports = Step;

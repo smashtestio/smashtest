@@ -107,7 +107,7 @@
 }
 
 * Enter {{text}} into {{element}} {
-    // sendkeys, you can also use unicode codes for special keys like arrows
+    // sendkeys, you can also use unicode codes for special keys like arrows (represented as "<enter>", etc.)
 }
 
 * Set {{element}} to {{value}} {

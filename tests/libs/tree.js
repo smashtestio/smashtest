@@ -12387,6 +12387,10 @@ A - +
             expect(branch2.isSkipped).to.equal(true);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
+
+            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch that ran and failed\n");
+            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch that ran and failed\n");
+            expect(branch4.log).to.equal(undefined);
         });
 
         it("doesn't skip a repeat branch if it's currently running", function() {
@@ -12441,6 +12445,10 @@ A - +
             expect(branch2.isSkipped).to.equal(true);
             expect(branch3.isSkipped).to.equal(undefined);
             expect(branch4.isSkipped).to.equal(undefined);
+
+            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch that ran and failed\n");
+            expect(branch3.log).to.equal(undefined);
+            expect(branch4.log).to.equal(undefined);
         });
 
         it("doesn't skip a repeat branch if it already ran", function() {
@@ -12495,6 +12503,10 @@ A - +
             expect(branch2.isSkipped).to.equal(true);
             expect(branch3.isSkipped).to.equal(undefined);
             expect(branch4.isSkipped).to.equal(undefined);
+
+            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch that ran and failed\n");
+            expect(branch3.log).to.equal(undefined);
+            expect(branch4.log).to.equal(undefined);
         });
     });
 
@@ -12842,6 +12854,11 @@ A - +
             expect(branch2.isSkipped).to.equal(true);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
+
+            expect(branch1.log).to.equal(undefined);
+            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -M step\n");
+            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -M step\n");
+            expect(branch4.log).to.equal(undefined);
         });
 
         it("skips repeat branches and end this branch if next step is a -T", function() {
@@ -12894,6 +12911,11 @@ A - +
             expect(branch2.isSkipped).to.equal(true);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
+
+            expect(branch1.log).to.equal(undefined);
+            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -T step\n");
+            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -T step\n");
+            expect(branch4.log).to.equal(undefined);
         });
 
         it("doesn't skips repeat branches if the next step isn't an -M or -T", function() {
@@ -12990,6 +13012,11 @@ A - +
             expect(branch2.isSkipped).to.equal(undefined);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
+
+            expect(branch1.log).to.equal(undefined);
+            expect(branch2.log).to.equal(undefined);
+            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -T step\n");
+            expect(branch4.log).to.equal(undefined);
         });
 
         it("doesn't skip a repeat branch if it already ran", function() {
@@ -13039,6 +13066,11 @@ A - +
             expect(branch2.isSkipped).to.equal(undefined);
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
+
+            expect(branch1.log).to.equal(undefined);
+            expect(branch2.log).to.equal(undefined);
+            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -T step\n");
+            expect(branch4.log).to.equal(undefined);
         });
     });
 });

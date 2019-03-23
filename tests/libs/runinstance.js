@@ -319,6 +319,10 @@ describe("RunInstance", function() {
 
         it.skip("updates the report", function() {
         });
+
+        it.skip("throws error when step timeout exceeded, as per the {timeout} variable", function() {
+            // use a very small {timeout}
+        });
     });
 
     describe("replaceVars()", function() {
@@ -715,13 +719,13 @@ A -
         });
     });
 
-    describe("log()", function() {
+    describe("appendToLog()", function() {
         it("logs a string to a step, where no other logs exist", function() {
             var step = new Step();
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            runInstance.log("foobar", step);
+            runInstance.appendToLog("foobar", step);
 
             expect(step.log).to.equal("foobar\n");
         });
@@ -733,7 +737,7 @@ A -
             var runInstance = new RunInstance(runner);
 
             step.log = "foo\n";
-            runInstance.log("bar", step, branch);
+            runInstance.appendToLog("bar", step, branch);
 
             expect(step.log).to.equal("foo\nbar\n");
         });
@@ -743,7 +747,7 @@ A -
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            runInstance.log("foobar", null, branch);
+            runInstance.appendToLog("foobar", null, branch);
 
             expect(branch.log).to.equal("foobar\n");
         });
@@ -754,7 +758,7 @@ A -
             var runInstance = new RunInstance(runner);
 
             branch.log = "foo\n";
-            runInstance.log("bar", null, branch);
+            runInstance.appendToLog("bar", null, branch);
 
             expect(branch.log).to.equal("foo\nbar\n");
         });
@@ -765,7 +769,7 @@ A -
             var runInstance = new RunInstance(runner);
 
             assert.doesNotThrow(() => {
-                runInstance.log("foobar", null, null);
+                runInstance.appendToLog("foobar", null, null);
             });
         });
     });

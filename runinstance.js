@@ -392,7 +392,7 @@ class RunInstance {
                         }
 
                         value = this.replaceVars(value, step, branch); // recursive call, start at original step passed in
-                        this.log("The value of variable " + variableFull + " is being set by a later step at " + s.filename + ":" + s.lineNumber, step, branch);
+                        this.appendToLog("The value of variable " + variableFull + " is being set by a later step at " + s.filename + ":" + s.lineNumber, step, branch);
                         return value;
                     }
                 }
@@ -420,22 +420,14 @@ class RunInstance {
     }
 
     /**
-     * Logs the given string to the given step or branch
+     * Logs the given string to the given step (or branch, if the step does not exist)
      */
-    log(str, step, branch) {
+    appendToLog(text, step, branch) {
         if(step) {
-            logToObj(step);
+            step.appendToLog(text);
         }
         else if(branch) {
-            logToObj(branch);
-        }
-
-        function logToObj(obj) {
-            if(typeof obj.log == 'undefined') {
-                obj.log = '';
-            }
-
-            obj.log += str + '\n';
+            branch.appendToLog(text);
         }
     }
 
