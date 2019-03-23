@@ -250,10 +250,15 @@ Hook steps
     - * After Every Step
         - {{successful}} = true if step passed, false if failed
         - {{error}} = the Error object, if failed
+        - Examples
+            - Taking a screenshot
     - * Before Everything
         - before any branches begin, execute this
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
+        - Examples
+            - setInterval() that runs in the background and checks for a popup, then closes it
+            - require() in a library (figure out how to do this)
     - * After Everything
         - after all branches end, execute this
         - only valid at 0 indents
