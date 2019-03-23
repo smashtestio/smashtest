@@ -425,6 +425,13 @@ A -
             expect(runInstance.evalCodeBlock("return 5;", true)).to.equal(5);
         });
 
+        it("returns undefined when executing code that has no return value synchronously", function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.evalCodeBlock("5;", true)).to.equal(undefined);
+        });
+
         it("makes the persistent, global, and local objects available", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);

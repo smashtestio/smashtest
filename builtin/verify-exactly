@@ -1,0 +1,47 @@
+* Verify exactly {{n}} of {{element}} are visible {
+}
+
+* Verify exactly {{n}} of {{element}} are not visible {
+}
+
+* Verify exactly {{n}} of {{element}} are enabled {
+}
+
+* Verify exactly {{n}} of {{element}} are disabled {
+}
+
+* Verify exactly {{n}} of {{element}} are checked {
+}
+
+* Verify exactly {{n}} of {{element}} are unchecked {
+}
+
+* Verify exactly {{n}} of {{element}} are selected {
+}
+
+* Verify exactly {{n}} of {{element}} are not selected {
+}
+
+* Verify exactly {{n}} of {{element}} are {{elementToMatch}} {
+}
+
+* Verify exactly {{n}} of {{element}} are not {{elementToMatch}} {
+}
+
+* Verify exactly {{n}} of {{element}} contain {{elementOrText}} {
+}
+
+* Verify exactly {{n}} of {{element}} exactly contain {{text}} {
+}
+
+* Verify exactly {{n}} of {{element}} do not contain {{elementOrText}} {
+}
+
+* Verify exactly {{n}} of {{element}} do not exactly contain {{text}} {
+}
+
+* Verify exactly {{n}} of {{elementA}} come before {{elementB}} {
+}
+
+* Verify exactly {{n}} of {{elementA}} come after {{elementB}} {
+}

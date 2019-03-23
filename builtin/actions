@@ -1,0 +1,155 @@
+* Before Everything {
+    /*
+    Execute In Browser
+        - execInBrowser() is a function which is implemented and injected into RunInstance by a built-in Before Everything hook (see runStep())
+    */
+}
+
+* After Every Step {
+    // Take screenshot upon failure
+}
+
+* Open Chrome {
+    /*
+    - If webdriver hasn't been require()'ed yet, does so and into a new var in RunInstance
+    - Creates browser object in RunInstance
+    */
+}
+
+* Open Firefox {
+
+}
+
+* Open Safari {
+
+}
+
+* Open IE {
+
+}
+
+* Navigate to {{url}} {
+    // url is absolute or relative
+    // check that browser is open and throw a relevant error otherwise
+}
+
+* Click {{element}} {
+    // element is selector string or ElementFinder
+}
+
+* Double click {{element}} {
+
+}
+
+* Hover over {{element}} {
+
+}
+
+* Touch {{element}} {
+
+}
+
+* Get cookie {{name}} {
+
+}
+
+* Set cookie {{name}} to {{value}} {
+    // value can include expiration, etc.
+}
+
+* Delete cookie {{name}} {
+
+}
+
+* Delete all cookies {
+
+}
+
+* Clear cache and cookies {
+
+}
+
+* Set browser dimensions to {{x}} by {{y}} {
+
+
+}
+
+* Set browser dimensions to {{preset}} {
+    // 'desktop'/'tablet'/'mobile'
+}
+
+* Maximize the browser {
+
+}
+
+* Click Back button {
+
+}
+
+* Click Forward button {
+
+}
+
+* Click Refresh button {
+
+}
+
+* Press enter inside of {{element}} {
+
+}
+
+* Enter {{text}} into {{element}} {
+    // sendkeys, you can also use unicode codes for special keys like arrows
+}
+
+* Set {{element}} to {{value}} {
+    // can be textbox, dropdown, etc. (anything with a value)
+}
+
+* Check {{element}} {
+    // checkboxes or radio
+}
+
+* Uncheck {{element}} {
+    // checkboxes or radio
+}
+
+* Select {{value}} from {{element}} {
+    // dropdown, where value is exact text, or nearest text with a warning logged (via log())
+}
+
+* Current url {
+    // return current absolute url
+}
+
+* Window title {
+    // returns window title
+}
+
+* Value of {{element}} {
+    // returns value of element
+}
+
+* New tab {
+
+}
+
+* Switch to tab with title {{text}} {
+    // window title contains given text
+}
+
+* Switch to tab with url {{url}} {
+    // search for full url, then do partial matches
+}
+
+* Switch to the {{nth}} tab {
+    // nth in an actual ordinal (strip out the number from this string)
+}
+
+* Switch to iframe {{element}} {
+    // element is a selector or ElementFinder of an iframe
+}
+
+* Switch to original iframe {
+    // parentFrame aka defaultContent
+}

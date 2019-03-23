@@ -1,3 +1,41 @@
-Click {{element}} {
-    console.log("Click!");
+// TODO: Set error.failBranchNow = false for these steps
+
+* Verify {{a}} equals {{b}} {
+
+}
+
+* Verify {{a}} == {{b}} {
+
+}
+
+* Verify {{a}} is greater than {{b}} {
+
+}
+
+* Verify {{a}} > {{b}} {
+
+}
+
+* Verify {{a}} is greater than or equal to {{b}} {
+
+}
+
+* Verify {{a}} >= {{b}} {
+
+}
+
+* Verify {{a}} is less than {{b}} {
+
+}
+
+* Verify {{a}} < {{b}} {
+
+}
+
+* Verify {{a}} is less than or equal to {{b}} {
+
+}
+
+* Verify {{a}} <= {{b}} {
+
 }

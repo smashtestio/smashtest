@@ -1,0 +1,82 @@
+// TODO:
+// Set error.failBranchNow = false for these steps
+// All of these steps wait until this is true, or throws exception if timeout is hit
+
+* Before Everything {
+    // Implement verify functions here, which can be reused for exactly N, every, etc.
+}
+
+* Verify at page {{page}} {
+    // page is page title or url (absolute or relative)
+    // do a partial match
+}
+
+* Verify {{element}} is visible {
+    // element = ElementFinder, selector, or text
+}
+
+* Verify {{element}} is not visible {
+    // element = ElementFinder, selector, or text
+    // not visible = in the DOM but hidden, or not in the DOM at all
+}
+
+* Verify {{element}} is enabled {
+
+}
+
+* Verify {{element}} is disabled {
+
+}
+
+* Verify {{element}} is checked {
+
+}
+
+* Verify {{element}} is unchecked {
+
+}
+
+* Verify {{element}} is selected {
+
+}
+
+* Verify {{element}} is not selected {
+
+}
+
+* Verify {{element}} is {{elementToMatch}} {
+    // element matches that selector
+}
+
+* Verify {{element}} is not {{elementToMatch}} {
+}
+
+* Verify {{element}} contains {{elementOrText}} {
+    /*
+    - elementOrText = ElementFinder, selector, or text to contain as innerText, value, etc.
+    - Checks both inside the DOM (visible stuff) and the element's value (and similar properties)
+    - Works for checking the selected item in a dropdown too
+    */
+}
+
+* Verify {{element}} exactly contains {{text}} {
+    // exact match
+}
+
+* Verify {{element}} does not contain {{elementOrText}} {
+}
+
+* Verify {{element}} does not exactly contain {{text}} {
+}
+
+* Verify {{elementA}} comes before {{elementB}} {
+
+}
+
+* Verify {{elementA}} comes after {{elementB}} {
+
+}
+
+* Verify cookie {{name}} contains {{value}} {
+
+}
