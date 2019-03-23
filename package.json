@@ -4,6 +4,7 @@
   "description": "SmashTEST",
   "author": "SmashTEST <smashtest.io>",
   "dependencies": {
+    "fs": "0.0.1-security",
     "glob": "^7.1.3",
     "read-files-promise": "^1.1.1",
     "save": "^2.3.3",

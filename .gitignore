@@ -5,3 +5,4 @@ geckodriver
 chromedriver
 coverage
 .nyc_output
+smashtest.crx

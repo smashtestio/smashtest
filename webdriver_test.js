@@ -1,10 +1,16 @@
 var webdriverio = require('webdriverio');
+var fs = require('fs');
 
 (async () => {
+    var data = await fs.readFileSync('./smashtest.crx');
+
     const browser = await webdriverio.remote({
         logLevel: 'warn',
         capabilities: {
-            browserName: 'chrome'
+            browserName: 'chrome',
+            "goog:chromeOptions": {
+                extensions: [data.toString('base64')]
+            }
         }
     });
 
