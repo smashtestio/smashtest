@@ -19,6 +19,12 @@ class Tree {
 
         this.latestBranchifiedStep = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
         this.isDebug = false;                // true if at least one step has isDebug (~) set
+
+        /*
+        OPTIONAL
+
+        this.elapsed = 0;                    // number of ms it took for all branches to execute, set to -1 if paused
+        */
     }
 
     /**

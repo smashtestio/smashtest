@@ -32,6 +32,8 @@ class Branch {
 
         this.error = {};                    // if this branch failed, this is the Error that was thrown (only for failure that occurs within the branch but not within a particular step)
         this.log = "";                      // string of logs related to this branch (logs related to the branch but not to a particular step)
+
+        this.elapsed = 0;                   // number of ms it took this step to execute
         */
     }
 

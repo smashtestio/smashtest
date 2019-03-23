@@ -69,6 +69,14 @@ describe("RunInstance", function() {
 
         it.skip("clears local and global variables between different branches", function() {
         });
+
+        it.skip("sets branch.elapsed to how long it took branch to execute", function() {
+            // branch.elapsed
+        });
+
+        it.skip("sets branch.elapsed to -1 if a pause occured", function() {
+            // tree.elapsed == -1
+        });
     });
 
     describe("runStep()", function() {
@@ -320,8 +328,8 @@ describe("RunInstance", function() {
         it.skip("updates the report", function() {
         });
 
-        it.skip("throws error when step timeout exceeded, as per the {timeout} variable", function() {
-            // use a very small {timeout}
+        it.skip("sets step.elapsed to how long it took step to execute", function() {
+            // step.elapsed
         });
     });
 

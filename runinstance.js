@@ -30,6 +30,8 @@ class RunInstance {
         this.isPaused = false;
         this.currBranch = this.tree.nextBranch();
         while(this.currBranch) {
+            var startTime = new Date();
+
             // Execute Before Every Branch steps
             for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                 var s = this.currBranch.beforeEveryBranch[i];
@@ -42,6 +44,7 @@ class RunInstance {
                 await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
 
                 if(this.isPaused) { // the current step caused a pause
+                    this.currBranch.elapsed = -1;
                     return;
                 }
 
@@ -60,6 +63,8 @@ class RunInstance {
             this.global = {};
             this.local = {};
             this.localStack = [];
+
+            this.currBranch.elapsed = new Date() - startTime;
 
             this.currBranch = this.tree.nextBranch();
         }
@@ -80,6 +85,8 @@ class RunInstance {
             this.isPaused = true;
             return;
         }
+
+        var startTime = new Date();
 
         // Execute Before Every Step hooks
         if(branch) {
@@ -239,6 +246,7 @@ class RunInstance {
             // Pause if the step failed or is unexpected
             if(this.runner.pauseOnFail && (!isPassed || !asExpected)) {
                 this.isPaused = true;
+                step.elapsed = new Date() - startTime; // for steps, we still measure time, even if there's a pause
                 return;
             }
         }
@@ -261,6 +269,9 @@ class RunInstance {
             this.runner.runOneStep = false; // clear out flag
             this.isPaused = true;
         }
+
+        // Measure time the step took
+        step.elapsed = new Date() - startTime;
     }
 
     /**

@@ -1,6 +1,6 @@
 // TODO:
 // Set error.failBranchNow = false for these steps
-// All of these steps wait until this is true, or throws exception if timeout is hit
+// All of these steps will verify immediately and fail immediately
 
 * Before Everything {
     // Implement verify functions here, which can be reused for exactly N, every, etc.

@@ -31,6 +31,8 @@ class Runner {
      * @return {Promise} Promise that gets resolved when completed or paused
      */
     async run() {
+        var startTime = new Date();
+
         // If pauseOnFail is set, maxInstances must be 1
         if(this.pauseOnFail && this.maxInstances != 1) {
             utils.error("maxInstances must be set to 1 since pauseOnFail is on");
@@ -70,8 +72,12 @@ class Runner {
                         var s = this.tree.afterEverything[i];
                         await hookExecInstance.runStep(s, null, s, null);
                     }
-                }
 
+                    this.tree.elapsed = new Date() - startTime;
+                }
+                else { // pause occured
+                    this.tree.elapsed = -1;
+                }
             });
     }
 

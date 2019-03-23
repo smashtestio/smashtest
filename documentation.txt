@@ -237,7 +237,13 @@ Selective test running
     - When noDebug command line flag is set, a ~ or $ anywhere in your tree will cause an error
         - Great for making sure you're not debug prior to committing test files to CI
 
-Mocking APIs
+Stubbing out APIs
+    - Examples
+        - Use built-in sinon-injecting js function
+        - Stubs out XHR
+            - https://sinonjs.org/releases/latest/fake-xhr-and-server/
+            - Give examples of a few GET/POST routes and their responses
+        - Restores original XHR once test is over
 
 Hook steps
     - * Before Every Branch

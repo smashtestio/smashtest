@@ -41,6 +41,7 @@ C -
         });
 
         it.skip("can spawn a single run instance that pauses", function() {
+
         });
 
         it.skip("can resume a paused run instance", function() {
@@ -73,6 +74,14 @@ C -
         });
 
         it.skip("stores errors from After Everything steps and continues execution", function() {
+        });
+
+        it.skip("sets tree.elapsed to how long all branches took to execute", function() {
+            // tree.elapsed
+        });
+
+        it.skip("sets tree.elapsed to -1 if a pause occured", function() {
+            // tree.elapsed == -1
         });
     });
 
