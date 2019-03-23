@@ -153,3 +153,7 @@
 * Switch to original iframe {
     // parentFrame aka defaultContent
 }
+
+* Wait {{n}} seconds {
+    // webdriver has a function for this
+}
