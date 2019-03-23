@@ -151,18 +151,12 @@ class Tree {
             }
         }
 
-        // Validate Execute in browser steps
-        if(typeof step.codeBlock != 'undefined' && utils.canonicalize(step.text) == "execute in browser") {
-            this.verifyCasing(step, "Execute In Browser");
-        }
-
         // Validate hook steps
         if(step.isFunctionDeclaration) {
             var canStepText = utils.canonicalize(step.text);
             var stepText = step.text.trim().replace(/\s+/g, ' ');
             var index = Constants.HOOK_NAMES_CANON.indexOf(canStepText);
             if(index != -1) {
-                this.verifyCasing(step, Constants.HOOK_NAMES[index]);
                 if(typeof step.codeBlock == 'undefined') {
                     utils.error("A hook must have a code block", filename, lineNumber);
                 }
@@ -1222,18 +1216,6 @@ class Tree {
             }
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
-    }
-
-    /**
-     * Verifies correct casing in a step's text
-     * @param {Step} step - The step to verify
-     * @param {String} correctText - The correct way to spell step's text
-     * @throws {Error} That step is not in the right casing
-     */
-    verifyCasing(step, correctText) {
-        if(step.text.trim().replace(/\s+/g, ' ') != correctText) {
-            utils.error("Every word must be capitalized (use '" + correctText + "' instead)", step.filename, step.lineNumber);
-        }
     }
 
     /**

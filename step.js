@@ -119,7 +119,7 @@ class Step {
     }
 
     /**
-     * Checks to see if this step, which is a function call, matches the given function declaration
+     * Checks to see if this step, which is a function call, matches the given function declaration (case insensitive)
      * @param {Step} functionDeclaration - A function declaration step
      * @return {Boolean} true if they match, false if they don't
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
@@ -128,7 +128,7 @@ class Step {
         var functionCallText = this.getFunctionCallText();
         var functionDeclarationText = functionDeclaration.text;
 
-        // When hooking up functions, canonicalize by trim(), replace \s+ with a single space
+        // When hooking up functions, canonicalize by trim(), toLowerCase(), and replace \s+ with a single space
         // functionDeclarationText can have {{variables}}
         // functionCallText can have {{vars}}, {vars}, 'strings', "strings", and [elementFinders]
 
@@ -138,7 +138,8 @@ class Step {
             .replace(/\s+/g, ' ')
             .replace(/\\\\/g, '\\') // replace \\ with \
             .replace(/\\\'/g, '\'') // replace \' with '
-            .replace(/\\\"/g, '\"'); // replace \" with "
+            .replace(/\\\"/g, '\"') // replace \" with "
+            .toLowerCase();
 
         functionCallText = functionCallText
             .trim()
@@ -148,7 +149,8 @@ class Step {
             .replace(/\s+/g, ' ')
             .replace(/\\\\/g, '\\') // replace \\ with \
             .replace(/\\\'/g, '\'') // replace \' with '
-            .replace(/\\\"/g, '\"'); // replace \" with "
+            .replace(/\\\"/g, '\"') // replace \" with "
+            .toLowerCase();
 
         if(functionDeclarationText == functionCallText) {
             return true;

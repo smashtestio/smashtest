@@ -450,14 +450,12 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("throws an exception if a function call and function declaration match case insensitively but not case sensitively", function() {
+        it("matches a function call and function declaration if they match case insensitively", function() {
             functionDeclaration.text = "Step name here";
             functionCall.text = "step name here";
             functionCall.filename = "filename.txt";
             functionCall.lineNumber = 10;
-            assert.throws(() => {
-                functionCall.isFunctionMatch(functionDeclaration);
-            }, "The function call 'step name here' matches function declaration 'Step name here', but must match case sensitively [filename.txt:10]");
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [ElementFinders]", function() {

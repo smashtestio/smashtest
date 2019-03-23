@@ -566,6 +566,55 @@ A -
             expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var1} is being set by a later step at file.txt:3\n");
         });
 
+        it("returns the value of a variable given the same variable name in a different case", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    {var one}="value1"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.findVarValue("VAR ONE", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {VAR ONE} is being set by a later step at file.txt:3\n");
+        });
+
+        it("returns the value of a variable given the same variable name but with varying amounts of whitespace", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+    { var  one  }="value1"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.findVarValue("var one", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var one} is being set by a later step at file.txt:3\n");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    {var one}="value1"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            expect(runInstance.findVarValue("    Var     ONE     ", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {    Var     ONE     } is being set by a later step at file.txt:3\n");
+        });
+
         it("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
             // If the original step is A, and its vars are defined in B, then's B's vars are defined 1) before A, 2) between A and B, and 3) after B
             var tree = new Tree();

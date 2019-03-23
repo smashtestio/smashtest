@@ -342,7 +342,7 @@ class RunInstance {
     }
 
     /**
-     * @param {String} varname - The name of the variable, without braces
+     * @param {String} varname - The name of the variable, without braces (case insensitive)
      * @param {Boolean} isLocal - True of the variable is local, false if it's global
      * @param {Step} step - We're finiding the value of the variable at this step
      * @param {Branch} [branch] - The branch containing step, if any
@@ -380,7 +380,7 @@ class RunInstance {
             if(s.varsBeingSet) {
                 for(var j = 0; j < s.varsBeingSet.length; j++) {
                     var varBeingSet = s.varsBeingSet[j];
-                    if(varBeingSet.name == varname && varBeingSet.isLocal == isLocal) {
+                    if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
                         var value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)

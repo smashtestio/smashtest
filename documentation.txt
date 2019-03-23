@@ -102,12 +102,11 @@ Functions
             - Match custom functions first, then primitive built-in functions
             - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
                 - Functions and {vars} declared inside a function are accessible to children of the caller step
+    - Functions are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
     - Examples
         - Using functions to encapsulate common steps
         - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)
         - Using functions to organize testing (have a high-level tree that describes your app, where each leaf is a function call to a function with multiple branches, where all the testing for that specific component occurs)
-    - Pitfalls
-        - Functions must match case (if they don't it's a compile error), but may include varying whitespace
 
 Variables
     - Types of vars
@@ -146,9 +145,10 @@ Variables
         - {var1} is global.var1 or global["var1"]
         - {{var2}} is var2, local.var2, or local["var2"]
         - persistent vars exist from branch to branch, for the life of the whole test run and are only accessible via persistent.varname or persistent["varname"]
+    - Variables are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
+        - Case sensitive as js vars and in persistent/global/local though (use the case that was used when declared - though leading and trailing whitespace is ignored too)
     - Pitfalls
         - Cannot have a \ in the name of a variable
-        - Whitespace in front of and behind a variable name doesn't count
 
 Comments
     - // only, stuff before it is a legit step

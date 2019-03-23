@@ -65,8 +65,12 @@
 
 }
 
-* Clear cache and cookies {
+* Clear local storage {
 
+}
+
+* Clear cache and cookies {
+    // including local storage
 }
 
 * Set browser dimensions to {{x}} by {{y}} {

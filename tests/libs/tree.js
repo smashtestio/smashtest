@@ -148,32 +148,6 @@ describe("Tree", function() {
             }, "You cannot have a function call with that name. That's reserved for hook function declarations. [file.txt:10]");
         });
 
-        it("throws an error if a hook has the wrong casing", function() {
-            assert.throws(() => {
-                tree.parseLine(`* Before every Branch`, "file.txt", 10);
-            }, "Every word must be capitalized (use 'Before Every Branch' instead) [file.txt:10]");
-
-            assert.throws(() => {
-                tree.parseLine(`* after every Branch`, "file.txt", 10);
-            }, "Every word must be capitalized (use 'After Every Branch' instead) [file.txt:10]");
-
-            assert.throws(() => {
-                tree.parseLine(`* before every STEP`, "file.txt", 10);
-            }, "Every word must be capitalized (use 'Before Every Step' instead) [file.txt:10]");
-
-            assert.throws(() => {
-                tree.parseLine(`* AFTER every STEP`, "file.txt", 10);
-            }, "Every word must be capitalized (use 'After Every Step' instead) [file.txt:10]");
-
-            assert.throws(() => {
-                tree.parseLine(`* before everything`, "file.txt", 10);
-            }, "Every word must be capitalized (use 'Before Everything' instead) [file.txt:10]");
-
-            assert.throws(() => {
-                tree.parseLine(`* AFTER EVERYTHING`, "file.txt", 10);
-            }, "Every word must be capitalized (use 'After Everything' instead) [file.txt:10]");
-        });
-
         it("does not throw an error if a hook has the right casing and has a code block, regardless of whitespace", function() {
             assert.doesNotThrow(() => {
                 tree.parseLine(`* Before  Every   Branch {`, "file.txt", 10);
@@ -346,20 +320,6 @@ describe("Tree", function() {
             assert.equal(step.text, `Something here`);
             assert.equal(step.codeBlock, ' // comment here');
             assert.equal(step.comment, undefined);
-        });
-
-        it("throws an error if an Execute In Browser step with code block is in the wrong case", function() {
-            assert.throws(() => {
-                tree.parseLine(`Execute in browser {`, "file.txt", 10);
-            }, "Every word must be capitalized (use 'Execute In Browser' instead) [file.txt:10]");
-
-            assert.throws(() => {
-                tree.parseLine(`execute in browser {`, "file.txt", 10);
-            }, "Every word must be capitalized (use 'Execute In Browser' instead) [file.txt:10]");
-
-            assert.doesNotThrow(() => {
-                tree.parseLine(`    Execute  In   Browser  {`, "file.txt", 10);
-            });
         });
 
         it("parses the to-do identifier (-T)", function() {
@@ -3690,6 +3650,27 @@ One {varA}   two   {{varB}} three [1st 'text' ElementFinder]
             expect(functionDeclaration === tree.root.children[2]).to.equal(true);
         });
 
+        it("finds the right function when the function call and function declaration match case insensitively", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My function
+
+* my function
+`, "file.txt");
+
+            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            var functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "my function",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: []
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+        });
+
         it("rejects function calls that cannot be found", function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -3702,20 +3683,6 @@ Function that doesn't exist
             assert.throws(() => {
                 tree.findFunctionDeclaration(stepsAbove);
             }, "The function 'Function that doesn't exist' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
-        });
-
-        it("rejects with a special error function calls that match case insensitively but not case sensitively", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-My function
-
-* my function
-`, "file.txt");
-
-            var stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            assert.throws(() => {
-                tree.findFunctionDeclaration(stepsAbove);
-            }, "The function call 'My function' matches function declaration 'my function', but must match case sensitively [file.txt:2]");
         });
 
         it("rejects function calls to functions that were declared in a different scope", function() {
@@ -7793,7 +7760,7 @@ C -
             tree.parseIn(`
 A -
 
-* After Every Branch {
+*  After  Every branch {
     B
 }
 
@@ -7814,13 +7781,13 @@ C -
                 {
                     steps: [ { text: "A" } ],
                     afterEveryBranch: [
-                        { text: "After Every Branch", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "After  Every branch", branchIndents: 0, codeBlock: "\n    B\n" }
                     ]
                 },
                 {
                     steps: [ { text: "C" } ],
                     afterEveryBranch: [
-                        { text: "After Every Branch", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "After  Every branch", branchIndents: 0, codeBlock: "\n    B\n" }
                     ]
                 }
             ]);
