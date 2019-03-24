@@ -207,7 +207,6 @@ describe("Tree", function() {
             assert.equal(step.identifiers, undefined);
             assert.equal(step.codeBlock, undefined);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "Big Red Button", isLocal: false} ]);
         });
 
         it("parses a line with a {{local variable}}", function() {
@@ -217,7 +216,6 @@ describe("Tree", function() {
             assert.equal(step.identifiers, undefined);
             assert.equal(step.codeBlock, undefined);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "Big Red Button", isLocal: true} ]);
         });
 
         it("parses a line with multiple variables and whitespace", function() {
@@ -227,7 +225,6 @@ describe("Tree", function() {
             assert.equal(step.identifiers, undefined);
             assert.equal(step.codeBlock, undefined);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "Big", isLocal: true}, {name: "Red", isLocal: false}, {name: "Button", isLocal: true} ]);
         });
 
         it("parses a comment", function() {
@@ -412,13 +409,11 @@ describe("Tree", function() {
             assert.equal(step.text, `{var} = Click 'something' {blah}`);
             assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "Click 'something' {blah}", isLocal: false} ]);
-            assert.deepEqual(step.varsList, [ {name: "var", isLocal: false}, {name: "blah", isLocal: false} ]);
 
             step = tree.parseLine(`    {var with spaces}  = Click 'something' {{blah}}`, "file.txt", 10);
             assert.equal(step.text, `{var with spaces}  = Click 'something' {{blah}}`);
             assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var with spaces", value: "Click 'something' {{blah}}", isLocal: false} ]);
-            assert.deepEqual(step.varsList, [ {name: "var with spaces", isLocal: false}, {name: "blah", isLocal: true} ]);
         });
 
         it("parses {var} = Code Block Function {", function() {
@@ -427,7 +422,6 @@ describe("Tree", function() {
             assert.equal(step.isFunctionCall, undefined);
             assert.equal(step.isTextualStep, undefined);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "Code Block Function", isLocal: false} ]);
-            assert.deepEqual(step.varsList, [ {name: "var", isLocal: false} ]);
         });
 
         it("rejects {var} = Textual Function -", function() {
@@ -455,7 +449,6 @@ describe("Tree", function() {
             assert.equal(step.text, `{var} = 'foo'`);
             assert.equal(step.isFunctionCall, undefined);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "'foo'", isLocal: false} ]);
-            assert.deepEqual(step.varsList, [ {name: "var", isLocal: false} ]);
         });
 
         it("parses {{var}} = Function", function() {
@@ -463,18 +456,15 @@ describe("Tree", function() {
             assert.equal(step.text, `{{var}} = Click 'something' { blah }`);
             assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "Click 'something' { blah }", isLocal: true} ]);
-            assert.deepEqual(step.varsList, [ {name: "var", isLocal: true}, {name: "blah", isLocal: false} ]);
 
             step = tree.parseLine(`    {{ var with spaces  }} =  Click 'something' {{blah}}`, "file.txt", 10);
             assert.equal(step.text, `{{ var with spaces  }} =  Click 'something' {{blah}}`);
             assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var with spaces", value: "Click 'something' {{blah}}", isLocal: true} ]);
-            assert.deepEqual(step.varsList, [ {name: "var with spaces", isLocal: true}, {name: "blah", isLocal: true} ]);
 
             step = tree.parseLine(`{{var}} = Click 'something \\\\ \'' "something2 \"" {blah} {{blah2}}`, "file.txt", 10);
             assert.equal(step.isFunctionCall, true);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: `Click 'something \\\\ \'' "something2 \"" {blah} {{blah2}}`, isLocal: true} ]);
-            assert.deepEqual(step.varsList, [ {name: "var", isLocal: true}, {name: "blah", isLocal: false}, {name: "blah2", isLocal: true} ]);
         });
 
         it("parses {{var}} = 'string'", function() {
@@ -482,7 +472,6 @@ describe("Tree", function() {
             assert.equal(step.text, `{{var}} = 'foo \\\''`);
             assert.equal(step.isFunctionCall, undefined);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "'foo \\\''", isLocal: true} ]);
-            assert.deepEqual(step.varsList, [ {name: "var", isLocal: true} ]);
         });
 
         it("parses multiple {var} = 'string literal', separated by commas", function() {
@@ -490,14 +479,12 @@ describe("Tree", function() {
             assert.equal(step.text, `{var1} = 'one', {{var2}}='two 2', {var 3}= "three 3"`);
             assert.equal(step.isFunctionCall, undefined);
             assert.deepEqual(step.varsBeingSet, [ {name: "var1", value: "'one'", isLocal: false}, {name: "var2", value: "'two 2'", isLocal: true}, {name: "var 3", value: "\"three 3\"", isLocal: false} ]);
-            assert.deepEqual(step.varsList, [ {name: "var1", isLocal: false}, {name: "var2", isLocal: true}, {name: "var 3", isLocal: false} ]);
         });
 
         it("doesn't recognize {vars} with backslashes in their names", function() {
             var step = tree.parseLine(`{var\\} = Click 'something \\{blah\\}' {foo}`, "file.txt", 10);
             assert.equal(step.text, `{var\\} = Click 'something \\{blah\\}' {foo}`);
             assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "foo", isLocal: false} ]);
         });
 
         it("rejects {vars} with only numbers in their names", function() {
@@ -577,35 +564,14 @@ describe("Tree", function() {
         });
 
         it("parses ElementFinders", function() {
-            var step = tree.parseLine(`Click ['Login' box]`, "file.txt", 10);
-            assert.equal(step.text, `Click ['Login' box]`);
-            assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {text: "'Login' box", elementFinder: {text: 'Login', variable: 'box'}} ]);
-
-            step = tree.parseLine(`Click ['Login']`, "file.txt", 10);
-            assert.equal(step.text, `Click ['Login']`);
-            assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {text: "'Login'", elementFinder: {text: 'Login'}} ]);
-
-            step = tree.parseLine(`Click [ 4th 'Login' box  next to  "blah" ]`, "file.txt", 10);
-            assert.equal(step.text, `Click [ 4th 'Login' box  next to  "blah" ]`);
-            assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {text: "4th 'Login' box  next to  \"blah\"", elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'blah'}} ]);
-
-            step = tree.parseLine(`Click [ 'Login' next to "blah" ]`, "file.txt", 10);
-            assert.equal(step.text, `Click [ 'Login' next to "blah" ]`);
-            assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {text: "'Login' next to \"blah\"", elementFinder: {text: 'Login', nextTo: 'blah'}} ]);
-
-            step = tree.parseLine(`Click [box next to "blah"]`, "file.txt", 10);
-            assert.equal(step.text, `Click [box next to "blah"]`);
-            assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {text: "box next to \"blah\"", elementFinder: {variable: 'box', nextTo: 'blah'}} ]);
-
-            step = tree.parseLine(`Click ['Login'] and [ 4th 'Login' box  next to  "blah" ]`, "file.txt", 10);
-            assert.equal(step.text, `Click ['Login'] and [ 4th 'Login' box  next to  "blah" ]`);
-            assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.elementFinderList, [ {text: "'Login'", elementFinder: {text: 'Login'}}, {text: "4th 'Login' box  next to  \"blah\"", elementFinder: {ordinal: 4, text: 'Login', variable: 'box', nextTo: 'blah'}} ]);
+            assert.doesNotThrow(() => {
+                tree.parseLine(`Click ['Login' box]`, "file.txt", 10);
+                tree.parseLine(`Click ['Login']`, "file.txt", 10);
+                tree.parseLine(`Click [ 4th 'Login' box  next to  "blah" ]`, "file.txt", 10);
+                tree.parseLine(`Click [ 'Login' next to "blah" ]`, "file.txt", 10);
+                tree.parseLine(`Click [box next to "blah"]`, "file.txt", 10);
+                tree.parseLine(`Click ['Login'] and [ 4th 'Login' box  next to  "blah" ]`, "file.txt", 10);
+            });
         });
 
         it("throws an error when a [bracketed string] is not a valid elementFinder", function() {
@@ -613,14 +579,7 @@ describe("Tree", function() {
                 tree.parseLine(`Something [next to 'something']`, "file.txt", 10);
             }, "Invalid [elementFinder in brackets] [file.txt:10]");
         });
-
-        it("lists {vars} contained inside 'string literals'", function() {
-            var step = tree.parseLine(`Click {var1} "something {var2} {{var3}} foo" '{var4}'`, "file.txt", 10);
-            assert.equal(step.text, `Click {var1} "something {var2} {{var3}} foo" '{var4}'`);
-            assert.equal(step.varsBeingSet, undefined);
-            assert.deepEqual(step.varsList, [ {name: "var1", isLocal: false}, {name: "var2", isLocal: false}, {name: "var3", isLocal: true}, {name: "var4", isLocal: false} ]);
-        });
-
+        
         it("throws an error when multiple {vars} are set in a line, and one of them is not a 'string literal'", function() {
             assert.throws(() => {
                 tree.parseLine(`{var1} = 'one', {{var2}}=Some step here, {var 3}= "three 3" +`, "file.txt", 10);

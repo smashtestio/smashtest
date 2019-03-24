@@ -18,6 +18,9 @@ exports.VARS_SET_REGEX_WHOLE = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\
 // Matches {var} or {{var}}
 exports.VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
 
+// Same as VAR_REGEX, only matches the whole line
+exports.VAR_REGEX_WHOLE = new RegExp("^" + exports.VAR_REGEX.source + "$");
+
 // Matches [text]
 exports.BRACKET_REGEX = /(?<!(\\\\)*\\)\[[^\[\]\\]+\]/g;
 

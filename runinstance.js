@@ -123,8 +123,8 @@ class RunInstance {
             }
         }
 
-        // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
         if(prevStep) {
+            // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
             if(step.branchIndents > prevStep.branchIndents) {
                 // Push existing local var context to stack, create fresh local var context
                 this.localStack.push(this.local);
@@ -132,20 +132,33 @@ class RunInstance {
 
                 if(prevStep.isFunctionCall) {
                     // This is the first step inside a function call
-                    // Set {{local vars}} based on function declaration signature (step.functionDeclarationText) and step's function call signature
+                    // Set {{local vars}} based on function declaration signature and function call signature
 
-                    // TODO
+                    var varList = prevStep.functionDeclarationText.match(Constants.VAR_REGEX);
+                    if(prevStep.varsBeingSet.length > 0) {
+                        // prevStep is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
+                        varList.shift();
+                    }
 
+                    var inputList = prevStep.processedText.match(Constants.FUNCTION_INPUT);
 
+                    for(var i = 0; i < varList.length; i++) {
+                        var varname = varList[i].replace(/^\{\{/, '').replace(/\}\}$/, '');
+                        var value = inputList[i];
 
+                        if(value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) { // 'string' or "string"
+                            value = value.replace(/^\'|^\"|\'$|\"$/, ''); // vars have already been replaced here
+                        }
+                        else if(value.match(Constants.VAR_REGEX_WHOLE)) { // {var} or {{var}}
+                            var isLocal = value.match(/^\{\{/);
+                            value = findVarValue(value, isLocal, prevStep, branch);
+                        }
+                        else if(value.match(Constants.ELEMENTFINDER_REGEX_WHOLE)) { // [ElementFinder]
+                            value = this.tree.parseElementFinder(value);
+                        }
 
-
-
-
-
-
-
-
+                        this.setLocal(varname, value);
+                    }
                 }
             }
             else if(step.branchIndents < prevStep.branchIndents) {
@@ -176,27 +189,24 @@ class RunInstance {
             var error = null;
 
             try {
+                var retVal = null;
                 if(utils.canonicalize(step.text) == "execute in browser") {
-                    await this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
+                    retVal = await this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
                 }
                 else {
+                    retVal = await this.evalCodeBlock(code);
+                }
 
-
-
-
-
-                    await this.evalCodeBlock(code);
-
-                    // Step is {var} = Func
-                    if(step.isFunctionCall && step.varsBeingSet.length == 1) {
-                        // TODO: grab return value from code and assign it to {var}
-
-
-
-
-
-
-
+                // Step is {var} = Func with code block
+                // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
+                if(step.isFunctionCall && step.varsBeingSet.length == 1) {
+                    // Grab return value from code and assign it to {var}
+                    var varBeingSet = step.varsBeingSet[0];
+                    if(varBeingSet.isLocal) {
+                        this.setLocal(varBeingSet.name, retVal);
+                    }
+                    else {
+                        this.setGlobal(varBeingSet.name, retVal);
                     }
                 }
             }
@@ -348,7 +358,7 @@ class RunInstance {
             function setLocal(varname, value) {
                 runInstance.local[utils.canonicalize(varname)] = value;
             }
-            
+
         `;
 
         const VALID_JS_VAR = /^[A-Za-z0-9\-\_\.]+$/;

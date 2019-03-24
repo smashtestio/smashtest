@@ -260,32 +260,21 @@ class Tree {
             }
         }
 
-        // Create a list of elementFinders contained in this step
+        // Validate [ElementFinders]
         matches = step.text.match(Constants.BRACKET_REGEX);
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
                 var elementFinder = this.parseElementFinder(match);
-                if(elementFinder) {
-                    if(!step.elementFinderList) {
-                        step.elementFinderList = [];
-                    }
-
-                    step.elementFinderList.push({
-                        text: match.replace(/\[|\]/g, '').trim(),
-                        elementFinder: elementFinder
-                    });
-                }
-                else {
+                if(!elementFinder) {
                     utils.error("Invalid [elementFinder in brackets]", filename, lineNumber);
                 }
             }
         }
 
-        // Create a list of vars contained in this step
+        // Validate that all vars in a function declaration are {{local}}
         matches = step.text.match(Constants.VAR_REGEX);
         if(matches) {
-            step.varsList = [];
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
                 var name = match.replace(/\{|\}/g, '').trim();
@@ -294,11 +283,6 @@ class Tree {
                 if(step.isFunctionDeclaration && !isLocal) {
                     utils.error("All variables in a * Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
                 }
-
-                step.varsList.push({
-                    name: name,
-                    isLocal: isLocal
-                });
             }
         }
 
