@@ -52,8 +52,8 @@ class RunInstance {
             }
 
             // Execute After Every Branch steps
-            this.local.successful = this.currBranch.isPassed;
-            this.local.error = this.currBranch.error;
+            this.setLocal("successful", this.currBranch.isPassed);
+            this.setLocal("error", this.currBranch.error);
             for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
                 var s = this.currBranch.afterEveryBranch[i];
                 await runStep(s, null, null, this.currBranch);
@@ -162,10 +162,10 @@ class RunInstance {
             for(var i = 0; i < step.varsBeingSet.length; i++) {
                 var varBeingSet = step.varsBeingSet[i];
                 if(varBeingSet.isLocal) {
-                    this.local[varBeingSet.name] = this.replaceVars(varBeingSet.value, step, branch);
+                    this.setLocal(varBeingSet.name, this.replaceVars(varBeingSet.value, step, branch));
                 }
                 else {
-                    this.global[varBeingSet.name] = this.replaceVars(varBeingSet.value, step, branch);
+                    this.setGlobal(varBeingSet.name, this.replaceVars(varBeingSet.value, step, branch));
                 }
             }
         }
@@ -253,8 +253,8 @@ class RunInstance {
 
         // Execute After Every Step hooks
         if(branch) {
-            this.local.successful = step.isPassed;
-            this.local.error = step.error;
+            this.setLocal("successful", step.isPassed);
+            this.setLocal("error", step.error);
             for(var i = 0; i < branch.afterEveryStep.length; i++) {
                 var s = branch.afterEveryStep[i];
                 await runStep(s, null, this.currStep, this.currBranch);
@@ -275,6 +275,48 @@ class RunInstance {
     }
 
     /**
+     * @return Value of the given persistent variable (can be undefined)
+     */
+    getPersistent(varname) {
+        return this.persistent[utils.canonicalize(varname)];
+    }
+
+    /**
+     * @return Value of the given global variable (can be undefined)
+     */
+    getGlobal(varname) {
+        return this.global[utils.canonicalize(varname)];
+    }
+
+    /**
+     * @return Value of the given local variable (can be undefined)
+     */
+    getLocal(varname) {
+        return this.local[utils.canonicalize(varname)];
+    }
+
+    /**
+     * Sets the given persistent variable to the given value
+     */
+    setPersistent(varname, value) {
+        this.persistent[utils.canonicalize(varname)] = value;
+    }
+
+    /**
+     * Sets the given global variable to the given value
+     */
+    setGlobal(varname, value) {
+        this.global[utils.canonicalize(varname)] = value;
+    }
+
+    /**
+     * Sets the given local variable to the given value
+     */
+    setLocal(varname, value) {
+        this.local[utils.canonicalize(varname)] = value;
+    }
+
+    /**
      * Evals the given code block
      * @param {String} code - JS code to eval
      * @param {Boolean} [isSync] - If true, executes code synchronously, otherwise executes code asynchonously and returns a Promise
@@ -282,29 +324,53 @@ class RunInstance {
      */
     evalCodeBlock(code, isSync) {
         // Make global, local, and persistent accessible as js vars
-        var header = "";
-        header += "var persistent = runInstance.persistent;\n";
-        header += "var global = runInstance.global;\n";
-        header += "var local = runInstance.local;\n";
+        var header = `
+            function getPersistent(varname) {
+                return runInstance.persistent[utils.canonicalize(varname)];
+            }
+
+            function getGlobal(varname) {
+                return runInstance.global[utils.canonicalize(varname)];
+            }
+
+            function getLocal(varname) {
+                return runInstance.local[utils.canonicalize(varname)];
+            }
+
+            function setPersistent(varname, value) {
+                runInstance.persistent[utils.canonicalize(varname)] = value;
+            }
+
+            function setGlobal(varname, value) {
+                runInstance.global[utils.canonicalize(varname)] = value;
+            }
+
+            function setLocal(varname, value) {
+                runInstance.local[utils.canonicalize(varname)] = value;
+            }
+            
+        `;
+
+        const VALID_JS_VAR = /^[A-Za-z0-9\-\_\.]+$/;
 
         // Load persistent into js vars
         for(var varname in this.persistent) {
-            if(this.persistent.hasOwnProperty(varname) && varname.match(/^[A-Za-z0-9\-\_\.]+$/)) {
-                header += "var " + varname + " = persistent['" + varname + "'];\n";
+            if(this.persistent.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
+                header += "var " + varname + " = getPersistent('" + varname + "');\n";
             }
         }
 
         // Load global into js vars
         for(var varname in this.global) {
-            if(this.global.hasOwnProperty(varname) && varname.match(/^[A-Za-z0-9\-\_\.]+$/)) {
-                header += "var " + varname + " = global['" + varname + "'];\n";
+            if(this.global.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
+                header += "var " + varname + " = getGlobal('" + varname + "');\n";
             }
         }
 
         // Load local into js vars, potentially overriding global vars
         for(var varname in this.local) {
-            if(this.local.hasOwnProperty(varname) && varname.match(/^[A-Za-z0-9\-\_\.]+$/)) {
-                header += "var " + varname + " = local['" + varname + "'];\n";
+            if(this.local.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
+                header += "var " + varname + " = getLocal('" + varname + "');\n";
             }
         }
 
@@ -362,12 +428,16 @@ class RunInstance {
      */
     findVarValue(varname, isLocal, step, branch) {
         // If var is already set, return it immediately
-        var container = this.global;
+        var value = null;
         if(isLocal) {
-            container = this.local;
+            value = this.getLocal(varname);
         }
-        if(typeof container[varname] != 'undefined') {
-            return container[varname];
+        else {
+            value = this.getGlobal(varname);
+        }
+
+        if(value) {
+            return value;
         }
 
         var variableFull = "";

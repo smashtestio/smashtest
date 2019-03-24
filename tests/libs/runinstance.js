@@ -349,7 +349,7 @@ A -
             var runner = new Runner();
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
-            runInstance.global.var0 = "value0";
+            runInstance.setGlobal("var0", "value0");
 
             expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{var 3}-{{var 4}}  {{var5}} {var6}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
         });
@@ -365,7 +365,7 @@ A -
             var runner = new Runner();
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
-            runInstance.global.var0 = "value0";
+            runInstance.setGlobal("var0", "value0");
 
             expect(runInstance.replaceVars("{var1} {var1}", tree.branches[0].steps[0], null)).to.equal("value1 value1");
         });
@@ -447,27 +447,27 @@ A -
         it("makes the persistent, global, and local objects available", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
-            runInstance.persistent.a = "A";
-            runInstance.global.b = "B";
-            runInstance.local.c = "C";
+            runInstance.setPersistent("a", "A");
+            runInstance.setGlobal("b", "B");
+            runInstance.setLocal("c", "C");
 
-            await expect(runInstance.evalCodeBlock("return persistent.a;")).to.eventually.equal("A");
-            await expect(runInstance.evalCodeBlock("return global.b;")).to.eventually.equal("B");
-            await expect(runInstance.evalCodeBlock("return local.c;")).to.eventually.equal("C");
+            await expect(runInstance.evalCodeBlock("return getPersistent('a');")).to.eventually.equal("A");
+            await expect(runInstance.evalCodeBlock("return getGlobal('b');")).to.eventually.equal("B");
+            await expect(runInstance.evalCodeBlock("return getLocal('c');")).to.eventually.equal("C");
 
-            await runInstance.evalCodeBlock("persistent.a = 'AA'; global.b = 'BB'; local.c = 'CC';");
+            await runInstance.evalCodeBlock("setPersistent('a', 'AA'); setGlobal('b', 'BB'); setLocal('c', 'CC');");
 
-            expect(runInstance.persistent.a).to.equal("AA");
-            expect(runInstance.global.b).to.equal("BB");
-            expect(runInstance.local.c).to.equal("CC");
+            expect(runInstance.getPersistent("a")).to.equal("AA");
+            expect(runInstance.getGlobal("b")).to.equal("BB");
+            expect(runInstance.getLocal("c")).to.equal("CC");
         });
 
         it("makes persistent, global, and local variables available as js variables", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
-            runInstance.persistent.a = "A";
-            runInstance.global.b = "B";
-            runInstance.local.c = "C";
+            runInstance.setPersistent('a', "A");
+            runInstance.setGlobal('b', "B");
+            runInstance.setLocal('c', "C");
 
             await expect(runInstance.evalCodeBlock("return a;")).to.eventually.equal("A");
             await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("B");
@@ -477,8 +477,8 @@ A -
         it("makes a local variable accessible as a js variable if both a local and global variable share the same name", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
-            runInstance.global.b = "B";
-            runInstance.local.b = "C";
+            runInstance.setGlobal('b', "B");
+            runInstance.setLocal('b', "C");
 
             await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
@@ -486,8 +486,8 @@ A -
         it("makes a global variable accessible as a js variable if both a global and persistent variable share the same name", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
-            runInstance.persistent.b = "B";
-            runInstance.global.b = "C";
+            runInstance.setPersistent('b', "B");
+            runInstance.setGlobal('b', "C");
 
             await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
@@ -495,8 +495,8 @@ A -
         it("makes a local variable accessible as a js variable if both a local and persistent variable share the same name", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
-            runInstance.persistent.b = "B";
-            runInstance.local.b = "C";
+            runInstance.setPersistent('b', "B");
+            runInstance.setLocal('b', "C");
 
             await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
@@ -504,10 +504,10 @@ A -
         it("does not make a variable available as js variable if its name contains non-whitelisted characters", async function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
-            runInstance.persistent[" one two "] = "A";
-            runInstance.global["three four"] = "B";
-            runInstance.local["five>six"] = "C";
-            runInstance.local["seven"] = "D";
+            runInstance.setPersistent(" one two ", "A");
+            runInstance.setGlobal("three four", "B");
+            runInstance.setLocal("five>six", "C");
+            runInstance.setLocal("seven", "D");
 
             await expect(runInstance.evalCodeBlock("return seven;")).to.eventually.equal("D");
         });
@@ -525,7 +525,7 @@ A -
             var runner = new Runner();
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
-            runInstance.local.var0 = "value0";
+            runInstance.setLocal("var0", "value0");
 
             expect(runInstance.findVarValue("var0", true, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
         });
@@ -541,7 +541,7 @@ A -
             var runner = new Runner();
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
-            runInstance.global.var0 = "value0";
+            runInstance.setGlobal("var0", "value0");
 
             expect(runInstance.findVarValue("var0", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
         });
@@ -644,7 +644,7 @@ A -
             var runner = new Runner();
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
-            runInstance.global.var0 = "value0";
+            runInstance.setGlobal("var0", "value0");
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value2 - value 4 - . value0 value5");
             expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {{var2}} is being set by a later step at file.txt:3

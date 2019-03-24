@@ -141,10 +141,6 @@ Variables
     - Using {vars} that will be defined later in the branch
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
         - If you're setting the {var} = Function Call, the function call's code block must be synchronous
-    - Accessing in code blocks
-        - {var1} is global.var1 or global["var1"]
-        - {{var2}} is var2, local.var2, or local["var2"]
-        - persistent vars exist from branch to branch, for the life of the whole test run and are only accessible via persistent.varname or persistent["varname"]
     - Variables are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
         - Case sensitive as js vars and in persistent/global/local though (use the case that was used when declared - though leading and trailing whitespace is ignored too)
     - Pitfalls
@@ -162,17 +158,22 @@ Code blocks
     - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
     - +, .., etc. characters applied come after the step text and before the {
     - Only lines after the { line and before the } count as part of the code block
-    - Vars accessible in code as global.name (or global["var name"]) or local.name (or local["var name"])
-        - Vars that persist from branch to branch are stored in persistent
-        - You can access vars as a regular js var (e.g., local.var1 is the same as just var1)
-            - However, you cannot set values of vars this way. Their values won't persist past the end of the code block.
-                For that, you have to use persistent.varname, global.varname, or local.varname
-            - When persistent, global, and local vars share the same name, the js var will be set according to this precedence: local, global, persistent
-            - Vars whose names have anything but [A-Za-z0-9\-\_\.] won't be converted to js vars
+    - Variables
+        - Get
+            - {{var1}} is var1 or getLocal("var1")
+            - {var2} is var2 or getGlobal("var2")
+            - persistent vars persist from branch to branch, for the life of the whole test run and are only accessible via getPersistent("var3")
+            - More on js vars
+                - When persistent, global, and local vars share the same name, the js var will be set according to this precedence: local, global, persistent
+                - Vars whose names have anything but [A-Za-z0-9\-\_\.] won't be converted to js vars
+        - Set
+            - {{var1}} is setLocal("var1", "value") (NOTE: you can't set var1=value as this will not persist past the end of the code block)
+            - {var2} is setGlobal("var2", "value")
+            - persistent vars: setPersistent("var3", "value")
     - Access RunInstance object via runInstance variable
     - Pitfalls
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
-        - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Set persistent.varname, global.varname, or local.varname instead.
+        - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., setLocal(), setGlobal(), setPersistent()) instead.
 
 Sequential execution (..)
     - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)
