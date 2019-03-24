@@ -521,26 +521,5 @@ class RunInstance {
             branch.appendToLog(text);
         }
     }
-
-    /**
-     * @return {Tree} The tree associated with the runner
-     */
-    getTree() {
-        return this.runner.tree;
-    }
-
-    /**
-     * @return {Branch} The Branch currently being executed
-     */
-    getCurrentBranch() {
-        return this.currBranch;
-    }
-
-    /**
-     * @return {Step} The Step currently being executed
-     */
-    getCurrentStep() {
-        return this.currStep;
-    }
 }
 module.exports = RunInstance;
