@@ -108,7 +108,7 @@ class RunInstance {
         if(step.isFunctionCall) {
             step.processedText = step.text + '';
             replaceVarsInStep(Constants.STRING_LITERAL_REGEX);
-            replaceVarsInStep(Constants.BRACKET_REGEX);
+            replaceVarsInStep(Constants.ELEMENTFINDER_REGEX);
 
             function replaceVarsInStep(regex) {
                 var matches = step.processedText.match(regex);

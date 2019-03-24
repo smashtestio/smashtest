@@ -103,7 +103,7 @@ class Tree {
         }
 
         // Validation against prohibited step texts
-        if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
+        if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX_WHOLE)) {
             utils.error("Invalid step name", filename, lineNumber);
         }
 
@@ -170,7 +170,7 @@ class Tree {
         }
 
         // Steps that set variables
-        if(step.text.match(Constants.VARS_SET_REGEX)) {
+        if(step.text.match(Constants.VARS_SET_REGEX_WHOLE)) {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
 
             if(step.isFunctionDeclaration) {
@@ -181,7 +181,7 @@ class Tree {
             var textCopy = step.text + "";
             step.varsBeingSet = [];
             while(textCopy.trim() != "") {
-                matches = textCopy.match(Constants.VARS_SET_REGEX);
+                matches = textCopy.match(Constants.VARS_SET_REGEX_WHOLE);
                 if(!matches) {
                     utils.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
                 }
@@ -193,7 +193,7 @@ class Tree {
                 };
 
                 // Generate variable name validations
-                if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
+                if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX_WHOLE)) {
                     utils.error("A {variable name} cannot be just numbers", filename, lineNumber);
                 }
 
@@ -245,7 +245,7 @@ class Tree {
                     }
 
                     // Validations
-                    if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX)) {
+                    if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX_WHOLE)) {
                         utils.error("{vars} can only be set to 'strings'", filename, lineNumber);
                     }
                     if(step.isTextualStep) {
@@ -265,16 +265,14 @@ class Tree {
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
-                var text = match.replace(/\[|\]/g, '').trim();
-
-                var elementFinder = this.parseElementFinder(text);
+                var elementFinder = this.parseElementFinder(match);
                 if(elementFinder) {
                     if(!step.elementFinderList) {
                         step.elementFinderList = [];
                     }
 
                     step.elementFinderList.push({
-                        text: text,
+                        text: match.replace(/\[|\]/g, '').trim(),
                         elementFinder: elementFinder
                     });
                 }
@@ -309,16 +307,16 @@ class Tree {
 
     /**
      * Parses text inside brackets into an ElementFinder
-     * @param {String} text - The text to parse, without the brackets ([])
+     * @param {String} text - The text to parse, with the brackets ([])
      * @return {ElementFinder} The ElementFinder, or null if this is not a valid ElementFinder
      */
     parseElementFinder(name) {
-        var matches = name.match(Constants.ELEMENTFINDER_REGEX);
+        var matches = name.match(Constants.ELEMENTFINDER_REGEX_WHOLE);
         if(matches) {
-            var ordinal = (matches[2] || '');
-            var text = utils.stripQuotes((matches[5] || '') + (matches[8] || '')); // it's either matches[5] or matches[8]
-            var variable = ((matches[6] || '') + (matches[9] || '')).trim(); // it's either matches[6] or matches[9]
-            var nextTo = utils.stripQuotes(matches[11] || '');
+            var ordinal = (matches[3] || '');
+            var text = utils.stripQuotes((matches[6] || '') + (matches[9] || '')); // it's either matches[6] or matches[9]
+            var variable = ((matches[7] || '') + (matches[10] || '')).trim(); // it's either matches[7] or matches[10]
+            var nextTo = utils.stripQuotes(matches[12] || '');
 
             if(!text && !variable) { // either the text and/or the variable must be present
                 return null;

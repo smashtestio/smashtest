@@ -664,114 +664,123 @@ describe("Tree", function() {
         var tree = new Tree();
 
         it("parses ElementFinders with text", function() {
-            var elementFinder = tree.parseElementFinder(`'Login'`);
+            var elementFinder = tree.parseElementFinder(`['Login']`);
             assert.deepEqual(elementFinder, {text: 'Login'});
 
-            elementFinder = tree.parseElementFinder(` 'Login' `);
+            elementFinder = tree.parseElementFinder(`[ 'Login' ]`);
             assert.deepEqual(elementFinder, {text: 'Login'});
         });
 
         it("rejects ElementFinders with nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`next to 'blah'`);
+            var elementFinder = tree.parseElementFinder(`[next to 'blah']`);
             assert.equal(elementFinder, null);
 
-            elementFinder = tree.parseElementFinder(`   next to "blah"  `);
+            elementFinder = tree.parseElementFinder(`[   next to "blah"  ]`);
             assert.equal(elementFinder, null);
         });
 
         it("parses ElementFinders with ordinal and text", function() {
-            var elementFinder = tree.parseElementFinder(`235th '  blah blah2 '`);
+            var elementFinder = tree.parseElementFinder(`[235th '  blah blah2 ']`);
             assert.deepEqual(elementFinder, {ordinal: 235, text: '  blah blah2 '});
 
-            elementFinder = tree.parseElementFinder(` 235th  '  blah blah2 ' `);
+            elementFinder = tree.parseElementFinder(`[ 235th  '  blah blah2 ' ]`);
             assert.deepEqual(elementFinder, {ordinal: 235, text: '  blah blah2 '});
         });
 
         it("parses ElementFinders with ordinal and variable", function() {
-            var elementFinder = tree.parseElementFinder(`6422nd blah blah2`);
+            var elementFinder = tree.parseElementFinder(`[6422nd blah blah2]`);
             assert.deepEqual(elementFinder, {ordinal: 6422, variable: 'blah blah2'});
 
-            elementFinder = tree.parseElementFinder(` 6422nd  blah  blah2 `);
+            elementFinder = tree.parseElementFinder(`[ 6422nd  blah  blah2 ]`);
             assert.deepEqual(elementFinder, {ordinal: 6422, variable: 'blah  blah2'});
         });
 
         it("rejects ElementFinders with ordinal and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`2nd next to 'blah'`);
+            var elementFinder = tree.parseElementFinder(`[2nd next to 'blah']`);
             assert.equal(elementFinder, null);
 
-            elementFinder = tree.parseElementFinder(` 2nd   next to 'blah' `);
+            elementFinder = tree.parseElementFinder(`[ 2nd   next to 'blah' ]`);
             assert.equal(elementFinder, null);
         });
 
         it("parses ElementFinders with text and variable", function() {
-            var elementFinder = tree.parseElementFinder(`'Login' box`);
+            var elementFinder = tree.parseElementFinder(`['Login' box]`);
             assert.deepEqual(elementFinder, {text: 'Login', variable: 'box'});
 
-            elementFinder = tree.parseElementFinder(` 'Login'  box `);
+            elementFinder = tree.parseElementFinder(`[ 'Login'  box ]`);
             assert.deepEqual(elementFinder, {text: 'Login', variable: 'box'});
         });
 
         it("parses ElementFinders with text and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`'Login' next to "blah"`);
+            var elementFinder = tree.parseElementFinder(`['Login' next to "blah"]`);
             assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` 'Login'  next  to  "blah" `);
+            elementFinder = tree.parseElementFinder(`[ 'Login'  next  to  "blah" ]`);
             assert.deepEqual(elementFinder, {text: 'Login', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with variable and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`box next to "blah"`);
+            var elementFinder = tree.parseElementFinder(`[box next to "blah"]`);
             assert.deepEqual(elementFinder, {variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` box  next  to  "blah" `);
+            elementFinder = tree.parseElementFinder(`[ box  next  to  "blah" ]`);
             assert.deepEqual(elementFinder, {variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(`22foo next to "blah"`);
+            elementFinder = tree.parseElementFinder(`[22foo next to "blah"]`);
             assert.deepEqual(elementFinder, {variable: '22foo', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with ordinal, text, and variable", function() {
-            var elementFinder = tree.parseElementFinder(`1st "Login" box`);
+            var elementFinder = tree.parseElementFinder(`[1st "Login" box]`);
             assert.deepEqual(elementFinder, {ordinal: 1, text: 'Login', variable: 'box'});
 
-            elementFinder = tree.parseElementFinder(`  1st  "Login"  big  box  `);
+            elementFinder = tree.parseElementFinder(`[  1st  "Login"  big  box  ]`);
             assert.deepEqual(elementFinder, {ordinal: 1, text: 'Login', variable: 'big  box'});
         });
 
         it("parses ElementFinders with ordinal, text, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`20th " Login  thing " next to "blah"`);
+            var elementFinder = tree.parseElementFinder(`[20th " Login  thing " next to "blah"]`);
             assert.deepEqual(elementFinder, {ordinal: 20, text: ' Login  thing ', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(`  20th " Login  thing "  next  to  "blah" `);
+            elementFinder = tree.parseElementFinder(`[  20th " Login  thing "  next  to  "blah" ]`);
             assert.deepEqual(elementFinder, {ordinal: 20, text: ' Login  thing ', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with ordinal, variable, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`14th box next to "blah"`);
+            var elementFinder = tree.parseElementFinder(`[14th box next to "blah"]`);
             assert.deepEqual(elementFinder, {ordinal: 14, variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` 13th  box  next  to "blah"  `);
+            elementFinder = tree.parseElementFinder(`[ 13th  box  next  to "blah"  ]`);
             assert.deepEqual(elementFinder, {ordinal: 13, variable: 'box', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with text, variable, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`'Login' box next to "blah"`);
+            var elementFinder = tree.parseElementFinder(`['Login' box next to "blah"]`);
             assert.deepEqual(elementFinder, {text: 'Login', variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` 'Login' box  next to  "blah" `);
+            elementFinder = tree.parseElementFinder(`[ 'Login' box  next to  "blah" ]`);
             assert.deepEqual(elementFinder, {text: 'Login', variable: 'box', nextTo: 'blah'});
         });
 
         it("parses ElementFinders with ordinal, text, variable, and nextTo", function() {
-            var elementFinder = tree.parseElementFinder(`14th 'Login' box next to "blah"`);
+            var elementFinder = tree.parseElementFinder(`[14th 'Login' box next to "blah"]`);
             assert.deepEqual(elementFinder, {ordinal: 14, text: 'Login', variable: 'box', nextTo: 'blah'});
 
-            elementFinder = tree.parseElementFinder(` 13th 'Login'  box  next  to "blah"  `);
+            elementFinder = tree.parseElementFinder(`[ 13th 'Login'  box  next  to "blah"  ]`);
             assert.deepEqual(elementFinder, {ordinal: 13, text: 'Login', variable: 'box', nextTo: 'blah'});
         });
 
         it("rejects other invalid ElementFinders", function() {
-            var elementFinder = tree.parseElementFinder(`something 'not' elementfinder`);
+            var elementFinder = tree.parseElementFinder(`[something 'not' elementfinder]`);
+            assert.equal(elementFinder, null);
+
+            var elementFinder = tree.parseElementFinder(`'text' box`);
+            assert.equal(elementFinder, null);
+
+            var elementFinder = tree.parseElementFinder(`['text' box`);
+            assert.equal(elementFinder, null);
+
+            var elementFinder = tree.parseElementFinder(`'text' box]`);
             assert.equal(elementFinder, null);
 
             elementFinder = tree.parseElementFinder(``);

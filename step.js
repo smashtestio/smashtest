@@ -146,7 +146,7 @@ class Step {
         functionCallText = functionCallText
             .trim()
             .replace(Constants.STRING_LITERAL_REGEX, '{}')
-            .replace(Constants.BRACKET_REGEX, '{}')
+            .replace(Constants.ELEMENTFINDER_REGEX, '{}')
             .replace(Constants.VAR_REGEX, '{}')
             .replace(/\s+/g, ' ')
             .replace(/\\\\/g, '\\') // replace \\ with \
