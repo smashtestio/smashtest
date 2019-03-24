@@ -85,9 +85,9 @@ class Tree {
             return step;
         }
 
-        var matches = line.match(Constants.LINE_REGEX);
+        var matches = line.match(Constants.LINE_REGEX_WHOLE);
         if(!matches) {
-            utils.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_REGEX can match anything)
+            utils.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_REGEX_WHOLE can match anything)
         }
 
         // Parsed parts of the line

@@ -2,7 +2,7 @@
 
 // Matches any well-formed non-empty line, in this format:
 // Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
-exports.LINE_REGEX = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\$|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
+exports.LINE_REGEX_WHOLE = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\$|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
 // Matches "string" or 'string', handles escaped \ and "
 exports.STRING_LITERAL_REGEX = /(?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")/g;
 // Same as STRING_LITERAL_REGEX, only matches the whole line
