@@ -16,6 +16,7 @@ class Runner {
 
         this.pauseOnFail = false;        // If true, pause and debug when a step fails (this.maxInstances must be set to 1)
         this.runOneStep = false;         // If true, runs the next step, then pauses
+        this.skipNextStep = false;       // If true, skips the next step, then pauses
 
         this.persistent = {};            // stores variables which persist from branch to branch, for the life of the Runner
 
@@ -99,6 +100,16 @@ class Runner {
      */
     runNextStep() {
         this.runOneStep = true;
+        return this.run();
+    }
+
+    /**
+     * Skips the next step, then pauses
+     * Call only when already paused
+     * @return {Promise} Promise that gets resolved once done executing
+     */
+    skipNextStep() {
+        this.skipNextStep = true;
         return this.run();
     }
 

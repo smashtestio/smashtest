@@ -64,11 +64,11 @@ describe("RunInstance", function() {
         });
 
         it.skip("handles resumes from pauses from inside a Before Every Branch hook", function() {
-            // the same branch runs again, and all before every branch steps run again
+            // the same branch runs again, starting from the same Before Every Branch step
         });
 
         it.skip("handles resumes from pauses from inside an After Every Branch hook", function() {
-            // the same branch runs again, and all after every branch steps run again (and ONLY they run - no before steps, no normal steps)
+
         });
 
         it.skip("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", function() {
@@ -238,10 +238,10 @@ describe("RunInstance", function() {
         it.skip("pauses when a ~ step is encountered", function() {
         });
 
-        it.skip("pauses when runOneStep is set and after running one step", function() {
+        it.skip("runs one step and pauses again when runOneStep is set", function() {
         });
 
-        it.skip("doesn't pause when runOneStep is not set and after running one step", function() {
+        it.skip("skips a step and pauses again when skipNextStep is set", function() {
         });
 
         it.skip("pauses when pauseOnFail is set and a step fails", function() {
