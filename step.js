@@ -239,5 +239,12 @@ class Step {
 
         this.log += text + "\n";
     }
+
+    /**
+     * @return {Boolean} True if this Step completed already
+     */
+    isComplete() {
+        return this.isPassed || this.isFailed;
+    }
 }
 module.exports = Step;

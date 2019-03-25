@@ -30,8 +30,13 @@ describe("RunInstance", function() {
         it.skip("handles a step that pauses execution", function() {
         });
 
-        it.skip("handles a resume from a previous pause", function() {
+        it.skip("handles a resume from a previous pause, where the current step never ran", function() {
+            // current step is run
             // just call run() again after the pause
+        });
+
+        it.skip("handles a resume from a previous pause, where the current step completed", function() {
+            // next step is pulled out
         });
 
         it.skip("runs a Before Every Branch hook", function() {
@@ -45,11 +50,11 @@ describe("RunInstance", function() {
         });
 
         it.skip("handles an error inside a Before Every Branch hook", function() {
-            // error goes into the Branch object, but Branch doesn't fail
+            // error goes into the Branch object, Branch fails
         });
 
         it.skip("handles an error inside an After Every Branch hook", function() {
-            // error goes into the Branch object, but Branch doesn't fail
+            // error goes into the Branch object, Branch fails
         });
 
         it.skip("handles a pause from inside a Before Every Branch hook", function() {
@@ -59,9 +64,11 @@ describe("RunInstance", function() {
         });
 
         it.skip("handles resumes from pauses from inside a Before Every Branch hook", function() {
+            // the same branch runs again, and all before every branch steps run again
         });
 
         it.skip("handles resumes from pauses from inside an After Every Branch hook", function() {
+            // the same branch runs again, and all after every branch steps run again (and ONLY they run - no before steps, no normal steps)
         });
 
         it.skip("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", function() {

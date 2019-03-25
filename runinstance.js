@@ -24,32 +24,42 @@ class RunInstance {
     }
 
     /**
-     * Grabs branches and steps from this.tree and executes them. Exits when there's nothing left to execute, or if a pause occurs.
+     * Grabs branches and steps from this.tree and executes them
+     * Exits when there's nothing left to execute, or if a pause or stop occurs
      * @return {Promise} Promise that gets resolved once done executing
      */
     async run() {
-        this.isPaused = false;
-        this.currBranch = this.tree.nextBranch();
+        if(this.isPaused) {
+            this.isPaused = false; // resume if we're already paused
+        }
+        else {
+            this.currBranch = this.tree.nextBranch();
+        }
+
         while(this.currBranch) {
             var startTime = new Date();
 
-            // Execute Before Every Branch steps
-            for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
-                var s = this.currBranch.beforeEveryBranch[i];
-                await runStep(s, null, null, this.currBranch);
+            // Execute Before Every Branch steps (if not already paused)
+            if(!this.isPaused) {
+                for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
+                    var s = this.currBranch.beforeEveryBranch[i];
+
+                    await this.runStep(s, null, null, this.currBranch);
+                    if(isPausedOrStopped()) {
+                        return;
+                    }
+                }
+            }
+
+            // Get the next step is we weren't paused to begin with, or if we're paused but the current step completed already
+            if(!this.isPaused || (this.currStep && this.currStep.isComplete())) {
+                this.currStep = this.tree.nextStep(this.currBranch, true, true);
             }
 
             // Execute steps in the branch
-            this.currStep = this.tree.nextStep(this.currBranch, true, true);
             while(this.currStep) {
                 await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
-
-                if(this.isPaused) { // the current step caused a pause
-                    this.currBranch.elapsed = -1;
-                    return;
-                }
-                else if(this.isStopped) {
-                    this.currBranch.elapsed = new Date() - startTime;
+                if(isPausedOrStopped()) {
                     return;
                 }
 
@@ -61,7 +71,11 @@ class RunInstance {
             this.setLocal("error", this.currBranch.error);
             for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
                 var s = this.currBranch.afterEveryBranch[i];
-                await runStep(s, null, null, this.currBranch);
+
+                await this.runStep(s, null, null, this.currBranch);
+                if(isPausedOrStopped()) {
+                    return;
+                }
             }
 
             // clear variable state
@@ -72,6 +86,17 @@ class RunInstance {
             this.currBranch.elapsed = new Date() - startTime;
 
             this.currBranch = this.tree.nextBranch();
+        }
+
+        function isPausedOrStopped() {
+            if(this.isPaused) { // the current step caused a pause
+                this.currBranch.elapsed = -1;
+                return true;
+            }
+            else if(this.isStopped) { // a stop occurred while the step was executing
+                this.currBranch.elapsed = new Date() - startTime;
+                return true;
+            }
         }
     }
 
@@ -97,7 +122,7 @@ class RunInstance {
         if(branch) {
             for(var i = 0; i < branch.beforeEveryStep.length; i++) {
                 var s = branch.beforeEveryStep[i];
-                await runStep(s, null, this.currStep, this.currBranch);
+                await this.runStep(s, null, this.currStep, this.currBranch);
             }
         }
 
@@ -387,7 +412,7 @@ class RunInstance {
             }
         }
 
-        // Load local into js vars, potentially overriding global vars
+        // Load local into js vars
         for(var varname in this.local) {
             if(this.local.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
                 header += "var " + varname + " = getLocal('" + varname + "');\n";
