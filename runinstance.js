@@ -15,6 +15,7 @@ class RunInstance {
 
         this.isPaused = false;                          // true if we're currently paused
         this.isStopped = false;                         // true if we're permanently stopping this RunInstance
+        this.resumeFrom = '';                           // where to resume execution from, when un-paused (either 'before', 'normal', 'after', or null if not paused)
 
         this.persistent = this.runner.persistent;       // persistent variables
         this.global = {};                               // global variables
@@ -39,42 +40,51 @@ class RunInstance {
         while(this.currBranch) {
             var startTime = new Date();
 
-            // Execute Before Every Branch steps (if not already paused)
-            if(!this.isPaused) {
+            // Execute Before Every Branch steps
+            if(!this.resumeFrom || this.resumeFrom == 'before') { // we weren't paused to begin with, or are resuming from 'before'
                 for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                     var s = this.currBranch.beforeEveryBranch[i];
 
                     await this.runStep(s, null, null, this.currBranch);
                     if(isPausedOrStopped()) {
+                        this.resumeFrom = 'before';
                         return;
                     }
                 }
             }
 
-            // Get the next step is we weren't paused to begin with, or if we're paused but the current step completed already
-            if(!this.isPaused || (this.currStep && this.currStep.isComplete())) {
-                this.currStep = this.tree.nextStep(this.currBranch, true, true);
-            }
-
-            // Execute steps in the branch
-            while(this.currStep) {
-                await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
-                if(isPausedOrStopped()) {
-                    return;
+            // Execute normal steps
+            if(!this.resumeFrom || this.resumeFrom == 'normal') { // we weren't paused to begin with, or we are resuming from 'normal'
+                // Get the next step
+                if(!this.currStep || this.currStep.isComplete()) { // get the next step only if the current step is complete or nonexistant
+                    this.currStep = this.tree.nextStep(this.currBranch, true, true);
                 }
 
-                this.currStep = this.tree.nextStep(this.currBranch, true, true);
+                // Execute steps in the branch
+                while(this.currStep) {
+                    await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
+                    if(isPausedOrStopped()) {
+                        this.resumeFrom = 'normal';
+                        return;
+                    }
+
+                    this.currStep = this.tree.nextStep(this.currBranch, true, true);
+                }
             }
 
-            // Execute After Every Branch steps
-            this.setLocal("successful", this.currBranch.isPassed);
-            this.setLocal("error", this.currBranch.error);
-            for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-                var s = this.currBranch.afterEveryBranch[i];
+            // Execute Before Every Branch steps
+            if(!this.resumeFrom || this.resumeFrom == 'after') { // we weren't paused to begin with, or are resuming from 'after'
+                // Execute After Every Branch steps
+                this.setLocal("successful", this.currBranch.isPassed);
+                this.setLocal("error", this.currBranch.error);
+                for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
+                    var s = this.currBranch.afterEveryBranch[i];
 
-                await this.runStep(s, null, null, this.currBranch);
-                if(isPausedOrStopped()) {
-                    return;
+                    await this.runStep(s, null, null, this.currBranch);
+                    if(isPausedOrStopped()) {
+                        this.resumeFrom = 'after';
+                        return;
+                    }
                 }
             }
 
@@ -83,11 +93,16 @@ class RunInstance {
             this.local = {};
             this.localStack = [];
 
+            this.resumeFrom = null;
+
             this.currBranch.elapsed = new Date() - startTime;
 
             this.currBranch = this.tree.nextBranch();
         }
 
+        /**
+         * @return {Boolean} True if the RunInstance is currently paused or stopped. Also sets the current branch's elapsed.
+         */
         function isPausedOrStopped() {
             if(this.isPaused) { // the current step caused a pause
                 this.currBranch.elapsed = -1;
@@ -546,6 +561,9 @@ class RunInstance {
      */
     stop() {
         this.isStopped = true;
+        if(this.currBranch) {
+            this.currBranch.stop();
+        }
     }
 
     /**

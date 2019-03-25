@@ -67,7 +67,7 @@ class Runner {
             .then(async (values) => {
                 this.runInstancePromises = [];
 
-                if(this.runInstances.length != 1 || !this.runInstances[0].isPaused) { // the tree was completely executed (or stopped) and we are not paused
+                if(this.runInstances.length != 1 || !this.runInstances[0].isPaused) { // the tree was completely executed or stopped, and we are not paused
                     // Execute After Everything steps
                     hookExecInstance = new RunInstance(this);
                     for(var i = 0; i < this.tree.afterEverything.length; i++) {

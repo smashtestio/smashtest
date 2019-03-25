@@ -231,6 +231,15 @@ class Branch {
      }
 
      /**
+      * Marks all steps not running
+      */
+     stop() {
+         this.steps.forEach(step => {
+            delete step.isRunning; 
+         });
+     }
+
+     /**
       * Marks this branch as passed or failed
       */
      markBranch(isPassed) {

@@ -816,10 +816,8 @@ A -
     });
 
     describe("stop()", function() {
-        it.skip("stops the RunInstance", function() {
-        });
-
-        it.skip("time elapsed for the Branch is properly measured", function() {
+        it.skip("stops the RunInstance, time elapsed for the Branch is properly measured, and no more steps are running", function() {
+            // check Step.isRunning of all steps
         });
     });
 });

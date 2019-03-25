@@ -89,13 +89,10 @@ C -
     });
 
     describe("stop()", function() {
-        it.skip("stops all running run instances", function() {
+        it.skip("stops all running run instances, time elapsed for the Tree is properly measured", function() {
         });
 
         it.skip("runs all After Everything steps after a stop occurs", function() {
-        });
-
-        it.skip("time elapsed for the Tree is properly measured", function() {
         });
     });
 
