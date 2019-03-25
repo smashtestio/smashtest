@@ -511,6 +511,16 @@ A -
 
             await expect(runInstance.evalCodeBlock("return seven;")).to.eventually.equal("D");
         });
+
+        it("allows for logging inside the code", async function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+            var step = new Step();
+
+            await runInstance.evalCodeBlock("log('foobar');", false, step);
+
+            expect(step.log).to.equal("foobar\n");
+        });
     });
 
     describe("findVarValue()", function() {
@@ -782,14 +792,11 @@ A -
         });
     });
 
-    describe("injectAndRun()", function() {
-        it.skip("fails gracefully if RunInstance is not currently paused", function() {
-        });
-
+    describe("injectStep()", function() {
         it.skip("runs a step, then pauses again", function() {
         });
 
-        it.skip("step has access to {{vars}} and {vars} that were defined at the pause", function() {
+        it.skip("step has access to {{vars}} and {vars} that were defined at the time of the pause", function() {
         });
 
         it.skip("attaches an error to the step passed in if it fails", function() {
@@ -798,6 +805,14 @@ A -
 
         it.skip("the RunInstance can flawlessly resume from a pause, after an injected step has run", function() {
             // make sure the right next step is executed
+        });
+    });
+
+    describe("stop()", function() {
+        it.skip("stops the RunInstance", function() {
+        });
+
+        it.skip("time elapsed for the Branch is properly measured", function() {
         });
     });
 });

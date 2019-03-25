@@ -32,6 +32,7 @@ class Runner {
      */
     async run() {
         var startTime = new Date();
+        var hookExecInstance = null;
 
         // If pauseOnFail is set, maxInstances must be 1
         if(this.pauseOnFail && this.maxInstances != 1) {
@@ -43,22 +44,22 @@ class Runner {
             utils.error("maxInstances must be set to 1 since a ~ step exists");
         }
 
-        if(this.runInstances.length == 0) { // start from beginning, as opposed to starting from a pause
+        if(this.runInstances.length == 0) { // we're starting from the beginning, as opposed to starting from a pause
             // Execute Before Everything steps
-            var hookExecInstance = new RunInstance(this);
+            hookExecInstance = new RunInstance(this);
             for(var i = 0; i < this.tree.beforeEverything.length; i++) {
                 var s = this.tree.beforeEverything[i];
                 await hookExecInstance.runStep(s, null, s, null);
             }
 
-            // Spawn this.maxInstances RunInstances
+            // Spawn this.maxInstances RunInstances, which will run in parallel
             for(var i = 0; i < this.maxInstances; i++) {
                 var runInstance = new RunInstance(this);
                 this.runInstances.push(runInstance);
                 this.runInstancePromises.push(runInstance.run());
             }
         }
-        else if(this.runInstances.length == 1 && this.runInstances[0].isPaused) { // starting from a pause
+        else if(this.runInstances.length == 1 && this.runInstances[0].isPaused) { // we're starting from a pause
             this.runInstancePromises.push(runInstance[0].run());
         }
 
@@ -66,8 +67,9 @@ class Runner {
             .then(async (values) => {
                 this.runInstancePromises = [];
 
-                if(this.runInstances.length != 1 || !this.runInstances[0].isPaused) { // complete end, no pauses
+                if(this.runInstances.length != 1 || !this.runInstances[0].isPaused) { // the tree was completely executed (or stopped) and we are not paused
                     // Execute After Everything steps
+                    hookExecInstance = new RunInstance(this);
                     for(var i = 0; i < this.tree.afterEverything.length; i++) {
                         var s = this.tree.afterEverything[i];
                         await hookExecInstance.runStep(s, null, s, null);
@@ -82,9 +84,18 @@ class Runner {
     }
 
     /**
+     * Ends all running RunInstances and runs afterEverything steps
+     */
+    stop() {
+        this.runInstances.forEach(runInstance => {
+            runInstance.stop();
+        })
+    }
+
+    /**
      * Runs the next step, then pauses
      * Call only when already paused
-     * @return {Promise} Same Promise that comes out of this.run()
+     * @return {Promise} Promise that gets resolved once done executing
      */
     runNextStep() {
         this.runOneStep = true;

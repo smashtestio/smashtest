@@ -14,6 +14,7 @@ class RunInstance {
         this.currStep = null;                           // Step currently being executed
 
         this.isPaused = false;                          // true if we're currently paused
+        this.isStopped = false;                         // true if we're permanently stopping this RunInstance
 
         this.persistent = this.runner.persistent;       // persistent variables
         this.global = {};                               // global variables
@@ -47,6 +48,10 @@ class RunInstance {
                     this.currBranch.elapsed = -1;
                     return;
                 }
+                else if(this.isStopped) {
+                    this.currBranch.elapsed = new Date() - startTime;
+                    return;
+                }
 
                 this.currStep = this.tree.nextStep(this.currBranch, true, true);
             }
@@ -71,13 +76,13 @@ class RunInstance {
     }
 
     /**
-     * Executes a step
+     * Executes a step, and the beforeEveryStep and afterEveryStep steps associated with the branch (if a branch is passed in)
      * Sets this.isPaused if the step requires execution to pause
      * Sets passed/failed status on step, sets the step's error and log
      * @param {Step} step - The Step to execute
      * @param {Branch} [branch] - The branch that contains the step to execute, if any
-     * @param {Step} stepToTakeError - The Step that will take the Error object (usually the same as step), null if branchToTakeError should take the error
-     * @param {Branch} branchToTakeError - The Branch that will take the Error object (usually the same as branch)
+     * @param {Step} stepToTakeError - The Step that will take the Error object and logs (usually the same as step), null if branchToTakeError should take the error
+     * @param {Branch} branchToTakeError - The Branch that will take the Error object and logs (usually the same as branch)
      * @return {Promise} Promise that gets resolved when the step finishes execution
      */
     async runStep(step, branch, stepToTakeError, branchToTakeError) {
@@ -194,7 +199,7 @@ class RunInstance {
                     retVal = await this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
                 }
                 else {
-                    retVal = await this.evalCodeBlock(code);
+                    retVal = await this.evalCodeBlock(code, false, stepToTakeError ? stepToTakeError : branchToTakeError);
                 }
 
                 // Step is {var} = Func with code block
@@ -330,11 +335,16 @@ class RunInstance {
      * Evals the given code block
      * @param {String} code - JS code to eval
      * @param {Boolean} [isSync] - If true, executes code synchronously, otherwise executes code asynchonously and returns a Promise
+     * @param {Step or Branch} [logHere] - The Object to log to, if any
      * @return What the code returns via the return keyword
      */
-    evalCodeBlock(code, isSync) {
+    evalCodeBlock(code, isSync, logHere) {
         // Make global, local, and persistent accessible as js vars
         var header = `
+            function log(text) {
+                logHere.appendToLog(text);
+            }
+
             function getPersistent(varname) {
                 return runInstance.persistent[utils.canonicalize(varname)];
             }
@@ -501,17 +511,20 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved once done executing
      */
     async injectStep(step) {
-        if(!this.isPaused) {
-            return; // fail gracefully
-        }
-
         this.isPaused = false; // un-pause for now
-        await this.runStep(step, this.currBranch, step, this.currBranch);
+        await this.runStep(step, null, step, null);
         this.isPaused = true;
     }
 
     /**
-     * Logs the given string to the given step (or branch, if the step does not exist)
+     * Stops this RunInstance from running
+     */
+    stop() {
+        this.isStopped = true;
+    }
+
+    /**
+     * Logs the given text to the given step (or branch, if the step does not exist)
      */
     appendToLog(text, step, branch) {
         if(step) {

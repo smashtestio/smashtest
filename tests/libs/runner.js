@@ -53,6 +53,9 @@ C -
         it.skip("can spawn a mulitple run instances, all of which complete", function() {
         });
 
+        it.skip("can spawn a mulitple run instances, but due to +'es only some of them actually run'", function() {
+        });
+
         it.skip("runs all Before Everything steps", function() {
         });
 
@@ -82,6 +85,17 @@ C -
 
         it.skip("sets tree.elapsed to -1 if a pause occured", function() {
             // tree.elapsed == -1
+        });
+    });
+
+    describe("stop()", function() {
+        it.skip("stops all running run instances", function() {
+        });
+
+        it.skip("runs all After Everything steps after a stop occurs", function() {
+        });
+
+        it.skip("time elapsed for the Tree is properly measured", function() {
         });
     });
 
