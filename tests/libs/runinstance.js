@@ -255,6 +255,12 @@ describe("RunInstance", function() {
             // currStep will probably be null, all hooks ran
         });
 
+        it.skip("pauses when pauseOnFail is set, a Before Every Step hook fails, and we're currently on the last step", function() {
+        });
+
+        it.skip("pauses when pauseOnFail is set, a After Every Step hook fails, and we're currently on the last step", function() {
+        });
+
         it.skip("marks a step as expectedly failed when it expectedly fails", function() {
             // also sets asExpected, error, and log in the step
         });
