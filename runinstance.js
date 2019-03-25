@@ -379,6 +379,8 @@ class RunInstance {
 
     /**
      * Stops this RunInstance from running
+     * Not immediate - just marks the branches as stopped
+     * Run functions will eventually notice that a stop occurred and will exit themselves
      */
     stop() {
         this.isStopped = true;
