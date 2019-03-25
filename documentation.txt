@@ -41,7 +41,7 @@ Only run tests that didn't pass last time
     - Doesn't run branches that passed last time
     - Doesn't run branches that have since been removed from the tree
     - Runs everything else (new branches, branches that failed last time, branches that didn't run last time)
-    - Runs current hooks, regardless of if they passed or not
+    - Uses the current hooks, not the hooks from the last run
 
 Configuration
     - -maxInstances
@@ -246,7 +246,9 @@ Stubbing out APIs
             - Give examples of a few GET/POST routes and their responses
         - Restores original XHR once test is over
 
-Hook steps
+Hooks
+    - Piece of code that runs at certain points. Not for testing. For internal stuff, like reporting, requires,
+        js function declarations, screenshotting, logging, etc.
     - * Before Every Branch
         - runs before every branch that goes through this function declaration's parent
     - * After Every Branch
@@ -271,13 +273,13 @@ Hook steps
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
     - Code blocks only. They cannot have children.
-    - Hook steps won't have a pass/fail state. If a hook step fails, the step/branch it corresponds to will take the error.
+    - Hooks won't have a pass/fail state. If a hook fails, the step/branch it corresponds to will take the error.
     - These are recommended for internal framework stuff, like reporting (so you can run this code whether or not the step failed)
         - Setup/teardown too, though that should really be part of the test itself
             i.e.,
             My Test -
                 ..
-                Setup
+                Setup (teardown should really be here, so each test has a clean slate)
                 Steps
                 Teardown
 

@@ -404,6 +404,18 @@ describe("Tree", function() {
             assert.equal(step.isExpectedFail, true);
         });
 
+        it("rejects a hook with a $", function() {
+            assert.throws(() => {
+                tree.parseLine(`* After Every Branch $ {`, "file.txt", 10);
+            }, "A hook cannot have a $ [file.txt:10]");
+        });
+
+        it("rejects a hook with a ~", function() {
+            assert.throws(() => {
+                tree.parseLine(`* Before Every Step ~ {`, "file.txt", 10);
+            }, "A hook cannot have a ~ [file.txt:10]");
+        });
+
         it("parses {var} = Function", function() {
             var step = tree.parseLine(`{var} = Click 'something' {blah}`, "file.txt", 10);
             assert.equal(step.text, `{var} = Click 'something' {blah}`);
@@ -579,7 +591,7 @@ describe("Tree", function() {
                 tree.parseLine(`Something [next to 'something']`, "file.txt", 10);
             }, "Invalid [elementFinder in brackets] [file.txt:10]");
         });
-        
+
         it("throws an error when multiple {vars} are set in a line, and one of them is not a 'string literal'", function() {
             assert.throws(() => {
                 tree.parseLine(`{var1} = 'one', {{var2}}=Some step here, {var 3}= "three 3" +`, "file.txt", 10);
@@ -10851,34 +10863,6 @@ A -
             tree.parseIn(`
 A -
     B ~ -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.branchify(tree.root, undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a $ is present at a hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch $ {
-        B
-    }
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.branchify(tree.root, undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a ~ is present at a hook", function() {
-            var tree = new Tree();
-            tree.parseIn(`
-A -
-    * After Every Branch ~ {
-        B
-    }
 `, "file.txt");
 
             assert.throws(() => {

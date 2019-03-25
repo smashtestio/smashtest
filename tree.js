@@ -166,6 +166,12 @@ class Tree {
                 if(typeof step.codeBlock == 'undefined') {
                     utils.error("A hook must have a code block", filename, lineNumber);
                 }
+                if(step.isDebug) {
+                    utils.error("A hook cannot have a ~", filename, lineNumber);
+                }
+                if(step.isOnly) {
+                    utils.error("A hook cannot have a $", filename, lineNumber);
+                }
             }
         }
 
