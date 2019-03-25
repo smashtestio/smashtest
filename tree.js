@@ -1347,7 +1347,7 @@ class Tree {
                     break; // go to next branch
                 }
 
-                if(completeOnly && !step.isPassed && !step.isFailed && !branch.isPassed && !branch.isFailed && !branch.isSkipped) {
+                if(completeOnly && !step.isComplete() && !branch.isComplete()) {
                     continue;
                 }
 

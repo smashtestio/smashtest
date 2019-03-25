@@ -41,7 +41,6 @@ C -
         });
 
         it.skip("can spawn a single run instance that pauses", function() {
-
         });
 
         it.skip("can resume a paused run instance", function() {
@@ -50,10 +49,10 @@ C -
         it.skip("can spawn a single run instance that completes", function() {
         });
 
-        it.skip("can spawn a mulitple run instances, all of which complete", function() {
+        it.skip("can spawn a multiple run instances, all of which complete", function() {
         });
 
-        it.skip("can spawn a mulitple run instances, but due to +'es only some of them actually run'", function() {
+        it.skip("can spawn a multiple run instances, but due to +'es only some of them actually run'", function() {
         });
 
         it.skip("runs all Before Everything steps", function() {
@@ -65,26 +64,26 @@ C -
         it.skip("runs all After Everything steps but not the Before Everything steps on resume", function() {
         });
 
-        it.skip("stores errors from Before Everything steps and pauses execution", function() {
+        it.skip("stores errors from Before Everything steps and stops execution", function() {
             // within the hook step itself
+            // stops all execution at that failing hook
         });
 
-        it.skip("stores errors from After Everything steps and pauses execution", function() {
-            // within the hook step itself
+        it.skip("stores errors from After Everything steps", function() {
+            // an error within After Everything doesn't stop execution of the other After Everythings
         });
 
-        it.skip("stores errors from Before Everything steps and continues execution", function() {
+        it.skip("sets tree.elapsed to how long it took the tree to execute", function() {
+            // Try two different trees, one that runs longer than the other, and assert that one > other
         });
 
-        it.skip("stores errors from After Everything steps and continues execution", function() {
+        it.skip("sets tree.elapsed to how long it took the tree to execute when a stop ocurred", function() {
         });
 
-        it.skip("sets tree.elapsed to how long all branches took to execute", function() {
-            // tree.elapsed
+        it.skip("sets tree.elapsed to -1 when a pause occurred", function() {
         });
 
-        it.skip("sets tree.elapsed to -1 if a pause occured", function() {
-            // tree.elapsed == -1
+        it.skip("sets tree.elapsed to -1 when a pause and resume occurred", function() {
         });
     });
 
@@ -92,12 +91,33 @@ C -
         it.skip("stops all running run instances, time elapsed for the Tree is properly measured", function() {
         });
 
-        it.skip("runs all After Everything steps after a stop occurs", function() {
+        it.skip("runs all After Everything steps immediately after a stop occurs", function() {
+            // doesn't wait for all runInstances to end
         });
     });
 
-    describe("runNextStep()", function() {
+    describe("runOneStep()", function() {
         it.skip("runs the next step, then pauses again", function() {
+        });
+
+        it.skip("works properly when paused at the very last step in the branch, which is not yet completed", function() {
+        });
+
+        it.skip("works properly when paused at the very last step in the branch, which completed already", function() {
+            // After Everythings run
+        });
+    });
+
+    describe("skipOneStep()", function() {
+        it.skip("skips the next step, then pauses again", function() {
+        });
+
+        it.skip("works properly when paused at the very last step in the branch, which is not yet completed", function() {
+            // After Everythings run
+        });
+
+        it.skip("works properly when paused at the very last step in the branch, which completed already", function() {
+            // After Everythings run
         });
     });
 

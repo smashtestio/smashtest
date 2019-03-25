@@ -1,5 +1,5 @@
 // TODO:
-// Set error.failBranchNow = false for these steps
+// Set error.continue = true for these steps
 // All of these steps will verify immediately and fail immediately
 
 * Before Everything {

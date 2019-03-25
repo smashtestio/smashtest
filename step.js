@@ -49,6 +49,7 @@ class Step {
 
         this.isPassed = false;                // true if this step passed after being run
         this.isFailed = false;                // true if this step failed after being run
+        this.isSkipped = false;               // true if this step was skipped
         this.isRunning = false;               // true if this step is currently running
         this.asExpected = false;              // true if the passed/failed state is as expected
 
@@ -244,7 +245,7 @@ class Step {
      * @return {Boolean} True if this Step completed already
      */
     isComplete() {
-        return this.isPassed || this.isFailed;
+        return this.isPassed || this.isFailed || this.isSkipped;
     }
 }
 module.exports = Step;

@@ -1,4 +1,4 @@
-// TODO: Set error.failBranchNow = false for these steps
+// TODO: Set error.continue = true for these steps
 
 * Verify {{a}} equals {{b}} {
 

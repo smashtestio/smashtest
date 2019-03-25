@@ -4,6 +4,7 @@
 class Reporter {
     constructor() {
         this.tree = {};                 // the Tree object to report on
+        this.runner = {};               // the Runner object to report on
         this.path = "";                 // absolute path on disk to report file
 
         this.htmlReport = "";           // the generated html report is stored here

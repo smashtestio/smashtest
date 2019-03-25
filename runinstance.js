@@ -15,6 +15,7 @@ class RunInstance {
 
         this.isPaused = false;                          // true if we're currently paused
         this.isStopped = false;                         // true if we're permanently stopping this RunInstance
+        this.overrideDebug = false;                     // If true, ignore the isDebug on the current step
 
         this.persistent = this.runner.persistent;       // persistent variables
         this.global = {};                               // global variables
@@ -31,6 +32,11 @@ class RunInstance {
     async run() {
         if(this.isPaused) {
             this.isPaused = false; // resume if we're already paused
+
+            // If we were paused on a ~ step, don't pause again on that ~ (lest we be stuck here)
+            if(this.currStep && this.currStep.isDebug) {
+                this.overrideDebug = true;
+            }
         }
         else {
             this.currBranch = this.tree.nextBranch();
@@ -39,20 +45,21 @@ class RunInstance {
         while(this.currBranch) {
             var startTime = new Date();
 
-            // Execute Before Every Branch steps
-            for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
-                var s = this.currBranch.beforeEveryBranch[i];
+            // Execute Before Every Branch steps (unless we were paused before and currStep is already set, in which case Before Every Branch ran already)
+            if(!this.currStep) {
+                for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
+                    var s = this.currBranch.beforeEveryBranch[i];
 
-                await this.runStep(s, null, null, this.currBranch);
-                if(isPausedOrStopped()) {
-                    return;
+                    await this.runStep(s, null, null, this.currBranch);
+                    if(isPausedOrStopped() || s.error) { // if paused, stopped, or an error occurred in s
+                        return;
+                    }
                 }
             }
 
-            // Get the next step
-            if(!this.currStep || this.currStep.isComplete()) { // get the next step only if the current step is complete or nonexistant
-                this.currStep = this.tree.nextStep(this.currBranch, true, true);
-            }
+            // Move this.currStep to the next not-yet-completed step
+            this.nextStep();
+
             // Execute steps in the branch
             while(this.currStep) {
                 await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
@@ -70,7 +77,7 @@ class RunInstance {
                 var s = this.currBranch.afterEveryBranch[i];
 
                 await this.runStep(s, null, null, this.currBranch);
-                if(isPausedOrStopped()) {
+                if(isPausedOrStopped() || s.error) { // if paused, stopped, or an error occurred in s
                     return;
                 }
             }
@@ -80,15 +87,15 @@ class RunInstance {
             this.local = {};
             this.localStack = [];
 
-            this.resumeFrom = null;
-
-            this.currBranch.elapsed = new Date() - startTime;
+            if(this.currBranch.elapsed != -1) { // measue elapsed only if this RunInstance has never been paused
+                this.currBranch.elapsed = new Date() - startTime;
+            }
 
             this.currBranch = this.tree.nextBranch();
         }
 
         /**
-         * @return {Boolean} True if the RunInstance is currently paused or stopped. Also sets the current branch's elapsed.
+         * @return {Boolean} True if the RunInstance is currently paused or stopped, false otherwise. Also sets the current branch's elapsed.
          */
         function isPausedOrStopped() {
             if(this.isPaused) { // the current step caused a pause
@@ -99,24 +106,27 @@ class RunInstance {
                 this.currBranch.elapsed = new Date() - startTime;
                 return true;
             }
+
+            return false;
         }
     }
 
     /**
-     * Executes a step, and the beforeEveryStep and afterEveryStep steps associated with the branch (if a branch is passed in)
+     * Executes a step, and its corresponding beforeEveryStep and afterEveryStep steps (if a branch is passed in)
      * Sets this.isPaused if the step requires execution to pause
-     * Sets passed/failed status on step, sets the step's error and log
+     * Marks the step as passed/failed, sets the step's error and log
      * @param {Step} step - The Step to execute
      * @param {Branch} [branch] - The branch that contains the step to execute, if any
-     * @param {Step} stepToTakeError - The Step that will take the Error object and logs (usually the same as step), null if branchToTakeError should take the error
-     * @param {Branch} branchToTakeError - The Branch that will take the Error object and logs (usually the same as branch)
+     * @param {Step} [stepToTakeErrorAndLogs] - The Step that will take the Error object and logs (usually the same as step), null if branchToTakeErrorAndLogs should take the error
+     * @param {Branch} [branchToTakeErrorAndLogs] - The Branch that will take the Error object and logs (usually the same as branch)
      * @return {Promise} Promise that gets resolved when the step finishes execution
      */
-    async runStep(step, branch, stepToTakeError, branchToTakeError) {
-        if(step.isDebug) {
+    async runStep(step, branch, stepToTakeErrorAndLogs, branchToTakeErrorAndLogs) {
+        if(step.isDebug && !this.overrideDebug) {
             this.isPaused = true;
             return;
         }
+        this.overrideDebug = false;
 
         var startTime = new Date();
 
@@ -125,6 +135,10 @@ class RunInstance {
             for(var i = 0; i < branch.beforeEveryStep.length; i++) {
                 var s = branch.beforeEveryStep[i];
                 await this.runStep(s, null, this.currStep, this.currBranch);
+                if(s.error) {
+                    finishUp();
+                    return;
+                }
             }
         }
 
@@ -226,7 +240,7 @@ class RunInstance {
                     retVal = await this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
                 }
                 else {
-                    retVal = await this.evalCodeBlock(code, false, stepToTakeError ? stepToTakeError : branchToTakeError);
+                    retVal = await this.evalCodeBlock(code, false, stepToTakeErrorAndLogs ? stepToTakeErrorAndLogs : branchToTakeErrorAndLogs);
                 }
 
                 // Step is {var} = Func with code block
@@ -246,6 +260,12 @@ class RunInstance {
                 error = e;
                 error.filename = step.filename;
                 error.lineNumber = step.lineNumber;
+            }
+
+            // If this RunInstance was stopped, just exit without marking this step (which could have failed as the framework was being torn down)
+            // We'll pretend this step never ran in the first place
+            if(this.isStopped) {
+                return;
             }
 
             // Marks the step as passed/failed, sets the step's asExpected, error, and log
@@ -276,19 +296,24 @@ class RunInstance {
                 }
             }
 
-            if(stepToTakeError) {
-                this.tree.markStep(branchToTakeError, stepToTakeError, isPassed, asExpected, error, error ? error.failBranchNow : false, true);
+            if(stepToTakeErrorAndLogs) {
+                var finishBranchNow = true;
+                if((error && error.continue) || this.runner.pauseOnFail) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
+                    finishBranchNow = false;
+                }
+
+                this.tree.markStep(branchToTakeErrorAndLogs, stepToTakeErrorAndLogs, isPassed, asExpected, error, finishBranchNow, true);
             }
             else {
                 // Attach the error to the Branch and fail it
-                branchToTakeError.error = error;
-                this.tree.markBranch(branchToTakeError, false);
+                branchToTakeErrorAndLogs.error = error;
+                this.tree.markBranch(branchToTakeErrorAndLogs, false);
             }
 
             // Pause if the step failed or is unexpected
             if(this.runner.pauseOnFail && (!isPassed || !asExpected)) {
                 this.isPaused = true;
-                step.elapsed = new Date() - startTime; // for steps, we still measure time, even if there's a pause
+                finishUp();
                 return;
             }
         }
@@ -300,20 +325,90 @@ class RunInstance {
             for(var i = 0; i < branch.afterEveryStep.length; i++) {
                 var s = branch.afterEveryStep[i];
                 await runStep(s, null, this.currStep, this.currBranch);
+                if(s.error) {
+                    break;
+                }
             }
         }
 
-        // Update the report
-        this.runner.reporter.generateReport();
+        finishUp();
 
-        // If we're only meant to run one step before a pause
-        if(this.runner.runOneStep) {
-            this.runner.runOneStep = false; // clear out flag
-            this.isPaused = true;
+        function finishUp(isFailOrUnexpected) {
+            // Update the report
+            this.runner.reporter.generateReport();
+
+            // Measure time the step took
+            step.elapsed = new Date() - startTime;
         }
+    }
 
-        // Measure time the step took
-        step.elapsed = new Date() - startTime;
+    /**
+     * Runs one step, then pauses
+     * @return {Promise} Promise that resolves once the execution finishes
+     */
+    async runOneStep() {
+        this.nextStep();
+        if(this.currStep) {
+            await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
+        }
+        else { // all steps in current branch finished running
+            await this.run(); // this will call all the After Every Branch hooks
+        }
+    }
+
+    /**
+     * Skips over the next not-yet-completed step, then pauses
+     */
+    skipOneStep() {
+        this.skipStep();
+        this.isPaused = true;
+        this.runner.reporter.generateReport();
+    }
+
+    /**
+     * Runs the given step, then pauses again
+     * Call when already paused
+     * @param {Step} step - The step to run
+     * @return {Promise} Promise that gets resolved once done executing
+     */
+    async injectStep(step) {
+        this.isPaused = false; // un-pause for now
+        await this.runStep(step, null, step, null);
+        this.isPaused = true;
+    }
+
+    /**
+     * Stops this RunInstance from running
+     */
+    stop() {
+        this.isStopped = true;
+        if(this.currBranch) {
+            this.currBranch.stop();
+        }
+    }
+
+    // ***************************************
+    // PRIVATE FUNCTIONS
+    // Only use these internally
+    // ***************************************
+
+    /**
+     * Moves this.currStep to the next not-yet-completed step
+     * Keeps this.currStep on its current position if it's pointing at a step not yet executed
+     */
+    nextStep() {
+        // Get the next step, but only if the current step is complete or nonexistant
+        if(!this.currStep || this.currStep.isComplete()) {
+            this.currStep = this.tree.nextStep(this.currBranch, true, true);
+        }
+    }
+
+    /**
+     * Moves this.currStep to the step after the next not-yet-completed step
+     */
+    skipStep() {
+        this.nextStep();
+        this.currStep = this.tree.nextStep(this.currBranch, true, true);
     }
 
     /**
@@ -532,36 +627,16 @@ class RunInstance {
     }
 
     /**
-     * Runs the given step, then pauses again
-     * Call when already paused
-     * @param {Step} step - The step to run
-     * @return {Promise} Promise that gets resolved once done executing
-     */
-    async injectStep(step) {
-        this.isPaused = false; // un-pause for now
-        await this.runStep(step, null, step, null);
-        this.isPaused = true;
-    }
-
-    /**
-     * Stops this RunInstance from running
-     */
-    stop() {
-        this.isStopped = true;
-        if(this.currBranch) {
-            this.currBranch.stop();
-        }
-    }
-
-    /**
      * Logs the given text to the given step (or branch, if the step does not exist)
      */
     appendToLog(text, step, branch) {
-        if(step) {
-            step.appendToLog(text);
-        }
-        else if(branch) {
-            branch.appendToLog(text);
+        if(!this.isStopped) {
+            if(step) {
+                step.appendToLog(text);
+            }
+            else if(branch) {
+                branch.appendToLog(text);
+            }
         }
     }
 }

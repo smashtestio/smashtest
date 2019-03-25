@@ -33,10 +33,12 @@ describe("RunInstance", function() {
         it.skip("handles a resume from a previous pause, where the current step never ran", function() {
             // current step is run
             // just call run() again after the pause
+            // vars are still properly set, etc.
         });
 
         it.skip("handles a resume from a previous pause, where the current step completed", function() {
             // next step is pulled out
+            // vars are still properly set, etc.
         });
 
         it.skip("runs a Before Every Branch hook", function() {
@@ -50,25 +52,11 @@ describe("RunInstance", function() {
         });
 
         it.skip("handles an error inside a Before Every Branch hook", function() {
-            // error goes into the Branch object, Branch fails
+            // error goes into the Branch object, whole Branch fails and ends
         });
 
         it.skip("handles an error inside an After Every Branch hook", function() {
-            // error goes into the Branch object, Branch fails
-        });
-
-        it.skip("handles a pause from inside a Before Every Branch hook", function() {
-        });
-
-        it.skip("handles a pause from inside an After Every Branch hook", function() {
-        });
-
-        it.skip("handles resumes from pauses from inside a Before Every Branch hook", function() {
-            // the same branch runs again, starting from the same Before Every Branch step
-        });
-
-        it.skip("handles resumes from pauses from inside an After Every Branch hook", function() {
-
+            // error goes into the Branch object, whole Branch fails and ends
         });
 
         it.skip("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", function() {
@@ -77,12 +65,20 @@ describe("RunInstance", function() {
         it.skip("clears local and global variables between different branches", function() {
         });
 
-        it.skip("sets branch.elapsed to how long it took branch to execute", function() {
-            // branch.elapsed
+        it.skip("skips a step and pauses again when skipNextStep is set", function() {
         });
 
-        it.skip("sets branch.elapsed to -1 if a pause occured", function() {
-            // tree.elapsed == -1
+        it.skip("sets branch.elapsed to how long it took the branch to execute", function() {
+            // Try two different branches, one that runs longer than the other, and assert that one > other
+        });
+
+        it.skip("sets branch.elapsed to how long it took the branch to execute when a stop ocurred", function() {
+        });
+
+        it.skip("sets branch.elapsed to -1 when a pause occurred", function() {
+        });
+
+        it.skip("sets branch.elapsed to -1 when a pause and resume occurred", function() {
         });
     });
 
@@ -229,19 +225,13 @@ describe("RunInstance", function() {
             // inject runinstance.execInBrowser(code) function first
         });
 
-        it.skip("executes a step that throws an error", function() {
-        });
-
         it.skip("executes a step that logs", function() {
         });
 
         it.skip("pauses when a ~ step is encountered", function() {
         });
 
-        it.skip("runs one step and pauses again when runOneStep is set", function() {
-        });
-
-        it.skip("skips a step and pauses again when skipNextStep is set", function() {
+        it.skip("when resuming from a pause on a ~, doesn't pause on the ~ again", function() {
         });
 
         it.skip("pauses when pauseOnFail is set and a step fails", function() {
@@ -251,6 +241,18 @@ describe("RunInstance", function() {
         });
 
         it.skip("doesn't pause when pauseOnFail is not set and a step fails", function() {
+        });
+
+        it.skip("doesn't pause when pauseOnFail is not set and a step unexpectedly passes", function() {
+        });
+
+        it.skip("pauses when pauseOnFail is set and a Before Every Step hook fails", function() {
+            // currStep will probably be the next step after the one with the failure
+            // hooks that came after failure didn't run, step didn't run
+        });
+
+        it.skip("pauses when pauseOnFail is set and an After Every Step hook fails", function() {
+            // currStep will probably be null, all hooks ran
         });
 
         it.skip("marks a step as expectedly failed when it expectedly fails", function() {
@@ -270,6 +272,12 @@ describe("RunInstance", function() {
         });
 
         it.skip("handles bad syntax in a code block step", function() {
+        });
+
+        it.skip("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", function() {
+        });
+
+        it.skip("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", function() {
         });
 
         it.skip("creates a fresh local var context within a function call", function() {
@@ -320,23 +328,41 @@ describe("RunInstance", function() {
 
         it.skip("handles an error inside a Before Every Step hook", function() {
             // error goes into the normal step obj, error.filename/lineNumber point at the hook
+            // normal step its associated with is immediately failed, and branch is immediately failed
         });
 
         it.skip("handles an error inside an After Every Step hook", function() {
             // error goes into the normal step obj, error.filename/lineNumber point at the hook
+            // normal step its associated with is immediately failed, and branch is immediately failed
         });
 
-        it.skip("handles pauses from inside a Before Every Step hook", function() {
+        it.skip("doesn't end the branch when an error inside a Before Every Step hook occurs and its continue flag is set", function() {
         });
 
-        it.skip("handles pauses from inside an After Every Step hook", function() {
+        it.skip("doesn't end the branch when an error inside an After Every Step hook occurs and its continue flag is set", function() {
+        });
+
+        it.skip("pauses at the next step and doesn't end the branch when an error inside a Before Every Step hook occurs and pauseOnFail is set", function() {
+        });
+
+        it.skip("doesn't end the branch when an error inside an After Every Step hook occurs and pauseOnFail is set", function() {
+            // doesn't pause since there are no steps after After Every Step
         });
 
         it.skip("updates the report", function() {
         });
 
         it.skip("sets step.elapsed to how long it took step to execute", function() {
-            // step.elapsed
+            // step.elapsed is set. Try two different steps, one that runs longer than the other, and assert that one > other
+        });
+
+        it.skip("sets step.elapsed to how long it took step to execute when a stop ocurred", function() {
+        });
+
+        it.skip("sets step.elapsed to -1 when a pause occurred", function() {
+        });
+
+        it.skip("sets step.elapsed to -1 when a pause and resume occurred", function() {
         });
     });
 
@@ -799,6 +825,28 @@ A -
         });
     });
 
+    describe("runOneStep()", function() {
+        it.skip("runs one step and pauses again", function() {
+        });
+
+        it.skip("works when currStep is on the last step, which has not completed yet", function() {
+        });
+
+        it.skip("works when currStep is on the last step, which has completed already", function() {
+        });
+    });
+
+    describe("skipOneStep()", function() {
+        it.skip("skips one step and pauses again", function() {
+        });
+
+        it.skip("works when currStep is on the last step, which has not completed yet", function() {
+        });
+
+        it.skip("works when currStep is on the last step, which has completed already", function() {
+        });
+    });
+
     describe("injectStep()", function() {
         it.skip("runs a step, then pauses again", function() {
         });
@@ -818,6 +866,10 @@ A -
     describe("stop()", function() {
         it.skip("stops the RunInstance, time elapsed for the Branch is properly measured, and no more steps are running", function() {
             // check Step.isRunning of all steps
+        });
+
+        it.skip("doesn't log or error to branches or steps once a stop is made", function() {
+
         });
     });
 });
