@@ -356,6 +356,18 @@ class RunInstance {
     }
 
     /**
+     * Permanently stops this RunInstance from running
+     * Not immediate - just marks the branches as stopped
+     * run() and runStep() will eventually notice that a stop occurred and will exit itself
+     */
+    stop() {
+        this.isStopped = true;
+        if(this.currBranch) {
+            this.currBranch.stop();
+        }
+    }
+
+    /**
      * Runs one step, then pauses
      * Only call if already paused
      * @return {Promise} Promise that resolves once the execution finishes
@@ -390,18 +402,6 @@ class RunInstance {
         this.isPaused = false; // un-pause for now
         await this.runStep(step, null);
         this.isPaused = true;
-    }
-
-    /**
-     * Permanently stops this RunInstance from running
-     * Not immediate - just marks the branches as stopped
-     * run() and runStep() will eventually notice that a stop occurred and will exit itself
-     */
-    stop() {
-        this.isStopped = true;
-        if(this.currBranch) {
-            this.currBranch.stop();
-        }
     }
 
     // ***************************************

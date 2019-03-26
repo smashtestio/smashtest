@@ -834,6 +834,16 @@ A -
         });
     });
 
+    describe("stop()", function() {
+        it.skip("stops the RunInstance, time elapsed for the Branch is properly measured, and no more steps are running", function() {
+            // check Step.isRunning of all steps
+        });
+
+        it.skip("doesn't log or error to branches or steps once a stop is made", function() {
+
+        });
+    });
+
     describe("runOneStep()", function() {
         it.skip("runs one step and pauses again", function() {
         });
@@ -869,16 +879,6 @@ A -
 
         it.skip("the RunInstance can flawlessly resume from a pause, after an injected step has run", function() {
             // make sure the right next step is executed
-        });
-    });
-
-    describe("stop()", function() {
-        it.skip("stops the RunInstance, time elapsed for the Branch is properly measured, and no more steps are running", function() {
-            // check Step.isRunning of all steps
-        });
-
-        it.skip("doesn't log or error to branches or steps once a stop is made", function() {
-
         });
     });
 });
