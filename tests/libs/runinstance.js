@@ -79,14 +79,51 @@ describe("RunInstance", function() {
     });
 
     describe("runStep()", function() {
-        it.skip("executes a textual step", function() {
+        it("executes a textual step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
         });
 
-        it.skip("executes a step with a code block", function() {
-            // have code block set a flag in RunInstance, then verify here that this flag was set
+        it("executes a step with a code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A - {
+    runInstance.flag = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.flag).to.equal(true);
         });
 
-        it.skip("executes a function call with no {{variables}} in its function declaration", function() {
+        it("executes a function call with no {{variables}} in its function declaration", function() {
+
+
+
+
+
+
+
+
+
+            
         });
 
         it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings'", function() {

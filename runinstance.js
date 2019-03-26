@@ -44,7 +44,7 @@ class RunInstance {
             var startTime = new Date();
 
             // Execute Before Every Branch steps, if they didn't run already (and remember, there is only one branch if pausing is possible)
-            if(!wasPaused && this.currBranch.beforeEveryBranch) {
+            if(this.currBranch.beforeEveryBranch && !wasPaused) {
                 for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                     var s = this.currBranch.beforeEveryBranch[i];
 
@@ -160,7 +160,7 @@ class RunInstance {
                         usePrevStepForError = true;
 
                         var varList = prevStep.functionDeclarationText.match(Constants.VAR_REGEX);
-                        if(prevStep.varsBeingSet.length > 0) {
+                        if(prevStep.varsBeingSet && prevStep.varsBeingSet.length > 0) {
                             // prevStep is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
                             varList.shift();
                         }
@@ -198,7 +198,7 @@ class RunInstance {
             }
 
             // Step is {var}='str' [, {var2}='str', etc.]
-            if(!step.isFunctionCall && step.varsBeingSet.length > 0) {
+            if(!step.isFunctionCall && step.varsBeingSet && step.varsBeingSet.length > 0) {
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
                     var varBeingSet = step.varsBeingSet[i];
                     var value = utils.stripQuotes(varBeingSet.value);
@@ -219,7 +219,7 @@ class RunInstance {
 
                 // Step is {var} = Func with code block
                 // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
-                if(step.isFunctionCall && step.varsBeingSet.length == 1) {
+                if(step.isFunctionCall && step.varsBeingSet && step.varsBeingSet.length == 1) {
                     // Grab return value from code and assign it to {var}
                     this.setVarBeingSet(step.varsBeingSet[0], value);
                 }
@@ -279,7 +279,7 @@ class RunInstance {
         this.tree.markStep(step, branch, isPassed, asExpected, error, finishBranchNow, true);
 
         // Execute After Every Step hooks (all of them, regardless if one fails)
-        if(branch) {
+        if(branch && branch.afterEveryStep) {
             for(var i = 0; i < branch.afterEveryStep.length; i++) {
                 var s = branch.afterEveryStep[i];
                 await this.runHookStep(s, step);
