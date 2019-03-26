@@ -164,6 +164,12 @@ describe("RunInstance", function() {
         it.skip("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", function() {
         });
 
+        it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", function() {
+        });
+
+        it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", function() {
+        });
+
         it.skip("executes a {var} = 'string' step", function() {
         });
 
@@ -189,6 +195,9 @@ describe("RunInstance", function() {
         });
 
         it.skip("executes a {var} = Function step, where the function declaration has a code block that returns a value", function() {
+        });
+
+        it.skip("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", function() {
         });
 
         it.skip("executes a {var} = Function step, where the function declaration is in {x}='value' format", function() {

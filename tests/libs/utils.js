@@ -34,6 +34,18 @@ describe("Utils", function() {
         });
     });
 
+    describe("escapeUnescapedQuotes()", function() {
+        it("escapes unescaped quotes", function() {
+            expect(utils.escapeUnescapedQuotes(`"hello"`)).to.equal(`\\"hello\\"`);
+            expect(utils.escapeUnescapedQuotes(`'hello'`)).to.equal(`\\'hello\\'`);
+        });
+
+        it("doesn't touch escaped quotes", function() {
+            expect(utils.escapeUnescapedQuotes(`\\"hello\\"`)).to.equal(`\\"hello\\"`);
+            expect(utils.escapeUnescapedQuotes(`\\'hello\\'`)).to.equal(`\\'hello\\'`);
+        });
+    });
+
     describe("canonicalize()", function() {
         it("generates canonical text", function() {
             expect(utils.canonicalize(" After   EVERY Branch  ")).to.equal("after every branch");

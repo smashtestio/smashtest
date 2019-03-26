@@ -137,8 +137,8 @@ class Runner {
      * Resumes running the branch that was paused
      * @return {Promise} Promise that resolves once the branch finishes running, or a stop or pause occurs
      */
-    resumeBranch() {
-        return this.runInstances[0].run();
+    async resumeBranch() {
+        await this.runInstances[0].run();
     }
 
     /**

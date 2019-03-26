@@ -33,7 +33,7 @@ class RunInstance {
         if(this.isPaused) {
             this.isPaused = false; // resume if we're already paused
 
-            // If we were paused on a ~ step, don't pause again on that ~ (lest we be stuck here)
+            // If we were paused on a ~ step, don't pause again on that ~ (lest we be stuck there)
             if(this.currStep && this.currStep.isDebug) {
                 this.overrideDebug = true;
             }
@@ -47,15 +47,12 @@ class RunInstance {
 
             // Execute Before Every Branch steps, if they didn't run already
             // (they ran already is there's already a currStep, or if currStep is null but the branch is complete)
-            if(!this.currStep && !this.currBranch.isComplete()) {
+            if(!this.currStep && !this.currBranch.isComplete() && this.currBranch.beforeEveryBranch) {
                 for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                     var s = this.currBranch.beforeEveryBranch[i];
 
-                    await this.runHookStep(s, null, this.currBranch);
-                    if(checkForPauseOrStop()) { // if paused or stopped
-                        return;
-                    }
-                    else if(s.error) { // s failed
+                    var isSuccess = await this.runHookStep(s, null, this.currBranch);
+                    if(!isSuccess) {
                         // runHookStep() already marked the branch as a failure, so now just advance to the next branch
                         this.currBranch = this.tree.nextBranch();
                         continue;
@@ -95,11 +92,11 @@ class RunInstance {
          * @return {Boolean} True if the RunInstance is currently paused or stopped, false otherwise. Also sets the current branch's elapsed.
          */
         function checkForPauseOrStop() {
-            if(this.isPaused) { // the current step caused a pause
+            if(this.isPaused) {
                 this.currBranch.elapsed = -1;
                 return true;
             }
-            else if(this.isStopped) { // a stop occurred while the step was executing
+            else if(this.isStopped) {
                 this.currBranch.elapsed = new Date() - startTime;
                 return true;
             }
@@ -126,16 +123,18 @@ class RunInstance {
         var startTime = new Date();
 
         // Execute Before Every Step hooks
-        if(branch) {
+        if(branch && branch.beforeEveryStep) {
             for(var i = 0; i < branch.beforeEveryStep.length; i++) {
                 var s = branch.beforeEveryStep[i];
-                var isError = await this.runHookStep(s, this.currStep, this.currBranch);
-                if(isError) {
+                var isSuccess = await this.runHookStep(s, this.currStep);
+                if(!isSuccess) {
+                    branch.markBranch(false); // fail the branch too
                     return;
                 }
             }
         }
 
+        // Find the previous step
         var prevStep = null;
         if(branch) {
             var index = branch.steps.indexOf(step);
@@ -155,9 +154,8 @@ class RunInstance {
                 if(matches) {
                     for(var i = 0; i < matches.length; i++) {
                         var match = matches[i];
-                        var text = utils.stripQuotes(match);
-                        text = this.replaceVars(text, step, branch);
-                        step.processedText = step.processedText.replace(match, text);
+                        var replacedText = this.replaceVars(match, step, branch);
+                        step.processedText = step.processedText.replace(match, replacedText);
                     }
                 }
             }
@@ -314,8 +312,9 @@ class RunInstance {
             this.setLocal("error", step.error);
             for(var i = 0; i < branch.afterEveryStep.length; i++) {
                 var s = branch.afterEveryStep[i];
-                var isError = await this.runHookStep(s, this.currStep, this.currBranch);
-                if(isError) {
+                var isSuccess = await this.runHookStep(s, this.currStep);
+                if(!isSuccess) {
+                    branch.markBranch(false); // fail the branch too
                     break;
                 }
             }
@@ -386,10 +385,14 @@ class RunInstance {
      * Skips over the next not-yet-completed step, then pauses
      * Only call if already paused
      */
-    skipOneStep() {
+    async skipOneStep() {
         this.skipStep();
         this.isPaused = true;
         this.runner.reporter.generateReport();
+
+        if(!this.currStep) { // all steps in current branch finished running, finish off the branch
+            await this.runAfterEveryBranch();
+        }
     }
 
     /**
@@ -416,10 +419,12 @@ class RunInstance {
     async runAfterEveryBranch() {
         this.setLocal("successful", this.currBranch.isPassed);
         this.setLocal("error", this.currBranch.error);
-        for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-            var s = this.currBranch.afterEveryBranch[i];
-            await this.runHookStep(s, null, this.currBranch);
-            // finish running all After Every Branch steps, even if one fails, and even if there was a pause or stop
+        if(this.currBranch.afterEveryBranch) {
+            for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
+                var s = this.currBranch.afterEveryBranch[i];
+                await this.runHookStep(s, null, this.currBranch);
+                // finish running all After Every Branch steps, even if one fails, and even if there was a pause or stop
+            }
         }
     }
 

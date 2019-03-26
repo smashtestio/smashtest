@@ -43,6 +43,8 @@ Running tests
         - -noScreenshotOnFail
         - -groups='one two three'
         - -frequency='med'
+        - -global['varname']='value'
+        - -persistent['varname']='value'
     - Timeouts are set by each step on a case-by-case basis
 
 
