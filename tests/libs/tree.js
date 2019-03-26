@@ -166,11 +166,11 @@ describe("Tree", function() {
             });
 
             assert.doesNotThrow(() => {
-                tree.parseLine(`*  Before  Everything + {  `, "file.txt", 10);
+                tree.parseLine(`*  Before  Everything {  `, "file.txt", 10);
             });
 
             assert.doesNotThrow(() => {
-                tree.parseLine(`*  After  Everything .. + { `, "file.txt", 10);
+                tree.parseLine(`*  After  Everything  { `, "file.txt", 10);
             });
         });
 
@@ -404,16 +404,16 @@ describe("Tree", function() {
             assert.equal(step.isExpectedFail, true);
         });
 
-        it("rejects a hook with a $", function() {
+        it("rejects a hook with an identifier", function() {
             assert.throws(() => {
-                tree.parseLine(`* After Every Branch $ {`, "file.txt", 10);
-            }, "A hook cannot have a $ [file.txt:10]");
+                tree.parseLine(`* After Every Branch $ + {`, "file.txt", 10);
+            }, "A hook cannot have any identifiers ($) [file.txt:10]");
         });
 
         it("rejects a hook with a ~", function() {
             assert.throws(() => {
                 tree.parseLine(`* Before Every Step ~ {`, "file.txt", 10);
-            }, "A hook cannot have a ~ [file.txt:10]");
+            }, "A hook cannot have any identifiers (~) [file.txt:10]");
         });
 
         it("parses {var} = Function", function() {

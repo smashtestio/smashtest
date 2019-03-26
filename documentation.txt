@@ -35,6 +35,16 @@ Running tests
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
     - If a step irrevokably fails, all other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
+    - Command line options
+        - -maxInstances
+        - -noDebug
+        - -pauseOnFail
+        - -rerunNotPassed
+        - -noScreenshotOnFail
+        - -groups='one two three'
+        - -frequency='med'
+    - Timeouts are set by each step on a case-by-case basis
+
 
 Only run tests that didn't pass last time
     - -rerunNotPassed
@@ -43,18 +53,7 @@ Only run tests that didn't pass last time
     - Runs everything else (new branches, branches that failed last time, branches that didn't run last time)
     - Uses the current hooks, not the hooks from the last run
 
-Configuration
-    - -maxInstances
-    - -noDebug
-    - -pauseOnFail
-    - -rerunNotPassed
-    - -noScreenshotOnFail
-    - Timeouts are set by each step on a case-by-case basis
-
-Output
-    - Console
-    - Report
-        - Test failures
+Reports
 
 Step reference
     - Browsers, Webdriver steps, Verify, Assertions, Wait, etc.
@@ -273,6 +272,7 @@ Hooks
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
     - Code blocks only. They cannot have children.
+    - You're not allowed to have any identifiers (~, $, .., -T, etc.) on them
     - Hooks won't have a pass/fail state. If a hook fails, the step/branch it corresponds to will take the error.
     - These are recommended for internal framework stuff, like reporting (so you can run this code whether or not the step failed)
         - Setup/teardown too, though that should really be part of the test itself

@@ -149,7 +149,7 @@ class Runner {
         var hookExecInstance = new RunInstance(this);
         for(var i = 0; i < this.tree.beforeEverything.length; i++) {
             var s = this.tree.beforeEverything[i];
-            await hookExecInstance.runStep(s, null, s, null);
+            await hookExecInstance.runHookStep(s, s, null);
             if(s.error) {
                 return false;
             }
@@ -182,7 +182,7 @@ class Runner {
         var hookExecInstance = new RunInstance(this);
         for(var i = 0; i < this.tree.afterEverything.length; i++) {
             var s = this.tree.afterEverything[i];
-            await hookExecInstance.runStep(s, null, s, null);
+            await hookExecInstance.runHookStep(s, s, null);
         }
 
         if(this.tree.elapsed != -1) {

@@ -166,11 +166,8 @@ class Tree {
                 if(typeof step.codeBlock == 'undefined') {
                     utils.error("A hook must have a code block", filename, lineNumber);
                 }
-                if(step.isDebug) {
-                    utils.error("A hook cannot have a ~", filename, lineNumber);
-                }
-                if(step.isOnly) {
-                    utils.error("A hook cannot have a $", filename, lineNumber);
+                if(step.identifiers && step.identifiers.length > 0) {
+                    utils.error("A hook cannot have any identifiers (" + step.identifiers[0] + ")", filename, lineNumber);
                 }
             }
         }
@@ -1424,7 +1421,7 @@ class Tree {
      * Marks the given step in the given branch as passed or failed (but does not clear step.isRunning)
      * Passes or fails the branch if step is the last step, or if finishBranchNow is set
      * @param {Step} step - The Step to mark
-     * @param {Branch} branch - The Branch that contains the step
+     * @param {Branch} [branch] - The Branch that contains the step, if any
      * @param {Boolean} isPassed - If true, marks the step as passed, if false, marks the step as failed
      * @param {Boolean} asExpected - If true, the value of isPassed was expected, false otherwise
      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
@@ -1447,7 +1444,7 @@ class Tree {
         step.error = error;
 
         // If this is the very last step in the branch, mark the branch as passed/failed
-        if(finishBranchNow || this.nextStep(branch, false) == null) {
+        if(branch && (finishBranchNow || this.nextStep(branch, false) == null)) {
             branch.finishOffBranch();
 
             if(skipsRepeats) {

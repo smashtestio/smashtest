@@ -246,21 +246,6 @@ describe("RunInstance", function() {
         it.skip("doesn't pause when pauseOnFail is not set and a step unexpectedly passes", function() {
         });
 
-        it.skip("pauses when pauseOnFail is set and a Before Every Step hook fails", function() {
-            // currStep will probably be the next step after the one with the failure
-            // hooks that came after failure didn't run, step didn't run
-        });
-
-        it.skip("pauses when pauseOnFail is set and an After Every Step hook fails", function() {
-            // currStep will probably be null, all hooks ran
-        });
-
-        it.skip("pauses when pauseOnFail is set, a Before Every Step hook fails, and we're currently on the last step", function() {
-        });
-
-        it.skip("pauses when pauseOnFail is set, a After Every Step hook fails, and we're currently on the last step", function() {
-        });
-
         it.skip("marks a step as expectedly failed when it expectedly fails", function() {
             // also sets asExpected, error, and log in the step
         });
@@ -369,6 +354,24 @@ describe("RunInstance", function() {
         });
 
         it.skip("sets step.elapsed to -1 when a pause and resume occurred", function() {
+        });
+    });
+
+    describe("runHookStep()", function() {
+        it.skip("runs a passing hook step", function() {
+            // verify return value too
+        });
+
+        it.skip("runs a failing hook step with only a stepToGetError", function() {
+        });
+
+        it.skip("runs a failing hook step with only a branchToGetError", function() {
+        });
+
+        it.skip("runs a failing hook step with both a stepToGetError and a branchToGetError", function() {
+        });
+
+        it.skip("runs a failing hook step with no stepToGetError and no branchToGetError", function() {
         });
     });
 

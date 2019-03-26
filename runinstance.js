@@ -38,21 +38,26 @@ class RunInstance {
                 this.overrideDebug = true;
             }
         }
-        else {
+        else { // we're starting off from scratch (not paused)
             this.currBranch = this.tree.nextBranch();
         }
 
         while(this.currBranch) {
             var startTime = new Date();
 
-            // Execute Before Every Branch steps (unless we were paused before and currStep is already set, in which case Before Every Branch ran already)
+            // Execute Before Every Branch steps (unless we were paused before and currStep is already set, in which case Before Every Branch hooks ran already)
             if(!this.currStep) {
                 for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                     var s = this.currBranch.beforeEveryBranch[i];
 
-                    await this.runStep(s, null, null, this.currBranch);
-                    if(isPausedOrStopped() || s.error) { // if paused, stopped, or an error occurred in s
+                    await this.runHookStep(s, null, this.currBranch);
+                    if(checkForPauseOrStop()) { // if paused or stopped
                         return;
+                    }
+                    else if(s.error) { // s failed
+                        // runHookStep() already marked the branch as a failure, so now just advance to the next branch
+                        this.currBranch = this.tree.nextBranch();
+                        continue;
                     }
                 }
             }
@@ -62,25 +67,16 @@ class RunInstance {
 
             // Execute steps in the branch
             while(this.currStep) {
-                await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
-                if(isPausedOrStopped()) {
+                await this.runStep(this.currStep, this.currBranch);
+                if(checkForPauseOrStop()) {
                     return;
                 }
 
-                this.currStep = this.tree.nextStep(this.currBranch, true, true);
+                this.nextStep();
             }
 
             // Execute After Every Branch steps
-            this.setLocal("successful", this.currBranch.isPassed);
-            this.setLocal("error", this.currBranch.error);
-            for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-                var s = this.currBranch.afterEveryBranch[i];
-
-                await this.runStep(s, null, null, this.currBranch);
-                if(isPausedOrStopped() || s.error) { // if paused, stopped, or an error occurred in s
-                    return;
-                }
-            }
+            await this.runAfterEveryBranch();
 
             // clear variable state
             this.global = {};
@@ -97,7 +93,7 @@ class RunInstance {
         /**
          * @return {Boolean} True if the RunInstance is currently paused or stopped, false otherwise. Also sets the current branch's elapsed.
          */
-        function isPausedOrStopped() {
+        function checkForPauseOrStop() {
             if(this.isPaused) { // the current step caused a pause
                 this.currBranch.elapsed = -1;
                 return true;
@@ -117,11 +113,9 @@ class RunInstance {
      * Marks the step as passed/failed, sets the step's error and log
      * @param {Step} step - The Step to execute
      * @param {Branch} [branch] - The branch that contains the step to execute, if any
-     * @param {Step} [stepToTakeErrorAndLogs] - The Step that will take the Error object and logs (usually the same as step), null if branchToTakeErrorAndLogs should take the error
-     * @param {Branch} [branchToTakeErrorAndLogs] - The Branch that will take the Error object and logs (usually the same as branch)
      * @return {Promise} Promise that gets resolved when the step finishes execution
      */
-    async runStep(step, branch, stepToTakeErrorAndLogs, branchToTakeErrorAndLogs) {
+    async runStep(step, branch) {
         if(step.isDebug && !this.overrideDebug) {
             this.isPaused = true;
             return;
@@ -134,9 +128,8 @@ class RunInstance {
         if(branch) {
             for(var i = 0; i < branch.beforeEveryStep.length; i++) {
                 var s = branch.beforeEveryStep[i];
-                await this.runStep(s, null, this.currStep, this.currBranch);
-                if(s.error) {
-                    finishUp();
+                var isError = await this.runHookStep(s, this.currStep, this.currBranch);
+                if(isError) {
                     return;
                 }
             }
@@ -240,7 +233,7 @@ class RunInstance {
                     retVal = await this.execInBrowser(code); // this function will be injected into RunInstance by a built-in function during Before Everything
                 }
                 else {
-                    retVal = await this.evalCodeBlock(code, false, stepToTakeErrorAndLogs ? stepToTakeErrorAndLogs : branchToTakeErrorAndLogs);
+                    retVal = await this.evalCodeBlock(code, false, step);
                 }
 
                 // Step is {var} = Func with code block
@@ -296,24 +289,20 @@ class RunInstance {
                 }
             }
 
-            if(stepToTakeErrorAndLogs) {
-                var finishBranchNow = true;
-                if((error && error.continue) || this.runner.pauseOnFail) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
-                    finishBranchNow = false;
-                }
+            var finishBranchNow = true;
+            if((error && error.continue) || this.runner.pauseOnFail) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
+                finishBranchNow = false;
+            }
 
-                this.tree.markStep(branchToTakeErrorAndLogs, stepToTakeErrorAndLogs, isPassed, asExpected, error, finishBranchNow, true);
-            }
-            else {
-                // Attach the error to the Branch and fail it
-                branchToTakeErrorAndLogs.error = error;
-                this.tree.markBranch(branchToTakeErrorAndLogs, false);
-            }
+            this.tree.markStep(step, branch, isPassed, asExpected, error, finishBranchNow, true);
 
             // Pause if the step failed or is unexpected
             if(this.runner.pauseOnFail && (!isPassed || !asExpected)) {
                 this.isPaused = true;
-                finishUp();
+
+                this.runner.reporter.generateReport();
+                step.elapsed = new Date() - startTime;
+
                 return;
             }
         }
@@ -324,40 +313,65 @@ class RunInstance {
             this.setLocal("error", step.error);
             for(var i = 0; i < branch.afterEveryStep.length; i++) {
                 var s = branch.afterEveryStep[i];
-                await runStep(s, null, this.currStep, this.currBranch);
-                if(s.error) {
+                var isError = await this.runHookStep(s, this.currStep, this.currBranch);
+                if(isError) {
                     break;
                 }
             }
         }
 
-        finishUp();
+        this.runner.reporter.generateReport();
+        step.elapsed = new Date() - startTime;
+    }
 
-        function finishUp(isFailOrUnexpected) {
-            // Update the report
-            this.runner.reporter.generateReport();
-
-            // Measure time the step took
-            step.elapsed = new Date() - startTime;
+    /**
+     * Runs the given hook step
+     * @param {Step} step - The hook step to run
+     * @param {Step} [stepToGetError] - The Step that will get the error and marked failed, if a failure happens here
+     * @param {Branch} [branchToGetError] - The Branch that will get the error and marked failed, if a failure happens here
+     * @return {Boolean} True if the run was a success, false if there was a failure
+     */
+    async runHookStep(step, stepToGetError, branchToGetError) {
+        try {
+            await this.evalCodeBlock(step.codeBlock, false, stepToGetError || branchToGetError);
         }
+        catch(e) {
+            e.filename = step.filename;
+            e.lineNumber = step.lineNumber;
+
+            if(stepToGetError) {
+                this.tree.markStep(stepToGetError, null, false, false, e);
+            }
+
+            if(branchToGetError) {
+                branchToGetError.error = e;
+                branchToGetError.markBranch(false);
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
      * Runs one step, then pauses
+     * Only call if already paused
      * @return {Promise} Promise that resolves once the execution finishes
      */
     async runOneStep() {
         this.nextStep();
         if(this.currStep) {
-            await this.runStep(this.currStep, this.currBranch, this.currStep, this.currBranch);
+            await this.runStep(this.currStep, this.currBranch);
         }
-        else { // all steps in current branch finished running
-            await this.run(); // this will call all the After Every Branch hooks
+        else { // all steps in current branch finished running, finish off the branch
+            await this.runAfterEveryBranch();
         }
     }
 
     /**
      * Skips over the next not-yet-completed step, then pauses
+     * Only call if already paused
      */
     skipOneStep() {
         this.skipStep();
@@ -367,20 +381,20 @@ class RunInstance {
 
     /**
      * Runs the given step, then pauses again
-     * Call when already paused
+     * Only call if already paused
      * @param {Step} step - The step to run
      * @return {Promise} Promise that gets resolved once done executing
      */
     async injectStep(step) {
         this.isPaused = false; // un-pause for now
-        await this.runStep(step, null, step, null);
+        await this.runStep(step, null);
         this.isPaused = true;
     }
 
     /**
-     * Stops this RunInstance from running
+     * Permanently stops this RunInstance from running
      * Not immediate - just marks the branches as stopped
-     * Run functions will eventually notice that a stop occurred and will exit themselves
+     * run() and runStep() will eventually notice that a stop occurred and will exit itself
      */
     stop() {
         this.isStopped = true;
@@ -395,8 +409,23 @@ class RunInstance {
     // ***************************************
 
     /**
+     * Executes all After Every Branch steps, sequentially
+     * @return {Promise} Promise that resolves once all of them finish running
+     */
+    async runAfterEveryBranch() {
+        this.setLocal("successful", this.currBranch.isPassed);
+        this.setLocal("error", this.currBranch.error);
+        for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
+            var s = this.currBranch.afterEveryBranch[i];
+            await this.runHookStep(s, null, this.currBranch);
+            // finish running all After Every Branch steps, even if one fails, and even if there was a pause or stop
+        }
+    }
+
+    /**
      * Moves this.currStep to the next not-yet-completed step
-     * Keeps this.currStep on its current position if it's pointing at a step not yet executed
+     * (Keeps this.currStep on its current position if it's pointing at a step not yet executed)
+     * Sets this.currStep to null if there are no more steps in this.currBranch
      */
     nextStep() {
         // Get the next step, but only if the current step is complete or nonexistant
@@ -466,7 +495,9 @@ class RunInstance {
         // Make global, local, and persistent accessible as js vars
         var header = `
             function log(text) {
-                logHere.appendToLog(text);
+                if(logHere) {
+                    logHere.appendToLog(text);
+                }
             }
 
             function getPersistent(varname) {
@@ -609,7 +640,7 @@ class RunInstance {
                         var value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlock(s.codeBlock, true);
+                            value = this.evalCodeBlock(s.codeBlock, true, s);
                         }
                         else {
                             // {varname}='string'
