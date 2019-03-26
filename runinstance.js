@@ -47,7 +47,7 @@ class RunInstance {
 
             // Execute Before Every Branch steps, if they didn't run already
             // (they ran already is there's already a currStep, or if currStep is null but the branch is complete)
-            if(!this.currStep || this.currBranch.isComplete()) {
+            if(!this.currStep && !this.currBranch.isComplete()) {
                 for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                     var s = this.currBranch.beforeEveryBranch[i];
 
