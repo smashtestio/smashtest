@@ -45,8 +45,9 @@ class RunInstance {
         while(this.currBranch) {
             var startTime = new Date();
 
-            // Execute Before Every Branch steps (unless we were paused before and currStep is already set, in which case Before Every Branch hooks ran already)
-            if(!this.currStep) {
+            // Execute Before Every Branch steps, if they didn't run already
+            // (they ran already is there's already a currStep, or if currStep is null but the branch is complete)
+            if(!this.currStep || this.currBranch.isComplete()) {
                 for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                     var s = this.currBranch.beforeEveryBranch[i];
 
