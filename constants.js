@@ -45,5 +45,4 @@ exports.SPACES_PER_INDENT = 4;
 // ***************************************
 // MISC CONSTANTS
 // ***************************************
-exports.HOOK_NAMES_CANON = ['before every branch', 'after every branch', 'before every step', 'after every step', 'before everything', 'after everything'];
-exports.HOOK_NAMES =       ['Before Every Branch', 'After Every Branch', 'Before Every Step', 'After Every Step', 'Before Everything', 'After Everything'];
+exports.HOOK_NAMES = ['before every branch', 'after every branch', 'before every step', 'after every step', 'before everything', 'after everything'];

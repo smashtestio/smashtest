@@ -367,7 +367,20 @@ describe("RunInstance", function() {
     });
 
     describe("runHookStep()", function() {
-        it.skip("runs a passing hook step", function() {
+        it("runs a passing hook step", function() {
+
+
+
+
+
+
+
+
+
+
+
+
+
             // verify return value too
         });
 

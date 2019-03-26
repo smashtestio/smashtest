@@ -118,7 +118,7 @@ class Tree {
 
         // Validate that a non-function declaration isn't using a hook step name
         if(!step.isFunctionDeclaration) {
-            if(Constants.HOOK_NAMES_CANON.indexOf(utils.canonicalize(step.text)) != -1) {
+            if(Constants.HOOK_NAMES.indexOf(utils.canonicalize(step.text)) != -1) {
                 utils.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
             }
         }
@@ -161,8 +161,9 @@ class Tree {
         if(step.isFunctionDeclaration) {
             var canStepText = utils.canonicalize(step.text);
             var stepText = step.text.trim().replace(/\s+/g, ' ');
-            var index = Constants.HOOK_NAMES_CANON.indexOf(canStepText);
+            var index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index != -1) {
+                step.isHook = true;
                 if(typeof step.codeBlock == 'undefined') {
                     utils.error("A hook must have a code block", filename, lineNumber);
                 }
@@ -823,8 +824,7 @@ class Tree {
         var beforeEveryStep = [];
         var afterEveryStep = [];
         children.forEach(child => {
-            var canStepText = utils.canonicalize(child.text ? child.text : '');
-            if(child.isFunctionDeclaration && Constants.HOOK_NAMES_CANON.indexOf(canStepText) != -1) {
+            if(child.isFunctionDeclaration && child.isHook) {
                 var clonedHookStep = child.cloneAsFunctionCall();
                 clonedHookStep.branchIndents = 0;
 
@@ -832,6 +832,7 @@ class Tree {
                     utils.error("A hook declaration cannot have children", child.filename, child.lineNumber);
                 }
 
+                var canStepText = utils.canonicalize(child.text ? child.text : '');
                 if(canStepText == "before every branch") {
                     beforeEveryBranch.unshift(clonedHookStep);
                 }
