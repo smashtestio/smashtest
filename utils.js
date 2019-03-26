@@ -48,13 +48,6 @@ exports.escapeSingleQuotes = function(text) {
 }
 
 /**
- * @return {String} text only with unescaped ' and " escaped to \' and \"
- */
-exports.escapeUnescapedQuotes = function(text) {
-    return text.replace(/(?<!\\)\'/g, '\\\'').replace(/(?<!\\)\"/g, '\\\"');
-}
-
-/**
  * Prints an array of branches to console
  * @param {Array} Array of Branch to print out
  */

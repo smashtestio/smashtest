@@ -56,8 +56,6 @@ class Step {
         this.error = {};                      // if this step failed, this is the Error that was thrown
         this.log = "";                        // string of logs related to this step
 
-        this.processedText = "";              // the text of this step, but with variables inside strings and ElementFinders replaced with values
-
         this.elapsed = 0;                     // number of ms it took this step to execute
         */
     }

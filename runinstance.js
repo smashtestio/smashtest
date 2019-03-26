@@ -143,24 +143,6 @@ class RunInstance {
             }
         }
 
-        // For function call steps, replace {vars}/{{vars}} inside 'strings' and [ElementFinders]
-        if(step.isFunctionCall) {
-            step.processedText = step.text + '';
-            replaceVarsInStep(Constants.STRING_LITERAL_REGEX);
-            replaceVarsInStep(Constants.ELEMENTFINDER_REGEX);
-
-            function replaceVarsInStep(regex) {
-                var matches = step.processedText.match(regex);
-                if(matches) {
-                    for(var i = 0; i < matches.length; i++) {
-                        var match = matches[i];
-                        var replacedText = this.replaceVars(match, step, branch);
-                        step.processedText = step.processedText.replace(match, replacedText);
-                    }
-                }
-            }
-        }
-
         if(prevStep) {
             // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
             if(step.branchIndents > prevStep.branchIndents) {
@@ -185,13 +167,15 @@ class RunInstance {
                         var value = inputList[i];
 
                         if(value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) { // 'string' or "string"
-                            value = value.replace(/^\'|^\"|\'$|\"$/, ''); // vars have already been replaced here
+                            value = this.replaceVars(value, prevStep, branch); // replace vars with their values
+                            value = value.replace(/^\'|^\"|\'$|\"$/, '');
                         }
                         else if(value.match(Constants.VAR_REGEX_WHOLE)) { // {var} or {{var}}
                             var isLocal = value.match(/^\{\{/);
                             value = findVarValue(value, isLocal, prevStep, branch);
                         }
                         else if(value.match(Constants.ELEMENTFINDER_REGEX_WHOLE)) { // [ElementFinder]
+                            value = this.replaceVars(value, prevStep, branch); // replace vars with their values
                             value = this.tree.parseElementFinder(value);
                         }
 
