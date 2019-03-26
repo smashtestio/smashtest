@@ -44,10 +44,6 @@ describe("RunInstance", function() {
         it.skip("runs a Before Every Branch hook", function() {
         });
 
-        it.skip("runs an After Every Branch hook and sets its local vars", function() {
-            // local vars are successful and error
-        });
-
         it.skip("runs multiple Before Every Branch and After Every Branch hooks", function() {
         });
 
@@ -128,7 +124,10 @@ describe("RunInstance", function() {
         it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", function() {
         });
 
-        it.skip("throws an error if a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", function() {
+        it.skip("fails step if a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", function() {
+        });
+
+        it.skip("fails step if a function call has a {variable} passed in and it is never set", function() {
         });
 
         it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", function() {
@@ -137,7 +136,10 @@ describe("RunInstance", function() {
         it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", function() {
         });
 
-        it.skip("throws an error if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", function() {
+        it.skip("fails step if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", function() {
+        });
+
+        it.skip("fails step if a function call has a 'string' containing a var that is never set", function() {
         });
 
         it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", function() {
@@ -146,7 +148,10 @@ describe("RunInstance", function() {
         it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", function() {
         });
 
-        it.skip("throws an error if a function call has an [ElementFinder] containing a var passed in and that var is only set in a later step, which is an asynchronous code block", function() {
+        it.skip("fails step if a function call has an [ElementFinder] containing a var passed in and that var is only set in a later step, which is an asynchronous code block", function() {
+        });
+
+        it.skip("fails step if a function call has an [ElementFinder] containing a var passed in and that var is never set", function() {
         });
 
         it.skip("executes a function call where the function has no steps inside of it", function() {
@@ -319,34 +324,29 @@ describe("RunInstance", function() {
         it.skip("runs a Before Every Step hook", function() {
         });
 
-        it.skip("runs an After Every Step hook and sets its local vars", function() {
-            // local vars are successful and error
-        });
-
         it.skip("runs multiple Before Every Step and After Every Step hooks", function() {
         });
 
         it.skip("handles an error inside a Before Every Step hook", function() {
             // error goes into the normal step obj, error.filename/lineNumber point at the hook
-            // normal step its associated with is immediately failed, and branch is immediately failed
+            // normal step its associated with is immediately failed
         });
 
         it.skip("handles an error inside an After Every Step hook", function() {
             // error goes into the normal step obj, error.filename/lineNumber point at the hook
-            // normal step its associated with is immediately failed, and branch is immediately failed
+            // normal step its associated with is immediately failed
         });
 
-        it.skip("doesn't end the branch when an error inside a Before Every Step hook occurs and its continue flag is set", function() {
+        it.skip("pauses when an error occurs inside a Before Every Step hook and pauseOnFail is set", function() {
         });
 
-        it.skip("doesn't end the branch when an error inside an After Every Step hook occurs and its continue flag is set", function() {
+        it.skip("pauses when an error occurs inside an After Every Step hook and pauseOnFail is set", function() {
         });
 
-        it.skip("pauses at the next step and doesn't end the branch when an error inside a Before Every Step hook occurs and pauseOnFail is set", function() {
+        it.skip("pauses when an error occurs inside a Before Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", function() {
         });
 
-        it.skip("doesn't end the branch when an error inside an After Every Step hook occurs and pauseOnFail is set", function() {
-            // doesn't pause since there are no steps after After Every Step
+        it.skip("pauses when an error occurs inside an After Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", function() {
         });
 
         it.skip("updates the report", function() {
