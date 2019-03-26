@@ -15,66 +15,66 @@ chai.use(chaiAsPromised);
 
 describe("RunInstance", function() {
     describe("run()", function() {
-        it.skip("runs a branch it pulls from the tree", function() {
+        it.skip("runs a branch it pulls from the tree", async function() {
         });
 
-        it.skip("runs multiple branches it pulls from the tree", function() {
+        it.skip("runs multiple branches it pulls from the tree", async function() {
         });
 
-        it.skip("handles a step that fails but doesn't stop execution", function() {
+        it.skip("handles a step that fails but doesn't stop execution", async function() {
         });
 
-        it.skip("handles a step that fails and ends executing the branch", function() {
+        it.skip("handles a step that fails and ends executing the branch", async function() {
         });
 
-        it.skip("handles a step that pauses execution", function() {
+        it.skip("handles a step that pauses execution", async function() {
         });
 
-        it.skip("handles a resume from a previous pause, where the current step never ran", function() {
+        it.skip("handles a resume from a previous pause, where the current step never ran", async function() {
             // current step is run
             // just call run() again after the pause
             // vars are still properly set, etc.
         });
 
-        it.skip("handles a resume from a previous pause, where the current step completed", function() {
+        it.skip("handles a resume from a previous pause, where the current step completed", async function() {
             // next step is pulled out
             // vars are still properly set, etc.
         });
 
-        it.skip("runs a Before Every Branch hook", function() {
+        it.skip("runs a Before Every Branch hook", async function() {
         });
 
-        it.skip("runs multiple Before Every Branch and After Every Branch hooks", function() {
+        it.skip("runs multiple Before Every Branch and After Every Branch hooks", async function() {
         });
 
-        it.skip("handles an error inside a Before Every Branch hook", function() {
+        it.skip("handles an error inside a Before Every Branch hook", async function() {
             // error goes into the Branch object, whole Branch fails and ends
         });
 
-        it.skip("handles an error inside an After Every Branch hook", function() {
+        it.skip("handles an error inside an After Every Branch hook", async function() {
             // error goes into the Branch object, whole Branch fails and ends
         });
 
-        it.skip("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", function() {
+        it.skip("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", async function() {
         });
 
-        it.skip("clears local and global variables between different branches", function() {
+        it.skip("clears local and global variables between different branches", async function() {
         });
 
-        it.skip("skips a step and pauses again when skipNextStep is set", function() {
+        it.skip("skips a step and pauses again when skipNextStep is set", async function() {
         });
 
-        it.skip("sets branch.elapsed to how long it took the branch to execute", function() {
+        it.skip("sets branch.elapsed to how long it took the branch to execute", async function() {
             // Try two different branches, one that runs longer than the other, and assert that one > other
         });
 
-        it.skip("sets branch.elapsed to how long it took the branch to execute when a stop ocurred", function() {
+        it.skip("sets branch.elapsed to how long it took the branch to execute when a stop ocurred", async function() {
         });
 
-        it.skip("sets branch.elapsed to -1 when a pause occurred", function() {
+        it.skip("sets branch.elapsed to -1 when a pause occurred", async function() {
         });
 
-        it.skip("sets branch.elapsed to -1 when a pause and resume occurred", function() {
+        it.skip("sets branch.elapsed to -1 when a pause and resume occurred", async function() {
         });
     });
 
@@ -113,293 +113,309 @@ A - {
             expect(runInstance.flag).to.equal(true);
         });
 
-        it("executes a function call with no {{variables}} in its function declaration", function() {
+        it("executes a function call with no {{variables}} in its function declaration", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+F
 
+* F {
+    runInstance.flag = true;
+}
+`, "file.txt");
 
+            tree.generateBranches();
 
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
 
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-
-
-
-
-            
+            expect(runInstance.flag).to.equal(true);
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings'", function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in 'strings'", async function() {
+
+
+
+
+
+
+
+
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", function() {
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async function() {
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in {variables}", function() {
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in {variables}", async function() {
             // trim vars
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", function() {
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async function() {
             // trim vars
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", function() {
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", async function() {
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", function() {
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", async function() {
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders]", function() {
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders]", async function() {
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders containing {variables}]", function() {
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders containing {variables}]", async function() {
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", {variables}, and [ElementFinders]", function() {
+        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", {variables}, and [ElementFinders]", async function() {
         });
 
-        it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", function() {
+        it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async function() {
         });
 
-        it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", function() {
+        it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", async function() {
         });
 
-        it.skip("fails step if a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", function() {
+        it.skip("fails step if a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", async function() {
         });
 
-        it.skip("fails step if a function call has a {variable} passed in and it is never set", function() {
+        it.skip("fails step if a function call has a {variable} passed in and it is never set", async function() {
         });
 
-        it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", function() {
+        it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
         });
 
-        it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", function() {
+        it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async function() {
         });
 
-        it.skip("fails step if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", function() {
+        it.skip("fails step if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", async function() {
         });
 
-        it.skip("fails step if a function call has a 'string' containing a var that is never set", function() {
+        it.skip("fails step if a function call has a 'string' containing a var that is never set", async function() {
         });
 
-        it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", function() {
+        it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
         });
 
-        it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", function() {
+        it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async function() {
         });
 
-        it.skip("fails step if a function call has an [ElementFinder] containing a var passed in and that var is only set in a later step, which is an asynchronous code block", function() {
+        it.skip("fails step if a function call has an [ElementFinder] containing a var passed in and that var is only set in a later step, which is an asynchronous code block", async function() {
         });
 
-        it.skip("fails step if a function call has an [ElementFinder] containing a var passed in and that var is never set", function() {
+        it.skip("fails step if a function call has an [ElementFinder] containing a var passed in and that var is never set", async function() {
         });
 
-        it.skip("executes a function call where the function has no steps inside of it", function() {
+        it.skip("executes a function call where the function has no steps inside of it", async function() {
         });
 
-        it.skip("allows {{variables}} passed in through a function call to be accessed by steps inside the function", function() {
+        it.skip("allows {{variables}} passed in through a function call to be accessed by steps inside the function", async function() {
         });
 
-        it.skip("allows {{variables}} passed in through a function call to be accessed by the function's code block", function() {
+        it.skip("allows {{variables}} passed in through a function call to be accessed by the function's code block", async function() {
         });
 
-        it.skip("ignores {{variables}} inside the text of a textual step", function() {
+        it.skip("ignores {{variables}} inside the text of a textual step", async function() {
         });
 
-        it.skip("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", function() {
+        it.skip("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", async function() {
         });
 
-        it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", function() {
+        it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", async function() {
         });
 
-        it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", function() {
+        it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async function() {
         });
 
-        it.skip("executes a {var} = 'string' step", function() {
+        it.skip("executes a {var} = 'string' step", async function() {
         });
 
-        it.skip("executes a {{var}} = 'string' step", function() {
+        it.skip("executes a {{var}} = 'string' step", async function() {
         });
 
-        it.skip("executes a {var} = '{other var}' step", function() {
+        it.skip("executes a {var} = '{other var}' step", async function() {
         });
 
-        it.skip("executes a {var1} = '{var2} {{var3}} etc.' step", function() {
+        it.skip("executes a {var1} = '{var2} {{var3}} etc.' step", async function() {
             // trim vars
         });
 
-        it.skip("executes a {var1} = '{var2} {{var3}} etc.' step that needs to look down the branch for the values of some variables", function() {
+        it.skip("executes a {var1} = '{var2} {{var3}} etc.' step that needs to look down the branch for the values of some variables", async function() {
             // trim vars
         });
 
-        it.skip("executes a {var1} = 'string1', {{var2}} = 'string2', etc. step", function() {
+        it.skip("executes a {var1} = 'string1', {{var2}} = 'string2', etc. step", async function() {
             // trim vars
         });
 
-        it.skip("executes a {var} = Text { code block } step", function() {
+        it.skip("executes a {var} = Text { code block } step", async function() {
         });
 
-        it.skip("executes a {var} = Function step, where the function declaration has a code block that returns a value", function() {
+        it.skip("executes a {var} = Function step, where the function declaration has a code block that returns a value", async function() {
         });
 
-        it.skip("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", function() {
+        it.skip("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
         });
 
-        it.skip("executes a {var} = Function step, where the function declaration is in {x}='value' format", function() {
+        it.skip("executes a {var} = Function step, where the function declaration is in {x}='value' format", async function() {
         });
 
-        it.skip("allows a code block to get variables via the local, global, and persistent objects", function() {
+        it.skip("allows a code block to get variables via the local, global, and persistent objects", async function() {
         });
 
-        it.skip("makes a passed-in {variable} accessible as a plain js variable inside a code block", function() {
+        it.skip("makes a passed-in {variable} accessible as a plain js variable inside a code block", async function() {
             // verify the change reflected in the global obj after the function ran
         });
 
-        it.skip("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", function() {
+        it.skip("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", async function() {
             // verify the change reflected in the local obj after the function ran
         });
 
-        it.skip("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", function() {
+        it.skip("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
             // whitelisted chars = [A-Za-z0-9\-\_\.]
         });
 
-        it.skip("makes a {variable} accessible as a plain js variable inside a code block", function() {
+        it.skip("makes a {variable} accessible as a plain js variable inside a code block", async function() {
             // verify the change reflected in the global obj after the function ran
         });
 
-        it.skip("makes a {{variable}} accessible as a plain js variable inside a code block", function() {
+        it.skip("makes a {{variable}} accessible as a plain js variable inside a code block", async function() {
             // verify the change reflected in the local obj after the function ran
         });
 
-        it.skip("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", function() {
+        it.skip("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
             // whitelisted chars = [A-Za-z0-9\-\_\.]
         });
 
-        it.skip("runs an Execute In Browser step", function() {
+        it.skip("runs an Execute In Browser step", async function() {
             // inject runinstance.execInBrowser(code) function first
         });
 
-        it.skip("executes a step that logs", function() {
+        it.skip("executes a step that logs", async function() {
         });
 
-        it.skip("pauses when a ~ step is encountered", function() {
+        it.skip("pauses when a ~ step is encountered", async function() {
         });
 
-        it.skip("when resuming from a pause on a ~, doesn't pause on the ~ again", function() {
+        it.skip("when resuming from a pause on a ~, doesn't pause on the ~ again", async function() {
         });
 
-        it.skip("pauses when pauseOnFail is set and a step fails", function() {
+        it.skip("pauses when pauseOnFail is set and a step fails", async function() {
         });
 
-        it.skip("pauses when pauseOnFail is set and a step unexpectedly passes", function() {
+        it.skip("pauses when pauseOnFail is set and a step unexpectedly passes", async function() {
         });
 
-        it.skip("doesn't pause when pauseOnFail is not set and a step fails", function() {
+        it.skip("doesn't pause when pauseOnFail is not set and a step fails", async function() {
         });
 
-        it.skip("doesn't pause when pauseOnFail is not set and a step unexpectedly passes", function() {
+        it.skip("doesn't pause when pauseOnFail is not set and a step unexpectedly passes", async function() {
         });
 
-        it.skip("marks a step as expectedly failed when it expectedly fails", function() {
+        it.skip("marks a step as expectedly failed when it expectedly fails", async function() {
             // also sets asExpected, error, and log in the step
         });
 
-        it.skip("marks a step as unexpectedly failed when it unexpectedly fails", function() {
+        it.skip("marks a step as unexpectedly failed when it unexpectedly fails", async function() {
             // also sets asExpected, error, and log in the step
         });
 
-        it.skip("marks a step as expectedly passed when it expectedly passes", function() {
+        it.skip("marks a step as expectedly passed when it expectedly passes", async function() {
             // also sets asExpected, error, and log in the step
         });
 
-        it.skip("marks a step as unexpectedly passed when it unexpectedly passes", function() {
+        it.skip("marks a step as unexpectedly passed when it unexpectedly passes", async function() {
             // also sets asExpected, error, and log in the step
         });
 
-        it.skip("handles bad syntax in a code block step", function() {
+        it.skip("handles bad syntax in a code block step", async function() {
         });
 
-        it.skip("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", function() {
+        it.skip("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async function() {
         });
 
-        it.skip("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", function() {
+        it.skip("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async function() {
         });
 
-        it.skip("creates a fresh local var context within a function call", function() {
+        it.skip("creates a fresh local var context within a function call", async function() {
             // branchIndents increased by 1
         });
 
-        it.skip("clears local vars and reinstates previous local var context when exiting a function call", function() {
+        it.skip("clears local vars and reinstates previous local var context when exiting a function call", async function() {
             // branchIndents fell by 1
         });
 
-        it.skip("clears local vars and reinstates previous local var context when exiting multiple levels of function calls", function() {
+        it.skip("clears local vars and reinstates previous local var context when exiting multiple levels of function calls", async function() {
             // branchIndents fell by 2 or more
         });
 
-        it.skip("a {var} is accessible in a later step", function() {
+        it.skip("a {var} is accessible in a later step", async function() {
         });
 
-        it.skip("a {var} is accessible inside function calls", function() {
+        it.skip("a {var} is accessible inside function calls", async function() {
         });
 
-        it.skip("a {var} declared inside a function call is accessible in steps after the function call", function() {
+        it.skip("a {var} declared inside a function call is accessible in steps after the function call", async function() {
         });
 
-        it.skip("a {var} declared in a branch is accessible in an After Every Step hook", function() {
+        it.skip("a {var} declared in a branch is accessible in an After Every Step hook", async function() {
         });
 
-        it.skip("a {{var}} is accessible in a later step", function() {
+        it.skip("a {{var}} is accessible in a later step", async function() {
         });
 
-        it.skip("a {{var}} is not accessible inside function calls", function() {
+        it.skip("a {{var}} is not accessible inside function calls", async function() {
         });
 
-        it.skip("a {{var}} declared inside a function call is not accessible in steps after the function call", function() {
+        it.skip("a {{var}} declared inside a function call is not accessible in steps after the function call", async function() {
         });
 
-        it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", function() {
+        it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async function() {
         });
 
-        it.skip("runs a Before Every Step hook", function() {
+        it.skip("runs a Before Every Step hook", async function() {
         });
 
-        it.skip("runs multiple Before Every Step and After Every Step hooks", function() {
+        it.skip("runs multiple Before Every Step and After Every Step hooks", async function() {
         });
 
-        it.skip("handles an error inside a Before Every Step hook", function() {
+        it.skip("handles an error inside a Before Every Step hook", async function() {
             // error goes into the normal step obj, error.filename/lineNumber point at the hook
             // normal step its associated with is immediately failed
         });
 
-        it.skip("handles an error inside an After Every Step hook", function() {
+        it.skip("handles an error inside an After Every Step hook", async function() {
             // error goes into the normal step obj, error.filename/lineNumber point at the hook
             // normal step its associated with is immediately failed
         });
 
-        it.skip("pauses when an error occurs inside a Before Every Step hook and pauseOnFail is set", function() {
+        it.skip("pauses when an error occurs inside a Before Every Step hook and pauseOnFail is set", async function() {
         });
 
-        it.skip("pauses when an error occurs inside an After Every Step hook and pauseOnFail is set", function() {
+        it.skip("pauses when an error occurs inside an After Every Step hook and pauseOnFail is set", async function() {
         });
 
-        it.skip("pauses when an error occurs inside a Before Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", function() {
+        it.skip("pauses when an error occurs inside a Before Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", async function() {
         });
 
-        it.skip("pauses when an error occurs inside an After Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", function() {
+        it.skip("pauses when an error occurs inside an After Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", async function() {
         });
 
-        it.skip("updates the report", function() {
+        it.skip("updates the report", async function() {
         });
 
-        it.skip("sets step.elapsed to how long it took step to execute", function() {
+        it.skip("sets step.elapsed to how long it took step to execute", async function() {
             // step.elapsed is set. Try two different steps, one that runs longer than the other, and assert that one > other
         });
 
-        it.skip("sets step.elapsed to how long it took step to execute when a stop ocurred", function() {
+        it.skip("sets step.elapsed to how long it took step to execute when a stop ocurred", async function() {
         });
 
-        it.skip("sets step.elapsed to -1 when a pause occurred", function() {
+        it.skip("sets step.elapsed to -1 when a pause occurred", async function() {
         });
 
-        it.skip("sets step.elapsed to -1 when a pause and resume occurred", function() {
+        it.skip("sets step.elapsed to -1 when a pause and resume occurred", async function() {
         });
     });
 
@@ -981,40 +997,40 @@ A -
         });
     });
 
-    describe("runOneStep()", function() {
-        it.skip("runs one step and pauses again", function() {
+    describe("runOneStep()", async function() {
+        it.skip("runs one step and pauses again", async function() {
         });
 
-        it.skip("works when currStep is on the last step, which has not completed yet", function() {
+        it.skip("works when currStep is on the last step, which has not completed yet", async function() {
         });
 
-        it.skip("works when currStep is on the last step, which has completed already", function() {
-        });
-    });
-
-    describe("skipOneStep()", function() {
-        it.skip("skips one step and pauses again", function() {
-        });
-
-        it.skip("works when currStep is on the last step, which has not completed yet", function() {
-        });
-
-        it.skip("works when currStep is on the last step, which has completed already", function() {
+        it.skip("works when currStep is on the last step, which has completed already", async function() {
         });
     });
 
-    describe("injectStep()", function() {
-        it.skip("runs a step, then pauses again", function() {
+    describe("skipOneStep()", async function() {
+        it.skip("skips one step and pauses again", async function() {
         });
 
-        it.skip("step has access to {{vars}} and {vars} that were defined at the time of the pause", function() {
+        it.skip("works when currStep is on the last step, which has not completed yet", async function() {
         });
 
-        it.skip("attaches an error to the step passed in if it fails", function() {
+        it.skip("works when currStep is on the last step, which has completed already", async function() {
+        });
+    });
+
+    describe("injectStep()", async function() {
+        it.skip("runs a step, then pauses again", async function() {
+        });
+
+        it.skip("step has access to {{vars}} and {vars} that were defined at the time of the pause", async function() {
+        });
+
+        it.skip("attaches an error to the step passed in if it fails", async function() {
             // and doesn't attach the error to this.currStep or this.currBranch
         });
 
-        it.skip("the RunInstance can flawlessly resume from a pause, after an injected step has run", function() {
+        it.skip("the RunInstance can flawlessly resume from a pause, after an injected step has run", async function() {
             // make sure the right next step is executed
         });
     });
