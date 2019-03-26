@@ -367,33 +367,111 @@ describe("RunInstance", function() {
     });
 
     describe("runHookStep()", function() {
-        it("runs a passing hook step", function() {
+        it("runs a passing hook step", async function() {
+            var step = new Step();
+            step.codeBlock = ``;
 
+            var tree = new Tree();
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
 
-
-
-
-
-
-
-
-
-
-
-
-            // verify return value too
+            var retVal = await runInstance.runHookStep(step);
+            expect(retVal).to.equal(true);
         });
 
-        it.skip("runs a failing hook step with only a stepToGetError", function() {
+        it("runs a failing hook step with only a stepToGetError", async function() {
+            var step = new Step();
+            step.filename = "file1.txt";
+            step.lineNumber = 10;
+            step.codeBlock = `
+                throw new Error("foobar");
+            `;
+
+            var stepToGetError = new Step();
+            stepToGetError.filename = "file2.txt";
+            stepToGetError.lineNumber = 20;
+
+            var tree = new Tree();
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            var retVal = await runInstance.runHookStep(step, stepToGetError);
+            expect(retVal).to.equal(false);
+            expect(stepToGetError.error.message).to.equal("foobar");
+            expect(stepToGetError.error.filename).to.equal("file1.txt");
+            expect(stepToGetError.error.lineNumber).to.equal(10);
         });
 
-        it.skip("runs a failing hook step with only a branchToGetError", function() {
+        it("runs a failing hook step with only a branchToGetError", async function() {
+            var step = new Step();
+            step.filename = "file1.txt";
+            step.lineNumber = 10;
+            step.codeBlock = `
+                throw new Error("foobar");
+            `;
+
+            var branchToGetError = new Branch();
+
+            var tree = new Tree();
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            var retVal = await runInstance.runHookStep(step, null, branchToGetError);
+            expect(retVal).to.equal(false);
+            expect(branchToGetError.error.message).to.equal("foobar");
+            expect(branchToGetError.error.filename).to.equal("file1.txt");
+            expect(branchToGetError.error.lineNumber).to.equal(10);
         });
 
-        it.skip("runs a failing hook step with both a stepToGetError and a branchToGetError", function() {
+        it("runs a failing hook step with both a stepToGetError and a branchToGetError", async function() {
+            var step = new Step();
+            step.filename = "file1.txt";
+            step.lineNumber = 10;
+            step.codeBlock = `
+                throw new Error("foobar");
+            `;
+
+            var stepToGetError = new Step();
+            stepToGetError.filename = "file2.txt";
+            stepToGetError.lineNumber = 20;
+
+            var branchToGetError = new Branch();
+
+            var tree = new Tree();
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            var retVal = await runInstance.runHookStep(step, stepToGetError, branchToGetError);
+            expect(retVal).to.equal(false);
+
+            expect(stepToGetError.error.message).to.equal("foobar");
+            expect(stepToGetError.error.filename).to.equal("file1.txt");
+            expect(stepToGetError.error.lineNumber).to.equal(10);
+
+            expect(branchToGetError.error.message).to.equal("foobar");
+            expect(branchToGetError.error.filename).to.equal("file1.txt");
+            expect(branchToGetError.error.lineNumber).to.equal(10);
         });
 
-        it.skip("runs a failing hook step with no stepToGetError and no branchToGetError", function() {
+        it("runs a failing hook step with no stepToGetError and no branchToGetError", async function() {
+            var step = new Step();
+            step.filename = "file1.txt";
+            step.lineNumber = 10;
+            step.codeBlock = `
+                throw new Error("foobar");
+            `;
+
+            var tree = new Tree();
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            var retVal = await runInstance.runHookStep(step);
+            expect(retVal).to.equal(false);
         });
     });
 
