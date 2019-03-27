@@ -504,10 +504,10 @@ describe("Tree", function() {
             assert.equal(step.isFunctionCall, undefined);
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "\"foo \\\"\"", isLocal: true} ]);
 
-            step = tree.parseLine(`{{var}} = [foo \\\]]`, "file.txt", 10);
-            assert.equal(step.text, `{{var}} = [foo \\\]]`);
+            step = tree.parseLine(`{{var}} = [foo 'bar'\\\[\\\]]`, "file.txt", 10);
+            assert.equal(step.text, `{{var}} = [foo 'bar'\\\[\\\]]`);
             assert.equal(step.isFunctionCall, undefined);
-            assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "[foo \\\]]", isLocal: true} ]);
+            assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "[foo 'bar'\\\[\\\]]", isLocal: true} ]);
         });
 
         it("parses multiple {var} = 'string literal', separated by commas", function() {
