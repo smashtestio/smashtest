@@ -713,7 +713,7 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
 A -
     {var1}='value1'
         {{var2}} = 'value2'
-            {var 3}= "value 3", {{var5}} ='value5',{var6}="value6"
+            {var 3}= "value 3", {{var5}} ='value5',{var6}=[value6]
                 {{ var 4 }}=" value 4 "
 `, "file.txt");
 
@@ -1019,7 +1019,7 @@ A -
         {var1}='{{var2}} {var 3} . {var0} {{var5}}'
             {var 3}= "-{{var 4}}-", {{var5}}='value5'
                 B -
-                    {{ var 4 }}=" value 4 "
+                    {{ var 4 }}=[ value 4 ]
 `, "file.txt");
 
             tree.generateBranches();

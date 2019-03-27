@@ -24,9 +24,6 @@ Steps
         - Use them for stylistic organization and to group similar steps
         - Recommended to put a blank line above and below a step block, to make it easier to see.
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
-    - Pitfalls
-        - Always use \', \", or \[ when the same line has 'strings', "strings", or [strings]
-            - ' and \', " and \", and [ and \[ will match each other, but you should use \', \", and \[ to prevent a string literal from forming in a function call
 
 Running tests
     - Basic command line invocation
@@ -95,6 +92,7 @@ ElementFinders
 Functions
     - Calling
         - Examples of calls (include {vars}, {{vars}}, 'strings', "strings", [strings], and vars inside of strings)
+        - Vars and strings designate parameter inputs in a function call
         - Function {{var}} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
             - All function inputs are either {vars}, {{vars}}, 'strings', "strings", or [strings]
             - {{vars}} in a function declaration must all be {{local}}, not {global}
@@ -103,6 +101,7 @@ Functions
             - Show example
     - Declaring
         - Examples of declarations
+        - {{local vars}} designate parameters in a function declaration
         - Finding declaration
             - First look to siblings, then to siblings of parent, etc.
             - Match custom functions first, then primitive built-in functions
@@ -113,6 +112,8 @@ Functions
         - Using functions to encapsulate common steps
         - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)
         - Using functions to organize testing (have a high-level tree that describes your app, where each leaf is a function call to a function with multiple branches, where all the testing for that specific component occurs)
+    - Pitfalls
+        - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
 
 Variables
     - Types of vars
