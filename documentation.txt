@@ -46,7 +46,6 @@ Running tests
         - -persistent['varname']='value'
     - Timeouts are set by each step on a case-by-case basis
 
-
 Only run tests that didn't pass last time
     - -rerunNotPassed
     - Doesn't run branches that passed last time
@@ -55,6 +54,10 @@ Only run tests that didn't pass last time
     - Uses the current hooks, not the hooks from the last run
 
 Reports
+    - What's in a name?
+        The only real way to name a test is to concatenate the steps together, as tests are detailed and many of them differ by
+        just one step. When you name a test, you're really just providing a crude summary of one of the steps towards the end.
+        Really, naming is useless and only slows you down.
 
 Step blocks
     - Vertical list of 2 or more steps, no blank lines in between
@@ -111,6 +114,15 @@ Functions
     - Examples
         - Using functions to encapsulate common steps
         - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)
+            - Use this function in a test, and it will automatically split into two branches, each of which tests a different way to get to the same place
+                * Select beans and rice
+                    ..
+                    Click Beans
+                    Click Rice
+
+                    ..
+                    Click Rice
+                    Click Beans
         - Using functions to organize testing (have a high-level tree that describes your app, where each leaf is a function call to a function with multiple branches, where all the testing for that specific component occurs)
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming

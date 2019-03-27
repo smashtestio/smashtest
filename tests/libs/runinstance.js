@@ -952,6 +952,35 @@ My 'foobar' Function
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
         });
 
+        it("executes a {var} = Function step, where the function declaration has a code block that returns a value asynchonously", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var} = Set that var! {
+    return await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("foobar");
+        }, 1);
+    });
+}
+    My {var} Function
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+        });
+
         it("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -1408,14 +1437,14 @@ A -
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("return 5;", true)).to.equal(5);
+            expect(runInstance.evalCodeBlockSync("return 5;")).to.equal(5);
         });
 
         it("returns undefined when executing code that has no return value synchronously", function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("5;", true)).to.equal(undefined);
+            expect(runInstance.evalCodeBlockSync("5;")).to.equal(undefined);
         });
 
         it("makes the persistent, global, and local objects available", async function() {
@@ -1502,7 +1531,7 @@ A -
             var runInstance = new RunInstance(runner);
             var step = new Step();
 
-            await runInstance.evalCodeBlock("log('foobar');", false, step);
+            await runInstance.evalCodeBlock("log('foobar');", step);
 
             expect(step.log).to.equal("foobar\n");
         });

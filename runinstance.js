@@ -216,7 +216,7 @@ class RunInstance {
                     retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a built-in Before Everything hook
                 }
                 else {
-                    retVal = await this.evalCodeBlock(step.codeBlock, false, step);
+                    retVal = await this.evalCodeBlock(step.codeBlock, step);
                 }
 
                 // Step is {var} = Func or Text { code block }
@@ -301,7 +301,7 @@ class RunInstance {
      */
     async runHookStep(step, stepToGetError, branchToGetError) {
         try {
-            await this.evalCodeBlock(step.codeBlock, false, stepToGetError || branchToGetError);
+            await this.evalCodeBlock(step.codeBlock, stepToGetError || branchToGetError);
         }
         catch(e) {
             e.filename = step.filename;
@@ -431,81 +431,25 @@ class RunInstance {
     }
 
     /**
-     * Evals the given code block
+     * Evals the given code block asynchonously
      * @param {String} code - JS code to eval
-     * @param {Boolean} [isSync] - If true, executes code synchronously, otherwise executes code asynchonously and returns a Promise
      * @param {Step or Branch} [logHere] - The Object to log to, if any
-     * @return What the code returns via the return keyword
+     * @return {Promise} Promise that gets resolved with what code returns
      */
-    evalCodeBlock(code, isSync, logHere) {
-        // Make global, local, and persistent accessible as js vars
-        var header = `
-            function log(text) {
-                if(logHere) {
-                    logHere.appendToLog(text);
-                }
-            }
+    async evalCodeBlock(code, logHere) {
+        code = this.prepareCodeForEval(code, false, logHere);
+        return await eval(code);
+    }
 
-            function getPersistent(varname) {
-                return runInstance.persistent[utils.canonicalize(varname)];
-            }
-
-            function getGlobal(varname) {
-                return runInstance.global[utils.canonicalize(varname)];
-            }
-
-            function getLocal(varname) {
-                varname = utils.canonicalize(varname);
-                if(runInstance.localsPassedIntoFunc.hasOwnProperty(varname)) {
-                    return runInstance.localsPassedIntoFunc[varname];
-                }
-                else {
-                    return runInstance.local[utils.canonicalize(varname)];
-                }
-            }
-
-            function setPersistent(varname, value) {
-                runInstance.persistent[utils.canonicalize(varname)] = value;
-            }
-
-            function setGlobal(varname, value) {
-                runInstance.global[utils.canonicalize(varname)] = value;
-            }
-
-            function setLocal(varname, value) {
-                runInstance.local[utils.canonicalize(varname)] = value;
-            }
-
-        `;
-
-        const JS_VARNAME_WHITELIST = /^[A-Za-z0-9\-\_\.]+$/;
-        const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
-
-        header = loadIntoJsVars(header, this.persistent, "getPersistent");
-        header = loadIntoJsVars(header, this.global, "getGlobal");
-        header = loadIntoJsVars(header, this.local, "getLocal");
-        header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
-
-        code = `
-            (` + (isSync ? `` : `async`) + ` function(runInstance) {
-                ` + header + `
-                ` + code + `
-            })(this);`
-
+    /**
+     * Evals the given code block synchronously
+     * @param {String} code - JS code to eval
+     * @param {Step or Branch} [logHere] - The Object to log to, if any
+     * @return Whatever code returns
+     */
+    evalCodeBlockSync(code, logHere) {
+        code = this.prepareCodeForEval(code, true, logHere);
         return eval(code);
-
-        /**
-         * Generates js code that converts variables into normal js vars, appends code to header, returns header
-         */
-        function loadIntoJsVars(header, arr, getter) {
-            for(var varname in arr) {
-                if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
-                    header += "var " + varname + " = " + getter + "('" + varname + "');\n";
-                }
-            }
-
-            return header;
-        }
     }
 
     /**
@@ -594,7 +538,7 @@ class RunInstance {
                         var value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlock(s.codeBlock, true, s);
+                            value = this.evalCodeBlockSync(s.codeBlock, s);
                         }
                         else {
                             // {varname}='string'
@@ -635,6 +579,84 @@ class RunInstance {
     // PRIVATE FUNCTIONS
     // Only use these internally
     // ***************************************
+
+    /**
+     * Prepares code block code for evalCodeBlock() or evalCodeBlockSync()
+     * @param {String} code - JS code to eval
+     * @param {Boolean} [isSync] - If true, the code will be executed synchronously
+     * @param {Step or Branch} [logHere] - The Object to log to, if any
+     * @return code, but with more code added so it's ready to be fed into evalCodeBlock() or evalCodeBlockSync()
+     */
+    prepareCodeForEval(code, isSync, logHere) {
+        // Make global, local, and persistent accessible as js vars
+        var header = `
+            function log(text) {
+                if(logHere) {
+                    logHere.appendToLog(text);
+                }
+            }
+
+            function getPersistent(varname) {
+                return runInstance.persistent[utils.canonicalize(varname)];
+            }
+
+            function getGlobal(varname) {
+                return runInstance.global[utils.canonicalize(varname)];
+            }
+
+            function getLocal(varname) {
+                varname = utils.canonicalize(varname);
+                if(runInstance.localsPassedIntoFunc.hasOwnProperty(varname)) {
+                    return runInstance.localsPassedIntoFunc[varname];
+                }
+                else {
+                    return runInstance.local[utils.canonicalize(varname)];
+                }
+            }
+
+            function setPersistent(varname, value) {
+                runInstance.persistent[utils.canonicalize(varname)] = value;
+            }
+
+            function setGlobal(varname, value) {
+                runInstance.global[utils.canonicalize(varname)] = value;
+            }
+
+            function setLocal(varname, value) {
+                runInstance.local[utils.canonicalize(varname)] = value;
+            }
+
+        `;
+
+        const JS_VARNAME_WHITELIST = /^[A-Za-z0-9\-\_\.]+$/;
+        const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
+
+        header = loadIntoJsVars(header, this.persistent, "getPersistent");
+        header = loadIntoJsVars(header, this.global, "getGlobal");
+        header = loadIntoJsVars(header, this.local, "getLocal");
+        header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
+
+        code = `
+            (` + (isSync ? `` : `async`) + ` function(runInstance) {
+                ` + header + `
+                ` + code + `
+            })(this);`
+
+        return code;
+
+        /**
+         * Generates js code that converts variables into normal js vars, appends code to header, returns header
+         */
+        function loadIntoJsVars(header, arr, getter) {
+            for(var varname in arr) {
+                if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
+                    header += "var " + varname + " = " + getter + "('" + varname + "');\n";
+                }
+            }
+
+            return header;
+        }
+    }
 
     /**
      * Sets the given variable to the given value
