@@ -135,40 +135,240 @@ F
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in 'strings'", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'foo' Function 'bar'
 
+* My {{one}} Function {{two}} {
+    runInstance.one = one;
+    runInstance.two = two;
+}
+`, "file.txt");
 
+            tree.generateBranches();
 
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
 
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-
-
-
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("bar");
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+"foo" My "bar"  Function 'blah'
+
+* {{first}} My {{second}} Function {{third}} {
+    runInstance.first = first;
+    runInstance.second = second;
+    runInstance.third = third;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.first).to.equal("foo");
+            expect(runInstance.second).to.equal("bar");
+            expect(runInstance.third).to.equal("blah");
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in {variables}", async function() {
-            // trim vars
+        it("executes a function call with {{variables}} in its function declaration, passing in {variables}", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My {A} Function { b }
+
+* My {{one}} Function {{two}} {
+    runInstance.one = one;
+    runInstance.two = two;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global.a = "foo";
+            runInstance.global.b = "bar";
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("bar");
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async function() {
-            // trim vars
+        it("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My {{A}} Function {{ b }} { a B  c }
+
+* My {{one}} Function {{two}} {{three}} {
+    runInstance.one = one;
+    runInstance.two = two;
+    runInstance.three = three;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.local.a = "foo";
+            runInstance.local.b = "bar";
+            runInstance.global["a b c"] = "blah";
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("bar");
+            expect(runInstance.three).to.equal("blah");
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My '{A} and { b }' Function '{B}'
+
+* My {{one}} Function {{two}} {
+    runInstance.one = one;
+    runInstance.two = two;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global.a = "foo";
+            runInstance.global.b = "b\"a'r";
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo and b\"a'r");
+            expect(runInstance.two).to.equal("b\"a'r");
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My "{A} and { b }" Function "{B}"
+
+* My {{one}} Function {{two}} {
+    runInstance.one = one;
+    runInstance.two = two;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global.a = "foo";
+            runInstance.global.b = "b\"a'r";
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo and b\"a'r");
+            expect(runInstance.two).to.equal("b\"a'r");
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders]", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders]", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My [4th 'Login' button next to 'something'] Function [ big link ]
+
+* My {{one}} Function {{two}} {
+    runInstance.one = one;
+    runInstance.two = two;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global.button = ".button";
+            runInstance.global["big link"] = ".big.link";
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.eql({
+                ordinal: 4,
+                text: "Login",
+                variable: ".button",
+                nextTo: "something"
+            });
+
+            expect(runInstance.two).to.eql({
+                variable: ".big.link"
+            });
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders containing {variables}]", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders containing {variables}]", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
+
+* My {{one}} Function {{two}} {
+    runInstance.one = one;
+    runInstance.two = two;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.local.a = "sign";
+            runInstance.global.b = "small button";
+            runInstance.local.c = "lots of CATS!";
+            runInstance.local.n = 14;
+            runInstance.global["d d"] = "Link";
+            runInstance.global["small button"] = ".small.button";
+            runInstance.global["big link"] = ".big.link";
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.eql({
+                ordinal: 14,
+                text: "Login sign",
+                variable: ".small.button",
+                nextTo: "lots of CATS!"
+            });
+
+            expect(runInstance.two).to.eql({
+                variable: ".big.link"
+            });
         });
 
-        it.skip("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", {variables}, and [ElementFinders]", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", {variables}, and [ElementFinders]", async function() {
+
+
+
+
+
+
+
+
+
+
+
+            
         });
 
         it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async function() {
@@ -181,6 +381,9 @@ F
         });
 
         it.skip("fails step if a function call has a {variable} passed in and it is never set", async function() {
+        });
+
+        it.skip("fails step if a function call gets a bad [ElementFinder] passed in, after {variables} are substituted inside", async function() {
         });
 
         it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
@@ -226,6 +429,9 @@ F
         });
 
         it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async function() {
+        });
+
+        it.skip("executes a function call with nothing in its body", async function() {
         });
 
         it.skip("executes a {var} = 'string' step", async function() {

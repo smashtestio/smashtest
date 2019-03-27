@@ -41,6 +41,8 @@ Running tests
         - -pauseOnFail
         - -rerunNotPassed
         - -noScreenshotOnFail
+        - -noReport
+            - does not output a report - useful for when doing a single test run, but wanting to do a -rerunNotPassed in the future
         - -groups='one two three'
         - -frequency='med'
         - -global['varname']='value'
@@ -80,11 +82,11 @@ ElementFinders
         - [ 'Login' box ]
         - [ 'Login' ]
             - Any element that's an a, button, input, textarea, etc.  or is clickable/has a click handler and contains text 'Login' (see SmashPANEL implementation)
-        - [ 'Login' box next to 'meow' ]
-        - [ box next to 'meow' ]
+        - [ 'Login' box next to 'foo' ]
+        - [ box next to 'foo' ]
         - [ box ] (although you could use {box} too)
         - [ 4th 'Login' box ]
-        - [ 4th 'Login' next to 'meow' ]
+        - [ 4th 'Login' next to 'foo' ]
     - Explain the basics of the find algorithm
 
 Functions

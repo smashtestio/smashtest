@@ -264,14 +264,16 @@ class Tree {
             }
         }
 
-        // Validate [ElementFinders]
+        // Validate [ElementFinders], if they don't contain {vars} inside
         matches = step.text.match(Constants.BRACKET_REGEX);
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
-                var elementFinder = this.parseElementFinder(match);
-                if(!elementFinder) {
-                    utils.error("Invalid [elementFinder in brackets]", filename, lineNumber);
+                if(!match.match(Constants.VAR_REGEX)) {
+                    var elementFinder = this.parseElementFinder(match);
+                    if(!elementFinder) {
+                        utils.error("Invalid [ElementFinder]", filename, lineNumber);
+                    }
                 }
             }
         }

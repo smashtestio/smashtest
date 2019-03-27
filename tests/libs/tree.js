@@ -586,10 +586,28 @@ describe("Tree", function() {
             });
         });
 
-        it("throws an error when a [bracketed string] is not a valid elementFinder", function() {
+        it("throws an error when a [bracketed string] is not a valid ElementFinder", function() {
             assert.throws(() => {
                 tree.parseLine(`Something [next to 'something']`, "file.txt", 10);
-            }, "Invalid [elementFinder in brackets] [file.txt:10]");
+            }, "Invalid [ElementFinder] [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`Something [next to '\\{var\\}']`, "file.txt", 10);
+            }, "Invalid [ElementFinder] [file.txt:10]");
+        });
+
+        it("doesn't throw an error when a [bracketed string contains {vars}]", function() {
+            assert.doesNotThrow(() => {
+                tree.parseLine(`Something [next to '{var}']`, "file.txt", 10);
+            });
+
+            assert.doesNotThrow(() => {
+                tree.parseLine(`Something [next to '{{var}}']`, "file.txt", 10);
+            });
+
+            assert.doesNotThrow(() => {
+                tree.parseLine(`Something [{N}th]`, "file.txt", 10);
+            });
         });
 
         it("throws an error when multiple {vars} are set in a line, and one of them is not a 'string literal'", function() {

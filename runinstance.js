@@ -21,6 +21,7 @@ class RunInstance {
         this.local = {};                                // local variables
 
         this.localStack = [];                           // Array of objects, where each object stores local vars
+        this.localsPassedIntoFunc = [];                 // local variables being passed into the function at the current step
     }
 
     /**
@@ -141,58 +142,68 @@ class RunInstance {
             }
         }
 
+        // Handle the stack for {{local vars}}
+        if(prevStep) {
+            // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
+            if(step.branchIndents > prevStep.branchIndents) { // NOTE: when step.branchIndents > prevStep.branchIndents, step.branchIndents is always prevStep.branchIndents + 1
+                // Push existing local var context to stack, create fresh local var context
+                this.localStack.push(this.local);
+                this.local = {};
+                this.local = this.local.concat(this.localsPassedIntoFunc);
+            }
+            else if(step.branchIndents < prevStep.branchIndents) {
+                // Pop one local var context for every branchIndents decrement
+                var diff = prevStep.branchIndents - step.branchIndents;
+                for(var i = 0; i < diff; i++) {
+                    this.local = this.localStack.pop();
+                }
+            }
+        }
+        this.localsPassedIntoFunc = [];
+
         var error = null;
-        var usePrevStepForError = false;
 
         // Execute the step
         try {
-            if(prevStep) {
-                // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
-                if(step.branchIndents > prevStep.branchIndents) { // NOTE: when step.branchIndents > prevStep.branchIndents, step.branchIndents is always prevStep.branchIndents + 1
-                    // Push existing local var context to stack, create fresh local var context
-                    this.localStack.push(this.local);
-                    this.local = {};
+            // Passing inputs into function calls
+            if(step.isFunctionCall) {
+                // Set {{local vars}} based on function declaration signature and function call signature
 
-                    if(prevStep.isFunctionCall) {
-                        // This is the first step inside a function call
-                        // Set {{local vars}} based on function declaration signature and function call signature
+                var varList = step.functionDeclarationText.match(Constants.VAR_REGEX);
+                if(varList) {
+                    if(step.varsBeingSet && step.varsBeingSet.length > 0) {
+                        // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
+                        varList.shift();
+                    }
 
-                        usePrevStepForError = true;
-
-                        var varList = prevStep.functionDeclarationText.match(Constants.VAR_REGEX);
-                        if(prevStep.varsBeingSet && prevStep.varsBeingSet.length > 0) {
-                            // prevStep is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
-                            varList.shift();
-                        }
-
-                        var inputList = prevStep.text.match(Constants.FUNCTION_INPUT);
-
+                    var inputList = step.text.match(Constants.FUNCTION_INPUT_REGEX);
+                    if(inputList) {
                         for(var i = 0; i < varList.length; i++) {
-                            var varname = varList[i].replace(/^\{\{/, '').replace(/\}\}$/, '');
+                            var varname = utils.stripBrackets(varList[i]);
                             var value = inputList[i];
 
                             if(value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) { // 'string' or "string"
                                 value = utils.stripQuotes(value);
-                                value = this.replaceVars(value, prevStep, branch); // replace vars with their values
+                                value = this.replaceVars(value, step, branch); // replace vars with their values
                             }
                             else if(value.match(Constants.VAR_REGEX_WHOLE)) { // {var} or {{var}}
-                                var isLocal = value.match(/^\{\{/) ? true : false;
-                                value = findVarValue(value, isLocal, prevStep, branch);
+                                var isLocal = value.startsWith('{{');
+                                value = utils.stripBrackets(value);
+                                value = this.findVarValue(value, isLocal, step, branch);
                             }
-                            else if(value.match(Constants.ELEMENTFINDER_REGEX_WHOLE)) { // [ElementFinder]
-                                value = this.replaceVars(value, prevStep, branch); // replace vars with their values
+                            else if(value.match(Constants.BRACKET_REGEX_WHOLE)) { // [ElementFinder]
+                                value = this.replaceVars(value, step, branch); // replace vars with their values
                                 value = this.tree.parseElementFinder(value);
+                                if(!value) {
+                                    utils.error(inputList[i] + " is an invalid [ElementFinder]", step.filename, step.lineNumber);
+                                }
+                                else if(value.variable) {
+                                    value.variable = this.findVarValue(value.variable, false, step, branch); // replace the variable with the value of the corresponding global variable
+                                }
                             }
 
-                            this.setLocal(varname, value);
+                            this.setLocalPassedIn(varname, value);
                         }
-                    }
-                }
-                else if(step.branchIndents < prevStep.branchIndents) {
-                    // Pop one local var context for every branchIndents decrement
-                    var diff = prevStep.branchIndents - step.branchIndents;
-                    for(var i = 0; i < diff; i++) {
-                        this.local = this.localStack.pop();
                     }
                 }
             }
@@ -233,14 +244,10 @@ class RunInstance {
         }
         catch(e) {
             error = e;
-            if(usePrevStepForError) {
-                error.filename = prevStep.filename;
-                error.lineNumber = prevStep.lineNumber;
-            }
-            else {
-                error.filename = step.filename;
-                error.lineNumber = step.lineNumber;
-            }
+            error.filename = step.filename;
+            error.lineNumber = step.lineNumber;
+
+            throw e; // TODO: remove this
         }
 
         // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
@@ -449,7 +456,13 @@ class RunInstance {
      * @return Value of the given local variable (can be undefined)
      */
     getLocal(varname) {
-        return this.local[utils.canonicalize(varname)];
+        varname = utils.canonicalize(varname);
+        if(this.localsPassedIntoFunc.hasOwnProperty(varname)) {
+            return this.localsPassedIntoFunc[varname];
+        }
+        else {
+            return this.local[utils.canonicalize(varname)];
+        }
     }
 
     /**
@@ -471,6 +484,13 @@ class RunInstance {
      */
     setLocal(varname, value) {
         this.local[utils.canonicalize(varname)] = value;
+    }
+
+    /**
+     * Sets a local variable being passed into a function
+     */
+    setLocalPassedIn(varname, value) {
+        this.localsPassedIntoFunc[utils.canonicalize(varname)] = value;
     }
 
     /**
@@ -498,7 +518,13 @@ class RunInstance {
             }
 
             function getLocal(varname) {
-                return runInstance.local[utils.canonicalize(varname)];
+                varname = utils.canonicalize(varname);
+                if(runInstance.localsPassedIntoFunc.hasOwnProperty(varname)) {
+                    return runInstance.localsPassedIntoFunc[varname];
+                }
+                else {
+                    return runInstance.local[utils.canonicalize(varname)];
+                }
             }
 
             function setPersistent(varname, value) {
@@ -517,26 +543,10 @@ class RunInstance {
 
         const VALID_JS_VAR = /^[A-Za-z0-9\-\_\.]+$/;
 
-        // Load persistent into js vars
-        for(var varname in this.persistent) {
-            if(this.persistent.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
-                header += "var " + varname + " = getPersistent('" + varname + "');\n";
-            }
-        }
-
-        // Load global into js vars
-        for(var varname in this.global) {
-            if(this.global.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
-                header += "var " + varname + " = getGlobal('" + varname + "');\n";
-            }
-        }
-
-        // Load local into js vars
-        for(var varname in this.local) {
-            if(this.local.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
-                header += "var " + varname + " = getLocal('" + varname + "');\n";
-            }
-        }
+        header = loadIntoJsVars(header, this.persistent, "getPersistent");
+        header = loadIntoJsVars(header, this.global, "getGlobal");
+        header = loadIntoJsVars(header, this.local, "getLocal");
+        header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
 
         code = `
             (` + (isSync ? `` : `async`) + ` function(runInstance) {
@@ -545,6 +555,19 @@ class RunInstance {
             })(this);`
 
         return eval(code);
+
+        /**
+         * Generates js code that converts variables into normal js vars, appends code to header, returns header
+         */
+        function loadIntoJsVars(header, arr, getter) {
+            for(var varname in arr) {
+                if(arr.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
+                    header += "var " + varname + " = " + getter + "('" + varname + "');\n";
+                }
+            }
+
+            return header;
+        }
     }
 
     /**
@@ -559,7 +582,7 @@ class RunInstance {
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
-                var name = match.replace(/\{|\}/g, '').trim();
+                var name = match.replace(/\{|\}/g, '');
                 var isLocal = match.startsWith('{{');
                 var value = null;
 

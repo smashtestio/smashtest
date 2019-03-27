@@ -129,7 +129,7 @@ Test the Widget Maker -
     {x}=stringBoundaryFuzz
     {x}=sizeFuzz
 
-* Verify at Welcome page, set {{meow}} to what's sent back       // this is like a function, vars set above this function call will be accessible inside
+* Verify at Welcome page, set {{foo}} to what's sent back       // this is like a function, vars set above this function call will be accessible inside
 
     Verify at page '{host}/welcome'
 
@@ -146,7 +146,7 @@ Test the Widget Maker -
 
                                 {purr}=blah   // this variable is accessible outside the function, but will be overridden if a variable of the same name is used in the caller
 
-                                    {meow}=something  // if a variable was passed in at {meow} by the caller, that variable will be set to something (since {meow} is in the function name)
+                                    {foo}=something  // if a variable was passed in at {foo} by the caller, that variable will be set to something (since {foo} is in the function name)
 
 
 * Click the button {{number}} times  {       // executes in the context of the webdriverio nodejs, all vars/functions in one {} are accessible by all other {}'s, actually maybe implement all basic steps this way

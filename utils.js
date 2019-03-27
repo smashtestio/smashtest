@@ -14,6 +14,13 @@ exports.stripQuotes = function(str) {
 }
 
 /**
+ * @return {String} str but without {{, }}, {, or }, and then trimmed
+ */
+exports.stripBrackets = function(str) {
+    return str.replace(/^\{\{|\}\}$|^\{|\}$/g, '').trim();
+}
+
+/**
  * @return {Boolean} true if str is in 'quotes' or "quotes", false otherwise
  */
 exports.hasQuotes = function(str) {

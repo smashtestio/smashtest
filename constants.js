@@ -22,7 +22,10 @@ exports.VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
 exports.VAR_REGEX_WHOLE = new RegExp("^" + exports.VAR_REGEX.source + "$");
 
 // Matches [text]
-exports.BRACKET_REGEX = /(?<!(\\\\)*\\)\[[^\[\]\\]+\]/g;
+exports.BRACKET_REGEX = /(?<!(\\\\)*\\)\[.*?(?<!(\\\\)*\\)\]/g;
+
+// Same as BRACKET_REGEX, only matches the whole line
+exports.BRACKET_REGEX_WHOLE = new RegExp("^" + exports.BRACKET_REGEX.source + "$");
 
 // Matches an [ElementFinder] in this format:
 // [ OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT') ]
@@ -32,7 +35,7 @@ exports.ELEMENTFINDER_REGEX = /(?<!(\\\\)*\\)\[\s*(([0-9]+)(st|nd|rd|th))?\s*(('
 exports.ELEMENTFINDER_REGEX_WHOLE = new RegExp("^\\s*" + exports.ELEMENTFINDER_REGEX.source + "\\s*$");
 
 // Matches a {var}, {{var}}, 'string', "string", or [ElementFinder]
-exports.FUNCTION_INPUT = new RegExp("(" + exports.VAR_REGEX.source + ")|(" + exports.STRING_LITERAL_REGEX.source + ")|(" + exports.ELEMENTFINDER_REGEX.source + ")", "g");
+exports.FUNCTION_INPUT_REGEX = new RegExp("(" + exports.BRACKET_REGEX.source + ")|(" + exports.STRING_LITERAL_REGEX.source + ")|(" + exports.VAR_REGEX.source + ")", "g");
 
 // Matches a line with only numbers (after whitespace stripped out)
 exports.NUMBERS_ONLY_REGEX_WHOLE = /^[0-9\.\,]+$/;
