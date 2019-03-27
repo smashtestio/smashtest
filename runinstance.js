@@ -374,60 +374,6 @@ class RunInstance {
         this.isPaused = true;
     }
 
-    // ***************************************
-    // PRIVATE FUNCTIONS
-    // Only use these internally
-    // ***************************************
-
-    /**
-     * Sets the given variable to the given value
-     * @param {Object} varBeingSet - A member of Step.varsBeingSet
-     * @param {String} value - The value to set the variable
-     */
-    setVarBeingSet(varBeingSet, value) {
-        if(varBeingSet.isLocal) {
-            this.setLocal(varBeingSet.name, value);
-        }
-        else {
-            this.setGlobal(varBeingSet.name, value);
-        }
-    }
-
-    /**
-     * Executes all After Every Branch steps, sequentially
-     * @return {Promise} Promise that resolves once all of them finish running
-     */
-    async runAfterEveryBranch() {
-        if(this.currBranch.afterEveryBranch) {
-            for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-                var s = this.currBranch.afterEveryBranch[i];
-                await this.runHookStep(s, null, this.currBranch);
-                // finish running all After Every Branch steps, even if one fails, and even if there was a pause or stop
-            }
-        }
-    }
-
-    /**
-     * Moves this.currStep to the next not-yet-completed step
-     * (Keeps this.currStep on its current position if it's pointing at a step not yet executed)
-     * Sets this.currStep to null if there are no more steps in this.currBranch
-     */
-    nextStep() {
-        // Get the next step, but only if the current step is complete or nonexistant
-        if(!this.currStep || this.currStep.isComplete()) {
-            this.currStep = this.tree.nextStep(this.currBranch, true, true);
-        }
-    }
-
-    /**
-     * Moves this.currStep to the step after the next not-yet-completed step
-     */
-    skipStep() {
-        this.nextStep();
-        this.currStep.isSkipped = true;
-        this.currStep = this.tree.nextStep(this.currBranch, true, false);
-    }
-
     /**
      * @return Value of the given persistent variable (can be undefined)
      */
@@ -673,6 +619,60 @@ class RunInstance {
                 branch.appendToLog(text);
             }
         }
+    }
+
+    // ***************************************
+    // PRIVATE FUNCTIONS
+    // Only use these internally
+    // ***************************************
+
+    /**
+     * Sets the given variable to the given value
+     * @param {Object} varBeingSet - A member of Step.varsBeingSet
+     * @param {String} value - The value to set the variable
+     */
+    setVarBeingSet(varBeingSet, value) {
+        if(varBeingSet.isLocal) {
+            this.setLocal(varBeingSet.name, value);
+        }
+        else {
+            this.setGlobal(varBeingSet.name, value);
+        }
+    }
+
+    /**
+     * Executes all After Every Branch steps, sequentially
+     * @return {Promise} Promise that resolves once all of them finish running
+     */
+    async runAfterEveryBranch() {
+        if(this.currBranch.afterEveryBranch) {
+            for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
+                var s = this.currBranch.afterEveryBranch[i];
+                await this.runHookStep(s, null, this.currBranch);
+                // finish running all After Every Branch steps, even if one fails, and even if there was a pause or stop
+            }
+        }
+    }
+
+    /**
+     * Moves this.currStep to the next not-yet-completed step
+     * (Keeps this.currStep on its current position if it's pointing at a step not yet executed)
+     * Sets this.currStep to null if there are no more steps in this.currBranch
+     */
+    nextStep() {
+        // Get the next step, but only if the current step is complete or nonexistant
+        if(!this.currStep || this.currStep.isComplete()) {
+            this.currStep = this.tree.nextStep(this.currBranch, true, true);
+        }
+    }
+
+    /**
+     * Moves this.currStep to the step after the next not-yet-completed step
+     */
+    skipStep() {
+        this.nextStep();
+        this.currStep.isSkipped = true;
+        this.currStep = this.tree.nextStep(this.currBranch, true, false);
     }
 }
 module.exports = RunInstance;
