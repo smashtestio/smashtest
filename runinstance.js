@@ -21,7 +21,7 @@ class RunInstance {
         this.local = {};                                // local variables
 
         this.localStack = [];                           // Array of objects, where each object stores local vars
-        this.localsPassedIntoFunc = [];                 // local variables being passed into the function at the current step
+        this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
     }
 
     /**
@@ -149,7 +149,7 @@ class RunInstance {
                 // Push existing local var context to stack, create fresh local var context
                 this.localStack.push(this.local);
                 this.local = {};
-                this.local = this.local.concat(this.localsPassedIntoFunc);
+                Object.assign(this.local, this.localsPassedIntoFunc); // merge localsPassedIntoFunc into local
             }
             else if(step.branchIndents < prevStep.branchIndents) {
                 // Pop one local var context for every branchIndents decrement
@@ -159,7 +159,7 @@ class RunInstance {
                 }
             }
         }
-        this.localsPassedIntoFunc = [];
+        this.localsPassedIntoFunc = {};
 
         var error = null;
 
@@ -171,13 +171,13 @@ class RunInstance {
 
                 var varList = step.functionDeclarationText.match(Constants.VAR);
                 if(varList) {
-                    if(step.varsBeingSet && step.varsBeingSet.length > 0) {
-                        // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
-                        varList.shift();
-                    }
-
                     var inputList = step.text.match(Constants.FUNCTION_INPUT);
                     if(inputList) {
+                        if(step.varsBeingSet && step.varsBeingSet.length > 0) {
+                            // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
+                            inputList.shift();
+                        }
+
                         for(var i = 0; i < varList.length; i++) {
                             var varname = utils.stripBrackets(varList[i]);
                             var value = inputList[i];
@@ -185,6 +185,7 @@ class RunInstance {
                             if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
                                 value = utils.stripQuotes(value);
                                 value = this.replaceVars(value, step, branch); // replace vars with their values
+                                value = utils.unescape(value);
                             }
                             else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
                                 var isLocal = value.startsWith('{{');
@@ -199,7 +200,7 @@ class RunInstance {
             }
 
             // Step is {var}='str' [, {var2}='str', etc.]
-            if(!step.isFunctionCall && step.varsBeingSet && step.varsBeingSet.length > 0) {
+            if(!step.isFunctionCall && typeof step.codeBlock == 'undefined' && step.varsBeingSet && step.varsBeingSet.length > 0) {
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
                     var varBeingSet = step.varsBeingSet[i];
                     var value = utils.stripQuotes(varBeingSet.value);
@@ -218,11 +219,11 @@ class RunInstance {
                     retVal = await this.evalCodeBlock(step.codeBlock, false, step);
                 }
 
-                // Step is {var} = Func with code block
+                // Step is {var} = Func or Text { code block }
                 // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
-                if(step.isFunctionCall && step.varsBeingSet && step.varsBeingSet.length == 1) {
+                if(step.varsBeingSet && step.varsBeingSet.length == 1) {
                     // Grab return value from code and assign it to {var}
-                    this.setVarBeingSet(step.varsBeingSet[0], value);
+                    this.setVarBeingSet(step.varsBeingSet[0], retVal);
                 }
 
                 // If this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
@@ -477,7 +478,8 @@ class RunInstance {
 
         `;
 
-        const VALID_JS_VAR = /^[A-Za-z0-9\-\_\.]+$/;
+        const JS_VARNAME_WHITELIST = /^[A-Za-z0-9\-\_\.]+$/;
+        const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
 
         header = loadIntoJsVars(header, this.persistent, "getPersistent");
         header = loadIntoJsVars(header, this.global, "getGlobal");
@@ -497,7 +499,7 @@ class RunInstance {
          */
         function loadIntoJsVars(header, arr, getter) {
             for(var varname in arr) {
-                if(arr.hasOwnProperty(varname) && varname.match(VALID_JS_VAR)) {
+                if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
                     header += "var " + varname + " = " + getter + "('" + varname + "');\n";
                 }
             }
@@ -532,6 +534,10 @@ class RunInstance {
                     else {
                         throw e; // re-throw
                     }
+                }
+
+                if(['string', 'boolean', 'number'].indexOf(typeof value) == -1) {
+                    utils.error("The variable " + match + " must be set to a string", step.filename, step.lineNumber);
                 }
 
                 text = text.replace(match, value);
@@ -593,9 +599,13 @@ class RunInstance {
                         else {
                             // {varname}='string'
                             value = utils.stripQuotes(varBeingSet.value);
+                            value = utils.unescape(value);
                         }
 
-                        value = this.replaceVars(value, step, branch); // recursive call, start at original step passed in
+                        if(['string', 'boolean', 'number'].indexOf(typeof value) != -1) { // only if value is a string, boolean, or number
+                            value = this.replaceVars(value, step, branch); // recursive call, start at original step passed in
+                        }
+
                         this.appendToLog("The value of variable " + variableFull + " is being set by a later step at " + s.filename + ":" + s.lineNumber, step, branch);
                         return value;
                     }

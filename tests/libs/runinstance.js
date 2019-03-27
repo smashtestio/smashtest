@@ -336,9 +336,688 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
             expect(runInstance.two).to.equal(" big link ");
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", [strings], and {variables}", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", [strings], {variables}, {{variables}}, including strings with variables inside", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\\"66\\\"" [{{seventh}} seven 'th']
 
+* My {{one}} Function {{two}} {{three}} {{fo ur}} Is {{five}} Here! {{six}} {{seven}} {
+    runInstance.one = one;
+    runInstance.two = two;
+    runInstance.three = three;
+    runInstance.four = getLocal("fo ur");
+    runInstance.five = five;
+    runInstance.six = six;
+    runInstance.seven = seven;
+}
+`, "file.txt");
 
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.global["four th"] = "4";
+            runInstance.local["fifth"] = "5";
+            runInstance.global["sixth"] = "6";
+            runInstance.local["seventh"] = "7";
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("first");
+            expect(runInstance.two).to.equal("second");
+            expect(runInstance.three).to.equal("third");
+            expect(runInstance.four).to.equal("4");
+            expect(runInstance.five).to.equal("5");
+            expect(runInstance.six).to.equal("6 six '6' \"66\"");
+            expect(runInstance.seven).to.equal("7 seven 'th'");
+        });
+
+        it("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My {var} Function
+    {var} = 'foobar'
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+        });
+
+        it("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My {var} Function
+    {var} = Set that var! {
+        return 'foobar';
+    }
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+        });
+
+        it("executes a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My {var} Function
+    {var} = Set that var! {
+        return new Promise((resolve, reject) => {});
+    }
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one instanceof Promise).to.equal(true);
+        });
+
+        it("fails step if a function call has a {variable} passed in and it is never set", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My {var} Function
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
+                .to.be.rejectedWith("The variable {var} is never set, but is needed for this step [file.txt:2]");
+        });
+
+        it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'so called {var}' Function
+    {var} = 'foobar'
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("so called foobar");
+        });
+
+        it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'so called {var}' Function
+    {var} = Set that var! {
+        return 'foobar';
+    }
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("so called foobar");
+        });
+
+        it("fails step if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'so called {var}' Function
+    {var} = Set that var! {
+        return new Promise((resolve, reject) => {});
+    }
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
+                .to.be.rejectedWith("The variable {var} must be set to a string [file.txt:2]");
+        });
+
+        it("fails step if a function call has a 'string' containing a var that is never set", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'so called {var}' Function
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
+                .to.be.rejectedWith("The variable {var} is never set, but is needed for this step [file.txt:2]");
+        });
+
+        it("executes a function call where the function has no steps inside of it", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My Function
+
+* My Function
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+        });
+
+        it("allows {{variables}} passed in through a function call to be accessed by steps inside the function", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My {var} Function
+    {var} = 'foobar'
+
+* My {{one}} Function
+
+    Another step {
+        runInstance.one = one;
+    }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+        });
+
+        it("allows {{variables}} passed in through a function call to be accessed by the function's code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My {var} Function
+    {var} = 'foobar'
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+        });
+
+        it("allows {{variables}} to be accessed through a non-function-call code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{{var1}} = 'foobar'
+
+    Another step {
+        runInstance.one = var1;
+    }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+        });
+
+        it("ignores {{variables}} inside the text of a textual step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+A textual step {{var1}} -
+
+    {{var1}} = 'foobar'
+
+        Another textual step {{var2}} -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+        });
+
+        it("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{{var1}} = 'foobar'
+
+    Another step {{var1}} {
+        runInstance.one = var1;
+    }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+        });
+
+        it("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'string with {var}' Function
+    {var} = 'string with apos \\\' '
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("string with string with apos ' ");
+        });
+
+        it("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'string with {var}' Function
+    {var} = "string with apos ' "
+
+* My {{one}} Function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("string with string with apos ' ");
+        });
+
+        it("executes a function call with nothing in its body", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'foobar' Function
+
+* My {{one}} Function {
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getLocal("one")).to.equal("foobar");
+        });
+
+        it("executes a {var} = 'string' step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = 'foobar'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getLocal("var1")).to.equal(undefined);
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+            expect(runInstance.getPersistent("var1")).to.equal(undefined);
+        });
+
+        it("executes a {{var}} = 'string' step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{{var1}} = 'foobar'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getLocal("var1")).to.equal("foobar");
+            expect(runInstance.getGlobal("var1")).to.equal(undefined);
+            expect(runInstance.getPersistent("var1")).to.equal(undefined);
+        });
+
+        it("executes a {var} = \"string\" step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = "foobar"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getLocal("var1")).to.equal(undefined);
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+            expect(runInstance.getPersistent("var1")).to.equal(undefined);
+        });
+
+        it("executes a {var} = [string] step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = [foobar]
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getLocal("var1")).to.equal(undefined);
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+            expect(runInstance.getPersistent("var1")).to.equal(undefined);
+        });
+
+        it("executes a {var} = '{other var}' step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+{var1} = 'foobar'
+{var2} = '{var1} blah {var3}'
+{var3} = "bleh"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+            expect(runInstance.getGlobal("var2")).to.equal("foobar blah bleh");
+            expect(runInstance.getGlobal("var3")).to.equal("bleh");
+        });
+
+        it("executes a {var1} = '{var2} {{var2}} [something]' step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+{var1} = 'foobar'
+{var2} = '{var1} blah {{ var2 }} [something]'
+{{var2}} = "bleh"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+            expect(runInstance.getGlobal("var2")).to.equal("foobar blah bleh [something]");
+            expect(runInstance.getLocal("var2")).to.equal("bleh");
+        });
+
+        it("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+{ var1 } = 'foobar'
+{var2} = [ 'string {  var1  }' {{var2}} ]
+{{var2}} = "bleh"
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+            expect(runInstance.getGlobal("var2")).to.equal(" 'string foobar' bleh ");
+            expect(runInstance.getLocal("var2")).to.equal("bleh");
+        });
+
+        it("executes a {var1} = 'string1', {{var2}} = 'string2', {{var3}} = [string3] etc. step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = 'one', {{var2}} = "two", {{ var 3 }}=[three]
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("one");
+            expect(runInstance.getLocal("var2")).to.equal("two");
+            expect(runInstance.getLocal("var 3")).to.equal("three");
+        });
+
+        it("executes a {var} = Text { code block } step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = Text {
+    return "foobar";
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+        });
+
+        it("executes a {var} = Function step, where the function declaration has a code block that returns a value", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = My function
+
+* My function {
+    return "foobar";
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+        });
+
+        it("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = My "foobar" function
+
+* My {{one}} function {
+    return one + ' blah!';
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foobar blah!");
+        });
+
+        it("executes a {var} = Function with {vars passed in} step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = My {var2} function
+    {var2}='foobar'
+
+* My {{one}} function {
+    return one + ' blah!';
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foobar blah!");
+        });
+
+        it("executes a {var} = Function step, where the function declaration is in {x}='value' format", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1} = My function
+
+* My function
+    {x}='foobar'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            expect(runInstance.getGlobal("var1")).to.equal(undefined); // not set yet, as {var1} will be set on the next step ({x}='foobar')
+
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+        });
+
+        it("allows a code block to get local, global, and persistent variables via getter functions", async function() {
 
 
 
@@ -351,95 +1030,8 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
 
         });
 
-        it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async function() {
-        });
+        it.skip("allows a code block to set local, global, and persistent variables via setter functions", async function() {
 
-        it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", async function() {
-        });
-
-        it.skip("fails step if a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", async function() {
-        });
-
-        it.skip("fails step if a function call has a {variable} passed in and it is never set", async function() {
-        });
-
-        it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
-        });
-
-        it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async function() {
-        });
-
-        it.skip("fails step if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", async function() {
-        });
-
-        it.skip("fails step if a function call has a 'string' containing a var that is never set", async function() {
-        });
-
-        it.skip("executes a function call where the function has no steps inside of it", async function() {
-        });
-
-        it.skip("allows {{variables}} passed in through a function call to be accessed by steps inside the function", async function() {
-        });
-
-        it.skip("allows {{variables}} passed in through a function call to be accessed by the function's code block", async function() {
-        });
-
-        it.skip("ignores {{variables}} inside the text of a textual step", async function() {
-        });
-
-        it.skip("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", async function() {
-        });
-
-        it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", async function() {
-        });
-
-        it.skip("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async function() {
-        });
-
-        it.skip("executes a function call with nothing in its body", async function() {
-        });
-
-        it.skip("executes a {var} = 'string' step", async function() {
-        });
-
-        it.skip("executes a {{var}} = 'string' step", async function() {
-        });
-
-        it.skip("executes a {var} = [string] step", async function() {
-        });
-
-        it.skip("executes a {var} = '{other var}' step", async function() {
-        });
-
-        it.skip("executes a {var1} = '{var2} {{var3}} etc.' step", async function() {
-            // trim vars
-        });
-
-        it.skip("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async function() {
-            // trim vars
-        });
-
-        it.skip("executes a {var1} = '{var2} {{var3}} etc.' step that needs to look down the branch for the values of some variables", async function() {
-            // trim vars
-        });
-
-        it.skip("executes a {var1} = 'string1', {{var2}} = 'string2', {{var3}} = [string3] etc. step", async function() {
-            // trim vars
-        });
-
-        it.skip("executes a {var} = Text { code block } step", async function() {
-        });
-
-        it.skip("executes a {var} = Function step, where the function declaration has a code block that returns a value", async function() {
-        });
-
-        it.skip("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
-        });
-
-        it.skip("executes a {var} = Function step, where the function declaration is in {x}='value' format", async function() {
-        });
-
-        it.skip("allows a code block to get variables via the local, global, and persistent objects", async function() {
         });
 
         it.skip("makes a passed-in {variable} accessible as a plain js variable inside a code block", async function() {
@@ -454,6 +1046,11 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
             // whitelisted chars = [A-Za-z0-9\-\_\.]
         });
 
+        it.skip("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
+            // whitelisted chars = [A-Za-z0-9\-\_\.]
+        });
+
+
         it.skip("makes a {variable} accessible as a plain js variable inside a code block", async function() {
             // verify the change reflected in the global obj after the function ran
         });
@@ -463,6 +1060,10 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
         });
 
         it.skip("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
+            // whitelisted chars = [A-Za-z0-9\-\_\.]
+        });
+
+        it.skip("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
             // whitelisted chars = [A-Za-z0-9\-\_\.]
         });
 
@@ -880,6 +1481,17 @@ A -
             runInstance.setPersistent(" one two ", "A");
             runInstance.setGlobal("three four", "B");
             runInstance.setLocal("five>six", "C");
+            runInstance.setLocal("seven", "D");
+
+            await expect(runInstance.evalCodeBlock("return seven;")).to.eventually.equal("D");
+        });
+
+        it("does not make a variable available as js variable if its name is blacklisted", async function() {
+            var runner = new Runner();
+            var runInstance = new RunInstance(runner);
+            runInstance.setPersistent(" for ", "A");
+            runInstance.setGlobal("await", "B");
+            runInstance.setLocal("switch ", "C");
             runInstance.setLocal("seven", "D");
 
             await expect(runInstance.evalCodeBlock("return seven;")).to.eventually.equal("D");

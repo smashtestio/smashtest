@@ -55,6 +55,18 @@ exports.escapeSingleQuotes = function(text) {
 }
 
 /**
+ * @return {String} str, but with \\, \', \", \[, and \] unescaped to \, ', ", [, and ] respectively
+ */
+exports.unescape = function(str) {
+    return str
+        .replace(/\\\\/g, '\\') // replace \\ with \
+        .replace(/\\\'/g, '\'') // replace \' with '
+        .replace(/\\\"/g, '\"') // replace \" with "
+        .replace(/\\\[/g, '[') // replace \[ with [
+        .replace(/\\\]/g, ']'); // replace \] with [
+}
+
+/**
  * Prints an array of branches to console
  * @param {Array} Array of Branch to print out
  */

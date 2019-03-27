@@ -133,27 +133,15 @@ class Step {
         // functionCallText can have {{vars}}, {vars}, 'strings', "strings", and [strings]
 
         functionDeclarationText = functionDeclarationText
-            .trim()
-            .replace(Constants.VAR, '{}')
-            .replace(/\s+/g, ' ')
-            .replace(/\\\\/g, '\\') // replace \\ with \
-            .replace(/\\\'/g, '\'') // replace \' with '
-            .replace(/\\\"/g, '\"') // replace \" with "
-            .replace(/\\\[/g, '[') // replace \[ with [
-            .replace(/\\\]/g, ']') // replace \] with [
-            .toLowerCase();
+            .replace(Constants.VAR, '{}');
+        functionDeclarationText = utils.unescape(functionDeclarationText);
+        functionDeclarationText = utils.canonicalize(functionDeclarationText);
 
         functionCallText = functionCallText
-            .trim()
             .replace(Constants.STRING_LITERAL, '{}')
-            .replace(Constants.VAR, '{}')
-            .replace(/\s+/g, ' ')
-            .replace(/\\\\/g, '\\') // replace \\ with \
-            .replace(/\\\'/g, '\'') // replace \' with '
-            .replace(/\\\"/g, '\"') // replace \" with "
-            .replace(/\\\[/g, '[') // replace \[ with [
-            .replace(/\\\]/g, ']') // replace \] with [
-            .toLowerCase();
+            .replace(Constants.VAR, '{}');
+        functionCallText = utils.unescape(functionCallText);
+        functionCallText = utils.canonicalize(functionCallText);
 
         if(functionDeclarationText == functionCallText) {
             return true;

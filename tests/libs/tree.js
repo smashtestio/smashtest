@@ -636,7 +636,7 @@ describe("Tree", function() {
 
         it("throws an error when a step sets a variable and is a function declaration", function() {
             assert.throws(() => {
-                tree.parseLine(`* {var1}= Some function`, "file.txt", 10);
+                tree.parseLine(`* {{var1}}= Some function`, "file.txt", 10);
             }, "A step setting {variables} cannot start with a \* [file.txt:10]");
         });
 
@@ -6558,6 +6558,55 @@ C -
                         },
                         {
                             text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies a two .. step blocks with no children", function() {
+            var tree = new Tree();
+            tree.parseIn(`
+..
+A -
+B -
+
+..
+C -
+D -
+    `);
+            var branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(2);
+            expect(branches[0].steps).to.have.lengthOf(2);
+            expect(branches[1].steps).to.have.lengthOf(2);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [
+                        {
+                            text: "A",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "B",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "D",
                             branchIndents: 0,
                             isSequential: undefined
                         }

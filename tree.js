@@ -113,10 +113,21 @@ class Tree {
             if(step.text.match(Constants.STRING_LITERAL)) {
                 utils.error("A * Function declaration cannot have 'strings', \"strings\", or [strings] inside of it", filename, lineNumber);
             }
-        }
 
-        // Validate that a non-function declaration isn't using a hook step name
-        if(!step.isFunctionDeclaration) {
+            // Validate that all vars in a function declaration are {{local}}
+            matches = step.text.match(Constants.VAR);
+            if(matches) {
+                for(var i = 0; i < matches.length; i++) {
+                    var match = matches[i];
+                    var name = utils.stripBrackets(match);
+                    if(!match.startsWith('{{')) {
+                        utils.error("All variables in a * Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
+                    }
+                }
+            }
+        }
+        else { // not a function declaration
+            // Validate that a non-function declaration isn't using a hook step name
             if(Constants.HOOK_NAMES.indexOf(utils.canonicalize(step.text)) != -1) {
                 utils.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
             }
@@ -243,8 +254,9 @@ class Tree {
                 if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_WHOLE)) {
                     // This step is {var}=Func
 
-                    if(typeof step.codeBlock == 'undefined') { // In {var} = Text {, the Text is not considered a function call
-                        step.isFunctionCall = true;
+                    step.isFunctionCall = true;
+                    if(typeof step.codeBlock != 'undefined') { // In {var} = Text {, the Text is not considered a function call
+                        delete step.isFunctionCall;
                     }
 
                     // Validations
@@ -257,22 +269,12 @@ class Tree {
                 }
             }
         }
-        else { // This step does not start with {var}=
+        else { // this step is not a {var}= step
+            // Set isFunctionCall
             if(!step.isTextualStep && !step.isFunctionDeclaration) {
                 step.isFunctionCall = true;
-            }
-        }
-
-        // Validate that all vars in a function declaration are {{local}}
-        matches = step.text.match(Constants.VAR);
-        if(matches) {
-            for(var i = 0; i < matches.length; i++) {
-                var match = matches[i];
-                var name = utils.stripBrackets(match);
-                var isLocal = match.startsWith('{{');
-
-                if(step.isFunctionDeclaration && !isLocal) {
-                    utils.error("All variables in a * Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
+                if(typeof step.codeBlock != 'undefined') { // In Text {, the Text is not considered a function call
+                    delete step.isFunctionCall;
                 }
             }
         }
@@ -681,6 +683,9 @@ class Tree {
                     branchesFromThisStep.forEach(branch => {
                         branch.steps[0].varsBeingSet[0].name = clonedStep.varsBeingSet[0].name;
                     });
+
+                    // since {var} is being set in the children directly below, remove the varBeingSet from this step
+                    delete step.varsBeingSet;
                 }
 
                 // Put clone of this step at the front of each Branch that results from expanding the function call
@@ -777,7 +782,7 @@ class Tree {
                     utils.error("A hook declaration cannot have children", child.filename, child.lineNumber);
                 }
 
-                var canStepText = utils.canonicalize(child.text ? child.text : '');
+                var canStepText = utils.canonicalize(child.text);
                 if(canStepText == "before every branch") {
                     beforeEveryBranch.unshift(clonedHookStep);
                 }
