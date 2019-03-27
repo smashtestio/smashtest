@@ -130,26 +130,29 @@ class Step {
 
         // When hooking up functions, canonicalize by trim(), toLowerCase(), and replace \s+ with a single space
         // functionDeclarationText can have {{variables}}
-        // functionCallText can have {{vars}}, {vars}, 'strings', "strings", and [elementFinders]
+        // functionCallText can have {{vars}}, {vars}, 'strings', "strings", and [strings]
 
         functionDeclarationText = functionDeclarationText
             .trim()
-            .replace(Constants.VAR_REGEX, '{}')
+            .replace(Constants.VAR, '{}')
             .replace(/\s+/g, ' ')
             .replace(/\\\\/g, '\\') // replace \\ with \
             .replace(/\\\'/g, '\'') // replace \' with '
             .replace(/\\\"/g, '\"') // replace \" with "
+            .replace(/\\\[/g, '[') // replace \[ with [
+            .replace(/\\\]/g, ']') // replace \] with [
             .toLowerCase();
 
         functionCallText = functionCallText
             .trim()
-            .replace(Constants.STRING_LITERAL_REGEX, '{}')
-            .replace(Constants.ELEMENTFINDER_REGEX, '{}')
-            .replace(Constants.VAR_REGEX, '{}')
+            .replace(Constants.STRING_LITERAL, '{}')
+            .replace(Constants.VAR, '{}')
             .replace(/\s+/g, ' ')
             .replace(/\\\\/g, '\\') // replace \\ with \
             .replace(/\\\'/g, '\'') // replace \' with '
             .replace(/\\\"/g, '\"') // replace \" with "
+            .replace(/\\\[/g, '[') // replace \[ with [
+            .replace(/\\\]/g, ']') // replace \] with [
             .toLowerCase();
 
         if(functionDeclarationText == functionCallText) {

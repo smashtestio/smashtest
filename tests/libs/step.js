@@ -458,13 +458,13 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [ElementFinders]", function() {
+        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [strings]", function() {
             functionDeclaration.text = "Step {{var1}} and {{var2}} {{var3}} also {{var4}}, {{var5}}";
             functionCall.text = "Step {{varA}} and  {varB} 'string C' also \"stringD\", [4th 'Login' button]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [ElementFinders], both of which have single and double quotes", function() {
+        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [strings], both of which have single and double quotes", function() {
             functionDeclaration.text = "Step {{var1}} a\\'nd {{var2}} {{var3}} al\\\"so {{var4}}, {{var5}}";
             functionCall.text = "Step {{varA}} a\\'nd  {varB} 'string C' al\\\"so \"stringD\", [4th 'Login' button]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -486,7 +486,7 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("doesn't match a function declaration with {{vars}} and a function call with extra [ElementFinders] at the end", function() {
+        it("doesn't match a function declaration with {{vars}} and a function call with extra [string] at the end", function() {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step {varA} ['element' finderB]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);

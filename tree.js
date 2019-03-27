@@ -1,7 +1,6 @@
 const Step = require('./step.js');
 const StepBlock = require('./stepblock.js');
 const Branch = require('./branch.js');
-const ElementFinder = require('./elementfinder.js');
 const Constants = require('./constants.js');
 const util = require('util');
 const utils = require('./utils.js');
@@ -85,9 +84,9 @@ class Tree {
             return step;
         }
 
-        var matches = line.match(Constants.LINE_REGEX_WHOLE);
+        var matches = line.match(Constants.LINE_WHOLE);
         if(!matches) {
-            utils.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_REGEX_WHOLE can match anything)
+            utils.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
         }
 
         // Parsed parts of the line
@@ -103,7 +102,7 @@ class Tree {
         }
 
         // Validation against prohibited step texts
-        if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX_WHOLE)) {
+        if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
             utils.error("Invalid step name", filename, lineNumber);
         }
 
@@ -111,8 +110,8 @@ class Tree {
         if(matches[1]) {
             step.isFunctionDeclaration = true;
 
-            if(step.text.match(Constants.STRING_LITERAL_REGEX)) {
-                utils.error("A * Function declaration cannot have 'strings' inside of it", filename, lineNumber);
+            if(step.text.match(Constants.STRING_LITERAL)) {
+                utils.error("A * Function declaration cannot have 'strings', \"strings\", or [strings] inside of it", filename, lineNumber);
             }
         }
 
@@ -174,7 +173,7 @@ class Tree {
         }
 
         // Steps that set variables
-        if(step.text.match(Constants.VARS_SET_REGEX_WHOLE)) {
+        if(step.text.match(Constants.VARS_SET_WHOLE)) {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
 
             if(step.isFunctionDeclaration) {
@@ -185,19 +184,19 @@ class Tree {
             var textCopy = step.text + "";
             step.varsBeingSet = [];
             while(textCopy.trim() != "") {
-                matches = textCopy.match(Constants.VARS_SET_REGEX_WHOLE);
+                matches = textCopy.match(Constants.VARS_SET_WHOLE);
                 if(!matches) {
                     utils.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
                 }
 
                 var varBeingSet = {
-                    name: matches[2].replace(/^\{\{|\}\}$|^\{|\}$/g, '').trim(),
+                    name: utils.stripBrackets(matches[2]),
                     value: matches[5],
                     isLocal: matches[2].includes('{{')
                 };
 
                 // Generate variable name validations
-                if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX_WHOLE)) {
+                if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
                     utils.error("A {variable name} cannot be just numbers", filename, lineNumber);
                 }
 
@@ -233,15 +232,15 @@ class Tree {
 
                 // If there are multiple vars being set, each value must be a string literal
                 for(var i = 0; i < step.varsBeingSet.length; i++) {
-                    if(!step.varsBeingSet[i].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) {
-                        utils.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'string constants'", filename, lineNumber);
+                    if(!step.varsBeingSet[i].value.match(Constants.STRING_LITERAL_WHOLE)) {
+                        utils.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', \"strings\", or [strings]", filename, lineNumber);
                     }
                 }
             }
             else {
                 // This step is {var}=Func or {var}='str' (only one var being set)
 
-                if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) {
+                if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_WHOLE)) {
                     // This step is {var}=Func
 
                     if(typeof step.codeBlock == 'undefined') { // In {var} = Text {, the Text is not considered a function call
@@ -249,8 +248,8 @@ class Tree {
                     }
 
                     // Validations
-                    if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_REGEX_WHOLE)) {
-                        utils.error("{vars} can only be set to 'strings'", filename, lineNumber);
+                    if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
+                        utils.error("{vars} can only be set to 'strings', \"strings\", or [strings]", filename, lineNumber);
                     }
                     if(step.isTextualStep) {
                         utils.error("A textual step (ending in -) cannot also start with a {variable} assignment", filename, lineNumber);
@@ -264,26 +263,12 @@ class Tree {
             }
         }
 
-        // Validate [ElementFinders], if they don't contain {vars} inside
-        matches = step.text.match(Constants.BRACKET_REGEX);
-        if(matches) {
-            for(var i = 0; i < matches.length; i++) {
-                var match = matches[i];
-                if(!match.match(Constants.VAR_REGEX)) {
-                    var elementFinder = this.parseElementFinder(match);
-                    if(!elementFinder) {
-                        utils.error("Invalid [ElementFinder]", filename, lineNumber);
-                    }
-                }
-            }
-        }
-
         // Validate that all vars in a function declaration are {{local}}
-        matches = step.text.match(Constants.VAR_REGEX);
+        matches = step.text.match(Constants.VAR);
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
-                var name = match.replace(/\{|\}/g, '').trim();
+                var name = utils.stripBrackets(match);
                 var isLocal = match.startsWith('{{');
 
                 if(step.isFunctionDeclaration && !isLocal) {
@@ -293,48 +278,6 @@ class Tree {
         }
 
         return step;
-    }
-
-    /**
-     * Parses text inside brackets into an ElementFinder
-     * @param {String} text - The text to parse, with the brackets ([])
-     * @return {ElementFinder} The ElementFinder, or null if this is not a valid ElementFinder
-     */
-    parseElementFinder(name) {
-        var matches = name.match(Constants.ELEMENTFINDER_REGEX_WHOLE);
-        if(matches) {
-            var ordinal = (matches[3] || '');
-            var text = utils.stripQuotes((matches[6] || '') + (matches[9] || '')); // it's either matches[6] or matches[9]
-            var variable = ((matches[7] || '') + (matches[10] || '')).trim(); // it's either matches[7] or matches[10]
-            var nextTo = utils.stripQuotes(matches[12] || '');
-
-            if(!text && !variable) { // either the text and/or the variable must be present
-                return null;
-            }
-            if(nextTo && !ordinal && !text && !variable) { // next to cannot be listed alone
-                return null; // NOTE: probably unreachable because a "next to" by itself won't get matched by the regex
-            }
-
-            var elementFinder = new ElementFinder();
-
-            if(ordinal) {
-                elementFinder.ordinal = parseInt(ordinal);
-            }
-            if(text) {
-                elementFinder.text = text;
-            }
-            if(variable) {
-                elementFinder.variable = variable;
-            }
-            if(nextTo) {
-                elementFinder.nextTo = nextTo;
-            }
-
-            return elementFinder;
-        }
-        else {
-            return null;
-        }
     }
 
     /**

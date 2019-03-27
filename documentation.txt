@@ -25,8 +25,8 @@ Steps
         - Recommended to put a blank line above and below a step block, to make it easier to see.
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
     - Pitfalls
-        - Always use \' or \" when the same line has 'strings' or "strings".
-            - ' and \', and " and \" will match each other, but you should use \' and \" to prevent a string literal from forming in a function call
+        - Always use \', \", or \[ when the same line has 'strings', "strings", or [strings]
+            - ' and \', " and \", and [ and \[ will match each other, but you should use \', \", and \[ to prevent a string literal from forming in a function call
 
 Running tests
     - Basic command line invocation
@@ -59,11 +59,6 @@ Only run tests that didn't pass last time
 
 Reports
 
-Step reference
-    - Browsers, Webdriver steps, Verify, Assertions, Wait, etc.
-    - Mocking APIs (it has its own section too)
-    - Execute in browser {}
-
 Step blocks
     - Vertical list of 2 or more steps, no blank lines in between
     - Must end in an empty line if it has children
@@ -75,6 +70,11 @@ Step blocks
         - Function in the list with multiple branches will cause the list to branch (give example - like the one in the Hooks section below)
 
 Textual steps (-)
+
+Step reference
+    - Browsers, Webdriver steps, Verify, Assertions, Wait, etc.
+    - Mocking APIs (it has its own section too)
+    - Execute in browser {}
 
 ElementFinders
     - [OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')]
@@ -90,12 +90,13 @@ ElementFinders
     - Explain the basics of the find algorithm
     - May contain vars
         - [ {{N}}th 'some {text}' next to '{{something}}' ]
+            Note: "th" can be applied to any number
 
 Functions
     - Calling
-        - Examples of calls (include vars, strings, vars within strings, and elementFinders)
+        - Examples of calls (include {vars}, {{vars}}, 'strings', "strings", [strings], and vars inside of strings)
         - Function {{var}} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
-            - All function inputs are either {{vars}}, "strings", or [ElementFinders]
+            - All function inputs are either {vars}, {{vars}}, 'strings', "strings", or [strings]
             - {{vars}} in a function declaration must all be {{local}}, not {global}
         - Finds closest matching function declaration in the tree, otherwise looks to built-in functions
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
@@ -126,18 +127,15 @@ Variables
         - Function call
             F {var1} {{var2}}
         - String literal
-            'string literal {var1}' or "string literal {{var2}}"
-        - ElementFinder
-            [{ord}th '{var1}' box next to '{{var2}}']
-                Note: "th" can be applied to any number
+            'string literal {var1}', "string literal {{var2}}", or [string literal {var3}]
     - Setting vars
-        - {var} = 'String' (or "String")
+        - {var} = 'String' (or "String" or [String])
             - To clone a var, use {var}='{var2}'
         - {var} = Function with a code block
             - Code Function returns a string (actually any kind of js value will work)
             - Could be {var} = Text { code block that returns something }
         - {var} = Function with branches
-            - Each line must be {x}='value'
+            - Each line must be {x}='value' (or "value" or [value])
                 - No children
             - Separate branches will be created, each setting {var} to each 'value' encountered to the right of {x}
             - You can name {x} whatever you want, but the convention is {x}

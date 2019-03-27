@@ -4,41 +4,37 @@
 
 // Matches any well-formed non-empty line, in this format:
 // Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
-exports.LINE_REGEX_WHOLE = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\$|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
+exports.LINE_WHOLE = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\$|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
 
-// Matches "string" or 'string', handles escaped \ and "
-exports.STRING_LITERAL_REGEX = /(?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*")/g;
+// Matches 'string', handles escaped \ and '
+exports.SINGLE_QUOTE_STR = /(?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')/g;
 
-// Same as STRING_LITERAL_REGEX, only matches the whole line
-exports.STRING_LITERAL_REGEX_WHOLE = new RegExp("^" + exports.STRING_LITERAL_REGEX.source + "$");
+// Matches "string", handles escaped \ and "
+exports.DOUBLE_QUOTE_STR = /(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*")/g;
 
-// Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val) as the whole line
-exports.VARS_SET_REGEX_WHOLE = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)\s*)*$/;
+// Matches [string], handles escaped \, [, and ]
+exports.BRACKET_STR = /(?<!(\\\\)*\\)(\[([^\\\]]|(\\\\)*\\.)*\])/g;
+
+// Matches "string", 'string', or [string], handles escaped chars
+exports.STRING_LITERAL = new RegExp(exports.SINGLE_QUOTE_STR.source + "|" + exports.DOUBLE_QUOTE_STR.source + "|" + exports.BRACKET_STR.source, "g");
+
+// Same as STRING_LITERAL, only matches the whole line
+exports.STRING_LITERAL_WHOLE = new RegExp("^(" + exports.STRING_LITERAL.source + ")$");
 
 // Matches {var} or {{var}}
-exports.VAR_REGEX = /\{[^\{\}\\]+\}|\{\{[^\{\}\\]+\}\}/g;
+exports.VAR = /\{\{[^\{\}\\]+\}\}|\{[^\{\}\\]+\}/g;
 
-// Same as VAR_REGEX, only matches the whole line
-exports.VAR_REGEX_WHOLE = new RegExp("^" + exports.VAR_REGEX.source + "$");
+// Same as VAR, only matches the whole line
+exports.VAR_WHOLE = new RegExp("^" + exports.VAR.source + "$");
 
-// Matches [text]
-exports.BRACKET_REGEX = /(?<!(\\\\)*\\)\[.*?(?<!(\\\\)*\\)\]/g;
+// Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val) as the whole line
+exports.VARS_SET_WHOLE = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)*$/;
 
-// Same as BRACKET_REGEX, only matches the whole line
-exports.BRACKET_REGEX_WHOLE = new RegExp("^" + exports.BRACKET_REGEX.source + "$");
-
-// Matches an [ElementFinder] in this format:
-// [ OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT') ]
-exports.ELEMENTFINDER_REGEX = /(?<!(\\\\)*\\)\[\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*\]/g;
-
-// Same as ELEMENTFINDER_REGEX, only matches the whole line
-exports.ELEMENTFINDER_REGEX_WHOLE = new RegExp("^\\s*" + exports.ELEMENTFINDER_REGEX.source + "\\s*$");
-
-// Matches a {var}, {{var}}, 'string', "string", or [ElementFinder]
-exports.FUNCTION_INPUT_REGEX = new RegExp("(" + exports.BRACKET_REGEX.source + ")|(" + exports.STRING_LITERAL_REGEX.source + ")|(" + exports.VAR_REGEX.source + ")", "g");
+// Matches "string", 'string', [string], {var}, or {{var}}, handles escaped chars
+exports.FUNCTION_INPUT = new RegExp(exports.STRING_LITERAL.source + "|" + exports.VAR.source, "g");
 
 // Matches a line with only numbers (after whitespace stripped out)
-exports.NUMBERS_ONLY_REGEX_WHOLE = /^[0-9\.\,]+$/;
+exports.NUMBERS_ONLY_WHOLE = /^[0-9\.\,]+$/;
 
 // ***************************************
 // PARSE CONFIG

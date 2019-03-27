@@ -169,37 +169,27 @@ class RunInstance {
             if(step.isFunctionCall) {
                 // Set {{local vars}} based on function declaration signature and function call signature
 
-                var varList = step.functionDeclarationText.match(Constants.VAR_REGEX);
+                var varList = step.functionDeclarationText.match(Constants.VAR);
                 if(varList) {
                     if(step.varsBeingSet && step.varsBeingSet.length > 0) {
                         // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
                         varList.shift();
                     }
 
-                    var inputList = step.text.match(Constants.FUNCTION_INPUT_REGEX);
+                    var inputList = step.text.match(Constants.FUNCTION_INPUT);
                     if(inputList) {
                         for(var i = 0; i < varList.length; i++) {
                             var varname = utils.stripBrackets(varList[i]);
                             var value = inputList[i];
 
-                            if(value.match(Constants.STRING_LITERAL_REGEX_WHOLE)) { // 'string' or "string"
+                            if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
                                 value = utils.stripQuotes(value);
                                 value = this.replaceVars(value, step, branch); // replace vars with their values
                             }
-                            else if(value.match(Constants.VAR_REGEX_WHOLE)) { // {var} or {{var}}
+                            else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
                                 var isLocal = value.startsWith('{{');
                                 value = utils.stripBrackets(value);
                                 value = this.findVarValue(value, isLocal, step, branch);
-                            }
-                            else if(value.match(Constants.BRACKET_REGEX_WHOLE)) { // [ElementFinder]
-                                value = this.replaceVars(value, step, branch); // replace vars with their values
-                                value = this.tree.parseElementFinder(value);
-                                if(!value) {
-                                    utils.error(inputList[i] + " is an invalid [ElementFinder]", step.filename, step.lineNumber);
-                                }
-                                else if(value.variable) {
-                                    value.variable = this.findVarValue(value.variable, false, step, branch); // replace the variable with the value of the corresponding global variable
-                                }
                             }
 
                             this.setLocalPassedIn(varname, value);
@@ -578,11 +568,11 @@ class RunInstance {
      * @throws {Error} If there's a variable inside text that's never set
      */
     replaceVars(text, step, branch) {
-        var matches = text.match(Constants.VAR_REGEX);
+        var matches = text.match(Constants.VAR);
         if(matches) {
             for(var i = 0; i < matches.length; i++) {
                 var match = matches[i];
-                var name = match.replace(/\{|\}/g, '');
+                var name = utils.stripBrackets(match);
                 var isLocal = match.startsWith('{{');
                 var value = null;
 

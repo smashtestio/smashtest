@@ -6,7 +6,7 @@ const Constants = require('./constants.js');
  */
 exports.stripQuotes = function(str) {
     if(exports.hasQuotes(str)) {
-        return str.trim().replace(/^'|^"|'$|"$/g, '');
+        return str.trim().replace(/^'|^"|'$|"$|^\[|\]$/g, '');
     }
     else {
         return str;
@@ -24,7 +24,7 @@ exports.stripBrackets = function(str) {
  * @return {Boolean} true if str is in 'quotes' or "quotes", false otherwise
  */
 exports.hasQuotes = function(str) {
-    return str.trim().match(Constants.STRING_LITERAL_REGEX_WHOLE) != null;
+    return str.trim().match(Constants.STRING_LITERAL_WHOLE) != null;
 }
 
 /**

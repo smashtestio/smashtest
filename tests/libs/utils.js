@@ -14,6 +14,8 @@ describe("Utils", function() {
             expect(utils.stripQuotes(`  "foobar"  `)).to.equal(`foobar`);
             expect(utils.stripQuotes(`'foobar'`)).to.equal(`foobar`);
             expect(utils.stripQuotes(`  'foobar'  `)).to.equal(`foobar`);
+            expect(utils.stripQuotes(`[foobar]`)).to.equal(`foobar`);
+            expect(utils.stripQuotes(`  [foobar]  `)).to.equal(`foobar`);
         });
 
         it("doesn't touch non-quotes", function() {

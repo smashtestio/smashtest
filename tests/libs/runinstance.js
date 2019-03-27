@@ -285,7 +285,7 @@ My "{A} and { b }" Function "{B}"
             expect(runInstance.two).to.equal("b\"a'r");
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders]", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in [strings]", async function() {
             var tree = new Tree();
             tree.parseIn(`
 My [4th 'Login' button next to 'something'] Function [ big link ]
@@ -301,24 +301,14 @@ My [4th 'Login' button next to 'something'] Function [ big link ]
             var runner = new Runner();
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
-            runInstance.global.button = ".button";
-            runInstance.global["big link"] = ".big.link";
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(runInstance.one).to.eql({
-                ordinal: 4,
-                text: "Login",
-                variable: ".button",
-                nextTo: "something"
-            });
-
-            expect(runInstance.two).to.eql({
-                variable: ".big.link"
-            });
+            expect(runInstance.one).to.equal("4th 'Login' button next to 'something'");
+            expect(runInstance.two).to.equal(" big link ");
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in [ElementFinders containing {variables}]", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in [strings containing {variables}]", async function() {
             var tree = new Tree();
             tree.parseIn(`
 My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
@@ -338,25 +328,15 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
             runInstance.global.b = "small button";
             runInstance.local.c = "lots of CATS!";
             runInstance.local.n = 14;
-            runInstance.global["d d"] = "Link";
-            runInstance.global["small button"] = ".small.button";
-            runInstance.global["big link"] = ".big.link";
+            runInstance.global["d d"] = "link";
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(runInstance.one).to.eql({
-                ordinal: 14,
-                text: "Login sign",
-                variable: ".small.button",
-                nextTo: "lots of CATS!"
-            });
-
-            expect(runInstance.two).to.eql({
-                variable: ".big.link"
-            });
+            expect(runInstance.one).to.equal("14th 'Login sign' small button next to 'lots of CATS!'");
+            expect(runInstance.two).to.equal(" big link ");
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", {variables}, and [ElementFinders]", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", [strings], and {variables}", async function() {
 
 
 
@@ -368,7 +348,7 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
 
 
 
-            
+
         });
 
         it.skip("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async function() {
@@ -383,9 +363,6 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
         it.skip("fails step if a function call has a {variable} passed in and it is never set", async function() {
         });
 
-        it.skip("fails step if a function call gets a bad [ElementFinder] passed in, after {variables} are substituted inside", async function() {
-        });
-
         it.skip("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
         });
 
@@ -396,18 +373,6 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
         });
 
         it.skip("fails step if a function call has a 'string' containing a var that is never set", async function() {
-        });
-
-        it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
-        });
-
-        it.skip("executes a function call where [ElementFinders] containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async function() {
-        });
-
-        it.skip("fails step if a function call has an [ElementFinder] containing a var passed in and that var is only set in a later step, which is an asynchronous code block", async function() {
-        });
-
-        it.skip("fails step if a function call has an [ElementFinder] containing a var passed in and that var is never set", async function() {
         });
 
         it.skip("executes a function call where the function has no steps inside of it", async function() {
@@ -440,6 +405,9 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
         it.skip("executes a {{var}} = 'string' step", async function() {
         });
 
+        it.skip("executes a {var} = [string] step", async function() {
+        });
+
         it.skip("executes a {var} = '{other var}' step", async function() {
         });
 
@@ -447,11 +415,15 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
             // trim vars
         });
 
+        it.skip("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async function() {
+            // trim vars
+        });
+
         it.skip("executes a {var1} = '{var2} {{var3}} etc.' step that needs to look down the branch for the values of some variables", async function() {
             // trim vars
         });
 
-        it.skip("executes a {var1} = 'string1', {{var2}} = 'string2', etc. step", async function() {
+        it.skip("executes a {var1} = 'string1', {{var2}} = 'string2', {{var3}} = [string3] etc. step", async function() {
             // trim vars
         });
 
