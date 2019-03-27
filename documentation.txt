@@ -88,6 +88,8 @@ ElementFinders
         - [ 4th 'Login' box ]
         - [ 4th 'Login' next to 'foo' ]
     - Explain the basics of the find algorithm
+    - May contain vars
+        - [ {{N}}th 'some {text}' next to '{{something}}' ]
 
 Functions
     - Calling
