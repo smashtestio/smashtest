@@ -29,6 +29,7 @@ Running tests
     - Basic command line invocation
         - File glob passed in
             - All files are merged into one big one, and everything at the top level is accessible to everything in other files
+            - js files matched by glob are ignored
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
     - If a step irrevokably fails, all other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
@@ -124,6 +125,8 @@ Functions
                 ..
                 Click Rice
                 Click Beans
+
+                (Also useful for "Get to page X", where you can either click a link or enter a url)
         - On Page X pattern, with verifications and setting global vars to selectors in a .. step block
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
@@ -135,8 +138,9 @@ Variables
             - Steps below where {var} is declared will have access to {var}, which includes inside function calls
             - If {var} is declared inside a function, it will be accessible in the caller after the function call step
             - Accessible within Every Branch/Step hooks, for hooks that apply to branches where the var was declared
-        - {{var}} is internal to the function
+        - {{var}} is local (internal to the function)
             - Goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
+            - A local var is accessible inside the code block of a non-function-call step
     - Where to use them (they are replaced with their value)
         - Function call
             F {var1} {{var2}}

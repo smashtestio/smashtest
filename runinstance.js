@@ -640,6 +640,10 @@ class RunInstance {
         var index = branch.steps.indexOf(step);
         for(var i = index; i < branch.steps.length; i++) {
             var s = branch.steps[i];
+            if(isLocal && s.branchIndents < step.branchIndents) {
+                break; // you cannot look outside a function's scope for a local var
+            }
+
             if(s.varsBeingSet) {
                 for(var j = 0; j < s.varsBeingSet.length; j++) {
                     var varBeingSet = s.varsBeingSet[j];
