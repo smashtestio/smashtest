@@ -1364,6 +1364,17 @@ My 'foobar' function
 
         });
 
+        it.skip("a {{var}} is accessible in a later step", async function() {
+        });
+
+        it.skip("a {{var}} is accessible in a later step, with a function call in between", async function() {
+            // in between = between the var declaration and the "later step"
+        });
+
+        it.skip("a {{var}} is accessible in a later step, with a non-function code block in between", async function() {
+            // in between = between the var declaration and the "later step"
+        });
+
         it.skip("does not make a {{var}} declared outside a function call accessible to steps inside the function call", async function() {
 
             // branchIndents increased by 1
@@ -1395,6 +1406,14 @@ My 'foobar' function
         });
 
         it.skip("a {var} is accessible in a later step", async function() {
+        });
+
+        it.skip("a {var} is accessible in a later step, with a function call in between", async function() {
+            // in between = between the var declaration and the "later step"
+        });
+
+        it.skip("a {var} is accessible in a later step, with a non-function code block in between", async function() {
+            // in between = between the var declaration and the "later step"
         });
 
         it.skip("a {var} is accessible inside a function call's code block", async function() {
