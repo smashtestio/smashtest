@@ -1341,7 +1341,7 @@ My 'foobar' function
                 .to.be.rejectedWith("Unexpected token for");
         });
 
-        it("creates a fresh {{local var}} context within a function call", async function() {
+        it("when a {{var}} and {var} of the same name both exist, the js variable is set to the local version", async function() {
 
 
 
@@ -1354,16 +1354,44 @@ My 'foobar' function
 
 
 
+        });
+
+        it.skip("when a {{var}} and a persistent var of the same name both exist, the js variable for var is set to the local version", async function() {
+
+        });
+
+        it.skip("when a {var} and a persistent var of the same name both exist, the js variable for var is set to the global version", async function() {
+
+        });
+
+        it.skip("does not make a {{var}} declared outside a function call accessible to steps inside the function call", async function() {
 
             // branchIndents increased by 1
         });
 
-        it.skip("clears {{local vars}} and reinstates previous local var context when exiting a function call", async function() {
+        it.skip("does not make a {{var}} declared outside a function call accessible inside the function call's code block", async function() {
+            // get getLocal() to try to access it
+        });
+
+        it.skip("makes a {{var}} declared outside a function call accessible after the function call, where the function has steps inside it", async function() {
+
+        });
+
+        it.skip("makes a {{var}} declared outside a function call accessible after the function call, where the function has a code block only", async function() {
+
+        });
+
+        it.skip("makes a {{var}} declared outside a function call accessible after the function call, where the function has a code block and has steps inside it", async function() {
+
+        });
+
+        it.skip("does not make a {{var}} declared inside a function accessible outside of it", async function() {
             // branchIndents fell by 1
         });
 
-        it.skip("clears {{local vars}} and reinstates previous local var context when exiting multiple levels of function calls", async function() {
+        it.skip("clears {{local vars}} and reinstates previous {{local vars}} when exiting multiple levels of function calls", async function() {
             // branchIndents fell by 2 or more
+            // include some function calls with just a code block, some with just steps, and some with a code block and steps
         });
 
         it.skip("a {var} is accessible in a later step", async function() {
@@ -1376,21 +1404,13 @@ My 'foobar' function
         });
 
         it.skip("a {var} is accessible to code blocks of steps inside a function call", async function() {
+            // use both local js var and getGlobal()
         });
 
         it.skip("a {var} declared inside a function call is accessible in steps after the function call", async function() {
         });
 
         it.skip("a {var} declared in a branch is accessible in an After Every Step hook", async function() {
-        });
-
-        it.skip("a {{var}} is accessible in a later step", async function() {
-        });
-
-        it.skip("a {{var}} is not accessible inside function calls", async function() {
-        });
-
-        it.skip("a {{var}} declared inside a function call is not accessible in steps after the function call", async function() {
         });
 
         it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async function() {
@@ -1488,6 +1508,9 @@ My 'foobar' function
         });
 
         it.skip("sets step.elapsed to -1 when a pause and resume occurred", async function() {
+        });
+
+        it.skip("a persistent variable set in one RunInstance is accessible in another RunInstance", async function() {
         });
     });
 
