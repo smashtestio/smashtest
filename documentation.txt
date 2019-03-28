@@ -114,16 +114,17 @@ Functions
     - Examples
         - Using functions to encapsulate common steps
         - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)
-            - Use this function in a test, and it will automatically split into two branches, each of which tests a different way to get to the same place
-                * Select beans and rice
-                    ..
-                    Click Beans
-                    Click Rice
-
-                    ..
-                    Click Rice
-                    Click Beans
         - Using functions to organize testing (have a high-level tree that describes your app, where each leaf is a function call to a function with multiple branches, where all the testing for that specific component occurs)
+        - Use this function in a test, and it will automatically split into two branches, each of which tests a different way to get to the same place
+            * Select beans and rice
+                ..
+                Click Beans
+                Click Rice
+
+                ..
+                Click Rice
+                Click Beans
+        - On Page X pattern, with verifications and setting global vars to selectors in a .. step block
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
 

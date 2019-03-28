@@ -92,6 +92,9 @@ A -
             var runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a step with a code block", async function() {
@@ -111,6 +114,9 @@ A - {
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.flag).to.equal(true);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with no {{variables}} in its function declaration", async function() {
@@ -132,6 +138,9 @@ F
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.flag).to.equal(true);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in 'strings'", async function() {
@@ -155,6 +164,9 @@ My 'foo' Function 'bar'
 
             expect(runInstance.one).to.equal("foo");
             expect(runInstance.two).to.equal("bar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async function() {
@@ -180,6 +192,9 @@ My 'foo' Function 'bar'
             expect(runInstance.first).to.equal("foo");
             expect(runInstance.second).to.equal("bar");
             expect(runInstance.third).to.equal("blah");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in {variables}", async function() {
@@ -205,6 +220,9 @@ My {A} Function { b }
 
             expect(runInstance.one).to.equal("foo");
             expect(runInstance.two).to.equal("bar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async function() {
@@ -233,6 +251,9 @@ My {{A}} Function {{ b }} { a B  c }
             expect(runInstance.one).to.equal("foo");
             expect(runInstance.two).to.equal("bar");
             expect(runInstance.three).to.equal("blah");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", async function() {
@@ -258,6 +279,9 @@ My '{A} and { b }' Function '{B}'
 
             expect(runInstance.one).to.equal("foo and b\"a'r");
             expect(runInstance.two).to.equal("b\"a'r");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", async function() {
@@ -283,6 +307,9 @@ My "{A} and { b }" Function "{B}"
 
             expect(runInstance.one).to.equal("foo and b\"a'r");
             expect(runInstance.two).to.equal("b\"a'r");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in [strings]", async function() {
@@ -306,6 +333,9 @@ My [4th 'Login' button next to 'something'] Function [ big link ]
 
             expect(runInstance.one).to.equal("4th 'Login' button next to 'something'");
             expect(runInstance.two).to.equal(" big link ");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in [strings containing {variables}]", async function() {
@@ -334,6 +364,9 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
 
             expect(runInstance.one).to.equal("14th 'Login sign' small button next to 'lots of CATS!'");
             expect(runInstance.two).to.equal(" big link ");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", [strings], {variables}, {{variables}}, including strings with variables inside", async function() {
@@ -371,6 +404,9 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
             expect(runInstance.five).to.equal("5");
             expect(runInstance.six).to.equal("6 six '6' \"66\"");
             expect(runInstance.seven).to.equal("7 seven 'th'");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async function() {
@@ -393,6 +429,9 @@ My {var} Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", async function() {
@@ -417,6 +456,9 @@ My {var} Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", async function() {
@@ -441,6 +483,9 @@ My {var} Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.one instanceof Promise).to.equal(true);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("fails step if a function call has a {variable} passed in and it is never set", async function() {
@@ -459,8 +504,11 @@ My {var} Function
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
 
-            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
-                .to.be.rejectedWith("The variable {var} is never set, but is needed for this step [file.txt:2]");
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} is never set, but is needed for this step [file.txt:2]");
+
+            expect(tree.branches[0].error).to.equal(undefined);
         });
 
         it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
@@ -483,6 +531,9 @@ My 'so called {var}' Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("so called foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async function() {
@@ -507,6 +558,9 @@ My 'so called {var}' Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("so called foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("fails step if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", async function() {
@@ -528,8 +582,11 @@ My 'so called {var}' Function
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
 
-            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
-                .to.be.rejectedWith("The variable {var} must be set to a string [file.txt:2]");
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} must be set to a string [file.txt:2]");
+
+            expect(tree.branches[0].error).to.equal(undefined);
         });
 
         it("fails step if a function call has a 'string' containing a var that is never set", async function() {
@@ -548,8 +605,11 @@ My 'so called {var}' Function
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
 
-            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
-                .to.be.rejectedWith("The variable {var} is never set, but is needed for this step [file.txt:2]");
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} is never set, but is needed for this step [file.txt:2]");
+
+            expect(tree.branches[0].error).to.equal(undefined);
         });
 
         it("executes a function call where the function has no steps inside of it", async function() {
@@ -567,6 +627,9 @@ My Function
             var runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("allows {{variables}} passed in through a function call to be accessed by steps inside the function", async function() {
@@ -592,6 +655,10 @@ My {var} Function
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
         it("allows {{variables}} passed in through a function call to be accessed by the function's code block", async function() {
@@ -614,6 +681,9 @@ My {var} Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("allows {{variables}} to be accessed through a non-function-call code block", async function() {
@@ -636,6 +706,10 @@ My {var} Function
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
         it("ignores {{variables}} inside the text of a textual step", async function() {
@@ -657,6 +731,11 @@ A textual step {{var1}} -
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
         it("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", async function() {
@@ -679,6 +758,10 @@ A textual step {{var1}} -
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
         it("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", async function() {
@@ -701,6 +784,9 @@ My 'string with {var}' Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("string with string with apos ' ");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async function() {
@@ -723,6 +809,9 @@ My 'string with {var}' Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("string with string with apos ' ");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a function call with nothing in its body", async function() {
@@ -743,6 +832,9 @@ My 'foobar' Function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.getLocal("one")).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("handles a function declaration where multiple {{variables}} have the same name", async function() {
@@ -766,6 +858,9 @@ My 'foo' Function 'bar'
 
             expect(runInstance.one).to.equal("bar");
             expect(runInstance.two).to.equal("bar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = 'string' step", async function() {
@@ -785,6 +880,9 @@ My 'foo' Function 'bar'
             expect(runInstance.getLocal("var1")).to.equal(undefined);
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
             expect(runInstance.getPersistent("var1")).to.equal(undefined);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {{var}} = 'string' step", async function() {
@@ -804,6 +902,9 @@ My 'foo' Function 'bar'
             expect(runInstance.getLocal("var1")).to.equal("foobar");
             expect(runInstance.getGlobal("var1")).to.equal(undefined);
             expect(runInstance.getPersistent("var1")).to.equal(undefined);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = \"string\" step", async function() {
@@ -823,6 +924,9 @@ My 'foo' Function 'bar'
             expect(runInstance.getLocal("var1")).to.equal(undefined);
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
             expect(runInstance.getPersistent("var1")).to.equal(undefined);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = [string] step", async function() {
@@ -842,6 +946,9 @@ My 'foo' Function 'bar'
             expect(runInstance.getLocal("var1")).to.equal(undefined);
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
             expect(runInstance.getPersistent("var1")).to.equal(undefined);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = '{other var}' step", async function() {
@@ -866,6 +973,11 @@ My 'foo' Function 'bar'
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
             expect(runInstance.getGlobal("var2")).to.equal("foobar blah bleh");
             expect(runInstance.getGlobal("var3")).to.equal("bleh");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
         it("executes a {var1} = '{var2} {{var2}} [something]' step", async function() {
@@ -890,6 +1002,11 @@ My 'foo' Function 'bar'
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
             expect(runInstance.getGlobal("var2")).to.equal("foobar blah bleh [something]");
             expect(runInstance.getLocal("var2")).to.equal("bleh");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
         it("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async function() {
@@ -914,6 +1031,11 @@ My 'foo' Function 'bar'
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
             expect(runInstance.getGlobal("var2")).to.equal(" 'string foobar' bleh ");
             expect(runInstance.getLocal("var2")).to.equal("bleh");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
         it("executes a {var1} = 'string1', {{var2}} = 'string2', {{var3}} = [string3] etc. step", async function() {
@@ -933,6 +1055,9 @@ My 'foo' Function 'bar'
             expect(runInstance.getGlobal("var1")).to.equal("one");
             expect(runInstance.getLocal("var2")).to.equal("two");
             expect(runInstance.getLocal("var 3")).to.equal("three");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = Text { code block } step", async function() {
@@ -952,6 +1077,9 @@ My 'foo' Function 'bar'
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = Function step, where the function declaration has a code block that returns a value", async function() {
@@ -973,6 +1101,9 @@ My 'foo' Function 'bar'
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = Function step, where the function declaration has a code block that returns a value asynchonously", async function() {
@@ -1002,6 +1133,10 @@ My 'foo' Function 'bar'
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(runInstance.one).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
         it("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
@@ -1023,6 +1158,9 @@ My 'foo' Function 'bar'
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.getGlobal("var1")).to.equal("foobar blah!");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = Function with {vars passed in} step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
@@ -1045,6 +1183,9 @@ My 'foo' Function 'bar'
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.getGlobal("var1")).to.equal("foobar blah!");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = Function step, where the function declaration is in {x}='value' format", async function() {
@@ -1067,6 +1208,10 @@ My 'foo' Function 'bar'
 
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
         it("allows a code block to get local, global, and persistent variables via getter functions", async function() {
@@ -1093,6 +1238,9 @@ Text {
             expect(runInstance.one).to.equal("first");
             expect(runInstance.two).to.equal("second");
             expect(runInstance.three).to.equal("third");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("allows a code block to set local, global, and persistent variables via setter functions", async function() {
@@ -1116,6 +1264,9 @@ Text {
             expect(runInstance.getPersistent("one")).to.equal("first");
             expect(runInstance.getGlobal("two")).to.equal("second");
             expect(runInstance.getLocal("three")).to.equal("third");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", async function() {
@@ -1139,6 +1290,9 @@ My 'foo' "bar" function
 
             expect(runInstance.one).to.equal("foo");
             expect(runInstance.three).to.equal("bar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
@@ -1157,8 +1311,11 @@ My 'foobar' function
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
 
-            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
-                .to.be.rejectedWith("Unexpected token ;");
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token ;");
+
+            expect(tree.branches[0].error).to.equal(undefined);
         });
 
         it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
@@ -1177,8 +1334,11 @@ My 'foobar' function
             runner.tree = tree;
             var runInstance = new RunInstance(runner);
 
-            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
-                .to.be.rejectedWith("Unexpected token for");
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token for");
+
+            expect(tree.branches[0].error).to.equal(undefined);
         });
 
         it("makes a {variable} accessible as a plain js variable inside a code block", async function() {
@@ -1207,6 +1367,11 @@ My 'foobar' function
 
             expect(runInstance.one).to.equal("foobar");
             expect(runInstance.two).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
         it("does not make a {{variable}} accessible as a plain js variable inside a function's code block", async function() {
@@ -1227,8 +1392,12 @@ My 'foobar' function
             var runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            await expect(runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false))
-                .to.be.rejectedWith("one is not defined");
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[1].error.message).to.contain("one is not defined");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("makes a {{variable}} accessible as a plain js variable inside a non-function code block", async function() {
@@ -1257,6 +1426,11 @@ My 'foobar' function
             await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
 
             expect(runInstance.two).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
         it("sets the plain js variable inside a code block to a passed-in {{variable}} when an existing {{variable}} of the same name is defined", async function() {
@@ -1293,6 +1467,12 @@ My 'foobar' function
             expect(runInstance.one).to.equal("bar");
             expect(runInstance.two).to.equal("foo");
             expect(runInstance.three).to.equal("foo");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
+            expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
         it("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
@@ -1313,9 +1493,12 @@ My 'foobar' function
             var runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
-            await expect(runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false))
-                .to.be.rejectedWith("Unexpected token ;");
+            expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token ;");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
@@ -1336,9 +1519,12 @@ My 'foobar' function
             var runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
-            await expect(runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false))
-                .to.be.rejectedWith("Unexpected token for");
+            expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token for");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("when a {{var}} and {var} of the same name both exist, the js variable is set to the local version", async function() {

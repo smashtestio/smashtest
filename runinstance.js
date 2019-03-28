@@ -168,7 +168,7 @@ class RunInstance {
         }
         this.localsPassedIntoFunc = {};
 
-        var error = null;
+        var error = undefined;
 
         // Execute the step
         try {
@@ -249,8 +249,6 @@ class RunInstance {
             error = e;
             error.filename = step.filename;
             error.lineNumber = step.lineNumber;
-
-            throw e; // TODO: remove this
         }
 
         // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
