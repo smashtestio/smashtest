@@ -1167,7 +1167,7 @@ My 'foobar' function
 My 'foobar' function
 
 * My {{for}} function {
-    runInstance.for = for;
+    runInstance.one = for;
 }
 `, "file.txt");
 
@@ -1270,7 +1270,7 @@ My 'foobar' function
 
         My 'bar' function
 
-            Check that the original value is here - {
+            Check that the original value is here {
                 runInstance.three = one;
             }
 
@@ -1296,42 +1296,86 @@ My 'foobar' function
         });
 
         it("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{{one%}}='foobar'
+    My function
 
+* My function {
+    runInstance.one = one%;
+}
+`, "file.txt");
 
+            tree.generateBranches();
 
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
 
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-
-
-
-
-
-
-
-
-        
+            await expect(runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false))
+                .to.be.rejectedWith("Unexpected token ;");
         });
 
-        it.skip("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
+        it("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{{for}}='foobar'
+    My function
 
+* My function {
+    runInstance.one = for;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            await expect(runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false))
+                .to.be.rejectedWith("Unexpected token for");
         });
 
-        it.skip("creates a fresh local var context within a function call", async function() {
+        it("creates a fresh {{local var}} context within a function call", async function() {
+
+
+
+
+
+
+
+
+
+
+
+
+
             // branchIndents increased by 1
         });
 
-        it.skip("clears local vars and reinstates previous local var context when exiting a function call", async function() {
+        it.skip("clears {{local vars}} and reinstates previous local var context when exiting a function call", async function() {
             // branchIndents fell by 1
         });
 
-        it.skip("clears local vars and reinstates previous local var context when exiting multiple levels of function calls", async function() {
+        it.skip("clears {{local vars}} and reinstates previous local var context when exiting multiple levels of function calls", async function() {
             // branchIndents fell by 2 or more
         });
 
         it.skip("a {var} is accessible in a later step", async function() {
         });
 
-        it.skip("a {var} is accessible inside function calls", async function() {
+        it.skip("a {var} is accessible inside a function call's code block", async function() {
+        });
+
+        it.skip("a {var} is accessible to steps inside a function call", async function() {
+        });
+
+        it.skip("a {var} is accessible to code blocks of steps inside a function call", async function() {
         });
 
         it.skip("a {var} declared inside a function call is accessible in steps after the function call", async function() {
