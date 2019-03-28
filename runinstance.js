@@ -250,26 +250,7 @@ class RunInstance {
         }
         catch(e) {
             error = e;
-            error.filename = step.filename;
-            error.lineNumber = step.lineNumber;
-
-            // If error occurred in a function's code block, we should reference the function declaration's line, not the function call's line
-            if(step.isFunctionCall && inCodeBlock) {
-                error.filename = step.originalStepInTree.functionDeclarationInTree.filename;
-                error.lineNumber = step.originalStepInTree.functionDeclarationInTree.lineNumber;
-            }
-
-            // If error occurred in a code block, set the lineNumber to be that from the stack trace rather than the first line of the code block
-            if(inCodeBlock) {
-                var matches = e.stack.toString().match(/at runCodeBlock[^\n]+<anonymous>:[0-9]+/g);
-                if(matches) {
-                    matches = matches[0].match(/([0-9]+)$/g);
-                    if(matches) {
-                        var lineNumberFromStackTrace = parseInt(matches[0]);
-                        error.lineNumber += lineNumberFromStackTrace - 1;
-                    }
-                }
-            }
+            this.fillErrorFromStep(error, step, inCodeBlock);
         }
 
         // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
@@ -335,8 +316,7 @@ class RunInstance {
             await this.evalCodeBlock(step.codeBlock, stepToGetError || branchToGetError);
         }
         catch(e) {
-            e.filename = step.filename;
-            e.lineNumber = step.lineNumber;
+            this.fillErrorFromStep(e, step, true);
 
             if(stepToGetError) {
                 this.tree.markStep(stepToGetError, null, false, false, e);
@@ -757,6 +737,32 @@ class RunInstance {
      */
     popLocalStack() {
         this.local = this.localStack.pop();
+    }
+
+    /**
+     * Takes an Error caught from the execution of a step and adds filename and lineNumber parameters to it
+     */
+    fillErrorFromStep(error, step, inCodeBlock) {
+        error.filename = step.filename;
+        error.lineNumber = step.lineNumber;
+
+        // If error occurred in a function's code block, we should reference the function declaration's line, not the function call's line
+        if(step.isFunctionCall && inCodeBlock) {
+            error.filename = step.originalStepInTree.functionDeclarationInTree.filename;
+            error.lineNumber = step.originalStepInTree.functionDeclarationInTree.lineNumber;
+        }
+
+        // If error occurred in a code block, set the lineNumber to be that from the stack trace rather than the first line of the code block
+        if(inCodeBlock) {
+            var matches = error.stack.toString().match(/at runCodeBlock[^\n]+<anonymous>:[0-9]+/g);
+            if(matches) {
+                matches = matches[0].match(/([0-9]+)$/g);
+                if(matches) {
+                    var lineNumberFromStackTrace = parseInt(matches[0]);
+                    error.lineNumber += lineNumberFromStackTrace - 1;
+                }
+            }
+        }
     }
 }
 module.exports = RunInstance;

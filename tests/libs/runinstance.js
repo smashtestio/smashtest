@@ -2240,7 +2240,7 @@ First {
             expect(retVal).to.equal(false);
             expect(stepToGetError.error.message).to.equal("foobar");
             expect(stepToGetError.error.filename).to.equal("file1.txt");
-            expect(stepToGetError.error.lineNumber).to.equal(10);
+            expect(stepToGetError.error.lineNumber).to.equal(11);
         });
 
         it("runs a failing hook step with only a branchToGetError", async function() {
@@ -2262,7 +2262,7 @@ First {
             expect(retVal).to.equal(false);
             expect(branchToGetError.error.message).to.equal("foobar");
             expect(branchToGetError.error.filename).to.equal("file1.txt");
-            expect(branchToGetError.error.lineNumber).to.equal(10);
+            expect(branchToGetError.error.lineNumber).to.equal(11);
         });
 
         it("runs a failing hook step with both a stepToGetError and a branchToGetError", async function() {
@@ -2289,11 +2289,11 @@ First {
 
             expect(stepToGetError.error.message).to.equal("foobar");
             expect(stepToGetError.error.filename).to.equal("file1.txt");
-            expect(stepToGetError.error.lineNumber).to.equal(10);
+            expect(stepToGetError.error.lineNumber).to.equal(11);
 
             expect(branchToGetError.error.message).to.equal("foobar");
             expect(branchToGetError.error.filename).to.equal("file1.txt");
-            expect(branchToGetError.error.lineNumber).to.equal(10);
+            expect(branchToGetError.error.lineNumber).to.equal(11);
         });
 
         it("runs a failing hook step with no stepToGetError and no branchToGetError", async function() {
