@@ -22,6 +22,8 @@ class RunInstance {
 
         this.localStack = [];                           // Array of objects, where each object stores local vars
         this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
+
+        this.codeBlockOffset = 0;                       // number to subtract from a line number in a strack trace from a code block to get the actual line number
     }
 
     /**
@@ -256,6 +258,15 @@ class RunInstance {
             if(step.isFunctionCall && inCodeBlock) { // error occurred in a function's code block, so we should reference the function declaration's line
                 error.filename = step.originalStepInTree.functionDeclarationInTree.filename;
                 error.lineNumber = step.originalStepInTree.functionDeclarationInTree.lineNumber;
+
+                var matches = e.stack.toString().match(/at runCodeBlock[^\n]+<anonymous>:[0-9]+/g);
+                if(matches) {
+                    matches = matches[0].match(/([0-9]+)$/g);
+                    if(matches) {
+                        var lineNumberFromStackTrace = parseInt(matches[0]);
+                        error.lineNumber += lineNumberFromStackTrace - this.codeBlockOffset;
+                    }
+                }
             }
         }
 
@@ -610,7 +621,7 @@ class RunInstance {
      * @return code, but with more code added so it's ready to be fed into evalCodeBlock() or evalCodeBlockSync()
      */
     prepareCodeForEval(code, isSync, logHere) {
-        // Make global, local, and persistent accessible as js vars
+        // Functions that we want accessible to a code block
         var header = `
             function log(text) {
                 if(logHere) {
@@ -653,16 +664,19 @@ class RunInstance {
         const JS_VARNAME_WHITELIST = /^[A-Za-z\_\$][A-Za-z0-9\_\$]*$/;
         const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
 
+        // Make global, local, and persistent accessible as js vars
         header = loadIntoJsVars(header, this.persistent, "getPersistent");
         header = loadIntoJsVars(header, this.global, "getGlobal");
         header = loadIntoJsVars(header, this.local, "getLocal");
         header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
 
         code = `
-            (` + (isSync ? `` : `async`) + ` function(runInstance) {
+            (` + (isSync ? `` : `async`) + ` function runCodeBlock(runInstance) {
                 ` + header + `
                 ` + code + `
             })(this);`
+
+        this.codeBlockOffset = (header.match(/\n/g) || []).length + 4;
 
         return code;
 

@@ -1406,7 +1406,7 @@ My 'foobar' function
 
             expect(tree.branches[0].steps[1].error.message).to.contain("one is not defined");
             expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
-            expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
+            expect(tree.branches[0].steps[1].error.lineNumber).to.equal(6);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -1515,7 +1515,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it.only("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
+        it("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
             var tree = new Tree();
             tree.parseIn(`
 {{for}}='foobar'
@@ -1538,7 +1538,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token for");
             expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
-console.log(tree.branches[0].steps[1].error.stack);
+
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
@@ -1637,11 +1637,39 @@ console.log(tree.branches[0].steps[1].error.stack);
         it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async function() {
         });
 
+        it.skip("executes a step that logs", async function() {
+        });
+
+        it.skip("marks a step as expectedly failed when it expectedly fails", async function() {
+            // also sets asExpected, error, and log in the step
+            // make sure error.lineNumber is set intelligentlly according to where it actually is
+        });
+
+        it.skip("marks a step as unexpectedly failed when it unexpectedly fails", async function() {
+            // also sets asExpected, error, and log in the step
+            // make sure error.lineNumber is set intelligentlly according to where it actually is
+        });
+
+        it.skip("marks a step as expectedly passed when it expectedly passes", async function() {
+            // also sets asExpected, error, and log in the step
+        });
+
+        it.skip("marks a step as unexpectedly passed when it unexpectedly passes", async function() {
+            // also sets asExpected, error, and log in the step
+        });
+
+        it.skip("handles bad syntax in a code block step", async function() {
+            // make sure error.lineNumber is set intelligentlly according to where it actually is
+        });
+
         it.skip("runs an Execute In Browser step", async function() {
             // inject runinstance.execInBrowser(code) function first
         });
 
-        it.skip("executes a step that logs", async function() {
+        it.skip("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async function() {
+        });
+
+        it.skip("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async function() {
         });
 
         it.skip("pauses when a ~ step is encountered", async function() {
@@ -1660,31 +1688,6 @@ console.log(tree.branches[0].steps[1].error.stack);
         });
 
         it.skip("doesn't pause when pauseOnFail is not set and a step unexpectedly passes", async function() {
-        });
-
-        it.skip("marks a step as expectedly failed when it expectedly fails", async function() {
-            // also sets asExpected, error, and log in the step
-        });
-
-        it.skip("marks a step as unexpectedly failed when it unexpectedly fails", async function() {
-            // also sets asExpected, error, and log in the step
-        });
-
-        it.skip("marks a step as expectedly passed when it expectedly passes", async function() {
-            // also sets asExpected, error, and log in the step
-        });
-
-        it.skip("marks a step as unexpectedly passed when it unexpectedly passes", async function() {
-            // also sets asExpected, error, and log in the step
-        });
-
-        it.skip("handles bad syntax in a code block step", async function() {
-        });
-
-        it.skip("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async function() {
-        });
-
-        it.skip("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async function() {
         });
 
         it.skip("runs a Before Every Step hook", async function() {
