@@ -1956,32 +1956,286 @@ My function
         });
 
         it("clears {{local vars}} and reinstates previous {{local vars}} when exiting multiple levels of function calls", async function() {
-            // branchIndents fell by 2 or more
-            // include some function calls with just a code block, some with just steps, and some with a code block and steps
+            var tree = new Tree();
+            tree.parseIn(`
+{{var1}}='foo'
+    My function
+        E -
+            Something {
+                runInstance.one = getLocal("var1");
+                runInstance.two = var1;
 
+                setLocal("var1", "hehe");
 
+                runInstance.three = getLocal("var1");
+                runInstance.four = var1;
+            }
+                F -
+                    My function
+                        Silly function
+                            G -
+                                {{var1}}='foo2'
 
+* My function
+    A -
+        {{var1}}='bar'
+            Other function
+                D -
 
+        * Other function
+            B -
+                {{var1}}='bar2'
+                    C -
 
+* Silly function {
+    runInstance.five = getLocal("var1");
 
+    setLocal("var1", "blah");
 
+    runInstance.six = getLocal("var1");
+}
+    {{var1}} = "blah2"
+`, "file.txt");
 
+            tree.generateBranches();
 
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
 
+            /*
+             0) {{var1}}='foo'
+             1) My function
+             2)    A -
+             3)    {{var1}}='bar'
+             4)    Other function
+             5)        B -
+             6)        {{var1}}='bar2'
+             7)        C -
+             8)    D -
+             9) E -
+            10) Something { code block }
+            11) F -
+            12) My function
+            13)    A -
+            14)    {{var1}}='bar'
+            15)    Other function
+            16)        B -
+            17)        {{var1}}='bar2'
+            18)        C -
+            19)    D -
+            20) Silly function { code block }
+            21)    {{var1}} = "blah2"
+            22) G -
+            23) {{var1}}='foo2'
+            */
 
+            expect(runInstance.getLocal("var1")).to.equal(undefined);
 
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("foo");
 
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("foo");
+
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal(undefined);
+
+            await runInstance.runStep(tree.branches[0].steps[3], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar");
+
+            await runInstance.runStep(tree.branches[0].steps[4], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar");
+
+            await runInstance.runStep(tree.branches[0].steps[5], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal(undefined);
+
+            await runInstance.runStep(tree.branches[0].steps[6], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar2");
+
+            await runInstance.runStep(tree.branches[0].steps[7], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar2");
+
+            await runInstance.runStep(tree.branches[0].steps[8], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar");
+
+            await runInstance.runStep(tree.branches[0].steps[9], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("foo");
+
+            await runInstance.runStep(tree.branches[0].steps[10], tree.branches[0], false);
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("foo");
+            expect(runInstance.getLocal("var1")).to.equal("hehe");
+            expect(runInstance.three).to.equal("hehe");
+            expect(runInstance.four).to.equal("foo");
+
+            await runInstance.runStep(tree.branches[0].steps[11], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("hehe");
+
+            await runInstance.runStep(tree.branches[0].steps[12], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("hehe");
+
+            await runInstance.runStep(tree.branches[0].steps[13], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal(undefined);
+
+            await runInstance.runStep(tree.branches[0].steps[14], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar");
+
+            await runInstance.runStep(tree.branches[0].steps[15], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar");
+
+            await runInstance.runStep(tree.branches[0].steps[16], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal(undefined);
+
+            await runInstance.runStep(tree.branches[0].steps[17], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar2");
+
+            await runInstance.runStep(tree.branches[0].steps[18], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar2");
+
+            await runInstance.runStep(tree.branches[0].steps[19], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("bar");
+
+            await runInstance.runStep(tree.branches[0].steps[20], tree.branches[0], false);
+            expect(runInstance.five).to.equal(undefined);
+            expect(runInstance.getLocal("var1")).to.equal("blah");
+            expect(runInstance.six).to.equal("blah");
+
+            await runInstance.runStep(tree.branches[0].steps[21], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("blah2");
+
+            await runInstance.runStep(tree.branches[0].steps[22], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("hehe");
+
+            await runInstance.runStep(tree.branches[0].steps[23], tree.branches[0], false);
+            expect(runInstance.getLocal("var1")).to.equal("foo2");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
+            expect(tree.branches[0].steps[3].error).to.equal(undefined);
+            expect(tree.branches[0].steps[4].error).to.equal(undefined);
+            expect(tree.branches[0].steps[5].error).to.equal(undefined);
+            expect(tree.branches[0].steps[6].error).to.equal(undefined);
+            expect(tree.branches[0].steps[7].error).to.equal(undefined);
+            expect(tree.branches[0].steps[8].error).to.equal(undefined);
+            expect(tree.branches[0].steps[9].error).to.equal(undefined);
+            expect(tree.branches[0].steps[10].error).to.equal(undefined);
+            expect(tree.branches[0].steps[11].error).to.equal(undefined);
+            expect(tree.branches[0].steps[12].error).to.equal(undefined);
+            expect(tree.branches[0].steps[13].error).to.equal(undefined);
+            expect(tree.branches[0].steps[14].error).to.equal(undefined);
+            expect(tree.branches[0].steps[15].error).to.equal(undefined);
+            expect(tree.branches[0].steps[16].error).to.equal(undefined);
+            expect(tree.branches[0].steps[17].error).to.equal(undefined);
+            expect(tree.branches[0].steps[18].error).to.equal(undefined);
+            expect(tree.branches[0].steps[19].error).to.equal(undefined);
+            expect(tree.branches[0].steps[20].error).to.equal(undefined);
+            expect(tree.branches[0].steps[21].error).to.equal(undefined);
+            expect(tree.branches[0].steps[22].error).to.equal(undefined);
+            expect(tree.branches[0].steps[23].error).to.equal(undefined);
         });
 
-        it.skip("a {var} is accessible in a later step", async function() {
+        it("a {var} is accessible in a later step", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+    {var2}='{var1}bar'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var2")).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it.skip("a {var} is accessible in a later step, with a function call in between", async function() {
-            // in between = between the var declaration and the "later step"
+        it("a {var} is accessible in a later step, with a function call without code block in between", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+    My function
+        {var2}='{var1}bar'
+
+* My function
+    {var1}='blah'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[3], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal(undefined);
+            expect(runInstance.getGlobal("var2")).to.equal("blahbar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
+            expect(tree.branches[0].steps[3].error).to.equal(undefined);
+        });
+
+        it("a {var} is accessible in a later step, with a function call with code block in between", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+    My function
+        {var2}='{var1}bar'
+
+* My function {
+    runInstance.one = getGlobal("var1");
+    setGlobal("var1", "blah");
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.getGlobal("var2")).to.equal("blahbar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
         it.skip("a {var} is accessible in a later step, with a non-function code block in between", async function() {
             // in between = between the var declaration and the "later step"
+
+
+
+
+
+
+
+
+
+            
         });
 
         it.skip("a {var} is accessible inside a function call's code block", async function() {
