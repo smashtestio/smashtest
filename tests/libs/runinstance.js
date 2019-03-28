@@ -1640,6 +1640,68 @@ My 'foobar' function
         it.skip("executes a step that logs", async function() {
         });
 
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+Something {
+    var a = "a";
+    var b = "b";
+    c; // will throw an exception
+    var d = "d";
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+        });
+
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a function used inside a code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+First {
+    runInstance.badFunc = function() {
+        var a = "a";
+        var b = "b";
+        c;
+        var d = "d";
+    };
+}
+
+    Second {
+        var a = "a";
+        var b = "b";
+        runInstance.badFunc(); // will throw an exception
+        var d = "d";
+    }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[1].error.message).to.contain("c is not defined");
+            expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[1].error.lineNumber).to.equal(14);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+        });
+
         it.skip("marks a step as expectedly failed when it expectedly fails", async function() {
             // also sets asExpected, error, and log in the step
             // make sure error.lineNumber is set intelligentlly according to where it actually is

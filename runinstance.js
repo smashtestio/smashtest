@@ -255,10 +255,14 @@ class RunInstance {
             error.filename = step.filename;
             error.lineNumber = step.lineNumber;
 
-            if(step.isFunctionCall && inCodeBlock) { // error occurred in a function's code block, so we should reference the function declaration's line
+            // If error occurred in a function's code block, we should reference the function declaration's line, not the function call's line
+            if(step.isFunctionCall && inCodeBlock) {
                 error.filename = step.originalStepInTree.functionDeclarationInTree.filename;
                 error.lineNumber = step.originalStepInTree.functionDeclarationInTree.lineNumber;
+            }
 
+            // If error occurred in a code block, set the lineNumber to be that from the stack trace rather than the first line of the code block
+            if(inCodeBlock) {
                 var matches = e.stack.toString().match(/at runCodeBlock[^\n]+<anonymous>:[0-9]+/g);
                 if(matches) {
                     matches = matches[0].match(/([0-9]+)$/g);
