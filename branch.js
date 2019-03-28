@@ -104,13 +104,13 @@ class Branch {
      * @return {Branch} Cloned version of this branch
      */
     clone(noRefs) {
-        var clone = new Branch();
+        let clone = new Branch();
         this.steps.forEach(step => {
             clone.steps.push(step.cloneForBranch(noRefs));
         });
 
         // Copy booleans and strings
-        for(var attr in this) {
+        for(let attr in this) {
             if(this.hasOwnProperty(attr) && (typeof this[attr] == 'boolean' || typeof this[attr] == 'string')) {
                 clone[attr] = this[attr];
             }
@@ -148,10 +148,10 @@ class Branch {
             startIndent = 0;
         }
 
-        var output = spaces(startIndent) + branchName + ' ..\n';
+        let output = spaces(startIndent) + branchName + ' ..\n';
 
         this.steps.forEach(step => {
-            var text = step.text;
+            let text = step.text;
             if(!step.isBuiltIn) {
                 text += ' -';
             }
@@ -159,9 +159,9 @@ class Branch {
         });
 
         function spaces(indents) {
-            var out = '';
-            for(var i = 0; i < indents; i++) {
-                for (var j = 0; j < Constants.SPACES_PER_INDENT; j++) {
+            let out = '';
+            for(let i = 0; i < indents; i++) {
+                for (let j = 0; j < Constants.SPACES_PER_INDENT; j++) {
                     out += ' ';
                 }
             }
@@ -179,8 +179,8 @@ class Branch {
      * @return {Boolean} true if the given branch's steps are equal to this brach's steps, false otherwise
      */
      equals(branch, n) {
-         var thisLen = this.steps.length;
-         var branchLen = branch.steps.length;
+         let thisLen = this.steps.length;
+         let branchLen = branch.steps.length;
          if(typeof n != 'undefined') {
              if(n < thisLen) {
                  thisLen = n;
@@ -194,14 +194,14 @@ class Branch {
              return false;
          }
 
-         for(var i = 0; i < thisLen; i++) {
+         for(let i = 0; i < thisLen; i++) {
              if(getCanonicalStepText(this.steps[i]) != getCanonicalStepText(branch.steps[i])) {
                  return false;
              }
          }
 
          function getCanonicalStepText(step) {
-             var text = step.text.replace(/\s+/g, ' ');
+             let text = step.text.replace(/\s+/g, ' ');
              if(step.identifiers) {
                  step.identifiers.forEach(identifier => {
                      if(identifier != '~' && identifier != '$') {
@@ -235,7 +235,7 @@ class Branch {
       */
      stop() {
          this.steps.forEach(step => {
-            delete step.isRunning; 
+            delete step.isRunning;
          });
      }
 
@@ -261,10 +261,10 @@ class Branch {
       * Marks this branch passed if all steps passed, failed if at least one step passed or failed not as expected
       */
      finishOffBranch() {
-         var badStepExists = false;
+         let badStepExists = false;
 
-         for(var i = 0; i < this.steps.length; i++) {
-             var step = this.steps[i];
+         for(let i = 0; i < this.steps.length; i++) {
+             let step = this.steps[i];
              if(step.asExpected === false) { // we're looking for false, not undefined
                  badStepExists = true;
                  break;

@@ -9,7 +9,7 @@ const StepBlock = require('../../stepblock.js');
 chai.use(chaiSubset);
 
 describe("Step", function() {
-    var root = null;
+    let root = null;
 
     beforeEach(function() {
         /*
@@ -28,37 +28,37 @@ describe("Step", function() {
 
         root = new Step();
 
-        var A = new Step();
+        let A = new Step();
         A.text = "A";
         A.varsList = ["A1", "A2"];
 
-        var B = new Step();
+        let B = new Step();
         B.text = "B";
         B.varsList = ["B1", "B2"];
 
-        var C = new Step();
+        let C = new Step();
         C.text = "C";
         C.varsList = ["C1", "C2"];
         C.functionDeclarationInTree = new Step();
         C.functionDeclarationInTree.text = "C-orig";
 
-        var D = new Step();
+        let D = new Step();
         D.text = "D";
         D.varsList = ["D1", "D2"];
 
-        var E = new Step();
+        let E = new Step();
         E.text = "E";
         E.varsList = ["E1", "E2"];
         E.parent = null;
         E.children = [];
 
-        var F = new Step();
+        let F = new Step();
         F.text = "F";
         F.varsList = ["F1", "F2"];
         F.parent = null;
         F.children = [];
 
-        var EF = new StepBlock();
+        let EF = new StepBlock();
         EF.parent = root;
         EF.children = [];
         EF.steps = [ E, F ];
@@ -83,8 +83,8 @@ describe("Step", function() {
 
     describe("cloneForBranch()", function() {
         it("can properly clone, chlidren are removed from the clone, and the original and cloned objects are distinct", function() {
-            var C = root.children[0].children[1];
-            var clonedC = C.cloneForBranch();
+            let C = root.children[0].children[1];
+            let clonedC = C.cloneForBranch();
 
             clonedC.cloneMark = true;
             C.originalMark = true;
@@ -134,8 +134,8 @@ describe("Step", function() {
         });
 
         it("can properly clone with no refernces to outside objects", function() {
-            var C = root.children[0].children[1];
-            var clonedC = C.cloneForBranch(true);
+            let C = root.children[0].children[1];
+            let clonedC = C.cloneForBranch(true);
 
             clonedC.cloneMark = true;
             C.originalMark = true;
@@ -180,8 +180,8 @@ describe("Step", function() {
         });
 
         it("can properly clone a step within a step block", function() {
-            var E = root.children[1].steps[0];
-            var clonedE = E.cloneForBranch();
+            let E = root.children[1].steps[0];
+            let clonedE = E.cloneForBranch();
 
             clonedE.cloneMark = true;
             E.originalMark = true;
@@ -215,9 +215,9 @@ describe("Step", function() {
         });
 
         it("can properly double-clone a step", function() {
-            var C = root.children[0].children[1];
-            var clonedC1 = C.cloneForBranch();
-            var clonedC2 = clonedC1.cloneForBranch();
+            let C = root.children[0].children[1];
+            let clonedC1 = C.cloneForBranch();
+            let clonedC2 = clonedC1.cloneForBranch();
 
             clonedC2.cloneMark = true;
             C.originalMark = true;
@@ -287,7 +287,7 @@ describe("Step", function() {
 
     describe("getLeaves()", function() {
         it("returns all leaves", function() {
-            var leaves = root.getLeaves();
+            let leaves = root.getLeaves();
             root.rootMark = true;
 
             expect(leaves).to.containSubset([
@@ -325,8 +325,8 @@ describe("Step", function() {
         });
 
         it("returns an array with itself when called on a leaf", function() {
-            var D = root.children[0].children[1].children[0];
-            var leaves = D.getLeaves();
+            let D = root.children[0].children[1].children[0];
+            let leaves = D.getLeaves();
 
             expect(leaves).to.containSubset([
                 {
@@ -342,8 +342,8 @@ describe("Step", function() {
     });
 
     describe("isFunctionMatch()", function() {
-        var functionDeclaration = new Step();
-        var functionCall = new Step();
+        let functionDeclaration = new Step();
+        let functionCall = new Step();
 
         functionDeclaration.isFunctionDeclaration = true;
         functionCall.isFunctionCall = true;
@@ -525,14 +525,14 @@ describe("Step", function() {
 
     describe("getFunctionCallText()", function() {
         it("returns function call text for a function call", function() {
-            var step = new Step();
+            let step = new Step();
             step.isFunctionCall = true;
             step.text = "Function call";
             expect(step.getFunctionCallText()).to.equal("Function call");
         });
 
         it("returns function call text for a function call in form {var} = F", function() {
-            var step = new Step();
+            let step = new Step();
             step.isFunctionCall = true;
             step.text = "{var} = Function call";
             step.varsBeingSet = [ {name: "var", value: "Function call", isLocal: false} ];
@@ -540,7 +540,7 @@ describe("Step", function() {
         });
 
         it("returns null for a non-function call", function() {
-            var step = new Step();
+            let step = new Step();
             step.isFunctionCall = false;
             expect(step.getFunctionCallText()).to.equal(null);
         });
@@ -548,10 +548,10 @@ describe("Step", function() {
 
     describe("mergeInFunctionDeclaration()", function() {
         it("merges in function declaration", function() {
-            var step = new Step();
+            let step = new Step();
             step.isToDo = true;
 
-            var functionDeclarationInTree = new Step();
+            let functionDeclarationInTree = new Step();
             functionDeclarationInTree.text = "T";
             functionDeclarationInTree.isToDo = true;
             functionDeclarationInTree.isManual = true;
@@ -566,9 +566,9 @@ describe("Step", function() {
         });
 
         it("merges in function declaration with all identifiers set to false", function() {
-            var step = new Step();
+            let step = new Step();
 
-            var functionDeclarationInTree = new Step();
+            let functionDeclarationInTree = new Step();
             functionDeclarationInTree.text = "T";
             functionDeclarationInTree.isToDo = true;
             functionDeclarationInTree.isManual = true;
@@ -593,9 +593,9 @@ describe("Step", function() {
         });
 
         it("merges in function declaration with all identifiers missing", function() {
-            var step = new Step();
+            let step = new Step();
 
-            var functionDeclarationInTree = new Step();
+            let functionDeclarationInTree = new Step();
 
             step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
@@ -611,9 +611,9 @@ describe("Step", function() {
         });
 
         it("merges in code block", function() {
-            var step = new Step();
+            let step = new Step();
 
-            var functionDeclarationInTree = new Step();
+            let functionDeclarationInTree = new Step();
             functionDeclarationInTree.codeBlock = 'code';
 
             step.mergeInFunctionDeclaration(functionDeclarationInTree);
@@ -624,13 +624,13 @@ describe("Step", function() {
 
     describe("cloneAsFunctionCall()", function() {
         it("clones a function declaration step into a function call step", function() {
-            var functionDeclarationInTree = new Step();
+            let functionDeclarationInTree = new Step();
             functionDeclarationInTree.isFunctionDeclaration = true;
             functionDeclarationInTree.text = "My function";
             functionDeclarationInTree.children = [ new Step() ];
             functionDeclarationInTree.children[0].text = "Child step";
 
-            var clone = functionDeclarationInTree.cloneAsFunctionCall();
+            let clone = functionDeclarationInTree.cloneAsFunctionCall();
 
             expect(clone.isFunctionDeclaration).to.equal(false);
             expect(clone.isFunctionCall).to.equal(true);

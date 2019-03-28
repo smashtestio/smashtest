@@ -70,23 +70,23 @@ class Step {
     cloneForBranch(noRefs) {
         // We don't want the clone to walk the tree into other Step objects, such as this.parent
         // Therefore, temporarily remove references to other Steps
-        var originalParent = this.parent;
+        let originalParent = this.parent;
         delete this.parent;
 
-        var originalChildren = this.children;
+        let originalChildren = this.children;
         delete this.children;
 
-        var originalFunctionDeclarationInTree = this.functionDeclarationInTree;
+        let originalFunctionDeclarationInTree = this.functionDeclarationInTree;
         delete this.functionDeclarationInTree; // delete because this variable is optional and is undefined by default
 
-        var originalContainingStepBlock = this.containingStepBlock;
+        let originalContainingStepBlock = this.containingStepBlock;
         delete this.containingStepBlock; // delete because this variable is optional and is undefined by default
 
-        var originalOriginalStepInTree = this.originalStepInTree;
+        let originalOriginalStepInTree = this.originalStepInTree;
         delete this.originalStepInTree;
 
         // Clone
-        var clone = clonedeep(this);
+        let clone = clonedeep(this);
         if(!noRefs) {
             clone.originalStepInTree = originalOriginalStepInTree ? originalOriginalStepInTree : this; // double-cloning a Step retains originalStepInTree pointing at the original step under this.root
         }
@@ -110,7 +110,7 @@ class Step {
             return [ this ];
         }
         else {
-            var arr = [];
+            let arr = [];
             this.children.forEach(child => {
                 arr = arr.concat(child.getLeaves());
             });
@@ -125,8 +125,8 @@ class Step {
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
      */
     isFunctionMatch(functionDeclaration) {
-        var functionCallText = this.getFunctionCallText();
-        var functionDeclarationText = functionDeclaration.text;
+        let functionCallText = this.getFunctionCallText();
+        let functionDeclarationText = functionDeclaration.text;
 
         // When hooking up functions, canonicalize by trim(), toLowerCase(), and replace \s+ with a single space
         // functionDeclarationText can have {{variables}}
@@ -179,31 +179,31 @@ class Step {
      * @param {Step} functionDeclarationInTree - The function declaration that corresponds to this step
      */
     mergeInFunctionDeclaration(functionDeclarationInTree) {
-        var isToDo = this.isToDo || functionDeclarationInTree.isToDo;
+        let isToDo = this.isToDo || functionDeclarationInTree.isToDo;
         isToDo ? this.isToDo = isToDo : null; // don't do anything ("null;") if isTodo isn't true
 
-        var isManual = this.isManual || functionDeclarationInTree.isManual;
+        let isManual = this.isManual || functionDeclarationInTree.isManual;
         isManual ? this.isManual = isManual : null;
 
-        var isDebug = this.isDebug || functionDeclarationInTree.isDebug;
+        let isDebug = this.isDebug || functionDeclarationInTree.isDebug;
         isDebug ? this.isDebug = isDebug : null;
 
-        var isOnly = this.isOnly || functionDeclarationInTree.isOnly;
+        let isOnly = this.isOnly || functionDeclarationInTree.isOnly;
         isOnly ? this.isOnly = isOnly : null;
 
-        var isNonParallel = this.isNonParallel || functionDeclarationInTree.isNonParallel;
+        let isNonParallel = this.isNonParallel || functionDeclarationInTree.isNonParallel;
         isNonParallel ? this.isNonParallel = isNonParallel : null;
 
-        var isSequential = this.isSequential || functionDeclarationInTree.isSequential;
+        let isSequential = this.isSequential || functionDeclarationInTree.isSequential;
         isSequential ? this.isSequential = isSequential : null;
 
-        var isExpectedFail = this.isExpectedFail || functionDeclarationInTree.isExpectedFail;
+        let isExpectedFail = this.isExpectedFail || functionDeclarationInTree.isExpectedFail;
         isExpectedFail ? this.isExpectedFail = isExpectedFail : null;
 
-        var isBuiltIn = this.isBuiltIn || functionDeclarationInTree.isBuiltIn;
+        let isBuiltIn = this.isBuiltIn || functionDeclarationInTree.isBuiltIn;
         isBuiltIn ? this.isBuiltIn = isBuiltIn : null;
 
-        var isHook = this.isHook || functionDeclarationInTree.isHook;
+        let isHook = this.isHook || functionDeclarationInTree.isHook;
         isHook ? this.isHook = isHook : null;
 
         if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
@@ -217,7 +217,7 @@ class Step {
      * @return {Step} clone of this function declaration step (using this.cloneForBranch()), converted into a function call step
      */
     cloneAsFunctionCall() {
-        var clone = this.cloneForBranch();
+        let clone = this.cloneForBranch();
         clone.isFunctionDeclaration = false;
         clone.isFunctionCall = true;
         return clone;

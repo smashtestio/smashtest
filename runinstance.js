@@ -30,8 +30,8 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved once done executing
      */
     async run() {
-        var wasPaused = false;
-        var overrideDebug = false;
+        let wasPaused = false;
+        let overrideDebug = false;
         if(this.isPaused) {
             this.isPaused = false; // resume if we're already paused
             wasPaused = true;
@@ -42,14 +42,14 @@ class RunInstance {
         }
 
         while(this.currBranch) {
-            var startTime = new Date();
+            let startTime = new Date();
 
             // Execute Before Every Branch steps, if they didn't run already (and remember, there is only one branch if pausing is possible)
             if(this.currBranch.beforeEveryBranch && !wasPaused) {
-                for(var i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
-                    var s = this.currBranch.beforeEveryBranch[i];
+                for(let i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
+                    let s = this.currBranch.beforeEveryBranch[i];
 
-                    var isSuccess = await this.runHookStep(s, null, this.currBranch);
+                    let isSuccess = await this.runHookStep(s, null, this.currBranch);
                     if(!isSuccess) {
                         // runHookStep() already marked the branch as a failure, so now just advance to the next branch
                         this.currBranch = this.tree.nextBranch();
@@ -120,13 +120,13 @@ class RunInstance {
             return;
         }
 
-        var startTime = new Date();
+        let startTime = new Date();
 
         // Execute Before Every Step hooks
         if(branch && branch.beforeEveryStep) {
-            for(var i = 0; i < branch.beforeEveryStep.length; i++) {
-                var s = branch.beforeEveryStep[i];
-                var isSuccess = await this.runHookStep(s, step);
+            for(let i = 0; i < branch.beforeEveryStep.length; i++) {
+                let s = branch.beforeEveryStep[i];
+                let isSuccess = await this.runHookStep(s, step);
                 if(!isSuccess) {
                     return;
                 }
@@ -134,9 +134,9 @@ class RunInstance {
         }
 
         // Find the previous step
-        var prevStep = null;
+        let prevStep = null;
         if(branch) {
-            var index = branch.steps.indexOf(step);
+            let index = branch.steps.indexOf(step);
             if(index >= 1) {
                 prevStep = branch.steps[index - 1];
             }
@@ -144,19 +144,19 @@ class RunInstance {
 
         // Handle the stack for {{local vars}}
         if(prevStep) {
-            var prevStepWasACodeBlockFunc = prevStep.isFunctionCall && typeof prevStep.codeBlock != 'undefined';
+            let prevStepWasACodeBlockFunc = prevStep.isFunctionCall && typeof prevStep.codeBlock != 'undefined';
 
             // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
             if(step.branchIndents > prevStep.branchIndents) { // NOTE: when step.branchIndents > prevStep.branchIndents, step.branchIndents is always prevStep.branchIndents + 1
                 if(!prevStepWasACodeBlockFunc) { // if previous step was a code block function, the push was already done
-                    // Push existing local var context to stack, create fresh local var context
+                    // Push existing local let context to stack, create fresh local let context
                     this.pushLocalStack();
                 }
             }
             else if(step.branchIndents < prevStep.branchIndents) {
-                // Pop one local var context for every branchIndents decrement
-                var diff = prevStep.branchIndents - step.branchIndents;
-                for(var i = 0; i < diff; i++) {
+                // Pop one local let context for every branchIndents decrement
+                let diff = prevStep.branchIndents - step.branchIndents;
+                for(let i = 0; i < diff; i++) {
                     this.popLocalStack();
                 }
             }
@@ -168,8 +168,8 @@ class RunInstance {
         }
         this.localsPassedIntoFunc = {};
 
-        var error = undefined;
-        var inCodeBlock = false;
+        let error = undefined;
+        let inCodeBlock = false;
 
         // Execute the step
         try {
@@ -177,18 +177,18 @@ class RunInstance {
             if(step.isFunctionCall) {
                 // Set {{local vars}} based on function declaration signature and function call signature
 
-                var varList = step.functionDeclarationText.match(Constants.VAR);
+                let varList = step.functionDeclarationText.match(Constants.VAR);
                 if(varList) {
-                    var inputList = step.text.match(Constants.FUNCTION_INPUT);
+                    let inputList = step.text.match(Constants.FUNCTION_INPUT);
                     if(inputList) {
                         if(step.varsBeingSet && step.varsBeingSet.length > 0) {
                             // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
                             inputList.shift();
                         }
 
-                        for(var i = 0; i < varList.length; i++) {
-                            var varname = utils.stripBrackets(varList[i]);
-                            var value = inputList[i];
+                        for(let i = 0; i < varList.length; i++) {
+                            let varname = utils.stripBrackets(varList[i]);
+                            let value = inputList[i];
 
                             if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
                                 value = utils.stripQuotes(value);
@@ -196,7 +196,7 @@ class RunInstance {
                                 value = utils.unescape(value);
                             }
                             else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
-                                var isLocal = value.startsWith('{{');
+                                let isLocal = value.startsWith('{{');
                                 value = utils.stripBrackets(value);
                                 value = this.findVarValue(value, isLocal, step, branch);
                             }
@@ -209,9 +209,9 @@ class RunInstance {
 
             // Step is {var}='str' [, {var2}='str', etc.]
             if(!step.isFunctionCall && typeof step.codeBlock == 'undefined' && step.varsBeingSet && step.varsBeingSet.length > 0) {
-                for(var i = 0; i < step.varsBeingSet.length; i++) {
-                    var varBeingSet = step.varsBeingSet[i];
-                    var value = utils.stripQuotes(varBeingSet.value);
+                for(let i = 0; i < step.varsBeingSet.length; i++) {
+                    let varBeingSet = step.varsBeingSet[i];
+                    let value = utils.stripQuotes(varBeingSet.value);
                     value = this.replaceVars(value, step, branch);
                     this.setVarBeingSet(varBeingSet, value);
                 }
@@ -220,11 +220,11 @@ class RunInstance {
             // Step has a code block to execute
             if(typeof step.codeBlock != 'undefined') {
                 if(step.isFunctionCall) {
-                    // Push existing local var context to stack, create fresh local var context
+                    // Push existing local let context to stack, create fresh local let context
                     this.pushLocalStack();
                 }
 
-                var retVal = null;
+                let retVal = null;
                 inCodeBlock = true;
                 if(utils.canonicalize(step.text) == "execute in browser") {
                     retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a built-in Before Everything hook
@@ -254,8 +254,8 @@ class RunInstance {
         }
 
         // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
-        var isPassed = false;
-        var asExpected = false;
+        let isPassed = false;
+        let asExpected = false;
         if(step.isExpectedFail) {
             if(error) {
                 isPassed = false;
@@ -281,7 +281,7 @@ class RunInstance {
             }
         }
 
-        var finishBranchNow = true;
+        let finishBranchNow = true;
         if(error && (error.continue || this.runner.pauseOnFail)) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
             finishBranchNow = false;
         }
@@ -290,8 +290,8 @@ class RunInstance {
 
         // Execute After Every Step hooks (all of them, regardless if one fails)
         if(branch && branch.afterEveryStep) {
-            for(var i = 0; i < branch.afterEveryStep.length; i++) {
-                var s = branch.afterEveryStep[i];
+            for(let i = 0; i < branch.afterEveryStep.length; i++) {
+                let s = branch.afterEveryStep[i];
                 await this.runHookStep(s, step);
             }
         }
@@ -454,7 +454,7 @@ class RunInstance {
      */
     evalCodeBlock(code, logHere, isSync) {
         // Functions accessible from a code block
-        var runInstance = this;
+        var runInstance = this; // var so it's accesible in the eval()
 
         function log(text) {
             if(logHere) {
@@ -497,7 +497,7 @@ class RunInstance {
         const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
 
         // Make global, local, and persistent accessible as js vars
-        var header = '';
+        let header = '';
         header = loadIntoJsVars(header, this.persistent, "getPersistent");
         header = loadIntoJsVars(header, this.global, "getGlobal");
         header = loadIntoJsVars(header, this.local, "getLocal");
@@ -512,8 +512,8 @@ class RunInstance {
         else {
             // Doing this instead of putting async on top of evalCodeBlock(), because we want evalCodeBlock() to return both values and promises, depending on the value of isSync
             return new Promise(async (resolve, reject) => {
-                var error = null;
-                var retVal = null;
+                let error = null;
+                let retVal = null;
                 try {
                     retVal = await eval(code);
                 }
@@ -531,7 +531,7 @@ class RunInstance {
          * Generates js code that converts variables into normal js vars, appends code to header, returns header
          */
         function loadIntoJsVars(header, arr, getter) {
-            for(var varname in arr) {
+            for(let varname in arr) {
                 if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
                     header += "var " + varname + " = " + getter + "('" + varname + "');";
                 }
@@ -549,13 +549,13 @@ class RunInstance {
      * @throws {Error} If there's a variable inside text that's never set
      */
     replaceVars(text, step, branch) {
-        var matches = text.match(Constants.VAR);
+        let matches = text.match(Constants.VAR);
         if(matches) {
-            for(var i = 0; i < matches.length; i++) {
-                var match = matches[i];
-                var name = utils.stripBrackets(match);
-                var isLocal = match.startsWith('{{');
-                var value = null;
+            for(let i = 0; i < matches.length; i++) {
+                let match = matches[i];
+                let name = utils.stripBrackets(match);
+                let isLocal = match.startsWith('{{');
+                let value = null;
 
                 try {
                     value = this.findVarValue(name, isLocal, step, branch);
@@ -589,8 +589,8 @@ class RunInstance {
      * @throws {Error} If the variable is never set
      */
     findVarValue(varname, isLocal, step, branch) {
-        // If var is already set, return it immediately
-        var value = null;
+        // If let is already set, return it immediately
+        let value = null;
         if(isLocal) {
             value = this.getLocal(varname);
         }
@@ -602,7 +602,7 @@ class RunInstance {
             return value;
         }
 
-        var variableFull = "";
+        let variableFull = "";
         if(isLocal) {
             variableFull = "{{" + varname + "}}";
         }
@@ -617,18 +617,18 @@ class RunInstance {
             branch.steps.push(step);
         }
 
-        var index = branch.steps.indexOf(step);
-        for(var i = index; i < branch.steps.length; i++) {
-            var s = branch.steps[i];
+        let index = branch.steps.indexOf(step);
+        for(let i = index; i < branch.steps.length; i++) {
+            let s = branch.steps[i];
             if(isLocal && s.branchIndents < step.branchIndents) {
                 break; // you cannot look outside a function's scope for a local var
             }
 
             if(s.varsBeingSet) {
-                for(var j = 0; j < s.varsBeingSet.length; j++) {
-                    var varBeingSet = s.varsBeingSet[j];
+                for(let j = 0; j < s.varsBeingSet.length; j++) {
+                    let varBeingSet = s.varsBeingSet[j];
                     if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
-                        var value = null;
+                        let value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)
                             value = this.evalCodeBlock(s.codeBlock, s, true);
@@ -693,8 +693,8 @@ class RunInstance {
      */
     async runAfterEveryBranch() {
         if(this.currBranch.afterEveryBranch) {
-            for(var i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-                var s = this.currBranch.afterEveryBranch[i];
+            for(let i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
+                let s = this.currBranch.afterEveryBranch[i];
                 await this.runHookStep(s, null, this.currBranch);
                 // finish running all After Every Branch steps, even if one fails, and even if there was a pause or stop
             }
@@ -723,7 +723,7 @@ class RunInstance {
     }
 
     /**
-     * Push existing local var context to stack, create fresh local var context
+     * Push existing local let context to stack, create fresh local let context
      */
     pushLocalStack() {
         this.localStack.push(this.local);
@@ -733,7 +733,7 @@ class RunInstance {
     }
 
     /**
-     * Pop one local var context
+     * Pop one local let context
      */
     popLocalStack() {
         this.local = this.localStack.pop();
@@ -754,11 +754,11 @@ class RunInstance {
 
         // If error occurred in a code block, set the lineNumber to be that from the stack trace rather than the first line of the code block
         if(inCodeBlock) {
-            var matches = error.stack.toString().match(/at runCodeBlock[^\n]+<anonymous>:[0-9]+/g);
+            let matches = error.stack.toString().match(/at runCodeBlock[^\n]+<anonymous>:[0-9]+/g);
             if(matches) {
                 matches = matches[0].match(/([0-9]+)$/g);
                 if(matches) {
-                    var lineNumberFromStackTrace = parseInt(matches[0]);
+                    let lineNumberFromStackTrace = parseInt(matches[0]);
                     error.lineNumber += lineNumberFromStackTrace - 1;
                 }
             }

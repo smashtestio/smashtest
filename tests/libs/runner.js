@@ -13,8 +13,8 @@ chai.use(chaiAsPromised);
 describe("Runner", function() {
     describe("run()", function() {
         it("throws an error when pauseOnFail is set but maxInstances isn't 1", async function() {
-            var runner = new Runner();
-            var tree = new Tree();
+            let runner = new Runner();
+            let tree = new Tree();
 
             runner.pauseOnFail = true;
             runner.maxInstances = 2;
@@ -24,8 +24,8 @@ describe("Runner", function() {
         });
 
         it("throws an error when a ~ step exists but maxInstances isn't 1", async function() {
-            var runner = new Runner();
-            var tree = new Tree();
+            let runner = new Runner();
+            let tree = new Tree();
 
             tree.parseIn(`
 A -

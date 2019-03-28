@@ -41,15 +41,15 @@ class Tree {
             return 0;
         }
 
-        var spacesAtFront = line.match(/^( *)([^ ]|$)/);
-        var whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
+        let spacesAtFront = line.match(/^( *)([^ ]|$)/);
+        let whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
         if(spacesAtFront[1] != whitespaceAtFront[1]) {
             utils.error("Spaces are the only type of whitespace allowed at the beginning of a step", filename, lineNumber);
         }
         else {
-            var numSpaces = spacesAtFront[1].length;
-            var numIndents = numSpaces / Constants.SPACES_PER_INDENT;
+            let numSpaces = spacesAtFront[1].length;
+            let numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
             if(numIndents - Math.floor(numIndents) != 0) {
                 utils.error("The number of spaces at the beginning of a step must be a multiple of " + Constants.SPACES_PER_INDENT + ". You have " + numSpaces + " space(s).", filename, lineNumber);
@@ -69,7 +69,7 @@ class Tree {
      * @throws {Error} If there is a parse error
      */
     parseLine(line, filename, lineNumber) {
-        var step = new Step();
+        let step = new Step();
         step.line = line;
         step.filename = filename;
         step.lineNumber = lineNumber;
@@ -84,7 +84,7 @@ class Tree {
             return step;
         }
 
-        var matches = line.match(Constants.LINE_WHOLE);
+        let matches = line.match(Constants.LINE_WHOLE);
         if(!matches) {
             utils.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
         }
@@ -117,9 +117,9 @@ class Tree {
             // Validate that all vars in a function declaration are {{local}}
             matches = step.text.match(Constants.VAR);
             if(matches) {
-                for(var i = 0; i < matches.length; i++) {
-                    var match = matches[i];
-                    var name = utils.stripBrackets(match);
+                for(let i = 0; i < matches.length; i++) {
+                    let match = matches[i];
+                    let name = utils.stripBrackets(match);
                     if(!match.startsWith('{{')) {
                         utils.error("All variables in a * Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
                     }
@@ -169,9 +169,9 @@ class Tree {
 
         // Validate hook steps
         if(step.isFunctionDeclaration) {
-            var canStepText = utils.canonicalize(step.text);
-            var stepText = step.text.trim().replace(/\s+/g, ' ');
-            var index = Constants.HOOK_NAMES.indexOf(canStepText);
+            let canStepText = utils.canonicalize(step.text);
+            let stepText = step.text.trim().replace(/\s+/g, ' ');
+            let index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index != -1) {
                 step.isHook = true;
                 if(typeof step.codeBlock == 'undefined') {
@@ -192,7 +192,7 @@ class Tree {
             }
 
             // Parse vars from text into step.varsBeingSet
-            var textCopy = step.text + "";
+            let textCopy = step.text + "";
             step.varsBeingSet = [];
             while(textCopy.trim() != "") {
                 matches = textCopy.match(Constants.VARS_SET_WHOLE);
@@ -200,7 +200,7 @@ class Tree {
                     utils.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
                 }
 
-                var varBeingSet = {
+                let varBeingSet = {
                     name: utils.stripBrackets(matches[2]),
                     value: matches[5],
                     isLocal: matches[2].includes('{{')
@@ -242,7 +242,7 @@ class Tree {
                 // This step is {var1}='str1', {var2}='str2', etc. (two or more vars)
 
                 // If there are multiple vars being set, each value must be a string literal
-                for(var i = 0; i < step.varsBeingSet.length; i++) {
+                for(let i = 0; i < step.varsBeingSet.length; i++) {
                     if(!step.varsBeingSet[i].value.match(Constants.STRING_LITERAL_WHOLE)) {
                         utils.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', \"strings\", or [strings]", filename, lineNumber);
                     }
@@ -289,15 +289,15 @@ class Tree {
      * @param {Boolean} [isBuiltIn] - If true, this is a built-in file
      */
     parseIn(buffer, filename, isBuiltIn) {
-        var lines = buffer.split(/[\r\n|\r|\n]/);
+        let lines = buffer.split(/[\r\n|\r|\n]/);
 
         // Convert each string in lines to either a Step object
         // For a line that's part of a code block, insert the code into the Step representing the code block and remove that line
-        var lastStepCreated = null;
-        var lastNonEmptyStep = null;
-        var currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
-        for(var i = 0; i < lines.length; i++) {
-            var line = lines[i];
+        let lastStepCreated = null;
+        let lastNonEmptyStep = null;
+        let currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
+        for(let i = 0; i < lines.length; i++) {
+            let line = lines[i];
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
                 if(line.match(new RegExp("^[ ]{" + (lastStepCreated.indents * Constants.SPACES_PER_INDENT) + "}\}\s*(\/\/.*?)?\s*$"))) { // code block is ending
@@ -311,7 +311,7 @@ class Tree {
                 lines[i] = this.parseLine('', filename, i + 1); // blank out the line we just handled
             }
             else {
-                var step = this.parseLine(line, filename, i + 1);
+                let step = this.parseLine(line, filename, i + 1);
                 step.indents = this.numIndents(line, filename, i + 1);
 
                 if(!lastNonEmptyStep && step.indents != 0) {
@@ -338,7 +338,7 @@ class Tree {
         }
 
         // Validations for .. steps
-        for(var i = 0; i < lines.length; i++) {
+        for(let i = 0; i < lines.length; i++) {
             if(lines[i].text == '..') {
                 if(i > 0 && lines[i-1].text != '' && lines[i-1].indents == lines[i].indents) {
                     utils.error("You cannot have a .. line at the same indent level as the adjacent line above", filename, lines[i].lineNumber);
@@ -360,7 +360,7 @@ class Tree {
         // 1) all steps are at the same indent level
         // 2) has no '' steps in the middle
         // 3) is followed by a '' line, indented '..' step, line that's differntly indented, or end of file
-        for(var i = 0; i < lines.length;) {
+        for(let i = 0; i < lines.length;) {
             if(lines[i].text == '' || lines[i].text == '..') {
                 // The first line in a step block is a normal line
                 i++;
@@ -368,7 +368,7 @@ class Tree {
             }
 
             // Current step may start a step block
-            var potentialStepBlock = new StepBlock();
+            let potentialStepBlock = new StepBlock();
 
             if(i > 0 && lines[i-1].text == '..') {
                 potentialStepBlock.isSequential = true;
@@ -377,7 +377,7 @@ class Tree {
             potentialStepBlock.steps.push(lines[i]);
 
             // See how far down it goes
-            for(var j = i + 1; j < lines.length; j++) {
+            for(var j = i + 1; j < lines.length; j++) { // var so that j is accessible outside the for loop
                 if(lines[j].text == '' || lines[j].indents != potentialStepBlock.steps[0].indents) {
                     // We've reached the end of the (potential) step block
                     break;
@@ -397,7 +397,7 @@ class Tree {
                 potentialStepBlock.filename = filename;
                 potentialStepBlock.lineNumber = potentialStepBlock.isSequential ? potentialStepBlock.steps[0].lineNumber - 1 : potentialStepBlock.steps[0].lineNumber;
                 potentialStepBlock.indents = potentialStepBlock.steps[0].indents;
-                for(var k = 0; k < potentialStepBlock.steps.length; k++) {
+                for(let k = 0; k < potentialStepBlock.steps.length; k++) {
                     potentialStepBlock.steps[k].containingStepBlock = potentialStepBlock;
 
                     // Validate that a step block member is not a function declaration
@@ -421,7 +421,7 @@ class Tree {
         }
 
         // Remove steps that are '' or '..' (we don't need them anymore)
-        for(var i = 0; i < lines.length;) {
+        for(let i = 0; i < lines.length;) {
             if(lines[i].text == '') {
                 lines.splice(i, 1);
             }
@@ -441,9 +441,9 @@ class Tree {
 
         // Set the parents and children of each Step/StepBlock in lines, based on the indents of each Step/StepBlock
         // Insert the contents of lines into the tree (under this.root)
-        for(var i = 0; i < lines.length; i++) {
-            var currStepObj = lines[i]; // either a Step or StepBlock object
-            var prevStepObj = i > 0 ? lines[i-1] : null;
+        for(let i = 0; i < lines.length; i++) {
+            let currStepObj = lines[i]; // either a Step or StepBlock object
+            let prevStepObj = i > 0 ? lines[i-1] : null;
 
             // Built-In
             if(isBuiltIn) {
@@ -451,7 +451,7 @@ class Tree {
             }
 
             // Indents of new step vs. last step
-            var indentsAdvanced = 0;
+            let indentsAdvanced = 0;
             if(prevStepObj != null) {
                 indentsAdvanced = currStepObj.indents - prevStepObj.indents;
             }
@@ -474,8 +474,8 @@ class Tree {
                 utils.error("You cannot have a step that has 2 or more indents beyond the previous step", filename, currStepObj.lineNumber);
             }
             else { // indentsAdvanced < 0, and current step is a child of an ancestor of the previous step
-                var parent = prevStepObj.parent;
-                for(var j = indentsAdvanced; j < 0; j++) {
+                let parent = prevStepObj.parent;
+                for(let j = indentsAdvanced; j < 0; j++) {
                     if(parent.parent == null) {
                         utils.error("Invalid number of indents", filename, currStepObj.lineNumber); // NOTE: probably unreachable
                     }
@@ -502,13 +502,13 @@ class Tree {
         // to the steps under the call to A. This can only be done if the call to A has been "expanded" (has the steps from
         // A's declaration attached).
 
-        var index = stepsAbove.length - 1;
-        var functionCall = stepsAbove[index];
+        let index = stepsAbove.length - 1;
+        let functionCall = stepsAbove[index];
 
         for(; index >= 0; index--) {
-            var currStepInTree = stepsAbove[index].originalStepInTree;
+            let currStepInTree = stepsAbove[index].originalStepInTree;
 
-            var siblings = [];
+            let siblings = [];
             if(currStepInTree.parent) { // currStep is not inside a StepBlock
                 siblings = currStepInTree.parent.children;
             }
@@ -516,8 +516,8 @@ class Tree {
                 siblings = currStepInTree.containingStepBlock.parent.children; // these are the siblings of the step block's parent (remember, step blocks themselves cannot have function declarations)
             }
 
-            for(var i = 0; i < siblings.length; i++) {
-                var sibling = siblings[i];
+            for(let i = 0; i < siblings.length; i++) {
+                let sibling = siblings[i];
                 if(sibling.isFunctionDeclaration && functionCall.isFunctionMatch(sibling)) {
                     return sibling;
                 }
@@ -646,7 +646,7 @@ class Tree {
         //    (which may be multiple branches if this step is a function call, etc.)
         // ***************************************
 
-        var branchesFromThisStep = []; // Array of Branch
+        let branchesFromThisStep = []; // Array of Branch
 
         if(step.indents == -1) {
             // We're at the root. Ignore it.
@@ -654,11 +654,11 @@ class Tree {
         else if(step.isFunctionCall) {
             step.functionDeclarationInTree = this.findFunctionDeclaration(stepsAbove);
 
-            var clonedStep = step.cloneForBranch();
+            let clonedStep = step.cloneForBranch();
             clonedStep.branchIndents = branchIndents;
             clonedStep.mergeInFunctionDeclaration(step.functionDeclarationInTree); // merge top step in function declaration into this function call
 
-            var isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
+            let isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
 
             if(clonedStep.varsBeingSet && clonedStep.varsBeingSet.length > 0) {
                 // This step is {var} = F
@@ -671,7 +671,7 @@ class Tree {
 
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
-                var branch = new Branch();
+                let branch = new Branch();
                 branch.isOnly = step.isOnly;
                 branch.isDebug = step.isDebug;
                 branchesFromThisStep = [ branch ];
@@ -696,17 +696,17 @@ class Tree {
         }
         else if(step instanceof StepBlock && step.isSequential) { // sequential step block (with a .. on top)
             // Branches from each step block member are cross joined sequentially to each other
-            var branchesInThisStepBlock = [];
+            let branchesInThisStepBlock = [];
             step.steps.forEach(stepInBlock => {
-                var branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, frequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, frequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
                 }
                 else {
-                    var newBranchesInThisStepBlock = [];
+                    let newBranchesInThisStepBlock = [];
                     branchesInThisStepBlock.forEach(branchInThisStepBlock => {
                         branchesFromThisStepBlockMember.forEach(branchBelowBlockMember => {
-                            var b = branchInThisStepBlock.clone();
+                            let b = branchInThisStepBlock.clone();
                             b.mergeToEnd(branchBelowBlockMember);
                             newBranchesInThisStepBlock.push(b);
                         });
@@ -729,8 +729,8 @@ class Tree {
         }
         else { // Textual steps (including manual steps), non-function-declaration code block steps, {var}='string'
             // Generic step cloning into branchesFromThisStep
-            var branch = new Branch();
-            var clonedStep = step.cloneForBranch();
+            let branch = new Branch();
+            let clonedStep = step.cloneForBranch();
             clonedStep.branchIndents = branchIndents;
 
             branch.steps.push(clonedStep);
@@ -759,7 +759,7 @@ class Tree {
         // 3) Branchify children of this step, including children that are hooks
         // ***************************************
 
-        var children = step.children;
+        let children = step.children;
 
         if(children.length == 0) {
             // If this step is a member of a non-sequential step block, the step block's children are this step's "children"
@@ -769,20 +769,20 @@ class Tree {
         }
 
         // Check if a child is a hook function declaration
-        var beforeEveryBranch = [];
-        var afterEveryBranch = [];
-        var beforeEveryStep = [];
-        var afterEveryStep = [];
+        let beforeEveryBranch = [];
+        let afterEveryBranch = [];
+        let beforeEveryStep = [];
+        let afterEveryStep = [];
         children.forEach(child => {
             if(child.isFunctionDeclaration && child.isHook) {
-                var clonedHookStep = child.cloneAsFunctionCall();
+                let clonedHookStep = child.cloneAsFunctionCall();
                 clonedHookStep.branchIndents = 0;
 
                 if(child.children.length > 0) {
                     utils.error("A hook declaration cannot have children", child.filename, child.lineNumber);
                 }
 
-                var canStepText = utils.canonicalize(child.text);
+                let canStepText = utils.canonicalize(child.text);
                 if(canStepText == "before every branch") {
                     beforeEveryBranch.unshift(clonedHookStep);
                 }
@@ -813,12 +813,12 @@ class Tree {
         });
 
         // Recursively call branchify() on children
-        var branchesFromChildren = []; // Array of Branch
+        let branchesFromChildren = []; // Array of Branch
         children.forEach(child => {
             if(child instanceof StepBlock && !child.isSequential) {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach(step => {
-                    var branchesFromChild = this.branchify(step, groups, frequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                    let branchesFromChild = this.branchify(step, groups, frequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -827,7 +827,7 @@ class Tree {
             }
             else {
                 // If this child is a step, call branchify() on it normally
-                var branchesFromChild = this.branchify(child, groups, frequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                let branchesFromChild = this.branchify(child, groups, frequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                 if(branchesFromChild && branchesFromChild.length > 0) {
                     branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
@@ -841,15 +841,15 @@ class Tree {
         // Remove branches by $'s
         // Special case for child branches whose first step is a step block member:
         // If a step block member has a $, discard all other branches, even if they have isOnly set
-        for(var i = 0; i < branchesFromChildren.length; i++) {
-            var branchFromChild = branchesFromChildren[i];
-            var firstStep = branchFromChild.steps[0];
-            var stepBlockOfFirstStep = firstStep.originalStepInTree.containingStepBlock;
+        for(let i = 0; i < branchesFromChildren.length; i++) {
+            let branchFromChild = branchesFromChildren[i];
+            let firstStep = branchFromChild.steps[0];
+            let stepBlockOfFirstStep = firstStep.originalStepInTree.containingStepBlock;
             if(stepBlockOfFirstStep && firstStep.isOnly) { // found a $ step part of a step block
                 // Remove other child branches from the same step block that don't have a $ directly attached
-                for(var i = 0; i < branchesFromChildren.length;) {
-                    var branchFromChild = branchesFromChildren[i];
-                    var firstStep = branchFromChild.steps[0];
+                for(let i = 0; i < branchesFromChildren.length;) {
+                    let branchFromChild = branchesFromChildren[i];
+                    let firstStep = branchFromChild.steps[0];
                     if(firstStep.originalStepInTree.containingStepBlock === stepBlockOfFirstStep) {
                         if(firstStep.isOnly) {
                             i++; // keep it
@@ -865,12 +865,12 @@ class Tree {
             }
         }
         // Normal case. If an isOnly child branch exists, remove the other branches that aren't isOnly
-        for(var i = 0; i < branchesFromChildren.length; i++) {
-            var branchFromChild = branchesFromChildren[i];
+        for(let i = 0; i < branchesFromChildren.length; i++) {
+            let branchFromChild = branchesFromChildren[i];
             if(branchFromChild.isOnly) {
                 // A $ was found. Now find all of them.
-                for(var i = 0; i < branchesFromChildren.length;) {
-                    var branchFromChild = branchesFromChildren[i];
+                for(let i = 0; i < branchesFromChildren.length;) {
+                    let branchFromChild = branchesFromChildren[i];
                     if(branchFromChild.isOnly) {
                         i++; // keep it
                     }
@@ -890,17 +890,17 @@ class Tree {
 
         // Remove branches by groups (but only for steps at the top of the tree)
         if(groups && step.indents == -1) {
-            for(var i = 0; i < branchesFromChildren.length;) {
-                var branchFromChild = branchesFromChildren[i];
+            for(let i = 0; i < branchesFromChildren.length;) {
+                let branchFromChild = branchesFromChildren[i];
 
                 if(!branchFromChild.groups) {
                     removeBranch();
                     continue;
                 }
 
-                var isGroupMatched = false;
-                for(var j = 0; j < groups.length; j++) {
-                    var groupAllowedToRun = groups[j];
+                let isGroupMatched = false;
+                for(let j = 0; j < groups.length; j++) {
+                    let groupAllowedToRun = groups[j];
                     if(branchFromChild.groups.indexOf(groupAllowedToRun) != -1) {
                         isGroupMatched = true;
                         break;
@@ -916,7 +916,7 @@ class Tree {
 
                 function removeBranch() {
                     if(branchFromChild.isDebug) {
-                        var debugStep = findDebugStep(branchFromChild);
+                        let debugStep = findDebugStep(branchFromChild);
                         utils.error("This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
@@ -928,17 +928,17 @@ class Tree {
 
         // Remove branches by frequency (but only for steps at the top of the tree)
         if(frequency && step.indents == -1) {
-            for(var i = 0; i < branchesFromChildren.length;) {
-                var branchFromChild = branchesFromChildren[i];
-                var freqAllowed = freqToNum(frequency);
-                var freqOfBranch = freqToNum(branchFromChild.frequency);
+            for(let i = 0; i < branchesFromChildren.length;) {
+                let branchFromChild = branchesFromChildren[i];
+                let freqAllowed = freqToNum(frequency);
+                let freqOfBranch = freqToNum(branchFromChild.frequency);
 
                 if(freqOfBranch >= freqAllowed) {
                     i++; // keep it
                 }
                 else {
                     if(branchFromChild.isDebug) {
-                        var debugStep = findDebugStep(branchFromChild);
+                        let debugStep = findDebugStep(branchFromChild);
                         utils.error("This step contains a ~, but is not above the frequency allowed to run (" + frequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
@@ -970,8 +970,8 @@ class Tree {
          * @return {Step} The first Step in the given branch to contain a ~, null if nothing found
          */
         function findDebugStep(branch) {
-            for(var i = 0; i < branch.steps.length; i++) {
-                var step = branch.steps[i];
+            for(let i = 0; i < branch.steps.length; i++) {
+                let step = branch.steps[i];
                 if(step.isDebug) {
                     return step;
                 }
@@ -982,11 +982,11 @@ class Tree {
 
         // Remove branches by ~'s
         // If found, remove all branches other than the one that's connected with one or more ~'s
-        var branchFound = null;
+        let branchFound = null;
 
         // Search for ~ attached to a step block member first
-        for(var i = 0; i < branchesFromChildren.length; i++) {
-            var branchFromChild = branchesFromChildren[i];
+        for(let i = 0; i < branchesFromChildren.length; i++) {
+            let branchFromChild = branchesFromChildren[i];
             if(branchFromChild.steps[0].originalStepInTree.containingStepBlock && branchFromChild.steps[0].isDebug) {
                 // A ~ was found
                 branchFound = branchFromChild;
@@ -995,8 +995,8 @@ class Tree {
         }
         if(!branchFound) {
             // Search for ~ anywhere in a branch
-            for(var i = 0; i < branchesFromChildren.length; i++) {
-                var branchFromChild = branchesFromChildren[i];
+            for(let i = 0; i < branchesFromChildren.length; i++) {
+                let branchFromChild = branchesFromChildren[i];
                 if(branchFromChild.isDebug) {
                     // A ~ was found
                     branchFound = branchFromChild;
@@ -1013,7 +1013,7 @@ class Tree {
         //    Also put branches from hook children into branchesBelow
         // ***************************************
 
-        var branchesBelow = []; // what we're returning - represents all branches at and below this step
+        let branchesBelow = []; // what we're returning - represents all branches at and below this step
 
         // If branchesFromThisStep is empty, "prime" it with an empty Branch, so that the loops below work
         if(branchesFromThisStep.length == 0) {
@@ -1023,7 +1023,7 @@ class Tree {
         if(isSequential && !(step instanceof StepBlock)) {
             // One big resulting branch, built as follows:
             // One branchesFromThisStep branch, each child branch, one branchesFromThisStep branch, each child branch, etc.
-            var bigBranch = new Branch();
+            let bigBranch = new Branch();
             branchesFromThisStep.forEach(branchFromThisStep => {
                 bigBranch.mergeToEnd(branchFromThisStep);
                 branchesFromChildren.forEach(branchFromChild => {
@@ -1035,7 +1035,7 @@ class Tree {
         else {
             branchesFromThisStep.forEach(branchFromThisStep => {
                 branchesFromChildren.forEach(branchFromChild => {
-                    var newBranchBelow = branchFromThisStep.clone();
+                    let newBranchBelow = branchFromThisStep.clone();
                     newBranchBelow.mergeToEnd(branchFromChild.clone());
                     branchesBelow.push(newBranchBelow);
                 });
@@ -1105,7 +1105,7 @@ class Tree {
 
         // If isNonParallel (+) is set, connect up the branches in branchesBelow
         if(step.isNonParallel) {
-            var nonParallelId = utils.randomId();
+            let nonParallelId = utils.randomId();
             branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);
         }
 
@@ -1140,9 +1140,9 @@ class Tree {
         }
 
         // Sort by {frequency}, but otherwise keeping the same order
-        var highBranches = [];
-        var medBranches = [];
-        var lowBranches = [];
+        let highBranches = [];
+        let medBranches = [];
+        let lowBranches = [];
         this.branches.forEach(branch => {
             if(branch.frequency == 'high') {
                 highBranches.push(branch);
@@ -1164,7 +1164,7 @@ class Tree {
      * @return {String} JSON representation of this.branches, with references to other objects removed
      */
     serializeBranches() {
-        var obj = {
+        let obj = {
             branches: [],
             beforeEverything: [],
             afterEverything: []
@@ -1200,9 +1200,9 @@ class Tree {
      * @param {String} json - A JSON representation of branches and hooks from a previous run. Same JSON that serializeBranches() returns.
      */
     mergeBranchesFromPrevRun(json) {
-        var previous = JSON.parse(json);
-        var prevBranches = previous.branches;
-        var currBranches = this.branches;
+        let previous = JSON.parse(json);
+        let prevBranches = previous.branches;
+        let currBranches = this.branches;
 
         if(prevBranches.length == 0 && currBranches.length == 0) {
             return;
@@ -1210,9 +1210,9 @@ class Tree {
 
         currBranches.forEach(currBranch => {
             // Find an equal branch in prevBranches
-            var found = false;
-            for(var i = 0; i < prevBranches.length; i++) {
-                var prevBranch = prevBranches[i];
+            let found = false;
+            for(let i = 0; i < prevBranches.length; i++) {
+                let prevBranch = prevBranches[i];
                 if(currBranch.equals(prevBranch)) {
                     // 1) This branch exists in both previous and current
                     if(!prevBranch.isPassed) { // failed or didn't run
@@ -1254,9 +1254,9 @@ class Tree {
      * @return {Number} Number of branches
      */
     getBranchCount(runnableOnly, completeOnly) {
-        var count = 0;
-        for(var i = 0; i < this.branches.length; i++) {
-            var branch = this.branches[i];
+        let count = 0;
+        for(let i = 0; i < this.branches.length; i++) {
+            let branch = this.branches[i];
 
             if(runnableOnly && branch.passedLastTime) {
                 continue;
@@ -1280,16 +1280,16 @@ class Tree {
      * @return {Number} Total number of steps
      */
     getStepCount(runnableOnly, completeOnly, unexpectedOnly) {
-        var count = 0;
-        for(var i = 0; i < this.branches.length; i++) {
-            var branch = this.branches[i];
+        let count = 0;
+        for(let i = 0; i < this.branches.length; i++) {
+            let branch = this.branches[i];
 
             if(runnableOnly && branch.passedLastTime) {
                 continue;
             }
 
-            for(var j = 0; j < branch.steps.length; j++) {
-                var step = branch.steps[j];
+            for(let j = 0; j < branch.steps.length; j++) {
+                let step = branch.steps[j];
 
                 if(runnableOnly && (step.isToDo || step.isManual)) {
                     break; // go to next branch
@@ -1315,15 +1315,15 @@ class Tree {
      * @return {Branch} The chosen Branch, or null if nothing left at all
      */
     nextBranch() {
-        var branchNotYetTaken = null;
-        for(var i = 0; i < this.branches.length; i++) {
-            var branch = this.branches[i];
+        let branchNotYetTaken = null;
+        for(let i = 0; i < this.branches.length; i++) {
+            let branch = this.branches[i];
             if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {
                 if(branch.nonParallelId) {
                     // If a branch's nonParallelId is set, check if a previous branch with that id is still executing by another thread
-                    var found = false;
-                    for(var j = 0; j < this.branches.length; j++) {
-                        var b = this.branches[j];
+                    let found = false;
+                    for(let j = 0; j < this.branches.length; j++) {
+                        let b = this.branches[j];
                         if(b.nonParallelId == branch.nonParallelId && b.isRunning) {
                             found = true;
                             break;
@@ -1358,7 +1358,7 @@ class Tree {
      * @return {Array} Array of Branch - branches whose first N steps are the same as the given's branch's first N steps
      */
     findSimilarBranches(branch, n, branches) {
-        var foundBranches = [];
+        let foundBranches = [];
         branches.forEach(b => {
             if(branch !== b && branch.equals(b, n)) {
                 foundBranches.push(b);
@@ -1399,8 +1399,8 @@ class Tree {
             branch.finishOffBranch();
 
             if(skipsRepeats) {
-                var n = branch.steps.indexOf(step);
-                var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
+                let n = branch.steps.indexOf(step);
+                let branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
                 branchesToSkip.forEach(branchToSkip => {
                     if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
                         branchToSkip.isSkipped = true;
@@ -1423,10 +1423,10 @@ class Tree {
             return null;
         }
 
-        var runningStep = null;
-        var nextStep = null;
-        for(var i = 0; i < branch.steps.length; i++) {
-            var step = branch.steps[i];
+        let runningStep = null;
+        let nextStep = null;
+        for(let i = 0; i < branch.steps.length; i++) {
+            let step = branch.steps[i];
             if(step.isRunning) {
                 runningStep = step;
                 if(i + 1 < branch.steps.length) {
@@ -1457,8 +1457,8 @@ class Tree {
 
             // Skip other repeat branches
             if(skipsRepeats) {
-                var n = branch.steps.indexOf(nextStep);
-                var branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
+                let n = branch.steps.indexOf(nextStep);
+                let branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
                 branchesToSkip.forEach(branchToSkip => {
                     if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
                         branchToSkip.isSkipped = true;

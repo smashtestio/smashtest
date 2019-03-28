@@ -6,7 +6,7 @@ const readFiles = require('read-files-promise');
 const util = require('util');
 const Tree = require('./tree.js');
 
-var tree = new Tree();
+let tree = new Tree();
 
 if(process.argv.length < 3) {
     throw "No files inputted";
@@ -33,7 +33,7 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
                     throw "Make sure builtin/ directory exists in the directory you're running this from";
                 }
 
-                var originalFilenamesLength = filenames.length;
+                let originalFilenamesLength = filenames.length;
                 filenames = filenames.concat(builtinFilenames);
 
                 readFiles(filenames, {encoding: 'utf8'})
@@ -42,7 +42,7 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
                             throw "No files found";
                         }
 
-                        for(var i = 0; i < fileBuffers.length; i++) {
+                        for(let i = 0; i < fileBuffers.length; i++) {
                             tree.parseIn(fileBuffers[i], filenames[i], i >= originalFilenamesLength);
                         }
 
@@ -55,7 +55,7 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
 
 
 
-                        
+
                     })
                     .catch(function(err) {
                         console.error(err);

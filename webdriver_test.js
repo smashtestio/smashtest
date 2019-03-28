@@ -1,8 +1,8 @@
-var webdriverio = require('webdriverio');
-var fs = require('fs');
+let webdriverio = require('webdriverio');
+let fs = require('fs');
 
 (async () => {
-    var data = await fs.readFileSync('./smashtest.crx');
+    let data = await fs.readFileSync('./smashtest.crx');
 
     const browser = await webdriverio.remote({
         logLevel: 'warn',

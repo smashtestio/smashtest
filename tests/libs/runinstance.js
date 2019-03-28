@@ -80,16 +80,16 @@ describe("RunInstance", function() {
 
     describe("runStep()", function() {
         it("executes a textual step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -98,7 +98,7 @@ A -
         });
 
         it("executes a step with a code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A - {
     runInstance.flag = true;
@@ -107,9 +107,9 @@ A - {
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -120,7 +120,7 @@ A - {
         });
 
         it("executes a function call with no {{variables}} in its function declaration", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 F
 
@@ -131,9 +131,9 @@ F
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -144,7 +144,7 @@ F
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in 'strings'", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'foo' Function 'bar'
 
@@ -156,9 +156,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -170,7 +170,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 "foo" My "bar"  Function 'blah'
 
@@ -183,9 +183,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -198,7 +198,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in {variables}", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My {A} Function { b }
 
@@ -210,9 +210,9 @@ My {A} Function { b }
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "bar";
 
@@ -226,7 +226,7 @@ My {A} Function { b }
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My {{A}} Function {{ b }} { a B  c }
 
@@ -239,9 +239,9 @@ My {{A}} Function {{ b }} { a B  c }
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.local.a = "foo";
             runInstance.local.b = "bar";
             runInstance.global["a b c"] = "blah";
@@ -257,7 +257,7 @@ My {{A}} Function {{ b }} { a B  c }
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My '{A} and { b }' Function '{B}'
 
@@ -269,9 +269,9 @@ My '{A} and { b }' Function '{B}'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "b\"a'r";
 
@@ -285,7 +285,7 @@ My '{A} and { b }' Function '{B}'
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My "{A} and { b }" Function "{B}"
 
@@ -297,9 +297,9 @@ My "{A} and { b }" Function "{B}"
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "b\"a'r";
 
@@ -313,7 +313,7 @@ My "{A} and { b }" Function "{B}"
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in [strings]", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My [4th 'Login' button next to 'something'] Function [ big link ]
 
@@ -325,9 +325,9 @@ My [4th 'Login' button next to 'something'] Function [ big link ]
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -339,7 +339,7 @@ My [4th 'Login' button next to 'something'] Function [ big link ]
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in [strings containing {variables}]", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
 
@@ -351,9 +351,9 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.local.a = "sign";
             runInstance.global.b = "small button";
             runInstance.local.c = "lots of CATS!";
@@ -370,7 +370,7 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", [strings], {variables}, {{variables}}, including strings with variables inside", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\\"66\\\"" [{{seventh}} seven 'th']
 
@@ -387,9 +387,9 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.global["four th"] = "4";
             runInstance.local["fifth"] = "5";
             runInstance.global["sixth"] = "6";
@@ -410,7 +410,7 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
         });
 
         it("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My {var} Function
     {var} = 'foobar'
@@ -422,9 +422,9 @@ My {var} Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -435,7 +435,7 @@ My {var} Function
         });
 
         it("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My {var} Function
     {var} = Set that var! {
@@ -449,9 +449,9 @@ My {var} Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -462,7 +462,7 @@ My {var} Function
         });
 
         it("executes a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My {var} Function
     {var} = Set that var! {
@@ -476,9 +476,9 @@ My {var} Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -489,7 +489,7 @@ My {var} Function
         });
 
         it("fails step if a function call has a {variable} passed in and it is never set", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My {var} Function
 
@@ -500,9 +500,9 @@ My {var} Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -514,7 +514,7 @@ My {var} Function
         });
 
         it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'so called {var}' Function
     {var} = 'foobar'
@@ -526,9 +526,9 @@ My 'so called {var}' Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -539,7 +539,7 @@ My 'so called {var}' Function
         });
 
         it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'so called {var}' Function
     {var} = Set that var! {
@@ -553,9 +553,9 @@ My 'so called {var}' Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -565,8 +565,8 @@ My 'so called {var}' Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("fails step if a function call has a 'string' containing a var passed in and that var is only set in a later step, which is an asynchronous code block", async function() {
-            var tree = new Tree();
+        it("fails step if a function call has a 'string' containing a let passed in and that let is only set in a later step, which is an asynchronous code block", async function() {
+            let tree = new Tree();
             tree.parseIn(`
 My 'so called {var}' Function
     {var} = Set that var! {
@@ -580,9 +580,9 @@ My 'so called {var}' Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -593,8 +593,8 @@ My 'so called {var}' Function
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("fails step if a function call has a 'string' containing a var that is never set", async function() {
-            var tree = new Tree();
+        it("fails step if a function call has a 'string' containing a let that is never set", async function() {
+            let tree = new Tree();
             tree.parseIn(`
 My 'so called {var}' Function
 
@@ -605,9 +605,9 @@ My 'so called {var}' Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -619,7 +619,7 @@ My 'so called {var}' Function
         });
 
         it("executes a function call where the function has no steps inside of it", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My Function
 
@@ -628,9 +628,9 @@ My Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -639,7 +639,7 @@ My Function
         });
 
         it("allows {{variables}} passed in through a function call to be accessed by steps inside the function", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My {var} Function
     {var} = 'foobar'
@@ -653,9 +653,9 @@ My {var} Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -668,7 +668,7 @@ My {var} Function
         });
 
         it("allows {{variables}} passed in through a function call to be accessed by the function's code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My {var} Function
     {var} = 'foobar'
@@ -680,9 +680,9 @@ My {var} Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -693,7 +693,7 @@ My {var} Function
         });
 
         it("allows {{variables}} to be accessed through a non-function-call code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}} = 'foobar'
 
@@ -704,9 +704,9 @@ My {var} Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -719,7 +719,7 @@ My {var} Function
         });
 
         it("ignores {{variables}} inside the text of a textual step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A textual step {{var1}} -
 
@@ -730,9 +730,9 @@ A textual step {{var1}} -
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -745,7 +745,7 @@ A textual step {{var1}} -
         });
 
         it("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}} = 'foobar'
 
@@ -756,9 +756,9 @@ A textual step {{var1}} -
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -771,7 +771,7 @@ A textual step {{var1}} -
         });
 
         it("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'string with {var}' Function
     {var} = 'string with apos \\\' '
@@ -783,9 +783,9 @@ My 'string with {var}' Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -796,7 +796,7 @@ My 'string with {var}' Function
         });
 
         it("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'string with {var}' Function
     {var} = "string with apos ' "
@@ -808,9 +808,9 @@ My 'string with {var}' Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -821,7 +821,7 @@ My 'string with {var}' Function
         });
 
         it("executes a function call with nothing in its body", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'foobar' Function
 
@@ -831,9 +831,9 @@ My 'foobar' Function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -844,7 +844,7 @@ My 'foobar' Function
         });
 
         it("handles a function declaration where multiple {{variables}} have the same name", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'foo' Function 'bar'
 
@@ -856,9 +856,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -870,16 +870,16 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = 'string' step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1} = 'foobar'
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -892,16 +892,16 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {{var}} = 'string' step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}} = 'foobar'
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -914,16 +914,16 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = \"string\" step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1} = "foobar"
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -936,16 +936,16 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = [string] step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1} = [foobar]
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -958,7 +958,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = '{other var}' step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 ..
 {var1} = 'foobar'
@@ -968,9 +968,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -987,7 +987,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var1} = '{var2} {{var2}} [something]' step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 ..
 {var1} = 'foobar'
@@ -997,9 +997,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1016,7 +1016,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 ..
 { var1 } = 'foobar'
@@ -1026,9 +1026,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1045,29 +1045,29 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var1} = 'string1', {{var2}} = 'string2', {{var3}} = [string3] etc. step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
-{var1} = 'one', {{var2}} = "two", {{ var 3 }}=[three]
+{var1} = 'one', {{var2}} = "two", {{ let 3 }}=[three]
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(runInstance.getGlobal("var1")).to.equal("one");
             expect(runInstance.getLocal("var2")).to.equal("two");
-            expect(runInstance.getLocal("var 3")).to.equal("three");
+            expect(runInstance.getLocal("let 3")).to.equal("three");
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
         it("executes a {var} = Text { code block } step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1} = Text {
     return "foobar";
@@ -1076,9 +1076,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1089,7 +1089,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = Function step, where the function declaration has a code block that returns a value", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1} = My function
 
@@ -1100,9 +1100,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1113,7 +1113,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = Function step, where the function declaration has a code block that returns a value asynchonously", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var} = Set that var! {
     return await new Promise((resolve, reject) => {
@@ -1131,9 +1131,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1146,7 +1146,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1} = My "foobar" function
 
@@ -1157,9 +1157,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1170,7 +1170,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = Function with {vars passed in} step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1} = My {var2} function
     {var2}='foobar'
@@ -1182,9 +1182,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1195,7 +1195,7 @@ My 'foo' Function 'bar'
         });
 
         it("executes a {var} = Function step, where the function declaration is in {x}='value' format", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1} = My function
 
@@ -1205,9 +1205,9 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             expect(runInstance.getGlobal("var1")).to.equal(undefined); // not set yet, as {var1} will be set on the next step ({x}='foobar')
@@ -1221,7 +1221,7 @@ My 'foo' Function 'bar'
         });
 
         it("allows a code block to get local, global, and persistent variables via getter functions", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 Text {
     runInstance.one = getPersistent("one");
@@ -1232,9 +1232,9 @@ Text {
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent("one", "first");
             runInstance.setGlobal("two", "second");
             runInstance.setLocal("three", "third");
@@ -1250,7 +1250,7 @@ Text {
         });
 
         it("allows a code block to set local, global, and persistent variables via setter functions", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 Text {
     setPersistent("one", "first");
@@ -1261,9 +1261,9 @@ Text {
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1276,7 +1276,7 @@ Text {
         });
 
         it("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'foo' "bar" function
 
@@ -1288,9 +1288,9 @@ My 'foo' "bar" function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1302,7 +1302,7 @@ My 'foo' "bar" function
         });
 
         it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'foobar' function
 
@@ -1313,9 +1313,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1327,7 +1327,7 @@ My 'foobar' function
         });
 
         it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My 'foobar' function
 
@@ -1338,9 +1338,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1352,7 +1352,7 @@ My 'foobar' function
         });
 
         it("makes a {variable} accessible as a plain js variable inside a code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {one}='foobar'
     My function
@@ -1367,9 +1367,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1385,7 +1385,7 @@ My 'foobar' function
         });
 
         it("does not make a {{variable}} accessible as a plain js variable inside a function's code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{one}}='foobar'
     My function
@@ -1397,9 +1397,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1413,7 +1413,7 @@ My 'foobar' function
         });
 
         it("makes a {{variable}} accessible as a plain js variable inside a non-function code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{one}}='foobar'
     Other {
@@ -1426,9 +1426,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1446,7 +1446,7 @@ My 'foobar' function
         });
 
         it("sets the plain js variable inside a code block to a passed-in {{variable}} when an existing {{variable}} of the same name is defined", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{one}}='foo'
 
@@ -1467,9 +1467,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1488,7 +1488,7 @@ My 'foobar' function
         });
 
         it("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{one%}}='foobar'
     My function
@@ -1500,9 +1500,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1516,7 +1516,7 @@ My 'foobar' function
         });
 
         it("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{for}}='foobar'
     My function
@@ -1528,9 +1528,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1544,7 +1544,7 @@ My 'foobar' function
         });
 
         it("when a {{var}} and {var} of the same name both exist and both get passed into a code block, the js variable is set to the local version", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     {var1}='bar'
@@ -1558,9 +1558,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1577,8 +1577,8 @@ My 'foobar' function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("when a {{var}} and a persistent var of the same name both exist, the js variable for var is set to the local version", async function() {
-            var tree = new Tree();
+        it("when a {{var}} and a persistent let of the same name both exist, the js variable for let is set to the local version", async function() {
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     Text {
@@ -1591,9 +1591,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent("var1", "bar");
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1609,8 +1609,8 @@ My 'foobar' function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("when a {var} and a persistent var of the same name both exist, the js variable for var is set to the global version", async function() {
-            var tree = new Tree();
+        it("when a {var} and a persistent let of the same name both exist, the js variable for let is set to the global version", async function() {
+            let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
     Text {
@@ -1623,9 +1623,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent("var1", "bar");
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1642,7 +1642,7 @@ My 'foobar' function
         });
 
         it("a {{var}} is accessible in a later step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     {{var2}}='{{var1}}bar'
@@ -1650,9 +1650,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1665,7 +1665,7 @@ My 'foobar' function
         });
 
         it("a {{var}} is accessible in a later step, with a function call without code block in between", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     My function
@@ -1677,9 +1677,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1697,7 +1697,7 @@ My 'foobar' function
         });
 
         it("a {{var}} is accessible in a later step, with a function call with code block in between", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     My function
@@ -1710,9 +1710,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1728,7 +1728,7 @@ My 'foobar' function
         });
 
         it("a {{var}} is accessible in a later step, with a non-function code block in between", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
 
@@ -1741,9 +1741,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1759,7 +1759,7 @@ My 'foobar' function
         });
 
         it("does not make a {{var}} declared outside a function call accessible to steps inside the function call", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     My function
@@ -1771,9 +1771,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1791,7 +1791,7 @@ My 'foobar' function
         });
 
         it("does not make a {{var}} declared outside a function call accessible inside the function call's code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     My function
@@ -1803,9 +1803,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1818,7 +1818,7 @@ My 'foobar' function
         });
 
         it("makes a {{var}} declared outside a function call accessible after the function call, where the function has steps inside it", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     My function
@@ -1830,9 +1830,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1853,7 +1853,7 @@ My 'foobar' function
         });
 
         it("makes a {{var}} declared outside a function call accessible after the function call, where the function has a code block only", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     My function
@@ -1866,9 +1866,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1887,7 +1887,7 @@ My 'foobar' function
         });
 
         it("makes a {{var}} declared outside a function call accessible after the function call, where the function has a code block and has steps inside it", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     My function
@@ -1901,9 +1901,9 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1927,7 +1927,7 @@ My 'foobar' function
         });
 
         it("does not make a {{var}} declared inside a function accessible outside of it", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My function
     {var2}='{{var1}}'
@@ -1938,9 +1938,9 @@ My function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -1956,7 +1956,7 @@ My function
         });
 
         it("clears {{local vars}} and reinstates previous {{local vars}} when exiting multiple levels of function calls", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
     My function
@@ -1999,9 +1999,9 @@ My function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             /*
              0) {{var1}}='foo'
@@ -2138,7 +2138,7 @@ My function
         });
 
         it("a {var} is accessible in a later step", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
     {var2}='{var1}bar'
@@ -2146,9 +2146,9 @@ My function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -2161,7 +2161,7 @@ My function
         });
 
         it("a {var} is accessible in a later step, with a function call without code block in between", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
     My function
@@ -2173,9 +2173,9 @@ My function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -2193,7 +2193,7 @@ My function
         });
 
         it("a {var} is accessible in a later step, with a function call with code block in between", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
     My function
@@ -2207,9 +2207,9 @@ My function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -2225,7 +2225,7 @@ My function
         });
 
         it.skip("a {var} is accessible in a later step, with a non-function code block in between", async function() {
-            // in between = between the var declaration and the "later step"
+            // in between = between the let declaration and the "later step"
 
 
 
@@ -2235,7 +2235,7 @@ My function
 
 
 
-            
+
         });
 
         it.skip("a {var} is accessible inside a function call's code block", async function() {
@@ -2245,7 +2245,7 @@ My function
         });
 
         it.skip("a {var} is accessible to code blocks of steps inside a function call", async function() {
-            // use both local js var and getGlobal()
+            // use both local js let and getGlobal()
         });
 
         it.skip("a {var} declared inside a function call is accessible in steps after the function call", async function() {
@@ -2261,21 +2261,21 @@ My function
         });
 
         it("sets the error's filename and lineNumber correctly when an error occurs inside a code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 Something {
-    var a = "a";
-    var b = "b";
+    let a = "a";
+    let b = "b";
     c; // will throw an exception
-    var d = "d";
+    let d = "d";
 }
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -2287,27 +2287,27 @@ Something {
         });
 
         it("sets the error's filename and lineNumber correctly when an error occurs inside a function used inside a code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 Something {
-    var a = "a";
-    var b = "b";
+    let a = "a";
+    let b = "b";
     runInstance.badFunc(); // will throw an exception
-    var d = "d";
+    let d = "d";
 }
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             runInstance.badFunc = function() {
-                var a = "a";
-                var b = "b";
+                let a = "a";
+                let b = "b";
                 c;
-                var d = "d";
+                let d = "d";
             };
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2323,30 +2323,30 @@ Something {
         });
 
         it("sets the error's filename and lineNumber correctly when an error occurs inside a function from one code block that's used inside another code block", async function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 First {
     runInstance.badFunc = function() {
-        var a = "a";
-        var b = "b";
+        let a = "a";
+        let b = "b";
         c;
-        var d = "d";
+        let d = "d";
     };
 }
 
     Second {
-        var a = "a";
-        var b = "b";
+        let a = "a";
+        let b = "b";
         runInstance.badFunc(); // will throw an exception
-        var d = "d";
+        let d = "d";
     }
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
@@ -2461,36 +2461,36 @@ First {
 
     describe("runHookStep()", function() {
         it("runs a passing hook step", async function() {
-            var step = new Step();
+            let step = new Step();
             step.codeBlock = ``;
 
-            var tree = new Tree();
-            var runner = new Runner();
+            let tree = new Tree();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
-            var retVal = await runInstance.runHookStep(step);
+            let retVal = await runInstance.runHookStep(step);
             expect(retVal).to.equal(true);
         });
 
         it("runs a failing hook step with only a stepToGetError", async function() {
-            var step = new Step();
+            let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
             step.codeBlock = `
                 throw new Error("foobar");
             `;
 
-            var stepToGetError = new Step();
+            let stepToGetError = new Step();
             stepToGetError.filename = "file2.txt";
             stepToGetError.lineNumber = 20;
 
-            var tree = new Tree();
-            var runner = new Runner();
+            let tree = new Tree();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
-            var retVal = await runInstance.runHookStep(step, stepToGetError);
+            let retVal = await runInstance.runHookStep(step, stepToGetError);
             expect(retVal).to.equal(false);
             expect(stepToGetError.error.message).to.equal("foobar");
             expect(stepToGetError.error.filename).to.equal("file1.txt");
@@ -2498,21 +2498,21 @@ First {
         });
 
         it("runs a failing hook step with only a branchToGetError", async function() {
-            var step = new Step();
+            let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
             step.codeBlock = `
                 throw new Error("foobar");
             `;
 
-            var branchToGetError = new Branch();
+            let branchToGetError = new Branch();
 
-            var tree = new Tree();
-            var runner = new Runner();
+            let tree = new Tree();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
-            var retVal = await runInstance.runHookStep(step, null, branchToGetError);
+            let retVal = await runInstance.runHookStep(step, null, branchToGetError);
             expect(retVal).to.equal(false);
             expect(branchToGetError.error.message).to.equal("foobar");
             expect(branchToGetError.error.filename).to.equal("file1.txt");
@@ -2520,25 +2520,25 @@ First {
         });
 
         it("runs a failing hook step with both a stepToGetError and a branchToGetError", async function() {
-            var step = new Step();
+            let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
             step.codeBlock = `
                 throw new Error("foobar");
             `;
 
-            var stepToGetError = new Step();
+            let stepToGetError = new Step();
             stepToGetError.filename = "file2.txt";
             stepToGetError.lineNumber = 20;
 
-            var branchToGetError = new Branch();
+            let branchToGetError = new Branch();
 
-            var tree = new Tree();
-            var runner = new Runner();
+            let tree = new Tree();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
-            var retVal = await runInstance.runHookStep(step, stepToGetError, branchToGetError);
+            let retVal = await runInstance.runHookStep(step, stepToGetError, branchToGetError);
             expect(retVal).to.equal(false);
 
             expect(stepToGetError.error.message).to.equal("foobar");
@@ -2551,77 +2551,77 @@ First {
         });
 
         it("runs a failing hook step with no stepToGetError and no branchToGetError", async function() {
-            var step = new Step();
+            let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
             step.codeBlock = `
                 throw new Error("foobar");
             `;
 
-            var tree = new Tree();
-            var runner = new Runner();
+            let tree = new Tree();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
-            var retVal = await runInstance.runHookStep(step);
+            let retVal = await runInstance.runHookStep(step);
             expect(retVal).to.equal(false);
         });
     });
 
     describe("replaceVars()", function() {
         it("replaces {vars} and {{vars}} with their values", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
     {var1}='value1'
         {{var2}} = 'value2'
-            {var 3}= "value 3", {{var5}} ='value5',{var6}=[value6]
-                {{ var 4 }}=" value 4 "
+            {let 3}= "value 3", {{var5}} ='value5',{var6}=[value6]
+                {{ let 4 }}=" value 4 "
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
-            expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{var 3}-{{var 4}}  {{var5}} {var6}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
+            expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{let 3}-{{let 4}}  {{var5}} {var6}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
         });
 
         it("handles a branch of null", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1}='value1'
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
             expect(runInstance.replaceVars("{var1} {var1}", tree.branches[0].steps[0], null)).to.equal("value1 value1");
         });
 
         it("doesn't affect a string that doesn't contain variables", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             expect(runInstance.replaceVars("foo bar", tree.branches[0].steps[0], tree.branches[0])).to.equal("foo bar");
         });
 
         it("throws an error when vars reference each other in an infinite loop", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
     {var1}='{var1}'
@@ -2629,9 +2629,9 @@ A -
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
                 runInstance.replaceVars("{var1}", tree.branches[0].steps[0], tree.branches[0]);
@@ -2647,9 +2647,9 @@ A -
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            runInstance = new RunInstance(runner);
 
             assert.throws(() => {
                 expect(runInstance.replaceVars("{var1}", tree.branches[0].steps[0], tree.branches[0]));
@@ -2659,29 +2659,29 @@ A -
 
     describe("evalCodeBlock()", function() {
         it("evals a code and returns a value asynchonously", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
 
             await expect(runInstance.evalCodeBlock("return 5;")).to.eventually.equal(5);
         });
 
         it("evals a code and returns a value synchronously", function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
 
             expect(runInstance.evalCodeBlock("return 5;", null, true)).to.equal(5);
         });
 
         it("returns undefined when executing code that has no return value synchronously", function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
 
             expect(runInstance.evalCodeBlock("5;", null, true)).to.equal(undefined);
         });
 
         it("makes the persistent, global, and local objects available", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent("a", "A");
             runInstance.setGlobal("b", "B");
             runInstance.setLocal("c", "C");
@@ -2698,8 +2698,8 @@ A -
         });
 
         it("makes persistent, global, and local variables available as js variables", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent('a', "A");
             runInstance.setGlobal('b', "B");
             runInstance.setLocal('c', "C");
@@ -2710,8 +2710,8 @@ A -
         });
 
         it("makes a local variable accessible as a js variable if both a local and global variable share the same name", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
             runInstance.setGlobal('b', "B");
             runInstance.setLocal('b', "C");
 
@@ -2719,8 +2719,8 @@ A -
         });
 
         it("makes a global variable accessible as a js variable if both a global and persistent variable share the same name", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent('b', "B");
             runInstance.setGlobal('b', "C");
 
@@ -2728,8 +2728,8 @@ A -
         });
 
         it("makes a local variable accessible as a js variable if both a local and persistent variable share the same name", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent('b', "B");
             runInstance.setLocal('b', "C");
 
@@ -2737,8 +2737,8 @@ A -
         });
 
         it("does not make a variable available as js variable if its name contains non-whitelisted characters", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent(" one two ", "A");
             runInstance.setGlobal("three four", "B");
             runInstance.setLocal("five>six", "C");
@@ -2748,8 +2748,8 @@ A -
         });
 
         it("does not make a variable available as js variable if its name is blacklisted", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
             runInstance.setPersistent(" for ", "A");
             runInstance.setGlobal("await", "B");
             runInstance.setLocal("switch ", "C");
@@ -2759,9 +2759,9 @@ A -
         });
 
         it("allows for logging inside the code", async function() {
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
-            var step = new Step();
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
+            let step = new Step();
 
             await runInstance.evalCodeBlock("log('foobar');", step);
 
@@ -2771,54 +2771,54 @@ A -
 
     describe("findVarValue()", function() {
         it("returns the value of a local variable that's already set", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.setLocal("var0", "value0");
 
             expect(runInstance.findVarValue("var0", true, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
         });
 
         it("returns the value of a global variable that's already set", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
             expect(runInstance.findVarValue("var0", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
         });
 
         it("returns the value of a variable that's set on the same line, and with a branch of null", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 {var1}='value1'
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], null)).to.equal("value1");
         });
 
         it("returns the value of a variable that's not set yet and whose eventual value is a plain string", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
     {var1}="value1"
@@ -2826,16 +2826,16 @@ A -
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
             expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var1} is being set by a later step at file.txt:3\n");
         });
 
         it("throws an error if a local variable is not yet set but is set outside the scope of the current function", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 My function
     {{var1}}="value1"
@@ -2846,9 +2846,9 @@ My function
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
                 runInstance.findVarValue("var1", true, tree.branches[0].steps[1], tree.branches[0]);
@@ -2856,84 +2856,84 @@ My function
         });
 
         it("returns the value of a variable given the same variable name in a different case", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
-    {var one}="value1"
+    {let one}="value1"
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
-            expect(runInstance.findVarValue("VAR ONE", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {VAR ONE} is being set by a later step at file.txt:3\n");
+            expect(runInstance.findVarValue("let ONE", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {let ONE} is being set by a later step at file.txt:3\n");
         });
 
         it("returns the value of a variable given the same variable name but with varying amounts of whitespace", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
-    { var  one  }="value1"
+    { let  one  }="value1"
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
-            expect(runInstance.findVarValue("var one", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var one} is being set by a later step at file.txt:3\n");
+            expect(runInstance.findVarValue("let one", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {let one} is being set by a later step at file.txt:3\n");
 
             tree = new Tree();
             tree.parseIn(`
 A -
-    {var one}="value1"
+    {let one}="value1"
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            runInstance = new RunInstance(runner);
 
-            expect(runInstance.findVarValue("    Var     ONE     ", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {    Var     ONE     } is being set by a later step at file.txt:3\n");
+            expect(runInstance.findVarValue("    let     ONE     ", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {    let     ONE     } is being set by a later step at file.txt:3\n");
         });
 
         it("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
             // If the original step is A, and its vars are defined in B, then's B's vars are defined 1) before A, 2) between A and B, and 3) after B
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
     {{var2}} = 'value2'
-        {var1}='{{var2}} {var 3} . {var0} {{var5}}'
-            {var 3}= "-{{var 4}}-", {{var5}}='value5'
+        {var1}='{{var2}} {let 3} . {var0} {{var5}}'
+            {let 3}= "-{{let 4}}-", {{var5}}='value5'
                 B -
-                    {{ var 4 }}=[ value 4 ]
+                    {{ let 4 }}=[ value 4 ]
 `, "file.txt");
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value2 - value 4 - . value0 value5");
             expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {{var2}} is being set by a later step at file.txt:3
-The value of variable {{var 4}} is being set by a later step at file.txt:7
-The value of variable {var 3} is being set by a later step at file.txt:5
+The value of variable {{let 4}} is being set by a later step at file.txt:7
+The value of variable {let 3} is being set by a later step at file.txt:5
 The value of variable {{var5}} is being set by a later step at file.txt:5
 The value of variable {var1} is being set by a later step at file.txt:4
 `);
         });
 
         it("returns the value of a variable that's not set yet and whose eventual value is generated from a sync code block function", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
     {var1} = F {
@@ -2949,9 +2949,9 @@ A -
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("foobar");
             expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var1} is being set by a later step at file.txt:3\n");
@@ -2963,7 +2963,7 @@ The value of variable {var2} is being set by a later step at file.txt:7
         });
 
         it("throws an error if the variable's value is never set", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
     {var1}="value1"
@@ -2971,9 +2971,9 @@ A -
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
                 runInstance.findVarValue("var2", false, tree.branches[0].steps[0], tree.branches[0]);
@@ -2981,7 +2981,7 @@ A -
         });
 
         it("throws an error if the variable's value contains more variables, but one of those variables is never set", function() {
-            var tree = new Tree();
+            let tree = new Tree();
             tree.parseIn(`
 A -
     {var1}="-{{var2}}-"
@@ -2990,9 +2990,9 @@ A -
 
             tree.generateBranches();
 
-            var runner = new Runner();
+            let runner = new Runner();
             runner.tree = tree;
-            var runInstance = new RunInstance(runner);
+            let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
                 runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0]);
@@ -3006,9 +3006,9 @@ A -
 
     describe("appendToLog()", function() {
         it("logs a string to a step, where no other logs exist", function() {
-            var step = new Step();
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let step = new Step();
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
 
             runInstance.appendToLog("foobar", step);
 
@@ -3016,10 +3016,10 @@ A -
         });
 
         it("logs a string to a step, where other logs exist", function() {
-            var step = new Step();
-            var branch = new Branch();
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let step = new Step();
+            let branch = new Branch();
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
 
             step.log = "foo\n";
             runInstance.appendToLog("bar", step, branch);
@@ -3028,9 +3028,9 @@ A -
         });
 
         it("logs a string to a branch, where no other logs exist and where there is no step", function() {
-            var branch = new Branch();
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let branch = new Branch();
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
 
             runInstance.appendToLog("foobar", null, branch);
 
@@ -3038,9 +3038,9 @@ A -
         });
 
         it("logs a string to a branch, where other logs exist and where there is no step", function() {
-            var branch = new Branch();
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let branch = new Branch();
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
 
             branch.log = "foo\n";
             runInstance.appendToLog("bar", null, branch);
@@ -3049,9 +3049,9 @@ A -
         });
 
         it("fails silently when there is no step or branch", function() {
-            var step = new Step();
-            var runner = new Runner();
-            var runInstance = new RunInstance(runner);
+            let step = new Step();
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
 
             assert.doesNotThrow(() => {
                 runInstance.appendToLog("foobar", null, null);

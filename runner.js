@@ -31,7 +31,7 @@ class Runner {
      * @return {Promise} Promise that gets resolved when completed or paused
      */
     async run() {
-        var startTime = new Date();
+        let startTime = new Date();
 
         // If pauseOnFail is set, maxInstances must be 1
         if(this.pauseOnFail && this.maxInstances != 1) {
@@ -146,9 +146,9 @@ class Runner {
      * @return {Promise} Promise that resolves to true if all of them passed, false if one of them failed
      */
     async runBeforeEverything() {
-        var hookExecInstance = new RunInstance(this);
-        for(var i = 0; i < this.tree.beforeEverything.length; i++) {
-            var s = this.tree.beforeEverything[i];
+        let hookExecInstance = new RunInstance(this);
+        for(let i = 0; i < this.tree.beforeEverything.length; i++) {
+            let s = this.tree.beforeEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
             if(s.error) {
                 return false;
@@ -164,9 +164,9 @@ class Runner {
      */
     runBranches() {
         // Spawn this.maxInstances RunInstances, which will run in parallel
-        var runInstancePromises = [];
-        for(var i = 0; i < this.maxInstances; i++) {
-            var runInstance = new RunInstance(this);
+        let runInstancePromises = [];
+        for(let i = 0; i < this.maxInstances; i++) {
+            let runInstance = new RunInstance(this);
             this.runInstances.push(runInstance);
             runInstancePromises.push(runInstance.run());
         }
@@ -179,9 +179,9 @@ class Runner {
      * @return {Promise} Promise that resolves once all of them finish running
      */
     async runAfterEverything() {
-        var hookExecInstance = new RunInstance(this);
-        for(var i = 0; i < this.tree.afterEverything.length; i++) {
-            var s = this.tree.afterEverything[i];
+        let hookExecInstance = new RunInstance(this);
+        for(let i = 0; i < this.tree.afterEverything.length; i++) {
+            let s = this.tree.afterEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
         }
 

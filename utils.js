@@ -71,7 +71,7 @@ exports.unescape = function(str) {
  * @param {Array} Array of Branch to print out
  */
 exports.printBranches = function(branches) {
-    for(var i = 0; i < branches.length; i++) {
+    for(let i = 0; i < branches.length; i++) {
         console.log(branches[i].output("Branch " + i));
     }
 }
@@ -80,8 +80,8 @@ exports.printBranches = function(branches) {
  * @return {String} A random string of characters
  */
 exports.randomId = function() {
-    var id = '';
-    for(var i = 0; i < 4; i++) {
+    let id = '';
+    for(let i = 0; i < 4; i++) {
         id += Math.random().toString(36).substr(2, 34);
     }
     return id;

@@ -7,7 +7,7 @@
     This allows Mock calls to be fast and sync, merely reading from memory
 */
 
-    var Mock = require('smashmock');
+    let Mock = require('smashmock');
     Mock.init('internal.network.domain.com:4444', true);
     Mock.init('internal.network.domain.com:4444'); // use mock.config
 
