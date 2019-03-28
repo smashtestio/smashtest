@@ -506,7 +506,9 @@ My {var} Function
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} is never set, but is needed for this step [file.txt:2]");
+            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} is never set, but is needed for this step");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -584,7 +586,9 @@ My 'so called {var}' Function
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} must be set to a string [file.txt:2]");
+            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} must be set to a string");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -607,7 +611,9 @@ My 'so called {var}' Function
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} is never set, but is needed for this step [file.txt:2]");
+            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} is never set, but is needed for this step");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -1314,6 +1320,8 @@ My 'foobar' function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token ;");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -1337,6 +1345,8 @@ My 'foobar' function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
             expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token for");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -1395,6 +1405,8 @@ My 'foobar' function
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(tree.branches[0].steps[1].error.message).to.contain("one is not defined");
+            expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -1496,12 +1508,14 @@ My 'foobar' function
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token ;");
+            expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
+        it.only("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
             var tree = new Tree();
             tree.parseIn(`
 {{for}}='foobar'
@@ -1522,7 +1536,9 @@ My 'foobar' function
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token for");
-
+            expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
+console.log(tree.branches[0].steps[1].error.stack);
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
@@ -1895,7 +1911,7 @@ A -
 
             assert.throws(() => {
                 runInstance.replaceVars("{var1}", tree.branches[0].steps[0], tree.branches[0]);
-            }, "Infinite loop detected amongst variable references [file.txt:2]");
+            }, "Infinite loop detected amongst variable references");
 
             tree = new Tree();
             tree.parseIn(`
@@ -1913,7 +1929,7 @@ A -
 
             assert.throws(() => {
                 expect(runInstance.replaceVars("{var1}", tree.branches[0].steps[0], tree.branches[0]));
-            }, "Infinite loop detected amongst variable references [file.txt:2]");
+            }, "Infinite loop detected amongst variable references");
         });
     });
 
@@ -2216,7 +2232,7 @@ A -
 
             assert.throws(() => {
                 runInstance.findVarValue("var2", false, tree.branches[0].steps[0], tree.branches[0]);
-            }, "The variable {var2} is never set, but is needed for this step [file.txt:2]");
+            }, "The variable {var2} is never set, but is needed for this step");
         });
 
         it("throws an error if the variable's value contains more variables, but one of those variables is never set", function() {
@@ -2235,11 +2251,11 @@ A -
 
             assert.throws(() => {
                 runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0]);
-            }, "The variable {{var2}} is never set, but is needed for this step [file.txt:2]");
+            }, "The variable {{var2}} is never set, but is needed for this step");
 
             assert.throws(() => {
                 runInstance.findVarValue("var3", true, tree.branches[0].steps[0], tree.branches[0]);
-            }, "The variable {var4} is never set, but is needed for this step [file.txt:2]");
+            }, "The variable {var4} is never set, but is needed for this step");
         });
     });
 

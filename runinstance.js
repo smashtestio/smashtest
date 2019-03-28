@@ -169,6 +169,7 @@ class RunInstance {
         this.localsPassedIntoFunc = {};
 
         var error = undefined;
+        var inCodeBlock = false;
 
         // Execute the step
         try {
@@ -224,12 +225,14 @@ class RunInstance {
                 }
 
                 var retVal = null;
+                inCodeBlock = true;
                 if(utils.canonicalize(step.text) == "execute in browser") {
                     retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a built-in Before Everything hook
                 }
                 else {
                     retVal = await this.evalCodeBlock(step.codeBlock, step);
                 }
+                inCodeBlock = false;
 
                 // Step is {var} = Func or Text { code block }
                 // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
@@ -249,6 +252,11 @@ class RunInstance {
             error = e;
             error.filename = step.filename;
             error.lineNumber = step.lineNumber;
+
+            if(step.isFunctionCall && inCodeBlock) { // error occurred in a function's code block, so we should reference the function declaration's line
+                error.filename = step.originalStepInTree.functionDeclarationInTree.filename;
+                error.lineNumber = step.originalStepInTree.functionDeclarationInTree.lineNumber;
+            }
         }
 
         // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
@@ -487,7 +495,7 @@ class RunInstance {
                 }
                 catch(e) {
                     if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
-                        utils.error("Infinite loop detected amongst variable references", step.filename, step.lineNumber);
+                        utils.error("Infinite loop detected amongst variable references");
                     }
                     else {
                         throw e; // re-throw
@@ -495,7 +503,7 @@ class RunInstance {
                 }
 
                 if(['string', 'boolean', 'number'].indexOf(typeof value) == -1) {
-                    utils.error("The variable " + match + " must be set to a string", step.filename, step.lineNumber);
+                    utils.error("The variable " + match + " must be set to a string");
                 }
 
                 text = text.replace(match, value);
@@ -572,7 +580,7 @@ class RunInstance {
         }
 
         // Not found
-        utils.error("The variable " + variableFull + " is never set, but is needed for this step", step.filename, step.lineNumber);
+        utils.error("The variable " + variableFull + " is never set, but is needed for this step");
     }
 
     /**

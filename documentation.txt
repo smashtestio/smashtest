@@ -308,3 +308,8 @@ Hooks
 
             * Teardown
                 E
+
+Packages
+    - Just create a file with a * Before Everything that injects what it needs. Then just distribute this file.
+    - Give some examples
+        - Show injection being made into Runner.persistent.packageName
