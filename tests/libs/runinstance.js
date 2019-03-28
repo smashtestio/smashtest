@@ -1669,6 +1669,42 @@ Something {
         it("sets the error's filename and lineNumber correctly when an error occurs inside a function used inside a code block", async function() {
             var tree = new Tree();
             tree.parseIn(`
+Something {
+    var a = "a";
+    var b = "b";
+    runInstance.badFunc(); // will throw an exception
+    var d = "d";
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            runInstance.badFunc = function() {
+                var a = "a";
+                var b = "b";
+                c;
+                var d = "d";
+            };
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
+
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at RunInstance\.runInstance\.badFunc/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at runCodeBlock[^\n]+<anonymous>:4:17\)/)).to.equal(true);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+        });
+
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a function from one code block that's used inside another code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
 First {
     runInstance.badFunc = function() {
         var a = "a";

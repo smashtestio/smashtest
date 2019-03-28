@@ -512,8 +512,20 @@ class RunInstance {
             runInstance.local[utils.canonicalize(varname)] = value;
         }
 
+        // Generate code
+        const JS_VARNAME_WHITELIST = /^[A-Za-z\_\$][A-Za-z0-9\_\$]*$/;
+        const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
+
+        // Make global, local, and persistent accessible as js vars
+        var header = '';
+        header = loadIntoJsVars(header, this.persistent, "getPersistent");
+        header = loadIntoJsVars(header, this.global, "getGlobal");
+        header = loadIntoJsVars(header, this.local, "getLocal");
+        header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
+
+        code = `(` + (isSync ? `` : `async`) + ` function runCodeBlock(runInstance) { ` + header + code + ` })(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks
+
         // Evaluate
-        code = this.prepareCodeForEval(code, logHere, isSync);
         if(isSync) {
             return eval(code);
         }
@@ -533,6 +545,19 @@ class RunInstance {
                     resolve(retVal);
                 }
             });
+        }
+
+        /**
+         * Generates js code that converts variables into normal js vars, appends code to header, returns header
+         */
+        function loadIntoJsVars(header, arr, getter) {
+            for(var varname in arr) {
+                if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
+                    header += "var " + varname + " = " + getter + "('" + varname + "');";
+                }
+            }
+
+            return header;
         }
     }
 
@@ -663,42 +688,6 @@ class RunInstance {
     // PRIVATE FUNCTIONS
     // Only use these internally
     // ***************************************
-
-    /**
-     * Prepares code block code for evalCodeBlock()
-     * @param {String} code - JS code to eval
-     * @param {Step or Branch} [logHere] - The Object to log to, if any
-     * @param {Boolean} [isSync] - If true, the code will be executed synchronously
-     * @return code, but with more code added so it's ready to be fed into evalCodeBlock()
-     */
-    prepareCodeForEval(code, logHere, isSync) {
-        const JS_VARNAME_WHITELIST = /^[A-Za-z\_\$][A-Za-z0-9\_\$]*$/;
-        const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
-
-        // Make global, local, and persistent accessible as js vars
-        var header = '';
-        header = loadIntoJsVars(header, this.persistent, "getPersistent");
-        header = loadIntoJsVars(header, this.global, "getGlobal");
-        header = loadIntoJsVars(header, this.local, "getLocal");
-        header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
-
-        code = `(` + (isSync ? `` : `async`) + ` function runCodeBlock(runInstance) { ` + header + code + ` })(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks
-
-        return code;
-
-        /**
-         * Generates js code that converts variables into normal js vars, appends code to header, returns header
-         */
-        function loadIntoJsVars(header, arr, getter) {
-            for(var varname in arr) {
-                if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
-                    header += "var " + varname + " = " + getter + "('" + varname + "');";
-                }
-            }
-
-            return header;
-        }
-    }
 
     /**
      * Sets the given variable to the given value
