@@ -22,8 +22,6 @@ class RunInstance {
 
         this.localStack = [];                           // Array of objects, where each object stores local vars
         this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
-
-        this.codeBlockOffset = 0;                       // number to subtract from a line number in a strack trace from a code block to get the actual line number
     }
 
     /**
@@ -268,7 +266,7 @@ class RunInstance {
                     matches = matches[0].match(/([0-9]+)$/g);
                     if(matches) {
                         var lineNumberFromStackTrace = parseInt(matches[0]);
-                        error.lineNumber += lineNumberFromStackTrace - this.codeBlockOffset;
+                        error.lineNumber += lineNumberFromStackTrace - 1;
                     }
                 }
             }
@@ -468,25 +466,74 @@ class RunInstance {
     }
 
     /**
-     * Evals the given code block asynchonously
+     * Evals the given code block
      * @param {String} code - JS code to eval
      * @param {Step or Branch} [logHere] - The Object to log to, if any
+     * @param {Boolean} [isSync] - If true, the code will be executed synchronously
      * @return {Promise} Promise that gets resolved with what code returns
      */
-    async evalCodeBlock(code, logHere) {
-        code = this.prepareCodeForEval(code, false, logHere);
-        return await eval(code);
-    }
+    evalCodeBlock(code, logHere, isSync) {
+        // Functions accessible from a code block
+        var runInstance = this;
 
-    /**
-     * Evals the given code block synchronously
-     * @param {String} code - JS code to eval
-     * @param {Step or Branch} [logHere] - The Object to log to, if any
-     * @return Whatever code returns
-     */
-    evalCodeBlockSync(code, logHere) {
-        code = this.prepareCodeForEval(code, true, logHere);
-        return eval(code);
+        function log(text) {
+            if(logHere) {
+                logHere.appendToLog(text);
+            }
+        }
+
+        function getPersistent(varname) {
+            return runInstance.persistent[utils.canonicalize(varname)];
+        }
+
+        function getGlobal(varname) {
+            return runInstance.global[utils.canonicalize(varname)];
+        }
+
+        function getLocal(varname) {
+            varname = utils.canonicalize(varname);
+            if(runInstance.localsPassedIntoFunc.hasOwnProperty(varname)) {
+                return runInstance.localsPassedIntoFunc[varname];
+            }
+            else {
+                return runInstance.local[utils.canonicalize(varname)];
+            }
+        }
+
+        function setPersistent(varname, value) {
+            runInstance.persistent[utils.canonicalize(varname)] = value;
+        }
+
+        function setGlobal(varname, value) {
+            runInstance.global[utils.canonicalize(varname)] = value;
+        }
+
+        function setLocal(varname, value) {
+            runInstance.local[utils.canonicalize(varname)] = value;
+        }
+
+        // Evaluate
+        code = this.prepareCodeForEval(code, logHere, isSync);
+        if(isSync) {
+            return eval(code);
+        }
+        else {
+            // Doing this instead of putting async on top of evalCodeBlock(), because we want evalCodeBlock() to return both values and promises, depending on the value of isSync
+            return new Promise(async (resolve, reject) => {
+                var error = null;
+                var retVal = null;
+                try {
+                    retVal = await eval(code);
+                }
+                catch(e) {
+                    error = e;
+                    reject(e);
+                }
+                if(!error) {
+                    resolve(retVal);
+                }
+            });
+        }
     }
 
     /**
@@ -575,7 +622,7 @@ class RunInstance {
                         var value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlockSync(s.codeBlock, s);
+                            value = this.evalCodeBlock(s.codeBlock, s, true);
                         }
                         else {
                             // {varname}='string'
@@ -618,69 +665,24 @@ class RunInstance {
     // ***************************************
 
     /**
-     * Prepares code block code for evalCodeBlock() or evalCodeBlockSync()
+     * Prepares code block code for evalCodeBlock()
      * @param {String} code - JS code to eval
-     * @param {Boolean} [isSync] - If true, the code will be executed synchronously
      * @param {Step or Branch} [logHere] - The Object to log to, if any
-     * @return code, but with more code added so it's ready to be fed into evalCodeBlock() or evalCodeBlockSync()
+     * @param {Boolean} [isSync] - If true, the code will be executed synchronously
+     * @return code, but with more code added so it's ready to be fed into evalCodeBlock()
      */
-    prepareCodeForEval(code, isSync, logHere) {
-        // Functions that we want accessible to a code block
-        var header = `
-            function log(text) {
-                if(logHere) {
-                    logHere.appendToLog(text);
-                }
-            }
-
-            function getPersistent(varname) {
-                return runInstance.persistent[utils.canonicalize(varname)];
-            }
-
-            function getGlobal(varname) {
-                return runInstance.global[utils.canonicalize(varname)];
-            }
-
-            function getLocal(varname) {
-                varname = utils.canonicalize(varname);
-                if(runInstance.localsPassedIntoFunc.hasOwnProperty(varname)) {
-                    return runInstance.localsPassedIntoFunc[varname];
-                }
-                else {
-                    return runInstance.local[utils.canonicalize(varname)];
-                }
-            }
-
-            function setPersistent(varname, value) {
-                runInstance.persistent[utils.canonicalize(varname)] = value;
-            }
-
-            function setGlobal(varname, value) {
-                runInstance.global[utils.canonicalize(varname)] = value;
-            }
-
-            function setLocal(varname, value) {
-                runInstance.local[utils.canonicalize(varname)] = value;
-            }
-
-        `;
-
+    prepareCodeForEval(code, logHere, isSync) {
         const JS_VARNAME_WHITELIST = /^[A-Za-z\_\$][A-Za-z0-9\_\$]*$/;
         const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
 
         // Make global, local, and persistent accessible as js vars
+        var header = '';
         header = loadIntoJsVars(header, this.persistent, "getPersistent");
         header = loadIntoJsVars(header, this.global, "getGlobal");
         header = loadIntoJsVars(header, this.local, "getLocal");
         header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
 
-        code = `
-            (` + (isSync ? `` : `async`) + ` function runCodeBlock(runInstance) {
-                ` + header + `
-                ` + code + `
-            })(this);`
-
-        this.codeBlockOffset = (header.match(/\n/g) || []).length + 4;
+        code = `(` + (isSync ? `` : `async`) + ` function runCodeBlock(runInstance) { ` + header + code + ` })(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks
 
         return code;
 
@@ -690,7 +692,7 @@ class RunInstance {
         function loadIntoJsVars(header, arr, getter) {
             for(var varname in arr) {
                 if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
-                    header += "var " + varname + " = " + getter + "('" + varname + "');\n";
+                    header += "var " + varname + " = " + getter + "('" + varname + "');";
                 }
             }
 

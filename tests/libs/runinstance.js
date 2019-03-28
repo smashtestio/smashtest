@@ -1699,6 +1699,9 @@ First {
             expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[1].error.lineNumber).to.equal(14);
 
+            expect(!!tree.branches[0].steps[1].error.stack.match(/at RunInstance\.runInstance\.badFunc[^\n]+<anonymous>:5:9\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[1].error.stack.match(/at runCodeBlock[^\n]+<anonymous>:4:21\)/)).to.equal(true);
+
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
@@ -2010,14 +2013,14 @@ A -
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlockSync("return 5;")).to.equal(5);
+            expect(runInstance.evalCodeBlock("return 5;", null, true)).to.equal(5);
         });
 
         it("returns undefined when executing code that has no return value synchronously", function() {
             var runner = new Runner();
             var runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlockSync("5;")).to.equal(undefined);
+            expect(runInstance.evalCodeBlock("5;", null, true)).to.equal(undefined);
         });
 
         it("makes the persistent, global, and local objects available", async function() {
