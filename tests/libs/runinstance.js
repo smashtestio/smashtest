@@ -745,6 +745,29 @@ My 'foobar' Function
             expect(runInstance.getLocal("one")).to.equal("foobar");
         });
 
+        it("handles a function declaration where multiple {{variables}} have the same name", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'foo' Function 'bar'
+
+* My {{one}} Function {{one}} {
+    runInstance.one = one;
+    runInstance.two = getLocal("one");
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("bar");
+            expect(runInstance.two).to.equal("bar");
+        });
+
         it("executes a {var} = 'string' step", async function() {
             var tree = new Tree();
             tree.parseIn(`
@@ -1047,53 +1070,286 @@ My 'foobar' Function
         });
 
         it("allows a code block to get local, global, and persistent variables via getter functions", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+Text {
+    runInstance.one = getPersistent("one");
+    runInstance.two = getGlobal("two");
+    runInstance.three = getLocal("three");
+}
+`, "file.txt");
 
+            tree.generateBranches();
 
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+            runInstance.setPersistent("one", "first");
+            runInstance.setGlobal("two", "second");
+            runInstance.setLocal("three", "third");
 
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-
-
-
-
-
-
+            expect(runInstance.one).to.equal("first");
+            expect(runInstance.two).to.equal("second");
+            expect(runInstance.three).to.equal("third");
         });
 
-        it.skip("allows a code block to set local, global, and persistent variables via setter functions", async function() {
+        it("allows a code block to set local, global, and persistent variables via setter functions", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+Text {
+    setPersistent("one", "first");
+    setGlobal("two", "second");
+    setLocal("three", "third");
+}
+`, "file.txt");
 
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getPersistent("one")).to.equal("first");
+            expect(runInstance.getGlobal("two")).to.equal("second");
+            expect(runInstance.getLocal("three")).to.equal("third");
         });
 
-        it.skip("makes a passed-in {variable} accessible as a plain js variable inside a code block", async function() {
-            // verify the change reflected in the global obj after the function ran
+        it("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'foo' "bar" function
+
+* My {{$One_two_123$}} {{three}} function {
+    runInstance.one = $One_two_123$;
+    runInstance.three = three;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.three).to.equal("bar");
         });
 
-        it.skip("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", async function() {
-            // verify the change reflected in the local obj after the function ran
+        it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'foobar' function
+
+* My {{one%}} function {
+    runInstance.one = one%;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
+                .to.be.rejectedWith("Unexpected token ;");
         });
 
-        it.skip("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
-            // whitelisted chars = [A-Za-z0-9\-\_\.]
+        it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+My 'foobar' function
+
+* My {{for}} function {
+    runInstance.for = for;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await expect(runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false))
+                .to.be.rejectedWith("Unexpected token for");
         });
 
-        it.skip("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
-            // whitelisted chars = [A-Za-z0-9\-\_\.]
+        it("makes a {variable} accessible as a plain js variable inside a code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{one}='foobar'
+    My function
+        Other {
+            runInstance.two = one;
+        }
+
+* My function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+            expect(runInstance.two).to.equal("foobar");
         });
 
+        it("does not make a {{variable}} accessible as a plain js variable inside a function's code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{{one}}='foobar'
+    My function
 
-        it.skip("makes a {variable} accessible as a plain js variable inside a code block", async function() {
-            // verify the change reflected in the global obj after the function ran
+* My function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await expect(runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false))
+                .to.be.rejectedWith("one is not defined");
         });
 
-        it.skip("makes a {{variable}} accessible as a plain js variable inside a code block", async function() {
-            // verify the change reflected in the local obj after the function ran
+        it("makes a {{variable}} accessible as a plain js variable inside a non-function code block", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{{one}}='foobar'
+    Other {
+        runInstance.one = one;
+    }
+        Other {
+            runInstance.two = one;
+        }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foobar");
+
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(runInstance.two).to.equal("foobar");
         });
 
-        it.skip("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
-            // whitelisted chars = [A-Za-z0-9\-\_\.]
+        it("sets the plain js variable inside a code block to a passed-in {{variable}} when an existing {{variable}} of the same name is defined", async function() {
+            var tree = new Tree();
+            tree.parseIn(`
+{{one}}='foo'
+
+    Check that the original value is here - {
+        runInstance.two = one;
+    }
+
+        My 'bar' function
+
+            Check that the original value is here - {
+                runInstance.three = one;
+            }
+
+* My {{one}} function {
+    runInstance.one = one;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            var runner = new Runner();
+            runner.tree = tree;
+            var runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[3], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("bar");
+            expect(runInstance.two).to.equal("foo");
+            expect(runInstance.three).to.equal("foo");
+        });
+
+        it("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         });
 
         it.skip("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
-            // whitelisted chars = [A-Za-z0-9\-\_\.]
+
+        });
+
+        it.skip("creates a fresh local var context within a function call", async function() {
+            // branchIndents increased by 1
+        });
+
+        it.skip("clears local vars and reinstates previous local var context when exiting a function call", async function() {
+            // branchIndents fell by 1
+        });
+
+        it.skip("clears local vars and reinstates previous local var context when exiting multiple levels of function calls", async function() {
+            // branchIndents fell by 2 or more
+        });
+
+        it.skip("a {var} is accessible in a later step", async function() {
+        });
+
+        it.skip("a {var} is accessible inside function calls", async function() {
+        });
+
+        it.skip("a {var} declared inside a function call is accessible in steps after the function call", async function() {
+        });
+
+        it.skip("a {var} declared in a branch is accessible in an After Every Step hook", async function() {
+        });
+
+        it.skip("a {{var}} is accessible in a later step", async function() {
+        });
+
+        it.skip("a {{var}} is not accessible inside function calls", async function() {
+        });
+
+        it.skip("a {{var}} declared inside a function call is not accessible in steps after the function call", async function() {
+        });
+
+        it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async function() {
         });
 
         it.skip("runs an Execute In Browser step", async function() {
@@ -1144,42 +1400,6 @@ My 'foobar' Function
         });
 
         it.skip("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async function() {
-        });
-
-        it.skip("creates a fresh local var context within a function call", async function() {
-            // branchIndents increased by 1
-        });
-
-        it.skip("clears local vars and reinstates previous local var context when exiting a function call", async function() {
-            // branchIndents fell by 1
-        });
-
-        it.skip("clears local vars and reinstates previous local var context when exiting multiple levels of function calls", async function() {
-            // branchIndents fell by 2 or more
-        });
-
-        it.skip("a {var} is accessible in a later step", async function() {
-        });
-
-        it.skip("a {var} is accessible inside function calls", async function() {
-        });
-
-        it.skip("a {var} declared inside a function call is accessible in steps after the function call", async function() {
-        });
-
-        it.skip("a {var} declared in a branch is accessible in an After Every Step hook", async function() {
-        });
-
-        it.skip("a {{var}} is accessible in a later step", async function() {
-        });
-
-        it.skip("a {{var}} is not accessible inside function calls", async function() {
-        });
-
-        it.skip("a {{var}} declared inside a function call is not accessible in steps after the function call", async function() {
-        });
-
-        it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async function() {
         });
 
         it.skip("runs a Before Every Step hook", async function() {

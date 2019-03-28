@@ -93,3 +93,10 @@ exports.randomId = function() {
 exports.canonicalize = function(text) {
     return text.trim().toLowerCase().replace(/\s+/g, ' ');
 }
+
+/**
+ * @return {String} text, but in a canonical format (trimmed, and all whitespace replaced with a single space)
+ */
+exports.keepCaseCanonicalize = function(text) {
+    return text.trim().replace(/\s+/g, ' ');
+}

@@ -144,18 +144,25 @@ class RunInstance {
 
         // Handle the stack for {{local vars}}
         if(prevStep) {
+            var prevStepWasACodeBlockFunc = prevStep.isFunctionCall && typeof prevStep.codeBlock != 'undefined';
+
             // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
             if(step.branchIndents > prevStep.branchIndents) { // NOTE: when step.branchIndents > prevStep.branchIndents, step.branchIndents is always prevStep.branchIndents + 1
-                // Push existing local var context to stack, create fresh local var context
-                this.localStack.push(this.local);
-                this.local = {};
-                Object.assign(this.local, this.localsPassedIntoFunc); // merge localsPassedIntoFunc into local
+                if(!prevStepWasACodeBlockFunc) { // if previous step was a code block function, the push was already done
+                    // Push existing local var context to stack, create fresh local var context
+                    this.pushLocalStack();
+                }
             }
             else if(step.branchIndents < prevStep.branchIndents) {
                 // Pop one local var context for every branchIndents decrement
                 var diff = prevStep.branchIndents - step.branchIndents;
                 for(var i = 0; i < diff; i++) {
-                    this.local = this.localStack.pop();
+                    this.popLocalStack();
+                }
+            }
+            else { // step.branchIndents == prevStep.branchIndents
+                if(prevStepWasACodeBlockFunc) {
+                    this.popLocalStack(); // on this step we're stepping out of the code block in the previous step
                 }
             }
         }
@@ -211,6 +218,11 @@ class RunInstance {
 
             // Step has a code block to execute
             if(typeof step.codeBlock != 'undefined') {
+                if(step.isFunctionCall) {
+                    // Push existing local var context to stack, create fresh local var context
+                    this.pushLocalStack();
+                }
+
                 var retVal = null;
                 if(utils.canonicalize(step.text) == "execute in browser") {
                     retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a built-in Before Everything hook
@@ -407,6 +419,7 @@ class RunInstance {
      */
     setPersistent(varname, value) {
         this.persistent[utils.canonicalize(varname)] = value;
+        this.persistent[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
     }
 
     /**
@@ -414,6 +427,7 @@ class RunInstance {
      */
     setGlobal(varname, value) {
         this.global[utils.canonicalize(varname)] = value;
+        this.global[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
     }
 
     /**
@@ -421,6 +435,7 @@ class RunInstance {
      */
     setLocal(varname, value) {
         this.local[utils.canonicalize(varname)] = value;
+        this.local[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
     }
 
     /**
@@ -428,6 +443,7 @@ class RunInstance {
      */
     setLocalPassedIn(varname, value) {
         this.localsPassedIntoFunc[utils.canonicalize(varname)] = value;
+        this.localsPassedIntoFunc[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
     }
 
     /**
@@ -628,7 +644,7 @@ class RunInstance {
 
         `;
 
-        const JS_VARNAME_WHITELIST = /^[A-Za-z0-9\-\_\.]+$/;
+        const JS_VARNAME_WHITELIST = /^[A-Za-z\_\$][A-Za-z0-9\_\$]*$/;
         const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
 
         header = loadIntoJsVars(header, this.persistent, "getPersistent");
@@ -705,6 +721,23 @@ class RunInstance {
         this.nextStep();
         this.currStep.isSkipped = true;
         this.currStep = this.tree.nextStep(this.currBranch, true, false);
+    }
+
+    /**
+     * Push existing local var context to stack, create fresh local var context
+     */
+    pushLocalStack() {
+        this.localStack.push(this.local);
+        this.local = {};
+        Object.assign(this.local, this.localsPassedIntoFunc); // merge localsPassedIntoFunc into local
+        this.localsPassedIntoFunc = {};
+    }
+
+    /**
+     * Pop one local var context
+     */
+    popLocalStack() {
+        this.local = this.localStack.pop();
     }
 }
 module.exports = RunInstance;
