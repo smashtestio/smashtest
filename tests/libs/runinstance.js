@@ -1047,7 +1047,7 @@ My 'foo' Function 'bar'
         it("executes a {var1} = 'string1', {{var2}} = 'string2', {{var3}} = [string3] etc. step", async function() {
             let tree = new Tree();
             tree.parseIn(`
-{var1} = 'one', {{var2}} = "two", {{ let 3 }}=[three]
+{var1} = 'one', {{var2}} = "two", {{ var 3 }}=[three]
 `, "file.txt");
 
             tree.generateBranches();
@@ -1060,7 +1060,7 @@ My 'foo' Function 'bar'
 
             expect(runInstance.getGlobal("var1")).to.equal("one");
             expect(runInstance.getLocal("var2")).to.equal("two");
-            expect(runInstance.getLocal("let 3")).to.equal("three");
+            expect(runInstance.getLocal("var 3")).to.equal("three");
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -2224,8 +2224,8 @@ My function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it.skip("a {var} is accessible in a later step, with a non-function code block in between", async function() {
-            // in between = between the let declaration and the "later step"
+        it("a {var} is accessible in a later step, with a non-function code block in between", async function() {
+            // in between = between the var declaration and the "later step"
 
 
 
@@ -2575,8 +2575,8 @@ First {
 A -
     {var1}='value1'
         {{var2}} = 'value2'
-            {let 3}= "value 3", {{var5}} ='value5',{var6}=[value6]
-                {{ let 4 }}=" value 4 "
+            {var 3}= "value 3", {{var5}} ='value5',{var6}=[value6]
+                {{ var 4 }}=" value 4 "
 `, "file.txt");
 
             tree.generateBranches();
@@ -2586,7 +2586,7 @@ A -
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
-            expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{let 3}-{{let 4}}  {{var5}} {var6}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
+            expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{var 3}-{{var 4}}  {{var5}} {var6}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
         });
 
         it("handles a branch of null", function() {
@@ -2859,7 +2859,7 @@ My function
             let tree = new Tree();
             tree.parseIn(`
 A -
-    {let one}="value1"
+    {var one}="value1"
 `, "file.txt");
 
             tree.generateBranches();
@@ -2868,15 +2868,15 @@ A -
             runner.tree = tree;
             let runInstance = new RunInstance(runner);
 
-            expect(runInstance.findVarValue("let ONE", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {let ONE} is being set by a later step at file.txt:3\n");
+            expect(runInstance.findVarValue("var ONE", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var ONE} is being set by a later step at file.txt:3\n");
         });
 
         it("returns the value of a variable given the same variable name but with varying amounts of whitespace", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    { let  one  }="value1"
+    { var  one  }="value1"
 `, "file.txt");
 
             tree.generateBranches();
@@ -2885,13 +2885,13 @@ A -
             runner.tree = tree;
             let runInstance = new RunInstance(runner);
 
-            expect(runInstance.findVarValue("let one", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {let one} is being set by a later step at file.txt:3\n");
+            expect(runInstance.findVarValue("var one", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var one} is being set by a later step at file.txt:3\n");
 
             tree = new Tree();
             tree.parseIn(`
 A -
-    {let one}="value1"
+    {var one}="value1"
 `, "file.txt");
 
             tree.generateBranches();
@@ -2900,8 +2900,8 @@ A -
             runner.tree = tree;
             runInstance = new RunInstance(runner);
 
-            expect(runInstance.findVarValue("    let     ONE     ", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {    let     ONE     } is being set by a later step at file.txt:3\n");
+            expect(runInstance.findVarValue("    var     ONE     ", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
+            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {    var     ONE     } is being set by a later step at file.txt:3\n");
         });
 
         it("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
@@ -2910,10 +2910,10 @@ A -
             tree.parseIn(`
 A -
     {{var2}} = 'value2'
-        {var1}='{{var2}} {let 3} . {var0} {{var5}}'
-            {let 3}= "-{{let 4}}-", {{var5}}='value5'
+        {var1}='{{var2}} {var 3} . {var0} {{var5}}'
+            {var 3}= "-{{var 4}}-", {{var5}}='value5'
                 B -
-                    {{ let 4 }}=[ value 4 ]
+                    {{ var 4 }}=[ value 4 ]
 `, "file.txt");
 
             tree.generateBranches();
@@ -2925,8 +2925,8 @@ A -
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value2 - value 4 - . value0 value5");
             expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {{var2}} is being set by a later step at file.txt:3
-The value of variable {{let 4}} is being set by a later step at file.txt:7
-The value of variable {let 3} is being set by a later step at file.txt:5
+The value of variable {{var 4}} is being set by a later step at file.txt:7
+The value of variable {var 3} is being set by a later step at file.txt:5
 The value of variable {{var5}} is being set by a later step at file.txt:5
 The value of variable {var1} is being set by a later step at file.txt:4
 `);
