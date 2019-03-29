@@ -32,7 +32,6 @@ Running tests
             - js files matched by glob are ignored
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
-    - If a step irrevokably fails, all other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
     - Command line options
         - -maxInstances
         - -noDebug
@@ -45,16 +44,37 @@ Running tests
         - -frequency='med'
         - -global['varname']='value'
         - -persistent['varname']='value'
-    - Timeouts are set by each step on a case-by-case basis
 
-Only run tests that didn't pass last time
+Only run what didn't pass last time
     - -rerunNotPassed
-    - Doesn't run branches that passed last time
+    - Doesn't run branches that passed last time, but still includes them and their last state in the report
     - Doesn't run branches that have since been removed from the tree
-    - Runs everything else (new branches, branches that failed last time, branches that didn't run last time)
-    - Uses the current hooks, not the hooks from the last run
+    - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
+    - Always runs the current hooks, not the hooks from the last run
 
 Reports
+    - Where to find the report
+    - Pass/fail and expected/unexpected
+        - Steps
+            - A step passes is no errors are thrown inside of it
+            - A step fails if an error is thrown inside of it
+            - A step is marked expected if it passes, or unexpected if it fails
+                - However, if the step has a # identifier, it will be marked expected if it fails, and unexpected if it passes
+                - An error will show up in the report if a step is _unexpected_ (as opposed to passed or failed)
+                - Give an example of using #: a step fails, you file a defect, put in # and comment with bug tracker number so the
+                    test doesn't keep bothering you (it may be a low priority defect that isn't being fixed yet). Once it's fixed,
+                    the step will unexpectedly pass (and the branch will fail), you will notice, close off the bug tracker defect, and
+                    remove the # and comment.
+        - Branches
+            - A branch will pass if all steps are as expected
+            - A branch will fail if one or more steps are unexpected
+        - Error.continue
+            - If the error obj thrown inside a step has error.continue set to true, the branch will continue executing, though it will still fail
+                if there is one or more unexpected errors
+            - If error.continue isn't set to true, and if the error was unexpected, the step will be marked as an unexpected fail, the branch will
+                be failed immediately, and all other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
+        - Timeouts are set by each step on a case-by-case basis
+    - Sample screenshot and summary
     - What's in a name?
         The only real way to name a test is to concatenate the steps together, as tests are detailed and many of them differ by
         just one step. When you name a test, you're really just providing a crude summary of one of the steps towards the end.

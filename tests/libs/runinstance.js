@@ -2571,44 +2571,221 @@ First {
         });
 
         it("marks a step as expectedly failed when it expectedly fails", async function() {
-            // also sets asExpected, error, and log in the step
-            // make sure error.lineNumber is set intelligentlly according to where it actually is
+            let tree = new Tree();
+            tree.parseIn(`
+My function #
 
+* My function {
+    throw new Error("oops");
+}
 
+`, "file.txt");
 
+            tree.generateBranches();
 
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
 
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
+            expect(tree.branches[0].steps[0].error.message).to.equal("oops");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
 
+            expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(true);
+            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
+            expect(tree.branches[0].steps[0].asExpected).to.equal(true);
 
-
-
-
-
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].isPassed).to.equal(true);
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it.skip("marks a step as unexpectedly failed when it unexpectedly fails", async function() {
-            // also sets asExpected, error, and log in the step
-            // make sure error.lineNumber is set intelligentlly according to where it actually is
+        it("marks a step as unexpectedly failed when it unexpectedly fails", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My function
+
+* My function {
+    let a = 1 + 1;
+    throw new Error("oops");
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.equal("oops");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
+
+            expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(true);
+            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
+            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].isPassed).to.equal(undefined);
+            expect(tree.branches[0].isFailed).to.equal(true);
+            expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it.skip("marks a step as expectedly passed when it expectedly passes", async function() {
-            // also sets asExpected, error, and log in the step
+        it("marks a step as expectedly passed when it expectedly passes", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My function
+
+* My function {
+    let a = 1 + 1;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+
+            expect(tree.branches[0].steps[0].isPassed).to.equal(true);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
+            expect(tree.branches[0].steps[0].asExpected).to.equal(true);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].isPassed).to.equal(true);
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it.skip("marks a step as unexpectedly passed when it unexpectedly passes", async function() {
-            // also sets asExpected, error, and log in the step
+        it("marks a step as unexpectedly passed when it unexpectedly passes", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My function #
+
+* My function {
+    let a = 1 + 1;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.equal("This step passed, but it was expected to fail (#)");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
+
+            expect(tree.branches[0].steps[0].isPassed).to.equal(true);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
+            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].isPassed).to.equal(undefined);
+            expect(tree.branches[0].isFailed).to.equal(true);
+            expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it.skip("handles bad syntax in a code block step", async function() {
-            // make sure error.lineNumber is set intelligentlly according to where it actually is
+        it("handles bad syntax in a code block step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    Something {
+        let a = "A";
+        let b = "B";
+        c;
+        let d = "D";
+    }
+        My function
+
+* My function {
+    let a = "A";
+    let b = "B";
+    let c = "C";
+    d;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[1].error.message).to.contain("c is not defined");
+            expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[1].error.lineNumber).to.equal(6);
+
+            expect(tree.branches[0].steps[2].error.message).to.contain("d is not defined");
+            expect(tree.branches[0].steps[2].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[2].error.lineNumber).to.equal(15);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it.skip("runs an Execute In Browser step", async function() {
-            // inject runinstance.execInBrowser(code) function first
+        it("runs an Execute In Browser step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Execute in browser {
+    world
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            runInstance.execInBrowser = function(code) {
+                runInstance.one = "hello " + code;
+            };
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("hello \n    world\n");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it.skip("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async function() {
+        it("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async function() {
+
+
+
+
+
+
+
+
+
+
+
+            
         });
 
         it.skip("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async function() {

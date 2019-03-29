@@ -1,7 +1,7 @@
 * Before Everything {
     /*
     Execute In Browser
-        - execInBrowser() is a function which is implemented and injected into RunInstance by a built-in Before Everything hook (see runStep())
+        - execInBrowser() is a function which is implemented and injected into RunInstance by a built-in Before Every Branch hook (see runStep())
     */
 }
 
