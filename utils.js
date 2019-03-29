@@ -48,13 +48,6 @@ exports.log = function(obj) {
 }
 
 /**
- * @return {String} text only with \ and ' escaped to \\ and \'
- */
-exports.escapeSingleQuotes = function(text) {
-    return text.replace(/\\/g, '\\\\').replace(/'/g, '\\\'');
-}
-
-/**
  * @return {String} str, but with \\, \', \", \[, and \] unescaped to \, ', ", [, and ] respectively
  */
 exports.unescape = function(str) {
