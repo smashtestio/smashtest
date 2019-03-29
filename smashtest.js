@@ -35,6 +35,7 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
 
                 let originalFilenamesLength = filenames.length;
                 filenames = filenames.concat(builtinFilenames);
+                filenames = filenames.filter(filename => !filename.match(/\.js$/)); // remove js files
 
                 readFiles(filenames, {encoding: 'utf8'})
                     .then(function(fileBuffers) {
