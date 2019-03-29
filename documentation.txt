@@ -35,13 +35,12 @@ Running tests
     - Command line options
         - -maxInstances
         - -noDebug
-        - -pauseOnFail
         - -rerunNotPassed
         - -noScreenshotOnFail
         - -noReport
             - does not output a report - useful for when doing a single test run, but wanting to do a -rerunNotPassed in the future
         - -groups='one two three'
-        - -frequency='med'
+        - -minFrequency='med'
         - -global['varname']='value'
         - -persistent['varname']='value'
 

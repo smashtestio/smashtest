@@ -31,16 +31,17 @@ class Runner {
      * @return {Promise} Promise that gets resolved when completed or paused
      */
     async run() {
-        let startTime = new Date();
+        this.tree.timeStarted = new Date();
 
-        // If pauseOnFail is set, maxInstances must be 1
-        if(this.pauseOnFail && this.maxInstances != 1) {
-            utils.error("maxInstances must be set to 1 since pauseOnFail is on");
+        if(this.isStopped()) {
+            utils.error("Cannot run a stopped runner");
         }
 
-        // If isDebug is set on any step, maxInstances must be 1
-        if(this.tree.isDebug && this.maxInstances != 1) {
-            utils.error("maxInstances must be set to 1 since a ~ step exists");
+        let numInstances = Math.min(this.maxInstances, this.tree.branches.length);
+
+        // If isDebug is set on any step, pauseOnFail will be set
+        if(this.tree.isDebug) {
+            this.pauseOnFail = true;
         }
 
         if(this.isPaused()) { // starting from a pause
@@ -55,7 +56,7 @@ class Runner {
         else { // starting from the beginning
             if(await this.runBeforeEverything()) {
                 // Before Everythings passed
-                await this.runBranches();
+                await this.runBranches(numInstances);
                 if(this.isPaused()) {
                     this.tree.elapsed = -1;
                 }
@@ -86,6 +87,10 @@ class Runner {
      * @return {Promise} Promise that gets resolved once done executing
      */
     async runOneStep() {
+        if(!this.isPaused()) {
+            utils.error("Must already be paused to run one step");
+        }
+
         await this.runInstances[0].runOneStep();
         if(!this.runInstances[0].currStep) { // we're done running the branch
             await this.run(); // finish running After hooks, etc.
@@ -98,6 +103,10 @@ class Runner {
      * @return {Promise} Promise that gets resolved once done executing
      */
     async skipOneStep() {
+        if(!this.isPaused()) {
+            utils.error("Must already be paused to skip a step");
+        }
+
         await this.runInstances[0].skipOneStep();
         if(!this.runInstances[0].currStep) { // we're done running the branch
             await this.run(); // finish running After hooks, etc.
@@ -111,6 +120,10 @@ class Runner {
      * @return {Promise} Promise that gets resolved once done executing
      */
     injectStep(step) {
+        if(!this.isPaused()) {
+            utils.error("Must already be paused to run a step");
+        }
+
         return this.runInstances[0].injectStep(step);
     }
 
@@ -160,12 +173,13 @@ class Runner {
 
     /**
      * Executes all normal branches and steps, in parallel
+     * @param {Number} numInstances - The maximum number of branches to run in parallel
      * @return {Promise} Promise that resolves once all of them finish running, or a stop or pause occurs
      */
-    runBranches() {
-        // Spawn this.maxInstances RunInstances, which will run in parallel
+    runBranches(numInstances) {
+        // Spawn RunInstances, which will run in parallel
         let runInstancePromises = [];
-        for(let i = 0; i < this.maxInstances; i++) {
+        for(let i = 0; i < numInstances; i++) {
             let runInstance = new RunInstance(this);
             this.runInstances.push(runInstance);
             runInstancePromises.push(runInstance.run());
@@ -186,7 +200,7 @@ class Runner {
         }
 
         if(this.tree.elapsed != -1) {
-            this.tree.elapsed = new Date() - startTime; // only measure elapsed if we've never been paused
+            this.tree.elapsed = new Date() - this.tree.timeStarted; // only measure elapsed if we've never been paused
         }
     }
 }

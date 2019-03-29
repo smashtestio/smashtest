@@ -23,6 +23,7 @@ class Tree {
         OPTIONAL
 
         this.elapsed = 0;                    // number of ms it took for all branches to execute, set to -1 if paused
+        this.timeStarted = {};               // Date object (time) of when this tree started being executed
         */
     }
 
@@ -594,7 +595,7 @@ class Tree {
      * Converts step and its children into branches. Expands functions, step blocks, etc.
      * @param {Step} step - Step from the tree (this.root) to convert to branches (NOTE: do not set step to a StepBlock unless it's a sequential StepBlock)
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do include branches with no group or not in at least one group listed here), no group restrictions if this is undefined
-     * @param {String} [frequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+     * @param {String} [minFrequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in the tree at or below the given step
      * @param {Array} [stepsAbove] - Array of Step, steps that comes above this step, with function calls, etc. already expanded (used to help find function declarations), [] if omitted
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
@@ -603,7 +604,7 @@ class Tree {
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
      * @throws {Error} If a function declaration cannot be found, or if a hook has children (which is not allowed)
      */
-    branchify(step, groups, frequency, noDebug, stepsAbove, branchIndents, isFunctionCall, isSequential) {
+    branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, isFunctionCall, isSequential) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -667,7 +668,7 @@ class Tree {
                 isReplaceVarsInChildren = this.validateVarSettingFunction(step);
             }
 
-            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, frequency, noDebug, stepsAbove, branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, stepsAbove, branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
@@ -698,7 +699,7 @@ class Tree {
             // Branches from each step block member are cross joined sequentially to each other
             let branchesInThisStepBlock = [];
             step.steps.forEach(stepInBlock => {
-                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, frequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
                 }
@@ -818,7 +819,7 @@ class Tree {
             if(child instanceof StepBlock && !child.isSequential) {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach(step => {
-                    let branchesFromChild = this.branchify(step, groups, frequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                    let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -827,7 +828,7 @@ class Tree {
             }
             else {
                 // If this child is a step, call branchify() on it normally
-                let branchesFromChild = this.branchify(child, groups, frequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                 if(branchesFromChild && branchesFromChild.length > 0) {
                     branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
@@ -927,10 +928,10 @@ class Tree {
         }
 
         // Remove branches by frequency (but only for steps at the top of the tree)
-        if(frequency && step.indents == -1) {
+        if(minFrequency && step.indents == -1) {
             for(let i = 0; i < branchesFromChildren.length;) {
                 let branchFromChild = branchesFromChildren[i];
-                let freqAllowed = freqToNum(frequency);
+                let freqAllowed = freqToNum(minFrequency);
                 let freqOfBranch = freqToNum(branchFromChild.frequency);
 
                 if(freqOfBranch >= freqAllowed) {
@@ -939,7 +940,7 @@ class Tree {
                 else {
                     if(branchFromChild.isDebug) {
                         let debugStep = findDebugStep(branchFromChild);
-                        utils.error("This step contains a ~, but is not above the frequency allowed to run (" + frequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
+                        utils.error("This step contains a ~, but is not above the frequency allowed to run (" + minFrequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
                         branchesFromChildren.splice(i, 1); // remove this branch
@@ -1117,13 +1118,13 @@ class Tree {
      * Called after all of the tree's text has been inputted with parseIn()
      * Gets everything ready for the test runner
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
-     * @param {String} [frequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+     * @param {String} [minFrequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
-    generateBranches(groups, frequency, noDebug) {
+    generateBranches(groups, minFrequency, noDebug) {
         try {
-            this.branches = this.branchify(this.root, groups, frequency, noDebug);
+            this.branches = this.branchify(this.root, groups, minFrequency, noDebug);
         }
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {

@@ -30,6 +30,10 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved once done executing
      */
     async run() {
+        if(this.isStopped) {
+            utils.error("Cannot run a stopped runner");
+        }
+
         let wasPaused = false;
         let overrideDebug = false;
         if(this.isPaused) {
@@ -42,7 +46,7 @@ class RunInstance {
         }
 
         while(this.currBranch) {
-            let startTime = new Date();
+            this.currBranch.timeStarted = new Date();
 
             // Execute Before Every Branch steps, if they didn't run already (and remember, there is only one branch if pausing is possible)
             if(this.currBranch.beforeEveryBranch && !wasPaused) {
@@ -81,7 +85,7 @@ class RunInstance {
             this.localStack = [];
 
             if(this.currBranch.elapsed != -1) { // measue elapsed only if this RunInstance has never been paused
-                this.currBranch.elapsed = new Date() - startTime;
+                this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
             }
 
             this.currBranch = this.tree.nextBranch();
@@ -96,7 +100,7 @@ class RunInstance {
                 return true;
             }
             else if(this.isStopped) {
-                this.currBranch.elapsed = new Date() - startTime;
+                this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
                 return true;
             }
 
@@ -120,7 +124,7 @@ class RunInstance {
             return;
         }
 
-        let startTime = new Date();
+        step.timeStarted = new Date();
 
         // Execute Before Every Step hooks
         if(branch && branch.beforeEveryStep) {
@@ -301,7 +305,7 @@ class RunInstance {
             this.isPaused = true;
         }
 
-        step.elapsed = new Date() - startTime;
+        step.elapsed = new Date() - step.timeStarted;
     }
 
     /**

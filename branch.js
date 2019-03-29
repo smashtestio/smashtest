@@ -34,6 +34,7 @@ class Branch {
         this.log = "";                      // string of logs related to this branch (logs related to the branch but not to a particular step)
 
         this.elapsed = 0;                   // number of ms it took this step to execute
+        this.timeStarted = {};              // Date object (time) of when this branch started being executed
         */
     }
 
