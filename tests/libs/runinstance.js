@@ -2785,10 +2785,14 @@ Execute in browser {
 
 
 
-            
+
         });
 
         it.skip("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async function() {
+        });
+
+        it.skip("doesn't finish off the branch if a step has an expected error", async function() {
+            // regardless of how error.continue is set
         });
 
         it.skip("pauses when a ~ step is encountered", async function() {
