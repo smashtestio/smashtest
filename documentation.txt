@@ -140,7 +140,7 @@ Variables
             - Accessible within Every Branch/Step hooks, for hooks that apply to branches where the var was declared
         - {{var}} is local (internal to the function)
             - Goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
-            - A local var is accessible inside the code block of a non-function-call step
+            - A local var is accessible inside the code block of a non-function-call step ( Text {code block} )
     - Where to use them (they are replaced with their value)
         - Function call
             F {var1} {{var2}}

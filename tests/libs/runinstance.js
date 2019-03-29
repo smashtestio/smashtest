@@ -2225,39 +2225,248 @@ My function
         });
 
         it("a {var} is accessible in a later step, with a non-function code block in between", async function() {
-            // in between = between the var declaration and the "later step"
+            let tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
 
+    Something {
+        runInstance.one = getGlobal("var1");
+    }
 
+        {var2}='{var1}bar'
+`, "file.txt");
 
+            tree.generateBranches();
 
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
 
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
 
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.getGlobal("var2")).to.equal("foobar");
 
-
-
-
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it.skip("a {var} is accessible inside a function call's code block", async function() {
+        it("a {var} is accessible inside a function call's code block", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+    My function
+
+* My function {
+    runInstance.one = getGlobal("var1");
+    runInstance.two = var1;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("foo");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it.skip("a {var} is accessible to steps inside a function call", async function() {
+        it("a {var} is accessible to steps inside a function call", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+    My function
+        A -
+
+* My function
+    {var2}='{var1}bar'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[3], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var2")).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
+            expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it.skip("a {var} is accessible to code blocks of steps inside a function call", async function() {
-            // use both local js let and getGlobal()
+        it("a {var} is accessible to code blocks of steps inside a function call", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+    My function
+        A -
+
+* My function
+    Something {
+        runInstance.one = getGlobal("var1");
+        runInstance.two = var1;
+
+        setGlobal("var1", "bar");
+    }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[3], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("foo");
+
+            expect(runInstance.getGlobal("var1")).to.equal("bar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
+            expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it.skip("a {var} declared inside a function call is accessible in steps after the function call", async function() {
+        it("a {var} declared inside a function call is accessible in steps after the function call", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My function
+    {var2}='{var1}bar'
+
+* My function
+    {var1}='foo'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foo");
+            expect(runInstance.getGlobal("var2")).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it.skip("a {var} declared in a branch is accessible in an After Every Step hook", async function() {
+        it("a {var} declared in a branch is accessible in an After Every Step hook", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+
+* After Every Step {
+    runInstance.one = getGlobal('var1');
+    runInstance.two = var1;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("foo");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it.skip("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async function() {
+        it("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{{var1}}='foo'
+
+* After Every Step {
+    runInstance.one = getLocal('var1');
+    runInstance.two = var1;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("foo");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it.skip("executes a step that logs", async function() {
+        it("executes a step that logs", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My function
+    Something else {
+        log("C");
+        log("D");
+    }
+
+* My function {
+    log("A");
+    log("B");
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].log).to.equal("A\nB\n");
+            expect(tree.branches[0].steps[1].log).to.equal("C\nD\n");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
         it("sets the error's filename and lineNumber correctly when an error occurs inside a code block", async function() {
@@ -2361,9 +2570,21 @@ First {
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it.skip("marks a step as expectedly failed when it expectedly fails", async function() {
+        it("marks a step as expectedly failed when it expectedly fails", async function() {
             // also sets asExpected, error, and log in the step
             // make sure error.lineNumber is set intelligentlly according to where it actually is
+
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("marks a step as unexpectedly failed when it unexpectedly fails", async function() {
