@@ -470,43 +470,340 @@ A -
         });
 
         it("handles an error inside a Before Every Branch hook", async function() {
-            // error goes into the Branch object, whole Branch fails and no steps run, After Every Branch hooks still all run
-            // have multiple branches exist
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B {
+        runInstance.ranStepB = true;
+    }
 
+    C {
+        runInstance.ranStepC = true;
+    }
 
+* Before Every Branch {
+    throw new Error("oops");
+}
 
+* After Every Branch {
+    runInstance.afterCount++;
+}
 
+`, "file.txt");
 
+            tree.generateBranches();
 
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+            runInstance.afterCount = 0;
 
+            await runInstance.run();
 
+            expect(tree.branches[0].error.message).to.equal("oops");
+            expect(tree.branches[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].error.lineNumber).to.equal(12);
+            expect(tree.branches[0].isPassed).to.be.undefined;
+            expect(tree.branches[0].isFailed).to.be.true;
 
+            expect(tree.branches[1].error.message).to.equal("oops");
+            expect(tree.branches[1].error.filename).to.equal("file.txt");
+            expect(tree.branches[1].error.lineNumber).to.equal(12);
+            expect(tree.branches[1].isPassed).to.be.undefined;
+            expect(tree.branches[1].isFailed).to.be.true;
 
-
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.afterCount).to.equal(2); // remaining After Every Branch hooks are still run
         });
 
-        it.skip("handles an error inside an After Every Branch hook", async function() {
-            // error goes into the Branch object, whole Branch fails, remaining After Every Branch hooks still run
-            // have multiple branches exist
+        it("handles an error inside an After Every Branch hook", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B {
+        runInstance.ranStepB = true;
+    }
+
+    C {
+        runInstance.ranStepC = true;
+    }
+
+* Before Every Branch {
+    runInstance.beforeCount++;
+}
+
+* After Every Branch {
+    throw new Error("oops");
+}
+
+* After Every Branch {
+    runInstance.afterCount++;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+            runInstance.afterCount = 0;
+            runInstance.beforeCount = 0;
+
+            await runInstance.run();
+
+            expect(tree.branches[0].error.message).to.equal("oops");
+            expect(tree.branches[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].error.lineNumber).to.equal(16);
+            expect(tree.branches[0].isPassed).to.be.undefined;
+            expect(tree.branches[0].isFailed).to.be.true;
+
+            expect(tree.branches[1].error.message).to.equal("oops");
+            expect(tree.branches[1].error.filename).to.equal("file.txt");
+            expect(tree.branches[1].error.lineNumber).to.equal(16);
+            expect(tree.branches[1].isPassed).to.be.undefined;
+            expect(tree.branches[1].isFailed).to.be.true;
+
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.afterCount).to.equal(2); // remaining After Every Branch hooks are still run
+            expect(runInstance.beforeCount).to.equal(2);
         });
 
-        it.skip("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", async function() {
+        it("handles a stop during a Before Every Branch hook execution", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.ranStepA = true;
+}
+
+B {
+    runInstance.ranStepB = true;
+}
+
+* Before Every Branch {
+    runInstance.isStopped = true;
+    runInstance.beforeCount++;
+
+    // Wait 20 ms
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, 20);
+    });
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+            runInstance.beforeCount = 0;
+
+            await runInstance.run();
+
+            expect(runInstance.isStopped).to.be.true;
+            expect(runInstance.ranStepA).to.be.undefined;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.beforeCount).to.equal(1);
         });
 
-        it.skip("clears local and global variables between different branches", async function() {
+        it("handles a stop during an After Every Branch hook execution", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.ranStepA = true;
+}
+
+B {
+    runInstance.ranStepB = true;
+}
+
+* After Every Branch {
+    runInstance.isStopped = true;
+    runInstance.afterCount++;
+}
+
+* After Every Branch {
+    runInstance.afterCount++;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+            runInstance.afterCount = 0;
+
+            await runInstance.run();
+
+            expect(runInstance.isStopped).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.afterCount).to.be.equal(1);
         });
 
-        it.skip("sets branch.elapsed to how long it took the branch to execute", async function() {
-            // Try two different branches, one that runs longer than the other, and assert that one > other
+        it("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+    {{var2}}='bar'
+
+* After Every Branch {
+    runInstance.var1 = var1;
+    runInstance.var2 = var2;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.var1).to.equal("foo");
+            expect(runInstance.var2).to.equal("bar");
         });
 
-        it.skip("sets branch.elapsed to how long it took the branch to execute when a stop ocurred", async function() {
+        it("clears local and global variables between different branches", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+First branch -
+    {var1}='foo'
+        {{var2}}='bar'
+
+Second branch -
+    Check the vars {
+        runInstance.var1 = getGlobal("var1");
+        runInstance.var2 = getLocal("var2");
+    }
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.var1).to.be.undefined;
+            expect(runInstance.var2).to.be.undefined;
         });
 
-        it.skip("sets branch.elapsed to -1 when a pause occurred", async function() {
+        it("sets branch.elapsed to how long it took the branch to execute", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Wait 20ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, 20);
+    });
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(tree.branches[0].elapsed).to.be.above(20);
+            expect(tree.branches[0].elapsed).to.be.below(50);
+            expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
         });
 
-        it.skip("sets branch.elapsed to -1 when a pause and resume occurred", async function() {
+        it("sets branch.elapsed to how long it took the branch to execute when a stop ocurred", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Wait '20' ms
+
+    Cause a stop {
+        this.isStopped = true;
+    }
+
+        Wait '100' ms // we never get here
+
+* Wait {{N}} ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, N);
+    });
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(tree.branches[0].elapsed).to.be.above(20);
+            expect(tree.branches[0].elapsed).to.be.below(50);
+            expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
+        });
+
+        it("sets branch.elapsed to -1 when a pause and when a resume occurred", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+First step -
+
+    Cause a pause {
+        throw new Error("oops");
+    }
+
+        Third step -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            runner.pauseOnFail = true;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(tree.branches[0].elapsed).to.equal(-1);
+            expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
+
+            await runInstance.run();
+
+            expect(tree.branches[0].elapsed).to.equal(-1);
+            expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
+        });
+
+        it("throws an error when trying to start a previously stopped RunInstance", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Cause a stop {
+    runInstance.isStopped = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+            await expect(runInstance.run()).to.be.rejectedWith("Cannot run a stopped runner");
         });
     });
 
@@ -829,6 +1126,122 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
+            expect(runInstance.one).to.equal("first");
+            expect(runInstance.two).to.equal("second");
+            expect(runInstance.three).to.equal("third");
+            expect(runInstance.four).to.equal("4");
+            expect(runInstance.five).to.equal("5");
+            expect(runInstance.six).to.equal("6 six '6' \"66\"");
+            expect(runInstance.seven).to.equal("7 seven 'th'");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+        });
+
+        it("executes a function call with {{variables}} in its function declaration, that has no code block, passing in 'strings', \"strings\", [strings], {variables}, {{variables}}, including strings with variables inside", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\\"66\\\"" [{{seventh}} seven 'th']
+
+* My {{one}} Function {{two}} {{three}} {{fo ur}} Is {{five}} Here! {{six}} {{seven}}
+    {A}='{{one}}', {B}='{{two}}'
+        {C}='{{three}}'
+            { D } = '{{ fo ur  }}', {E}='{{five}}'
+                ..
+                {F}='{{six}}'
+                {G}='{{seven}}'
+
+                    Final step {
+                        runInstance.one = getLocal("one");
+                        runInstance.two = two;
+                        runInstance.three = three;
+                        runInstance.four = getLocal("fo ur");
+                        runInstance.five = five;
+                        runInstance.six = six;
+                        runInstance.seven = seven;
+                    }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+            runInstance.global["four th"] = "4";
+            runInstance.local["fifth"] = "5";
+            runInstance.global["sixth"] = "6";
+            runInstance.local["seventh"] = "7";
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.getLocal("one")).to.equal("first");
+            expect(runInstance.getLocal("two")).to.equal("second");
+            expect(runInstance.getLocal("three")).to.equal("third");
+            expect(runInstance.getLocal("fo ur")).to.equal("4");
+            expect(runInstance.getLocal("five")).to.equal("5");
+            expect(runInstance.getLocal("six")).to.equal("6 six '6' \"66\"");
+            expect(runInstance.getLocal("seven")).to.equal("7 seven 'th'");
+
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.getLocal("one")).to.equal("first");
+            expect(runInstance.getLocal("two")).to.equal("second");
+            expect(runInstance.getLocal("three")).to.equal("third");
+            expect(runInstance.getLocal("fo ur")).to.equal("4");
+            expect(runInstance.getLocal("five")).to.equal("5");
+            expect(runInstance.getLocal("six")).to.equal("6 six '6' \"66\"");
+            expect(runInstance.getLocal("seven")).to.equal("7 seven 'th'");
+
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+            expect(runInstance.getLocal("one")).to.equal("first");
+            expect(runInstance.getLocal("two")).to.equal("second");
+            expect(runInstance.getLocal("three")).to.equal("third");
+            expect(runInstance.getLocal("fo ur")).to.equal("4");
+            expect(runInstance.getLocal("five")).to.equal("5");
+            expect(runInstance.getLocal("six")).to.equal("6 six '6' \"66\"");
+            expect(runInstance.getLocal("seven")).to.equal("7 seven 'th'");
+
+            await runInstance.runStep(tree.branches[0].steps[3], tree.branches[0], false);
+
+            expect(runInstance.getLocal("one")).to.equal("first");
+            expect(runInstance.getLocal("two")).to.equal("second");
+            expect(runInstance.getLocal("three")).to.equal("third");
+            expect(runInstance.getLocal("fo ur")).to.equal("4");
+            expect(runInstance.getLocal("five")).to.equal("5");
+            expect(runInstance.getLocal("six")).to.equal("6 six '6' \"66\"");
+            expect(runInstance.getLocal("seven")).to.equal("7 seven 'th'");
+
+            await runInstance.runStep(tree.branches[0].steps[4], tree.branches[0], false);
+
+            expect(runInstance.getLocal("one")).to.equal("first");
+            expect(runInstance.getLocal("two")).to.equal("second");
+            expect(runInstance.getLocal("three")).to.equal("third");
+            expect(runInstance.getLocal("fo ur")).to.equal("4");
+            expect(runInstance.getLocal("five")).to.equal("5");
+            expect(runInstance.getLocal("six")).to.equal("6 six '6' \"66\"");
+            expect(runInstance.getLocal("seven")).to.equal("7 seven 'th'");
+
+            await runInstance.runStep(tree.branches[0].steps[5], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("A")).to.equal("first");
+            expect(runInstance.getGlobal("B")).to.equal("second");
+            expect(runInstance.getGlobal("C")).to.equal("third");
+            expect(runInstance.getGlobal("D")).to.equal("4");
+            expect(runInstance.getGlobal("E")).to.equal("5");
+            expect(runInstance.getGlobal("F")).to.equal("6 six '6' \"66\"");
+            expect(runInstance.getGlobal("G")).to.equal("7 seven 'th'");
+
+            await runInstance.runStep(tree.branches[0].steps[6], tree.branches[0], false);
+
+            expect(runInstance.getGlobal("A")).to.equal("first");
+            expect(runInstance.getGlobal("B")).to.equal("second");
+            expect(runInstance.getGlobal("C")).to.equal("third");
+            expect(runInstance.getGlobal("D")).to.equal("4");
+            expect(runInstance.getGlobal("E")).to.equal("5");
+            expect(runInstance.getGlobal("F")).to.equal("6 six '6' \"66\"");
+            expect(runInstance.getGlobal("G")).to.equal("7 seven 'th'");
+            
             expect(runInstance.one).to.equal("first");
             expect(runInstance.two).to.equal("second");
             expect(runInstance.three).to.equal("third");
@@ -1715,6 +2128,9 @@ My 'foo' "bar" function
 * My {{$One_two_123$}} {{three}} function {
     runInstance.one = $One_two_123$;
     runInstance.three = three;
+
+    runInstance.four = getLocal("$One_two_123$");
+    runInstance.five = getLocal("three");
 }
 `, "file.txt");
 
@@ -1728,6 +2144,8 @@ My 'foo' "bar" function
 
             expect(runInstance.one).to.equal("foo");
             expect(runInstance.three).to.equal("bar");
+            expect(runInstance.four).to.equal("foo");
+            expect(runInstance.five).to.equal("bar");
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);

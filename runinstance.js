@@ -46,22 +46,42 @@ class RunInstance {
         }
 
         while(this.currBranch) {
+            if(this.checkForStopped()) {
+                return;
+            }
+
             this.currBranch.timeStarted = new Date();
 
-            // Execute Before Every Branch steps, if they didn't run already (and remember, there is only one branch if pausing is possible)
+            // Execute Before Every Branch steps, if they didn't run already
+            // NOTE: pauses can only happen if there's one branch in total
             if(this.currBranch.beforeEveryBranch && !wasPaused) {
+                let continueToNextBranch = false;
                 for(let i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                     let s = this.currBranch.beforeEveryBranch[i];
 
-                    let isSuccess = await this.runHookStep(s, null, this.currBranch);
-                    if(this.checkForPauseOrStop()) {
+                    await this.runHookStep(s, null, this.currBranch);
+                    if(this.checkForStopped()) {
                         return;
                     }
-                    else if(!isSuccess) {
-                        // runHookStep() already marked the branch as a failure, so now just advance to the next branch
+                    else if(this.currBranch.isFailed) {
+                        // runHookStep() already marked the branch as a failure, so now just run all
+                        // After Every Branch hooks and advance to the next branch
+                        await this.runAfterEveryBranch();
+
+                        if(this.currBranch.elapsed != -1) { // measure elapsed only if this RunInstance has never been paused
+                            this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
+                        }
+                        // NOTE: else is probably unreachable because a branch auto-completes as failed if a Before Every Branch error occurs (and pauses are only allowed when there 1 branch)
+
                         this.currBranch = this.tree.nextBranch();
-                        continue;
+
+                        continueToNextBranch = true;
+                        break;
                     }
+                }
+
+                if(continueToNextBranch) {
+                    continue;
                 }
             }
 
@@ -72,7 +92,7 @@ class RunInstance {
             while(this.currStep) {
                 await this.runStep(this.currStep, this.currBranch, overrideDebug);
                 overrideDebug = false; // only override a debug on the first step we run after an unpause
-                if(this.checkForPauseOrStop()) {
+                if(this.checkForPaused() || this.checkForStopped()) {
                     return;
                 }
 
@@ -87,7 +107,7 @@ class RunInstance {
             this.local = {};
             this.localStack = [];
 
-            if(this.currBranch.elapsed != -1) { // measue elapsed only if this RunInstance has never been paused
+            if(this.currBranch.elapsed != -1) { // measure elapsed only if this RunInstance has never been paused
                 this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
             }
 
@@ -199,6 +219,7 @@ class RunInstance {
                                 this.setLocalPassedIn(varname, value);
                             }
                         }
+                        // NOTE: else probably unreachable as varList and inputList are supposed to be the same size
                     }
                 }
 
@@ -412,7 +433,7 @@ class RunInstance {
             return this.localsPassedIntoFunc[varname];
         }
         else {
-            return this.local[utils.canonicalize(varname)];
+            return this.local[varname];
         }
     }
 
@@ -480,7 +501,7 @@ class RunInstance {
                 return runInstance.localsPassedIntoFunc[varname];
             }
             else {
-                return runInstance.local[utils.canonicalize(varname)];
+                return runInstance.local[varname];
             }
         }
 
@@ -711,7 +732,10 @@ class RunInstance {
             for(let i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
                 let s = this.currBranch.afterEveryBranch[i];
                 await this.runHookStep(s, null, this.currBranch);
-                // finish running all After Every Branch steps, even if one fails, and even if there was a pause or stop
+                if(this.checkForStopped()) {
+                    return;
+                }
+                // finish running all After Every Branch steps, even if one fails, and even if there was a pause
             }
         }
     }
@@ -782,14 +806,22 @@ class RunInstance {
     }
 
     /**
-     * @return {Boolean} True if the RunInstance is currently paused or stopped, false otherwise. Also sets the current branch's elapsed.
+     * @return {Boolean} True if the RunInstance is currently paused, false otherwise. Also sets the current branch's elapsed.
      */
-    checkForPauseOrStop() {
+    checkForPaused() {
         if(this.isPaused) {
             this.currBranch.elapsed = -1;
             return true;
         }
-        else if(this.isStopped) {
+
+        return false;
+    }
+
+    /**
+     * @return {Boolean} True if the RunInstance is currently stopped, false otherwise. Also sets the current branch's elapsed.
+     */
+    checkForStopped() {
+        if(this.isStopped) {
             this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
             return true;
         }

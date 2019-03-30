@@ -44,6 +44,15 @@ class Runner {
             this.pauseOnFail = true;
         }
 
+        if(this.pauseOnFail && this.tree.branches.length > 1) {
+            utils.error("Cannot set pauseOnFail when there is more than 1 branch");
+        }
+
+        if(this.isDebug && this.tree.branches.length > 1) {
+            utils.error("Cannot debug when there is more than 1 branch");
+            // NOTE: since Tree automatically outputs only 1 branch if there's a ~, this code is most probably unreachable
+        }
+
         if(this.isPaused()) { // starting from a pause
             await this.resumeBranch();
             if(this.isPaused()) {
