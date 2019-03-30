@@ -54,7 +54,10 @@ class RunInstance {
                     let s = this.currBranch.beforeEveryBranch[i];
 
                     let isSuccess = await this.runHookStep(s, null, this.currBranch);
-                    if(!isSuccess) {
+                    if(checkForPauseOrStop()) {
+                        return;
+                    }
+                    else if(!isSuccess) {
                         // runHookStep() already marked the branch as a failure, so now just advance to the next branch
                         this.currBranch = this.tree.nextBranch();
                         continue;
@@ -130,14 +133,17 @@ class RunInstance {
         if(branch && branch.beforeEveryStep) {
             for(let i = 0; i < branch.beforeEveryStep.length; i++) {
                 let s = branch.beforeEveryStep[i];
-                let isSuccess = await this.runHookStep(s, step, branch);
-                if(!isSuccess) {
+                await this.runHookStep(s, step, branch);
+                if(this.isStopped) {
+                    return;
+                }
+                else if(step.isFailed) {
                     break;
                 }
             }
         }
 
-        if(!step.isFailed) { // A Before Every Step hook did not fail the step
+        if(!step.isFailed) { // A Before Every Step hook did not fail the step and we did not stop
             // Find the previous step
             let prevStep = null;
             if(branch) {
@@ -274,11 +280,14 @@ class RunInstance {
             this.tree.markStep(step, branch, isPassed, !!step.isExpectedFail == !isPassed, error, finishBranchNow, true);
         }
 
-        // Execute After Every Step hooks (all of them, regardless if one fails)
+        // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)
         if(branch && branch.afterEveryStep) {
             for(let i = 0; i < branch.afterEveryStep.length; i++) {
                 let s = branch.afterEveryStep[i];
                 await this.runHookStep(s, step, branch);
+                if(this.isStopped) {
+                    return;
+                }
             }
         }
 
@@ -305,14 +314,16 @@ class RunInstance {
             this.fillErrorFromStep(e, step, true);
 
             if(stepToGetError) {
-                this.tree.markStep(stepToGetError, null, false, false, stepToGetError.error ? null : e);
+                this.tree.markStep(stepToGetError, null, false, false, stepToGetError.error ? undefined : e); // do not set stepToGetError.error if it's already set
 
                 if(branchToGetError) {
                     branchToGetError.markBranch(false);
                 }
             }
             else if(branchToGetError) {
-                branchToGetError.error = branchToGetError.error ? null : e;
+                if(!branchToGetError.error) { // do not set branchToGetError.error if it's already set
+                    branchToGetError.error = e;
+                }
                 branchToGetError.markBranch(false);
             }
 
