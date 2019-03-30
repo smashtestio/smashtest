@@ -26,7 +26,7 @@ describe("Branch", function() {
             branch1.groups = [ "1" ];
             branch1.frequency = "low";
             branch1.isDebug = true;
-            branch1.isBuiltIn = true;
+            branch1.isPackaged = true;
             branch1.isPassed = true;
 
             let branch2 = new Branch;
@@ -52,7 +52,7 @@ describe("Branch", function() {
                 groups: [ "1", "2", "3" ],
                 isOnly: true,
                 isDebug: true,
-                isBuiltIn: true
+                isPackaged: true
             });
         });
 
@@ -147,7 +147,7 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                isBuiltIn: undefined,
+                isPackaged: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -184,7 +184,7 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                isBuiltIn: undefined,
+                isPackaged: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -208,7 +208,7 @@ describe("Branch", function() {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                isBuiltIn: undefined,
+                isPackaged: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -258,7 +258,7 @@ describe("Branch", function() {
             branch.groups = ['big', 'small'];
             branch.isOnly = true;
             branch.isDebug = true;
-            branch.isBuiltIn = true;
+            branch.isPackaged = true;
             branch.passedLastTime = true;
             branch.isPassed = true;
             branch.isFailed = true;
@@ -281,7 +281,7 @@ describe("Branch", function() {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
-                isBuiltIn: true,
+                isPackaged: true,
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
@@ -315,7 +315,7 @@ describe("Branch", function() {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
-                isBuiltIn: true,
+                isPackaged: true,
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
@@ -354,7 +354,7 @@ describe("Branch", function() {
             let stepC = new Step();
             stepC.text = "C";
             stepC.branchIndents = 2;
-            stepC.isBuiltIn = true;
+            stepC.isPackaged = true;
 
             let branch = new Branch;
             branch.steps = [ stepA, stepB, stepC ];

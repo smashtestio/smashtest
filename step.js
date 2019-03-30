@@ -39,7 +39,7 @@ class Step {
         this.isExpectedFail = false;          // true if this step has the expected fail indentifier (#)
 
         this.isHook = false;                  // true if this step is a hook
-        this.isBuiltIn = false;               // true if this step is from a built-in file
+        this.isPackaged = false;              // true if this step is from a package file
 
         this.varsBeingSet = [];               // if this step is in the format {var1}=Step1, {{var2}}=Step2, etc., this array will contain objects {name: "var1", value: "Step1", isLocal: false}, {name: "var2", value: "Step2", isLocal: true} etc.
 
@@ -201,8 +201,8 @@ class Step {
         let isExpectedFail = this.isExpectedFail || functionDeclarationInTree.isExpectedFail;
         isExpectedFail ? this.isExpectedFail = isExpectedFail : null;
 
-        let isBuiltIn = this.isBuiltIn || functionDeclarationInTree.isBuiltIn;
-        isBuiltIn ? this.isBuiltIn = isBuiltIn : null;
+        let isPackaged = this.isPackaged || functionDeclarationInTree.isPackaged;
+        isPackaged ? this.isPackaged = isPackaged : null;
 
         let isHook = this.isHook || functionDeclarationInTree.isHook;
         isHook ? this.isHook = isHook : null;

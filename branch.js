@@ -22,7 +22,7 @@ class Branch {
 
         this.isOnly = false;                // If true, a Step in this Branch has a $
         this.isDebug = false;               // If true, a Step in this Branch has a ~
-        this.isBuiltIn = false;             // If true, this is a built-in hook
+        this.isPackaged = false;             // If true, this is a packaged hook
 
         this.passedLastTime = false;        // if true, do not run this branch, but include it in the report
         this.isPassed = false;              // true if every step in this branch passed after being run
@@ -60,9 +60,9 @@ class Branch {
 
         branch.isOnly ? this.isOnly = branch.isOnly : null;
         branch.isDebug ? this.isDebug = branch.isDebug : null;
-        branch.isBuiltIn ? this.isBuiltIn = branch.isBuiltIn : null;
+        branch.isPackaged ? this.isPackaged = branch.isPackaged : null;
 
-        // Attach branch.beforeEveryBranch to the beginning of this.beforeEveryBranch (so that built-in comes first)
+        // Attach branch.beforeEveryBranch to the beginning of this.beforeEveryBranch (so that packages comes first)
         if(branch.beforeEveryBranch) {
             if(!this.beforeEveryBranch) {
                 this.beforeEveryBranch = [];
@@ -71,7 +71,7 @@ class Branch {
             this.beforeEveryBranch = branch.beforeEveryBranch.concat(this.beforeEveryBranch);
         }
 
-        // Attach branch.afterEveryBranch to the end of this.afterEveryBranch (so that built-in comes last)
+        // Attach branch.afterEveryBranch to the end of this.afterEveryBranch (so that packages comes last)
         if(branch.afterEveryBranch) {
             if(!this.afterEveryBranch) {
                 this.afterEveryBranch = [];
@@ -80,7 +80,7 @@ class Branch {
             this.afterEveryBranch = this.afterEveryBranch.concat(branch.afterEveryBranch);
         }
 
-        // Attach branch.beforeEveryStep to the beginning of this.beforeEveryStep (so that built-in comes first)
+        // Attach branch.beforeEveryStep to the beginning of this.beforeEveryStep (so that packages comes first)
         if(branch.beforeEveryStep) {
             if(!this.beforeEveryStep) {
                 this.beforeEveryStep = [];
@@ -89,7 +89,7 @@ class Branch {
             this.beforeEveryStep = branch.beforeEveryStep.concat(this.beforeEveryStep);
         }
 
-        // Attach branch.afterEveryStep to the end of this.afterEveryStep (so that built-in comes last)
+        // Attach branch.afterEveryStep to the end of this.afterEveryStep (so that packages comes last)
         if(branch.afterEveryStep) {
             if(!this.afterEveryStep) {
                 this.afterEveryStep = [];
@@ -153,7 +153,7 @@ class Branch {
 
         this.steps.forEach(step => {
             let text = step.text;
-            if(!step.isBuiltIn) {
+            if(!step.isPackaged) {
                 text += ' -';
             }
             output += spaces(step.branchIndents + startIndent + 1) + text + '\n';

@@ -1075,7 +1075,7 @@ H
             });
         });
 
-        it("sets isBuiltIn", function() {
+        it("sets isPackaged", function() {
             let tree = new Tree();
 
             tree.parseIn(
@@ -1095,7 +1095,7 @@ H
                     children: [
                         {
                             text: 'A',
-                            isBuiltIn: undefined,
+                            isPackaged: undefined,
                             lineNumber: 1,
                             filename: 'file1.txt',
                             indents: 0,
@@ -1103,7 +1103,7 @@ H
                             children: [
                                 {
                                     text: 'B',
-                                    isBuiltIn: undefined,
+                                    isPackaged: undefined,
                                     lineNumber: 2,
                                     filename: 'file1.txt',
                                     indents: 1,
@@ -1114,7 +1114,7 @@ H
                         },
                         {
                             text: 'C',
-                            isBuiltIn: true,
+                            isPackaged: true,
                             lineNumber: 1,
                             filename: 'file2.txt',
                             indents: 0,
@@ -1122,7 +1122,7 @@ H
                             children: [
                                 {
                                     text: 'D',
-                                    isBuiltIn: true,
+                                    isPackaged: true,
                                     lineNumber: 2,
                                     filename: 'file2.txt',
                                     indents: 1,
@@ -10853,7 +10853,7 @@ G -
             ]);
         });
 
-        it("marks as built-in hooks that are built-in", function() {
+        it("marks as packaged hooks that are packaged", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10899,27 +10899,27 @@ A -
                 {
                     steps: [ { text: "A" } ],
                     beforeEveryBranch: [
-                        { text: "Before Every Branch", codeBlock: "\n    F\n", isBuiltIn: true }
+                        { text: "Before Every Branch", codeBlock: "\n    F\n", isPackaged: true }
                     ],
                     afterEveryBranch: [
-                        { text: "After Every Branch", codeBlock: "\n    D\n", isBuiltIn: true }
+                        { text: "After Every Branch", codeBlock: "\n    D\n", isPackaged: true }
                     ],
                     beforeEveryStep: [
-                        { text: "Before Every Step", codeBlock: "\n    G\n", isBuiltIn: true }
+                        { text: "Before Every Step", codeBlock: "\n    G\n", isPackaged: true }
                     ],
                     afterEveryStep: [
-                        { text: "After Every Step", codeBlock: "\n    E\n", isBuiltIn: true }
+                        { text: "After Every Step", codeBlock: "\n    E\n", isPackaged: true }
                     ]
                 }
             ]);
 
             expect(tree.beforeEverything).to.containSubsetInOrder([
-                { text: "Before Everything", codeBlock: "\n    B\n", isBuiltIn: true },
-                { text: "Before Everything", codeBlock: "\n    K\n", isBuiltIn: undefined }
+                { text: "Before Everything", codeBlock: "\n    B\n", isPackaged: true },
+                { text: "Before Everything", codeBlock: "\n    K\n", isPackaged: undefined }
             ]);
 
             expect(tree.afterEverything).to.containSubsetInOrder([
-                { text: "After Everything", codeBlock: "\n    C\n", isBuiltIn: true }
+                { text: "After Everything", codeBlock: "\n    C\n", isPackaged: true }
             ]);
         });
     });
@@ -11558,7 +11558,7 @@ F -
 * Before Every Step {
     X
 }
-`, "builtin.txt", true);
+`, "packages.txt", true);
 
             tree.generateBranches();
 
@@ -11736,7 +11736,7 @@ F -
 * Before Every Step {
     X
 }
-`, "builtin.txt", true);
+`, "packages.txt", true);
 
             tree.generateBranches();
 

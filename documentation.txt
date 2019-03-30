@@ -15,7 +15,7 @@ Setup
         - What it does and why it's recommended
 
 Steps
-    - Textual steps, built-in steps, functions
+    - Textual steps, packaged steps, functions
     - Each "branch" is a separate test. We call tests "branches".
     - Indents
         - 4 spaces for indents (no tabs)
@@ -119,7 +119,7 @@ Functions
         - Function {{var}} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
             - All function inputs are either {vars}, {{vars}}, 'strings', "strings", or [strings]
             - {{vars}} in a function declaration must all be {{local}}, not {global}
-        - Finds closest matching function declaration in the tree, otherwise looks to built-in functions
+        - Finds closest matching function declaration in the tree, otherwise looks to packaged functions
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
             - Show example
     - Declaring
@@ -127,7 +127,7 @@ Functions
         - {{local vars}} designate parameters in a function declaration
         - Finding declaration
             - First look to siblings, then to siblings of parent, etc.
-            - Match custom functions first, then primitive built-in functions
+            - Match custom functions first, then primitive packaged functions
             - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
                 - Functions and {vars} declared inside a function are accessible to children of the caller step
     - Functions are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
@@ -280,7 +280,7 @@ Selective test running
 
 Stubbing out APIs
     - Examples
-        - Use built-in sinon-injecting js function
+        - Use packaged sinon-injecting js function
         - Stubs out XHR
             - https://sinonjs.org/releases/latest/fake-xhr-and-server/
             - Give examples of a few GET/POST routes and their responses
@@ -332,6 +332,7 @@ Hooks
                 E
 
 Packages
-    - Just create a file with a * Before Everything that injects what it needs. Then just distribute this file.
+    - Just create a file with a * Before Everything that injects what it needs. Then just distribute this file and have users
+        put it into packages/
     - Give some examples
         - Show injection being made into Runner.persistent.packageName

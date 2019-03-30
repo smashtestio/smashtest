@@ -23,18 +23,18 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
                 throw "Bad filename(s)";
             }
 
-            glob('builtin/*', function(err, builtinFilenames) { // new array of filenames under builtin (our built-in functions)
+            glob('packages/*', function(err, packageFilenames) { // new array of filenames under packages/
                 if(err) {
                     throw err;
                 }
 
-                if(!builtinFilenames) {
+                if(!packageFilenames) {
                     // TODO: make sure this will work from any directory where you want to run smashtest from
-                    throw "Make sure builtin/ directory exists in the directory you're running this from";
+                    throw "Make sure packages/ directory exists in the directory you're running this from";
                 }
 
                 let originalFilenamesLength = filenames.length;
-                filenames = filenames.concat(builtinFilenames);
+                filenames = filenames.concat(packageFilenames);
                 filenames = filenames.filter(filename => !filename.match(/\.js$/)); // remove js files
 
                 readFiles(filenames, {encoding: 'utf8'})
@@ -48,7 +48,7 @@ process.argv.forEach(function(val, index, array) { // when index is 2, val is th
                         }
 
                         // TODO:
-                        // 1) tree.parseIn() all the files under builtin/
+                        // 1) tree.parseIn() all the files under packages/
                         // 2) Call tree.generateBranches(with parameters from command line or vars)
                         // 3) Call create a new TestRunner and call run()
 

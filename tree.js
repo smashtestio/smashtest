@@ -287,9 +287,9 @@ class Tree {
      * Parses a string and adds it onto root
      * @param {String} buffer - Contents of a test file
      * @param {String} filename - Name of the test file
-     * @param {Boolean} [isBuiltIn] - If true, this is a built-in file
+     * @param {Boolean} [isPackaged] - If true, filename is a package file
      */
-    parseIn(buffer, filename, isBuiltIn) {
+    parseIn(buffer, filename, isPackaged) {
         let lines = buffer.split(/[\r\n|\r|\n]/);
 
         // Convert each string in lines to either a Step object
@@ -446,9 +446,9 @@ class Tree {
             let currStepObj = lines[i]; // either a Step or StepBlock object
             let prevStepObj = i > 0 ? lines[i-1] : null;
 
-            // Built-In
-            if(isBuiltIn) {
-                currStepObj.isBuiltIn = true;
+            // Packages
+            if(isPackaged) {
+                currStepObj.isPackaged = true;
             }
 
             // Indents of new step vs. last step
@@ -801,14 +801,14 @@ class Tree {
                         utils.error("A '* Before Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
                     }
 
-                    this.beforeEverything.unshift(clonedHookStep); // inserted this way so that built-in hooks get executed first
+                    this.beforeEverything.unshift(clonedHookStep); // inserted this way so that packaged hooks get executed first
                 }
                 else if(canStepText == "after everything") {
                     if(child.indents != 0) {
                         utils.error("An '* After Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
                     }
 
-                    this.afterEverything.push(clonedHookStep); // inserted this way so that built-in hooks get executed last
+                    this.afterEverything.push(clonedHookStep); // inserted this way so that packaged hooks get executed last
                 }
             }
         });

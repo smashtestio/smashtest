@@ -232,7 +232,7 @@ class RunInstance {
                     let retVal = null;
                     inCodeBlock = true;
                     if(utils.canonicalize(step.text) == "execute in browser") {
-                        retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a built-in Before Everything hook
+                        retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a packaged Before Everything hook
                     }
                     else {
                         retVal = await this.evalCodeBlock(step.codeBlock, step);
