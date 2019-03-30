@@ -235,7 +235,7 @@ class RunInstance {
                         retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a packaged Before Everything hook
                     }
                     else {
-                        retVal = await this.evalCodeBlock(step.codeBlock, step);
+                        retVal = await this.evalCodeBlock(step.codeBlock, step.text, step);
                     }
                     inCodeBlock = false;
 
@@ -299,7 +299,7 @@ class RunInstance {
      */
     async runHookStep(step, stepToGetError, branchToGetError) {
         try {
-            await this.evalCodeBlock(step.codeBlock, stepToGetError || branchToGetError);
+            await this.evalCodeBlock(step.codeBlock, step.text, stepToGetError || branchToGetError);
         }
         catch(e) {
             this.fillErrorFromStep(e, step, true);
@@ -437,11 +437,12 @@ class RunInstance {
     /**
      * Evals the given code block
      * @param {String} code - JS code to eval
+     * @param {String} [funcName] - The name of the function associated with code
      * @param {Step or Branch} [logHere] - The Object to log to, if any
      * @param {Boolean} [isSync] - If true, the code will be executed synchronously
      * @return {Promise} Promise that gets resolved with what code returns
      */
-    evalCodeBlock(code, logHere, isSync) {
+    evalCodeBlock(code, funcName, logHere, isSync) {
         // Functions accessible from a code block
         var runInstance = this; // var so it's accesible in the eval()
 
@@ -492,7 +493,18 @@ class RunInstance {
         header = loadIntoJsVars(header, this.local, "getLocal");
         header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
 
-        code = `(` + (isSync ? `` : `async`) + ` function runCodeBlock(runInstance) { ` + header + code + ` })(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks
+        // Remove unsafe chars from funcName
+        if(funcName) {
+            funcName = funcName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9\_]/g, '');
+            if(funcName != '') {
+                funcName = '_for_' + funcName;
+            }
+        }
+        else {
+            funcName = '';
+        }
+
+        code = `(` + (isSync ? `` : `async`) + ` function CodeBlock` + funcName + `(runInstance) { ` + header + code + ` })(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks
 
         // Evaluate
         if(isSync) {
@@ -620,7 +632,7 @@ class RunInstance {
                         let value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlock(s.codeBlock, s, true);
+                            value = this.evalCodeBlock(s.codeBlock, s.text, s, true);
                         }
                         else {
                             // {varname}='string'
@@ -736,14 +748,15 @@ class RunInstance {
         error.lineNumber = step.lineNumber;
 
         // If error occurred in a function's code block, we should reference the function declaration's line, not the function call's line
-        if(step.isFunctionCall && inCodeBlock && !step.isHook) {
+        // (except for hooks and packaged code blocks)
+        if(step.isFunctionCall && inCodeBlock && !step.isHook && !step.isPackaged) {
             error.filename = step.originalStepInTree.functionDeclarationInTree.filename;
             error.lineNumber = step.originalStepInTree.functionDeclarationInTree.lineNumber;
         }
 
         // If error occurred in a code block, set the lineNumber to be that from the stack trace rather than the first line of the code block
-        if(inCodeBlock) {
-            let matches = error.stack.toString().match(/at runCodeBlock[^\n]+<anonymous>:[0-9]+/g);
+        if(inCodeBlock && !step.isPackaged) {
+            let matches = error.stack.toString().match(/at CodeBlock[^\n]+<anonymous>:[0-9]+/g);
             if(matches) {
                 matches = matches[0].match(/([0-9]+)$/g);
                 if(matches) {

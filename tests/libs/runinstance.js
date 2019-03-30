@@ -2526,7 +2526,7 @@ Something {
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
 
             expect(!!tree.branches[0].steps[0].error.stack.match(/at RunInstance\.runInstance\.badFunc/)).to.equal(true);
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at runCodeBlock[^\n]+<anonymous>:4:17\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:4:17\)/)).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -2565,7 +2565,72 @@ First {
             expect(tree.branches[0].steps[1].error.lineNumber).to.equal(14);
 
             expect(!!tree.branches[0].steps[1].error.stack.match(/at RunInstance\.runInstance\.badFunc[^\n]+<anonymous>:5:9\)/)).to.equal(true);
-            expect(!!tree.branches[0].steps[1].error.stack.match(/at runCodeBlock[^\n]+<anonymous>:4:21\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[1].error.stack.match(/at CodeBlock_for_Second[^\n]+<anonymous>:4:21\)/)).to.equal(true);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+        });
+
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a js function implemented inside a code block", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Something {
+    function func() {
+        let a = "a";
+        let b = "b";
+        badFunc(); // will throw an exception
+        let d = "d";
+    }
+
+    func();
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(10);
+
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at func[^\n]+<anonymous>:5:9\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:9:5\)/)).to.equal(true);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+        });
+
+        it("sets the error's filename and lineNumber to the function call when an error occurs inside a packaged code block", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Packaged function
+`, "file.txt");
+
+tree.parseIn(`
+* Packaged function {
+    let a = "a";
+    let b = "b";
+    c; // will throw an exception
+    let d = "d";
+}
+`, "package.txt", true);
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
+
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Packaged_function[^\n]+<anonymous>:4:5\)/)).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -3397,7 +3462,7 @@ A -
 
 
 
-            
+
         });
 
         it.skip("pauses when an error occurs inside a Before Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", async function() {
@@ -3636,14 +3701,14 @@ A -
             let runner = new Runner();
             let runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("return 5;", null, true)).to.equal(5);
+            expect(runInstance.evalCodeBlock("return 5;", null, null, true)).to.equal(5);
         });
 
         it("returns undefined when executing code that has no return value synchronously", function() {
             let runner = new Runner();
             let runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("5;", null, true)).to.equal(undefined);
+            expect(runInstance.evalCodeBlock("5;", null, null, true)).to.equal(undefined);
         });
 
         it("makes the persistent, global, and local objects available", async function() {
@@ -3730,9 +3795,72 @@ A -
             let runInstance = new RunInstance(runner);
             let step = new Step();
 
-            await runInstance.evalCodeBlock("log('foobar');", step);
+            await runInstance.evalCodeBlock("log('foobar');", null, step);
 
             expect(step.log).to.equal("foobar\n");
+        });
+
+        it("handles an error inside the code, with a function name", async function() {
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
+            let step = new Step();
+
+            let errorThrown = false;
+            try {
+                await runInstance.evalCodeBlock(`
+                    let a = 1;
+                    let b = 2;
+                    throw new Error('oops');`, "Oops function!", step);
+            }
+            catch(e) {
+                errorThrown = true;
+                expect(e.message).to.equal("oops");
+                expect(!!e.stack.match(/at CodeBlock_for_Oops_function[^\n]+<anonymous>:4:27\)/)).to.equal(true);
+            }
+
+            expect(errorThrown).to.be.true;
+        });
+
+        it("handles an error inside the code, with a function name with all invalid chars", async function() {
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
+            let step = new Step();
+
+            let errorThrown = false;
+            try {
+                await runInstance.evalCodeBlock(`
+                    let a = 1;
+                    let b = 2;
+                    throw new Error('oops');`, "@!#!!", step);
+            }
+            catch(e) {
+                errorThrown = true;
+                expect(e.message).to.equal("oops");
+                expect(!!e.stack.match(/at CodeBlock \([^\n]+<anonymous>:4:27\)/)).to.equal(true);
+            }
+
+            expect(errorThrown).to.be.true;
+        });
+
+        it("handles an error inside the code, with no function name", async function() {
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
+            let step = new Step();
+
+            let errorThrown = false;
+            try {
+                await runInstance.evalCodeBlock(`
+                    let a = 1;
+                    let b = 2;
+                    throw new Error('oops');`, null, step);
+            }
+            catch(e) {
+                errorThrown = true;
+                expect(e.message).to.equal("oops");
+                expect(!!e.stack.match(/at CodeBlock \([^\n]+<anonymous>:4:27\)/)).to.equal(true);
+            }
+
+            expect(errorThrown).to.be.true;
         });
     });
 

@@ -73,6 +73,11 @@ Reports
             - If error.continue isn't set to true, and if the error was unexpected, the step will be marked as an unexpected fail, the branch will
                 be failed immediately, and all other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
         - Timeouts are set by each step on a case-by-case basis
+    - Reading stack traces in errors
+        - Error of step = filename and line number in filename
+        - Stack trace = at CodeBlock_for_[NAME OF CODE BLOCK FUNCTION] (eval at ...), <anonymous>:[LINE NUMBER]:[COL NUMBER])
+            - [LINE NUMBER] is the line in the code block referenced by step's line number, where { is the 1st line, etc.
+        - Implement complex functions in their own js files to generate traditional stack traces
     - Sample screenshot and summary
     - What's in a name?
         The only real way to name a test is to concatenate the steps together, as tests are detailed and many of them differ by
