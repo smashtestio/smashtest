@@ -2635,13 +2635,11 @@ tree.parseIn(`
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        /*
-        NOTE: commenting this out because the require filename changes based on whether you run mocha, nyc, etc.
         it("sets the error's filename and lineNumber correctly when an error occurs inside a required function", async function() {
             let tree = new Tree();
             tree.parseIn(`
 Something {
-    let BF = require('./tests/libs/badfunc.js');
+    let BF = require(process.cwd().replace(/smashtest.*/, 'smashtest/tests/libs/badfunc.js')); // using process.cwd() because the relative path varies depending on if you run the tests with mocha vs. nyc
     BF.badFunc();
 }
 `, "file.txt");
@@ -2658,12 +2656,13 @@ Something {
             expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
 
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at Object\.exports\.badFunc[^\n]+badfunc\.js:4:5\)/)).to.equal(true);
+            // NOTE: commented out because nyc code coverage tool minifies the js, breaking the line number reference
+            //expect(!!tree.branches[0].steps[0].error.stack.match(/at Object\.exports\.badFunc[^\n]+badfunc\.js:4:5\)/)).to.equal(true);
+
             expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:3:8\)/)).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
-        */
 
         it("marks a step as expectedly failed when it expectedly fails", async function() {
             let tree = new Tree();
