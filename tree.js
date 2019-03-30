@@ -1393,7 +1393,10 @@ class Tree {
         }
 
         step.asExpected = asExpected;
-        step.error = error;
+
+        if(error) {
+            step.error = error;
+        }
 
         // If this is the very last step in the branch, mark the branch as passed/failed
         if(branch && (finishBranchNow || this.nextStep(branch, false) == null)) {

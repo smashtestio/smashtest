@@ -12,9 +12,6 @@ chai.use(chaiAsPromised);
 
 describe("Runner", function() {
     describe("run()", function() {
-        it.skip("sets pauseOnFail when a ~ step exists", async function() {
-        });
-
         it.skip("can spawn a single run instance that pauses", async function() {
         });
 
@@ -28,6 +25,15 @@ describe("Runner", function() {
         });
 
         it.skip("can spawn a multiple run instances, but due to +'es only some of them actually run'", async function() {
+        });
+
+        it.skip("pauses before a ~ step is executed", async function() {
+        });
+
+        it.skip("pauses after an unexpected fail occurs on a step that's inside a branch with ~ anywhere", async function() {
+        });
+
+        it.skip("when resuming from a pause on a ~, doesn't pause on the same ~ again", async function() {
         });
 
         it.skip("runs all Before Everything steps", async function() {

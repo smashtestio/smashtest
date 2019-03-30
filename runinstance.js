@@ -130,173 +130,155 @@ class RunInstance {
         if(branch && branch.beforeEveryStep) {
             for(let i = 0; i < branch.beforeEveryStep.length; i++) {
                 let s = branch.beforeEveryStep[i];
-                let isSuccess = await this.runHookStep(s, step);
+                let isSuccess = await this.runHookStep(s, step, branch);
                 if(!isSuccess) {
-                    return;
+                    break;
                 }
             }
         }
 
-        // Find the previous step
-        let prevStep = null;
-        if(branch) {
-            let index = branch.steps.indexOf(step);
-            if(index >= 1) {
-                prevStep = branch.steps[index - 1];
-            }
-        }
-
-        // Handle the stack for {{local vars}}
-        if(prevStep) {
-            let prevStepWasACodeBlockFunc = prevStep.isFunctionCall && typeof prevStep.codeBlock != 'undefined';
-
-            // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
-            if(step.branchIndents > prevStep.branchIndents) { // NOTE: when step.branchIndents > prevStep.branchIndents, step.branchIndents is always prevStep.branchIndents + 1
-                if(!prevStepWasACodeBlockFunc) { // if previous step was a code block function, the push was already done
-                    // Push existing local let context to stack, create fresh local let context
-                    this.pushLocalStack();
+        if(!step.isFailed) { // A Before Every Step hook did not fail the step
+            // Find the previous step
+            let prevStep = null;
+            if(branch) {
+                let index = branch.steps.indexOf(step);
+                if(index >= 1) {
+                    prevStep = branch.steps[index - 1];
                 }
             }
-            else if(step.branchIndents < prevStep.branchIndents) {
-                // Pop one local let context for every branchIndents decrement
-                let diff = prevStep.branchIndents - step.branchIndents;
-                for(let i = 0; i < diff; i++) {
-                    this.popLocalStack();
+
+            // Handle the stack for {{local vars}}
+            if(prevStep) {
+                let prevStepWasACodeBlockFunc = prevStep.isFunctionCall && typeof prevStep.codeBlock != 'undefined';
+
+                // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
+                if(step.branchIndents > prevStep.branchIndents) { // NOTE: when step.branchIndents > prevStep.branchIndents, step.branchIndents is always prevStep.branchIndents + 1
+                    if(!prevStepWasACodeBlockFunc) { // if previous step was a code block function, the push was already done
+                        // Push existing local let context to stack, create fresh local let context
+                        this.pushLocalStack();
+                    }
                 }
-            }
-            else { // step.branchIndents == prevStep.branchIndents
-                if(prevStepWasACodeBlockFunc) {
-                    this.popLocalStack(); // on this step we're stepping out of the code block in the previous step
+                else if(step.branchIndents < prevStep.branchIndents) {
+                    // Pop one local let context for every branchIndents decrement
+                    let diff = prevStep.branchIndents - step.branchIndents;
+                    for(let i = 0; i < diff; i++) {
+                        this.popLocalStack();
+                    }
                 }
-            }
-        }
-        this.localsPassedIntoFunc = {};
-
-        let error = undefined;
-        let inCodeBlock = false;
-
-        // Execute the step
-        try {
-            // Passing inputs into function calls
-            if(step.isFunctionCall) {
-                // Set {{local vars}} based on function declaration signature and function call signature
-
-                let varList = step.functionDeclarationText.match(Constants.VAR);
-                if(varList) {
-                    let inputList = step.text.match(Constants.FUNCTION_INPUT);
-                    if(inputList) {
-                        if(step.varsBeingSet && step.varsBeingSet.length > 0) {
-                            // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
-                            inputList.shift();
-                        }
-
-                        for(let i = 0; i < varList.length; i++) {
-                            let varname = utils.stripBrackets(varList[i]);
-                            let value = inputList[i];
-
-                            if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
-                                value = utils.stripQuotes(value);
-                                value = this.replaceVars(value, step, branch); // replace vars with their values
-                                value = utils.unescape(value);
-                            }
-                            else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
-                                let isLocal = value.startsWith('{{');
-                                value = utils.stripBrackets(value);
-                                value = this.findVarValue(value, isLocal, step, branch);
-                            }
-
-                            this.setLocalPassedIn(varname, value);
-                        }
+                else { // step.branchIndents == prevStep.branchIndents
+                    if(prevStepWasACodeBlockFunc) {
+                        this.popLocalStack(); // on this step we're stepping out of the code block in the previous step
                     }
                 }
             }
+            this.localsPassedIntoFunc = {};
 
-            // Step is {var}='str' [, {var2}='str', etc.]
-            if(!step.isFunctionCall && typeof step.codeBlock == 'undefined' && step.varsBeingSet && step.varsBeingSet.length > 0) {
-                for(let i = 0; i < step.varsBeingSet.length; i++) {
-                    let varBeingSet = step.varsBeingSet[i];
-                    let value = utils.stripQuotes(varBeingSet.value);
-                    value = this.replaceVars(value, step, branch);
-                    this.setVarBeingSet(varBeingSet, value);
-                }
-            }
+            let error = undefined;
+            let inCodeBlock = false;
 
-            // Step has a code block to execute
-            if(typeof step.codeBlock != 'undefined') {
+            // Execute the step
+            try {
+                // Passing inputs into function calls
                 if(step.isFunctionCall) {
-                    // Push existing local let context to stack, create fresh local let context
-                    this.pushLocalStack();
+                    // Set {{local vars}} based on function declaration signature and function call signature
+
+                    let varList = step.functionDeclarationText.match(Constants.VAR);
+                    if(varList) {
+                        let inputList = step.text.match(Constants.FUNCTION_INPUT);
+                        if(inputList) {
+                            if(step.varsBeingSet && step.varsBeingSet.length > 0) {
+                                // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
+                                inputList.shift();
+                            }
+
+                            for(let i = 0; i < varList.length; i++) {
+                                let varname = utils.stripBrackets(varList[i]);
+                                let value = inputList[i];
+
+                                if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
+                                    value = utils.stripQuotes(value);
+                                    value = this.replaceVars(value, step, branch); // replace vars with their values
+                                    value = utils.unescape(value);
+                                }
+                                else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
+                                    let isLocal = value.startsWith('{{');
+                                    value = utils.stripBrackets(value);
+                                    value = this.findVarValue(value, isLocal, step, branch);
+                                }
+
+                                this.setLocalPassedIn(varname, value);
+                            }
+                        }
+                    }
                 }
 
-                let retVal = null;
-                inCodeBlock = true;
-                if(utils.canonicalize(step.text) == "execute in browser") {
-                    retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a built-in Before Everything hook
-                }
-                else {
-                    retVal = await this.evalCodeBlock(step.codeBlock, step);
-                }
-                inCodeBlock = false;
-
-                // Step is {var} = Func or Text { code block }
-                // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
-                if(step.varsBeingSet && step.varsBeingSet.length == 1) {
-                    // Grab return value from code and assign it to {var}
-                    this.setVarBeingSet(step.varsBeingSet[0], retVal);
+                // Step is {var}='str' [, {var2}='str', etc.]
+                if(!step.isFunctionCall && typeof step.codeBlock == 'undefined' && step.varsBeingSet && step.varsBeingSet.length > 0) {
+                    for(let i = 0; i < step.varsBeingSet.length; i++) {
+                        let varBeingSet = step.varsBeingSet[i];
+                        let value = utils.stripQuotes(varBeingSet.value);
+                        value = this.replaceVars(value, step, branch);
+                        this.setVarBeingSet(varBeingSet, value);
+                    }
                 }
 
-                // If this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
-                // We'll pretend this step never ran in the first place
-                if(this.isStopped) {
-                    return;
+                // Step has a code block to execute
+                if(typeof step.codeBlock != 'undefined') {
+                    if(step.isFunctionCall) {
+                        // Push existing local let context to stack, create fresh local let context
+                        this.pushLocalStack();
+                    }
+
+                    let retVal = null;
+                    inCodeBlock = true;
+                    if(utils.canonicalize(step.text) == "execute in browser") {
+                        retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a built-in Before Everything hook
+                    }
+                    else {
+                        retVal = await this.evalCodeBlock(step.codeBlock, step);
+                    }
+                    inCodeBlock = false;
+
+                    // Step is {var} = Func or Text { code block }
+                    // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
+                    if(step.varsBeingSet && step.varsBeingSet.length == 1) {
+                        // Grab return value from code and assign it to {var}
+                        this.setVarBeingSet(step.varsBeingSet[0], retVal);
+                    }
+
+                    // If this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
+                    // We'll pretend this step never ran in the first place
+                    if(this.isStopped) {
+                        return;
+                    }
                 }
             }
-        }
-        catch(e) {
-            error = e;
-            this.fillErrorFromStep(error, step, inCodeBlock);
-        }
-
-        // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
-        let isPassed = false;
-        let asExpected = false;
-        if(step.isExpectedFail) {
-            if(error) {
-                isPassed = false;
-                asExpected = true;
+            catch(e) {
+                error = e;
+                this.fillErrorFromStep(error, step, inCodeBlock);
             }
-            else {
+
+            // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
+            let isPassed = !error;
+            if(step.isExpectedFail && isPassed) {
                 error = new Error("This step passed, but it was expected to fail (#)");
                 error.filename = step.filename;
                 error.lineNumber = step.lineNumber;
-
-                isPassed = true;
-                asExpected = false;
             }
-        }
-        else { // fail is not expected
-            if(error) {
-                isPassed = false;
-                asExpected = false;
-            }
-            else {
-                isPassed = true;
-                asExpected = true;
-            }
-        }
 
-        let finishBranchNow = true;
-        if(error && (error.continue || this.runner.pauseOnFail)) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
-            finishBranchNow = false;
-        }
+            let finishBranchNow = true;
+            if(error && (error.continue || this.runner.pauseOnFail)) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
+                finishBranchNow = false;
+            }
 
-        this.tree.markStep(step, branch, isPassed, asExpected, error, finishBranchNow, true);
+            this.tree.markStep(step, branch, isPassed, !!step.isExpectedFail == !isPassed, error, finishBranchNow, true);
+        }
 
         // Execute After Every Step hooks (all of them, regardless if one fails)
         if(branch && branch.afterEveryStep) {
             for(let i = 0; i < branch.afterEveryStep.length; i++) {
                 let s = branch.afterEveryStep[i];
-                await this.runHookStep(s, step);
+                await this.runHookStep(s, step, branch);
             }
         }
 
@@ -312,7 +294,7 @@ class RunInstance {
      * Runs the given hook step
      * @param {Step} step - The hook step to run
      * @param {Step} [stepToGetError] - The Step that will get the error and marked failed, if a failure happens here
-     * @param {Branch} [branchToGetError] - The Branch that will get the error and marked failed, if a failure happens here
+     * @param {Branch} [branchToGetError] - The Branch that will get the error and marked failed, if a failure happens here. If stepToGetError is also set, only stepToGetError will get the error obj, but branchToGetError will still be failed
      * @return {Boolean} True if the run was a success, false if there was a failure
      */
     async runHookStep(step, stepToGetError, branchToGetError) {
@@ -323,11 +305,14 @@ class RunInstance {
             this.fillErrorFromStep(e, step, true);
 
             if(stepToGetError) {
-                this.tree.markStep(stepToGetError, null, false, false, e);
-            }
+                this.tree.markStep(stepToGetError, null, false, false, stepToGetError.error ? null : e);
 
-            if(branchToGetError) {
-                branchToGetError.error = e;
+                if(branchToGetError) {
+                    branchToGetError.markBranch(false);
+                }
+            }
+            else if(branchToGetError) {
+                branchToGetError.error = branchToGetError.error ? null : e;
                 branchToGetError.markBranch(false);
             }
 
@@ -751,7 +736,7 @@ class RunInstance {
         error.lineNumber = step.lineNumber;
 
         // If error occurred in a function's code block, we should reference the function declaration's line, not the function call's line
-        if(step.isFunctionCall && inCodeBlock) {
+        if(step.isFunctionCall && inCodeBlock && !step.isHook) {
             error.filename = step.originalStepInTree.functionDeclarationInTree.filename;
             error.lineNumber = step.originalStepInTree.functionDeclarationInTree.lineNumber;
         }
