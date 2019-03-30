@@ -492,7 +492,7 @@ class Tree {
 
     /**
      * Finds the nearest function declaration step under this.root that matches a given function call step
-     * @param {Array} stepsAbove - Array of Step (no StepBlocks), steps above the function call step (with functions, step blocks, etc. expanded by branchify()), with the function call step at the very end of the array
+     * @param {Array} stepsAbove - Array of Step (no StepBlocks), steps above the function call step (with functions, step blocks, etc. already expanded by branchify()), with the function call step at the very end of the array
      * @return {Step} The nearest function declaration under this.root that matches the function call step
      * @throws {Error} If a matching function declaration could not be found
      */
@@ -1378,7 +1378,7 @@ class Tree {
      * @param {Boolean} asExpected - If true, the value of isPassed was expected, false otherwise
      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
      * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
-     * @param {Boolean} [skipsRepeats] - If true, skips every other branch in this.branches whose first N steps are identical to this one's (up until this step)
+     * @param {Boolean} [skipsRepeats] - If true, and if the branch failed, skips every other branch in this.branches whose first N steps are identical to this one's (up until this step)
      */
     markStep(step, branch, isPassed, asExpected, error, finishBranchNow, skipsRepeats) {
         if(isPassed) {
@@ -1402,7 +1402,7 @@ class Tree {
         if(branch && (finishBranchNow || this.nextStep(branch, false) == null)) {
             branch.finishOffBranch();
 
-            if(skipsRepeats) {
+            if(skipsRepeats && branch.isFailed) {
                 let n = branch.steps.indexOf(step);
                 let branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
                 branchesToSkip.forEach(branchToSkip => {

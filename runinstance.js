@@ -54,7 +54,7 @@ class RunInstance {
                     let s = this.currBranch.beforeEveryBranch[i];
 
                     let isSuccess = await this.runHookStep(s, null, this.currBranch);
-                    if(checkForPauseOrStop()) {
+                    if(this.checkForPauseOrStop()) {
                         return;
                     }
                     else if(!isSuccess) {
@@ -72,7 +72,7 @@ class RunInstance {
             while(this.currStep) {
                 await this.runStep(this.currStep, this.currBranch, overrideDebug);
                 overrideDebug = false; // only override a debug on the first step we run after an unpause
-                if(checkForPauseOrStop()) {
+                if(this.checkForPauseOrStop()) {
                     return;
                 }
 
@@ -92,22 +92,6 @@ class RunInstance {
             }
 
             this.currBranch = this.tree.nextBranch();
-        }
-
-        /**
-         * @return {Boolean} True if the RunInstance is currently paused or stopped, false otherwise. Also sets the current branch's elapsed.
-         */
-        function checkForPauseOrStop() {
-            if(this.isPaused) {
-                this.currBranch.elapsed = -1;
-                return true;
-            }
-            else if(this.isStopped) {
-                this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
-                return true;
-            }
-
-            return false;
         }
     }
 
@@ -272,9 +256,12 @@ class RunInstance {
                 error.lineNumber = step.lineNumber;
             }
 
-            let finishBranchNow = true;
-            if(error && (error.continue || this.runner.pauseOnFail)) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
-                finishBranchNow = false;
+            let finishBranchNow = false;
+            if(!isPassed) {
+                finishBranchNow = true;
+                if(error.continue || this.runner.pauseOnFail) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
+                    finishBranchNow = false;
+                }
             }
 
             this.tree.markStep(step, branch, isPassed, !!step.isExpectedFail == !isPassed, error, finishBranchNow, true);
@@ -380,10 +367,26 @@ class RunInstance {
      * Only call if already paused
      * @param {Step} step - The step to run
      * @return {Promise} Promise that gets resolved once done executing
+     * @throws {Error} Any errors that may occur during a branchify() of the given step
      */
     async injectStep(step) {
+        if(step.isFunctionDeclaration) {
+            utils.error("Cannot define a * Function Declaration here");
+        }
+
+        // Fill stepsAbove to be all the Steps above the current step
+        let stepsAbove = [];
+        if(this.currBranch && this.currStep) {
+            stepsAbove = this.currBranch.steps.slice(0, this.currBranch.steps.indexOf(this.currStep) + 1);
+        }
+
+        this.tree.branchify(step, undefined, undefined, undefined, stepsAbove); // branchify so that if step is an already-defined function call, it will work
+        step = step.cloneForBranch();
+
         await this.runStep(step, null, true);
         this.isPaused = true;
+
+        return step;
     }
 
     /**
@@ -776,6 +779,22 @@ class RunInstance {
                 }
             }
         }
+    }
+
+    /**
+     * @return {Boolean} True if the RunInstance is currently paused or stopped, false otherwise. Also sets the current branch's elapsed.
+     */
+    checkForPauseOrStop() {
+        if(this.isPaused) {
+            this.currBranch.elapsed = -1;
+            return true;
+        }
+        else if(this.isStopped) {
+            this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
+            return true;
+        }
+
+        return false;
     }
 }
 module.exports = RunInstance;

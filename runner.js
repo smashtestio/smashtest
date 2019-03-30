@@ -118,6 +118,7 @@ class Runner {
      * Call only when already paused
      * @param {Step} step - The step to run
      * @return {Promise} Promise that gets resolved once done executing
+     * @throws {Error} Any errors that may occur during a branchify() of the given step, or if this Runner isn't paused
      */
     injectStep(step) {
         if(!this.isPaused()) {
