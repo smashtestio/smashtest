@@ -1416,6 +1416,19 @@ class Tree {
     }
 
     /**
+     * Marks the given step as skipped, finishes off the branch if it was the last step
+     */
+    markStepSkipped(step, branch) {
+        step.isSkipped = true;
+        delete step.isPassed;
+        delete step.isFailed;
+
+        if(branch && this.nextStep(branch, false) == null) {
+            branch.finishOffBranch();
+        }
+    }
+
+    /**
      * Returns the next step in the given branch, or null if no steps are left, the next step is a -T or -M, or the branch already failed/skipped
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step

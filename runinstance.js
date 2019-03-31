@@ -378,8 +378,8 @@ class RunInstance {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async skipOneStep() {
-        this.skipStep();
         if(this.currStep) {
+            this.skipStep();
             this.isPaused = true;
             return false;
         }
@@ -763,12 +763,12 @@ class RunInstance {
     }
 
     /**
-     * Moves this.currStep to the step after the next not-yet-completed step
+     * Moves this.currStep to the step after the next not-yet-completed step, marks the skipped step as skipped
      */
     skipStep() {
-        this.nextStep();
-        this.currStep.isSkipped = true;
-        this.currStep = this.tree.nextStep(this.currBranch, true, false);
+        this.nextStep(); // move to the next step if current step is complete or non-existant
+        this.tree.markStepSkipped(this.currStep, this.currBranch); // mark the current step as skipped
+        this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
     }
 
     /**

@@ -12406,6 +12406,120 @@ A - +
         });
     });
 
+    describe("markStepSkipped()", function() {
+        it("marks a step skipped", function() {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isRunning = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+
+            let stepC = new Step();
+            stepC.text = "C";
+
+            let stepD = new Step();
+            stepD.text = "D";
+
+            let branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.markStepSkipped(stepA, branch);
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isSkipped: true, isRunning: true },
+                    { text: "B", isSkipped: undefined },
+                    { text: "C", isSkipped: undefined },
+                    { text: "D", isSkipped: undefined }
+                ],
+                isPassed: undefined,
+                isFailed: undefined
+            });
+        });
+
+        it("marks a branch passed when the last step is skipped", function() {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.asExpected = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+            stepB.isSkipped = true;
+
+            let stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+            stepC.asExpected = true;
+
+            let stepD = new Step();
+            stepD.text = "D";
+            stepD.isRunning = true;
+
+            let branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.markStepSkipped(stepD, branch);
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isSkipped: undefined },
+                    { text: "B", isSkipped: true },
+                    { text: "C", isSkipped: undefined },
+                    { text: "D", isSkipped: true, isRunning: true }
+                ],
+                isPassed: true,
+                isFailed: undefined
+            });
+        });
+
+        it("handles no branch passed in", function() {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.asExpected = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+            stepB.isSkipped = true;
+
+            let stepC = new Step();
+            stepC.text = "C";
+            stepC.isPassed = true;
+            stepC.asExpected = true;
+
+            let stepD = new Step();
+            stepD.text = "D";
+            stepD.isRunning = true;
+
+            let branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.markStepSkipped(stepD);
+
+            expect(branch).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isSkipped: undefined },
+                    { text: "B", isSkipped: true },
+                    { text: "C", isSkipped: undefined },
+                    { text: "D", isSkipped: true, isRunning: true }
+                ],
+                isPassed: undefined,
+                isFailed: undefined
+            });
+        });
+    });
+
     describe("nextStep()", function() {
         it("returns null if the branch failed or skipped", function() {
             let tree = new Tree();
