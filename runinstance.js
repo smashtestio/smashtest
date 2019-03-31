@@ -379,9 +379,19 @@ class RunInstance {
      */
     async skipOneStep() {
         if(this.currStep) {
-            this.skipStep();
-            this.isPaused = true;
-            return false;
+            this.nextStep(); // move to the next not-yet-completed step
+
+            if(this.currStep) { // if we still have a currStep and didn't fall off the end of the branch
+                this.tree.markStepSkipped(this.currStep, this.currBranch); // mark the current step as skipped
+                this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
+
+                this.isPaused = true;
+                return false;
+            }
+            else { // all steps in current branch finished running, finish off the branch
+                await this.runAfterEveryBranch();
+                return true;
+            }
         }
         else { // all steps in current branch finished running, finish off the branch
             await this.runAfterEveryBranch();
@@ -392,8 +402,9 @@ class RunInstance {
     /**
      * Runs the given step, then pauses again
      * Only call if already paused
+     * Stops execution upon the first failure, ignores # and ~
      * @param {Step} step - The step to run
-     * @return {Promise} Promise that gets resolved once done executing
+     * @return {Promise} Promise that gets resolved with a Branch of steps that were run, once done executing
      * @throws {Error} Any errors that may occur during a branchify() of the given step
      */
     async injectStep(step) {
@@ -407,13 +418,20 @@ class RunInstance {
             stepsAbove = this.currBranch.steps.slice(0, this.currBranch.steps.indexOf(this.currStep) + 1);
         }
 
-        this.tree.branchify(step, undefined, undefined, undefined, stepsAbove); // branchify so that if step is an already-defined function call, it will work
-        step = step.cloneForBranch();
+        let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, stepsAbove); // branchify so that if step is an already-defined function call, it will work
+        let stepsToRun = branchesToRun[0];
 
-        await this.runStep(step, null, true);
+        for(let i = 0; i < stepsToRun.steps.length; i++) {
+            let s = stepsToRun.steps[i];
+            await this.runStep(s, stepsToRun, true);
+            if(s.isFailed) {
+                break;
+            }
+        }
+
         this.isPaused = true;
 
-        return step;
+        return stepsToRun;
     }
 
     /**
@@ -760,15 +778,6 @@ class RunInstance {
         if(!this.currStep || this.currStep.isComplete()) {
             this.currStep = this.tree.nextStep(this.currBranch, true, true);
         }
-    }
-
-    /**
-     * Moves this.currStep to the step after the next not-yet-completed step, marks the skipped step as skipped
-     */
-    skipStep() {
-        this.nextStep(); // move to the next step if current step is complete or non-existant
-        this.tree.markStepSkipped(this.currStep, this.currBranch); // mark the current step as skipped
-        this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
     }
 
     /**

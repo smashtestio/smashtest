@@ -6646,7 +6646,7 @@ Step to Inject {
             expect(runInstance.var4).to.equal("bar");
         });
 
-        it.only("step can be a function call for a function that was defined at the time of the pause", async function() {
+        it("step can be a function call for a function that was defined at the time of the pause", async function() {
             let tree = new Tree();
             tree.parseIn(`
 A ~ -
@@ -6667,26 +6667,59 @@ A ~ -
             t.parseIn(`
 My function
 `);
-            let stepToInject = t.root.children[0];
 
-            stepToInject = await runInstance.injectStep(stepToInject);
+            let stepsRan = await runInstance.injectStep(t.root.children[0]);
 
             expect(runInstance.getGlobal("var1")).to.equal("foo");
 
+            expect(stepsRan.steps).to.have.lengthOf(2);
 
+            expect(stepsRan.steps[0].text).to.equal("My function");
+            expect(stepsRan.steps[0].isPassed).to.be.true;
+            expect(stepsRan.steps[0].isFailed).to.be.undefined;
 
-
-
-
-
-
-
-
-
+            expect(stepsRan.steps[1].text).to.equal("{var1}='foo'");
+            expect(stepsRan.steps[1].isPassed).to.be.true;
+            expect(stepsRan.steps[1].isFailed).to.be.undefined;
         });
 
-        it.skip("attaches an error to the step returned if it fails", async function() {
-            // and doesn't attach the error to this.currStep or this.currBranch
+        it("attaches an error to the step returned if it fails", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A ~ -
+
+* My function {
+    throw new Error("oops");
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            let t = new Tree();
+            t.parseIn(`
+My function
+`);
+
+            let stepsRan = await runInstance.injectStep(t.root.children[0]);
+
+            expect(stepsRan.steps).to.have.lengthOf(1);
+
+            expect(stepsRan.steps[0].text).to.equal("My function");
+            expect(stepsRan.steps[0].isPassed).to.be.undefined;
+            expect(stepsRan.steps[0].isFailed).to.be.true;
+
+            expect(stepsRan.steps[0].error.message).to.equal("oops");
+            expect(stepsRan.steps[0].error.filename).to.equal("file.txt");
+            expect(stepsRan.steps[0].error.lineNumber).to.equal(5);
+
+            expect(runInstance.currStep.error).to.equal(undefined);
+            expect(runInstance.currBranch.error).to.equal(undefined);
         });
 
         it("throws an error if a function declaration step is passed in", async function() {
@@ -6701,12 +6734,243 @@ My function
             await expect(runInstance.injectStep(step)).to.be.rejectedWith("Cannot define a * Function Declaration here");
         });
 
-        it.skip("throws an error for a function call that cannot be found", async function() {
+        it("throws an error for a function call that cannot be found", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A ~ -
+`, "file.txt");
 
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            let t = new Tree();
+            t.parseIn(`
+Some unknown function
+`);
+
+            await expect(runInstance.injectStep(t.root.children[0])).to.be.rejectedWith("The function 'Some unknown function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
         });
 
-        it.skip("the RunInstance can flawlessly resume from a pause, after an injected step has run", async function() {
-            // make sure the right next step is executed
+        it("the RunInstance can flawlessly resume from a pause, after an injected step has run", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.ranStepA = !runInstance.ranStepA;
+}
+    B ~ {
+        runInstance.ranStepB = !runInstance.ranStepB;
+    }
+        C {
+            runInstance.ranStepC = !runInstance.ranStepC;
+        }
+
+* Before Every Branch {
+    runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
+}
+
+* After Every Branch {
+    runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.undefined;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            let t = new Tree();
+            t.parseIn(`
+Step to Inject {
+    runInstance.ranInjectedStep = !runInstance.ranInjectedStep;
+}`);
+            let stepToInject = t.root.children[0];
+
+            stepToInject = await runInstance.injectStep(stepToInject);
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            await runInstance.run();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.afterEveryBranchRan).to.be.true;
+        });
+
+        it("the RunInstance can flawlessly run single steps, after an injected step has run", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.ranStepA = !runInstance.ranStepA;
+}
+    B ~ {
+        runInstance.ranStepB = !runInstance.ranStepB;
+    }
+        C {
+            runInstance.ranStepC = !runInstance.ranStepC;
+        }
+
+* Before Every Branch {
+    runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
+}
+
+* After Every Branch {
+    runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.undefined;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            let t = new Tree();
+            t.parseIn(`
+Step to Inject {
+    runInstance.ranInjectedStep = !runInstance.ranInjectedStep;
+}`);
+            let stepToInject = t.root.children[0];
+
+            stepToInject = await runInstance.injectStep(stepToInject);
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            await runInstance.runOneStep();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            await runInstance.runOneStep();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            await runInstance.runOneStep();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.afterEveryBranchRan).to.be.true;
+        });
+
+        it("the RunInstance can flawlessly skip steps, after an injected step has run", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.ranStepA = !runInstance.ranStepA;
+}
+    B ~ {
+        runInstance.ranStepB = !runInstance.ranStepB;
+    }
+        C {
+            runInstance.ranStepC = !runInstance.ranStepC;
+        }
+
+* Before Every Branch {
+    runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
+}
+
+* After Every Branch {
+    runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.undefined;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            let t = new Tree();
+            t.parseIn(`
+Step to Inject {
+    runInstance.ranInjectedStep = !runInstance.ranInjectedStep;
+}`);
+            let stepToInject = t.root.children[0];
+
+            stepToInject = await runInstance.injectStep(stepToInject);
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            await runInstance.skipOneStep();
+            await runInstance.runOneStep();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined;
+
+            await runInstance.skipOneStep();
+
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranInjectedStep).to.be.true;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.afterEveryBranchRan).to.be.true;
         });
     });
 });
