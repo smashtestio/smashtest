@@ -77,8 +77,8 @@ Reports
     - Reading stack traces in errors
         - Error of step = filename and line number in filename
         - Stack trace = at CodeBlock_for_[NAME OF CODE BLOCK FUNCTION] (eval at ...), <anonymous>:[LINE NUMBER]:[COL NUMBER])
-            - [LINE NUMBER] is the line in the code block referenced by step's line number, where { is the 1st line, etc.
-        - Implement complex functions in their own js files to generate traditional stack traces
+            - [LINE NUMBER] is the line in the file containing [NAME OF CODE BLOCK FUNCTION]
+        - Implement complex functions in their own js files to generate more traditional stack traces
     - Sample screenshot and summary
     - What's in a name?
         The only real way to name a test is to concatenate the steps together, as tests are detailed and many of them differ by

@@ -246,7 +246,7 @@ class RunInstance {
                         retVal = await this.execInBrowser(step.codeBlock); // this function will be injected into RunInstance by a function in a packaged Before Everything hook
                     }
                     else {
-                        retVal = await this.evalCodeBlock(step.codeBlock, step.text, step);
+                        retVal = await this.evalCodeBlock(step.codeBlock, step.text, this.getLineNumberOffset(step), step);
                     }
                     inCodeBlock = false;
 
@@ -317,7 +317,7 @@ class RunInstance {
      */
     async runHookStep(step, stepToGetError, branchToGetError) {
         try {
-            await this.evalCodeBlock(step.codeBlock, step.text, stepToGetError || branchToGetError);
+            await this.evalCodeBlock(step.codeBlock, step.text, step.lineNumber, stepToGetError || branchToGetError);
         }
         catch(e) {
             this.fillErrorFromStep(e, step, true);
@@ -474,11 +474,16 @@ class RunInstance {
      * Evals the given code block
      * @param {String} code - JS code to eval
      * @param {String} [funcName] - The name of the function associated with code
+     * @param {Number} [lineNumber] - The line number of the function, used to properly adjust line numbers in stack traces (1 if omitted)
      * @param {Step or Branch} [logHere] - The Object to log to, if any
      * @param {Boolean} [isSync] - If true, the code will be executed synchronously
      * @return {Promise} Promise that gets resolved with what code returns
      */
-    evalCodeBlock(code, funcName, logHere, isSync) {
+    evalCodeBlock(code, funcName, lineNumber, logHere, isSync) {
+        if(typeof lineNumber == 'undefined') {
+            lineNumber = 1;
+        }
+
         // Functions accessible from a code block
         var runInstance = this; // var so it's accesible in the eval()
 
@@ -538,7 +543,13 @@ class RunInstance {
             funcName = '';
         }
 
-        code = `(` + (isSync ? `` : `async`) + ` function CodeBlock` + funcName + `(runInstance) { ` + header + code + ` })(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks
+        // Pad the top of the code with empty comments so as to adjust line numbers in stack traces to match that of the code block's file
+        var padding = '';
+        for(let i = 1; i < lineNumber; i++) {
+            padding += '//\n';
+        }
+
+        code = padding + `(` + (isSync ? `` : `async`) + ` function CodeBlock` + funcName + `(runInstance) { ` + header + code + ` })(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks
 
         // Evaluate
         if(isSync) {
@@ -666,7 +677,7 @@ class RunInstance {
                         let value = null;
                         if(typeof s.codeBlock != 'undefined') {
                             // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlock(s.codeBlock, s.text, s, true);
+                            value = this.evalCodeBlock(s.codeBlock, s.text, s.lineNumber, s, true);
                         }
                         else {
                             // {varname}='string'
@@ -792,10 +803,21 @@ class RunInstance {
             if(matches) {
                 matches = matches[0].match(/([0-9]+)$/g);
                 if(matches) {
-                    let lineNumberFromStackTrace = parseInt(matches[0]);
-                    error.lineNumber += lineNumberFromStackTrace - 1;
+                    error.lineNumber = parseInt(matches[0]);
                 }
             }
+        }
+    }
+
+    /**
+     * @return {Number} The line number offset for evalCodeBlock(), based on the given step
+     */
+    getLineNumberOffset(step) {
+        if(step.isFunctionCall && !step.isPackaged && !step.isHook) {
+            return step.originalStepInTree.functionDeclarationInTree.lineNumber;
+        }
+        else {
+            return step.lineNumber;
         }
     }
 

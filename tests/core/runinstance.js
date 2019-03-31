@@ -3418,7 +3418,7 @@ Something {
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
 
             expect(!!tree.branches[0].steps[0].error.stack.match(/at RunInstance\.runInstance\.badFunc/)).to.equal(true);
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:4:17\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:5:17\)/)).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -3456,8 +3456,8 @@ First {
             expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[1].error.lineNumber).to.equal(14);
 
-            expect(!!tree.branches[0].steps[1].error.stack.match(/at RunInstance\.runInstance\.badFunc[^\n]+<anonymous>:5:9\)/)).to.equal(true);
-            expect(!!tree.branches[0].steps[1].error.stack.match(/at CodeBlock_for_Second[^\n]+<anonymous>:4:21\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[1].error.stack.match(/at RunInstance\.runInstance\.badFunc[^\n]+<anonymous>:6:9\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[1].error.stack.match(/at CodeBlock_for_Second[^\n]+<anonymous>:14:21\)/)).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -3489,8 +3489,8 @@ Something {
             expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(10);
 
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at func[^\n]+<anonymous>:5:9\)/)).to.equal(true);
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:9:5\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at func[^\n]+<anonymous>:6:9\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:10:5\)/)).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -3522,7 +3522,7 @@ tree.parseIn(`
             expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
 
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Packaged_function[^\n]+<anonymous>:4:5\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Packaged_function[^\n]+<anonymous>:5:5\)/)).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -3551,7 +3551,7 @@ Something {
             // NOTE: commented out because nyc code coverage tool minifies the js, breaking the line number reference
             //expect(!!tree.branches[0].steps[0].error.stack.match(/at Object\.exports\.badFunc[^\n]+badfunc\.js:4:5\)/)).to.equal(true);
 
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:3:8\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:4:8\)/)).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
         });
@@ -4210,7 +4210,7 @@ A -
             expect(tree.branches[0].steps[0].error.message).to.equal("oops");
             expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Before_Every_Step[^\n]+<anonymous>:3:11\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Before_Every_Step[^\n]+<anonymous>:6:11\)/)).to.equal(true);
 
             expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
             expect(tree.branches[0].steps[0].isFailed).to.equal(true);
@@ -4283,7 +4283,7 @@ A -
             expect(tree.branches[0].steps[0].error.message).to.equal("oops");
             expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
-            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_After_Every_Step[^\n]+<anonymous>:3:11\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_After_Every_Step[^\n]+<anonymous>:6:11\)/)).to.equal(true);
 
             expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
             expect(tree.branches[0].steps[0].isFailed).to.equal(true);
@@ -5043,14 +5043,14 @@ A -
             let runner = new Runner();
             let runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("return 5;", null, null, true)).to.equal(5);
+            expect(runInstance.evalCodeBlock("return 5;", null, 0, null, true)).to.equal(5);
         });
 
         it("returns undefined when executing code that has no return value synchronously", function() {
             let runner = new Runner();
             let runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("5;", null, null, true)).to.equal(undefined);
+            expect(runInstance.evalCodeBlock("5;", null, 0, null, true)).to.equal(undefined);
         });
 
         it("makes the persistent, global, and local objects available", async function() {
@@ -5137,12 +5137,12 @@ A -
             let runInstance = new RunInstance(runner);
             let step = new Step();
 
-            await runInstance.evalCodeBlock("log('foobar');", null, step);
+            await runInstance.evalCodeBlock("log('foobar');", null, 0, step);
 
             expect(step.log).to.equal("foobar\n");
         });
 
-        it("handles an error inside the code, with a function name", async function() {
+        it("handles an error inside the code, with a function name and line number", async function() {
             let runner = new Runner();
             let runInstance = new RunInstance(runner);
             let step = new Step();
@@ -5152,7 +5152,28 @@ A -
                 await runInstance.evalCodeBlock(`
                     let a = 1;
                     let b = 2;
-                    throw new Error('oops');`, "Oops function!", step);
+                    throw new Error('oops');`, "Oops function!", 10, step);
+            }
+            catch(e) {
+                errorThrown = true;
+                expect(e.message).to.equal("oops");
+                expect(!!e.stack.match(/at CodeBlock_for_Oops_function[^\n]+<anonymous>:13:27\)/)).to.equal(true);
+            }
+
+            expect(errorThrown).to.be.true;
+        });
+
+        it("handles an error inside the code, with a function name and no line number", async function() {
+            let runner = new Runner();
+            let runInstance = new RunInstance(runner);
+            let step = new Step();
+
+            let errorThrown = false;
+            try {
+                await runInstance.evalCodeBlock(`
+                    let a = 1;
+                    let b = 2;
+                    throw new Error('oops');`, "Oops function!", undefined, step);
             }
             catch(e) {
                 errorThrown = true;
@@ -5173,12 +5194,12 @@ A -
                 await runInstance.evalCodeBlock(`
                     let a = 1;
                     let b = 2;
-                    throw new Error('oops');`, "@!#!!", step);
+                    throw new Error('oops');`, "@!#!!", 10, step);
             }
             catch(e) {
                 errorThrown = true;
                 expect(e.message).to.equal("oops");
-                expect(!!e.stack.match(/at CodeBlock \([^\n]+<anonymous>:4:27\)/)).to.equal(true);
+                expect(!!e.stack.match(/at CodeBlock \([^\n]+<anonymous>:13:27\)/)).to.equal(true);
             }
 
             expect(errorThrown).to.be.true;
@@ -5194,12 +5215,12 @@ A -
                 await runInstance.evalCodeBlock(`
                     let a = 1;
                     let b = 2;
-                    throw new Error('oops');`, null, step);
+                    throw new Error('oops');`, null, 20, step);
             }
             catch(e) {
                 errorThrown = true;
                 expect(e.message).to.equal("oops");
-                expect(!!e.stack.match(/at CodeBlock \([^\n]+<anonymous>:4:27\)/)).to.equal(true);
+                expect(!!e.stack.match(/at CodeBlock \([^\n]+<anonymous>:23:27\)/)).to.equal(true);
             }
 
             expect(errorThrown).to.be.true;
@@ -5599,7 +5620,20 @@ Big step {
     });
 
     describe("runOneStep()", async function() {
-        it.skip("runs one step and pauses again", async function() {
+        it("runs one step and pauses again", async function() {
+
+
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("works when currStep is on the last step, which has not completed yet", async function() {
