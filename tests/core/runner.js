@@ -12,10 +12,14 @@ chai.use(chaiAsPromised);
 
 describe("Runner", function() {
     describe("run()", function() {
-        it("can spawn a single run instance that pauses", async function() {
+        it("can spawn a single run instance that completes", async function() {
             let tree = new Tree();
             tree.parseIn(`
-
+A -
+    B -
+        C {
+            runInstance.runner.ranStepC = true;
+        }
 
 
 
@@ -24,10 +28,23 @@ describe("Runner", function() {
             tree.generateBranches();
 
             let runner = new Runner(tree);
-
             await runner.run();
 
-            expect(true).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+        });
+
+        it("can spawn a single run instance that pauses and resumes", async function() {
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -41,13 +58,46 @@ describe("Runner", function() {
 
         });
 
-        it.skip("can resume a paused run instance", async function() {
+        it("can spawn a multiple run instances, all of which complete", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+
+    D -
+
+        E {
+            runInstance.runner.ranStepE = true;
+        }
+
+F {
+    runInstance.runner.ranStepF = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.ranStepE).to.be.true;
+            expect(runner.ranStepF).to.be.true;
         });
 
-        it.skip("can spawn a single run instance that completes", async function() {
+        it.skip("runs multiple run instances in parallel", async function() {
+            // make 6 branches, have each sleep for 20 ms, make sure total elapsed is between 15 and 40
         });
 
-        it.skip("can spawn a multiple run instances, all of which complete", async function() {
+        it.skip("runs multiple run instances in parallel where maxInstances limits the number of simultaneous run instances", async function() {
+            // maxInstances = 2, make 6 branches, have each sleep for 20 ms, make sure total elapsed is between 55 and 75
+        });
+
+        it.skip("runs multiple run instances for multiple branches, where one branch fails and one branch passes", async function() {
+
         });
 
         it.skip("can spawn a multiple run instances, but due to +'es only some of them actually run'", async function() {
@@ -149,7 +199,6 @@ A {
             tree.generateBranches();
 
             let runner = new Runner(tree);
-
             await runner.run();
 
             expect(runner.isPaused()).to.be.true;
