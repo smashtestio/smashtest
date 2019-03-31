@@ -258,15 +258,16 @@ class RunInstance {
                     }
 
                     // If this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
-                    // We'll pretend this step never ran in the first place
                     if(this.isStopped) {
                         return;
                     }
                 }
             }
             catch(e) {
-                error = e;
-                this.fillErrorFromStep(error, step, inCodeBlock);
+                if(!this.isStopped) { // if this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
+                    error = e;
+                    this.fillErrorFromStep(error, step, inCodeBlock);
+                }
             }
 
             // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
@@ -482,9 +483,7 @@ class RunInstance {
         var runInstance = this; // var so it's accesible in the eval()
 
         function log(text) {
-            if(logHere) {
-                logHere.appendToLog(text);
-            }
+            runInstance.appendToLog(text, logHere);
         }
 
         function getPersistent(varname) {
@@ -679,7 +678,7 @@ class RunInstance {
                             value = this.replaceVars(value, step, branch); // recursive call, start at original step passed in
                         }
 
-                        this.appendToLog("The value of variable " + variableFull + " is being set by a later step at " + s.filename + ":" + s.lineNumber, step, branch);
+                        this.appendToLog("The value of variable " + variableFull + " is being set by a later step at " + s.filename + ":" + s.lineNumber, step || branch);
                         return value;
                     }
                 }
@@ -691,16 +690,11 @@ class RunInstance {
     }
 
     /**
-     * Logs the given text to the given step (or branch, if the step does not exist)
+     * Logs the given text to logHere
      */
-    appendToLog(text, step, branch) {
-        if(!this.isStopped) {
-            if(step) {
-                step.appendToLog(text);
-            }
-            else if(branch) {
-                branch.appendToLog(text);
-            }
+    appendToLog(text, logHere) {
+        if(logHere && !this.isStopped) {
+            logHere.appendToLog(text);
         }
     }
 

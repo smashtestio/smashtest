@@ -75,7 +75,7 @@ A -
             expect(runInstance.ranStepE).to.be.true;
         });
 
-        it("handles a step that fails but doesn't stop execution", async function() {
+        it("handles a step that fails but doesn't end the branch", async function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -106,7 +106,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.true;
         });
 
-        it("handles a step that fails and ends executing the branch", async function() {
+        it("handles a step that fails and ends the branch", async function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -322,6 +322,48 @@ A -
 
             expect(tree.branches[1].isPassed).to.be.true;
             expect(tree.branches[1].isFailed).to.be.undefined;
+        });
+
+        it("handles a stop during a step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Wait 10ms, cause a stop, then wait 10 ms more {
+    async function wait10() {
+        await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, 10);
+        });
+    }
+
+    await wait10();
+    runInstance.isStopped = true;
+    await wait10();
+}
+
+    A {
+        runInstance.ranStepA = true;
+    }
+
+Second branch -
+
+    B {
+        runInstance.ranStepB = true;
+    }
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.isStopped).to.be.true;
+            expect(runInstance.ranStepA).to.be.undefined;
+            expect(runInstance.ranStepB).to.be.undefined;
         });
 
         it("runs a Before Every Branch hook", async function() {
@@ -720,7 +762,7 @@ Wait 20ms {
 
             await runInstance.run();
 
-            expect(tree.branches[0].elapsed).to.be.above(20);
+            expect(tree.branches[0].elapsed).to.be.above(15);
             expect(tree.branches[0].elapsed).to.be.below(50);
             expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
         });
@@ -753,7 +795,7 @@ Wait '20' ms
 
             await runInstance.run();
 
-            expect(tree.branches[0].elapsed).to.be.above(20);
+            expect(tree.branches[0].elapsed).to.be.above(15);
             expect(tree.branches[0].elapsed).to.be.below(50);
             expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
         });
@@ -1241,7 +1283,7 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
             expect(runInstance.getGlobal("E")).to.equal("5");
             expect(runInstance.getGlobal("F")).to.equal("6 six '6' \"66\"");
             expect(runInstance.getGlobal("G")).to.equal("7 seven 'th'");
-            
+
             expect(runInstance.one).to.equal("first");
             expect(runInstance.two).to.equal("second");
             expect(runInstance.three).to.equal("third");
@@ -4457,7 +4499,7 @@ Wait 20ms {
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[0].elapsed).to.be.above(20);
+            expect(tree.branches[0].steps[0].elapsed).to.be.above(15);
             expect(tree.branches[0].steps[0].elapsed).to.be.below(50);
             expect(tree.branches[0].steps[0].timeStarted instanceof Date).to.equal(true);
         });
@@ -5417,7 +5459,7 @@ A -
             let runInstance = new RunInstance(runner);
 
             step.log = "foo\n";
-            runInstance.appendToLog("bar", step, branch);
+            runInstance.appendToLog("bar", step || branch);
 
             expect(step.log).to.equal("foo\nbar\n");
         });
@@ -5427,7 +5469,7 @@ A -
             let runner = new Runner();
             let runInstance = new RunInstance(runner);
 
-            runInstance.appendToLog("foobar", null, branch);
+            runInstance.appendToLog("foobar", null || branch);
 
             expect(branch.log).to.equal("foobar\n");
         });
@@ -5438,7 +5480,7 @@ A -
             let runInstance = new RunInstance(runner);
 
             branch.log = "foo\n";
-            runInstance.appendToLog("bar", null, branch);
+            runInstance.appendToLog("bar", null || branch);
 
             expect(branch.log).to.equal("foo\nbar\n");
         });
@@ -5449,18 +5491,110 @@ A -
             let runInstance = new RunInstance(runner);
 
             assert.doesNotThrow(() => {
-                runInstance.appendToLog("foobar", null, null);
+                runInstance.appendToLog("foobar", null || null);
             });
         });
     });
 
     describe("stop()", function() {
-        it.skip("stops the RunInstance, time elapsed for the Branch is properly measured, and no more steps are running", function() {
-            // check Step.isRunning of all steps
+        it("stops the RunInstance, time elapsed for the branches are properly measured, and no more steps are running", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Wait 20ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, 20);
+    });
+}
+
+    A {
+        runInstance.ranStepA = true;
+    }
+
+Second branch -
+
+    B {
+        runInstance.ranStepB = true;
+    }
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            // The branches take 20 ms to run, but will be stopped 10ms in
+            var runInstancePromise = runInstance.run();
+
+            // 10 ms in
+            setTimeout(() => {
+                runInstance.stop();
+
+                expect(runInstance.isStopped).to.be.true;
+                expect(runInstance.ranStepA).to.be.undefined;
+                expect(runInstance.ranStepB).to.be.undefined;
+
+                expect(tree.branches[0].steps[0].isRunning).to.be.undefined;
+                expect(tree.branches[0].steps[1].isRunning).to.be.undefined;
+                expect(tree.branches[1].steps[0].isRunning).to.be.undefined;
+                expect(tree.branches[1].steps[1].isRunning).to.be.undefined;
+            }, 10);
+
+            // 20 ms in, RunInstance is done and ends itself
+            return runInstancePromise.then(() => {
+                expect(runInstance.isStopped).to.be.true;
+                expect(runInstance.ranStepA).to.be.undefined;
+                expect(runInstance.ranStepB).to.be.undefined;
+
+                expect(tree.branches[0].steps[0].isRunning).to.be.undefined;
+                expect(tree.branches[0].steps[1].isRunning).to.be.undefined;
+                expect(tree.branches[1].steps[0].isRunning).to.be.undefined;
+                expect(tree.branches[1].steps[1].isRunning).to.be.undefined;
+
+                expect(tree.branches[0].elapsed).to.be.above(15);
+                expect(tree.branches[1].elapsed).to.be.undefined;
+            });
         });
 
-        it.skip("doesn't log or error to branches or steps once a stop is made", function() {
+        it("doesn't log or error to branches or steps once a stop is made", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Big step {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, 20);
+    });
 
+    // log and error happen after a stop occurred mid-step
+    log("log from A");
+    throw new Error("error from A");
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            // The branches take 20 ms to run, but will be stopped 10ms in
+            var runInstancePromise = runInstance.run();
+
+            // 10 ms in
+            setTimeout(() => {
+                runInstance.stop();
+            }, 10);
+
+            // 20 ms in, RunInstance is done and ends itself
+            return runInstancePromise.then(() => {
+                expect(runInstance.isStopped).to.be.true;
+                expect(tree.branches[0].steps[0].log).to.be.undefined;
+                expect(tree.branches[0].steps[0].error).to.be.undefined;
+            });
         });
     });
 
