@@ -6477,7 +6477,7 @@ A {
             expect(runInstance.afterEveryBranchRan).to.be.undefined; // doesn't run After Every Branch until one more runOneStep() call
             expect(runInstance.beforeEveryBranchRan).to.be.true;
 
-            let isBranchComplete = await runInstance.skipOneStep();
+            isBranchComplete = await runInstance.skipOneStep();
 
             expect(runInstance.isPaused).to.be.true;
 
@@ -6565,13 +6565,124 @@ A {
     });
 
     describe("injectStep()", async function() {
-        it.skip("runs a step, then pauses again", async function() {
+        it("runs a step, then pauses again", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.ranStepA = !runInstance.ranStepA;
+}
+
+    B ~ {
+        runInstance.ranStepB = !runInstance.ranStepB;
+    }
+
+        C {
+            runInstance.ranStepC = !runInstance.ranStepC;
+        }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.isPaused).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.ranInjectedStep).to.be.undefined;
+
+            let t = new Tree();
+            t.parseIn(`
+Step to Inject {
+    runInstance.ranInjectedStep = true;
+}`);
+            let stepToInject = t.root.children[0];
+
+            stepToInject = await runInstance.injectStep(stepToInject);
+
+            expect(runInstance.isPaused).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranStepB).to.be.undefined;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.ranInjectedStep).to.be.true;
         });
 
-        it.skip("step has access to {{vars}} and {vars} that were defined at the time of the pause", async function() {
+        it("step has access to {{vars}} and {vars} that were defined at the time of the pause", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1}='foo'
+    {{var2}}='bar'
+        B - ~
+            C -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            let t = new Tree();
+            t.parseIn(`
+Step to Inject {
+    runInstance.var1 = var1;
+    runInstance.var2 = var2;
+    runInstance.var3 = getGlobal("var1");
+    runInstance.var4 = getLocal("var2");
+}`);
+            let stepToInject = t.root.children[0];
+
+            stepToInject = await runInstance.injectStep(stepToInject);
+
+            expect(runInstance.var1).to.equal("foo");
+            expect(runInstance.var2).to.equal("bar");
+            expect(runInstance.var3).to.equal("foo");
+            expect(runInstance.var4).to.equal("bar");
         });
 
-        it.skip("step can be a function call for a function that was defined at the time of the pause", async function() {
+        it.only("step can be a function call for a function that was defined at the time of the pause", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A ~ -
+
+* My function
+    {var1}='foo'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            let t = new Tree();
+            t.parseIn(`
+My function
+`);
+            let stepToInject = t.root.children[0];
+
+            stepToInject = await runInstance.injectStep(stepToInject);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foo");
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("attaches an error to the step returned if it fails", async function() {
