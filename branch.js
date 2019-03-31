@@ -112,7 +112,7 @@ class Branch {
 
         // Copy booleans and strings
         for(let attr in this) {
-            if(this.hasOwnProperty(attr) && (typeof this[attr] == 'boolean' || typeof this[attr] == 'string')) {
+            if(this.hasOwnProperty(attr) && (['string', 'boolean', 'number'].indexOf(typeof this[attr]) != -1)) {
                 clone[attr] = this[attr];
             }
         }

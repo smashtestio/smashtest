@@ -93,33 +93,37 @@ class Runner {
     /**
      * Runs the next step, then pauses
      * Call only when already paused
-     * @return {Promise} Promise that gets resolved once done executing
+     * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async runOneStep() {
         if(!this.isPaused()) {
             utils.error("Must already be paused to run one step");
         }
 
-        await this.runInstances[0].runOneStep();
-        if(!this.runInstances[0].currStep) { // we're done running the branch
-            await this.run(); // finish running After hooks, etc.
+        let isBranchComplete = await this.runInstances[0].runOneStep();
+        if(isBranchComplete) {
+            await this.run(); // finish running After Everything hooks, etc.
         }
+
+        return isBranchComplete;
     }
 
     /**
      * Skips the next step, then pauses
      * Call only when already paused
-     * @return {Promise} Promise that gets resolved once done executing
+     * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async skipOneStep() {
         if(!this.isPaused()) {
             utils.error("Must already be paused to skip a step");
         }
 
-        await this.runInstances[0].skipOneStep();
-        if(!this.runInstances[0].currStep) { // we're done running the branch
-            await this.run(); // finish running After hooks, etc.
+        let isBranchComplete = await this.runInstances[0].skipOneStep();
+        if(isBranchComplete) {
+            await this.run(); // finish running After Everything hooks, etc.
         }
+
+        return isBranchComplete;
     }
 
     /**

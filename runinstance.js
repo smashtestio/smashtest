@@ -357,30 +357,35 @@ class RunInstance {
     /**
      * Runs one step, then pauses
      * Only call if already paused
-     * @return {Promise} Promise that resolves once the execution finishes
+     * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async runOneStep() {
         this.nextStep();
         if(this.currStep) {
             await this.runStep(this.currStep, this.currBranch, true);
             this.isPaused = true;
+            return false;
         }
         else { // all steps in current branch finished running, finish off the branch
             await this.runAfterEveryBranch();
+            return true;
         }
     }
 
     /**
      * Skips over the next not-yet-completed step, then pauses
      * Only call if already paused
+     * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async skipOneStep() {
         this.skipStep();
         if(this.currStep) {
             this.isPaused = true;
+            return false;
         }
         else { // all steps in current branch finished running, finish off the branch
             await this.runAfterEveryBranch();
+            return true;
         }
     }
 
