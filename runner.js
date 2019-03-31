@@ -22,7 +22,7 @@ class Runner {
 
         this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
 
-        this.reporter = {};              // the reporter to use for reports
+        this.reporter = {};              // the reporter to use
     }
 
     /**
@@ -75,6 +75,10 @@ class Runner {
                 else { // if we're done or we're stopped
                     await this.runAfterEverything();
                 }
+            }
+            else {
+                // if there was an error or stop in a Before Everything, just run all Run After Everything (teardown)
+                await this.runAfterEverything();
             }
         }
     }
@@ -177,7 +181,7 @@ class Runner {
         for(let i = 0; i < this.tree.beforeEverything.length; i++) {
             let s = this.tree.beforeEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
-            if(s.error) {
+            if(s.error || this.isStopped()) {
                 return false;
             }
         }

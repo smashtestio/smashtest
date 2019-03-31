@@ -22,7 +22,6 @@ class Branch {
 
         this.isOnly = false;                // If true, a Step in this Branch has a $
         this.isDebug = false;               // If true, a Step in this Branch has a ~
-        this.isPackaged = false;             // If true, this is a packaged hook
 
         this.passedLastTime = false;        // if true, do not run this branch, but include it in the report
         this.isPassed = false;              // true if every step in this branch passed after being run
@@ -60,7 +59,6 @@ class Branch {
 
         branch.isOnly ? this.isOnly = branch.isOnly : null;
         branch.isDebug ? this.isDebug = branch.isDebug : null;
-        branch.isPackaged ? this.isPackaged = branch.isPackaged : null;
 
         // Attach branch.beforeEveryBranch to the beginning of this.beforeEveryBranch (so that packages comes first)
         if(branch.beforeEveryBranch) {
@@ -97,6 +95,24 @@ class Branch {
 
             this.afterEveryStep = this.afterEveryStep.concat(branch.afterEveryStep);
         }
+    }
+
+    /**
+     * Pushes the given Step to the end of this Branch
+     */
+    push(step) {
+        this.steps.push(step);
+        step.isOnly ? this.isOnly = true : null;
+        step.isDebug ? this.isDebug = true : null;
+    }
+
+    /**
+     * Pushes the given Step to the front of this Branch
+     */
+    unshift(step) {
+        this.steps.unshift(step);
+        step.isOnly ? this.isOnly = true : null;
+        step.isDebug ? this.isDebug = true : null;
     }
 
     /**

@@ -9847,7 +9847,7 @@ F -
             ]);
         });
 
-        it("isolates the a branch with ~ on multiple steps", function() {
+        it("isolates a branch with ~ on multiple steps", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9878,6 +9878,84 @@ J -
             ]);
         });
 
+        it("isolates a branch with ~ on multiple steps, where one of the ~'s is inside a function declaration", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    F
+B -
+    F ~
+
+* F
+    K - ~
+`, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "B" }, { text: "F" }, { text: "K" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates a branch with ~ on multiple steps, where one of the ~'s is on a function declaration", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    F
+B ~ -
+    F
+
+* F ~
+    K -
+`, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "B" }, { text: "F" }, { text: "K" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates a branch with ~ on multiple steps, where one of the ~'s is on a function declaration and function call", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    F
+B -
+    F ~
+
+* F ~
+    K -
+`, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "B" }, { text: "F" }, { text: "K" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
         it("isolates the first branch when ~ is on multiple branches", function() {
             let tree = new Tree();
             tree.parseIn(`
@@ -9890,9 +9968,9 @@ A -
         G ~ -
             H -
 
-        I -
+        I ~ -
 
-J - ~
+J -
 `, "file.txt");
 
             let branches = tree.branchify(tree.root);
@@ -9903,6 +9981,58 @@ J - ~
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "G" }, { text: "H" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates the first branch when ~ is on a function declaration that's called on multiple branches", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    F
+B -
+    F
+
+* F ~
+    K -
+`, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "F" }, { text: "K" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates the first branch when ~ is inside a function declaration that's called on multiple branches", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    F
+B -
+    F
+
+* F
+    K - ~
+`, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "F" }, { text: "K" } ],
                     isOnly: undefined,
                     isDebug: true
                 }

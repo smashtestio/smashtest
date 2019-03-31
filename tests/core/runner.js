@@ -34,28 +34,35 @@ A -
         });
 
         it("can spawn a single run instance that pauses and resumes", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+}
+    B ~ {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+`, "file.txt");
 
+            tree.generateBranches();
 
+            let runner = new Runner(tree);
+            await runner.run();
 
+            expect(runner.isPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
 
+            await runner.run();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            expect(runner.isPaused()).to.be.false;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
         });
 
         it("can spawn a multiple run instances, all of which complete", async function() {
@@ -88,59 +95,570 @@ F {
             expect(runner.ranStepF).to.be.true;
         });
 
-        it.skip("runs multiple run instances in parallel", async function() {
-            // make 6 branches, have each sleep for 20 ms, make sure total elapsed is between 15 and 40
+        it("runs multiple run instances in parallel", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Branch 1 -
+    Wait '20' ms
+
+Branch 2 -
+    Wait '20' ms
+
+Branch 3 -
+    Wait '20' ms
+
+Branch 4 -
+    Wait '20' ms
+
+Branch 5 -
+    Wait '20' ms
+
+Branch 6 -
+    Wait '20' ms
+
+* Wait {{N}} ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, N);
+    });
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            runner.maxInstances = 6;
+            await runner.run();
+
+            expect(tree.elapsed).to.be.above(15);
+            expect(tree.elapsed).to.be.below(35);
         });
 
-        it.skip("runs multiple run instances in parallel where maxInstances limits the number of simultaneous run instances", async function() {
-            // maxInstances = 2, make 6 branches, have each sleep for 20 ms, make sure total elapsed is between 55 and 75
+        it("runs multiple run instances in parallel where maxInstances limits the number of simultaneous run instances", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Branch 1 -
+    Wait '20' ms
+
+Branch 2 -
+    Wait '20' ms
+
+Branch 3 -
+    Wait '20' ms
+
+Branch 4 -
+    Wait '20' ms
+
+Branch 5 -
+    Wait '20' ms
+
+Branch 6 -
+    Wait '20' ms
+
+* Wait {{N}} ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, N);
+    });
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            runner.maxInstances = 2;
+            await runner.run();
+
+            expect(tree.elapsed).to.be.above(55);
+            expect(tree.elapsed).to.be.below(85);
         });
 
-        it.skip("runs multiple run instances for multiple branches, where one branch fails and one branch passes", async function() {
+        it("runs multiple run instances in parallel where maxInstances is 1", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Branch 1 -
+    Wait '20' ms
+
+Branch 2 -
+    Wait '20' ms
+
+Branch 3 -
+    Wait '20' ms
+
+* Wait {{N}} ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, N);
+    });
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            runner.maxInstances = 1;
+            await runner.run();
+
+            expect(tree.elapsed).to.be.above(55);
+            expect(tree.elapsed).to.be.below(85);
+        });
+
+        it("can spawn a multiple run instances, but due to +'es only some of them actually run'", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Branch Group 1 - +
+    Branch 1 -
+        Wait '20' ms
+            Log '1'
+
+    Branch 2 -
+        Wait '20' ms
+            Log '2'
+
+    Branch 3 -
+        Wait '20' ms
+            Log '3'
+
+Branch Group 2 - +
+    Branch 4 -
+        Wait '20' ms
+            Log '4'
+
+    Branch 5 -
+        Wait '20' ms
+            Log '5'
+
+    Branch 6 -
+        Wait '20' ms
+            Log '6'
+
+* Wait {{N}} ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, N);
+    });
+}
+
+* Log {{N}} {
+    runInstance.runner.numArr.push(N);
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            runner.maxInstances = 2;
+            runner.numArr = [];
+            await runner.run();
+
+            expect(tree.elapsed).to.be.above(55);
+            expect(tree.elapsed).to.be.below(85);
+
+            expect(runner.numArr).to.eql([ '1', '4', '2', '5', '3', '6' ]);
+        });
+
+        it("runs multiple run instances for multiple branches, where one branch fails and one branch passes", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Passing branch -
+    A -
+
+Failing branch -
+    {var1}='{var2}'
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            runner.maxInstances = 1;
+            await runner.run();
+
+            expect(tree.branches[0].isPassed).to.be.true;
+
+            expect(tree.branches[1].isFailed).to.be.true;
+            expect(tree.branches[1].steps[1].isFailed).to.be.true;
+            expect(tree.branches[1].steps[1].error.message).to.equal("The variable {var2} is never set, but is needed for this step");
+        });
+
+        it("pauses before a ~ step is executed, doesn't pause on the same step when resumed", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+}
+    B ~ {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.isPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+
+            await runner.run();
+
+            expect(runner.isPaused()).to.be.false;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+        });
+
+        it("pauses after an unexpected fail occurs on a step that's inside a branch with ~ anywhere", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+    throw new Error();
+}
+    B {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+            D ~ {
+                runInstance.runner.ranStepD = true;
+            }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.isPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.ranStepD).to.be.undefined;
+
+            await runner.run();
+
+            expect(runner.isPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.ranStepD).to.be.undefined;
+
+            await runner.run();
+
+            expect(runner.isPaused()).to.be.false;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.ranStepD).to.be.true;
+        });
+
+        it("runs all Before Everything and After Everything steps", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
+    B
+C
+
+* A {
+    runInstance.runner.count++;
+}
+
+* B {
+    runInstance.runner.count++;
+}
+
+* C {
+    runInstance.runner.count++;
+}
+
+* Before Everything {
+    runInstance.runner.count *= 3;
+}
+
+* Before Everything {
+    runInstance.runner.count *= 2;
+}
+
+* After Everything {
+    runInstance.runner.count *= 4;
+}
+
+* After Everything {
+    runInstance.runner.count *= 5;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            runner.count = 1;
+            await runner.run();
+
+            expect(runner.count).to.equal(180);
+        });
+
+        it("runs all After Everything steps but not the Before Everything steps on resume", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
+    B
+C
+
+* A {
+    runInstance.runner.count++;
+}
+
+* B ~ {
+    runInstance.runner.count++;
+}
+
+* C {
+    runInstance.runner.count++;
+}
+
+* Before Everything {
+    runInstance.runner.count *= 3;
+}
+
+* Before Everything {
+    runInstance.runner.count *= 2;
+}
+
+* After Everything {
+    runInstance.runner.count *= 4;
+}
+
+* After Everything {
+    runInstance.runner.count *= 5;
+}
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            runner.count = 1;
+
+            await runner.run();
+            expect(runner.count).to.equal(7);
+
+            await runner.run();
+            expect(runner.count).to.equal(160);
+        });
+
+        it("stores errors from Before Everything steps and stops execution", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
+
+* A {
+    runInstance.runner.ranStepA = true;
+}
+
+* Before Everything {
+    runInstance.runner.ranBeforeEverything2 = true;
+}
+
+* Before Everything {
+    runInstance.runner.ranBeforeEverything1 = true;
+    throw new Error("oops");
+}
+
+* After Everything {
+    runInstance.runner.ranAfterEverything1 = true;
+}
+
+* After Everything {
+    runInstance.runner.ranAfterEverything2 = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+
+            await runner.run();
+
+            expect(runner.ranBeforeEverything1).to.be.true;
+            expect(runner.ranBeforeEverything2).to.be.undefined;
+            expect(runner.ranStepA).to.be.undefined;
+            expect(runner.ranAfterEverything1).to.be.true;
+            expect(runner.ranAfterEverything2).to.be.true;
+
+            expect(tree.beforeEverything[0].error.message).to.equal("oops");
+            expect(tree.beforeEverything[0].error.filename).to.equal("file.txt");
+            expect(tree.beforeEverything[0].error.lineNumber).to.equal(14);
+        });
+
+        it("stores errors from After Everything steps", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
+
+* A {
+    runInstance.runner.ranStepA = true;
+}
+
+* Before Everything {
+    runInstance.runner.ranBeforeEverything2 = true;
+}
+
+* Before Everything {
+    runInstance.runner.ranBeforeEverything1 = true;
+}
+
+* After Everything {
+    runInstance.runner.ranAfterEverything1 = true;
+    throw new Error("oops");
+}
+
+* After Everything {
+    runInstance.runner.ranAfterEverything2 = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+
+            await runner.run();
+
+            expect(runner.ranBeforeEverything1).to.be.true;
+            expect(runner.ranBeforeEverything2).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranAfterEverything1).to.be.true;
+            expect(runner.ranAfterEverything2).to.be.true;
+
+            expect(tree.afterEverything[0].error.message).to.equal("oops");
+            expect(tree.afterEverything[0].error.filename).to.equal("file.txt");
+            expect(tree.afterEverything[0].error.lineNumber).to.equal(18);
+        });
+
+        it("when a stop occurs while in a Before Everything hook, stops executing Before Everything hooks and executes all After Everything hooks", async function() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         });
 
-        it.skip("can spawn a multiple run instances, but due to +'es only some of them actually run'", async function() {
+        it.skip("when a stop occurs while in an After Everything hook, finishes executing the rest of the After Everything hooks", async function() {
+
         });
 
-        it.skip("pauses before a ~ step is executed", async function() {
+        it.skip("when a stop occurs while executing branches, stops executing branches and executes all After Everything hooks", async function() {
+
         });
 
-        it.skip("pauses after an unexpected fail occurs on a step that's inside a branch with ~ anywhere", async function() {
+        it("sets tree.elapsed to how long it took the tree to execute", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Wait 20 ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, 20);
+    });
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(tree.elapsed).to.be.above(15);
+            expect(tree.elapsed).to.be.below(35);
         });
 
-        it.skip("when resuming from a pause on a ~, doesn't pause on the same ~ again", async function() {
+        it("sets tree.elapsed to how long it took the tree to execute when a stop ocurred", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Wait 20 ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, 20);
+    });
+}
+
+    Stop me {
+        await runInstance.runner.stop();
+    }
+
+        Wait 100 ms {
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve();
+                }, 100);
+            });
+        }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(tree.elapsed).to.be.above(15);
+            expect(tree.elapsed).to.be.below(35);
         });
 
-        it.skip("runs all Before Everything steps", async function() {
+        it("sets tree.elapsed to -1 when a pause and resume occurred", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B ~ -
+        C -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+            expect(tree.elapsed).to.equal(-1);
+
+            await runner.run();
+            expect(tree.elapsed).to.equal(-1);
         });
 
-        it.skip("runs all After Everything steps", async function() {
-        });
+        it("throws an error if the Runner was already stopped before", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B {
+        await runInstance.runner.stop();
+    }
+        C -
+`, "file.txt");
 
-        it.skip("runs all After Everything steps but not the Before Everything steps on resume", async function() {
-        });
+            tree.generateBranches();
 
-        it.skip("stores errors from Before Everything steps and stops execution", async function() {
-            // within the hook step itself
-            // stops all execution at that failing hook
-        });
+            let runner = new Runner(tree);
+            await runner.run();
 
-        it.skip("stores errors from After Everything steps", async function() {
-            // an error within After Everything doesn't stop execution of the other After Everythings
-        });
-
-        it.skip("sets tree.elapsed to how long it took the tree to execute", async function() {
-            // Try two different trees, one that runs longer than the other, and assert that one > other
-        });
-
-        it.skip("sets tree.elapsed to how long it took the tree to execute when a stop ocurred", async function() {
-        });
-
-        it.skip("sets tree.elapsed to -1 when a pause occurred", async function() {
-        });
-
-        it.skip("sets tree.elapsed to -1 when a pause and resume occurred", async function() {
+            await expect(runner.run()).to.be.rejectedWith("Cannot run a stopped runner");
         });
     });
 

@@ -673,10 +673,8 @@ class Tree {
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
                 let branch = new Branch();
-                branch.isOnly = step.isOnly;
-                branch.isDebug = step.isDebug;
                 branchesFromThisStep = [ branch ];
-                branchesFromThisStep[0].steps.push(clonedStep);
+                branchesFromThisStep[0].push(clonedStep);
             }
             else {
                 if(isReplaceVarsInChildren) {
@@ -691,7 +689,7 @@ class Tree {
 
                 // Put clone of this step at the front of each Branch that results from expanding the function call
                 branchesFromThisStep.forEach(branch => {
-                    branch.steps.unshift(clonedStep.cloneForBranch()); // new clone every time we unshift
+                    branch.unshift(clonedStep.cloneForBranch()); // new clone every time we unshift
                 });
             }
         }
@@ -734,9 +732,7 @@ class Tree {
             let clonedStep = step.cloneForBranch();
             clonedStep.branchIndents = branchIndents;
 
-            branch.steps.push(clonedStep);
-            branch.isOnly = step.isOnly;
-            branch.isDebug = step.isDebug;
+            branch.push(clonedStep);
 
             // Set branch.groups and branch.frequency, if this a {group}= or {frequency}= step
             if(step.varsBeingSet && step.varsBeingSet.length > 0) {
@@ -917,7 +913,7 @@ class Tree {
 
                 function removeBranch() {
                     if(branchFromChild.isDebug) {
-                        let debugStep = findDebugStep(branchFromChild);
+                        let debugStep = findDebugStep(branchFromChild).step;
                         utils.error("This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
@@ -939,7 +935,7 @@ class Tree {
                 }
                 else {
                     if(branchFromChild.isDebug) {
-                        let debugStep = findDebugStep(branchFromChild);
+                        let debugStep = findDebugStep(branchFromChild).step;
                         utils.error("This step contains a ~, but is not above the frequency allowed to run (" + minFrequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
@@ -968,13 +964,33 @@ class Tree {
         }
 
         /**
-         * @return {Step} The first Step in the given branch to contain a ~, null if nothing found
+         * @return {Object} Object, in format { step = the first Step in the given branch to contain a ~, depth = depth at which the ~ was found }, null if nothing found
          */
         function findDebugStep(branch) {
             for(let i = 0; i < branch.steps.length; i++) {
                 let step = branch.steps[i];
                 if(step.isDebug) {
-                    return step;
+                    if(step.isFunctionCall) {
+                        // Tie-break based on if the ~ is on the function call vs. function declaration
+                        if(step.originalStepInTree.isDebug) { // ~ is on the function call
+                            return {
+                                step: step,
+                                depth: i
+                            };
+                        }
+                        else { // ~ is slightly deeper, at the function declaration (so add .5 to the depth)
+                            return {
+                                step: step,
+                                depth: i + 0.5
+                            };
+                        }
+                    }
+                    else {
+                        return {
+                            step: step,
+                            depth: i
+                        };
+                    }
                 }
             }
 
@@ -983,25 +999,17 @@ class Tree {
 
         // Remove branches by ~'s
         // If found, remove all branches other than the one that's connected with one or more ~'s
+        // When multiple branches have ~'s somewhere inside, always prefer the branch with the shallowest-depth ~
         let branchFound = null;
-
-        // Search for ~ attached to a step block member first
+        let shortestDepth = -1;
         for(let i = 0; i < branchesFromChildren.length; i++) {
             let branchFromChild = branchesFromChildren[i];
-            if(branchFromChild.steps[0].originalStepInTree.containingStepBlock && branchFromChild.steps[0].isDebug) {
+            if(branchFromChild.isDebug) {
                 // A ~ was found
-                branchFound = branchFromChild;
-                break;
-            }
-        }
-        if(!branchFound) {
-            // Search for ~ anywhere in a branch
-            for(let i = 0; i < branchesFromChildren.length; i++) {
-                let branchFromChild = branchesFromChildren[i];
-                if(branchFromChild.isDebug) {
-                    // A ~ was found
+                let o = findDebugStep(branchFromChild);
+                if(o.depth < shortestDepth || shortestDepth == -1) {
+                    shortestDepth = o.depth;
                     branchFound = branchFromChild;
-                    break;
                 }
             }
         }
