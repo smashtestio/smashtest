@@ -121,7 +121,7 @@ class RunInstance {
      * Marks the step as passed/failed and expected/unexpected, sets the step's error and log
      * Resolves immediately if step.isDebug is true (unless overrideDebug is true as well)
      * @param {Step} step - The Step to execute
-     * @param {Branch} [branch] - The branch that contains the step to execute, if any
+     * @param {Branch} branch - The branch that contains the step to execute
      * @param {Boolean} [overrideDebug] - If true, ignores step.isDebug (prevents getting stuck on a ~ step)
      * @return {Promise} Promise that gets resolved when the step finishes execution
      */
@@ -134,7 +134,7 @@ class RunInstance {
         step.timeStarted = new Date();
 
         // Execute Before Every Step hooks
-        if(branch && branch.beforeEveryStep) {
+        if(branch.beforeEveryStep) {
             for(let i = 0; i < branch.beforeEveryStep.length; i++) {
                 let s = branch.beforeEveryStep[i];
                 await this.runHookStep(s, step, branch);
@@ -150,11 +150,9 @@ class RunInstance {
         if(!step.isFailed) { // A Before Every Step hook did not fail the step and we did not stop
             // Find the previous step
             let prevStep = null;
-            if(branch) {
-                let index = branch.steps.indexOf(step);
-                if(index >= 1) {
-                    prevStep = branch.steps[index - 1];
-                }
+            let index = branch.steps.indexOf(step);
+            if(index >= 1) {
+                prevStep = branch.steps[index - 1];
             }
 
             // Handle the stack for {{local vars}}
@@ -290,7 +288,7 @@ class RunInstance {
         }
 
         // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)
-        if(branch && branch.afterEveryStep) {
+        if(branch.afterEveryStep) {
             for(let i = 0; i < branch.afterEveryStep.length; i++) {
                 let s = branch.afterEveryStep[i];
                 await this.runHookStep(s, step, branch);
@@ -525,7 +523,7 @@ class RunInstance {
         function getLocal(varname) {
             varname = utils.canonicalize(varname);
             if(runInstance.localsPassedIntoFunc.hasOwnProperty(varname)) {
-                return runInstance.localsPassedIntoFunc[varname];
+                return runInstance.localsPassedIntoFunc[varname]; // probably unreachable from within a code block
             }
             else {
                 return runInstance.local[varname];

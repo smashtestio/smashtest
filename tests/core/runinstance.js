@@ -6600,9 +6600,8 @@ A {
 Step to Inject {
     runInstance.ranInjectedStep = true;
 }`);
-            let stepToInject = t.root.children[0];
 
-            stepToInject = await runInstance.injectStep(stepToInject);
+            await runInstance.injectStep(t.root.children[0]);
 
             expect(runInstance.isPaused).to.be.true;
             expect(runInstance.ranStepA).to.be.true;
@@ -6636,9 +6635,8 @@ Step to Inject {
     runInstance.var3 = getGlobal("var1");
     runInstance.var4 = getLocal("var2");
 }`);
-            let stepToInject = t.root.children[0];
 
-            stepToInject = await runInstance.injectStep(stepToInject);
+            await runInstance.injectStep(t.root.children[0]);
 
             expect(runInstance.var1).to.equal("foo");
             expect(runInstance.var2).to.equal("bar");
@@ -6800,7 +6798,7 @@ Step to Inject {
 }`);
             let stepToInject = t.root.children[0];
 
-            stepToInject = await runInstance.injectStep(stepToInject);
+            await runInstance.injectStep(stepToInject);
 
             expect(runInstance.beforeEveryBranchRan).to.be.true;
             expect(runInstance.ranStepA).to.be.true;
@@ -6863,7 +6861,7 @@ Step to Inject {
 }`);
             let stepToInject = t.root.children[0];
 
-            stepToInject = await runInstance.injectStep(stepToInject);
+            await runInstance.injectStep(stepToInject);
 
             expect(runInstance.beforeEveryBranchRan).to.be.true;
             expect(runInstance.ranStepA).to.be.true;
@@ -6944,7 +6942,7 @@ Step to Inject {
 }`);
             let stepToInject = t.root.children[0];
 
-            stepToInject = await runInstance.injectStep(stepToInject);
+            await runInstance.injectStep(stepToInject);
 
             expect(runInstance.beforeEveryBranchRan).to.be.true;
             expect(runInstance.ranStepA).to.be.true;
@@ -6971,6 +6969,22 @@ Step to Inject {
             expect(runInstance.ranStepB).to.be.undefined;
             expect(runInstance.ranStepC).to.be.true;
             expect(runInstance.afterEveryBranchRan).to.be.true;
+        });
+
+        it("works when there is no current step or branch", async function() {
+            let runner = new Runner();
+            runner.tree = new Tree();
+            let runInstance = new RunInstance(runner);
+
+            let t = new Tree();
+            t.parseIn(`
+Step to Inject {
+    runInstance.ranInjectedStep = true;
+}`);
+
+            await runInstance.injectStep(t.root.children[0]);
+
+            expect(runInstance.ranInjectedStep).to.be.true;
         });
     });
 });
