@@ -8,8 +8,8 @@ class Runner {
     /**
      * Generates the runner
      */
-    constructor() {
-        this.tree = {};                  // The tree to run (tree.generateBranches() must have been already called)
+    constructor(tree) {
+        this.tree = tree;                // The tree to run (tree.generateBranches() must have been already called)
 
         this.maxInstances = 5;           // The maximum number of simultaneous branches to run
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree

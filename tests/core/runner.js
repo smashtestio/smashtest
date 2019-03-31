@@ -12,7 +12,33 @@ chai.use(chaiAsPromised);
 
 describe("Runner", function() {
     describe("run()", function() {
-        it.skip("can spawn a single run instance that pauses", async function() {
+        it("can spawn a single run instance that pauses", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+
+
+
+
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+
+            await runner.run();
+
+            expect(true).to.be.true;
+
+
+
+
+
+
+
+
+
+
+
         });
 
         it.skip("can resume a paused run instance", async function() {
@@ -70,6 +96,7 @@ describe("Runner", function() {
 
     describe("stop()", function() {
         it.skip("stops all running run instances, time elapsed for the Tree is properly measured", async function() {
+            // have multiple branches running at the same time
         });
 
         it.skip("runs all After Everything steps immediately after a stop occurs", async function() {
@@ -121,8 +148,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
 
             await runner.run();
 

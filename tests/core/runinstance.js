@@ -29,8 +29,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -63,8 +62,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -94,8 +92,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -123,8 +120,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -155,8 +151,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -190,8 +185,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -226,8 +220,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -271,8 +264,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -328,8 +320,7 @@ A  {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -382,8 +373,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -422,8 +412,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -466,8 +455,7 @@ Second branch -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -499,8 +487,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -536,8 +523,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -580,8 +566,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.count = 1;
 
@@ -612,8 +597,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.count = 1;
 
@@ -646,8 +630,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.afterCount = 0;
 
@@ -698,8 +681,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.afterCount = 0;
             runInstance.beforeCount = 0;
@@ -751,8 +733,7 @@ B {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.beforeCount = 0;
 
@@ -788,8 +769,7 @@ B {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.afterCount = 0;
 
@@ -816,8 +796,7 @@ B {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -843,8 +822,7 @@ Second branch -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -867,8 +845,7 @@ Wait 20ms {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -900,8 +877,7 @@ Wait '20' ms
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -925,8 +901,7 @@ First step -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -951,8 +926,7 @@ Cause a stop {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -969,8 +943,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -989,8 +962,7 @@ A - {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1013,8 +985,7 @@ F
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1038,8 +1009,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1065,8 +1035,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1092,8 +1061,7 @@ My {A} Function { b }
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "bar";
@@ -1121,8 +1089,7 @@ My {{A}} Function {{ b }} { a B  c }
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.local.a = "foo";
             runInstance.local.b = "bar";
@@ -1151,8 +1118,7 @@ My '{A} and { b }' Function '{B}'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "b\"a'r";
@@ -1179,8 +1145,7 @@ My "{A} and { b }" Function "{B}"
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "b\"a'r";
@@ -1207,8 +1172,7 @@ My [4th 'Login' button next to 'something'] Function [ big link ]
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1233,8 +1197,7 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.local.a = "sign";
             runInstance.global.b = "small button";
@@ -1269,8 +1232,7 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global["four th"] = "4";
             runInstance.local["fifth"] = "5";
@@ -1317,8 +1279,7 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global["four th"] = "4";
             runInstance.local["fifth"] = "5";
@@ -1420,8 +1381,7 @@ My {var} Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1447,8 +1407,7 @@ My {var} Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1474,8 +1433,7 @@ My {var} Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1498,8 +1456,7 @@ My {var} Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1524,8 +1481,7 @@ My 'so called {var}' Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1551,8 +1507,7 @@ My 'so called {var}' Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1578,8 +1533,7 @@ My 'so called {var}' Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1603,8 +1557,7 @@ My 'so called {var}' Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1626,8 +1579,7 @@ My Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1651,8 +1603,7 @@ My {var} Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1678,8 +1629,7 @@ My {var} Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1702,8 +1652,7 @@ My {var} Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1728,8 +1677,7 @@ A textual step {{var1}} -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1754,8 +1702,7 @@ A textual step {{var1}} -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1781,8 +1728,7 @@ My 'string with {var}' Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1806,8 +1752,7 @@ My 'string with {var}' Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1829,8 +1774,7 @@ My 'foobar' Function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1854,8 +1798,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1875,8 +1818,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1897,8 +1839,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1919,8 +1860,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1941,8 +1881,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1966,8 +1905,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1995,8 +1933,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2024,8 +1961,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2050,8 +1986,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2074,8 +2009,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2098,8 +2032,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2129,8 +2062,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2155,8 +2087,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2180,8 +2111,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2203,8 +2133,7 @@ My 'foo' Function 'bar'
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2230,8 +2159,7 @@ Text {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent("one", "first");
             runInstance.setGlobal("two", "second");
@@ -2259,8 +2187,7 @@ Text {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2289,8 +2216,7 @@ My 'foo' "bar" function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2316,8 +2242,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2341,8 +2266,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2370,8 +2294,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2400,8 +2323,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2429,8 +2351,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2470,8 +2391,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2503,8 +2423,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2531,8 +2450,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2561,8 +2479,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2594,8 +2511,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent("var1", "bar");
 
@@ -2626,8 +2542,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent("var1", "bar");
 
@@ -2653,8 +2568,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2680,8 +2594,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2713,8 +2626,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2744,8 +2656,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2774,8 +2685,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2806,8 +2716,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2833,8 +2742,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2869,8 +2777,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2904,8 +2811,7 @@ My 'foobar' function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2941,8 +2847,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3002,8 +2907,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             /*
@@ -3149,8 +3053,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3176,8 +3079,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3210,8 +3112,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3241,8 +3142,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3272,8 +3172,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3300,8 +3199,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3336,8 +3234,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3369,8 +3266,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3400,8 +3296,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3427,8 +3322,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3457,8 +3351,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3485,8 +3378,7 @@ Something {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3511,8 +3403,7 @@ Something {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             runInstance.badFunc = function() {
@@ -3556,8 +3447,7 @@ First {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3590,8 +3480,7 @@ Something {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3623,8 +3512,7 @@ tree.parseIn(`
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3649,8 +3537,7 @@ Something {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3680,8 +3567,7 @@ My function #
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3717,8 +3603,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3753,8 +3638,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3787,8 +3671,7 @@ My function #
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3832,8 +3715,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3862,8 +3744,7 @@ Execute in browser {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             runInstance.execInBrowser = function(code) {
@@ -3894,8 +3775,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3932,8 +3812,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -3971,8 +3850,7 @@ My function #
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4007,8 +3885,7 @@ My function #
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4041,8 +3918,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.isPaused).to.equal(false);
@@ -4064,8 +3940,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.isPaused).to.equal(false);
@@ -4095,8 +3970,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4121,8 +3995,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4145,8 +4018,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4169,8 +4041,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4195,8 +4066,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.isPaused).to.equal(false);
@@ -4218,8 +4088,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.isPaused).to.equal(false);
@@ -4243,8 +4112,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4282,8 +4150,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4310,8 +4177,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -4347,8 +4213,7 @@ A # -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -4383,8 +4248,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -4420,8 +4284,7 @@ A - #
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -4473,8 +4336,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4500,8 +4362,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4524,8 +4385,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4551,8 +4411,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4579,8 +4438,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4604,8 +4462,7 @@ Wait 20ms {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4646,8 +4503,7 @@ First step {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4691,8 +4547,7 @@ First step {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4736,8 +4591,7 @@ First step {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4787,8 +4641,7 @@ First step {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4840,8 +4693,7 @@ First step {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4893,8 +4745,7 @@ First step {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4912,8 +4763,7 @@ First step {
         it("a persistent variable set in one RunInstance is accessible in another RunInstance", async function() {
             let tree = new Tree();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
 
             let runInstance1 = new RunInstance(runner);
             let runInstance2 = new RunInstance(runner);
@@ -4929,8 +4779,7 @@ First step {
             step.codeBlock = ``;
 
             let tree = new Tree();
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step);
@@ -4950,8 +4799,7 @@ First step {
             stepToGetError.lineNumber = 20;
 
             let tree = new Tree();
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step, stepToGetError);
@@ -4972,8 +4820,7 @@ First step {
             let branchToGetError = new Branch();
 
             let tree = new Tree();
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step, null, branchToGetError);
@@ -4995,8 +4842,7 @@ First step {
             branchToGetError.error = new Error("existing error");
 
             let tree = new Tree();
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step, null, branchToGetError);
@@ -5019,8 +4865,7 @@ First step {
             let branchToGetError = new Branch();
 
             let tree = new Tree();
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step, stepToGetError, branchToGetError);
@@ -5044,8 +4889,7 @@ First step {
             `;
 
             let tree = new Tree();
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step);
@@ -5066,8 +4910,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
@@ -5082,8 +4925,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
@@ -5098,8 +4940,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.replaceVars("foo bar", tree.branches[0].steps[0], tree.branches[0])).to.equal("foo bar");
@@ -5114,8 +4955,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -5132,8 +4972,7 @@ A -
 
             tree.generateBranches();
 
-            runner = new Runner();
-            runner.tree = tree;
+            runner = new Runner(tree);
             runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -5347,8 +5186,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setLocal("var0", "value0");
 
@@ -5363,8 +5201,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
@@ -5379,8 +5216,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], null)).to.equal("value1");
@@ -5395,8 +5231,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
@@ -5415,8 +5250,7 @@ My function
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -5433,8 +5267,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var ONE", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
@@ -5450,8 +5283,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var one", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
@@ -5465,8 +5297,7 @@ A -
 
             tree.generateBranches();
 
-            runner = new Runner();
-            runner.tree = tree;
+            runner = new Runner(tree);
             runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("    var     ONE     ", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
@@ -5487,8 +5318,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
@@ -5518,8 +5348,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("foobar");
@@ -5540,8 +5369,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -5559,8 +5387,7 @@ A -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -5654,8 +5481,7 @@ Second branch -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             // The branches take 20 ms to run, but will be stopped 10ms in
@@ -5709,8 +5535,7 @@ Big step {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             // The branches take 20 ms to run, but will be stopped 10ms in
@@ -5757,8 +5582,7 @@ A ~ {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -5845,8 +5669,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -5920,8 +5743,7 @@ A  {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -5986,8 +5808,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -6041,8 +5862,7 @@ A ~ {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6159,8 +5979,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -6258,8 +6077,7 @@ A  {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6356,8 +6174,7 @@ A  {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6440,8 +6257,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -6524,8 +6340,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -6583,8 +6398,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6610,6 +6424,22 @@ Step to Inject {
             expect(runInstance.ranInjectedStep).to.be.true;
         });
 
+        it("works when there is no current step or branch", async function() {
+            let runner = new Runner();
+            runner.tree = new Tree();
+            let runInstance = new RunInstance(runner);
+
+            let t = new Tree();
+            t.parseIn(`
+Step to Inject {
+    runInstance.ranInjectedStep = true;
+}`);
+
+            await runInstance.injectStep(t.root.children[0]);
+
+            expect(runInstance.ranInjectedStep).to.be.true;
+        });
+
         it("step has access to {{vars}} and {vars} that were defined at the time of the pause", async function() {
             let tree = new Tree();
             tree.parseIn(`
@@ -6621,8 +6451,7 @@ Step to Inject {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6655,8 +6484,7 @@ A ~ -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6693,8 +6521,7 @@ A ~ -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6723,8 +6550,7 @@ My function
         it("throws an error if a function declaration step is passed in", async function() {
             let tree = new Tree();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             let step = tree.parseLine('* My function');
@@ -6740,8 +6566,7 @@ A ~ -
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6778,8 +6603,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6841,8 +6665,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6922,8 +6745,7 @@ A {
 
             tree.generateBranches();
 
-            let runner = new Runner();
-            runner.tree = tree;
+            let runner = new Runner(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6969,22 +6791,6 @@ Step to Inject {
             expect(runInstance.ranStepB).to.be.undefined;
             expect(runInstance.ranStepC).to.be.true;
             expect(runInstance.afterEveryBranchRan).to.be.true;
-        });
-
-        it("works when there is no current step or branch", async function() {
-            let runner = new Runner();
-            runner.tree = new Tree();
-            let runInstance = new RunInstance(runner);
-
-            let t = new Tree();
-            t.parseIn(`
-Step to Inject {
-    runInstance.ranInjectedStep = true;
-}`);
-
-            await runInstance.injectStep(t.root.children[0]);
-
-            expect(runInstance.ranInjectedStep).to.be.true;
         });
     });
 });
