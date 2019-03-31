@@ -103,7 +103,48 @@ describe("Runner", function() {
     });
 
     describe("injectStep()", function() {
-        it.skip("injects a step and runs it, then pauses again", async function() {
+        it("injects a step and runs it, then pauses again", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = !runInstance.runner.ranStepA;
+}
+
+    B ~ {
+        runInstance.runner.ranStepB = !runInstance.runner.ranStepB;
+    }
+
+        C {
+            runInstance.runner.ranStepC = !runInstance.runner.ranStepC;
+        }
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner();
+            runner.tree = tree;
+
+            await runner.run();
+
+            expect(runner.isPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.ranInjectedStep).to.be.undefined;
+
+            let t = new Tree();
+            t.parseIn(`
+Step to Inject {
+    runInstance.runner.ranInjectedStep = !runInstance.runner.ranInjectedStep;
+}`);
+
+            await runner.injectStep(t.root.children[0]);
+
+            expect(runner.isPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.ranInjectedStep).to.be.true;
         });
     });
 });
