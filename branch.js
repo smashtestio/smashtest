@@ -165,7 +165,7 @@ class Branch {
             startIndent = 0;
         }
 
-        let output = spaces(startIndent) + branchName + '\n';
+        let output = spaces(startIndent) + branchName + ' ..\n';
 
         this.steps.forEach(step => {
             let text = step.text;
