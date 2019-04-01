@@ -14,7 +14,7 @@ class Runner {
 
         this.maxInstances = 5;           // The maximum number of simultaneous branches to run
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
-        this.pauseOnFail = false;        // If true, pause and debug when a step fails (this.maxInstances must be set to 1)
+        this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
 
         this.persistent = {};            // stores variables which persist from branch to branch, for the life of the Runner
         this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
@@ -35,15 +35,6 @@ class Runner {
         // If isDebug is set on any step, pauseOnFail will be set
         if(this.tree.isDebug) {
             this.pauseOnFail = true;
-        }
-
-        if(this.pauseOnFail && this.tree.branches.length > 1) {
-            utils.error("Cannot set pauseOnFail when there is more than 1 branch");
-        }
-
-        if(this.isDebug && this.tree.branches.length > 1) {
-            utils.error("Cannot debug when there is more than 1 branch");
-            // NOTE: since Tree automatically outputs only 1 branch if there's a ~, this code is most probably unreachable
         }
 
         if(this.hasStopped()) { // starting from a stop

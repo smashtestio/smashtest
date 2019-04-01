@@ -144,15 +144,7 @@ class Step {
         functionCallText = utils.unescape(functionCallText);
         functionCallText = utils.canonicalize(functionCallText);
 
-        if(functionDeclarationText == functionCallText) {
-            return true;
-        }
-        else if(functionDeclarationText.toLowerCase() == functionCallText.toLowerCase()) {
-            utils.error("The function call '" + functionCallText + "' matches function declaration '" + functionDeclarationText + "', but must match case sensitively", this.filename, this.lineNumber);
-        }
-        else {
-            return false;
-        }
+        return functionDeclarationText == functionCallText;
     }
 
     /**
