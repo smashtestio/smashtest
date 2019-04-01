@@ -9706,7 +9706,7 @@ A -
 
     G - $
 
-    H -
+    H - $
         I $ -
 
 J -
@@ -9742,7 +9742,7 @@ J -
         it("handles $ when it's attached to a step block member", function() {
             let tree = new Tree();
             tree.parseIn(`
-A -
+A $ -
     B -
     C - $
 
@@ -9751,8 +9751,8 @@ A -
 
             F -
 
-    G -
-    H -
+    G - $
+    H - $
 
         I $ -
 
@@ -9855,10 +9855,162 @@ F
             ]);
         });
 
+        it("handles multiple $'s inside and outside a function declaration", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+J -
+    F
+
+K $ -
+    F
+
+* F
+    A - $
+        B -
+
+    C -
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
+        });
+
+        it("handles multiple $'s inside a function declaration and on a function call", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+J -
+    F
+
+K -
+    F $
+
+* F
+    A - $
+        B -
+
+    C -
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
+        });
+
+        it("handles multiple $'s on a function declaration and on a function call", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+J -
+    F
+
+K -
+    F $
+
+* F $
+    A -
+        B -
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
+        });
+
+        it("handles multiple $'s on a function declaration and above the function call", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+J -
+    F
+
+K - $
+    F
+
+* F $
+    A -
+        B -
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
+        });
+
+        it("handles multiple $'s inside a function declaration and below the function call", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+J -
+    F
+
+K -
+    F $
+        W - $
+
+* F
+    A - $
+        B -
+
+    C -
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+
+            expect(branches[0].steps).to.have.lengthOf(5);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" }, { text: "W" } ],
+                    isOnly: true,
+                    isDebug: undefined
+                }
+            ]);
+        });
+
         it("handles $ when it's inside a .. step", function() {
             let tree = new Tree();
             tree.parseIn(`
-A .. -
+A .. $ -
     B -
         C -
     D $ -
@@ -10359,50 +10511,6 @@ I -
                     isDebug: true,
                 }
             ]);
-        });
-
-        it("throws exception if a ~ exists, but is cut off due to $", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    B - $
-    C -
-
-        D - $ ~
-            E -
-
-        F -
-
-    G -
-        H - ~
-
-I -
-`, "file.txt");
-
-            assert.throws(function() {
-                tree.branchify(tree.root);
-            }, "A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~. [file.txt:11]");
-
-            tree = new Tree();
-            tree.parseIn(`
-A -
-    B - $
-    C -
-
-        D - $ ~
-            E -
-
-        F -
-
-    G -
-        H -
-
-I - ~
-`, "file.txt");
-
-            assert.throws(function() {
-                tree.branchify(tree.root);
-            }, "A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~. [file.txt:14]");
         });
 
         it("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
@@ -11056,7 +11164,7 @@ A -
         {group}='first', {frequency}='low'
             {group}='second'
 
-    {group}='third'
+    {group}='third' $
         D -
             {group}='fourth', {group}='first'
 

@@ -841,53 +841,87 @@ class Tree {
         // 4) Remove branches we don't want run
         // ***************************************
 
-        // Remove branches by $'s
-        // Special case for child branches whose first step is a step block member:
-        // If a step block member has a $, discard all other branches, even if they have isOnly set
-        for(let i = 0; i < branchesFromChildren.length; i++) {
-            let branchFromChild = branchesFromChildren[i];
-            let firstStep = branchFromChild.steps[0];
-            let stepBlockOfFirstStep = firstStep.originalStepInTree.containingStepBlock;
-            if(stepBlockOfFirstStep && firstStep.isOnly) { // found a $ step part of a step block
-                // Remove other child branches from the same step block that don't have a $ directly attached
-                for(let i = 0; i < branchesFromChildren.length;) {
-                    let branchFromChild = branchesFromChildren[i];
-                    let firstStep = branchFromChild.steps[0];
-                    if(firstStep.originalStepInTree.containingStepBlock === stepBlockOfFirstStep) {
-                        if(firstStep.isOnly) {
-                            i++; // keep it
+        /**
+         * @param {Branch} branch - The branch to look through
+         * @param {String} indentifier - The identifier to look for ('~' or '$')
+         * @return {Object} Object, in format { step = the first Step in the given branch to contain ~/$, depth = depth at which the ~/$ was found }, null if nothing found
+         */
+        function findIdentifierDepth(branch, identifier) {
+            let isDebug = identifier == '~';
+            for(let i = 0; i < branch.steps.length; i++) {
+                let step = branch.steps[i];
+                if(isDebug ? step.isDebug : step.isOnly) {
+                    if(step.isFunctionCall) {
+                        // Tie-break based on if the ~/$ is on the function call vs. function declaration
+                        if(isDebug ? step.originalStepInTree.isDebug : step.originalStepInTree.isOnly) { // ~/$ is on the function call
+                            return {
+                                step: step,
+                                depth: i
+                            };
                         }
-                        else {
-                            branchesFromChildren.splice(i, 1); // remove this branch
+                        else { // ~/$ is slightly deeper, at the function declaration (so add .5 to the depth)
+                            return {
+                                step: step,
+                                depth: i + 0.5
+                            };
                         }
                     }
                     else {
-                        i++; // keep it, since it's not in the same step block
+                        return {
+                            step: step,
+                            depth: i
+                        };
                     }
                 }
             }
+
+            return null; // probably won't be reached
         }
-        // Normal case. If an isOnly child branch exists, remove the other branches that aren't isOnly
+
+        // Remove branches by $'s
+        // Choose the branch with the $ at the shallowest depth, choosing multiple branches if there's a tie
+        let shortestDepth = -1;
         for(let i = 0; i < branchesFromChildren.length; i++) {
             let branchFromChild = branchesFromChildren[i];
             if(branchFromChild.isOnly) {
-                // A $ was found. Now find all of them.
-                for(let i = 0; i < branchesFromChildren.length;) {
-                    let branchFromChild = branchesFromChildren[i];
-                    if(branchFromChild.isOnly) {
-                        i++; // keep it
-                    }
-                    else {
-                        if(branchFromChild.isDebug) {
-                            utils.error("A ~ exists under this step, but it's being cut off by $'s. Either add a $ to this line or remove the ~.", branchFromChild.steps[0].filename, branchFromChild.steps[0].lineNumber);
-                        }
-                        else {
-                            branchesFromChildren.splice(i, 1); // remove this branch
-                        }
-                    }
+                // A $ was found
+                let o = findIdentifierDepth(branchFromChild, '$');
+                if(o.depth < shortestDepth || shortestDepth == -1) {
+                    shortestDepth = o.depth;
                 }
+            }
+        }
+        if(shortestDepth != -1) {
+            branchesFromChildren = branchesFromChildren.filter(branch => {
+                let o = findIdentifierDepth(branch, '$');
+                if(!o) {
+                    return false;
+                }
+                else {
+                    return o.depth == shortestDepth;
+                }
+            });
+        }
 
+        let directIsOnlyFound = false;
+        for(let i = 0; i < branchesFromChildren.length; i++) {
+            let branchFromChild = branchesFromChildren[i];
+            if(branchFromChild.steps[0].isOnly) {
+                // A $ was found. Now find all of them.
+                directIsOnlyFound = true;
+                branchesFromChildren = branchesFromChildren.filter(branch => branch.steps[0].isOnly);
                 break;
+            }
+        }
+        if(!directIsOnlyFound) {
+            // If a isOnly child branch exists, remove the other branches that are not isOnly
+            for(let i = 0; i < branchesFromChildren.length; i++) {
+                let branchFromChild = branchesFromChildren[i];
+                if(branchFromChild.isOnly) {
+                    // A $ was found. Now find all of them.
+                    branchesFromChildren = branchesFromChildren.filter(branch => branch.isOnly);
+                    break;
+                }
             }
         }
 
@@ -919,7 +953,7 @@ class Tree {
 
                 function removeBranch() {
                     if(branchFromChild.isDebug) {
-                        let debugStep = findDebugStep(branchFromChild).step;
+                        let debugStep = findIdentifierDepth(branchFromChild, '~').step;
                         utils.error("This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
@@ -941,7 +975,7 @@ class Tree {
                 }
                 else {
                     if(branchFromChild.isDebug) {
-                        let debugStep = findDebugStep(branchFromChild).step;
+                        let debugStep = findIdentifierDepth(branchFromChild, '~').step;
                         utils.error("This step contains a ~, but is not above the frequency allowed to run (" + minFrequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
                     }
                     else {
@@ -969,50 +1003,16 @@ class Tree {
             }
         }
 
-        /**
-         * @return {Object} Object, in format { step = the first Step in the given branch to contain a ~, depth = depth at which the ~ was found }, null if nothing found
-         */
-        function findDebugStep(branch) {
-            for(let i = 0; i < branch.steps.length; i++) {
-                let step = branch.steps[i];
-                if(step.isDebug) {
-                    if(step.isFunctionCall) {
-                        // Tie-break based on if the ~ is on the function call vs. function declaration
-                        if(step.originalStepInTree.isDebug) { // ~ is on the function call
-                            return {
-                                step: step,
-                                depth: i
-                            };
-                        }
-                        else { // ~ is slightly deeper, at the function declaration (so add .5 to the depth)
-                            return {
-                                step: step,
-                                depth: i + 0.5
-                            };
-                        }
-                    }
-                    else {
-                        return {
-                            step: step,
-                            depth: i
-                        };
-                    }
-                }
-            }
-
-            return null; // probably won't be reached
-        }
-
         // Remove branches by ~'s
         // If found, remove all branches other than the one that's connected with one or more ~'s
         // When multiple branches have ~'s somewhere inside, always prefer the branch with the shallowest-depth ~
         let branchFound = null;
-        let shortestDepth = -1;
+        shortestDepth = -1;
         for(let i = 0; i < branchesFromChildren.length; i++) {
             let branchFromChild = branchesFromChildren[i];
             if(branchFromChild.isDebug) {
                 // A ~ was found
-                let o = findDebugStep(branchFromChild);
+                let o = findIdentifierDepth(branchFromChild, '~');
                 if(o.depth < shortestDepth || shortestDepth == -1) {
                     shortestDepth = o.depth;
                     branchFound = branchFromChild;

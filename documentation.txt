@@ -33,7 +33,7 @@ Running tests
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
     - Command line options
-        - -REPL
+        - -repl
         - -maxInstances
         - -noDebug
         - -rerunNotPassed
@@ -143,13 +143,13 @@ Functions
         - Using functions to organize testing (have a high-level tree that describes your app, where each leaf is a function call to a function with multiple branches, where all the testing for that specific component occurs)
         - Use this function in a test, and it will automatically split into two branches, each of which tests a different way to get to the same place
             * Select beans and rice
-                ..
-                Click Beans
-                Click Rice
+                Variant 1 - ..
+                    Click Beans
+                    Click Rice
 
-                ..
-                Click Rice
-                Click Beans
+                Variant 2 - ..
+                    Click Rice
+                    Click Beans
 
                 (Also useful for "Get to page X", where you can either click a link or enter a url)
         - On Page X pattern, with verifications and setting global vars to selectors in a .. step block
@@ -262,6 +262,7 @@ Only ($)
         - Multiple $'s that intersect only run tests that fall under both (AND)
         - Multiple $'s that do not intersect run tests that fall under either (OR)
         - A $ on one or more step block members will remove all other step block members
+        - Give examples
 
 Debug (~)
     - Debug identifier (~)

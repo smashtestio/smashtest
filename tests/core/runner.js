@@ -12,6 +12,14 @@ chai.use(chaiAsPromised);
 
 describe("Runner", function() {
     describe("run()", function() {
+        it("runs an empty tree", async function() {
+            let tree = new Tree();
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+        });
+
         it("can spawn a single run instance that completes", async function() {
             let tree = new Tree();
             tree.parseIn(`

@@ -65,32 +65,32 @@ Test the Widget Maker -
                     Verify 'some text' is visible
                     Verify ['big' element] contains 'something'
 
-                    Enter {username} into { Login box }     // If var isn't set yet, execute this line when it is set below
+                        Enter {username} into { Login box }     // If var isn't set yet, execute this line when it is set below
 
-                        {username}='one'
+                            {username}='one'
 
-                            Special case for username of one -
-                                Click [ 'Login' box ]       // ElementFinder
+                                Special case for username of one -
+                                    Click [ 'Login' box ]       // ElementFinder
 
-                        {username}='two'
-                        {username}=fuzz
+                            {username}='two'
+                            {username}=fuzz
 
-                            Enter {password} into {Password box}
+                                Enter {password} into {Password box}
 
-                                {password}='one'
-                                {password}='two'
-                                {password}=fuzz
+                                    {password}='one'
+                                    {password}='two'
+                                    {password}=fuzz
 
-                                    Click [ 'Login' button ]
+                                        Click [ 'Login' button ]
 
-                                        Get MFA code sent via SMS -
-                                            {mfacode} = Get SMS code
+                                            Get MFA code sent via SMS -
+                                                {mfacode} = Get SMS code
 
-                                                Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
+                                                    Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
 
-                                                    Execute in browser {
-                                                        js goes here
-                                                    }
+                                                        Execute in browser {
+                                                            js goes here
+                                                        }
 
                                 Some function
 
@@ -123,6 +123,28 @@ Test the Widget Maker -
         Must Test All Devices
 
             {Run at or above frequency} = 'medium'
+
+
+
+
+Register hotel for {nights} nights and {guests} guests
+    Table
+        Verify '{nights} nights' is visible
+        Verify '{guests} guests' is visible
+
+* Table
+    {nights}='0'
+        {guests}='1'
+        {guests}='2'
+        {guests}='3'
+    {nights}='1'
+        {guests}='1'
+        {guests}='2'
+        {guests}='3'
+    {nights}='2'
+        {guests}='1'
+        {guests}='2'
+        {guests}='3'
 
 
 
