@@ -1254,10 +1254,9 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
 My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\\"66\\\"" [{{seventh}} seven 'th']
 
 * My {{one}} Function {{two}} {{three}} {{fo ur}} Is {{five}} Here! {{six}} {{seven}}
-    {A}='{{one}}', {B}='{{two}}'
-        {C}='{{three}}'
-            { D } = '{{ fo ur  }}', {E}='{{five}}'
-                ..
+    - {A}='{{one}}', {B}='{{two}}'
+        - {C}='{{three}}'
+            - { D } = '{{ fo ur  }}', {E}='{{five}}'
                 {F}='{{six}}'
                 {G}='{{seven}}'
 
@@ -1892,7 +1891,6 @@ My 'foo' Function 'bar'
         it("executes a {var} = '{other var}' step", async function() {
             let tree = new Tree();
             tree.parseIn(`
-..
 {var1} = 'foobar'
 {var2} = '{var1} blah {var3}'
 {var3} = "bleh"
@@ -1920,7 +1918,6 @@ My 'foo' Function 'bar'
         it("executes a {var1} = '{var2} {{var2}} [something]' step", async function() {
             let tree = new Tree();
             tree.parseIn(`
-..
 {var1} = 'foobar'
 {var2} = '{var1} blah {{ var2 }} [something]'
 {{var2}} = "bleh"
@@ -1948,7 +1945,6 @@ My 'foo' Function 'bar'
         it("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async function() {
             let tree = new Tree();
             tree.parseIn(`
-..
 { var1 } = 'foobar'
 {var2} = [ 'string {  var1  }' {{var2}} ]
 {{var2}} = "bleh"

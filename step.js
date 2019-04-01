@@ -20,7 +20,8 @@ class Step {
 
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
         this.text = "";                       // text of the command of the step (not including spaces in front, identifiers, comments, etc.)
-        this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['..', '+', '#something'])
+        this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['~', '+', '#something'])
+        this.leadingIdentifier = "";          // the * or - in front of the step, if one exists
         this.codeBlock = "";                  // if this is a code block step, contains the '{' followed by the code
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
@@ -30,12 +31,13 @@ class Step {
         this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
         this.functionDeclarationText = "";    // if this step is a function call, this is set to the corresponding function declaration's text
 
+        this.isBranching = false;             // true if this step starts with the branching identifier (-)
+
         this.isToDo = false;                  // true if this step has the To Do identifier (-T)
         this.isManual = false;                // true if this step has the manual identifier (-M)
         this.isDebug = false;                 // true if this step has the debug identifier (~)
         this.isOnly = false;                  // true if this step has the only identifier ($)
         this.isNonParallel = false;           // true if this step has the non-parallel identifier (+)
-        this.isSequential = false;            // true if this step has the sequential identifier (..)
         this.isExpectedFail = false;          // true if this step has the expected fail indentifier (#)
 
         this.isHook = false;                  // true if this step is a hook
@@ -186,9 +188,6 @@ class Step {
 
         let isNonParallel = this.isNonParallel || functionDeclarationInTree.isNonParallel;
         isNonParallel ? this.isNonParallel = isNonParallel : null;
-
-        let isSequential = this.isSequential || functionDeclarationInTree.isSequential;
-        isSequential ? this.isSequential = isSequential : null;
 
         let isExpectedFail = this.isExpectedFail || functionDeclarationInTree.isExpectedFail;
         isExpectedFail ? this.isExpectedFail = isExpectedFail : null;

@@ -5,7 +5,6 @@
     {host}='stage.site.com', {group}='stage'
 
 * Prod Env
-    ..
     {host} = 'site.com'
     {group}='prod'
 
@@ -26,7 +25,6 @@
 
 
 * Verify at homepage
-    ..
     {Login box} = '.loginbox'
     {Password box} = '.password'
     Verify 'Welcome to homepage' is visible
@@ -65,51 +63,56 @@ Test the Widget Maker -
                 Verify 'some text' is visible
                 Verify ['big' element] contains 'something'
 
-                - Enter {username} into { Login box }     // If var isn't set yet, execute this line when it is set below
+                    - Enter {username} into { Login box }     // If var isn't set yet, execute this line when it is set below
 
-                    - {username}='one'
+                        - {username}='one'
 
-                        Special case for username of one -
-                            Click [ 'Login' box ]       // ElementFinder
+                            Special case for username of one -
+                                Click [ 'Login' box ]       // ElementFinder
 
-                    - {username}='two'
-                    - {username}=fuzz
+                        - {username}='two'
+                        - {username}=fuzz
 
-                        Enter {password} into {Password box}
+                            Enter {password} into {Password box}
 
-                            - {password}='one'
-                            - {password}='two'
-                            - {password}=fuzz
+                                - {password}='one'
+                                - {password}='two'
+                                - {password}=fuzz
 
-                                Click [ 'Login' button ]
-                                Get MFA code sent via SMS -
-                                {mfacode} = Get SMS code
-                                Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
-	                            Execute in browser {
-                                    js goes here
-                                }
-                                Some function
-                                Verify 'something' inside of {some box} #     // Add # to end of step to indicate it’s supposed to fail here. If fails, doesn’t complain about it. If passes, notifies you nicely.
+                                    Click [ 'Login' button ]
 
-                                Manual step -M    // treated as an empty texual step and skipped test (assuming not signed off in txt file), but you can ask to generate a manual checklist from the commandline and it will list this
+                                    Get MFA code sent via SMS -
+                                    {mfacode} = Get SMS code
 
-                                Pen test url-here-with-inputs-marked        // also _currentUrl variable always set to the current url
-                                    {group}='pedantic'
+                                    Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
 
-                - Navigate to about page at url {host}/about
+                                    Execute in browser {
+                                        js goes here
+                                    }
+
+                                    Some function
+
+                                    Verify 'something' inside of {some box} #     // Add # to end of step to indicate it’s supposed to fail here. If fails, doesn’t complain about it. If passes, notifies you nicely.
+
+                                    Manual step -M    // treated as an empty texual step and skipped test (assuming not signed off in txt file), but you can ask to generate a manual checklist from the commandline and it will list this
+
+                                    Pen test url-here-with-inputs-marked        // also _currentUrl variable always set to the current url
+                                        {group}='pedantic'
+
+                    - Navigate to about page at url {host}/about
 
                         Verify at page '/about'
                         Verify page title is 'About page' -T
 
-        			Use mock 'blah'      // SmashMOCK integration
+            			Use mock 'blah'      // SmashMOCK integration
 
-                    Call API GET {host}/something
+                        Call API GET {host}/something
 
-                        Verify {response} has 6
+                            Verify {response} has 6
 
-                    * After Every Branch  // called at the end of every branch from this step's siblings on down
+                        * After Every Branch  // called at the end of every branch from this step's siblings on down
 
-                        Do cleanup
+                            Do cleanup
 
     * Before this step
         ..
@@ -118,6 +121,28 @@ Test the Widget Maker -
         Must Test All Devices
 
             {Run at or above frequency} = 'medium'
+
+
+
+
+Register hotel for {nights} nights and {guests} guests
+    Table
+        Verify '{nights} nights' is visible
+        Verify '{guests} guests' is visible
+
+* Table
+    - {nights}=0
+        - {guests}=1
+        - {guests}=2
+        - {guests}=3
+    - {nights}=1
+        - {guests}=1
+        - {guests}=2
+        - {guests}=3
+    - {nights}=2
+        - {guests}=1
+        - {guests}=2
+        - {guests}=3
 
 
 

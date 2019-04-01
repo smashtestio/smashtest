@@ -351,7 +351,7 @@ describe("Branch", function() {
             let branch = new Branch;
             branch.steps = [ stepA, stepB, stepC ];
 
-            expect(branch.output("Foo")).to.equal(`Foo ..
+            expect(branch.output("Foo")).to.equal(`Foo
     A -
         B -
             C

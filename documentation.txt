@@ -16,13 +16,21 @@ Setup
 
 Steps
     - Textual steps, packaged steps, functions
-    - Each "branch" is a separate test. We call tests "branches".
-    - Indents
-        - 4 spaces for indents (no tabs)
-        - Like indented comments on a site like Reddit, where each chain of replies is a branch
+        - Identifiers (mention them but not specifics)
+    - Branches
+        - We call tests "branches". Each one is a separate test
+        - Give an example of a tree and the branches that come out of it (both - and non- levels)
+        - Indents
+            - 4 spaces for indents (no tabs)
+            - Like indented comments on a site like Reddit, where each chain of replies is a branch
+        - Sequential vs. separate branches (parallel)
+            - Steps are sequential by default (depth-first sequentially when there are multiple indents)
+            - A - at the beginning of a step denotes this step and everything below is a separate branch
+                Called the "branching identifier"
+            - An indent "level" can only be all branching steps or non-branching steps
     - Blank lines generally don't matter
         - Use them for stylistic organization and to group similar steps
-        - Recommended to put a blank line above and below a step block, to make it easier to see.
+        - Recommended to put a blank line above and below a step block (see step block section), to make it easier to see.
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
 
 Running tests
@@ -33,7 +41,7 @@ Running tests
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
     - Command line options
-        - -REPL
+        - -repl
         - -maxInstances
         - -noDebug
         - -rerunNotPassed
@@ -86,14 +94,11 @@ Reports
         Really, naming is useless and only slows you down.
 
 Step blocks
-    - Vertical list of 2 or more steps, no blank lines in between
+    - Vertical list of 2 or more - steps, no blank lines in between
     - Must end in an empty line if it has children
     - Show examples
     - Each line of a step block will connect with every child step to the step block, in a separate branch. It's kind of like a for loop.
         - Give an example
-    - .. at the top of a step block means sequential execution. Kind of like if we indented every step into a tree.
-        - .. must be at the same indentation as vertical list
-        - Function in the list with multiple branches will cause the list to branch (give example - like the one in the Hooks section below)
 
 Textual steps (-)
 
@@ -124,6 +129,7 @@ Functions
         - Vars and strings designate parameter inputs in a function call
         - Function {{var}} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
             - All function inputs are either {vars}, {{vars}}, 'strings', "strings", or [strings]
+                - A number is not a valid form of input. Surround the number with quotes for proper function matching.
             - {{vars}} in a function declaration must all be {{local}}, not {global}
         - Finds closest matching function declaration in the tree, otherwise looks to packaged functions
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
@@ -143,16 +149,15 @@ Functions
         - Using functions to organize testing (have a high-level tree that describes your app, where each leaf is a function call to a function with multiple branches, where all the testing for that specific component occurs)
         - Use this function in a test, and it will automatically split into two branches, each of which tests a different way to get to the same place
             * Select beans and rice
-                ..
-                Click Beans
-                Click Rice
-
-                ..
-                Click Rice
-                Click Beans
+                - Variant 1 -
+                    Click Beans
+                    Click Rice
+                - Variant 2 -
+                    Click Rice
+                    Click Beans
 
                 (Also useful for "Get to page X", where you can either click a link or enter a url)
-        - On Page X pattern, with verifications and setting global vars to selectors in a .. step block
+        - On Page X pattern, with verifications and setting global vars to selectors (sequential steps)
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
 
@@ -172,7 +177,7 @@ Variables
         - String literal
             'string literal {var1}', "string literal {{var2}}", or [string literal {var3}]
     - Setting vars
-        - {var} = 'String' (or "String" or [String])
+        - {var} = 'String' (or "String" or [String]) or {var}=123.123
             - To clone a var, use {var}='{var2}'
         - {var} = Function with a code block
             - Code Function returns a string (actually any kind of js value will work)
@@ -207,7 +212,7 @@ Code blocks
         - Textual step {code} // - is optional
         - Execute in browser {code}
     - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
-    - +, .., etc. characters applied come after the step text and before the {
+    - +, etc. identifiers applied come after the step text and before the {
     - Only lines after the { line and before the } count as part of the code block
     - Variables
         - Get
@@ -226,19 +231,6 @@ Code blocks
     - Pitfalls
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., setLocal(), setGlobal(), setPersistent()) instead.
-
-Sequential execution (..)
-    - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)
-        more than once
-            - ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps
-            - a .. inside a *Function declaration does not expand beyond the bounds of that *Function declaration
-            - If a function call is at or below the .. line, and it has multiple branches inside, it will be executed as such:
-                - All in one branch: 1st branch from top to bottom, flattened steps under function call, 2nd branch from top to bottom, flattened steps under function call, etc.
-                - Give an example
-    - .. above a step block
-        - Only applies to the step block, not to the step block's children
-        - Same rules if one of the steps in the step block is a function with multiple branches
-    - Show examples from bottom of test_language_sample.txt
 
 No parallel execution (+)
     - No two child branches may execute simultaneously
@@ -273,7 +265,7 @@ Debug (~)
 
 REPL
     - Using REPL
-    - Kicking off blank browser and REPL just from the command line (- REPL)
+    - Kicking off blank browser and REPL just from the command line (-repl)
 
 Selective test running
     - Only identifier ($)
@@ -320,27 +312,26 @@ Hooks
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
     - Code blocks only. They cannot have children.
-    - You're not allowed to have any identifiers (~, $, .., -T, etc.) on them
+    - You're not allowed to have any identifiers (~, $, -T, etc.) on them
     - Hooks won't have a pass/fail state. If a hook fails, the step/branch it corresponds to will take the error.
     - These are recommended for internal framework stuff, like reporting (so you can run this code whether or not the step failed)
         - Setup/teardown too, though that should really be part of the test itself
             i.e.,
             My Test -
-                ..
                 Setup (teardown should really be here, so each test has a clean slate)
                 Steps
                 Teardown
 
             * Setup
-                A (includes the same login as teardown, to clear out old state)
+                - A (includes the same login as teardown, to clear out old state)
 
             * Steps
-                B
-                    C
-                D
+                - B
+                    - C
+                - D
 
             * Teardown
-                E
+                - E
 
 Packages
     - Just create a file with a * Before Everything that injects what it needs. Then just distribute this file and have users

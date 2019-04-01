@@ -575,7 +575,6 @@ describe("Step", function() {
             functionDeclarationInTree.isDebug = true;
             functionDeclarationInTree.isOnly = true;
             functionDeclarationInTree.isNonParallel = true;
-            functionDeclarationInTree.isSequential = true;
             functionDeclarationInTree.isExpectedFail = true;
             functionDeclarationInTree.isPackaged = true;
 
@@ -586,7 +585,6 @@ describe("Step", function() {
             expect(step.isDebug).to.equal(true);
             expect(step.isOnly).to.equal(true);
             expect(step.isNonParallel).to.equal(true);
-            expect(step.isSequential).to.equal(true);
             expect(step.isExpectedFail).to.equal(true);
             expect(step.isPackaged).to.equal(true);
             expect(step.functionDeclarationText).to.equal("T");
@@ -604,7 +602,6 @@ describe("Step", function() {
             expect(step.isDebug).to.equal(undefined);
             expect(step.isOnly).to.equal(undefined);
             expect(step.isNonParallel).to.equal(undefined);
-            expect(step.isSequential).to.equal(undefined);
             expect(step.isExpectedFail).to.equal(undefined);
             expect(step.isPackaged).to.equal(undefined);
             expect(step.functionDeclarationText).to.equal(undefined);

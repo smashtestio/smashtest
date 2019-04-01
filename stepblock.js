@@ -8,12 +8,6 @@ class StepBlock extends Step {
         super();
 
         this.steps = [];         // array of Step that are part of this StepBlock
-
-        /*
-        OPTIONAL
-
-        this.isSequential = false;     // true if this StepBlock is precended with a ..
-        */
     }
 }
 module.exports = StepBlock;
