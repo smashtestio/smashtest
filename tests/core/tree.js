@@ -9986,8 +9986,9 @@ K -
         W - $
 
 * F
-    A - $
+    A -
         B -
+            D - $
 
     C -
     `);
@@ -9996,11 +9997,11 @@ K -
 
             expect(branches).to.have.lengthOf(1);
 
-            expect(branches[0].steps).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(6);
 
             expect(branches).to.containSubsetInOrder([
                 {
-                    steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" }, { text: "W" } ],
+                    steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" }, { text: "D" }, { text: "W" } ],
                     isOnly: true,
                     isDebug: undefined
                 }
