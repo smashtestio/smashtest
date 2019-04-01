@@ -6,6 +6,9 @@
 // Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
 exports.LINE_WHOLE = /^\s*(\*\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\~|\~\~|\$|\+|\.\.|\#))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
 
+// Matches a line that's entirely a // comment
+exports.FULL_LINE_COMMENT = /^\s*\/\//;
+
 // Matches 'string', handles escaped \ and '
 exports.SINGLE_QUOTE_STR = /(?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')/g;
 

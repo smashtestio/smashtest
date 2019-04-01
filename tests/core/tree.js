@@ -1075,6 +1075,109 @@ H
             });
         });
 
+        it("ignores lines that are fully comments", function() {
+            let tree = new Tree();
+            tree.parseIn(
+`A
+// comment
+    B
+        C
+        // D
+        E
+// comment
+    F
+        ..
+        // G
+        H
+        I
+
+        // ..
+        J
+        // K
+`
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    indents: -1,
+                    parent: null,
+                    children: [
+                        {
+                            text: 'A',
+                            lineNumber: 1,
+                            indents: 0,
+                            parent: { indents: -1 },
+                            children: [
+                                {
+                                    text: 'B',
+                                    lineNumber: 3,
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: [
+                                        {
+                                            steps: [
+                                                {
+                                                    text: 'C',
+                                                    lineNumber: 4,
+                                                    indents: 2,
+                                                    parent: null,
+                                                    children: []
+                                                },
+                                                {
+                                                    text: 'E',
+                                                    lineNumber: 6,
+                                                    indents: 2,
+                                                    parent: null,
+                                                    children: []
+                                                }
+                                            ],
+                                            isSequential: undefined,
+                                            parent: { text: 'B' }
+                                        }
+                                    ]
+                                },
+                                {
+                                    text: 'F',
+                                    lineNumber: 8,
+                                    indents: 1,
+                                    parent: { text: 'A' },
+                                    children: [
+                                        {
+                                            steps: [
+                                                {
+                                                    text: 'H',
+                                                    lineNumber: 11,
+                                                    indents: 2,
+                                                    parent: null,
+                                                    children: []
+                                                },
+                                                {
+                                                    text: 'I',
+                                                    lineNumber: 12,
+                                                    indents: 2,
+                                                    parent: null,
+                                                    children: []
+                                                }
+                                            ],
+                                            isSequential: true,
+                                            parent: { text: 'F' }
+                                        },
+                                        {
+                                            text: 'J',
+                                            lineNumber: 15,
+                                            indents: 2,
+                                            parent: { text: 'F' },
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            });
+        });
+
         it("sets isPackaged", function() {
             let tree = new Tree();
 

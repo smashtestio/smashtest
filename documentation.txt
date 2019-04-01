@@ -194,7 +194,12 @@ Variables
 
 Comments
     - // only, stuff before it is a legit step
-    - if whole line starts with //, it's treated as an empty line
+    - If whole line starts with //, it's ignored as if it weren't there
+        - For example
+            A
+            // B
+            C
+                is still a step block, with members A and C
 
 Code blocks
     - Types

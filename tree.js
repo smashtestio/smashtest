@@ -38,7 +38,7 @@ class Tree {
         if(line.match(/^\s*$/)) { // empty string or all whitespace
             return 0;
         }
-        if(line.match(/^\s*\/\/.*$/)) { // comment
+        if(line.match(Constants.FULL_LINE_COMMENT)) { // comment
             return 0;
         }
 
@@ -297,8 +297,14 @@ class Tree {
         let lastStepCreated = null;
         let lastNonEmptyStep = null;
         let currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
-        for(let i = 0; i < lines.length; i++) {
+        for(let i = 0, lineNumber = 1; i < lines.length; i++, lineNumber++) {
             let line = lines[i];
+
+            if(line.match(Constants.FULL_LINE_COMMENT)) { // ignore lines that are fully comments
+                lines.splice(i, 1);
+                i--;
+                continue;
+            }
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
                 if(line.match(new RegExp("^[ ]{" + (lastStepCreated.indents * Constants.SPACES_PER_INDENT) + "}\}\s*(\/\/.*?)?\s*$"))) { // code block is ending
@@ -309,19 +315,19 @@ class Tree {
                     lastStepCreated.codeBlock += ("\n" + line);
                 }
 
-                lines[i] = this.parseLine('', filename, i + 1); // blank out the line we just handled
+                lines[i] = this.parseLine('', filename, lineNumber); // blank out the line we just handled
             }
             else {
-                let step = this.parseLine(line, filename, i + 1);
-                step.indents = this.numIndents(line, filename, i + 1);
+                let step = this.parseLine(line, filename, lineNumber);
+                step.indents = this.numIndents(line, filename, lineNumber);
 
                 if(!lastNonEmptyStep && step.indents != 0) {
-                    utils.error("The first step must have 0 indents", filename, i + 1);
+                    utils.error("The first step must have 0 indents", filename, lineNumber);
                 }
 
                 // If this is the start of a new code block
                 if(typeof step.codeBlock != 'undefined') {
-                    currentlyInsideCodeBlockFromLineNum = i + 1;
+                    currentlyInsideCodeBlockFromLineNum = lineNumber;
                 }
 
                 lines[i] = step;

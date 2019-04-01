@@ -46,69 +46,70 @@
 
 Test the Widget Maker -
 
-    QA Env
-    Stage Env
-    Prod Env
+    - QA Env
+    - Stage Env
+    - Prod Env
 
-        Chrome
-        IE
-        Firefox
+        - Chrome
+        - IE
+        - Firefox
 
-            Desktop
-            Mobile
+            - Desktop
+            - Mobile
 
                 Navigate to {host}
-                    Verify at homepage
-                        Enter {username} into { Login box }     // If var isn't set yet, execute this line when it is set below
 
-                            {username}='one'
+                Verify at homepage
+                Verify 'title' is visible
+                Verify 'header' is visible
+                Verify 'some text' is visible
+                Verify ['big' element] contains 'something'
 
-                                Special case for username of one -
-                                    Click [ 'Login' box ]       // ElementFinder
+                - Enter {username} into { Login box }     // If var isn't set yet, execute this line when it is set below
 
-                            {username}='two'
-                            {username}=fuzz
+                    - {username}='one'
 
-                                Enter {password} into {Password box}
+                        Special case for username of one -
+                            Click [ 'Login' box ]       // ElementFinder
 
-                                    {password}='one'
-                                    {password}='two'
-                                    {password}=fuzz
+                    - {username}='two'
+                    - {username}=fuzz
 
-                                        Click [ 'Login' button ]
+                        Enter {password} into {Password box}
 
-                                            Get MFA code sent via SMS -
-                                                {mfacode} = Get SMS code
+                            - {password}='one'
+                            - {password}='two'
+                            - {password}=fuzz
 
-                                                    Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
+                                Click [ 'Login' button ]
+                                Get MFA code sent via SMS -
+                                {mfacode} = Get SMS code
+                                Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
+	                            Execute in browser {
+                                    js goes here
+                                }
+                                Some function
+                                Verify 'something' inside of {some box} #     // Add # to end of step to indicate it’s supposed to fail here. If fails, doesn’t complain about it. If passes, notifies you nicely.
 
-    						                            Execute in browser {
-                                                            js goes here
-                                                        }
+                                Manual step -M    // treated as an empty texual step and skipped test (assuming not signed off in txt file), but you can ask to generate a manual checklist from the commandline and it will list this
 
-                                                            Some function
+                                Pen test url-here-with-inputs-marked        // also _currentUrl variable always set to the current url
+                                    {group}='pedantic'
 
-                                                                Verify 'something' inside of {some box} #     // Add # to end of step to indicate it’s supposed to fail here. If fails, doesn’t complain about it. If passes, notifies you nicely.
+                - Navigate to about page at url {host}/about
 
-                                        Manual step -M    // treated as an empty texual step and skipped test (assuming not signed off in txt file), but you can ask to generate a manual checklist from the commandline and it will list this
+                        Verify at page '/about'
+                        Verify page title is 'About page' -T
 
-                                        Pen test url-here-with-inputs-marked        // also _currentUrl variable always set to the current url
-                                            {group}='pedantic'
+        			Use mock 'blah'      // SmashMOCK integration
 
-                Navigate to about page at url {host}/about
-                    ..
-                    Verify at page '/about'
-                    Verify page title is 'About page' -T
+                    Call API GET {host}/something
 
-    			Use mock 'blah'      // SmashMOCK integration
+                        Verify {response} has 6
 
-                Call API GET {host}/something
+                    * After Every Branch  // called at the end of every branch from this step's siblings on down
 
-                    Verify {response} has 6
-
-                * After Every Branch  // called at the end of every branch from this step's siblings on down
-
-                    Do cleanup
+                        Do cleanup
 
     * Before this step
         ..
