@@ -52,14 +52,14 @@ A {
             let runner = new Runner(tree);
             await runner.run();
 
-            expect(runner.isPaused()).to.be.true;
+            expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
 
             await runner.run();
 
-            expect(runner.isPaused()).to.be.false;
+            expect(runner.hasPaused()).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -303,14 +303,14 @@ A {
             let runner = new Runner(tree);
             await runner.run();
 
-            expect(runner.isPaused()).to.be.true;
+            expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
 
             await runner.run();
 
-            expect(runner.isPaused()).to.be.false;
+            expect(runner.hasPaused()).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -339,7 +339,7 @@ A {
             let runner = new Runner(tree);
             await runner.run();
 
-            expect(runner.isPaused()).to.be.true;
+            expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -347,7 +347,7 @@ A {
 
             await runner.run();
 
-            expect(runner.isPaused()).to.be.true;
+            expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -355,7 +355,7 @@ A {
 
             await runner.run();
 
-            expect(runner.isPaused()).to.be.false;
+            expect(runner.hasPaused()).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -546,29 +546,123 @@ A
         });
 
         it("when a stop occurs while in a Before Everything hook, stops executing Before Everything hooks and executes all After Everything hooks", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
 
+* A {
+    runInstance.runner.ranStepA = true;
+}
 
+* Before Everything {
+    runInstance.runner.ranBeforeEverything2 = true;
+}
 
+* Before Everything {
+    runInstance.runner.ranBeforeEverything1 = true;
+    await runInstance.runner.stop();
+}
 
+* After Everything {
+    runInstance.runner.ranAfterEverything1 = true;
+}
 
+* After Everything {
+    runInstance.runner.ranAfterEverything2 = true;
+}
+`, "file.txt");
 
+            tree.generateBranches();
 
+            let runner = new Runner(tree);
 
+            await runner.run();
 
-
-
-
-
-
-
+            expect(runner.ranBeforeEverything1).to.be.true;
+            expect(runner.ranBeforeEverything2).to.be.undefined;
+            expect(runner.ranStepA).to.be.undefined;
+            expect(runner.ranAfterEverything1).to.be.true;
+            expect(runner.ranAfterEverything2).to.be.true;
         });
 
-        it.skip("when a stop occurs while in an After Everything hook, finishes executing the rest of the After Everything hooks", async function() {
+        it("when a stop occurs while in an After Everything hook, finishes executing the rest of the After Everything hooks", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
 
+* A {
+    runInstance.runner.ranStepA = true;
+}
+
+* Before Everything {
+    runInstance.runner.ranBeforeEverything2 = true;
+}
+
+* Before Everything {
+    runInstance.runner.ranBeforeEverything1 = true;
+}
+
+* After Everything {
+    runInstance.runner.ranAfterEverything1 = true;
+    await runInstance.runner.stop();
+}
+
+* After Everything {
+    runInstance.runner.ranAfterEverything2 = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+
+            await runner.run();
+
+            expect(runner.ranBeforeEverything1).to.be.true;
+            expect(runner.ranBeforeEverything2).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranAfterEverything1).to.be.true;
+            expect(runner.ranAfterEverything2).to.be.true;
         });
 
-        it.skip("when a stop occurs while executing branches, stops executing branches and executes all After Everything hooks", async function() {
+        it("when a stop occurs while executing branches, stops executing branches and executes all After Everything hooks", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
 
+* A {
+    runInstance.runner.ranStepA = true;
+    await runInstance.runner.stop();
+}
+
+* Before Everything {
+    runInstance.runner.ranBeforeEverything2 = true;
+}
+
+* Before Everything {
+    runInstance.runner.ranBeforeEverything1 = true;
+}
+
+* After Everything {
+    runInstance.runner.ranAfterEverything1 = true;
+}
+
+* After Everything {
+    runInstance.runner.ranAfterEverything2 = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+
+            await runner.run();
+
+            expect(runner.ranBeforeEverything1).to.be.true;
+            expect(runner.ranBeforeEverything2).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranAfterEverything1).to.be.true;
+            expect(runner.ranAfterEverything2).to.be.true;
         });
 
         it("sets tree.elapsed to how long it took the tree to execute", async function() {
@@ -663,12 +757,87 @@ A -
     });
 
     describe("stop()", function() {
-        it.skip("stops all running run instances, time elapsed for the Tree is properly measured", async function() {
-            // have multiple branches running at the same time
+        it("stops all running run instances, time elapsed for the Tree is properly measured", function(done) {
+            let tree = new Tree();
+            tree.parseIn(`
+Branch 1 -
+    Wait '20' ms
+
+Branch 2 -
+    Wait '20' ms
+
+Branch 3 -
+    Wait '20' ms
+
+* Wait {{N}} ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, N);
+    });
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            let promise = runner.run();
+
+            // do a stop() after 10 ms
+            setTimeout(async() => {
+                await runner.stop();
+
+                expect(tree.elapsed).to.be.above(8);
+                expect(tree.elapsed).to.be.below(20);
+
+                await promise;
+
+                done();
+            }, 10);
         });
 
-        it.skip("runs all After Everything steps immediately after a stop occurs", async function() {
-            // doesn't wait for all runInstances to end
+        it("runs all After Everything steps immediately after a stop occurs", function(done) {
+            let tree = new Tree();
+            tree.parseIn(`
+Branch 1 -
+    Wait '20' ms
+
+Branch 2 -
+    Wait '20' ms
+
+Branch 3 -
+    Wait '20' ms
+
+* After Everything {
+    runInstance.runner.afterEverythingRan = true;
+}
+
+* Wait {{N}} ms {
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, N);
+    });
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            let promise = runner.run();
+
+            // do a stop() after 10 ms
+            setTimeout(async() => {
+                await runner.stop();
+
+                expect(tree.elapsed).to.be.above(8);
+                expect(tree.elapsed).to.be.below(20);
+                expect(runner.afterEverythingRan).to.be.true;
+
+                await promise;
+
+                done();
+            }, 10);
         });
     });
 
@@ -719,7 +888,7 @@ A {
             let runner = new Runner(tree);
             await runner.run();
 
-            expect(runner.isPaused()).to.be.true;
+            expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -733,7 +902,7 @@ Step to Inject {
 
             await runner.injectStep(t.root.children[0]);
 
-            expect(runner.isPaused()).to.be.true;
+            expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;

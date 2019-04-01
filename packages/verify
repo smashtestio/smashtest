@@ -77,6 +77,12 @@
 
 }
 
+* Verify {{elementOrText}} comes next {
+    // Verify {{element}} contains {{elementOrText}} sets a pointer the element that was matched
+    // This validates that the given element or text comes after that element in the DOM
+    // Makes it much easier to verify a whole page in a particular order 
+}
+
 * Verify cookie {{name}} contains {{value}} {
 
 }

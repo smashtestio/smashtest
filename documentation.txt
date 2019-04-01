@@ -263,7 +263,7 @@ Debug (~)
     - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
     - Pauses right after a step if it fails (or unexpectedly passes)
     - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)
-    - When multiple branches are marked with ~'s, it chooses the first one
+    - When multiple branches are marked with ~'s, it chooses the shallowest ~ encountered and repeats that until a single branch is isolated
     - Throws exception if a ~ exists, but is cut off due to $, groups, or frequency
 
 REPL
