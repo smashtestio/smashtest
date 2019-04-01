@@ -56,15 +56,7 @@ for(let i = 2; i < process.argv.length; i++) {
             case "rerunnotpassed":
             case "r":
                 if(value) {
-                    // TODO: validate value, read in last report file
-
-
-
-
-
-
-
-
+                    rerunNotPassed = value;
                 }
                 else {
                     rerunNotPassed = true;
@@ -115,6 +107,36 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
     for(let i = 0; i < fileBuffers.length; i++) {
         tree.parseIn(fileBuffers[i], filenames[i], i >= originalFilenamesLength);
+    }
+
+    if(rerunNotPassed) {
+        let buffer = null;
+        if(typeof rerunNotPassed == 'string') {
+            // -rerunNotPassed='filename of report that constitutes last run, or num of branches run at the end of filename'
+            // TODO: find and read in last report
+            // TODO: document this
+
+
+
+
+
+
+
+        }
+        else {
+            // TODO
+            // If filename omitted, use last report from /reports that didn't have a ~.
+            // Otherwise use report.html in same directory, which should have the last run
+
+
+
+
+
+
+        }
+
+        let json = JSON.parse(buffer);
+        tree.mergeBranchesFromPrevRun(json);
     }
 
     tree.generateBranches(groups, minFrequency, noDebug);
