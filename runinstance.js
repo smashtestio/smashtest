@@ -85,18 +85,20 @@ class RunInstance {
                 }
             }
 
-            // Move this.currStep to the next not-yet-completed step
-            this.nextStep();
-
-            // Execute steps in the branch
-            while(this.currStep) {
-                await this.runStep(this.currStep, this.currBranch, overrideDebug);
-                overrideDebug = false; // only override a debug on the first step we run after an unpause
-                if(this.checkForPaused() || this.checkForStopped()) {
-                    return;
-                }
-
+            if(!this.currBranch.isComplete()) {
+                // Move this.currStep to the next not-yet-completed step
                 this.nextStep();
+
+                // Execute steps in the branch
+                while(this.currStep) {
+                    await this.runStep(this.currStep, this.currBranch, overrideDebug);
+                    overrideDebug = false; // only override a debug on the first step we run after an unpause
+                    if(this.checkForPaused() || this.checkForStopped()) {
+                        return;
+                    }
+
+                    this.nextStep();
+                }
             }
 
             // Execute After Every Branch steps

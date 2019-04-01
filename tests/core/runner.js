@@ -842,31 +842,350 @@ Branch 3 -
     });
 
     describe("runOneStep()", function() {
-        it.skip("runs the next step, then pauses again", async function() {
+        it("runs the next step, then pauses again", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+}
+    B ~ {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+
+* After Everything {
+    runInstance.runner.afterEverythingRan = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+
+            let isBranchComplete = await runner.runOneStep();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            isBranchComplete = await runner.runOneStep();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            isBranchComplete = await runner.runOneStep();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.afterEverythingRan).to.be.true;
+            expect(isBranchComplete).to.be.true;
         });
 
-        it.skip("works properly when paused at the very last step in the branch, which is not yet completed", async function() {
+        it("the Runner is able to resume after pausing and running one step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+}
+    B ~ {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+
+* After Everything {
+    runInstance.runner.afterEverythingRan = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+
+            let isBranchComplete = await runner.runOneStep();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            await runner.run();
+
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.afterEverythingRan).to.be.true;
         });
 
-        it.skip("works properly when paused at the very last step in the branch, which completed already", async function() {
-            // After Everythings run
+        it("the Runner is able to resume after pausing, running one step, and ending up beyond the last step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+}
+    B ~ {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+
+* After Everything {
+    runInstance.runner.afterEverythingRan = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+
+            let isBranchComplete = await runner.runOneStep();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            isBranchComplete = await runner.runOneStep();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            await runner.run();
+
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.true;
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.afterEverythingRan).to.be.true;
+        });
+
+        it("throws error if not paused", async function() {
+            let tree = new Tree();
+            let runner = new Runner(tree);
+            await expect(runner.runOneStep()).to.be.rejectedWith("Must be paused to run a step");
         });
     });
 
     describe("skipOneStep()", function() {
-        it.skip("skips the next step, then pauses again", async function() {
+        it("skips the next step, then pauses again", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+}
+    B ~ {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+
+* After Everything {
+    runInstance.runner.afterEverythingRan = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+
+            let isBranchComplete = await runner.skipOneStep();
+
+            // We are at the start of C
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            isBranchComplete = await runner.skipOneStep();
+
+            // We are at the start of After Everythings
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            isBranchComplete = await runner.skipOneStep();
+
+            // We finished the branch
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.true;
+            expect(isBranchComplete).to.be.true;
         });
 
-        it.skip("works properly when paused at the very last step in the branch, which is not yet completed", async function() {
-            // After Everythings run
+        it("the Runner is able to resume after pausing and skipping steps", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+}
+    B ~ {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+
+* After Everything {
+    runInstance.runner.afterEverythingRan = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+
+            let isBranchComplete = await runner.skipOneStep();
+
+            // We are at the start of C
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            await runner.run();
+
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.true;
+            expect(runner.afterEverythingRan).to.be.true;
         });
 
-        it.skip("works properly when paused at the very last step in the branch, which completed already", async function() {
-            // After Everythings run
+        it("the Runner is able to resume after pausing, skipping steps, and ending up beyond the last step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.runner.ranStepA = true;
+}
+    B ~ {
+        runInstance.runner.ranStepB = true;
+    }
+        C {
+            runInstance.runner.ranStepC = true;
+        }
+
+* After Everything {
+    runInstance.runner.afterEverythingRan = true;
+}
+`, "file.txt");
+
+            tree.generateBranches();
+
+            let runner = new Runner(tree);
+            await runner.run();
+
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+
+            let isBranchComplete = await runner.skipOneStep();
+
+            // We are at the start of C
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            isBranchComplete = await runner.skipOneStep();
+
+            // We are at the start of After Everythings
+            expect(runner.hasPaused()).to.be.true;
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.undefined;
+            expect(isBranchComplete).to.be.false;
+
+            await runner.run();
+
+            expect(runner.ranStepA).to.be.true;
+            expect(runner.ranStepB).to.be.undefined;
+            expect(runner.ranStepC).to.be.undefined;
+            expect(runner.afterEverythingRan).to.be.true;
+        });
+
+        it("throws error if not paused", async function() {
+            let tree = new Tree();
+            let runner = new Runner(tree);
+            await expect(runner.skipOneStep()).to.be.rejectedWith("Must be paused to skip a step");
         });
     });
 
     describe("injectStep()", function() {
+        it("throws error if not paused", async function() {
+            let tree = new Tree();
+            let runner = new Runner(tree);
+            await expect(runner.injectStep({})).to.be.rejectedWith("Must be paused to run a step");
+        });
+
         it("injects a step and runs it, then pauses again", async function() {
             let tree = new Tree();
             tree.parseIn(`

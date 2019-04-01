@@ -289,11 +289,6 @@ A -
             expect(tree.branches[0].isFailed).to.be.true;
         });
 
-
-
-
-
-
         it("handles a resume from a previous pause, where the current step never ran and is the last step", async function() {
             let tree = new Tree();
             tree.parseIn(`
