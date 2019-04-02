@@ -163,11 +163,15 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
     }
 
-    console.log("");
-    console.log(chalk.bold("SmashTEST 0.1.1 BETA"));
-    console.log("10 branches to run / 20 branches in report");
-    console.log("Live report at: /Users/Peter/report.html");
-    console.log("");
+    let total = 10;
+    let totalInReport = 20;
+    let reportPath = `/Users/Peter/report.html`;
+
+    console.log(``);
+    console.log(chalk.bold(`SmashTEST 0.1.1 BETA`));
+    console.log(`${total} branches to run / ${totalInReport} branches in report`);
+    console.log(`Live report at: ${reportPath}`);
+    console.log(``);
 
     await runner.run();
 
@@ -175,31 +179,72 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
 
 
-    const progressBar = new progress.Bar({}, progress.Presets.shades_classic);
-    progressBar.start(200, 0);
+    const progressBar = new progress.Bar({
+        clearOnComplete: true,
+        barsize: 20,
+        hideCursor: true,
+        format: "{bar} {percentage}% | "
+    }, progress.Presets.shades_classic);
 
     let val = 0;
-    progressBar.update(val);
+    progressBar.start(200, val);
+
     let interval = setInterval(() => {
-        val += 50;
-        progressBar.update(val);
+        val += 5;
+        //progressBar.update(val);
+        progressBar.stop();
+        progressBar.start(200, val);
+        outputCounts(false, "1:20:04", 0.5, val, 2, 0, 13);
 
         if(val == 200) {
             progressBar.stop();
             clearInterval(interval);
 
             console.log("");
-            console.log("Run complete");
-            console.log("1h 20m 4s elapsed");
-            console.log(
-                chalk.greenBright("10 passed") + " / " +
-                chalk.redBright("10 failed") + " / " +
-                chalk.cyanBright("10 skipped") + " / " +
-                "10 branches ran / 20 branches in report"
-            );
+            outputCounts(true, "1:20:04", 1, 10, 2, 1, 13, 20);
             console.log("");
         }
     }, 200);
+
+    /**
+     * Outputs the given counts to the console
+     */
+    function outputCounts(isComplete, elapsed, fractionComplete, passed, failed, skipped, total, totalInReport) {
+        if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && total == 0 && totalInReport == 0) {
+            return; // nothing to show yet
+        }
+
+        let eta = null;
+
+        if(isComplete) {
+            console.log(`Run complete`);
+            console.log(`${elapsed} elapsed`);
+        }
+        else {
+            // TODO
+            eta = "0:00:00";
+
+
+
+
+
+
+
+        }
+
+        process.stdout.write(
+            (eta ? `ETA: ${eta} | ` : ``) +
+            (passed > 0        || isComplete ? chalk.greenBright(`${passed} passed`) + ` | ` : ``) +
+            (failed > 0        || isComplete ? chalk.redBright(`${failed} failed`) + ` | ` : ``) +
+            (skipped > 0       || isComplete ? chalk.cyanBright(`${skipped} skipped`) + ` | ` : ``) +
+            (total > 0         || isComplete ? (`${total} branches run`) : ``) +
+            (totalInReport > 0 || isComplete ? " | " + (`${totalInReport} branches in report`) : ``)
+        );
+
+        if(isComplete) {
+            console.log("");
+        }
+    }
 
 
 
