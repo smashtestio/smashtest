@@ -181,7 +181,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
     const progressBar = new progress.Bar({
         clearOnComplete: true,
-        barsize: 20,
+        barsize: 25,
         hideCursor: true,
         format: "{bar} {percentage}% | "
     }, progress.Presets.shades_classic);
@@ -194,14 +194,14 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         //progressBar.update(val);
         progressBar.stop();
         progressBar.start(200, val);
-        outputCounts(false, "1:20:04", 0.5, val, 2, 0, 13);
+        outputCounts(false, "1:20:04", val, 2, 1, 13);
 
         if(val == 200) {
             progressBar.stop();
             clearInterval(interval);
 
             console.log("");
-            outputCounts(true, "1:20:04", 1, 10, 2, 1, 13, 20);
+            outputCounts(true, "1:20:04", 10, 2, 1, 13, 20);
             console.log("");
         }
     }, 200);
@@ -209,7 +209,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
     /**
      * Outputs the given counts to the console
      */
-    function outputCounts(isComplete, elapsed, fractionComplete, passed, failed, skipped, total, totalInReport) {
+    function outputCounts(isComplete, elapsed, passed, failed, skipped, total, totalInReport) {
         if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && total == 0 && totalInReport == 0) {
             return; // nothing to show yet
         }
@@ -220,20 +220,8 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             console.log(`Run complete`);
             console.log(`${elapsed} elapsed`);
         }
-        else {
-            // TODO
-            eta = "0:00:00";
-
-
-
-
-
-
-
-        }
 
         process.stdout.write(
-            (eta ? `ETA: ${eta} | ` : ``) +
             (passed > 0        || isComplete ? chalk.greenBright(`${passed} passed`) + ` | ` : ``) +
             (failed > 0        || isComplete ? chalk.redBright(`${failed} failed`) + ` | ` : ``) +
             (skipped > 0       || isComplete ? chalk.cyanBright(`${skipped} skipped`) + ` | ` : ``) +

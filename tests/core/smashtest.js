@@ -9,6 +9,8 @@ const { spawnSync } = require('child_process');
 chai.use(chaiSubset);
 
 describe("smashtest.js", function() {
+    this.timeout(30000);
+
     it.only("TEXT", function() {
         const cmd = spawnSync('node', ['../../smashtest', '../../testfile1.txt']);
         console.log(cmd.stdout.toString());
