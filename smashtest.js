@@ -2,6 +2,7 @@ const readFiles = require('read-files-promise');
 const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
+const progress = require('cli-progress');
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 
@@ -162,9 +163,43 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
     }
 
-    console.log(chalk.bold.bgYellow("  SmashTEST 0.1.1 BETA  "));
+    console.log("");
+    console.log(chalk.bold("SmashTEST 0.1.1 BETA"));
+    console.log("10 branches to run / 20 branches in report");
+    console.log("Live report at: /Users/Peter/report.html");
+    console.log("");
 
     await runner.run();
+
+
+
+
+
+    const progressBar = new progress.Bar({}, progress.Presets.shades_classic);
+    progressBar.start(200, 0);
+
+    let val = 0;
+    progressBar.update(val);
+    let interval = setInterval(() => {
+        val += 50;
+        progressBar.update(val);
+
+        if(val == 200) {
+            progressBar.stop();
+            clearInterval(interval);
+
+            console.log("");
+            console.log("Run complete");
+            console.log("1h 20m 4s elapsed");
+            console.log(
+                chalk.greenBright("10 passed") + " / " +
+                chalk.redBright("10 failed") + " / " +
+                chalk.cyanBright("10 skipped") + " / " +
+                "10 branches ran / 20 branches in report"
+            );
+            console.log("");
+        }
+    }, 200);
 
 
 
