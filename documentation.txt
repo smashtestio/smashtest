@@ -264,9 +264,8 @@ Manual tests (-M)
 Only ($)
     - $ = Only run branches under this step, but no debugging.
         - Show example. Comes at the start of the step, including before a function declaration's *.
-        - Multiple $'s that intersect only run tests that fall under both (AND)
-        - Multiple $'s that do not intersect run tests that fall under either (OR)
-        - A $ on one or more step block members will remove all other step block members
+        - Multiple $'s with the same parent (on the same indent level) only run branches that fall under one of these branches (OR)
+        - You can put $'s at different levels to isolate a branch or branches
         - Give more examples
 
 Debug (~)
@@ -274,9 +273,7 @@ Debug (~)
         - Show example. Comes at the start of the step, including before a function declaration's *.
     - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
     - Pauses right after a step if it fails (or unexpectedly passes)
-    - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)
-    - When multiple branches are marked with ~'s, it chooses the shallowest ~ encountered and repeats that until a single branch is isolated
-    - Throws exception if a ~ exists, but is cut off due to $, groups, or frequency
+    - Use multiple $'s and ~'s to isolate a single branch to debug (or you can use multiple ~'s)
 
 REPL
     - Using REPL

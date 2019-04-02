@@ -5,7 +5,7 @@ const chalk = require('chalk');
 const progress = require('cli-progress');
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
-const StandardReporter = require('./standardreporter.js');
+const Reporter = require('./reporter.js');
 
 if(process.argv.length < 3) {
     utils.error("No files inputted");
@@ -15,7 +15,7 @@ let filenames = [];
 let jsFilenames = [];
 
 let tree = new Tree();
-let reporter = new StandardReporter();
+let reporter = new Reporter();
 let runner = new Runner();
 
 // Sort command line arguments into filenames (non-js files), jsFilenames, and flags
