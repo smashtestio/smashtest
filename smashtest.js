@@ -16,6 +16,7 @@ let flags = [];
 let groups = undefined;
 let minFrequency = undefined;
 let noDebug = undefined;
+let noReport = undefined;
 let maxInstances = undefined;
 let rerunNotPassed = undefined;
 
@@ -36,6 +37,10 @@ for(let i = 2; i < process.argv.length; i++) {
         switch(name) {
             case "nodebug":
                 noDebug = true;
+                break;
+
+            case "noreport":
+                noReport = true;
                 break;
 
             case "groups":
@@ -145,8 +150,18 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
     runner.flags = flags;
     runner.noDebug = noDebug;
     runner.maxInstances = maxInstances;
-    await runner.run();
 
+    if(!noReport) {
+        // Set up Reporter
+
+
+
+
+
+
+    }
+
+    await runner.run();
 
 
 

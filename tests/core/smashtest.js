@@ -10,7 +10,7 @@ chai.use(chaiSubset);
 
 describe("smashtest.js", function() {
     it.only("TEXT", function() {
-        const ls = spawnSync('ls', ['-lh']);
-        console.log(ls.stdout.toString());
+        const cmd = spawnSync('node', ['../../smashtest', '../../testfile1.txt']);
+        console.log(cmd.stdout.toString());
     });
 });
