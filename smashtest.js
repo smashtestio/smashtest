@@ -1,6 +1,7 @@
 const readFiles = require('read-files-promise');
 const glob = require('glob');
 const utils = require('./utils');
+const chalk = require('chalk');
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 
@@ -160,6 +161,8 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
 
     }
+
+    console.log(chalk.bold.bgYellow("  SmashTEST 0.1.1 BETA  "));
 
     await runner.run();
 
