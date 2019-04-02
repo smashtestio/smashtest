@@ -91,15 +91,27 @@ class Tree {
         }
 
         // Parsed parts of the line
-        step.text = matches[2];
-        if(matches[8]) {
-            step.identifiers = matches[8].trim().split(/\s+/);
+        step.text = matches[5];
+        if(matches[4]) {
+            step.isFunctionDeclaration = true;
         }
-        if(matches[12]) {
-            step.codeBlock = matches[12].substring(1); // substring() strips off leading {
+        if(matches[1]) {
+            if(!step.identifiers) {
+                step.identifiers = [];
+            }
+            step.identifiers = step.identifiers.concat(matches[1].trim().split(/\s+/));
         }
-        if(matches[14]) {
-            step.comment = matches[14];
+        if(matches[11]) {
+            if(!step.identifiers) {
+                step.identifiers = [];
+            }
+            step.identifiers = step.identifiers.concat(matches[11].trim().split(/\s+/));
+        }
+        if(matches[15]) {
+            step.codeBlock = matches[15].substring(1); // substring() strips off leading {
+        }
+        if(matches[17]) {
+            step.comment = matches[17];
         }
 
         // Validation against prohibited step texts
@@ -108,9 +120,7 @@ class Tree {
         }
 
         // * Function Declaration
-        if(matches[1]) {
-            step.isFunctionDeclaration = true;
-
+        if(step.isFunctionDeclaration) {
             if(step.text.match(Constants.STRING_LITERAL)) {
                 utils.error("A * Function declaration cannot have 'strings', \"strings\", or [strings] inside of it", filename, lineNumber);
             }

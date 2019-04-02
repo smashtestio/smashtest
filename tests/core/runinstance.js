@@ -140,7 +140,7 @@ A -
         runInstance.ranStepB = true;
     }
 
-        C ~ {
+        ~ C {
             runInstance.ranStepC = true;
         }
 
@@ -209,7 +209,7 @@ A -
         runInstance.ranStepB = true;
     }
 
-        C ~ {
+        ~ C {
             runInstance.ranStepC = true;
         }
 
@@ -300,7 +300,7 @@ A  {
         runInstance.ranStepB = !runInstance.ranStepB;
     }
 
-        C ~ {
+        ~ C {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
@@ -3907,7 +3907,7 @@ My function #
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B - ~
+    ~ B -
         C -
 `, "file.txt");
 
@@ -3929,7 +3929,7 @@ A -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B - ~
+    ~ B -
         {var1}='foo'
 `, "file.txt");
 
@@ -5554,7 +5554,7 @@ Big step {
         it("runs the step currently paused on if it's not completed yet and then pauses again", async function() {
             let tree = new Tree();
             tree.parseIn(`
-A ~ {
+~ A {
     runInstance.ranStepA = !runInstance.ranStepA;
 }
 
@@ -5723,7 +5723,7 @@ A  {
         runInstance.ranStepB = !runInstance.ranStepB;
     }
 
-        C ~ {
+        ~ C {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
@@ -5834,7 +5834,7 @@ A {
         it("skips the step currently paused on if it's not completed yet then pauses again", async function() {
             let tree = new Tree();
             tree.parseIn(`
-A ~ {
+~ A {
     runInstance.ranStepA = !runInstance.ranStepA;
 }
 
@@ -6053,7 +6053,7 @@ A  {
     runInstance.ranStepA = !runInstance.ranStepA;
 }
 
-    B ~ {
+    ~ B {
         runInstance.ranStepB = !runInstance.ranStepB;
     }
 
@@ -6154,7 +6154,7 @@ A  {
         runInstance.ranStepB = !runInstance.ranStepB;
     }
 
-        C ~ {
+        ~ C {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
@@ -6382,7 +6382,7 @@ A {
     runInstance.ranStepA = !runInstance.ranStepA;
 }
 
-    B ~ {
+    ~ B {
         runInstance.ranStepB = !runInstance.ranStepB;
     }
 
@@ -6440,7 +6440,7 @@ Step to Inject {
             tree.parseIn(`
 {var1}='foo'
     {{var2}}='bar'
-        B - ~
+        ~ B -
             C -
 `, "file.txt");
 
@@ -6471,7 +6471,7 @@ Step to Inject {
         it("step can be a function call for a function that was defined at the time of the pause", async function() {
             let tree = new Tree();
             tree.parseIn(`
-A ~ -
+~ A -
 
 * My function
     {var1}='foo'
@@ -6507,7 +6507,7 @@ My function
         it("attaches an error to the step returned if it fails", async function() {
             let tree = new Tree();
             tree.parseIn(`
-A ~ -
+~ A -
 
 * My function {
     throw new Error("oops");
@@ -6556,7 +6556,7 @@ My function
         it("throws an error for a function call that cannot be found", async function() {
             let tree = new Tree();
             tree.parseIn(`
-A ~ -
+~ A -
 `, "file.txt");
 
             tree.generateBranches();
@@ -6580,7 +6580,7 @@ Some unknown function
 A {
     runInstance.ranStepA = !runInstance.ranStepA;
 }
-    B ~ {
+    ~ B {
         runInstance.ranStepB = !runInstance.ranStepB;
     }
         C {
@@ -6642,7 +6642,7 @@ Step to Inject {
 A {
     runInstance.ranStepA = !runInstance.ranStepA;
 }
-    B ~ {
+    ~ B {
         runInstance.ranStepB = !runInstance.ranStepB;
     }
         C {
@@ -6722,7 +6722,7 @@ Step to Inject {
 A {
     runInstance.ranStepA = !runInstance.ranStepA;
 }
-    B ~ {
+    ~ B {
         runInstance.ranStepB = !runInstance.ranStepB;
     }
         C {

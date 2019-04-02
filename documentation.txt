@@ -259,13 +259,15 @@ Manual tests (-M)
 
 Only ($)
     - $ = Only run branches under this step, but no debugging.
+        - Show example. Comes at the start of the step, including before a function declaration's *.
         - Multiple $'s that intersect only run tests that fall under both (AND)
         - Multiple $'s that do not intersect run tests that fall under either (OR)
         - A $ on one or more step block members will remove all other step block members
-        - Give examples
+        - Give more examples
 
 Debug (~)
     - Debug identifier (~)
+        - Show example. Comes at the start of the step, including before a function declaration's *.
     - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
     - Pauses right after a step if it fails (or unexpectedly passes)
     - Use multiple $'s and a ~ to isolate a single branch to debug (or you can use multiple ~'s)

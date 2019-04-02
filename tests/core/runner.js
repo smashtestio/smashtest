@@ -47,7 +47,7 @@ A -
 A {
     runInstance.runner.ranStepA = true;
 }
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = true;
     }
         C {
@@ -298,7 +298,7 @@ Failing branch -
 A {
     runInstance.runner.ranStepA = true;
 }
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = true;
     }
         C {
@@ -337,7 +337,7 @@ A {
         C {
             runInstance.runner.ranStepC = true;
         }
-            D ~ {
+            ~ D {
                 runInstance.runner.ranStepD = true;
             }
 `, "file.txt");
@@ -427,7 +427,7 @@ C
     runInstance.runner.count++;
 }
 
-* B ~ {
+~ * B {
     runInstance.runner.count++;
 }
 
@@ -731,7 +731,7 @@ Wait 20 ms {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B ~ -
+    ~ B -
         C -
 `, "file.txt");
 
@@ -856,7 +856,7 @@ Branch 3 -
 A {
     runInstance.runner.ranStepA = true;
 }
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = true;
     }
         C {
@@ -913,7 +913,7 @@ A {
 A {
     runInstance.runner.ranStepA = true;
 }
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = true;
     }
         C {
@@ -959,7 +959,7 @@ A {
 A {
     runInstance.runner.ranStepA = true;
 }
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = true;
     }
         C {
@@ -1022,7 +1022,7 @@ A {
 A {
     runInstance.runner.ranStepA = true;
 }
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = true;
     }
         C {
@@ -1082,7 +1082,7 @@ A {
 A {
     runInstance.runner.ranStepA = true;
 }
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = true;
     }
         C {
@@ -1129,7 +1129,7 @@ A {
 A {
     runInstance.runner.ranStepA = true;
 }
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = true;
     }
         C {
@@ -1201,7 +1201,7 @@ A {
     runInstance.runner.ranStepA = !runInstance.runner.ranStepA;
 }
 
-    B ~ {
+    ~ B {
         runInstance.runner.ranStepB = !runInstance.runner.ranStepB;
     }
 

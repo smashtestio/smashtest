@@ -329,7 +329,7 @@ describe("Tree", function() {
             assert.equal(step.isToDo, true);
             assert.equal(step.isTextualStep, true);
 
-            step = tree.parseLine(`Click {button} + -T ~`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} + -T ..`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isToDo, true);
             assert.equal(step.isTextualStep, true);
@@ -341,7 +341,7 @@ describe("Tree", function() {
             assert.equal(step.isManual, true);
             assert.equal(step.isTextualStep, true);
 
-            step = tree.parseLine(`Click {button} + -M ~`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} + -M ..`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isManual, true);
             assert.equal(step.isTextualStep, true);
@@ -352,28 +352,28 @@ describe("Tree", function() {
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isTextualStep, true);
 
-            step = tree.parseLine(`    Click {button} - -M ~ `, "file.txt", 10);
+            step = tree.parseLine(`    Click {button} - -M + `, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isManual, true);
             assert.equal(step.isTextualStep, true);
         });
 
         it("parses the debug identifier (~)", function() {
-            let step = tree.parseLine(`Click {button} ~`, "file.txt", 10);
+            let step = tree.parseLine(`~ Click {button}`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, true);
 
-            step = tree.parseLine(`Click {button} + ~`, "file.txt", 10);
+            step = tree.parseLine(`    ~  Click {button} + `, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, true);
         });
 
         it("parses the only identifier ($)", function() {
-            let step = tree.parseLine(`Click {button} $`, "file.txt", 10);
+            let step = tree.parseLine(`$ Click {button}`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isOnly, true);
 
-            step = tree.parseLine(`Click {button} + $ `, "file.txt", 10);
+            step = tree.parseLine(`    $   Click {button} + `, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isOnly, true);
         });
@@ -383,7 +383,7 @@ describe("Tree", function() {
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isNonParallel, true);
 
-            step = tree.parseLine(`Click {button} -T + ~ // comment`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} -T + .. // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isNonParallel, true);
         });
@@ -393,7 +393,7 @@ describe("Tree", function() {
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isSequential, true);
 
-            step = tree.parseLine(`Click {button} -T .. ~ // comment`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} -T .. + // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isSequential, true);
         });
@@ -403,20 +403,20 @@ describe("Tree", function() {
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isExpectedFail, true);
 
-            step = tree.parseLine(`Click {button} -T # ~ // comment`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} -T # + // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isExpectedFail, true);
         });
 
         it("rejects a hook with an identifier", function() {
             assert.throws(() => {
-                tree.parseLine(`* After Every Branch $ + {`, "file.txt", 10);
+                tree.parseLine(`$ * After Every Branch + {`, "file.txt", 10);
             }, "A hook cannot have any identifiers ($) [file.txt:10]");
         });
 
         it("rejects a hook with a ~", function() {
             assert.throws(() => {
-                tree.parseLine(`* Before Every Step ~ {`, "file.txt", 10);
+                tree.parseLine(`~ * Before Every Step {`, "file.txt", 10);
             }, "A hook cannot have any identifiers (~) [file.txt:10]");
         });
 
@@ -4134,7 +4134,7 @@ F -
         it("properly merges identifiers between function call and function declaration", function() {
             let tree = new Tree();
             tree.parseIn(`
-F ~
+~ F
 
 * F + #
     A -
@@ -4196,7 +4196,7 @@ F ~
         it("properly merges identifiers and a code block between function call and function declaration", function() {
             let tree = new Tree();
             tree.parseIn(`
-F ~
+~ F
 
 * F + # {
     code block 1
@@ -9629,7 +9629,7 @@ A
 A -
     B -
 
-    C - $
+    $ C -
 
         D -
 
@@ -9665,13 +9665,13 @@ G -
 A -
     B -
 
-    C - $
+    $ C -
 
         D -
 
-        E - $
+        $ E -
 
-            F - $
+            $ F -
 
 G -
     `);
@@ -9696,18 +9696,18 @@ G -
 A -
     B -
 
-    C - $
+    $ C -
 
         D -
 
-        E - $
+        $ E -
 
             F -
 
-    G - $
+    $ G -
 
-    H - $
-        I $ -
+    $ H -
+        $ I -
 
 J -
     `);
@@ -9742,29 +9742,29 @@ J -
         it("handles $ when it's attached to a step block member", function() {
             let tree = new Tree();
             tree.parseIn(`
-A $ -
+$ A -
     B -
-    C - $
+    $ C -
 
         D -
-        E - $
+        $ E -
 
             F -
 
-    G - $
-    H - $
+    $ G -
+    $ H -
 
-        I $ -
+        $ I -
 
     P -
     Q -
-    J - $
-    K - $
+    $ J -
+    $ K -
     R -
 
         L -
 
-M $ -
+$ M -
 
     N -
     O -
@@ -9828,7 +9828,7 @@ F
 F
 
 * F
-    A - $
+    $ A -
         B -
 
     C -
@@ -9861,11 +9861,11 @@ F
 J -
     F
 
-K $ -
+$ K -
     F
 
 * F
-    A - $
+    $ A -
         B -
 
     C -
@@ -9893,10 +9893,10 @@ J -
     F
 
 K -
-    F $
+    $ F
 
 * F
-    A - $
+    $ A -
         B -
 
     C -
@@ -9924,9 +9924,9 @@ J -
     F
 
 K -
-    F $
+    $ F
 
-* F $
+$ * F
     A -
         B -
     `);
@@ -9952,10 +9952,10 @@ K -
 J -
     F
 
-K - $
+$ K -
     F
 
-* F $
+$ * F
     A -
         B -
     `);
@@ -9982,13 +9982,13 @@ J -
     F
 
 K -
-    F $
-        W - $
+    $ F
+        $ W -
 
 * F
     A -
         B -
-            D - $
+            $ D -
 
     C -
     `);
@@ -10011,14 +10011,14 @@ K -
         it("handles $ when it's inside a .. step", function() {
             let tree = new Tree();
             tree.parseIn(`
-A .. $ -
+$ A .. -
     B -
         C -
-    D $ -
+    $ D -
         E -
     F -
 
-G .. - $
+$ G .. -
     H -
     I -
     `);
@@ -10049,7 +10049,7 @@ G .. - $
             tree.parseIn(`
 ..
 A -
-B $ -
+$ B -
 C -
 
     D -
@@ -10081,7 +10081,7 @@ C -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B - ~
+    ~ B -
         C -
     D -
     E -
@@ -10107,12 +10107,12 @@ F -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B - ~
+    ~ B -
 
         E -
             F -
 
-        G ~ -
+        ~ G -
             H -
 
         I -
@@ -10140,10 +10140,10 @@ J -
 A -
     F
 B -
-    F ~
+    ~ F
 
 * F
-    K - ~
+    ~ K -
 `, "file.txt");
 
             let branches = tree.branchify(tree.root);
@@ -10165,10 +10165,10 @@ B -
             tree.parseIn(`
 A -
     F
-B ~ -
+~ B -
     F
 
-* F ~
+~ * F
     K -
 `, "file.txt");
 
@@ -10192,9 +10192,9 @@ B ~ -
 A -
     F
 B -
-    F ~
+    ~ F
 
-* F ~
+~ * F
     K -
 `, "file.txt");
 
@@ -10216,15 +10216,15 @@ B -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B - ~
+    ~ B -
 
         E -
             F -
 
-        G ~ -
+        ~ G -
             H -
 
-        I ~ -
+        ~ I -
 
 J -
 `, "file.txt");
@@ -10251,7 +10251,7 @@ A -
 B -
     F
 
-* F ~
+~ * F
     K -
 `, "file.txt");
 
@@ -10278,7 +10278,7 @@ B -
     F
 
 * F
-    K - ~
+    ~ K -
 `, "file.txt");
 
             let branches = tree.branchify(tree.root);
@@ -10302,7 +10302,7 @@ A -
 B -
 C -
 
-    D - ~
+    ~ D -
 `, "file.txt");
 
             let branches = tree.branchify(tree.root);
@@ -10323,7 +10323,7 @@ C -
             let tree = new Tree();
             tree.parseIn(`
 * F
-    A - ~
+    ~ A -
 
 F
 
@@ -10348,7 +10348,7 @@ B -
         it("isolates the first branch when a ~ step has multiple branches underneath it", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - ~
+~ A -
     B -
     C -
     D -
@@ -10369,7 +10369,7 @@ A - ~
 
             tree = new Tree();
             tree.parseIn(`
-A - ~
+~ A -
 
     B -
 
@@ -10395,13 +10395,13 @@ A - ~
             tree.parseIn(`
 A -
     B -
-    C - ~
+    ~ C -
     D -
 
         E -
             F -
 
-        G ~ -
+        ~ G -
             H -
 
         I -
@@ -10429,7 +10429,7 @@ J -
 * F
     A -
 
-    B - ~
+    ~ B -
         C -
         D -
 
@@ -10456,10 +10456,10 @@ F
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B - $
+    $ B -
     C -
 
-        D - $ ~
+        $ ~ D -
             E -
 
         F -
@@ -10486,11 +10486,11 @@ I -
             tree = new Tree();
             tree.parseIn(`
 A -
-    B - $
+    $ B -
     C -
 
-        D - $
-            E - ~
+        $ D -
+            ~ E -
 
         F -
 
@@ -10823,7 +10823,7 @@ A -
         B -
 
     {frequency}='med'
-        C - ~
+        ~ C -
 
         D -
             {frequency}='high'
@@ -11108,7 +11108,7 @@ A -
         B -
 
     {group}='two'
-        C - ~
+        ~ C -
 
         D -
             {group}='three'
@@ -11136,7 +11136,7 @@ A -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B $ -
+    $ B -
 `, "file.txt");
 
             assert.throws(() => {
@@ -11148,7 +11148,7 @@ A -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B ~ -
+    ~ B -
 `, "file.txt");
 
             assert.throws(() => {
@@ -11161,19 +11161,19 @@ A -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B $ -
+    $ B -
         {group}='first', {frequency}='low'
             {group}='second'
 
-    {group}='third' $
+    $ {group}='third'
         D -
             {group}='fourth', {group}='first'
 
         E -
-        F - $ ~
+        $ ~ F -
 
             {group}='sixth'
-                K - ~
+                ~ K -
                     {frequency}='high'
 
         {group}='sixth'
@@ -11746,7 +11746,7 @@ A -
         it("returns total number of branches", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - $
+$ A -
     B -
 
         C -
@@ -11770,7 +11770,7 @@ F -
         it("returns total number of runnable branches", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - $
+$ A -
     B -
 
         C -
@@ -11796,7 +11796,7 @@ F -
         it("returns total number of complete branches", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - $
+$ A -
     B -
 
         C -
@@ -11836,7 +11836,7 @@ F -
         it("does not count inside hooks", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - $
+$ A -
     B -
 
         C -
@@ -11912,7 +11912,7 @@ F -
         it("returns total number of steps", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - $
+$ A -
     B -
 
         C -
@@ -11936,7 +11936,7 @@ F -
         it("returns total number of runnable steps", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - $
+$ A -
     B -
 
         C -
@@ -11965,7 +11965,7 @@ F -
         it("returns total number of complete steps", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - $
+$ A -
     B -
 
         C -
@@ -12014,7 +12014,7 @@ A -
         it("does not count inside hooks", function() {
             let tree = new Tree();
             tree.parseIn(`
-A - $
+$ A -
     B -
 
         C -
