@@ -24,3 +24,4 @@ class StandardReporter extends Reporter {
         // Set this.htmlReport and this.name
     }
 }
+module.exports = StandardReporter;

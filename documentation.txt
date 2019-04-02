@@ -34,15 +34,18 @@ Running tests
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
     - Command line options
         - -repl
-        - -maxInstances
+        - -maxInstances=5
+            - 5 if omitted
         - -noDebug
         - -noReport
-        - -rerunNotPassed
-        - -noScreenshotOnFail
-        - -groups='one two three'
-        - -minFrequency='med'
-        - -global['varname']='value'
-        - -persistent['varname']='value'
+        - -rerunNotPassed or -r
+            - -rerunNotPassed=filename or "filename"
+        - -groups=value or "val1 val2 val3"
+        - -minFrequency=med
+            - med if omitted
+        - -g:varname=value or "value" (global var)
+            - g:screenshotOnFail=true
+        - -p:varname=value or "value" (persistent var)
 
 Only run what didn't pass last time
     - -rerunNotPassed
@@ -173,6 +176,8 @@ Variables
     - Setting vars
         - {var} = 'String' (or "String" or [String])
             - To clone a var, use {var}='{var2}'
+            - {var1}='str1', {var2}='str2', etc.
+                - When setting multiple vars in a single line, use commas to separate them. Strings only. No functions.
         - {var} = Function with a code block
             - Code Function returns a string (actually any kind of js value will work)
             - Could be {var} = Text { code block that returns something }
@@ -181,11 +186,11 @@ Variables
                 - No children
             - Separate branches will be created, each setting {var} to each 'value' encountered to the right of {x}
             - You can name {x} whatever you want, but the convention is {x}
-    - In a line that's {var1}=Step1, {var2}=Step2, do not accept Function Calls in Step1/2/etc.
-        - (In other words, if there are multiple vars being set, each Step must be a string literal)
-    - Using {vars} that will be defined later in the branch
+    - Lookahead
+        - {vars} that will be defined later in the branch
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
-        - If you're setting the {var} = Function Call, the function call's code block must be synchronous
+        - You cannot set a lookahead {var} = Function, where the Function returns async
+        - You cannot set a lookahead var inside a function's code block (via var=something or setGlobal()/setLocal()). Must be {var}='value'.
     - Variables are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
         - Case sensitive as js vars and in persistent/global/local though (use the case that was used when declared - though leading and trailing whitespace is ignored too)
     - Pitfalls

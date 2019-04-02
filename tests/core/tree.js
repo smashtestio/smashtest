@@ -11833,6 +11833,69 @@ F -
             expect(tree.getBranchCount(false, true)).to.equal(2);
         });
 
+        it("returns total number of passed branches", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+C -
+D -
+E -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].isPassed = true;
+            tree.branches[1].isSkipped = true;
+            tree.branches[2].isPassed = true;
+            tree.branches[3].isFailed = true;
+            tree.branches[4].isPassed = true;
+
+            expect(tree.getBranchCount(false, false, true)).to.equal(3);
+        });
+
+        it("returns total number of failed branches", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+C -
+D -
+E -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].isPassed = true;
+            tree.branches[1].isSkipped = true;
+            tree.branches[2].isPassed = true;
+            tree.branches[3].isFailed = true;
+            tree.branches[4].isPassed = true;
+
+            expect(tree.getBranchCount(false, false, false, true)).to.equal(1);
+        });
+
+        it("returns total number of skipped branches", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+C -
+D -
+E -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].isPassed = true;
+            tree.branches[1].isSkipped = true;
+            tree.branches[2].isPassed = true;
+            tree.branches[3].isFailed = true;
+            tree.branches[4].isPassed = true;
+
+            expect(tree.getBranchCount(false, false, false, false, true)).to.equal(1);
+        });
+
         it("does not count inside hooks", function() {
             let tree = new Tree();
             tree.parseIn(`

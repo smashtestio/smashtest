@@ -1274,11 +1274,14 @@ class Tree {
 
     /**
      * Get a count on the number of branches within this.branches
-     * @param {Boolean} runnableOnly - If true, only count runnable branches (i.e., those that passed last time don't count, if we're only running branches not passed)
-     * @param {Boolean} completeOnly - If true, only count branches that are complete (passed, failed, or skipped)
+     * @param {Boolean} [runnableOnly] - If true, only count branches that are set to run (i.e., those that passed last time don't count, if we're doing a -rerunNotPassed)
+     * @param {Boolean} [completeOnly] - If true, only count branches that are complete (passed, failed, or skipped)
+     * @param {Boolean} [passedOnly] - If true, only count branches that have passed
+     * @param {Boolean} [failedOnly] - If true, only count branches that have failed
+     * @param {Boolean} [skippedOnly] - If true, only count branches that have skipped
      * @return {Number} Number of branches
      */
-    getBranchCount(runnableOnly, completeOnly) {
+    getBranchCount(runnableOnly, completeOnly, passedOnly, failedOnly, skippedOnly) {
         let count = 0;
         for(let i = 0; i < this.branches.length; i++) {
             let branch = this.branches[i];
@@ -1288,6 +1291,18 @@ class Tree {
             }
 
             if(completeOnly && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {
+                continue;
+            }
+
+            if(passedOnly && !branch.isPassed) {
+                continue;
+            }
+
+            if(failedOnly && !branch.isFailed) {
+                continue;
+            }
+
+            if(skippedOnly && !branch.isSkipped) {
                 continue;
             }
 

@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const progress = require('cli-progress');
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
+const StandardReporter = require('./standardreporter.js');
 
 if(process.argv.length < 3) {
     utils.error("No files inputted");
@@ -13,61 +14,75 @@ if(process.argv.length < 3) {
 let filenames = [];
 let jsFilenames = [];
 
-// flags
-let flags = [];
-let groups = undefined;
-let minFrequency = undefined;
-let noDebug = undefined;
-let noReport = undefined;
-let maxInstances = undefined;
-let rerunNotPassed = undefined;
+let tree = new Tree();
+let reporter = new StandardReporter();
+let runner = new Runner();
 
 // Sort command line arguments into filenames (non-js files), jsFilenames, and flags
 for(let i = 2; i < process.argv.length; i++) {
     let arg = process.argv[i];
     if(arg.startsWith("-")) {
-        let matches = arg.matches(/\-([^\=]+)(\=(.*))?/);
+        let matches = arg.match(/\-([^\=]+)(\=(.*))?/);
         if(!matches) {
             utils.error("Invalid argument: " + arg);
         }
 
-        flags.push(arg);
+        runner.flags.push(arg);
 
-        let name = matches[1].toLowerCase();
-        let value = utils.stripQuotes(matches[3]);
+        let name = matches[1];
+        let value = matches[3];
 
-        switch(name) {
+        let varName = null;
+        matches = name.match(/^(g|p)\:(.*)$/);
+        if(matches) {
+            name = matches[1];
+            varName = matches[2];
+        }
+
+        switch(name.toLowerCase()) {
             case "nodebug":
-                noDebug = true;
+                runner.noDebug = true;
                 break;
 
             case "noreport":
-                noReport = true;
+                runner.noReport = true;
                 break;
 
             case "groups":
-                groups = value.split(/\s+/);
+                runner.groups = value.split(/\s+/);
                 break;
 
             case "minfrequency":
                 if(['high', 'med', 'low'].indexOf(value) == -1) {
                     utils.error("Invalid minFrequency argument. Must be either high, med, or low.");
                 }
-                minFrequency = value;
+                runner.minFrequency = value;
                 break;
 
             case "maxinstances":
-                maxInstances = value;
+                runner.maxInstances = value;
                 break;
 
             case "rerunnotpassed":
             case "r":
                 if(value) {
-                    rerunNotPassed = value;
+                    runner.rerunNotPassed = value;
                 }
                 else {
-                    rerunNotPassed = true;
+                    runner.rerunNotPassed = true;
                 }
+                break;
+
+            case "g":
+                runner.globalInit[varName] = value;
+                break;
+
+            case "p":
+                runner.persistent[varName] = value;
+                break;
+
+            default:
+                utils.error("Invalid argument " + arg);
                 break;
         }
     }
@@ -101,6 +116,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
     // Remove JS files from packages
     packageFilenames = packageFilenames.filter(filename => !filename.endsWith('.js'));
 
+    // Read in all files
     let originalFilenamesLength = filenames.length;
     filenames = filenames.concat(packageFilenames);
 
@@ -110,15 +126,16 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         utils.error("No files found");
     }
 
-    let tree = new Tree();
-
     for(let i = 0; i < fileBuffers.length; i++) {
         tree.parseIn(fileBuffers[i], filenames[i], i >= originalFilenamesLength);
     }
 
-    if(rerunNotPassed) {
+    runner.init(tree, reporter);
+
+    // Build the tree
+    if(runner.rerunNotPassed) {
         let buffer = null;
-        if(typeof rerunNotPassed == 'string') {
+        if(typeof runner.rerunNotPassed == 'string') {
             // -rerunNotPassed='filename of report that constitutes last run, or num of branches run at the end of filename'
             // TODO: find and read in last report
             // TODO: document this
@@ -146,97 +163,120 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         tree.mergeBranchesFromPrevRun(json);
     }
 
-    tree.generateBranches(groups, minFrequency, noDebug);
+    let reportPath = `/Users/Peter/report.html`; // TODO: set this var
+    let isComplete = false;
+    let elapsed = 0;
 
-    let runner = new Runner(tree);
-    runner.flags = flags;
-    runner.noDebug = noDebug;
-    runner.maxInstances = maxInstances;
+    // Branch counts
+    let passed = 0;
+    let failed = 0;
+    let skipped = 0;
+    let complete = 0;
+    let totalToRun = tree.getBranchCount(true, false);
+    let totalInReport = tree.getBranchCount(false, false);
 
-    if(!noReport) {
-        // Set up Reporter
+    // Step counts
+    let totalStepsComplete = 0;
+    let totalSteps = tree.getStepCount(true, false, false);
 
+    console.log(``);
+    console.log(chalk.bold.yellow(`SmashTEST 0.1.1 BETA`));
+    console.log(`${totalToRun} branches to run | ${totalInReport} branches in report`);
+    console.log(`Live report at: ` + chalk.gray.italic(reportPath));
+    console.log(``);
 
+    // Progress bar
+    let progressBar = generateProgressBar(true);
+    progressBar.start(totalSteps, totalStepsComplete);
 
+    let timer = null;
+    setTimer();
 
+    // Run
+    await runner.run();
+    isComplete = true;
 
-
+    /**
+     * @return {Object} Timer for updating the progress bar
+     */
+    function setTimer() {
+        timer = setTimeout(updateProgressBar, 250);
     }
 
-    let total = 10;
-    let totalInReport = 20;
-    let reportPath = `/Users/Peter/report.html`;
+    /**
+     * Called when the progress bar needs to be updated
+     */
+    function updateProgressBar() {
+        // Update branch counts
+        passed = tree.getBranchCount(true, true, true, false, false);
+        failed = tree.getBranchCount(true, true, false, true, false);
+        skipped = tree.getBranchCount(true, true, false, false, true);
+        complete = tree.getBranchCount(true, true);
+        totalToRun = tree.getBranchCount(true, false);
+        totalInReport = tree.getBranchCount(false, false);
 
-    console.log(``);
-    console.log(chalk.bold(`SmashTEST 0.1.1 BETA`));
-    console.log(`${total} branches to run / ${totalInReport} branches in report`);
-    console.log(`Live report at: ${reportPath}`);
-    console.log(``);
+        // Update step counts
+        totalStepsComplete = tree.getStepCount(true, true, false);
+        totalSteps = tree.getStepCount(true, false, false);
 
-    await runner.run();
-
-
-
-
-
-    const progressBar = new progress.Bar({
-        clearOnComplete: true,
-        barsize: 25,
-        hideCursor: true,
-        format: "{bar} {percentage}% | "
-    }, progress.Presets.shades_classic);
-
-    let val = 0;
-    progressBar.start(200, val);
-
-    let interval = setInterval(() => {
-        val += 5;
-        //progressBar.update(val);
         progressBar.stop();
-        progressBar.start(200, val);
-        outputCounts(false, "1:20:04", val, 2, 1, 13);
+        progressBar.start(totalSteps, totalStepsComplete);
+        outputCounts();
 
-        if(val == 200) {
+        if(isComplete) {
             progressBar.stop();
-            clearInterval(interval);
 
-            console.log("");
-            outputCounts(true, "1:20:04", 10, 2, 1, 13, 20);
-            console.log("");
+            progressBar = generateProgressBar(false);
+            progressBar.start(totalSteps, totalStepsComplete);
+            outputCounts();
+            progressBar.stop();
+
+            console.log(``);
+            console.log(chalk.yellow("Run complete" + (passed == totalToRun ? " 👍" : "")));
+            console.log(`${complete} branches ran | ${totalInReport} branches in report`);
+            console.log(`Report at: ` + chalk.gray.italic(reportPath));
+            console.log(``);
         }
-    }, 200);
+        else {
+            setTimer();
+        }
+    }
+
+    /**
+     * @return {Object} A new progress bar object
+     */
+    function generateProgressBar(clearOnComplete) {
+        return new progress.Bar({
+            clearOnComplete: clearOnComplete,
+            barsize: 25,
+            hideCursor: true,
+            format: "{bar} {percentage}% | "
+        }, progress.Presets.shades_classic);
+    }
 
     /**
      * Outputs the given counts to the console
      */
-    function outputCounts(isComplete, elapsed, passed, failed, skipped, total, totalInReport) {
-        if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && total == 0 && totalInReport == 0) {
+    function outputCounts() {
+        if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && total == 0) {
             return; // nothing to show yet
         }
 
-        let eta = null;
-
-        if(isComplete) {
-            console.log(`Run complete`);
-            console.log(`${elapsed} elapsed`);
-        }
-
         process.stdout.write(
+            (elapsed ? (`${elapsed} | `) : ``) +
             (passed > 0        || isComplete ? chalk.greenBright(`${passed} passed`) + ` | ` : ``) +
             (failed > 0        || isComplete ? chalk.redBright(`${failed} failed`) + ` | ` : ``) +
             (skipped > 0       || isComplete ? chalk.cyanBright(`${skipped} skipped`) + ` | ` : ``) +
-            (total > 0         || isComplete ? (`${total} branches run`) : ``) +
-            (totalInReport > 0 || isComplete ? " | " + (`${totalInReport} branches in report`) : ``)
+            (complete > 0      || isComplete ? (`${complete} branches run`) : ``)
         );
-
-        if(isComplete) {
-            console.log("");
-        }
     }
 
-
-
-
-
-
+    /**
+     * Updates the elapsed variable
+     */
+    function updateElapsed() {
+        let d = new Date(null);
+        d.setSeconds((new Date() - tree.timeStarted)/1000);
+        elapsed = d.toISOString().substr(11, 8);
+    }
 });

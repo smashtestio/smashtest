@@ -27,9 +27,8 @@ A -
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -60,9 +59,8 @@ A -
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -90,9 +88,8 @@ A -
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -118,9 +115,8 @@ A -
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -149,9 +145,8 @@ A -
             }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -183,9 +178,8 @@ A -
             }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -218,9 +212,8 @@ A -
             }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -262,9 +255,8 @@ A -
             }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -313,9 +305,8 @@ A  {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -366,9 +357,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -405,9 +395,8 @@ A -
         E -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -448,9 +437,8 @@ Second branch -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -480,9 +468,8 @@ A -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -516,9 +503,8 @@ A -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -559,9 +545,8 @@ A -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.count = 1;
 
@@ -590,9 +575,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.count = 1;
 
@@ -623,9 +607,8 @@ A -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.afterCount = 0;
 
@@ -674,9 +657,8 @@ A -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.afterCount = 0;
             runInstance.beforeCount = 0;
@@ -726,9 +708,8 @@ B {
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.beforeCount = 0;
 
@@ -762,9 +743,8 @@ B {
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.afterCount = 0;
 
@@ -789,9 +769,8 @@ B {
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -815,9 +794,8 @@ Second branch -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -838,9 +816,8 @@ Wait 20ms {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -870,9 +847,8 @@ Wait '20' ms
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -894,9 +870,8 @@ First step -
         Third step -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -919,13 +894,46 @@ Cause a stop {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
             await expect(runInstance.run()).to.be.rejectedWith("Cannot run a stopped runner");
+        });
+
+        it("resets global vars to their inits from the Runner", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Run one at a time - +
+    Branch 1 -
+        Verify vars
+            {x}='33'
+                {y}='44'
+    Branch 2 -
+        Verify vars
+
+* Verify vars {
+    if(x == '11' && y == '22' && getGlobal('x') == '11' && getGlobal('y') == '22') {
+        runInstance.signOffs.push(true);
+    }
+}
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            runner.globalInit = {
+                x: '11',
+                y: '22'
+            }
+            let runInstance = new RunInstance(runner);
+            runInstance.signOffs = [];
+
+            await runInstance.run();
+
+            expect(runInstance.signOffs).to.have.lengthOf(2);
+            expect(runInstance.signOffs[0]).to.be.true;
+            expect(runInstance.signOffs[1]).to.be.true;
         });
     });
 
@@ -936,9 +944,8 @@ Cause a stop {
 A -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -955,9 +962,8 @@ A - {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -978,9 +984,8 @@ F
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1002,9 +1007,8 @@ My 'foo' Function 'bar'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1028,9 +1032,8 @@ My 'foo' Function 'bar'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1054,9 +1057,8 @@ My {A} Function { b }
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "bar";
@@ -1082,9 +1084,8 @@ My {{A}} Function {{ b }} { a B  c }
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.local.a = "foo";
             runInstance.local.b = "bar";
@@ -1111,9 +1112,8 @@ My '{A} and { b }' Function '{B}'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "b\"a'r";
@@ -1138,9 +1138,8 @@ My "{A} and { b }" Function "{B}"
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global.a = "foo";
             runInstance.global.b = "b\"a'r";
@@ -1165,9 +1164,8 @@ My [4th 'Login' button next to 'something'] Function [ big link ]
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1190,9 +1188,8 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.local.a = "sign";
             runInstance.global.b = "small button";
@@ -1225,9 +1222,8 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global["four th"] = "4";
             runInstance.local["fifth"] = "5";
@@ -1272,9 +1268,8 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
                     }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.global["four th"] = "4";
             runInstance.local["fifth"] = "5";
@@ -1374,9 +1369,8 @@ My {var} Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1400,9 +1394,8 @@ My {var} Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1426,9 +1419,8 @@ My {var} Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1449,9 +1441,8 @@ My {var} Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1474,9 +1465,8 @@ My 'so called {var}' Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1500,9 +1490,8 @@ My 'so called {var}' Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1526,9 +1515,8 @@ My 'so called {var}' Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1550,9 +1538,8 @@ My 'so called {var}' Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1572,9 +1559,8 @@ My Function
 * My Function
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1596,9 +1582,8 @@ My {var} Function
     }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1622,9 +1607,8 @@ My {var} Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1645,9 +1629,8 @@ My {var} Function
     }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1670,9 +1653,8 @@ A textual step {{var1}} -
         Another textual step {{var2}} -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1695,9 +1677,8 @@ A textual step {{var1}} -
     }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1721,9 +1702,8 @@ My 'string with {var}' Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1745,9 +1725,8 @@ My 'string with {var}' Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1767,9 +1746,8 @@ My 'foobar' Function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1791,9 +1769,8 @@ My 'foo' Function 'bar'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1811,9 +1788,8 @@ My 'foo' Function 'bar'
 {var1} = 'foobar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1832,9 +1808,8 @@ My 'foo' Function 'bar'
 {{var1}} = 'foobar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1853,9 +1828,8 @@ My 'foo' Function 'bar'
 {var1} = "foobar"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1874,9 +1848,8 @@ My 'foo' Function 'bar'
 {var1} = [foobar]
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1898,9 +1871,8 @@ My 'foo' Function 'bar'
 {var3} = "bleh"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1926,9 +1898,8 @@ My 'foo' Function 'bar'
 {{var2}} = "bleh"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1954,9 +1925,8 @@ My 'foo' Function 'bar'
 {{var2}} = "bleh"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1979,9 +1949,8 @@ My 'foo' Function 'bar'
 {var1} = 'one', {{var2}} = "two", {{ var 3 }}=[three]
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2002,9 +1971,8 @@ My 'foo' Function 'bar'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2025,9 +1993,8 @@ My 'foo' Function 'bar'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2055,9 +2022,8 @@ My 'foo' Function 'bar'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2080,9 +2046,8 @@ My 'foo' Function 'bar'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2104,9 +2069,8 @@ My 'foo' Function 'bar'
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2126,9 +2090,8 @@ My 'foo' Function 'bar'
     {x}='foobar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2152,9 +2115,8 @@ Text {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent("one", "first");
             runInstance.setGlobal("two", "second");
@@ -2180,9 +2142,8 @@ Text {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2209,9 +2170,8 @@ My 'foo' "bar" function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2235,9 +2195,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2259,9 +2218,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2287,9 +2245,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2316,9 +2273,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2344,9 +2300,8 @@ My 'foobar' function
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2384,9 +2339,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2416,9 +2370,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2443,9 +2396,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2472,9 +2424,8 @@ My 'foobar' function
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2504,9 +2455,8 @@ My 'foobar' function
     }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent("var1", "bar");
 
@@ -2535,9 +2485,8 @@ My 'foobar' function
     }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent("var1", "bar");
 
@@ -2561,9 +2510,8 @@ My 'foobar' function
     {{var2}}='{{var1}}bar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2587,9 +2535,8 @@ My 'foobar' function
     {{var1}}='blah'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2619,9 +2566,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2649,9 +2595,8 @@ My 'foobar' function
         {{var2}}='{{var1}}bar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2678,9 +2623,8 @@ My 'foobar' function
     {var2}='{{var1}}'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2709,9 +2653,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2735,9 +2678,8 @@ My 'foobar' function
     {{var1}}='blah'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2770,9 +2712,8 @@ My 'foobar' function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2804,9 +2745,8 @@ My 'foobar' function
     {{var1}}="blah2"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2840,9 +2780,8 @@ My function
     {{var1}}='bar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -2900,9 +2839,8 @@ My function
     {{var1}} = "blah2"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             /*
@@ -3046,9 +2984,8 @@ My function
     {var2}='{var1}bar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3072,9 +3009,8 @@ My function
     {var1}='blah'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3105,9 +3041,8 @@ My function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3135,9 +3070,8 @@ My function
         {var2}='{var1}bar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3165,9 +3099,8 @@ My function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3192,9 +3125,8 @@ My function
     {var2}='{var1}bar'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3227,9 +3159,8 @@ My function
     }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3259,9 +3190,8 @@ My function
     {var1}='foo'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3289,9 +3219,8 @@ My function
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3315,9 +3244,8 @@ My function
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3344,9 +3272,8 @@ My function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3371,9 +3298,8 @@ Something {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3396,9 +3322,8 @@ Something {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             runInstance.badFunc = function() {
@@ -3440,9 +3365,8 @@ First {
     }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3473,9 +3397,8 @@ Something {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3505,9 +3428,8 @@ tree.parseIn(`
 }
 `, "package.txt", true);
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3530,9 +3452,8 @@ Something {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3560,9 +3481,8 @@ My function #
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3596,9 +3516,8 @@ My function
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3631,9 +3550,8 @@ My function
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3664,9 +3582,8 @@ My function #
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3708,9 +3625,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -3737,9 +3653,8 @@ Execute in browser {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             runInstance.execInBrowser = function(code) {
@@ -3768,9 +3683,8 @@ My function
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -3805,9 +3719,8 @@ My function
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -3843,9 +3756,8 @@ My function #
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -3878,9 +3790,8 @@ My function #
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -3911,9 +3822,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.isPaused).to.equal(false);
@@ -3933,9 +3843,8 @@ A -
         {var1}='foo'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.isPaused).to.equal(false);
@@ -3963,9 +3872,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -3988,9 +3896,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4011,9 +3918,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4034,9 +3940,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4059,9 +3964,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.isPaused).to.equal(false);
@@ -4081,9 +3985,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.isPaused).to.equal(false);
@@ -4105,9 +4008,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4143,9 +4045,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4170,9 +4071,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -4206,9 +4106,8 @@ A # -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -4241,9 +4140,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -4277,9 +4175,8 @@ A - #
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             tree.nextStep(tree.branches[0], true);
@@ -4329,9 +4226,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4355,9 +4251,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4378,9 +4273,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4404,9 +4298,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4431,9 +4324,8 @@ A -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -4455,9 +4347,8 @@ Wait 20ms {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4496,9 +4387,8 @@ First step {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4540,9 +4430,8 @@ First step {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4584,9 +4473,8 @@ First step {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4634,9 +4522,8 @@ First step {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4686,9 +4573,8 @@ First step {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4738,9 +4624,8 @@ First step {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -4758,7 +4643,8 @@ First step {
         it("a persistent variable set in one RunInstance is accessible in another RunInstance", async function() {
             let tree = new Tree();
 
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
 
             let runInstance1 = new RunInstance(runner);
             let runInstance2 = new RunInstance(runner);
@@ -4774,7 +4660,8 @@ First step {
             step.codeBlock = ``;
 
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step);
@@ -4794,7 +4681,8 @@ First step {
             stepToGetError.lineNumber = 20;
 
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step, stepToGetError);
@@ -4815,7 +4703,8 @@ First step {
             let branchToGetError = new Branch();
 
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step, null, branchToGetError);
@@ -4837,7 +4726,8 @@ First step {
             branchToGetError.error = new Error("existing error");
 
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step, null, branchToGetError);
@@ -4860,7 +4750,8 @@ First step {
             let branchToGetError = new Branch();
 
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step, stepToGetError, branchToGetError);
@@ -4884,7 +4775,8 @@ First step {
             `;
 
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             let retVal = await runInstance.runHookStep(step);
@@ -4903,9 +4795,8 @@ A -
                 {{ var 4 }}=" value 4 "
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
@@ -4918,9 +4809,8 @@ A -
 {var1}='value1'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
@@ -4933,9 +4823,8 @@ A -
 A -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.replaceVars("foo bar", tree.branches[0].steps[0], tree.branches[0])).to.equal("foo bar");
@@ -4948,9 +4837,8 @@ A -
     {var1}='{var1}'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -4965,9 +4853,8 @@ A -
             {var3}='bar{var1}'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            runner = new Runner(tree);
+            runner = new Runner();
+            runner.init(tree);
             runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -4978,28 +4865,28 @@ A -
 
     describe("evalCodeBlock()", function() {
         it("evals a code and returns a value asynchonously", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             await expect(runInstance.evalCodeBlock("return 5;")).to.eventually.equal(5);
         });
 
         it("evals a code and returns a value synchronously", function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.evalCodeBlock("return 5;", null, 0, null, true)).to.equal(5);
         });
 
         it("returns undefined when executing code that has no return value synchronously", function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.evalCodeBlock("5;", null, 0, null, true)).to.equal(undefined);
         });
 
         it("makes the persistent, global, and local objects available", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent("a", "A");
             runInstance.setGlobal("b", "B");
@@ -5017,7 +4904,7 @@ A -
         });
 
         it("makes persistent, global, and local variables available as js variables", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent('a', "A");
             runInstance.setGlobal('b', "B");
@@ -5029,7 +4916,7 @@ A -
         });
 
         it("makes a local variable accessible as a js variable if both a local and global variable share the same name", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal('b', "B");
             runInstance.setLocal('b', "C");
@@ -5038,7 +4925,7 @@ A -
         });
 
         it("makes a global variable accessible as a js variable if both a global and persistent variable share the same name", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent('b', "B");
             runInstance.setGlobal('b', "C");
@@ -5047,7 +4934,7 @@ A -
         });
 
         it("makes a local variable accessible as a js variable if both a local and persistent variable share the same name", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent('b', "B");
             runInstance.setLocal('b', "C");
@@ -5056,7 +4943,7 @@ A -
         });
 
         it("does not make a variable available as js variable if its name contains non-whitelisted characters", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent(" one two ", "A");
             runInstance.setGlobal("three four", "B");
@@ -5067,7 +4954,7 @@ A -
         });
 
         it("does not make a variable available as js variable if its name is blacklisted", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent(" for ", "A");
             runInstance.setGlobal("await", "B");
@@ -5078,7 +4965,7 @@ A -
         });
 
         it("allows for logging inside the code", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
 
@@ -5088,7 +4975,7 @@ A -
         });
 
         it("handles an error inside the code, with a function name and line number", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
 
@@ -5109,7 +4996,7 @@ A -
         });
 
         it("handles an error inside the code, with a function name and no line number", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
 
@@ -5130,7 +5017,7 @@ A -
         });
 
         it("handles an error inside the code, with a function name with all invalid chars", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
 
@@ -5151,7 +5038,7 @@ A -
         });
 
         it("handles an error inside the code, with no function name", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
 
@@ -5179,9 +5066,8 @@ A -
 A -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setLocal("var0", "value0");
 
@@ -5194,9 +5080,8 @@ A -
 A -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
@@ -5209,9 +5094,8 @@ A -
 {var1}='value1'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], null)).to.equal("value1");
@@ -5224,9 +5108,8 @@ A -
     {var1}="value1"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
@@ -5243,9 +5126,8 @@ My function
     A -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -5260,9 +5142,8 @@ A -
     {var one}="value1"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var ONE", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
@@ -5276,9 +5157,8 @@ A -
     { var  one  }="value1"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var one", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
@@ -5290,9 +5170,8 @@ A -
     {var one}="value1"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            runner = new Runner(tree);
+            runner = new Runner();
+            runner.init(tree);
             runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("    var     ONE     ", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
@@ -5311,9 +5190,8 @@ A -
                     {{ var 4 }}=[ value 4 ]
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal("var0", "value0");
 
@@ -5341,9 +5219,8 @@ A -
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("foobar");
@@ -5362,9 +5239,8 @@ A -
     {var1}="value1"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -5380,9 +5256,8 @@ A -
         {{var3}}="-{var4}-"
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             assert.throws(() => {
@@ -5398,7 +5273,7 @@ A -
     describe("appendToLog()", function() {
         it("logs a string to a step, where no other logs exist", function() {
             let step = new Step();
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             runInstance.appendToLog("foobar", step);
@@ -5409,7 +5284,7 @@ A -
         it("logs a string to a step, where other logs exist", function() {
             let step = new Step();
             let branch = new Branch();
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             step.log = "foo\n";
@@ -5420,7 +5295,7 @@ A -
 
         it("logs a string to a branch, where no other logs exist and where there is no step", function() {
             let branch = new Branch();
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             runInstance.appendToLog("foobar", null || branch);
@@ -5430,7 +5305,7 @@ A -
 
         it("logs a string to a branch, where other logs exist and where there is no step", function() {
             let branch = new Branch();
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             branch.log = "foo\n";
@@ -5441,7 +5316,7 @@ A -
 
         it("fails silently when there is no step or branch", function() {
             let step = new Step();
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             assert.doesNotThrow(() => {
@@ -5474,9 +5349,8 @@ Second branch -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             // The branches take 20 ms to run, but will be stopped 10ms in
@@ -5528,9 +5402,8 @@ Big step {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             // The branches take 20 ms to run, but will be stopped 10ms in
@@ -5575,9 +5448,8 @@ Big step {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -5662,9 +5534,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -5736,9 +5607,8 @@ A  {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -5801,9 +5671,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -5855,9 +5724,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -5972,9 +5840,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -6070,9 +5937,8 @@ A  {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6167,9 +6033,8 @@ A  {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6250,9 +6115,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -6333,9 +6197,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.pauseOnFail = true;
             let runInstance = new RunInstance(runner);
 
@@ -6391,9 +6254,8 @@ A {
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6420,7 +6282,7 @@ Step to Inject {
         });
 
         it("works when there is no current step or branch", async function() {
-            let runner = new Runner();
+            let runner = new Runner(new Tree());
             runner.tree = new Tree();
             let runInstance = new RunInstance(runner);
 
@@ -6444,9 +6306,8 @@ Step to Inject {
             C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6477,9 +6338,8 @@ Step to Inject {
     {var1}='foo'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6514,9 +6374,8 @@ My function
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6545,7 +6404,8 @@ My function
         it("throws an error if a function declaration step is passed in", async function() {
             let tree = new Tree();
 
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             let step = tree.parseLine('* My function');
@@ -6559,9 +6419,8 @@ My function
 ~ A -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6596,9 +6455,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6658,9 +6516,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();
@@ -6738,9 +6595,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let runInstance = new RunInstance(runner);
 
             await runInstance.run();

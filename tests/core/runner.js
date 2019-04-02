@@ -14,9 +14,8 @@ describe("Runner", function() {
     describe("run()", function() {
         it("runs an empty tree", async function() {
             let tree = new Tree();
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
         });
 
@@ -33,9 +32,8 @@ A -
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.ranStepC).to.be.true;
@@ -55,9 +53,8 @@ A {
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -93,9 +90,8 @@ F {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.ranStepC).to.be.true;
@@ -133,9 +129,8 @@ Branch 6 -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.maxInstances = 6;
             await runner.run();
 
@@ -173,9 +168,8 @@ Branch 6 -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.maxInstances = 2;
             await runner.run();
 
@@ -204,9 +198,8 @@ Branch 3 -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.maxInstances = 1;
             await runner.run();
 
@@ -256,9 +249,8 @@ Branch Group 2 - +
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.maxInstances = 2;
             runner.numArr = [];
             await runner.run();
@@ -279,9 +271,8 @@ Failing branch -
     {var1}='{var2}'
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.maxInstances = 1;
             await runner.run();
 
@@ -306,9 +297,8 @@ A {
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -342,9 +332,8 @@ A {
             }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -407,9 +396,8 @@ C
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.count = 1;
             await runner.run();
 
@@ -453,9 +441,8 @@ C
 
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             runner.count = 1;
 
             await runner.run();
@@ -492,9 +479,8 @@ A
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
 
             await runner.run();
 
@@ -536,9 +522,8 @@ A
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
 
             await runner.run();
 
@@ -580,9 +565,8 @@ A
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
 
             await runner.run();
 
@@ -620,9 +604,8 @@ A
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
 
             await runner.run();
 
@@ -660,9 +643,8 @@ A
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
 
             await runner.run();
 
@@ -685,9 +667,8 @@ Wait 20 ms {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(tree.elapsed).to.be.above(15);
@@ -718,9 +699,8 @@ Wait 20 ms {
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(tree.elapsed).to.be.above(15);
@@ -735,9 +715,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
             expect(tree.elapsed).to.equal(-1);
 
@@ -755,9 +734,8 @@ A -
         C -
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             await expect(runner.run()).to.be.rejectedWith("Cannot run a stopped runner");
@@ -786,9 +764,8 @@ Branch 3 -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let promise = runner.run();
 
             // do a stop() after 10 ms
@@ -829,9 +806,8 @@ Branch 3 -
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             let promise = runner.run();
 
             // do a stop() after 10 ms
@@ -868,9 +844,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -925,9 +900,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -971,9 +945,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -1010,7 +983,8 @@ A {
 
         it("throws error if not paused", async function() {
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await expect(runner.runOneStep()).to.be.rejectedWith("Must be paused to run a step");
         });
     });
@@ -1034,9 +1008,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -1094,9 +1067,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -1141,9 +1113,8 @@ A {
 }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
@@ -1182,7 +1153,8 @@ A {
 
         it("throws error if not paused", async function() {
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await expect(runner.skipOneStep()).to.be.rejectedWith("Must be paused to skip a step");
         });
     });
@@ -1190,7 +1162,8 @@ A {
     describe("injectStep()", function() {
         it("throws error if not paused", async function() {
             let tree = new Tree();
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await expect(runner.injectStep({})).to.be.rejectedWith("Must be paused to run a step");
         });
 
@@ -1210,9 +1183,8 @@ A {
         }
 `, "file.txt");
 
-            tree.generateBranches();
-
-            let runner = new Runner(tree);
+            let runner = new Runner();
+            runner.init(tree);
             await runner.run();
 
             expect(runner.hasPaused()).to.be.true;

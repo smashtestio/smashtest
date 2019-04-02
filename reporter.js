@@ -36,3 +36,4 @@ class Reporter {
      */
     generateReport() {}
 }
+module.exports = Reporter;

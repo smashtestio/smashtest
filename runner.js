@@ -8,19 +8,38 @@ class Runner {
     /**
      * Generates the runner
      */
-    constructor(tree) {
-        this.tree = tree;                // The tree to run (tree.generateBranches() must have been already called)
-        this.reporter = {};              // the reporter to use
+    constructor() {
+        this.tree = null;                // The tree to run (just parsed in)
+        this.reporter = null;            // The Reporter to use
 
         this.flags = [];                 // Array of strings, the flags passed in through the command line (e.g., ['-maxInstances=7', '-noDebug', '-groups="one two"] )
-        this.maxInstances = 5;           // The maximum number of simultaneous branches to run
+
+        this.groups = undefined;         // Only run branches that are a part of one of these groups, no restrictions if this is undefined
+        this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
+        this.noReport = false;           // If true, do not output a report
+        this.maxInstances = 5;           // The maximum number of simultaneous branches to run
+        this.rerunNotPassed = undefined; // If true, only run branches in tree that didn't pass last time
+
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
 
         this.persistent = {};            // stores variables which persist from branch to branch, for the life of the Runner
+        this.globalInit = {};            // init each branch with these global variables
         this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
 
         this.isStopped = false;          // True if this runner has been stopped
+    }
+
+    /**
+     * Initializes the runner with a tree and reporter
+     */
+    init(tree, reporter) {
+        if(!this.noReport) {
+            this.reporter = reporter;
+        }
+        this.tree = tree;
+
+        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug);
     }
 
     /**
