@@ -296,10 +296,10 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                             if(currStep) {
                                 console.log("Next step: [ " + chalk.blue(currStep.line.trim()) + " ]");
-                                console.log(chalk.gray("n = run next, s = skip, r = resume, x = exit, ? = help, or enter step to run it"));
+                                console.log(chalk.gray("n = run next, s = skip, r = resume, x = exit, or enter step to run it"));
                             }
                             else {
-                                console.log(chalk.gray("enter step to run it, x = exit, ? = help"));
+                                console.log(chalk.gray("enter step to run it, x = exit"));
                             }
 
                             console.log("");
