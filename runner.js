@@ -49,6 +49,7 @@ class Runner {
      */
     async run() {
         this.tree.timeStarted = new Date();
+        await this.startReporter();
 
         let numInstances = Math.min(this.maxInstances, this.tree.branches.length);
 
@@ -79,6 +80,8 @@ class Runner {
                 await this.end();
             }
         }
+
+        await this.stopReporter();
     }
 
     /**
@@ -91,6 +94,8 @@ class Runner {
             runInstance.stop();
         })
         await this.runAfterEverything();
+
+        await this.stopReporter();
     }
 
     /**
@@ -103,10 +108,14 @@ class Runner {
             utils.error("Must be paused to run a step");
         }
 
+        await this.startReporter();
+
         let isBranchComplete = await this.runInstances[0].runOneStep();
         if(isBranchComplete) {
             await this.runAfterEverything();
         }
+
+        await this.stopReporter();
 
         return isBranchComplete;
     }
@@ -121,10 +130,14 @@ class Runner {
             utils.error("Must be paused to skip a step");
         }
 
+        await this.startReporter();
+
         let isBranchComplete = await this.runInstances[0].skipOneStep();
         if(isBranchComplete) {
             await this.runAfterEverything();
         }
+
+        await this.stopReporter();
 
         return isBranchComplete;
     }
@@ -141,7 +154,11 @@ class Runner {
             utils.error("Must be paused to run a step");
         }
 
-        return await this.runInstances[0].injectStep(step);
+        await this.startReporter();
+
+        await this.runInstances[0].injectStep(step);
+
+        await this.stopReporter();
     }
 
     /**
@@ -225,6 +242,24 @@ class Runner {
         }
         else {
             await this.runAfterEverything();
+        }
+    }
+
+    /**
+     * Starts the reporter, if there is one
+     */
+    async startReporter() {
+        if(this.reporter) {
+            await this.reporter.start();
+        }
+    }
+
+    /**
+     * Stops the reporter, if there is one
+     */
+    async stopReporter() {
+        if(this.reporter) {
+            await this.reporter.stop();
         }
     }
 }

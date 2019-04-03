@@ -136,11 +136,23 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
     // Initialize the reporter
     let reportPath = process.cwd() + "/report.html";
     let dateReportPath = process.cwd() + "/reports/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_') + ".html";
+    let dateReportsDirPath = process.cwd() + "/reports";
 
     reporter.onReportChanged = async function() {
         // Write the new report to report.html and reports/<datetime>.html
+        await new Promise((resolve, reject) => {
+            fs.mkdir(dateReportsDirPath, { recursive: true }, (err) => {
+                if(err) {
+                    reject(err);
+                }
+                else {
+                    resolve();
+                }
+            });
+        });
+
         let reportPromise = new Promise((resolve, reject) => {
-            fs.writeFile(reportPath, reporter.htmlReport, function(err) {
+            fs.writeFile(reportPath, reporter.htmlReport, (err) => {
                 if(err) {
                     reject(err);
                 }
@@ -151,7 +163,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         });
 
         let dateReportPromise = new Promise((resolve, reject) => {
-            fs.writeFile(dateReportPath, reporter.htmlReport, function(err) {
+            fs.writeFile(dateReportPath, reporter.htmlReport, (err) => {
                 if(err) {
                     reject(err);
                 }
@@ -221,17 +233,18 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
     progressBar.start(totalSteps, totalStepsComplete);
 
     let timer = null;
-    setTimer();
+    activateProgressBarTimer();
 
     // Run
     await runner.run();
     isComplete = true;
 
     /**
-     * @return {Object} Timer for updating the progress bar
+     * Activates the progress bar timer
      */
-    function setTimer() {
-        timer = setTimeout(updateProgressBar, 250);
+    function activateProgressBarTimer() {
+        const UPDATE_PROGRESS_BAR_FREQUENCY = 250; // ms
+        timer = setTimeout(updateProgressBar, UPDATE_PROGRESS_BAR_FREQUENCY);
     }
 
     /**
@@ -269,7 +282,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             console.log(``);
         }
         else {
-            setTimer();
+            activateProgressBarTimer();
         }
     }
 
@@ -289,7 +302,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
      * Outputs the given counts to the console
      */
     function outputCounts() {
-        if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && total == 0) {
+        if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && complete == 0) {
             return; // nothing to show yet
         }
 

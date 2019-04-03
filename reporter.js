@@ -11,21 +11,27 @@ class Reporter {
         this.htmlReport = "";           // the generated html report is stored here
 
         this.timer = null;              // timer that goes off when it's time to re-generate the report
+        this.stopped = false;           // true if this Reporter was already stopped
         this.onReportChanged = null;    // async function that gets invoked when htmlReport changes
     }
 
     /**
-     * Calls generateReport() every time ms, calls onReportChanged() it's different from last time
+     * Calls generateReport() every REPORT_GENERATE_FREQUENCY ms, calls onReportChanged() if report changed from last time
      */
-    start(time) {
-        timer = setTimeout(this.checkForChanges, REPORT_GENERATE_FREQUENCY);
+    async start() {
+        await this.checkForChanges();
     }
 
     /**
      * Stops the timer set by start()
      */
-    stop() {
-        clearTimeout(timer);
+    async stop() {
+        this.stopped = true;
+        if(this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+        await this.checkForChanges(); // one final time, to encompass last-second changes
     }
 
     /**
@@ -35,13 +41,18 @@ class Reporter {
         let newHtmlReport = this.generateReport();
         if(newHtmlReport != this.htmlReport) {
             this.htmlReport = newHtmlReport;
-            await this.onReportChanged();
+            if(this.onReportChanged) {
+                await this.onReportChanged();
+            }
         }
-        timer = setTimeout(this.checkForChanges, REPORT_GENERATE_FREQUENCY);
+        
+        if(!this.stopped) {
+            this.timer = setTimeout(this.checkForChanges, REPORT_GENERATE_FREQUENCY);
+        }
     }
 
     /**
-     * @return {String} The generated HTML report
+     * @return {String} The HTML report generated from this.tree and this.runner
      */
     generateReport() {
         return "REPORT HERE";

@@ -6,3 +6,5 @@ chromedriver
 coverage
 .nyc_output
 smashtest.crx
+report.html
+reports
