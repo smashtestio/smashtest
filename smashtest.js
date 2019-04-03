@@ -1,4 +1,5 @@
 const readFiles = require('read-files-promise');
+const fs = require('fs');
 const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
@@ -132,6 +133,37 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
     runner.init(tree, reporter);
 
+    // Initialize the reporter
+    let reportPath = process.cwd() + "/report.html";
+    let dateReportPath = process.cwd() + "/reports/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_') + ".html";
+
+    reporter.onReportChanged = async function() {
+        // Write the new report to report.html and reports/<datetime>.html
+        let reportPromise = new Promise((resolve, reject) => {
+            fs.writeFile(reportPath, reporter.htmlReport, function(err) {
+                if(err) {
+                    reject(err);
+                }
+                else {
+                    resolve();
+                }
+            });
+        });
+
+        let dateReportPromise = new Promise((resolve, reject) => {
+            fs.writeFile(dateReportPath, reporter.htmlReport, function(err) {
+                if(err) {
+                    reject(err);
+                }
+                else {
+                    resolve();
+                }
+            });
+        });
+
+        await Promise.all[reportPromise, dateReportPromise];
+    };
+
     // Build the tree
     if(runner.rerunNotPassed) {
         let buffer = null;
@@ -163,7 +195,6 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         tree.mergeBranchesFromPrevRun(json);
     }
 
-    let reportPath = `/Users/Peter/report.html`; // TODO: set this var
     let isComplete = false;
     let elapsed = 0;
 
