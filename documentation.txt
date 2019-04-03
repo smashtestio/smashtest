@@ -236,17 +236,51 @@ Code blocks
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., setLocal(), setGlobal(), setPersistent()) instead.
 
 Sequential execution (..)
-    - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)
-        more than once
-            - ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps
-            - a .. inside a *Function declaration does not expand beyond the bounds of that *Function declaration
-            - If a function call is at or below the .. line, and it has multiple branches inside, it will be executed as such:
-                - All in one branch: 1st branch from top to bottom, flattened steps under function call, 2nd branch from top to bottom, flattened steps under function call, etc.
-                - Give an example
+    - .. at the end of a step
+        - .. means execute branches at and below me depth-first sequentially
+        - Give examples
+
+            Test the editbox without navigating off the page ..
+
+                Enter bad value 1
+                Enter bad value 2
+                Enter bad value 3
+
+                    Verify error
+
+        - ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps
+            - Do not repeat the execution of a parent step (including me) more than once
+        - a .. inside a *Function declaration does not expand beyond the bounds of that *Function declaration
+        - If a function call is at or below the .. line, and it has multiple branches inside, the multiple branches will
+            be combined sequentially.
+            - Give an example
+
+                Test the editbox without navigating off the page ..
+                    Enter bad values
+                        Verify error
+
+                    * Enter bad values
+                        Enter bad value 1
+                        Enter bad value 2
+                        Enter bad value 3
+
     - .. above a step block
+        - Acts differently from the .. that comes at the end of a line
         - Only applies to the step block, not to the step block's children
-        - Same rules if one of the steps in the step block is a function with multiple branches
-    - Show examples from bottom of test_language_sample.txt
+        - If step block contains a function with multiple branches, the multiple branches won't be combined sequentially as with the
+            .. at the end of a step. Rather, multiple branches will be generated.
+            - Give an example
+                ..
+                Add item to cart
+                Go to cart page
+                Verify something on cart
+
+                * Go to cart page  // Two different ways of getting to the cart
+                    Navigate to '/cart'
+
+                    Click {cart button in header}
+
+    - Show more examples from bottom of test_language_sample.txt
 
 No parallel execution (+)
     - No two child branches may execute simultaneously
