@@ -827,56 +827,25 @@ class Tree {
 
         // Recursively call branchify() on children
         let branchesFromChildren = []; // Array of Branch
-        if(isSequential) {
-            // Cross-join branches from children sequentially
-            children.forEach(child => {
-                if(child instanceof StepBlock) {
-                    // Make it sequential
-                    child.isSequential = true;
-                }
-
-                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, true);
-
-                if(branchesFromChild && branchesFromChild.length > 0) {
-                    if(branchesFromChildren.length == 0) {
-                        branchesFromChildren = branchesFromChild;
-                    }
-                    else {
-                        let newBranchesFromChildren = [];
-                        branchesFromChildren.forEach(existingBranchFromChild => {
-                            branchesFromChild.forEach(incomingBranchFromChild => {
-                                existingBranchFromChild = existingBranchFromChild.clone();
-                                incomingBranchFromChild = incomingBranchFromChild.clone();
-                                existingBranchFromChild.mergeToEnd(incomingBranchFromChild);
-                                newBranchesFromChildren.push(existingBranchFromChild);
-                            });
-                        });
-                        branchesFromChildren = newBranchesFromChildren;
-                    }
-                }
-            });
-        }
-        else { // non-sequential
-            children.forEach(child => {
-                if(child instanceof StepBlock && !child.isSequential) {
-                    // If this child is a non-sequential step block, just call branchify() directly on each member step
-                    child.steps.forEach(step => {
-                        let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
-                        if(branchesFromChild && branchesFromChild.length > 0) {
-                            branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
-                        }
-                        // NOTE: else is probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
-                    });
-                }
-                else {
-                    // If this child is a step, call branchify() on it normally
-                    let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+        children.forEach(child => {
+            if(child instanceof StepBlock && !child.isSequential) {
+                // If this child is a non-sequential step block, just call branchify() directly on each member step
+                child.steps.forEach(step => {
+                    let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
+                    // NOTE: else is probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
+                });
+            }
+            else {
+                // If this child is a step, call branchify() on it normally
+                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                if(branchesFromChild && branchesFromChild.length > 0) {
+                    branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
-            });
-        }
+            }
+        });
 
         // ***************************************
         // 4) Remove branches we don't want run
@@ -1071,18 +1040,24 @@ class Tree {
 
         let branchesBelow = []; // what we're returning - represents all branches at and below this step
 
-        if(branchesFromThisStep.length == 0 && branchesFromChildren.length == 0) {
-            branchesBelow = [];
+        // If branchesFromThisStep is empty, "prime" it with an empty Branch, so that the loops below work
+        if(branchesFromThisStep.length == 0) {
+            branchesFromThisStep.push(new Branch());
         }
-        else if(branchesFromChildren.length == 0) {
-            branchesBelow = branchesFromThisStep;
+
+        if(isSequential && !(step instanceof StepBlock)) {
+            // One big resulting branch, built as follows:
+            // One branchesFromThisStep branch, each child branch, one branchesFromThisStep branch, each child branch, etc.
+            let bigBranch = new Branch();
+            branchesFromThisStep.forEach(branchFromThisStep => {
+                bigBranch.mergeToEnd(branchFromThisStep);
+                branchesFromChildren.forEach(branchFromChild => {
+                    bigBranch.mergeToEnd(branchFromChild.clone());
+                });
+            });
+            branchesBelow = [ bigBranch ];
         }
         else {
-            // If branchesFromThisStep is empty (as in the case of the root), "prime" it with an empty Branch, so that the loops below work
-            if(branchesFromThisStep.length == 0) {
-                branchesFromThisStep.push(new Branch());
-            }
-
             branchesFromThisStep.forEach(branchFromThisStep => {
                 branchesFromChildren.forEach(branchFromChild => {
                     let newBranchBelow = branchFromThisStep.clone();
@@ -1090,6 +1065,15 @@ class Tree {
                     branchesBelow.push(newBranchBelow);
                 });
             });
+
+            if(branchesBelow.length == 0) {
+                if(branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
+                    branchesBelow = branchesFromThisStep;
+                }
+                else {
+                    branchesBelow = [];
+                }
+            }
         }
 
         // Attach beforeEveryBranch to each branch below
