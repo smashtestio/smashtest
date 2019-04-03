@@ -5724,17 +5724,18 @@ F ..
     `);
             let branches = tree.branchify(tree.root);
 
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(5);
+            expect(branches).to.have.lengthOf(2);
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(2);
 
-            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("F");
             expect(branches[0].steps[1].text).to.equal("A");
             expect(branches[0].steps[2].text).to.equal("B");
-            expect(branches[0].steps[3].text).to.equal("F");
-            expect(branches[0].steps[4].text).to.equal("C");
 
-            expect(branches).to.containSubset([
+            expect(branches[1].steps[0].text).to.equal("F");
+            expect(branches[1].steps[1].text).to.equal("C");
+
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -5751,7 +5752,11 @@ F ..
                             text: "B",
                             branchIndents: 1,
                             isSequential: undefined
-                        },
+                        }
+                    ]
+                },
+                {
+                    steps: [
                         {
                             text: "F",
                             branchIndents: 0,
@@ -5785,10 +5790,10 @@ F ..
     `);
             let branches = tree.branchify(tree.root);
 
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(13);
+            expect(branches).to.have.lengthOf(2);
+            expect(branches[0].steps).to.have.lengthOf(7);
+            expect(branches[1].steps).to.have.lengthOf(6);
 
-            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("F");
             expect(branches[0].steps[1].text).to.equal("A");
             expect(branches[0].steps[2].text).to.equal("B");
@@ -5797,15 +5802,14 @@ F ..
             expect(branches[0].steps[5].text).to.equal("G");
             expect(branches[0].steps[6].text).to.equal("H");
 
-            expect(branches[0].steps[7].text).to.equal("F");
-            expect(branches[0].steps[8].text).to.equal("C");
-            expect(branches[0].steps[9].text).to.equal("D");
-            expect(branches[0].steps[10].text).to.equal("E");
-            expect(branches[0].steps[11].text).to.equal("G");
-            expect(branches[0].steps[12].text).to.equal("H");
+            expect(branches[1].steps[0].text).to.equal("F");
+            expect(branches[1].steps[1].text).to.equal("C");
+            expect(branches[1].steps[2].text).to.equal("D");
+            expect(branches[1].steps[3].text).to.equal("E");
+            expect(branches[1].steps[4].text).to.equal("G");
+            expect(branches[1].steps[5].text).to.equal("H");
 
-
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -5842,7 +5846,11 @@ F ..
                             text: "H",
                             branchIndents: 0,
                             isSequential: undefined
-                        },
+                        }
+                    ]
+                },
+                {
+                    steps: [
                         {
                             text: "F",
                             branchIndents: 0,
@@ -6031,10 +6039,10 @@ F ..
     `);
             let branches = tree.branchify(tree.root);
 
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(16);
+            expect(branches).to.have.lengthOf(2);
+            expect(branches[0].steps).to.have.lengthOf(8);
+            expect(branches[1].steps).to.have.lengthOf(8);
 
-            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("F");
             expect(branches[0].steps[1].text).to.equal("A");
             expect(branches[0].steps[2].text).to.equal("B");
@@ -6044,16 +6052,16 @@ F ..
             expect(branches[0].steps[6].text).to.equal("G");
             expect(branches[0].steps[7].text).to.equal("H");
 
-            expect(branches[0].steps[8].text).to.equal("F");
-            expect(branches[0].steps[9].text).to.equal("A");
-            expect(branches[0].steps[10].text).to.equal("C");
-            expect(branches[0].steps[11].text).to.equal("I");
-            expect(branches[0].steps[12].text).to.equal("D");
-            expect(branches[0].steps[13].text).to.equal("E");
-            expect(branches[0].steps[14].text).to.equal("G");
-            expect(branches[0].steps[15].text).to.equal("H");
+            expect(branches[1].steps[0].text).to.equal("F");
+            expect(branches[1].steps[1].text).to.equal("A");
+            expect(branches[1].steps[2].text).to.equal("C");
+            expect(branches[1].steps[3].text).to.equal("I");
+            expect(branches[1].steps[4].text).to.equal("D");
+            expect(branches[1].steps[5].text).to.equal("E");
+            expect(branches[1].steps[6].text).to.equal("G");
+            expect(branches[1].steps[7].text).to.equal("H");
 
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -6095,7 +6103,11 @@ F ..
                             text: "H",
                             branchIndents: 0,
                             isSequential: undefined
-                        },
+                        }
+                    ]
+                },
+                {
+                    steps: [
                         {
                             text: "F",
                             branchIndents: 0,
@@ -6196,18 +6208,15 @@ S .. -
             let branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(7);
+            expect(branches[0].steps).to.have.lengthOf(5);
 
-            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("S");
             expect(branches[0].steps[1].text).to.equal("A");
-            expect(branches[0].steps[2].text).to.equal("D");
-            expect(branches[0].steps[3].text).to.equal("B");
+            expect(branches[0].steps[2].text).to.equal("B");
+            expect(branches[0].steps[3].text).to.equal("C");
             expect(branches[0].steps[4].text).to.equal("D");
-            expect(branches[0].steps[5].text).to.equal("C");
-            expect(branches[0].steps[6].text).to.equal("D");
 
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -6221,17 +6230,7 @@ S .. -
                             isSequential: undefined
                         },
                         {
-                            text: "D",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
                             text: "B",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "D",
                             branchIndents: 0,
                             isSequential: undefined
                         },
@@ -6272,31 +6271,36 @@ S .. -
     `);
             let branches = tree.branchify(tree.root);
 
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(15);
+            expect(branches).to.have.lengthOf(3);
+            expect(branches[0].steps).to.have.lengthOf(7);
+            expect(branches[1].steps).to.have.lengthOf(7);
+            expect(branches[2].steps).to.have.lengthOf(7);
 
-            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("S");
             expect(branches[0].steps[1].text).to.equal("A");
-            expect(branches[0].steps[2].text).to.equal("I");
+            expect(branches[0].steps[2].text).to.equal("B");
+            expect(branches[0].steps[3].text).to.equal("D");
+            expect(branches[0].steps[4].text).to.equal("C");
+            expect(branches[0].steps[5].text).to.equal("H");
+            expect(branches[0].steps[6].text).to.equal("I");
 
-            expect(branches[0].steps[3].text).to.equal("B");
-            expect(branches[0].steps[4].text).to.equal("D");
-            expect(branches[0].steps[5].text).to.equal("I");
+            expect(branches[1].steps[0].text).to.equal("S");
+            expect(branches[1].steps[1].text).to.equal("A");
+            expect(branches[1].steps[2].text).to.equal("B");
+            expect(branches[1].steps[3].text).to.equal("E");
+            expect(branches[1].steps[4].text).to.equal("C");
+            expect(branches[1].steps[5].text).to.equal("H");
+            expect(branches[1].steps[6].text).to.equal("I");
 
-            expect(branches[0].steps[6].text).to.equal("B");
-            expect(branches[0].steps[7].text).to.equal("E");
-            expect(branches[0].steps[8].text).to.equal("I");
+            expect(branches[2].steps[0].text).to.equal("S");
+            expect(branches[2].steps[1].text).to.equal("A");
+            expect(branches[2].steps[2].text).to.equal("B");
+            expect(branches[2].steps[3].text).to.equal("G");
+            expect(branches[2].steps[4].text).to.equal("C");
+            expect(branches[2].steps[5].text).to.equal("H");
+            expect(branches[2].steps[6].text).to.equal("I");
 
-            expect(branches[0].steps[9].text).to.equal("B");
-            expect(branches[0].steps[10].text).to.equal("G");
-            expect(branches[0].steps[11].text).to.equal("I");
-
-            expect(branches[0].steps[12].text).to.equal("C");
-            expect(branches[0].steps[13].text).to.equal("H");
-            expect(branches[0].steps[14].text).to.equal("I");
-
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -6306,11 +6310,6 @@ S .. -
                         },
                         {
                             text: "A",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "I",
                             branchIndents: 0,
                             isSequential: undefined
                         },
@@ -6325,7 +6324,31 @@ S .. -
                             isSequential: undefined
                         },
                         {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
                             text: "I",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "S",
+                            branchIndents: 0,
+                            isSequential: true
+                        },
+                        {
+                            text: "A",
                             branchIndents: 0,
                             isSequential: undefined
                         },
@@ -6340,7 +6363,31 @@ S .. -
                             isSequential: undefined
                         },
                         {
+                            text: "C",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        },
+                        {
+                            text: "H",
+                            branchIndents: 1,
+                            isSequential: undefined
+                        },
+                        {
                             text: "I",
+                            branchIndents: 0,
+                            isSequential: undefined
+                        }
+                    ]
+                },
+                {
+                    steps: [
+                        {
+                            text: "S",
+                            branchIndents: 0,
+                            isSequential: true
+                        },
+                        {
+                            text: "A",
                             branchIndents: 0,
                             isSequential: undefined
                         },
@@ -6352,11 +6399,6 @@ S .. -
                         {
                             text: "G",
                             branchIndents: 1,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "I",
-                            branchIndents: 0,
                             isSequential: undefined
                         },
                         {
@@ -6393,18 +6435,15 @@ S .. -
             let branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(7);
+            expect(branches[0].steps).to.have.lengthOf(5);
 
-            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("S");
             expect(branches[0].steps[1].text).to.equal("A");
-            expect(branches[0].steps[2].text).to.equal("C");
-            expect(branches[0].steps[3].text).to.equal("D");
-            expect(branches[0].steps[4].text).to.equal("B");
-            expect(branches[0].steps[5].text).to.equal("C");
-            expect(branches[0].steps[6].text).to.equal("D");
+            expect(branches[0].steps[2].text).to.equal("B");
+            expect(branches[0].steps[3].text).to.equal("C");
+            expect(branches[0].steps[4].text).to.equal("D");
 
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -6414,16 +6453,6 @@ S .. -
                         },
                         {
                             text: "A",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "C",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "D",
                             branchIndents: 0,
                             isSequential: undefined
                         },
@@ -6463,23 +6492,16 @@ S .. -
             let branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(11);
+            expect(branches[0].steps).to.have.lengthOf(6);
 
-            // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
             expect(branches[0].steps[0].text).to.equal("S");
             expect(branches[0].steps[1].text).to.equal("A");
-            expect(branches[0].steps[2].text).to.equal("C");
-            expect(branches[0].steps[3].text).to.equal("E");
+            expect(branches[0].steps[2].text).to.equal("B");
+            expect(branches[0].steps[3].text).to.equal("C");
             expect(branches[0].steps[4].text).to.equal("D");
             expect(branches[0].steps[5].text).to.equal("E");
 
-            expect(branches[0].steps[6].text).to.equal("B");
-            expect(branches[0].steps[7].text).to.equal("C");
-            expect(branches[0].steps[8].text).to.equal("E");
-            expect(branches[0].steps[9].text).to.equal("D");
-            expect(branches[0].steps[10].text).to.equal("E");
-
-            expect(branches).to.containSubset([
+            expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
                         {
@@ -6493,37 +6515,12 @@ S .. -
                             isSequential: undefined
                         },
                         {
-                            text: "C",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "E",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "D",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "E",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
                             text: "B",
                             branchIndents: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
-                            isSequential: undefined
-                        },
-                        {
-                            text: "E",
                             branchIndents: 0,
                             isSequential: undefined
                         },
@@ -10027,12 +10024,12 @@ $ G .. -
 
             expect(branches).to.have.lengthOf(2);
 
-            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[0].steps).to.have.lengthOf(6);
             expect(branches[1].steps).to.have.lengthOf(3);
 
             expect(branches).to.containSubsetInOrder([
                 {
-                    steps: [ { text: "A" }, { text: "D" }, { text: "E" } ],
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" }, { text: "E" } ],
                     isOnly: true,
                     isDebug: undefined
                 },

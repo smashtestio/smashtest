@@ -239,10 +239,9 @@ Sequential execution (..)
     - .. means execute branches at and below me depth-first sequentially, but never repeat the execution of a parent step (including me)
         more than once
             - ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps
+                - Includes flattening of step blocks (same as attaching .. to them)
             - a .. inside a *Function declaration does not expand beyond the bounds of that *Function declaration
-            - If a function call is at or below the .. line, and it has multiple branches inside, it will be executed as such:
-                - All in one branch: 1st branch from top to bottom, flattened steps under function call, 2nd branch from top to bottom, flattened steps under function call, etc.
-                - Give an example
+            - If a function call is at or below the .. line, and it has multiple branches inside, it will still split into multiple branches
     - .. above a step block
         - Only applies to the step block, not to the step block's children
         - Same rules if one of the steps in the step block is a function with multiple branches
