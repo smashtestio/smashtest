@@ -3645,30 +3645,6 @@ A -
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("runs an Execute In Browser step", async function() {
-            let tree = new Tree();
-            tree.parseIn(`
-Execute in browser {
-    world
-}
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-
-            runInstance.execInBrowser = function(code) {
-                runInstance.one = "hello " + code;
-            };
-
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-
-            expect(runInstance.one).to.equal("hello \n    world\n");
-
-            expect(tree.branches[0].error).to.equal(undefined);
-            expect(tree.branches[0].steps[0].error).to.equal(undefined);
-        });
-
         it("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async function() {
             let tree = new Tree();
             tree.parseIn(`

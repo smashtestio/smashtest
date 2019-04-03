@@ -1,9 +1,5 @@
 * Before Everything {
-    /*
-    Execute In Browser
-        - execInBrowser() is a function which is implemented and injected into RunInstance by a packaged Before Every Branch hook
-            (inject only if it isn't there already - see runStep())
-    */
+
 }
 
 * After Every Step {
