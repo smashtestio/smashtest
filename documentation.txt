@@ -40,6 +40,10 @@ Running tests
         - -noReport
         - -rerunNotPassed or -r
             - -rerunNotPassed=filename or "filename"
+                - filename of report that constitutes last run
+            - -rerunNotPassed with no filename
+                - Uses last report from <current dir>/reports that didn't have a ~
+                - If one isn't found, uses report.html in the current directory
         - -groups=value or "val1 val2 val3"
         - -minFrequency=med
             - med if omitted

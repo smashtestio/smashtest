@@ -48,6 +48,30 @@ exports.log = function(obj) {
 }
 
 /**
+ * @return {String} str, but with html-sensitive chars escaped to html entities
+ */
+exports.escapeHtml = function(str) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/**
+ * @return {String} str, but with html entities unescaped to their actual chars
+ */
+exports.unescapeHtml = function(str) {
+    return str
+        .replace(/&#039;/g, "'")
+        .replace(/&quot;/g, "\"")
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&amp;/g, "&");
+}
+
+/**
  * @return {String} str, but with \\, \', \", \[, and \] unescaped to \, ', ", [, and ] respectively
  */
 exports.unescape = function(str) {

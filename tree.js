@@ -1229,6 +1229,10 @@ class Tree {
         let prevBranches = previous.branches;
         let currBranches = this.branches;
 
+        if(!prevBranches) {
+            return;
+        }
+
         if(prevBranches.length == 0 && currBranches.length == 0) {
             return;
         }

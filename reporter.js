@@ -1,12 +1,12 @@
-const REPORT_GENERATE_FREQUENCY = 1000; // ms
+const utils = require('./utils.js');
 
 /**
  * Generates a report on the status of the tree and runner
  */
 class Reporter {
-    constructor() {
-        this.tree = {};                 // the Tree object to report on
-        this.runner = {};               // the Runner object to report on
+    constructor(tree, runner) {
+        this.tree = tree;               // the Tree object to report on
+        this.runner = runner;           // the Runner object to report on
 
         this.htmlReport = "";           // the generated html report is stored here
 
@@ -45,8 +45,9 @@ class Reporter {
                 await this.onReportChanged();
             }
         }
-        
+
         if(!this.stopped) {
+            const REPORT_GENERATE_FREQUENCY = 1000; // ms
             this.timer = setTimeout(this.checkForChanges, REPORT_GENERATE_FREQUENCY);
         }
     }
@@ -55,10 +56,45 @@ class Reporter {
      * @return {String} The HTML report generated from this.tree and this.runner
      */
     generateReport() {
-        return "REPORT HERE";
+        return `
+        <html>
+            <head>
+                <meta name="branchesJSON" content="` + utils.escapeHtml(this.tree.serializeBranches()) + `"/>
+            </head>
+            <body>
+                BODY HERE
+            </body>
+        </html>
+        `;
 
 
 
+    }
+
+    /**
+     * @return {String} The unescaped branches JSON extracted from the given html
+     * @throws {Error} If there was a problem extracting the JSON, or if the JSON is invalid
+     */
+    extractBranchesJson(htmlReport) {
+        const errMsg = "Error parsing the report from last time. Please try another file.";
+
+        let matches = htmlReport.match(/<meta name="branchesJSON" content="([^"]*)"/);
+        if(matches) {
+            let content = matches[1];
+            content = utils.unescapeHtml(content);
+
+            try {
+                JSON.parse(content);
+            }
+            catch(e) {
+                utils.error(errMsg);
+            }
+
+            return content;
+        }
+        else {
+            utils.error(errMsg);
+        }
     }
 }
 module.exports = Reporter;

@@ -10,7 +10,7 @@
     // Take screenshot upon failure
 
     /*
-        After Every Step sets step.stepReporter to a function that outputs html for this step.
+        After Every Step sets step.htmlReport to the report html for this step.
         This is the logging and screenshots that go under the step's name in the report.
     */
 }

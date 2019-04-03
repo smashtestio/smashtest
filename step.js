@@ -60,7 +60,7 @@ class Step {
         this.elapsed = 0;                     // number of ms it took this step to execute
         this.timeStarted = {};                // Date object (time) of when this step started being executed
 
-        stepReporter = null;                  // function that outputs the html for this step in reports
+        htmlReport = "";                      // html that represents this step in reports
         */
     }
 
