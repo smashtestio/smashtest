@@ -42,7 +42,7 @@ Running tests
             - -rerunNotPassed=filename or "filename"
                 - filename of report that constitutes last run
             - -rerunNotPassed with no filename
-                - Uses last report from <current dir>/reports that didn't have a ~
+                - Uses latest report from <current dir>/reports that didn't have a ~ (~ reports have "debug" at the end of their filenames)
                 - If one isn't found, uses report.html in the current directory
         - -groups=value or "val1 val2 val3"
         - -minFrequency=med

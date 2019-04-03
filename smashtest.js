@@ -136,7 +136,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
         // Initialize the reporter
         let reportPath = process.cwd() + "/report.html";
-        let dateReportPath = process.cwd() + "/reports/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_') + ".html";
+        let dateReportPath = process.cwd() + "/reports/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_') + (tree.isDebug ? "_debug" : "") + ".html";
         let dateReportsDirPath = process.cwd() + "/reports";
 
         reporter.onReportChanged = async function() {
@@ -194,7 +194,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             }
             else {
                 // -rerunNotPassed with no filename
-                // Use last report from /reports that didn't have a ~
+                // Use last report from /reports that doesn't have _debug.html in its name
                 // If one isn't found, use report.html in same directory
 
                 // TODO find the right file and read in the report, otherwise error
