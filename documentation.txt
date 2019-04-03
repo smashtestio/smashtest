@@ -238,7 +238,22 @@ Code blocks
 Sequential execution (..)
     - .. at the end of a step
         - .. means execute branches at and below me depth-first sequentially
+            - The steps at and below a .. are expanded normally, then executed sequentially
+            - ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps
         - Give examples
+
+            Something - ..
+                One -
+                    Two -
+                    Three -
+                Four -
+                    Five -
+
+                is
+
+                1) Something
+                2) One
+                 etc.
 
             Test the editbox without navigating off the page ..
 
@@ -248,8 +263,6 @@ Sequential execution (..)
 
                     Verify error
 
-        - ..'es have the effect of flattening themselves and their children into one long list of sequentially indented steps
-            - Do not repeat the execution of a parent step (including me) more than once
         - a .. inside a *Function declaration does not expand beyond the bounds of that *Function declaration
         - If a function call is at or below the .. line, and it has multiple branches inside, the multiple branches will
             be combined sequentially.

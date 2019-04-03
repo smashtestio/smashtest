@@ -138,6 +138,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         let reportPath = process.cwd() + "/report.html";
         let dateReportPath = process.cwd() + "/reports/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_') + (tree.isDebug ? "_debug" : "") + ".html";
         let dateReportsDirPath = process.cwd() + "/reports";
+        let lastReportPath = null;
 
         reporter.onReportChanged = async function() {
             // Write the new report to report.html and reports/<datetime>.html
@@ -182,32 +183,57 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             let buffer = null;
             if(typeof runner.rerunNotPassed == 'string') {
                 // -rerunNotPassed='filename of report that constitutes last run'
-
-                // TODO: find and read in last report, otherwise error
-
-
-
-
-
-
-
+                await rerunNotPassed(runner.rerunNotPassed);
             }
             else {
                 // -rerunNotPassed with no filename
-                // Use last report from /reports that doesn't have _debug.html in its name
+                // Use last report from /reports that doesn't have debug.html in its name
                 // If one isn't found, use report.html in same directory
 
-                // TODO find the right file and read in the report, otherwise error
+                await new Promise((resolve, reject) => {
+                    glob('reports/!(*debug.html)', function(err, filenames) {
+                        if(err) {
+                            reject(err);
+                        }
 
-
-
-
-
-
+                        if(filenames && filenames.length > 0) {
+                            filenames.sort();
+                            filenames.reverse();
+                            rerunNotPassed(filenames[0])
+                                .then(resolve)
+                                .catch((e) => {
+                                    reject(e);
+                                });
+                        }
+                        else {
+                            rerunNotPassed("report.html")
+                                .then(resolve)
+                                .catch((e) => {
+                                    reject(e);
+                                });
+                        }
+                    });
+                });
             }
 
-            let json = JSON.parse(buffer);
-            tree.mergeBranchesFromPrevRun(json);
+            /**
+             * Reads in the given report html file, extracts json, merges it with tree
+             */
+            async function rerunNotPassed(filename) {
+                lastReportPath = process.cwd() + "/" + filename;
+
+                let fileBuffers = await readFiles([ filename ], {encoding: 'utf8'});
+
+                if(fileBuffers.length == 0) {
+                    utils.error(`The file ${filename} could not be found`);
+                }
+
+                let buffer = fileBuffers[0];
+                buffer = reporter.extractBranchesJson(buffer);
+
+                let json = JSON.parse(JSON.stringify(buffer));
+                tree.mergeBranchesFromPrevRun(json);
+            }
         }
 
         let isComplete = false;
@@ -228,6 +254,9 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         console.log(``);
         console.log(chalk.bold.yellow(`SmashTEST 0.1.1 BETA`));
         console.log(`${totalToRun} branches to run | ${totalInReport} branches in report`);
+        if(lastReportPath) {
+            console.log(`Retrieving last run from: ` + chalk.gray.italic(lastReportPath));
+        }
         console.log(`Live report at: ` + chalk.gray.italic(reportPath));
         console.log(``);
 
