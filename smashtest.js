@@ -4,6 +4,7 @@ const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
 const progress = require('cli-progress');
+const prompt = require("prompt");
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
@@ -74,6 +75,10 @@ for(let i = 2; i < process.argv.length; i++) {
                 }
                 break;
 
+            case "repl":
+                runner.repl = true;
+                break;
+
             case "g":
                 runner.globalInit[varName] = value;
                 break;
@@ -95,7 +100,7 @@ for(let i = 2; i < process.argv.length; i++) {
     }
 }
 
-if(filenames.length == 0) {
+if(filenames.length == 0 && !runner.repl) {
     if(jsFilenames.length > 0) {
         utils.error("No files found (js files don't count)");
     }
@@ -239,6 +244,8 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         let isComplete = false;
         let elapsed = 0;
 
+        let emptyREPL = runner.repl && tree.branches.length == 0;
+
         // Branch counts
         let passed = 0;
         let failed = 0;
@@ -253,23 +260,129 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
         console.log(``);
         console.log(chalk.bold.yellow(`SmashTEST 0.1.1 BETA`));
-        console.log(`${totalToRun} branches to run | ${totalInReport} branches in report`);
-        if(lastReportPath) {
-            console.log(`Retrieving last run from: ` + chalk.gray.italic(lastReportPath));
+
+        if(!emptyREPL) {
+            console.log(`${totalToRun} branches to run` + (!runner.noReport ? ` | ${totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + chalk.yellow(`In DEBUG mode (~)`) : ``));
+            if(lastReportPath) {
+                console.log(`Retrieving last run from: ` + chalk.gray.italic(lastReportPath));
+            }
+            if(!runner.noReport) {
+                console.log(`Live report at: ` + chalk.gray.italic(reportPath));
+            }
         }
-        console.log(`Live report at: ` + chalk.gray.italic(reportPath));
+
         console.log(``);
 
-        // Progress bar
-        let progressBar = generateProgressBar(true);
-        progressBar.start(totalSteps, totalStepsComplete);
+        if(tree.isDebug || runner.repl) {
+            runner.consoleOutput = true;
+            let exiting = false;
 
-        let timer = null;
-        activateProgressBarTimer();
+            while(true) {
+                if(exiting) {
+                    await exit();
+                    return;
+                }
 
-        // Run
-        await runner.run();
-        isComplete = true;
+                await runner.run();
+
+                if(runner.hasPaused() || emptyREPL) {
+                    // Tree not completed yet, open REPL and await user input
+                    try {
+                        await new Promise((resolve, reject) => {
+                            prompt.message = "";
+                            prompt.delimiter = "";
+
+                            let currStep = runner.runInstances[0].currStep;
+
+                            if(currStep) {
+                                console.log("Next step: [ " + chalk.blue(currStep.line.trim()) + " ]");
+                                console.log(chalk.gray("n = run next, s = skip, r = resume, x = exit, ? = help, or enter step to run it"));
+                            }
+                            else {
+                                console.log(chalk.gray("enter step to run it, x = exit, ? = help"));
+                            }
+
+                            console.log("");
+
+                            prompt.start();
+                            prompt.get("> ", function (err, result) {
+                                if(err) {
+                                    reject(err);
+                                }
+
+                                if(!result) { // Ctrl + C
+                                    console.log("");
+                                    console.log("");
+
+                                    prompt.stop();
+                                    resolve();
+                                    exiting = true;
+
+                                    return;
+                                }
+
+                                let input = result["> "];
+
+                                switch(input.toLowerCase()) {
+                                    case "x":
+                                        exiting = true;
+                                        break;
+
+
+
+
+
+
+
+
+
+
+
+
+                                    default:
+                                        console.log("inputted: " + input);
+                                        console.log("");
+                                        break;
+                                }
+
+                                console.log("");
+
+                                resolve();
+                            });
+                        });
+                    }
+                    catch(e) {
+                        if(!exiting) {
+                            throw e;
+                        }
+                    }
+                }
+                else {
+                    break; // the Tree ended, so exit
+                }
+            }
+        }
+        else {
+            // Progress bar
+            let progressBar = generateProgressBar(true);
+            progressBar.start(totalSteps, totalStepsComplete);
+
+            let timer = null;
+            activateProgressBarTimer();
+
+            // Run
+            await runner.run();
+            isComplete = true;
+        }
+
+        /**
+         * Exits the app
+         */
+        async function exit() {
+            console.log("Stopping...");
+            await runner.stop();
+            console.log("");
+        }
 
         /**
          * Activates the progress bar timer
@@ -309,8 +422,10 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                 console.log(``);
                 console.log(chalk.yellow("Run complete" + (passed == totalToRun ? " 👍" : "")));
-                console.log(`${complete} branches ran | ${totalInReport} branches in report`);
-                console.log(`Report at: ` + chalk.gray.italic(reportPath));
+                console.log(`${complete} branches ran` + (!runner.noReport ? ` | ${totalInReport} branches in report` : ``));
+                if(!runner.noReport) {
+                    console.log(`Report at: ` + chalk.gray.italic(reportPath));
+                }
                 console.log(``);
             }
             else {

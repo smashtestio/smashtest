@@ -1,6 +1,7 @@
 const Constants = require('./constants.js');
 const Branch = require('./branch.js');
 const utils = require('./utils.js');
+const chalk = require('chalk');
 
 /**
  * Represents a running test instance. Kind of like a "thread".
@@ -132,6 +133,10 @@ class RunInstance {
         if(step.isDebug && !overrideDebug) {
             this.isPaused = true;
             return;
+        }
+
+        if(this.runner.consoleOutput && this.tree.isDebug) {
+            console.log("Start: " + step.line.trim() + " " + chalk.gray(`[${step.filename}:${step.lineNumber}]`));
         }
 
         step.timeStarted = new Date();
@@ -307,6 +312,12 @@ class RunInstance {
         }
 
         step.elapsed = new Date() - step.timeStarted;
+
+        if(this.runner.consoleOutput && this.tree.isDebug) {
+            let seconds = step.elapsed/1000;
+            console.log("End:   " + step.line.trim() + chalk.gray(` (${seconds} s)`));
+            console.log("");
+        }
     }
 
     /**

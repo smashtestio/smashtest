@@ -56,6 +56,10 @@ class Reporter {
      * @return {String} The HTML report generated from this.tree and this.runner
      */
     generateReport() {
+        if(this.tree.branches.length == 0) {
+            return "";
+        }
+        
         return `
         <html>
             <head>
