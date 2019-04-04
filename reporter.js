@@ -1,3 +1,5 @@
+const mustache = require('mustache');
+const readFiles = require('read-files-promise');
 const utils = require('./utils.js');
 
 /**
@@ -9,6 +11,7 @@ class Reporter {
         this.runner = runner;           // the Runner object to report on
 
         this.htmlReport = "";           // the generated html report is stored here
+        this.reportTemplate = null;     // template for html reports
 
         this.timer = null;              // timer that goes off when it's time to re-generate the report
         this.stopped = false;           // true if this Reporter was already stopped
@@ -19,6 +22,13 @@ class Reporter {
      * Calls generateReport() every REPORT_GENERATE_FREQUENCY ms, calls onReportChanged() if report changed from last time
      */
     async start() {
+        // Load template
+        let buffers = await readFiles(['report-template.html'] , {encoding: 'utf8'});
+        if(!buffers || !buffers[0]) {
+            utils.error("report-template.html not found in this directory");
+        }
+        this.reportTemplate = buffers[0];
+
         await this.checkForChanges();
     }
 
@@ -59,20 +69,13 @@ class Reporter {
         if(this.tree.branches.length == 0) {
             return "";
         }
-        
-        return `
-        <html>
-            <head>
-                <meta name="branchesJSON" content="` + utils.escapeHtml(this.tree.serializeBranches()) + `"/>
-            </head>
-            <body>
-                BODY HERE
-            </body>
-        </html>
-        `;
-
-
-
+        else {
+            let view = {
+                branchesJSON: utils.escapeHtml(this.tree.serializeBranches()),
+                body: "TODO"
+            }
+            return mustache.render(this.reportTemplate, view);
+        }
     }
 
     /**

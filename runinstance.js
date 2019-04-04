@@ -132,7 +132,7 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput && this.tree.isDebug) {
-            console.log("Start:     " + chalk.gray(step.line.trim()) + "     " + chalk.gray(`[${step.filename}:${step.lineNumber}]`));
+            console.log("Start:     " + chalk.gray(step.line.trim()) + "     " + (step.filename ? chalk.gray(`[${step.filename}:${step.lineNumber}]`) : ``));
         }
 
         step.timeStarted = new Date();
@@ -167,7 +167,7 @@ class RunInstance {
 
             // Handle the stack for {{local vars}}
             if(prevStep) {
-                let prevStepWasACodeBlockFunc = prevStep.isFunctionCall && typeof prevStep.codeBlock != 'undefined';
+                let prevStepWasACodeBlockFunc = prevStep.isFunctionCall && prevStep.hasCodeBlock();
 
                 // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
                 if(step.branchIndents > prevStep.branchIndents) { // NOTE: when step.branchIndents > prevStep.branchIndents, step.branchIndents is always prevStep.branchIndents + 1
@@ -232,7 +232,7 @@ class RunInstance {
                 }
 
                 // Step is {var}='str' [, {var2}='str', etc.]
-                if(!step.isFunctionCall && typeof step.codeBlock == 'undefined' && step.varsBeingSet && step.varsBeingSet.length > 0) {
+                if(!step.isFunctionCall && !step.hasCodeBlock() && step.varsBeingSet && step.varsBeingSet.length > 0) {
                     for(let i = 0; i < step.varsBeingSet.length; i++) {
                         let varBeingSet = step.varsBeingSet[i];
                         let value = utils.stripQuotes(varBeingSet.value);
@@ -242,7 +242,7 @@ class RunInstance {
                 }
 
                 // Step has a code block to execute
-                if(typeof step.codeBlock != 'undefined') {
+                if(step.hasCodeBlock()) {
                     if(step.isFunctionCall) {
                         // Push existing local let context to stack, create fresh local let context
                         this.pushLocalStack();
@@ -328,7 +328,13 @@ class RunInstance {
             console.log("");
 
             if(step.error) {
-                console.log(chalk.red.bold(step.line.trim()) + "    " + chalk.gray(`[${step.error.filename}:${step.error.lineNumber}]`));
+                console.log(
+                    chalk.red.bold(step.line.trim()) +
+                    "    " +
+                    (step.error.filename ?
+                        chalk.gray(`[${step.error.filename}:${step.error.lineNumber}]`) :
+                        chalk.gray(`[line ${step.error.lineNumber}]`))
+                );
                 console.log(step.error.stack);
                 console.log("");
                 console.log("");
@@ -762,7 +768,7 @@ class RunInstance {
                     let varBeingSet = s.varsBeingSet[j];
                     if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
                         let value = null;
-                        if(typeof s.codeBlock != 'undefined') {
+                        if(s.hasCodeBlock()) {
                             // {varname}=Function (w/ code block)
                             value = this.evalCodeBlock(s.codeBlock, s.text, s.lineNumber, s, true);
                         }

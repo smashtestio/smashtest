@@ -39,24 +39,22 @@ Running tests
         - -noDebug
         - -noReport
         - -rerunNotPassed or -r
-            - -rerunNotPassed=filename or "filename"
-                - filename of report that constitutes last run
-            - -rerunNotPassed with no filename
-                - Uses latest report from <current dir>/reports that didn't have a ~ (~ reports have "debug" at the end of their filenames)
-                - If one isn't found, uses report.html in the current directory
+            - Doesn't run branches that passed last time, but still includes them and their last state in the report
+            - Doesn't run branches that have since been removed from the tree
+            - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
+            - Always runs the current hooks, not the hooks from the last run
+            - Format
+                - -rerunNotPassed=filename or "filename"
+                    - filename of report that constitutes last run
+                - -rerunNotPassed with no filename
+                    - Uses latest report from <current dir>/reports that didn't have a ~ (~ reports have "debug" at the end of their filenames)
+                    - If one isn't found, uses report.html in the current directory
         - -groups=value or "val1 val2 val3"
         - -minFrequency=med
             - med if omitted
         - -g:varname=value or "value" (global var)
             - g:screenshotOnFail=true
         - -p:varname=value or "value" (persistent var)
-
-Only run what didn't pass last time
-    - -rerunNotPassed
-    - Doesn't run branches that passed last time, but still includes them and their last state in the report
-    - Doesn't run branches that have since been removed from the tree
-    - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
-    - Always runs the current hooks, not the hooks from the last run
 
 Reports
     - Where to find the report
@@ -106,7 +104,6 @@ Textual steps (-)
 Step reference
     - From built-in packages
     - Browsers, Webdriver steps, Verify, Assertions, Wait, etc.
-    - Mocking APIs (it has its own section too)
 
 Code reference
     - JS functions available as part of built-in packages
@@ -347,6 +344,9 @@ Selective test running
         - Recommended to sort the children of a step by their frequency
     - When noDebug command line flag is set, a ~ or $ anywhere in your tree will cause an error
         - Great for making sure you're not debug prior to committing test files to CI
+
+Testing APIs
+    - Tutorials on how to test APIs (using existing npm libraries in code blocks)
 
 Stubbing out APIs
     - Examples

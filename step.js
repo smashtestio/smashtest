@@ -201,7 +201,7 @@ class Step {
         let isHook = this.isHook || functionDeclarationInTree.isHook;
         isHook ? this.isHook = isHook : null;
 
-        if(typeof functionDeclarationInTree.codeBlock != 'undefined') {
+        if(functionDeclarationInTree.hasCodeBlock()) {
             this.codeBlock = functionDeclarationInTree.codeBlock;
         }
 
@@ -234,6 +234,13 @@ class Step {
      */
     isComplete() {
         return this.isPassed || this.isFailed || this.isSkipped;
+    }
+
+    /**
+     * @return {Boolean} True if this step has a code block, false otherwise
+     */
+    hasCodeBlock() {
+        return typeof this.codeBlock != 'undefined';
     }
 }
 module.exports = Step;

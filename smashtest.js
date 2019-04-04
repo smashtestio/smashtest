@@ -301,7 +301,8 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                     console.log("");
 
-                    let input = prompt(">  ");
+                    const PROMPT_STR = ">  ";
+                    let input = prompt(PROMPT_STR);
                     prompt.history.save();
 
                     if(input === null) { // Ctrl + C
@@ -310,37 +311,61 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                         return;
                     }
 
-                    console.log("");
-
                     switch(input.toLowerCase().trim()) {
                         case "":
+                            console.log("");
                             isBranchComplete = await runner.runOneStep();
                             break;
 
                         case "s":
+                            console.log("");
                             isBranchComplete = await runner.skipOneStep();
                             break;
 
                         case "p":
+                            console.log("");
                             await runner.runLastStep();
                             break;
 
                         case "r":
+                            console.log("");
                             isBranchComplete = await runner.run();
                             break;
 
                         case "x":
+                            console.log("");
                             await exit();
                             return;
 
                         default:
-                            console.log("inputted: " + input);
-                            console.log("");
-
                             let t = new Tree();
+                            let stepStr = input;
                             let branchRun = null;
+
                             try {
-                                t.parseIn(input);
+                                let step = t.parseLine(stepStr);
+
+                                if(step.hasCodeBlock()) {
+                                    // Continue inputting lines until a } is inputted
+                                    while(true) {
+                                        let input = prompt(PROMPT_STR);
+                                        prompt.history.save();
+                                        stepStr += "\n" + input;
+
+                                        if(input === null) { // Ctrl + C
+                                            console.log("");
+                                            await exit();
+                                            return;
+                                        }
+                                        else if(input.length > 0 && input[0] == "}") {
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                console.log("");
+
+                                t.parseIn(stepStr);
                                 branchRun = await runner.injectStep(t.root.children[0]);
                             }
                             catch(e) {

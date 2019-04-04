@@ -185,7 +185,7 @@ class Tree {
             let index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index != -1) {
                 step.isHook = true;
-                if(typeof step.codeBlock == 'undefined') {
+                if(!step.hasCodeBlock()) {
                     utils.error("A hook must have a code block", filename, lineNumber);
                 }
                 if(step.identifiers && step.identifiers.length > 0) {
@@ -266,7 +266,7 @@ class Tree {
                     // This step is {var}=Func
 
                     step.isFunctionCall = true;
-                    if(typeof step.codeBlock != 'undefined') { // In {var} = Text {, the Text is not considered a function call
+                    if(step.hasCodeBlock()) { // In {var} = Text {, the Text is not considered a function call
                         delete step.isFunctionCall;
                     }
 
@@ -284,7 +284,7 @@ class Tree {
             // Set isFunctionCall
             if(!step.isTextualStep && !step.isFunctionDeclaration) {
                 step.isFunctionCall = true;
-                if(typeof step.codeBlock != 'undefined') { // In Text {, the Text is not considered a function call
+                if(step.hasCodeBlock()) { // In Text {, the Text is not considered a function call
                     delete step.isFunctionCall;
                 }
             }
@@ -317,7 +317,7 @@ class Tree {
             }
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
-                if(line.match(new RegExp("^[ ]{" + (lastStepCreated.indents * Constants.SPACES_PER_INDENT) + "}\}\s*(\/\/.*?)?\s*$"))) { // code block is ending
+                if(line.match(new RegExp("^[ ]{" + (lastStepCreated.indents * Constants.SPACES_PER_INDENT) + "}\\}\\s*(\\/\\/.*?)?\\s*$"))) { // code block is ending
                     lastStepCreated.codeBlock += "\n";
                     currentlyInsideCodeBlockFromLineNum = -1;
                 }
@@ -344,7 +344,7 @@ class Tree {
                 }
 
                 // If this is the start of a new code block
-                if(typeof step.codeBlock != 'undefined') {
+                if(step.hasCodeBlock()) {
                     currentlyInsideCodeBlockFromLineNum = lineNumber;
                 }
 
@@ -431,7 +431,7 @@ class Tree {
                     }
 
                     // Validate that a step block member is not a code block
-                    if(typeof potentialStepBlock.steps[k].codeBlock != 'undefined') {
+                    if(potentialStepBlock.steps[k].hasCodeBlock()) {
                         utils.error("You cannot have a code block within a step block", filename, potentialStepBlock.steps[k].lineNumber);
                     }
                 }
@@ -578,7 +578,7 @@ class Tree {
                     - May contain steps, step blocks, or a combination of them
         */
 
-        if(typeof step.functionDeclarationInTree.codeBlock != 'undefined') {
+        if(step.functionDeclarationInTree.hasCodeBlock()) {
             if(step.functionDeclarationInTree.children.length > 0) {
                 utils.error("The function called at " + step.filename + ":" + step.lineNumber + " has a code block in its declaration (at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber + ") but that code block must not have any child steps", step.filename, step.lineNumber);
             }
