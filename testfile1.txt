@@ -1,6 +1,20 @@
 One -
 
-    ~ Two -
-    Three -
+    Two {
+        //throw new Error("oops!");
+        /*return new Promise((res, rej) => {
+            setTimeout(res, 10000);
+        });*/
+    }
 
-        Four -
+        ~ Three -
+
+            Four -
+
+    Five -
+
+        Six -
+
+* Before Every Branch {
+    throw new Error("oops!");
+}

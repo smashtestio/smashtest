@@ -1925,8 +1925,7 @@ C`
                 tree.parseIn(
 `A
 B {
-}
-C`
+}`
                 , "file.txt");
             }, "You cannot have a code block within a step block [file.txt:2]");
         });
@@ -2976,6 +2975,7 @@ C
         code;
         more code;
     }
+
     B`
             , "file.txt");
 
@@ -3002,7 +3002,7 @@ C
                                 {
                                     text: 'B',
                                     codeBlock: undefined,
-                                    lineNumber: 6,
+                                    lineNumber: 7,
                                     indents: 1,
                                     parent: { indents: 0 },
                                     children: []
@@ -3317,6 +3317,18 @@ C
 `
                 , "file.txt");
             }, "An unclosed code block was found [file.txt:2]");
+        });
+
+        it("rejects a step that is directly adjacent to a code block above", function() {
+            let tree = new Tree();
+            assert.throws(() => {
+                tree.parseIn(
+`A {
+}
+B -
+`
+                , "file.txt");
+            }, "You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one. [file.txt:3]");
         });
     });
 
@@ -9330,6 +9342,7 @@ A -
 * Before Everything {
     B
 }
+
 * Before Everything {
     C
 }
@@ -9363,6 +9376,7 @@ A -
 * After Everything {
     B
 }
+
 * After Everything {
     C
 }

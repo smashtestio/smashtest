@@ -34,9 +34,10 @@ A -
 
             let runner = new Runner();
             runner.init(tree);
-            await runner.run();
+            let isComplete = await runner.run();
 
             expect(runner.ranStepC).to.be.true;
+            expect(isComplete).to.be.true;
         });
 
         it("can spawn a single run instance that pauses and resumes", async function() {
@@ -55,19 +56,21 @@ A {
 
             let runner = new Runner();
             runner.init(tree);
-            await runner.run();
+            let isComplete = await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
+            expect(isComplete).to.be.false;
 
-            await runner.run();
+            isComplete = await runner.run();
 
             expect(runner.hasPaused()).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
+            expect(isComplete).to.be.true;
         });
 
         it("can spawn a multiple run instances, all of which complete", async function() {
@@ -299,19 +302,21 @@ A {
 
             let runner = new Runner();
             runner.init(tree);
-            await runner.run();
+            let isComplete = await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
+            expect(isComplete).to.be.false;
 
-            await runner.run();
+            isComplete = await runner.run();
 
             expect(runner.hasPaused()).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
+            expect(isComplete).to.be.true;
         });
 
         it("pauses after an unexpected fail occurs on a step that's inside a branch with ~ anywhere", async function() {
@@ -334,29 +339,32 @@ A {
 
             let runner = new Runner();
             runner.init(tree);
-            await runner.run();
+            let isComplete = await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
             expect(runner.ranStepD).to.be.undefined;
+            expect(isComplete).to.be.false;
 
-            await runner.run();
+            isComplete = await runner.run();
 
             expect(runner.hasPaused()).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
             expect(runner.ranStepD).to.be.undefined;
+            expect(isComplete).to.be.false;
 
-            await runner.run();
+            isComplete = await runner.run();
 
             expect(runner.hasPaused()).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
             expect(runner.ranStepD).to.be.true;
+            expect(isComplete).to.be.true;
         });
 
         it("runs all Before Everything and After Everything steps", async function() {

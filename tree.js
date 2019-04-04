@@ -326,6 +326,10 @@ class Tree {
                 }
 
                 lines[i] = this.parseLine('', filename, lineNumber); // blank out the line we just handled
+                if(currentlyInsideCodeBlockFromLineNum == -1) { // if the code block just ended, mark it as such
+                    lines[i].indents = this.numIndents(line, filename, lineNumber);
+                    lines[i].codeBlockEnd = true;
+                }
             }
             else {
                 let step = this.parseLine(line, filename, lineNumber);
@@ -333,6 +337,10 @@ class Tree {
 
                 if(!lastNonEmptyStep && step.indents != 0) {
                     utils.error("The first step must have 0 indents", filename, lineNumber);
+                }
+
+                if(i - 1 >= 0 && step.text != '' && lines[i - 1].codeBlockEnd && step.indents == lines[i - 1].indents) {
+                    utils.error("You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one.", filename, lineNumber);
                 }
 
                 // If this is the start of a new code block
@@ -1442,7 +1450,7 @@ class Tree {
         }
 
         // If this is the very last step in the branch, mark the branch as passed/failed
-        if(branch && (finishBranchNow || this.nextStep(branch, false) == null)) {
+        if(branch && (finishBranchNow || branch.steps.indexOf(step) + 1 == branch.steps.length)) {
             branch.finishOffBranch();
 
             if(skipsRepeats && branch.isFailed) {
@@ -1466,13 +1474,13 @@ class Tree {
         delete step.isPassed;
         delete step.isFailed;
 
-        if(branch && this.nextStep(branch, false) == null) {
+        if(branch && branch.steps.indexOf(step) + 1 == branch.steps.length) {
             branch.finishOffBranch();
         }
     }
 
     /**
-     * Returns the next step in the given branch, or null if no steps are left, the next step is a -T or -M, or the branch already failed/skipped
+     * Returns the next step in the given branch (after the currently running step), or null if no steps are left, the next step is a -T or -M, or the branch already failed/skipped
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
      * @param {Boolean} [skipsRepeats] - If true, if the next step is a -T or -M, skips every other branch whose first N steps are identical to this one's (up until the -T or -M step)

@@ -47,7 +47,7 @@ class Runner {
     /**
      * Starts or resumes running the branches from this.tree
      * Parallelizes runs to up to this.maxInstances simultaneously running tests
-     * @return {Promise} Promise that gets resolved when completed or paused
+     * @return {Promise} Promise that gets resolved with true if completed, false otherwise
      */
     async run() {
         this.tree.timeStarted = new Date();
@@ -84,6 +84,8 @@ class Runner {
         }
 
         await this.stopReporter();
+
+        return this.getNextReadyStep() == null;
     }
 
     /**
@@ -145,6 +147,25 @@ class Runner {
     }
 
     /**
+     * Reruns the previous step
+     * @return {Promise} Promise that resolves once the execution finishes
+     */
+    async runLastStep() {
+        if(!this.hasPaused()) {
+            utils.error("Must be paused to run a step");
+        }
+
+        await this.runInstances[0].runLastStep();
+    }
+
+    /**
+     * @return {Step} The last step run, null if none
+     */
+    getLastStep() {
+        return this.runInstances[0].getLastStep();
+    }
+
+    /**
      * Runs the given step in the context of the first RunInstance in this.runInstances, then pauses
      * Call only when already paused
      * @param {Step} step - The step to run
@@ -156,11 +177,7 @@ class Runner {
             utils.error("Must be paused to run a step");
         }
 
-        await this.startReporter();
-
         await this.runInstances[0].injectStep(step);
-
-        await this.stopReporter();
     }
 
     /**
@@ -175,6 +192,18 @@ class Runner {
      */
     hasStopped() {
         return this.isStopped;
+    }
+
+    /**
+     * @return {Step} The next not-yet-completed step in the first RunInstance, or null if the first RunInstance's branch is done
+     */
+    getNextReadyStep() {
+        if(this.runInstances.length == 0) {
+            return null;
+        }
+        else {
+            return this.runInstances[0].getNextReadyStep();
+        }
     }
 
     // ***************************************

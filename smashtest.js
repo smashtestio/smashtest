@@ -276,14 +276,18 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         if(tree.isDebug || runner.repl) {
             runner.consoleOutput = true;
             let exiting = false;
+            let isBranchComplete = false;
+
+            isBranchComplete = await runner.run();
 
             while(true) {
                 if(exiting) {
                     await exit();
                     return;
                 }
-
-                await runner.run();
+                else if(isBranchComplete) {
+                    return;
+                }
 
                 if(runner.hasPaused() || emptyREPL) {
                     // Tree not completed yet, open REPL and await user input
@@ -292,11 +296,15 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                             prompt.message = "";
                             prompt.delimiter = "";
 
-                            let currStep = runner.runInstances[0].currStep;
+                            let nextStep = runner.getNextReadyStep();
+                            let prevStep = runner.getLastStep();
 
-                            if(currStep) {
-                                console.log("Next step: [ " + chalk.blue(currStep.line.trim()) + " ]");
-                                console.log(chalk.gray("n = run next, s = skip, r = resume, x = exit, or enter step to run it"));
+                            if(nextStep) {
+                                console.log("Next step: [ " + chalk.gray(nextStep.line.trim()) + " ]");
+                                console.log(chalk.gray("n = run next, s = skip, p = previous, r = resume, x = exit, or enter step to run it"));
+                            }
+                            else if(prevStep) {
+                                console.log(chalk.gray("enter step to run it, p = previous, x = exit"));
                             }
                             else {
                                 console.log(chalk.gray("enter step to run it, x = exit"));
@@ -305,7 +313,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                             console.log("");
 
                             prompt.start();
-                            prompt.get("> ", function (err, result) {
+                            prompt.get("> ", async function(err, result) {
                                 if(err) {
                                     reject(err);
                                 }
@@ -323,7 +331,28 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                                 let input = result["> "];
 
-                                switch(input.toLowerCase()) {
+                                console.log("");
+
+                                switch(input.toLowerCase().trim()) {
+                                    case "":
+                                        break;
+
+                                    case "n":
+                                        isBranchComplete = await runner.runOneStep();
+                                        break;
+
+                                    case "s":
+                                        isBranchComplete = await runner.skipOneStep();
+                                        break;
+
+                                    case "p":
+                                        await runner.runLastStep();
+                                        break;
+
+                                    case "r":
+                                        isBranchComplete = await runner.run();
+                                        break;
+
                                     case "x":
                                         exiting = true;
                                         break;
@@ -345,7 +374,15 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                                         break;
                                 }
 
-                                console.log("");
+                                // TODO: output the last step's error, if any
+
+
+
+
+
+
+
+
 
                                 resolve();
                             });
@@ -362,7 +399,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                 }
             }
         }
-        else {
+        else { // Normal run of whole tree
             // Progress bar
             let progressBar = generateProgressBar(true);
             progressBar.start(totalSteps, totalStepsComplete);

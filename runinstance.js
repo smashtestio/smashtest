@@ -94,7 +94,7 @@ class RunInstance {
 
             if(!this.currBranch.isComplete()) {
                 // Move this.currStep to the next not-yet-completed step
-                this.nextStep();
+                this.toNextReadyStep();
 
                 // Execute steps in the branch
                 while(this.currStep) {
@@ -104,16 +104,12 @@ class RunInstance {
                         return;
                     }
 
-                    this.nextStep();
+                    this.toNextReadyStep();
                 }
             }
 
             // Execute After Every Branch steps
             await this.runAfterEveryBranch();
-
-            if(this.currBranch.elapsed != -1) { // measure elapsed only if this RunInstance has never been paused
-                this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
-            }
 
             this.currBranch = this.tree.nextBranch();
         }
@@ -136,10 +132,16 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput && this.tree.isDebug) {
-            console.log("Start: " + step.line.trim() + " " + chalk.gray(`[${step.filename}:${step.lineNumber}]`));
+            console.log("Start:     " + chalk.gray(step.line.trim()) + "     " + chalk.gray(`[${step.filename}:${step.lineNumber}]`));
         }
 
         step.timeStarted = new Date();
+
+        // Reset state
+        delete step.isPassed;
+        delete step.isFailed;
+        delete step.isSkipped;
+        delete step.error;
 
         // Execute Before Every Step hooks
         if(branch.beforeEveryStep) {
@@ -282,6 +284,7 @@ class RunInstance {
 
             let finishBranchNow = false;
             if(!isPassed) {
+
                 finishBranchNow = true;
                 if(error.continue || this.runner.pauseOnFail) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
                     finishBranchNow = false;
@@ -311,8 +314,25 @@ class RunInstance {
 
         if(this.runner.consoleOutput && this.tree.isDebug) {
             let seconds = step.elapsed/1000;
-            console.log("End:   " + step.line.trim() + chalk.gray(` (${seconds} s)`));
+
+            let isGreen = (step.isPassed && step.asExpected) || (step.isFailed && step.asExpected);
+            console.log("End:       " +
+                (isGreen ? chalk.green(step.line.trim()) : chalk.red(step.line.trim()) ) +
+                "    " +
+                (step.isPassed && step.asExpected ? chalk.green(` passed`) : ``) +
+                (step.isPassed && !step.asExpected ? chalk.red(` passed not as expected`) : ``) +
+                (step.isFailed && step.asExpected ? chalk.green(` failed as expected`) : ``) +
+                (step.isFailed && !step.asExpected ? chalk.red(` failed`) : ``) +
+                chalk.gray(` (${seconds} s)`)
+            );
             console.log("");
+
+            if(step.error) {
+                console.log(chalk.red.bold(step.line.trim()) + "    " + chalk.gray(`[${step.error.filename}:${step.error.lineNumber}]`));
+                console.log(step.error.stack);
+                console.log("");
+                console.log("");
+            }
         }
     }
 
@@ -368,9 +388,10 @@ class RunInstance {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async runOneStep() {
-        this.nextStep();
+        this.toNextReadyStep();
         if(this.currStep) {
             await this.runStep(this.currStep, this.currBranch, true);
+            this.toNextReadyStep();
             this.isPaused = true;
             return false;
         }
@@ -387,7 +408,7 @@ class RunInstance {
      */
     async skipOneStep() {
         if(this.currStep) {
-            this.nextStep(); // move to the next not-yet-completed step
+            this.toNextReadyStep(); // move to the next not-yet-completed step
 
             if(this.currStep) { // if we still have a currStep and didn't fall off the end of the branch
                 this.tree.markStepSkipped(this.currStep, this.currBranch); // mark the current step as skipped
@@ -404,6 +425,41 @@ class RunInstance {
         else { // all steps in current branch finished running, finish off the branch
             await this.runAfterEveryBranch();
             return true;
+        }
+    }
+
+    /**
+     * Reruns the previous step, then pauses again
+     * @return {Promise} Promise that resolves once the execution finishes
+     */
+    async runLastStep() {
+        let lastStep = this.getLastStep();
+        if(lastStep) {
+            await this.runStep(lastStep, this.currBranch, true);
+        }
+    }
+
+    /**
+     * @return {Step} The last step run, null if none
+     */
+    getLastStep() {
+        let currStep = this.getNextReadyStep();
+        if(currStep) {
+            let index = this.currBranch.steps.indexOf(currStep);
+            if(index - 1 < 0) {
+                return null;
+            }
+            else {
+                return this.currBranch.steps[index - 1];
+            }
+        }
+        else {
+            if(this.currBranch && this.currBranch.isComplete()) {
+                return this.currBranch.steps[this.currBranch.steps.length - 1];
+            }
+            else {
+                return null;
+            }
         }
     }
 
@@ -760,7 +816,7 @@ class RunInstance {
     }
 
     /**
-     * Executes all After Every Branch steps, sequentially
+     * Executes all After Every Branch steps, sequentially, and finishes off the branch
      * @return {Promise} Promise that resolves once all of them finish running
      */
     async runAfterEveryBranch() {
@@ -774,17 +830,48 @@ class RunInstance {
                 // finish running all After Every Branch steps, even if one fails, and even if there was a pause
             }
         }
+
+        if(this.currBranch.elapsed != -1) { // measure elapsed only if this RunInstance has never been paused
+            this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
+        }
+
+        if(this.runner.consoleOutput && this.tree.isDebug) {
+            console.log("");
+            console.log("Branch complete");
+            if(this.currBranch.error) {
+                console.log("");
+                console.log(chalk.red.bold("Errors occurred in branch") + chalk.gray(`    [${this.currBranch.error.filename}:${this.currBranch.error.lineNumber}]`));
+                console.log(this.currBranch.error.stack);
+            }
+            console.log("");
+        }
     }
 
     /**
-     * Moves this.currStep to the next not-yet-completed step
-     * (Keeps this.currStep on its current position if it's pointing at a step not yet executed)
-     * Sets this.currStep to null if there are no more steps in this.currBranch
+     * Moves this.currStep to the next not-yet-completed step, or to null if there are no more steps left in the branch
      */
-    nextStep() {
-        // Get the next step, but only if the current step is complete or nonexistant
-        if(!this.currStep || this.currStep.isComplete()) {
+    toNextReadyStep() {
+        let nextReadyStep = this.getNextReadyStep();
+        if(this.currStep !== nextReadyStep) {
             this.currStep = this.tree.nextStep(this.currBranch, true, true);
+        }
+    }
+
+    /**
+     * @return {Step} The next not-yet-completed step, or null if the current branch is done
+     */
+    getNextReadyStep() {
+        if(!this.currBranch || this.currBranch.isComplete()) { // branch completed
+            return null;
+        }
+        else if(!this.currStep) { // we're at the start of the branch
+            return this.tree.nextStep(this.currBranch);
+        }
+        else if(this.currStep.isComplete()) {
+            return this.tree.nextStep(this.currBranch);
+        }
+        else { // this.currStep is not complete
+            return this.currStep;
         }
     }
 
