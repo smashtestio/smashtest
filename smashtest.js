@@ -290,7 +290,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                     if(nextStep) {
                         console.log("Next step: [ " + chalk.gray(nextStep.line.trim()) + " ]");
-                        console.log(chalk.gray("n = run next, s = skip, p = previous, r = resume, x = exit, or enter step to run it"));
+                        console.log(chalk.gray("enter = run next, s = skip, p = previous, r = resume, x = exit, or enter step to run it"));
                     }
                     else if(prevStep) {
                         console.log(chalk.gray("enter step to run it, p = previous, x = exit"));
@@ -313,10 +313,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     console.log("");
 
                     switch(input.toLowerCase().trim()) {
-                        case "": // nothing was entered, just repeat the loop
-                            break;
-
-                        case "n":
+                        case "":
                             isBranchComplete = await runner.runOneStep();
                             break;
 
@@ -336,20 +333,23 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                             await exit();
                             return;
 
-
-
-
-
-
-
-
-
-
-
-
                         default:
                             console.log("inputted: " + input);
                             console.log("");
+
+                            let t = new Tree();
+                            let branchRun = null;
+                            try {
+                                t.parseIn(input);
+                                branchRun = await runner.injectStep(t.root.children[0]);
+                            }
+                            catch(e) {
+                                // Parse issue
+                                console.log(e);
+                                console.log("");
+                                continue;
+                            }
+
                             break;
                     }
                 }

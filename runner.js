@@ -169,7 +169,7 @@ class Runner {
      * Runs the given step in the context of the first RunInstance in this.runInstances, then pauses
      * Call only when already paused
      * @param {Step} step - The step to run
-     * @return {Promise} Promise that gets resolved once done executing
+     * @return {Promise} Promise that gets resolved with a Branch of steps that were run, once done executing
      * @throws {Error} Any errors that may occur during a branchify() of the given step, or if this Runner isn't paused
      */
     async injectStep(step) {
@@ -177,7 +177,7 @@ class Runner {
             utils.error("Must be paused to run a step");
         }
 
-        await this.runInstances[0].injectStep(step);
+        return await this.runInstances[0].injectStep(step);
     }
 
     /**

@@ -18,3 +18,12 @@ One -
 * Before Every Branch {
     //throw new Error("oops!");
 }
+
+* After Every Branch {
+    //throw new Error("oops!");
+}
+
+* Say Hello {
+    console.log("Hello world!");
+    throw new Error("oopsies!");
+}
