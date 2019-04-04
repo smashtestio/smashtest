@@ -16,5 +16,5 @@ One -
         Six -
 
 * Before Every Branch {
-    throw new Error("oops!");
+    //throw new Error("oops!");
 }

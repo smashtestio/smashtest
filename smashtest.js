@@ -5,6 +5,7 @@ const utils = require('./utils');
 const chalk = require('chalk');
 const progress = require('cli-progress');
 const prompt = require("prompt");
+const readline = require('readline');
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
@@ -199,6 +200,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     glob('reports/!(*debug.html)', function(err, filenames) {
                         if(err) {
                             reject(err);
+                            return;
                         }
 
                         if(filenames && filenames.length > 0) {
@@ -277,7 +279,48 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             runner.consoleOutput = true;
             let exiting = false;
             let isBranchComplete = false;
+            let insidePrompt = false;
 
+            // Set up REPL history
+            let replHistory = [];
+            let replHistoryPos = 0;
+            const rl = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout
+            });
+            rl.setPrompt(chalk.gray("> "));
+            process.stdin.setRawMode(true);
+            process.stdin.resume();
+            process.stdin.setEncoding('utf8');
+            process.stdin.on('data', function(key) {
+                if(replHistory.length > 0 && insidePrompt) {
+                    if(key == '\u001B\u005B\u0041') { // up key
+                        /*process.stdout.clearLine();
+                        process.stdout.cursorTo(0);
+                        process.stdout.write(chalk.gray(">  "));
+                        process.stdout.write(replHistoryPos)*/
+                        readline.clearLine();
+                        rl.prompt();
+                        if(replHistoryPos > 0) {
+                            replHistoryPos--;
+                            process.stdout.write(replHistory[replHistoryPos]);
+                        }
+                    }
+                    else if(key == '\u001B\u005B\u0042') { // down key
+                        /*process.stdout.clearLine();
+                        process.stdout.cursorTo(0);
+                        process.stdout.write(chalk.gray(">  "));
+                        process.stdout.write(replHistoryPos)
+                        if(replHistoryPos < replHistory.length - 1) {
+                            replHistoryPos++;
+                            process.stdout.write(replHistory[replHistoryPos]);
+                        }*/
+                    }
+                }
+            });
+
+
+            // Run the branch being debugged
             isBranchComplete = await runner.run();
 
             while(true) {
@@ -293,9 +336,6 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     // Tree not completed yet, open REPL and await user input
                     try {
                         await new Promise((resolve, reject) => {
-                            prompt.message = "";
-                            prompt.delimiter = "";
-
                             let nextStep = runner.getNextReadyStep();
                             let prevStep = runner.getLastStep();
 
@@ -312,80 +352,28 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                             console.log("");
 
+                            insidePrompt = true;
+                            rl.question("", async(input) => {
+                                await handlePrompt(input);
+                                resolve();
+                            });
+
+
+
+
+
+                            /*prompt.message = "";
+                            prompt.delimiter = "";
                             prompt.start();
                             prompt.get("> ", async function(err, result) {
                                 if(err) {
                                     reject(err);
-                                }
-
-                                if(!result) { // Ctrl + C
-                                    console.log("");
-                                    console.log("");
-
-                                    prompt.stop();
-                                    resolve();
-                                    exiting = true;
-
+                                    insidePrompt = false;
                                     return;
                                 }
 
-                                let input = result["> "];
-
-                                console.log("");
-
-                                switch(input.toLowerCase().trim()) {
-                                    case "":
-                                        break;
-
-                                    case "n":
-                                        isBranchComplete = await runner.runOneStep();
-                                        break;
-
-                                    case "s":
-                                        isBranchComplete = await runner.skipOneStep();
-                                        break;
-
-                                    case "p":
-                                        await runner.runLastStep();
-                                        break;
-
-                                    case "r":
-                                        isBranchComplete = await runner.run();
-                                        break;
-
-                                    case "x":
-                                        exiting = true;
-                                        break;
-
-
-
-
-
-
-
-
-
-
-
-
-                                    default:
-                                        console.log("inputted: " + input);
-                                        console.log("");
-                                        break;
-                                }
-
-                                // TODO: output the last step's error, if any
-
-
-
-
-
-
-
-
-
-                                resolve();
-                            });
+                                handlePrompt(result).then(resolve).catch(reject);
+                            });*/
                         });
                     }
                     catch(e) {
@@ -397,6 +385,69 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                 else {
                     break; // the Tree ended, so exit
                 }
+            }
+
+            async function handlePrompt(input) {
+                if(!result) { // Ctrl + C
+                    console.log("");
+                    console.log("");
+
+                    prompt.stop();
+                    insidePrompt = false;
+                    exiting = true;
+
+                    return;
+                }
+
+                let input = result["> "];
+
+                console.log("");
+
+                switch(input.toLowerCase().trim()) {
+                    case "":
+                        break;
+
+                    case "n":
+                        isBranchComplete = await runner.runOneStep();
+                        break;
+
+                    case "s":
+                        isBranchComplete = await runner.skipOneStep();
+                        break;
+
+                    case "p":
+                        await runner.runLastStep();
+                        break;
+
+                    case "r":
+                        isBranchComplete = await runner.run();
+                        break;
+
+                    case "x":
+                        exiting = true;
+                        break;
+
+
+
+
+
+
+
+
+
+
+
+
+                    default:
+                        console.log("inputted: " + input);
+                        console.log("");
+                        break;
+                }
+
+                replHistory.push(input);
+                replHistoryPos = replHistory.length;
+
+                insidePrompt = false;
             }
         }
         else { // Normal run of whole tree
