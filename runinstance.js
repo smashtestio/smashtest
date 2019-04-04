@@ -347,11 +347,12 @@ class RunInstance {
      * @param {Step} step - The hook step to run
      * @param {Step} [stepToGetError] - The Step that will get the error and marked failed, if a failure happens here
      * @param {Branch} [branchToGetError] - The Branch that will get the error and marked failed, if a failure happens here. If stepToGetError is also set, only stepToGetError will get the error obj, but branchToGetError will still be failed
+     * @param {Boolean} [isSync] - If true, runs this step synchronously
      * @return {Boolean} True if the run was a success, false if there was a failure
      */
-    async runHookStep(step, stepToGetError, branchToGetError) {
+    async runHookStep(step, stepToGetError, branchToGetError, isSync) {
         try {
-            await this.evalCodeBlock(step.codeBlock, step.text, step.lineNumber, stepToGetError || branchToGetError);
+            await this.evalCodeBlock(step.codeBlock, step.text, step.lineNumber, stepToGetError || branchToGetError, isSync);
         }
         catch(e) {
             this.fillErrorFromStep(e, step, true);
@@ -378,8 +379,6 @@ class RunInstance {
 
     /**
      * Permanently stops this RunInstance from running
-     * Not immediate - just marks the branches as stopped
-     * run() and runStep() will eventually notice that a stop occurred and will exit itself
      */
     stop() {
         this.isStopped = true;

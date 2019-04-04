@@ -789,7 +789,7 @@ Branch 3 -
             }, 10);
         });
 
-        it("runs all After Everything steps immediately after a stop occurs", function(done) {
+        it("runs all After Everything steps synchronously immediately after a stop occurs", function(done) {
             let tree = new Tree();
             tree.parseIn(`
 Branch 1 -
@@ -820,7 +820,7 @@ Branch 3 -
 
             // do a stop() after 10 ms
             setTimeout(async() => {
-                await runner.stop();
+                runner.stop();
 
                 expect(tree.elapsed).to.be.above(8);
                 expect(tree.elapsed).to.be.below(20);

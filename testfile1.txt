@@ -1,7 +1,6 @@
 One -
 
     Two {
-        //throw new Error("oops!");
         /*return new Promise((res, rej) => {
             setTimeout(res, 10000);
         });*/
@@ -9,7 +8,9 @@ One -
 
         ~ Three -
 
-            Four -
+            Four {
+                throw new Error("oops!");
+            }
 
     Five -
 
@@ -26,4 +27,8 @@ One -
 * Say Hello {
     console.log("Hello world!");
     throw new Error("oopsies!");
+}
+
+* After Everything {
+    //console.log("DONE CLEANING UP");
 }

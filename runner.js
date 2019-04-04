@@ -30,6 +30,7 @@ class Runner {
         this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
 
         this.isStopped = false;          // True if this runner has been stopped
+        this.isComplete = false;         // True if this runner is done running its tree
     }
 
     /**
@@ -89,17 +90,16 @@ class Runner {
     }
 
     /**
-     * Ends all running RunInstances and runs afterEverything steps
-     * @return {Promise} Promise that resolves as soon as the stop is complete
+     * Ends all running RunInstances and runs all After Everything hooks synchronously
      */
-    async stop() {
-        this.isStopped = true;
-        this.runInstances.forEach(runInstance => {
-            runInstance.stop();
-        })
-        await this.runAfterEverything();
-
-        await this.stopReporter();
+    stop() {
+        if(!this.isStopped) {
+            this.isStopped = true;
+            this.runInstances.forEach(runInstance => {
+                runInstance.stop();
+            })
+            this.runAfterEverything(true);
+        }
     }
 
     /**
@@ -247,18 +247,26 @@ class Runner {
 
     /**
      * Executes all After Everything steps, sequentially
+     * @param {Boolean} [isSync] - If true, runs all After Everything steps synchronously
      * @return {Promise} Promise that resolves once all of them finish running
      */
-    async runAfterEverything() {
+    async runAfterEverything(isSync) {
         let hookExecInstance = new RunInstance(this);
         for(let i = 0; i < this.tree.afterEverything.length; i++) {
             let s = this.tree.afterEverything[i];
-            await hookExecInstance.runHookStep(s, s, null);
+            if(isSync) {
+                hookExecInstance.runHookStep(s, s, null, true);
+            }
+            else {
+                await hookExecInstance.runHookStep(s, s, null);
+            }
         }
 
         if(this.tree.elapsed != -1) {
             this.tree.elapsed = new Date() - this.tree.timeStarted; // only measure elapsed if we've never been paused
         }
+
+        this.isComplete = true;
     }
 
     /**

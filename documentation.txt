@@ -328,8 +328,28 @@ Debug (~)
     - Use multiple $'s and ~'s to isolate a single branch to debug (or you can use multiple ~'s)
 
 REPL
-    - Using REPL
-    - Kicking off blank browser and REPL just from the command line (- REPL)
+    - What REPL does, show screenshot and a one sentence description
+    - Starting REPL
+        - -repl
+            - No filenames - kicks off blank browser and REPL
+            - Filenames - it will load the first branch but open up repl before first step begins
+        - ~ in test file
+    - REPL commands
+        - Enter key, s, p, r, x
+        - Enter a step to run it
+            - One line only
+            - Multiple lines only if step has a code block
+                - End the code block by entering a }
+            - No function declarations
+        - Ctrl + C to exit
+        - Other options
+            .break    Sometimes you get stuck, this gets you out
+            .clear    Break, and also clear the local context
+            .editor   Enter editor mode
+            .exit     Exit the repl
+            .help     Print this help message
+            .load     Load JS from a file into the REPL session
+            .save     Save all evaluated commands in this REPL session to a file
 
 Selective test running
     - Only identifier ($)

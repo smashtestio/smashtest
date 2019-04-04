@@ -4,9 +4,10 @@ const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
 const progress = require('cli-progress');
-const prompt = require('prompt-sync')({
+const repl = require('repl');
+/*const prompt = require('prompt-sync')({
     history: require('prompt-sync-history')()
-});
+});*/
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
@@ -21,6 +22,19 @@ let jsFilenames = [];
 let tree = new Tree();
 let runner = new Runner();
 let reporter = new Reporter(tree, runner);
+
+// Handles cleanup
+let forcedStop = true;
+process.on('exit', () => {
+    if(forcedStop) {
+        console.log("Stopping...");
+        console.log("");
+    }
+
+    if(runner) {
+        runner.stop();
+    }
+});
 
 // Sort command line arguments into filenames (non-js files), jsFilenames, and flags
 for(let i = 2; i < process.argv.length; i++) {
@@ -281,12 +295,19 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
             // Run the branch being debugged
             let isBranchComplete = await runner.run();
+            if(!isBranchComplete || runner.hasPaused() || emptyREPL) {
+                // Tree not completed yet, open REPL and await user input
+                let nextStep = null;
+                let prevStep = null;
 
-            while(!isBranchComplete) {
-                if(runner.hasPaused() || emptyREPL) {
-                    // Tree not completed yet, open REPL and await user input
-                    let nextStep = runner.getNextReadyStep();
-                    let prevStep = runner.getLastStep();
+                prePrompt();
+
+                /**
+                 * Outputs info to the console that comes before the REPL prompt
+                 */
+                function prePrompt() {
+                    nextStep = runner.getNextReadyStep();
+                    prevStep = runner.getLastStep();
 
                     if(nextStep) {
                         console.log("Next step: [ " + chalk.gray(nextStep.line.trim()) + " ]");
@@ -300,87 +321,105 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     }
 
                     console.log("");
+                }
 
-                    const PROMPT_STR = ">  ";
-                    let input = prompt(PROMPT_STR);
-                    prompt.history.save();
+                repl.start({
+                    prompt: chalk.gray("> "),
+                    eval: (input, context, filename, callback) => {
+                        switch(input.toLowerCase().trim()) {
+                            case "":
+                                console.log("");
+                                runner.runOneStep()
+                                    .then(finish)
+                                    .catch(finishWithError);
+                                break;
 
-                    if(input === null) { // Ctrl + C
-                        console.log("");
-                        await exit();
-                        return;
-                    }
+                            case "s":
+                                console.log("");
+                                runner.skipOneStep()
+                                    .then(finish)
+                                    .catch(finishWithError);
+                                break;
 
-                    switch(input.toLowerCase().trim()) {
-                        case "":
-                            console.log("");
-                            isBranchComplete = await runner.runOneStep();
-                            break;
+                            case "p":
+                                console.log("");
+                                runner.runLastStep()
+                                    .then(finish)
+                                    .catch(finishWithError);
+                                break;
 
-                        case "s":
-                            console.log("");
-                            isBranchComplete = await runner.skipOneStep();
-                            break;
+                            case "r":
+                                console.log("");
+                                runner.run()
+                                    .then(finish)
+                                    .catch(finishWithError);
+                                break;
 
-                        case "p":
-                            console.log("");
-                            await runner.runLastStep();
-                            break;
+                            case "x":
+                                console.log("");
+                                process.exit();
+                                break;
 
-                        case "r":
-                            console.log("");
-                            isBranchComplete = await runner.run();
-                            break;
+                            default:
+                                let t = new Tree();
+                                let stepStr = input;
+                                let branchRun = null;
 
-                        case "x":
-                            console.log("");
-                            await exit();
-                            return;
+                                try {
+                                    let step = t.parseLine(stepStr);
 
-                        default:
-                            let t = new Tree();
-                            let stepStr = input;
-                            let branchRun = null;
+                                    if(step.hasCodeBlock()) {
+                                        // Continue inputting lines until a } is inputted
+                                        while(true) {
+                                            // PROMPT
 
-                            try {
-                                let step = t.parseLine(stepStr);
 
-                                if(step.hasCodeBlock()) {
-                                    // Continue inputting lines until a } is inputted
-                                    while(true) {
-                                        let input = prompt(PROMPT_STR);
-                                        prompt.history.save();
-                                        stepStr += "\n" + input;
 
-                                        if(input === null) { // Ctrl + C
-                                            console.log("");
-                                            await exit();
-                                            return;
-                                        }
-                                        else if(input.length > 0 && input[0] == "}") {
-                                            break;
+
+                                            stepStr += "\n" + input;
+
+                                            if(input.length > 0 && input[0] == "}") {
+                                                break;
+                                            }
                                         }
                                     }
+
+                                    console.log("");
+
+                                    t.parseIn(stepStr);
+                                    runner.injectStep(t.root.children[0])
+                                        .then(() => {
+                                            finish();
+                                        })
+                                        .catch(finishWithError);
+                                }
+                                catch(e) {
+                                    // Parse issue
+                                    console.log(e);
+                                    console.log("");
                                 }
 
-                                console.log("");
+                                break;
+                        }
 
-                                t.parseIn(stepStr);
-                                branchRun = await runner.injectStep(t.root.children[0]);
+                        function finish(isBranchComplete) {
+                            if(isBranchComplete && runner.isComplete) {
+                                forcedStop = false;
+                                process.exit();
                             }
-                            catch(e) {
-                                // Parse issue
-                                console.log(e);
-                                console.log("");
-                                continue;
+                            else {
+                                prePrompt();
+                                callback(null);
                             }
+                        }
 
-                            break;
+                        function finishWithError(error) {
+                            console.log(error);
+                            prePrompt();
+                            callback(null);
+                        }
                     }
-                }
-                else {
-                    break; // the Tree ended, so exit
-                }
+                });
             }
         }
         else { // Normal run of whole tree
@@ -394,15 +433,6 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             // Run
             await runner.run();
             isComplete = true;
-        }
-
-        /**
-         * Exits the app
-         */
-        async function exit() {
-            console.log("Stopping...");
-            await runner.stop();
-            console.log("");
         }
 
         /**
