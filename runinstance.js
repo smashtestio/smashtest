@@ -836,7 +836,6 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput && this.tree.isDebug) {
-            console.log("");
             console.log("Branch complete");
             if(this.currBranch.error) {
                 console.log("");

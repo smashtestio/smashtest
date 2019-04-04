@@ -4,8 +4,9 @@ const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
 const progress = require('cli-progress');
-const prompt = require("prompt");
-const readline = require('readline');
+const prompt = require('prompt-sync')({
+    history: require('prompt-sync-history')()
+});
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
@@ -277,177 +278,84 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
         if(tree.isDebug || runner.repl) {
             runner.consoleOutput = true;
-            let exiting = false;
-            let isBranchComplete = false;
-            let insidePrompt = false;
-
-            // Set up REPL history
-            let replHistory = [];
-            let replHistoryPos = 0;
-            const rl = readline.createInterface({
-                input: process.stdin,
-                output: process.stdout
-            });
-            rl.setPrompt(chalk.gray("> "));
-            process.stdin.setRawMode(true);
-            process.stdin.resume();
-            process.stdin.setEncoding('utf8');
-            process.stdin.on('data', function(key) {
-                if(replHistory.length > 0 && insidePrompt) {
-                    if(key == '\u001B\u005B\u0041') { // up key
-                        /*process.stdout.clearLine();
-                        process.stdout.cursorTo(0);
-                        process.stdout.write(chalk.gray(">  "));
-                        process.stdout.write(replHistoryPos)*/
-                        readline.clearLine();
-                        rl.prompt();
-                        if(replHistoryPos > 0) {
-                            replHistoryPos--;
-                            process.stdout.write(replHistory[replHistoryPos]);
-                        }
-                    }
-                    else if(key == '\u001B\u005B\u0042') { // down key
-                        /*process.stdout.clearLine();
-                        process.stdout.cursorTo(0);
-                        process.stdout.write(chalk.gray(">  "));
-                        process.stdout.write(replHistoryPos)
-                        if(replHistoryPos < replHistory.length - 1) {
-                            replHistoryPos++;
-                            process.stdout.write(replHistory[replHistoryPos]);
-                        }*/
-                    }
-                }
-            });
-
 
             // Run the branch being debugged
-            isBranchComplete = await runner.run();
+            let isBranchComplete = await runner.run();
 
-            while(true) {
-                if(exiting) {
-                    await exit();
-                    return;
-                }
-                else if(isBranchComplete) {
-                    return;
-                }
-
+            while(!isBranchComplete) {
                 if(runner.hasPaused() || emptyREPL) {
                     // Tree not completed yet, open REPL and await user input
-                    try {
-                        await new Promise((resolve, reject) => {
-                            let nextStep = runner.getNextReadyStep();
-                            let prevStep = runner.getLastStep();
+                    let nextStep = runner.getNextReadyStep();
+                    let prevStep = runner.getLastStep();
 
-                            if(nextStep) {
-                                console.log("Next step: [ " + chalk.gray(nextStep.line.trim()) + " ]");
-                                console.log(chalk.gray("n = run next, s = skip, p = previous, r = resume, x = exit, or enter step to run it"));
-                            }
-                            else if(prevStep) {
-                                console.log(chalk.gray("enter step to run it, p = previous, x = exit"));
-                            }
-                            else {
-                                console.log(chalk.gray("enter step to run it, x = exit"));
-                            }
-
-                            console.log("");
-
-                            insidePrompt = true;
-                            rl.question("", async(input) => {
-                                await handlePrompt(input);
-                                resolve();
-                            });
-
-
-
-
-
-                            /*prompt.message = "";
-                            prompt.delimiter = "";
-                            prompt.start();
-                            prompt.get("> ", async function(err, result) {
-                                if(err) {
-                                    reject(err);
-                                    insidePrompt = false;
-                                    return;
-                                }
-
-                                handlePrompt(result).then(resolve).catch(reject);
-                            });*/
-                        });
+                    if(nextStep) {
+                        console.log("Next step: [ " + chalk.gray(nextStep.line.trim()) + " ]");
+                        console.log(chalk.gray("n = run next, s = skip, p = previous, r = resume, x = exit, or enter step to run it"));
                     }
-                    catch(e) {
-                        if(!exiting) {
-                            throw e;
-                        }
+                    else if(prevStep) {
+                        console.log(chalk.gray("enter step to run it, p = previous, x = exit"));
+                    }
+                    else {
+                        console.log(chalk.gray("enter step to run it, x = exit"));
+                    }
+
+                    console.log("");
+
+                    let input = prompt(">  ");
+                    prompt.history.save();
+
+                    if(input === null) { // Ctrl + C
+                        console.log("");
+                        await exit();
+                        return;
+                    }
+
+                    console.log("");
+
+                    switch(input.toLowerCase().trim()) {
+                        case "": // nothing was entered, just repeat the loop
+                            break;
+
+                        case "n":
+                            isBranchComplete = await runner.runOneStep();
+                            break;
+
+                        case "s":
+                            isBranchComplete = await runner.skipOneStep();
+                            break;
+
+                        case "p":
+                            await runner.runLastStep();
+                            break;
+
+                        case "r":
+                            isBranchComplete = await runner.run();
+                            break;
+
+                        case "x":
+                            await exit();
+                            return;
+
+
+
+
+
+
+
+
+
+
+
+
+                        default:
+                            console.log("inputted: " + input);
+                            console.log("");
+                            break;
                     }
                 }
                 else {
                     break; // the Tree ended, so exit
                 }
-            }
-
-            async function handlePrompt(input) {
-                if(!result) { // Ctrl + C
-                    console.log("");
-                    console.log("");
-
-                    prompt.stop();
-                    insidePrompt = false;
-                    exiting = true;
-
-                    return;
-                }
-
-                let input = result["> "];
-
-                console.log("");
-
-                switch(input.toLowerCase().trim()) {
-                    case "":
-                        break;
-
-                    case "n":
-                        isBranchComplete = await runner.runOneStep();
-                        break;
-
-                    case "s":
-                        isBranchComplete = await runner.skipOneStep();
-                        break;
-
-                    case "p":
-                        await runner.runLastStep();
-                        break;
-
-                    case "r":
-                        isBranchComplete = await runner.run();
-                        break;
-
-                    case "x":
-                        exiting = true;
-                        break;
-
-
-
-
-
-
-
-
-
-
-
-
-                    default:
-                        console.log("inputted: " + input);
-                        console.log("");
-                        break;
-                }
-
-                replHistory.push(input);
-                replHistoryPos = replHistory.length;
-
-                insidePrompt = false;
             }
         }
         else { // Normal run of whole tree
