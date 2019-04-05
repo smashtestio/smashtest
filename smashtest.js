@@ -5,12 +5,14 @@ const utils = require('./utils');
 const chalk = require('chalk');
 const progress = require('cli-progress');
 const repl = require('repl');
-/*const prompt = require('prompt-sync')({
-    history: require('prompt-sync-history')()
-});*/
+
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
+
+console.log("");
+console.log(chalk.bold.yellow("SmashTEST 0.1.1 BETA"));
+console.log("");
 
 if(process.argv.length < 3) {
     utils.error("No files inputted");
@@ -155,6 +157,10 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
         runner.init(tree, reporter);
 
+        if(tree.branches.length == 0 && !runner.repl) {
+            utils.error("0 branches generated from given files");
+        }
+
         // Initialize the reporter
         let reportPath = process.cwd() + "/report.html";
         let dateReportPath = process.cwd() + "/reports/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_') + (tree.isDebug ? "_debug" : "") + ".html";
@@ -243,6 +249,8 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
              */
             async function rerunNotPassed(filename) {
                 lastReportPath = process.cwd() + "/" + filename;
+                console.log("Will be skipping branches already passed in: " + chalk.gray(lastReportPath));
+                console.log("");
 
                 let fileBuffers = await readFiles([ filename ], {encoding: 'utf8'});
 
@@ -261,8 +269,6 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         let isComplete = false;
         let elapsed = 0;
 
-        let emptyREPL = runner.repl && tree.branches.length == 0;
-
         // Branch counts
         let passed = 0;
         let failed = 0;
@@ -275,27 +281,43 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         let totalStepsComplete = 0;
         let totalSteps = tree.getStepCount(true, false, false);
 
-        console.log(``);
-        console.log(chalk.bold.yellow(`SmashTEST 0.1.1 BETA`));
-
-        if(!emptyREPL) {
+        if(!runner.repl) {
             console.log(`${totalToRun} branches to run` + (!runner.noReport ? ` | ${totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + chalk.yellow(`In DEBUG mode (~)`) : ``));
-            if(lastReportPath) {
-                console.log(`Retrieving last run from: ` + chalk.gray.italic(lastReportPath));
-            }
             if(!runner.noReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reportPath));
             }
+            console.log(``);
         }
 
-        console.log(``);
-
         if(tree.isDebug || runner.repl) {
-            runner.consoleOutput = true;
+            let isBranchComplete = false;
 
-            // Run the branch being debugged
-            let isBranchComplete = await runner.run();
-            if(!isBranchComplete || runner.hasPaused() || emptyREPL) {
+            if(runner.repl) {
+                if(tree.branches.length == 0) {
+                    // Create an empty, paused runner
+                    runner.createEmptyRunner();
+                    runner.consoleOutput = true;
+                }
+                else if(tree.branches.length > 1) {
+                    utils.error(`There are ${tree.branches.length} branches but you can only have 1 to run -repl. Try isolating a branch with ~.`);
+                }
+                else {
+                    runner.consoleOutput = true;
+
+                    // Make the first step a ~ step. Start the runner, which will immediately pause before the first step.
+                    tree.branches[0].steps[0].isDebug = true;
+                    tree.isDebug = true;
+                    await runner.run();
+                }
+            }
+            else {
+                runner.consoleOutput = true;
+
+                // Run the branch being debugged
+                isBranchComplete = await runner.run();
+            }
+
+            if(!isBranchComplete || runner.hasPaused()) {
                 // Tree not completed yet, open REPL and await user input
                 let nextStep = null;
                 let prevStep = null;
@@ -320,7 +342,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                         console.log(chalk.gray("enter or x = exit, p = previous, or enter step to run it"));
                     }
                     else {
-                        console.log(chalk.gray("enter step to run it, x = exit"));
+                        console.log(chalk.gray("enter step to run it, enter or x = exit"));
                     }
 
                     console.log("");
@@ -372,7 +394,13 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     switch(input.toLowerCase().trim()) {
                         case "":
                             console.log("");
-                            isBranchComplete = await runner.runOneStep();
+                            if(runner.repl && tree.branches == 0) {
+                                // this is an empty repl, so exit
+                                process.exit();
+                            }
+                            else {
+                                isBranchComplete = await runner.runOneStep();
+                            }
                             break;
 
                         case "s":
@@ -437,93 +465,94 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             // Run
             await runner.run();
             isComplete = true;
-        }
+            forcedStop = false;
 
-        /**
-         * Activates the progress bar timer
-         */
-        function activateProgressBarTimer() {
-            const UPDATE_PROGRESS_BAR_FREQUENCY = 250; // ms
-            timer = setTimeout(updateProgressBar, UPDATE_PROGRESS_BAR_FREQUENCY);
-        }
+            /**
+             * Activates the progress bar timer
+             */
+            function activateProgressBarTimer() {
+                const UPDATE_PROGRESS_BAR_FREQUENCY = 250; // ms
+                timer = setTimeout(updateProgressBar, UPDATE_PROGRESS_BAR_FREQUENCY);
+            }
 
-        /**
-         * Called when the progress bar needs to be updated
-         */
-        function updateProgressBar() {
-            // Update branch counts
-            passed = tree.getBranchCount(true, true, true, false, false);
-            failed = tree.getBranchCount(true, true, false, true, false);
-            skipped = tree.getBranchCount(true, true, false, false, true);
-            complete = tree.getBranchCount(true, true);
-            totalToRun = tree.getBranchCount(true, false);
-            totalInReport = tree.getBranchCount(false, false);
+            /**
+             * Called when the progress bar needs to be updated
+             */
+            function updateProgressBar() {
+                // Update branch counts
+                passed = tree.getBranchCount(true, true, true, false, false);
+                failed = tree.getBranchCount(true, true, false, true, false);
+                skipped = tree.getBranchCount(true, true, false, false, true);
+                complete = tree.getBranchCount(true, true);
+                totalToRun = tree.getBranchCount(true, false);
+                totalInReport = tree.getBranchCount(false, false);
 
-            // Update step counts
-            totalStepsComplete = tree.getStepCount(true, true, false);
-            totalSteps = tree.getStepCount(true, false, false);
+                // Update step counts
+                totalStepsComplete = tree.getStepCount(true, true, false);
+                totalSteps = tree.getStepCount(true, false, false);
 
-            progressBar.stop();
-            progressBar.start(totalSteps, totalStepsComplete);
-            outputCounts();
-
-            if(isComplete) {
                 progressBar.stop();
-
-                progressBar = generateProgressBar(false);
                 progressBar.start(totalSteps, totalStepsComplete);
                 outputCounts();
-                progressBar.stop();
 
-                console.log(``);
-                console.log(chalk.yellow("Run complete" + (passed == totalToRun ? " 👍" : "")));
-                console.log(`${complete} branches ran` + (!runner.noReport ? ` | ${totalInReport} branches in report` : ``));
-                if(!runner.noReport) {
-                    console.log(`Report at: ` + chalk.gray.italic(reportPath));
+                if(isComplete) {
+                    progressBar.stop();
+
+                    progressBar = generateProgressBar(false);
+                    progressBar.start(totalSteps, totalStepsComplete);
+                    outputCounts();
+                    progressBar.stop();
+
+                    console.log(``);
+                    console.log(chalk.yellow("Run complete" + (passed == totalToRun ? " 👍" : "")));
+                    console.log(`${complete} branches ran` + (!runner.noReport ? ` | ${totalInReport} branches in report` : ``));
+                    if(!runner.noReport) {
+                        console.log(`Report at: ` + chalk.gray.italic(reportPath));
+                    }
+                    console.log(``);
                 }
-                console.log(``);
-            }
-            else {
-                activateProgressBarTimer();
-            }
-        }
-
-        /**
-         * @return {Object} A new progress bar object
-         */
-        function generateProgressBar(clearOnComplete) {
-            return new progress.Bar({
-                clearOnComplete: clearOnComplete,
-                barsize: 25,
-                hideCursor: true,
-                format: "{bar} {percentage}% | "
-            }, progress.Presets.shades_classic);
-        }
-
-        /**
-         * Outputs the given counts to the console
-         */
-        function outputCounts() {
-            if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && complete == 0) {
-                return; // nothing to show yet
+                else {
+                    activateProgressBarTimer();
+                }
             }
 
-            process.stdout.write(
-                (elapsed ? (`${elapsed} | `) : ``) +
-                (passed > 0        || isComplete ? chalk.greenBright(`${passed} passed`) + ` | ` : ``) +
-                (failed > 0        || isComplete ? chalk.redBright(`${failed} failed`) + ` | ` : ``) +
-                (skipped > 0       || isComplete ? chalk.cyanBright(`${skipped} skipped`) + ` | ` : ``) +
-                (complete > 0      || isComplete ? (`${complete} branches run`) : ``)
-            );
-        }
+            /**
+             * @return {Object} A new progress bar object
+             */
+            function generateProgressBar(clearOnComplete) {
+                return new progress.Bar({
+                    clearOnComplete: clearOnComplete,
+                    barsize: 25,
+                    hideCursor: true,
+                    format: "{bar} {percentage}% | "
+                }, progress.Presets.shades_classic);
+            }
 
-        /**
-         * Updates the elapsed variable
-         */
-        function updateElapsed() {
-            let d = new Date(null);
-            d.setSeconds((new Date() - tree.timeStarted)/1000);
-            elapsed = d.toISOString().substr(11, 8);
+            /**
+             * Outputs the given counts to the console
+             */
+            function outputCounts() {
+                if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && complete == 0) {
+                    return; // nothing to show yet
+                }
+
+                process.stdout.write(
+                    (elapsed ? (`${elapsed} | `) : ``) +
+                    (passed > 0        || isComplete ? chalk.greenBright(`${passed} passed`) + ` | ` : ``) +
+                    (failed > 0        || isComplete ? chalk.redBright(`${failed} failed`) + ` | ` : ``) +
+                    (skipped > 0       || isComplete ? chalk.cyanBright(`${skipped} skipped`) + ` | ` : ``) +
+                    (complete > 0      || isComplete ? (`${complete} branches run`) : ``)
+                );
+            }
+
+            /**
+             * Updates the elapsed variable
+             */
+            function updateElapsed() {
+                let d = new Date(null);
+                d.setSeconds((new Date() - tree.timeStarted)/1000);
+                elapsed = d.toISOString().substr(11, 8);
+            }
         }
     }
     catch(e) {

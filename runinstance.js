@@ -1,5 +1,6 @@
 const Constants = require('./constants.js');
 const Branch = require('./branch.js');
+const Step = require('./step.js');
 const utils = require('./utils.js');
 const chalk = require('chalk');
 
@@ -131,7 +132,7 @@ class RunInstance {
             return;
         }
 
-        if(this.runner.consoleOutput && this.tree.isDebug) {
+        if(this.runner.consoleOutput) {
             console.log("Start:     " + chalk.gray(step.line.trim()) + "     " + (step.filename ? chalk.gray(`[${step.filename}:${step.lineNumber}]`) : ``));
         }
 
@@ -312,7 +313,7 @@ class RunInstance {
 
         step.elapsed = new Date() - step.timeStarted;
 
-        if(this.runner.consoleOutput && this.tree.isDebug) {
+        if(this.runner.consoleOutput) {
             let seconds = step.elapsed/1000;
 
             let isGreen = (step.isPassed && step.asExpected) || (step.isFailed && step.asExpected);
@@ -490,6 +491,12 @@ class RunInstance {
             else if(this.currBranch.isComplete()) {
                 stepsAbove = this.currBranch.steps;
             }
+        }
+        else {
+            // Create a fake, empty step
+            let tempStep = new Step();
+            tempStep.parent = this.tree.root;
+            stepsAbove = [ tempStep.cloneForBranch() ];
         }
 
         let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, stepsAbove); // branchify so that if step is an already-defined function call, it will work
@@ -845,7 +852,7 @@ class RunInstance {
             this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
         }
 
-        if(this.runner.consoleOutput && this.tree.isDebug) {
+        if(this.runner.consoleOutput) {
             console.log("Branch complete");
             if(this.currBranch.error) {
                 console.log("");

@@ -206,6 +206,15 @@ class Runner {
         }
     }
 
+    /**
+     * Creates a single empty RunInstance and pauses it
+     * Will be used by -repl
+     */
+    createEmptyRunner() {
+        this.runInstances = [ new RunInstance(this) ];
+        this.runInstances[0].isPaused = true;
+    }
+
     // ***************************************
     // PRIVATE FUNCTIONS
     // Only use these internally

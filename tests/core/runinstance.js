@@ -6692,6 +6692,37 @@ My function
             expect(stepsRan.steps[1].isFailed).to.be.undefined;
         });
 
+        it("step can be a function call that's in the tree, but if there is no current branch", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+* My function
+    {var1}='foo'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            let t = new Tree();
+            t.parseIn(`
+My function
+`);
+
+            let stepsRan = await runInstance.injectStep(t.root.children[0]);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foo");
+
+            expect(stepsRan.steps).to.have.lengthOf(2);
+
+            expect(stepsRan.steps[0].text).to.equal("My function");
+            expect(stepsRan.steps[0].isPassed).to.be.true;
+            expect(stepsRan.steps[0].isFailed).to.be.undefined;
+
+            expect(stepsRan.steps[1].text).to.equal("{var1}='foo'");
+            expect(stepsRan.steps[1].isPassed).to.be.true;
+            expect(stepsRan.steps[1].isFailed).to.be.undefined;
+        });
+
         it("attaches an error to the step returned if it fails", async function() {
             let tree = new Tree();
             tree.parseIn(`

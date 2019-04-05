@@ -83,13 +83,12 @@ class Reporter {
      * @throws {Error} If there was a problem extracting the JSON, or if the JSON is invalid
      */
     extractBranchesJson(htmlReport) {
-        const errMsg = "Error parsing the report from last time. Please try another file.";
+        const errMsg = "Error parsing the report from last time. Please try another file or do not use -r/-rerunNotPassed.";
 
         let matches = htmlReport.match(/<meta name="branchesJSON" content="([^"]*)"/);
         if(matches) {
             let content = matches[1];
             content = utils.unescapeHtml(content);
-
             try {
                 JSON.parse(content);
             }
