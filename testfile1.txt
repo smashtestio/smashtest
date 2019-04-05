@@ -6,7 +6,7 @@ One -
         });*/
     }
 
-        Three -
+        ~ Three -
 
             Four {
                 throw new Error("oops!");

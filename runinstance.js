@@ -127,7 +127,7 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved when the step finishes execution
      */
     async runStep(step, branch, overrideDebug) {
-        if(step.isDebug && !overrideDebug) {
+        if(step.isBeforeDebug && !overrideDebug) {
             this.isPaused = true;
             return;
         }
@@ -340,6 +340,11 @@ class RunInstance {
                 console.log("");
                 console.log("");
             }
+        }
+
+        if(step.isAfterDebug && !overrideDebug) {
+            this.isPaused = true;
+            return;
         }
     }
 

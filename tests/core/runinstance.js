@@ -127,7 +127,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.true;
         });
 
-        it("handles a ~ step that pauses execution", async function() {
+        it("handles a ~ step that pauses execution before the step", async function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -154,6 +154,44 @@ A -
             expect(runInstance.ranStepB).to.be.true;
             expect(runInstance.ranStepC).to.be.undefined;
             expect(runInstance.ranStepD).to.be.undefined;
+
+            expect(runInstance.isPaused).to.be.true;
+            expect(runInstance.currStep.text).to.equal("C");
+
+            expect(tree.branches[0].isPassed).to.be.undefined;
+            expect(tree.branches[0].isFailed).to.be.undefined;
+        });
+
+        it("handles a ~ step that pauses execution after the step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+
+    B {
+        runInstance.ranStepB = true;
+    }
+
+        C ~ {
+            runInstance.ranStepC = true;
+        }
+
+            D {
+                runInstance.ranStepD = true;
+            }
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.ranStepD).to.be.undefined;
+
+            expect(runInstance.isPaused).to.be.true;
+            expect(runInstance.currStep.text).to.equal("C");
 
             expect(tree.branches[0].isPassed).to.be.undefined;
             expect(tree.branches[0].isFailed).to.be.undefined;
@@ -244,10 +282,9 @@ A -
         runInstance.ranStepB = true;
     }
 
-        C {
+        C ~ {
             runInstance.doubleRanStepC = (runInstance.ranStepC === true);
             runInstance.ranStepC = true;
-            throw new Error("oops");
         }
 
             D {
@@ -267,8 +304,44 @@ A -
             expect(runInstance.doubleRanStepC).to.be.false;
             expect(runInstance.ranStepD).to.be.undefined;
 
-            expect(tree.branches[0].isPassed).to.be.undefined;
-            expect(tree.branches[0].isFailed).to.be.undefined;
+            await runInstance.run();
+
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.doubleRanStepC).to.be.false;
+            expect(runInstance.ranStepD).to.be.true;
+        });
+
+        it("handles a resume from a previous pause, where the current step has ~ before and after itself", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+
+    B {
+        runInstance.ranStepB = true;
+    }
+
+        ~ C ~ {
+            runInstance.doubleRanStepC = (runInstance.ranStepC === true);
+            runInstance.ranStepC = true;
+        }
+
+            D {
+                runInstance.ranStepD = true;
+            }
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            runner.pauseOnFail = true;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.undefined;
+            expect(runInstance.doubleRanStepC).to.be.undefined;
+            expect(runInstance.ranStepD).to.be.undefined;
 
             await runInstance.run();
 
@@ -276,9 +349,6 @@ A -
             expect(runInstance.ranStepC).to.be.true;
             expect(runInstance.doubleRanStepC).to.be.false;
             expect(runInstance.ranStepD).to.be.true;
-
-            expect(tree.branches[0].isPassed).to.be.undefined;
-            expect(tree.branches[0].isFailed).to.be.true;
         });
 
         it("handles a resume from a previous pause, where the current step never ran and is the last step", async function() {
@@ -331,6 +401,54 @@ A  {
         });
 
         it("handles a resume from a previous pause, where the current step completed and is the last step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A {
+    runInstance.ranStepA = !runInstance.ranStepA;
+}
+
+    B {
+        runInstance.ranStepB = !runInstance.ranStepB;
+    }
+
+        C ~ {
+            runInstance.ranStepC = !runInstance.ranStepC;
+        }
+
+** Before Every Branch {
+    runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
+}
+
+** After Every Branch {
+    runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
+}
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            runner.pauseOnFail = true;
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            expect(runInstance.isPaused).to.be.true;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.afterEveryBranchRan).to.be.undefined; // doesn't run After Every Branch until one more runOneStep() call
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+
+            await runInstance.run();
+
+            expect(runInstance.isPaused).to.be.false;
+            expect(runInstance.ranStepA).to.be.true;
+            expect(runInstance.ranStepB).to.be.true;
+            expect(runInstance.ranStepC).to.be.true;
+            expect(runInstance.afterEveryBranchRan).to.be.true;
+            expect(runInstance.beforeEveryBranchRan).to.be.true;
+        });
+
+        it("handles a resume from a previous pause, where the current step completed in error, and is the last step", async function() {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -3790,7 +3908,7 @@ My function #
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("pauses when a ~ step is encountered", async function() {
+        it("pauses when a ~ step is encountered before the step", async function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -3811,11 +3929,86 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("when resuming from a pause on a ~, doesn't pause on the same ~ again", async function() {
+        it("pauses when a ~ step is encountered after the step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B ~ -
+        C -
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            expect(runInstance.isPaused).to.equal(false);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            expect(runInstance.isPaused).to.equal(false);
+
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            expect(runInstance.isPaused).to.equal(true);
+        });
+
+        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when the ~ is before the step", async function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     ~ B -
+        {var1}='foo'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            expect(runInstance.isPaused).to.equal(false);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            expect(runInstance.isPaused).to.equal(false);
+
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            expect(runInstance.isPaused).to.equal(true);
+
+            runInstance.isPaused = false;
+
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+            expect(runInstance.isPaused).to.equal(false);
+            expect(runInstance.getGlobal("var1")).to.equal("foo");
+        });
+
+        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when the ~ is after the step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B - ~
+        {var1}='foo'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            expect(runInstance.isPaused).to.equal(false);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            expect(runInstance.isPaused).to.equal(false);
+
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            expect(runInstance.isPaused).to.equal(true);
+
+            runInstance.isPaused = false;
+
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+            expect(runInstance.isPaused).to.equal(false);
+            expect(runInstance.getGlobal("var1")).to.equal("foo");
+        });
+
+        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when ~ is before and after the step", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    ~ B ~ -
         {var1}='foo'
 `, "file.txt");
 

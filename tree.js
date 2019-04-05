@@ -99,16 +99,12 @@ class Tree {
             }
         }
         if(matches[1]) {
-            if(!step.identifiers) {
-                step.identifiers = [];
-            }
-            step.identifiers = step.identifiers.concat(matches[1].trim().split(/\s+/));
+            step.frontIdentifiers = matches[1].trim().split(/\s+/);
+            step.identifiers = (step.identifiers || []).concat(step.frontIdentifiers);
         }
         if(matches[11]) {
-            if(!step.identifiers) {
-                step.identifiers = [];
-            }
-            step.identifiers = step.identifiers.concat(matches[11].trim().split(/\s+/));
+            step.backIdentifiers = matches[11].trim().split(/\s+/);
+            step.identifiers = (step.identifiers || []).concat(step.backIdentifiers);
         }
         if(matches[15]) {
             step.codeBlock = matches[15].substring(1); // substring() strips off leading {
@@ -148,35 +144,45 @@ class Tree {
         }
 
         // Set identifier booleans and perform related validations
-        if(step.identifiers) {
-            if(step.identifiers.includes('-T')) {
+        if(step.frontIdentifiers) {
+            if(step.frontIdentifiers.includes('~')) {
+                step.isDebug = true;
+                step.isBeforeDebug = true;
+            }
+            if(step.frontIdentifiers.includes('$')) {
+                step.isOnly = true;
+            }
+        }
+        if(step.backIdentifiers) {
+            if(step.backIdentifiers.includes('-T')) {
                 step.isToDo = true;
                 step.isTextualStep = true;
             }
-            if(step.identifiers.includes('-M')) {
+            if(step.backIdentifiers.includes('-M')) {
                 step.isManual = true;
                 step.isTextualStep = true;
             }
-            if(step.identifiers.includes('-')) {
+            if(step.backIdentifiers.includes('-')) {
                 step.isTextualStep = true;
 
                 if(step.isFunctionDeclaration) {
                     utils.error("A * Function declaration cannot be a textual step (-) as well", filename, lineNumber);
                 }
             }
-            if(step.identifiers.includes('~')) {
+            if(step.backIdentifiers.includes('~')) {
                 step.isDebug = true;
+                step.isAfterDebug = true;
             }
-            if(step.identifiers.includes('$')) {
+            if(step.backIdentifiers.includes('$')) {
                 step.isOnly = true;
             }
-            if(step.identifiers.includes('+')) {
+            if(step.backIdentifiers.includes('+')) {
                 step.isNonParallel = true;
             }
-            if(step.identifiers.includes('..')) {
+            if(step.backIdentifiers.includes('..')) {
                 step.isSequential = true;
             }
-            if(step.identifiers.includes('#')) {
+            if(step.backIdentifiers.includes('#')) {
                 step.isExpectedFail = true;
             }
         }

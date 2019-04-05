@@ -322,7 +322,8 @@ Only ($)
 
 Debug (~)
     - Debug identifier (~)
-        - Show example. Comes at the start of the step, including before a function declaration's *.
+        - Show example. Comes before or after a step, including before a function declaration's *.
+        - Before means pause right before this step executes, after means pause right after
     - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
     - Pauses right after a step if it fails (or unexpectedly passes)
     - Use multiple $'s and ~'s to isolate a single branch to debug (or you can use multiple ~'s)

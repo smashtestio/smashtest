@@ -20,7 +20,9 @@ class Step {
 
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
         this.text = "";                       // text of the command of the step (not including spaces in front, identifiers, comments, etc.)
-        this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['..', '+', '#something'])
+        this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['..', '+', '#something']) in front or behind the step
+        this.frontIdentifiers = [];           // Array of String, identifiers in front of the step text
+        this.backIdentifiers = [];            // Array of String, identifiers in back of the step text
         this.codeBlock = "";                  // if this is a code block step, contains the '{' followed by the code
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
@@ -33,6 +35,8 @@ class Step {
         this.isToDo = false;                  // true if this step has the To Do identifier (-T)
         this.isManual = false;                // true if this step has the manual identifier (-M)
         this.isDebug = false;                 // true if this step has the debug identifier (~)
+        this.isBeforeDebug = false;           // true if this step has the debug identifier (~) before the step text
+        this.isAfterDebug = false;            // true if this step has the debug identifier (~) after the step text
         this.isOnly = false;                  // true if this step has the only identifier ($)
         this.isNonParallel = false;           // true if this step has the non-parallel identifier (+)
         this.isSequential = false;            // true if this step has the sequential identifier (..)
@@ -182,6 +186,12 @@ class Step {
 
         let isDebug = this.isDebug || functionDeclarationInTree.isDebug;
         isDebug ? this.isDebug = isDebug : null;
+
+        let isBeforeDebug = this.isBeforeDebug || functionDeclarationInTree.isBeforeDebug;
+        isBeforeDebug ? this.isBeforeDebug = isBeforeDebug : null;
+
+        let isAfterDebug = this.isAfterDebug || functionDeclarationInTree.isAfterDebug;
+        isAfterDebug ? this.isAfterDebug = isAfterDebug : null;
 
         let isOnly = this.isOnly || functionDeclarationInTree.isOnly;
         isOnly ? this.isOnly = isOnly : null;

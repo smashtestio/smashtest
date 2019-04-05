@@ -372,10 +372,38 @@ describe("Tree", function() {
             let step = tree.parseLine(`~ Click {button}`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, true);
+            assert.equal(step.isBeforeDebug, true);
+            assert.equal(step.isAfterDebug, undefined);
 
             step = tree.parseLine(`    ~  Click {button} + `, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, true);
+            assert.equal(step.isBeforeDebug, true);
+            assert.equal(step.isAfterDebug, undefined);
+
+            step = tree.parseLine(`Click {button} ~`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isDebug, true);
+            assert.equal(step.isBeforeDebug, undefined);
+            assert.equal(step.isAfterDebug, true);
+
+            step = tree.parseLine(`     Click {button} + ~   `, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isDebug, true);
+            assert.equal(step.isBeforeDebug, undefined);
+            assert.equal(step.isAfterDebug, true);
+
+            step = tree.parseLine(`~ Click {button} ~`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isDebug, true);
+            assert.equal(step.isBeforeDebug, true);
+            assert.equal(step.isAfterDebug, true);
+
+            step = tree.parseLine(`    ~  Click {button} ~ +   `, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isDebug, true);
+            assert.equal(step.isBeforeDebug, true);
+            assert.equal(step.isAfterDebug, true);
         });
 
         it("parses the only identifier ($)", function() {
@@ -427,6 +455,10 @@ describe("Tree", function() {
         it("rejects a hook with a ~", function() {
             assert.throws(() => {
                 tree.parseLine(`~ ** Before Every Step {`, "file.txt", 10);
+            }, "A hook cannot have any identifiers (~) [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`** Before Every Step ~ {`, "file.txt", 10);
             }, "A hook cannot have any identifiers (~) [file.txt:10]");
         });
 
@@ -10101,11 +10133,37 @@ C -
             ]);
         });
 
-        it("isolates a branch with a single ~", function() {
+        it("isolates a branch with a single ~ before the step", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     ~ B -
+        C -
+    D -
+    E -
+
+F -
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates a branch with a single ~ after the step", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B - ~
         C -
     D -
     E -
@@ -10137,6 +10195,37 @@ A -
             F -
 
         ~ G -
+            H -
+
+        I -
+
+J -
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "B" }, { text: "G" }, { text: "H" } ],
+                    isOnly: undefined,
+                    isDebug: true
+                }
+            ]);
+        });
+
+        it("isolates a branch with ~ on multiple steps, before and after the step", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    ~ B -
+
+        E -
+            F -
+
+        G - ~
             H -
 
         I -
