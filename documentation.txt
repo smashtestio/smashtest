@@ -379,22 +379,22 @@ Stubbing out APIs
 Hooks
     - Piece of code that runs at certain points. Not for testing. For internal stuff, like reporting, requires,
         js function declarations, screenshotting, logging, etc.
-    - * Before Every Branch
+    - ** Before Every Branch
         - runs before every branch that goes through this function declaration's parent
-    - * After Every Branch
+    - ** After Every Branch
         - runs after every leaf under this function declaration's parent
-    - * Before Every Step
-    - * After Every Step
+    - ** Before Every Step
+    - ** After Every Step
         - Examples
             - Taking a screenshot
-    - * Before Everything
+    - ** Before Everything
         - before any branches begin, execute this
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
         - Examples
             - setInterval() that runs in the background and checks for a popup, then closes it
             - require() in a library (figure out how to do this)
-    - * After Everything
+    - ** After Everything
         - after all branches end, execute this
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
@@ -422,7 +422,7 @@ Hooks
                 E
 
 Packages
-    - Just create a file with a * Before Everything that injects what it needs. Then just distribute this file and have users
+    - Just create a file with a ** Before Everything that injects what it needs. Then just distribute this file and have users
         put it into packages/
     - Give some examples
         - Show injection being made into Runner.persistent.packageName

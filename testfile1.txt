@@ -16,11 +16,11 @@ One -
 
         Six -
 
-* Before Every Branch {
+** Before Every Branch {
     //throw new Error("oops!");
 }
 
-* After Every Branch {
+** After Every Branch {
     //throw new Error("oops!");
 }
 
@@ -29,6 +29,6 @@ One -
     throw new Error("oopsies!");
 }
 
-* After Everything {
+** After Everything {
     //console.log("DONE CLEANING UP");
 }

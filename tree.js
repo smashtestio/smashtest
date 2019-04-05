@@ -94,6 +94,9 @@ class Tree {
         step.text = matches[5];
         if(matches[4]) {
             step.isFunctionDeclaration = true;
+            if(matches[4].trim() == '**') {
+                step.isHook = true;
+            }
         }
         if(matches[1]) {
             if(!step.identifiers) {
@@ -179,12 +182,14 @@ class Tree {
         }
 
         // Validate hook steps
-        if(step.isFunctionDeclaration) {
+        if(step.isHook) {
             let canStepText = utils.canonicalize(step.text);
             let stepText = step.text.trim().replace(/\s+/g, ' ');
             let index = Constants.HOOK_NAMES.indexOf(canStepText);
-            if(index != -1) {
-                step.isHook = true;
+            if(index == -1) {
+                utils.error("Invalid ** Hook name", filename, lineNumber);
+            }
+            else {
                 if(!step.hasCodeBlock()) {
                     utils.error("A hook must have a code block", filename, lineNumber);
                 }
@@ -818,14 +823,14 @@ class Tree {
                 }
                 else if(canStepText == "before everything") {
                     if(child.indents != 0) {
-                        utils.error("A '* Before Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
+                        utils.error("A '** Before Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
                     }
 
                     this.beforeEverything.unshift(clonedHookStep); // inserted this way so that packaged hooks get executed first
                 }
                 else if(canStepText == "after everything") {
                     if(child.indents != 0) {
-                        utils.error("An '* After Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
+                        utils.error("An '** After Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
                     }
 
                     this.afterEverything.push(clonedHookStep); // inserted this way so that packaged hooks get executed last

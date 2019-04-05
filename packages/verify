@@ -2,7 +2,7 @@
 // Set error.continue = true for these steps
 // All of these steps will verify immediately and fail immediately
 
-* Before Everything {
+** Before Everything {
     // Implement verify functions here, which can be reused for exactly N, every, etc.
 }
 

@@ -112,7 +112,7 @@ Test the Widget Maker -
 
                         Verify {response} has 6
 
-                    * After Every Branch  // called at the end of every branch from this step's siblings on down
+                    ** After Every Branch  // called at the end of every branch from this step's siblings on down
 
                         Do cleanup
 
@@ -463,8 +463,11 @@ Enter {txt} into [textbox]
 3) {txt} = '2222'
 4) {txt} = '3333'
 5) {txt} = '4444'
-6) {txt} = 'AAAA'
-7) {txt} = 'BBBB'
-8) {txt} = 'CCCC'
-9) {txt} = 'DDDD'
-10) Verify error is visible
+6) Verify error is visible
+
+1) Enter {txt} into [textbox]
+2) {txt} = 'AAAA'
+3) {txt} = 'BBBB'
+4) {txt} = 'CCCC'
+5) {txt} = 'DDDD'
+6) Verify error is visible

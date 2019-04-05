@@ -1,8 +1,8 @@
-* Before Everything {
+** Before Everything {
 
 }
 
-* After Every Step {
+** After Every Step {
     // Take screenshot upon failure
 
     /*
