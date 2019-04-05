@@ -478,10 +478,6 @@ class RunInstance {
      * @throws {Error} Any errors that may occur during a branchify() of the given step
      */
     async injectStep(step) {
-        if(step.isFunctionDeclaration) {
-            utils.error("Cannot define a * Function Declaration here");
-        }
-
         // Fill stepsAbove to be all the Steps above the current step
         let stepsAbove = [];
         if(this.currBranch) {

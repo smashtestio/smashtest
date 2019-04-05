@@ -6760,18 +6760,6 @@ My function
             expect(runInstance.currBranch.error).to.equal(undefined);
         });
 
-        it("throws an error if a function declaration step is passed in", async function() {
-            let tree = new Tree();
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-
-            let step = tree.parseLine('* My function');
-
-            await expect(runInstance.injectStep(step)).to.be.rejectedWith("Cannot define a * Function Declaration here");
-        });
-
         it("throws an error for a function call that cannot be found", async function() {
             let tree = new Tree();
             tree.parseIn(`

@@ -376,7 +376,7 @@ Stubbing out APIs
             - Give examples of a few GET/POST routes and their responses
         - Restores original XHR once test is over
 
-Hooks
+Hooks (**)
     - Piece of code that runs at certain points. Not for testing. For internal stuff, like reporting, requires,
         js function declarations, screenshotting, logging, etc.
     - ** Before Every Branch

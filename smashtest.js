@@ -424,6 +424,10 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                             return;
 
                         default:
+                            if(input.startsWith('*')) {
+                                utils.error("Cannot define a * Function Declaration or ** Hook here");
+                            }
+                            
                             let t = new Tree();
 
                             if(codeBlockStep === null) {
