@@ -483,8 +483,13 @@ class RunInstance {
 
         // Fill stepsAbove to be all the Steps above the current step
         let stepsAbove = [];
-        if(this.currBranch && this.currStep) {
-            stepsAbove = this.currBranch.steps.slice(0, this.currBranch.steps.indexOf(this.currStep) + 1);
+        if(this.currBranch) {
+            if(this.currStep) {
+                stepsAbove = this.currBranch.steps.slice(0, this.currBranch.steps.indexOf(this.currStep) + 1);
+            }
+            else if(this.currBranch.isComplete()) {
+                stepsAbove = this.currBranch.steps;
+            }
         }
 
         let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, stepsAbove); // branchify so that if step is an already-defined function call, it will work

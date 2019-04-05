@@ -300,6 +300,8 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                 let nextStep = null;
                 let prevStep = null;
 
+                let codeBlockStep = null;
+
                 prePrompt();
 
                 /**
@@ -314,7 +316,8 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                         console.log(chalk.gray("enter = run next, s = skip, p = previous, r = resume, x = exit, or enter step to run it"));
                     }
                     else if(prevStep) {
-                        console.log(chalk.gray("enter step to run it, p = previous, x = exit"));
+                        console.log(chalk.gray("Passed the very last step"));
+                        console.log(chalk.gray("enter or x = exit, p = previous, or enter step to run it"));
                     }
                     else {
                         console.log(chalk.gray("enter step to run it, x = exit"));
@@ -325,101 +328,102 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                 repl.start({
                     prompt: chalk.gray("> "),
+                    completer: (line) => {
+                        process.stdout.write("    "); // enter a tab made up of 4 spaces
+                        return []; // no autocomplete on tab
+                    },
                     eval: (input, context, filename, callback) => {
-                        switch(input.toLowerCase().trim()) {
-                            case "":
-                                console.log("");
-                                runner.runOneStep()
-                                    .then(finish)
-                                    .catch(finishWithError);
-                                break;
+                        let linesToEval = input.replace(/\n+$/, '').split(/\n/);
+                        (async() => {
+                            for(let i = 0; i < linesToEval.length; i++) {
+                                let line = linesToEval[i];
+                                await evalLine(line);
 
-                            case "s":
-                                console.log("");
-                                runner.skipOneStep()
-                                    .then(finish)
-                                    .catch(finishWithError);
-                                break;
-
-                            case "p":
-                                console.log("");
-                                runner.runLastStep()
-                                    .then(finish)
-                                    .catch(finishWithError);
-                                break;
-
-                            case "r":
-                                console.log("");
-                                runner.run()
-                                    .then(finish)
-                                    .catch(finishWithError);
-                                break;
-
-                            case "x":
-                                console.log("");
-                                process.exit();
-                                break;
-
-                            default:
-                                let t = new Tree();
-                                let stepStr = input;
-                                let branchRun = null;
-
-                                try {
-                                    let step = t.parseLine(stepStr);
-
-                                    if(step.hasCodeBlock()) {
-                                        // Continue inputting lines until a } is inputted
-                                        while(true) {
-                                            // PROMPT
-
-
-
-
-                                            stepStr += "\n" + input;
-
-                                            if(input.length > 0 && input[0] == "}") {
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    console.log("");
-
-                                    t.parseIn(stepStr);
-                                    runner.injectStep(t.root.children[0])
-                                        .then(() => {
-                                            finish();
-                                        })
-                                        .catch(finishWithError);
+                                if(i == linesToEval.length - 1 && codeBlockStep === null) {
+                                    prePrompt(); // include prompt after last line, and only if we're not in the middle of inputting a code block
                                 }
-                                catch(e) {
-                                    // Parse issue
-                                    console.log(e);
-                                    console.log("");
-                                }
-
-                                break;
-                        }
-
-                        function finish(isBranchComplete) {
-                            if(isBranchComplete && runner.isComplete) {
-                                forcedStop = false;
-                                process.exit();
                             }
-                            else {
-                                prePrompt();
-                                callback(null);
-                            }
-                        }
+                        })()
+                        .then(() => {
+                            callback(null);
+                        })
+                        .catch((e) => {
+                            console.log(e);
+                            console.log("");
 
-                        function finishWithError(error) {
-                            console.log(error);
                             prePrompt();
                             callback(null);
-                        }
+                        });
                     }
                 });
+
+                /**
+                 * Called when the REPL needs to eval input
+                 */
+                async function evalLine(input) {
+                    if(codeBlockStep !== null) { // we're currently inputting a code block
+                        codeBlockStep += "\n" + input;
+                        if(input.length == 0 || input[0] != "}") { // not the end of code block input
+                            return;
+                        }
+                    }
+
+                    let isBranchComplete = false;
+                    switch(input.toLowerCase().trim()) {
+                        case "":
+                            console.log("");
+                            isBranchComplete = await runner.runOneStep();
+                            break;
+
+                        case "s":
+                            console.log("");
+                            isBranchComplete = await runner.skipOneStep();
+                            break;
+
+                        case "p":
+                            console.log("");
+                            await runner.runLastStep();
+                            break;
+
+                        case "r":
+                            console.log("");
+                            isBranchComplete = await runner.run();
+                            break;
+
+                        case "x":
+                            console.log("");
+                            process.exit();
+                            return;
+
+                        default:
+                            let t = new Tree();
+
+                            if(codeBlockStep === null) {
+                                let step = t.parseLine(input);
+                                if(step.hasCodeBlock()) {
+                                    // Continue inputting lines until a } is inputted
+                                    codeBlockStep = input;
+                                    return;
+                                }
+                            }
+                            else {
+                                input = codeBlockStep;
+                                codeBlockStep = null;
+                            }
+
+                            t.parseIn(input);
+
+                            console.log("");
+                            await runner.injectStep(t.root.children[0]);
+
+                            break;
+                    }
+
+                    if(isBranchComplete && runner.isComplete) {
+                        forcedStop = false;
+                        process.exit();
+                    }
+                }
             }
         }
         else { // Normal run of whole tree
