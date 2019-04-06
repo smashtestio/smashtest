@@ -238,6 +238,20 @@
             .counts {
                 line-height: 16px;
             }
+
+            .line-number {
+                color: rgb(100,100,100);
+                font-size: 11px;
+            }
+
+            .vertical-line {
+                border-left: 1px dashed rgb(100,100,100);
+                margin: 0 3px;
+                display: inline-block;
+                height: 13px;
+                position: relative;
+                top: 1px;
+            }
         </style>
     </head>
     <body>
@@ -270,9 +284,11 @@
                                 <span class="notrunyet-count notrunyet-item">9 not run yet</span> |
                                 <span class="total-count">22 total branches</span>
                             </div>
+                            <!--
                             <div class="msg tree-header-item">
                                 Note: Each branch below shows steps in order of execution. Indents represent function calls.
                             </div>
+                            -->
                         </div>
                     </div>
                     <div class="branch-container">
@@ -287,55 +303,75 @@
                                         </div>
                                         <div class="steps">
                                             <div class="line">
-                                                <div class="content passed-expected passed-item">
+                                                <span class="line-number">1</span> <!-- NOTE: Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch -->
+                                                <span class="content passed-expected passed-item">
                                                     Passed expected
-                                                </div>
+                                                </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
-                                                <div class="content passed-expected passed-item">
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;Passed expected
-                                                </div>
+                                                <span class="line-number">2</span>
+                                                <span class="vertical-line"></span>
+                                                <span class="content passed-expected passed-item">
+                                                    Passed expected
+                                                </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
-                                                <div class="content passed-unexpected passed-item">
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Passed unexpected
+                                                <span class="line-number">3</span>
+                                                <span class="vertical-line"></span>
+                                                <span class="vertical-line"></span>
+                                                <span class="content passed-unexpected passed-item">
+                                                    Passed unexpected
                                                     <span class="pill unexpected">UNEXPECTED</span>
-                                                </div>
+                                                </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
-                                                <div class="content failed-expected failed-item">
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed expected
+                                                <span class="line-number">4</span>
+                                                <span class="vertical-line"></span>
+                                                <span class="vertical-line"></span>
+                                                <span class="content failed-expected failed-item">
+                                                    Failed expected
                                                     <span class="pill expected">EXPECTED</span>
-                                                </div>
+                                                </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
-                                                <div class="content failed-unexpected failed-item">
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed unexpected
-                                                </div>
+                                                <span class="line-number">5</span>
+                                                <span class="vertical-line"></span>
+                                                <span class="vertical-line"></span>
+                                                <span class="content failed-unexpected failed-item">
+                                                    Failed unexpected
+                                                </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
-                                                <div class="content skipped skipped-item">
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Skipped
+                                                <span class="line-number">6</span>
+                                                <span class="vertical-line"></span>
+                                                <span class="content skipped skipped-item">
+                                                    Skipped
                                                     <span class="pill skipped">SKIPPED</span>
-                                                </div>
+                                                </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
-                                                <div class="content running running-item">
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running
+                                                <span class="line-number">7</span>
+                                                <span class="vertical-line"></span>
+                                                <span class="vertical-line"></span>
+                                                <span class="content running running-item">
+                                                    Running
                                                     <span class="pill running">RUNNING</span>
-                                                </div>
+                                                </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
-                                                <div class="content notrunyet notrunyet-item">
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not run yet
-                                                </div>
+                                                <span class="line-number">8</span>
+                                                <span class="vertical-line"></span>
+                                                <span class="vertical-line"></span>
+                                                <span class="content notrunyet notrunyet-item">
+                                                    Not run yet
+                                                </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                         </div>
