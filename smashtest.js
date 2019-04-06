@@ -514,6 +514,14 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                         console.log(`Report at: ` + chalk.gray.italic(reportPath));
                     }
                     console.log(``);
+
+                    // If any branch failed, exit with 1, otherwise exit with 0
+                    for(let i = 0; i < tree.branches.length; i++) {
+                        if(tree.branches[i].isFailed) {
+                            process.exit(1);
+                        }
+                    }
+                    process.exit(0);
                 }
                 else {
                     activateProgressBarTimer();
