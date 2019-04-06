@@ -63,6 +63,7 @@ class Step {
 
         this.elapsed = 0;                     // number of ms it took this step to execute
         this.timeStarted = {};                // Date object (time) of when this step started being executed
+        this.timeEnded = {};                  // Date object (time) of when this step ended execution
 
         htmlReport = "";                      // html that represents this step in reports
         */

@@ -1,7 +1,7 @@
 <html>
     <head>
-        <meta name="branchesJSON" content="{{{branchesJSON}}}"/>
-        <meta name="runnerJSON" content="{{{runnerJSON}}}"/>
+        <meta name="treeObj" content="{{{treeObj}}}"/>
+        <meta name="runnerObj" content="{{{runnerObj}}}"/>
 
         <script src="https://unpkg.com/popper.js@1"></script>
         <script src="https://unpkg.com/tippy.js@4"></script>
@@ -36,6 +36,25 @@
                 padding: 0;
             }
 
+            .tree-header {
+                margin: 0 0 30px 0;
+            }
+
+            .tree-header-container {
+                margin: 0 0 0 10px;
+                font-size: 13px;
+            }
+
+            .branch-container {
+                margin: 0 0 30px 0;
+            }
+
+            .none-indicator {
+                font-size: 14px;
+                color: rgb(100,100,100);
+                padding-left: 40px;
+            }
+
             .branch {
                 margin-bottom: 12px;
             }
@@ -53,6 +72,7 @@
 
             .branch-indicator {
                 width: 10px;
+                min-width: 10px;
                 border: 0;
                 margin: 0;
                 padding: 0;
@@ -70,6 +90,7 @@
                 background-color: orange;
                 animation: blinker 2s linear infinite;
             }
+
             @keyframes blinker {
                 50% {
                     opacity: 0.3;
@@ -90,7 +111,6 @@
 
             .branch-contents {
                 width: calc(100% - 10px);
-                overflow-x: auto;
                 border: 0;
                 margin: 0;
                 padding: 0 0 0 5px;
@@ -99,7 +119,7 @@
             .line {
                 font-size: 14px;
                 position: relative;
-                overflow-x: hidden;
+                white-space: nowrap;
             }
 
             .line:hover {
@@ -119,35 +139,6 @@
 
             .line:hover .filelocation {
                 visibility: visible;
-            }
-
-            .line .content.notrunyet {
-                color: gray;
-            }
-
-            .line .content.running {
-                color: orange;
-                animation: blinker 2s linear infinite;
-            }
-
-            .line .content.passed-expected {
-                color: rgb(0,200,0);
-            }
-
-            .line .content.passed-unexpected {
-                color: rgb(0,200,0);
-            }
-
-            .line .content.failed-expected {
-                color: red;
-            }
-
-            .line .content.failed-unexpected {
-                color: red;
-            }
-
-            .line .content.skipped {
-                color: rgb(0,200,200);
             }
 
             .pill {
@@ -181,7 +172,7 @@
 
             .progress-bar {
                 height: 20px;
-                margin: 0 10px 10px;
+                margin-right: 10px;
                 padding: 0;
             }
 
@@ -194,7 +185,58 @@
             }
 
             .progress-bar .filled-bar-text {
+                position: relative;
+                top: 2px;
                 padding: 0 5px;
+            }
+
+            .runner-status-msg {
+                font-weight: bold;
+            }
+
+            .msg {
+                color: rgb(100,100,100);
+                font-size: 12px;
+                font-weight: normal;
+            }
+
+            .refresh-msg:hover {
+                cursor: pointer;
+                filter: brightness(1.75);
+            }
+
+            .refresh-icon {
+                width: 14px;
+                vertical-align: bottom;
+            }
+
+            .tree-header-item {
+                margin-bottom: 10px;
+            }
+
+            .notrunyet-item {
+                color: gray;
+            }
+
+            .running-item {
+                color: orange;
+                animation: blinker 2s linear infinite;
+            }
+
+            .passed-item {
+                color: rgb(0,200,0);
+            }
+
+            .failed-item {
+                color: red;
+            }
+
+            .skipped-item {
+                color: rgb(0,200,200);
+            }
+
+            .counts {
+                line-height: 16px;
             }
         </style>
     </head>
@@ -203,86 +245,121 @@
             <tr>
                 <td class="divider-pane">
                     <div class="tree-header">
-                        <div class="header">SmashTEST Run</div>
-                        <div class="progress-bar">
-                            <div class="filled-bar">
-                                <div class="filled-bar-text"></div>
+                        <div class="header">SmashTEST Report</div>
+                        <div class="tree-header-container">
+                            <div class="progress-bar tree-header-item">
+                                <div class="filled-bar">
+                                    <div class="filled-bar-text"></div>
+                                </div>
+                            </div>
+                            <div class="runner-status-msg tree-header-item">
+                                <div class="runner-complete">Run completed at [TIME ENDED] (34:54)</div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
+                                <div class="runner-running running-item">Currently running</div>
+                                <div class="runner-paused skipped-item">Run paused</div>
+                                <div class="runner-stopped">Run stopped at [TIME ENDED] (12:54)</div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
+                            </div>
+                            <div class="refresh-msg msg tree-header-item" onclick="location.reload();">
+                                <img class="refresh-icon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiBoZWlnaHQ9IjMycHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxnPjxwYXRoIGQ9Ik0yNS40NDQsNC4yOTFjMCwwLTEuMzI1LDEuMjkzLTIuMjQzLDIuMjAxQzE4LjUxNCwzLjA2OCwxMS45MDksMy40NTYsNy42NzYsNy42ODkgICBjLTIuNDcsMi40Ny0zLjYyMyw1Ljc0Ny0zLjQ4NCw4Ljk4M2g0QzguMDUxLDE0LjQ2LDguODEsMTIuMjA1LDEwLjUsMTAuNTE0YzIuNjYzLTIuNjYzLDYuNzM1LTMuMDQzLDkuODEyLTEuMTYyICAgYy0xLjA0MiwxLjAzMi0yLjI0NSwyLjIzOC0yLjI0NSwyLjIzOGMtMC44NDEsMS4wMDksMC4xMDQsMS41OTIsMC41ODQsMS41NzdsNS42MjQtMC4wMDFjMC4yOTcsMCwwLjUzOSwwLjAwMSwwLjUzOSwwLjAwMSAgIHMwLjI0NSwwLDAuNTQzLDBoMS4wOTJjMC4yOTgsMCwwLjU0LTAuMjQzLDAuNTQtMC41NDFWNC44OTVDMjcuMDIzLDQuMTg4LDI2LjI0NywzLjUwMiwyNS40NDQsNC4yOTF6IiBmaWxsPSIjNTE1MTUxIi8+PHBhdGggZD0iTTYuNTU1LDI3LjcwOWMwLDAsMS4zMjYtMS4yOTMsMi4yNDMtMi4yMDFjNC42ODgsMy40MjQsMTEuMjkyLDMuMDM2LDE1LjUyNi0xLjE5NyAgIGMyLjQ3LTIuNDcxLDMuNjIyLTUuNzQ3LDMuNDg0LTguOTgzaC00LjAwMWMwLjE0MiwyLjIxMS0wLjYxNyw0LjQ2Ny0yLjMwOCw2LjE1OWMtMi42NjMsMi42NjItNi43MzUsMy4wNDMtOS44MTIsMS4xNjEgICBjMS4wNDItMS4wMzIsMi4yNDUtMi4yMzgsMi4yNDUtMi4yMzhjMC44NDEtMS4wMS0wLjEwNC0xLjU5Mi0wLjU4NC0xLjU3N2wtNS42MjQsMC4wMDJjLTAuMjk3LDAtMC41NC0wLjAwMi0wLjU0LTAuMDAyICAgcy0wLjI0NSwwLTAuNTQzLDBINS41NTFjLTAuMjk4LDAtMC41NCwwLjI0Mi0wLjU0MSwwLjU0MXY3LjczMkM0Ljk3NywyNy44MTIsNS43NTMsMjguNDk4LDYuNTU1LDI3LjcwOXoiIGZpbGw9IiM1MTUxNTEiLz48L2c+PC9zdmc+">
+                                </img>
+                                Refresh for latest results
+                            </div>
+                            <div class="counts tree-header-item">
+                                <span class="passed-count passed-item">10 passed</span> |
+                                <span class="failed-count failed-item">7 failed</span> |
+                                <span class="skipped-count skipped-item">8 skipped</span> |
+                                <span class="notrunyet-count notrunyet-item">9 not run yet</span> |
+                                <span class="total-count">22 total branches</span>
+                            </div>
+                            <div class="msg tree-header-item">
+                                Note: Each branch below shows steps in order of execution. Indents represent function calls.
                             </div>
                         </div>
                     </div>
-                    <div class="header">Branches currently running</div>
-                    <div class="branch">
-                        <table>
-                            <tr>
-                                <td class="branch-indicator running">
-                                </td>
-                                <td class="branch-contents">
-                                    <div class="branch-header">
-                                    </div>
-                                    <div class="steps">
-                                        <div class="line">
-                                            <div class="content passed-expected">
-                                                Passed expected
-                                            </div>
-                                            <span class="filelocation">[file.txt:10]</span>
+                    <div class="branch-container">
+                        <div class="header">Branches currently running</div>
+                        <div class="branch">
+                            <table>
+                                <tr>
+                                    <td class="branch-indicator running">
+                                    </td>
+                                    <td class="branch-contents">
+                                        <div class="branch-header">
                                         </div>
-                                        <div class="line">
-                                            <div class="content passed-expected">
-                                                &nbsp;&nbsp;&nbsp;&nbsp;Passed expected
+                                        <div class="steps">
+                                            <div class="line">
+                                                <div class="content passed-expected passed-item">
+                                                    Passed expected
+                                                </div>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </div>
-                                            <span class="filelocation">[file.txt:10]</span>
-                                        </div>
-                                        <div class="line">
-                                            <div class="content passed-unexpected">
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Passed unexpected
-                                                <span class="pill unexpected">UNEXPECTED</span>
+                                            <div class="line">
+                                                <div class="content passed-expected passed-item">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;Passed expected
+                                                </div>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </div>
-                                            <span class="filelocation">[file.txt:10]</span>
-                                        </div>
-                                        <div class="line">
-                                            <div class="content failed-expected">
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed expected
-                                                <span class="pill expected">EXPECTED</span>
+                                            <div class="line">
+                                                <div class="content passed-unexpected passed-item">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Passed unexpected
+                                                    <span class="pill unexpected">UNEXPECTED</span>
+                                                </div>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </div>
-                                            <span class="filelocation">[file.txt:10]</span>
-                                        </div>
-                                        <div class="line">
-                                            <div class="content failed-unexpected">
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed unexpected
+                                            <div class="line">
+                                                <div class="content failed-expected failed-item">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed expected
+                                                    <span class="pill expected">EXPECTED</span>
+                                                </div>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </div>
-                                            <span class="filelocation">[file.txt:10]</span>
-                                        </div>
-                                        <div class="line">
-                                            <div class="content skipped">
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Skipped
-                                                <span class="pill skipped">SKIPPED</span>
+                                            <div class="line">
+                                                <div class="content failed-unexpected failed-item">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed unexpected
+                                                </div>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </div>
-                                            <span class="filelocation">[file.txt:10]</span>
-                                        </div>
-                                        <div class="line">
-                                            <div class="content running">
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running
-                                                <span class="pill running">RUNNING</span>
+                                            <div class="line">
+                                                <div class="content skipped skipped-item">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Skipped
+                                                    <span class="pill skipped">SKIPPED</span>
+                                                </div>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </div>
-                                            <span class="filelocation">[file.txt:10]</span>
-                                        </div>
-                                        <div class="line">
-                                            <div class="content notrunyet">
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not run yet
+                                            <div class="line">
+                                                <div class="content running running-item">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running
+                                                    <span class="pill running">RUNNING</span>
+                                                </div>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </div>
-                                            <span class="filelocation">[file.txt:10]</span>
+                                            <div class="line">
+                                                <div class="content notrunyet notrunyet-item">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not run yet
+                                                </div>
+                                                <span class="filelocation">[file.txt:10]</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                    <div class="header">Failed branches</div>
-                    <div class="header">Passed branches</div>
-                    <div class="header">Skipped branches</div>
-                    <div class="header">Branches not run yet</div>
-
-                    <br><br>
+                    <div class="branch-container">
+                        <div class="header">Failed branches</div>
+                        <div class="none-indicator">None</div>
+                    </div>
+                    <div class="branch-container">
+                        <div class="header">Passed branches</div>
+                        <div class="none-indicator">None</div>
+                    </div>
+                    <div class="branch-container">
+                        <div class="header">Skipped branches</div>
+                        <div class="none-indicator">None</div>
+                    </div>
+                    <div class="branch-container">
+                        <div class="header">Branches not run yet</div>
+                        <div class="none-indicator">None</div>
+                    </div>
                 </td>
                 <td class="divider-pane">
                     Right side
@@ -291,6 +368,30 @@
         </table>
 
         <script type="text/javascript">
+            // Parse in tree and runner objects
+            function unescapeHtml(str) {
+                return str
+                    .replace(/&#039;/g, "'")
+                    .replace(/&quot;/g, "\"")
+                    .replace(/&gt;/g, ">")
+                    .replace(/&lt;/g, "<")
+                    .replace(/&amp;/g, "&");
+            }
+
+            let treeContent = document.querySelector("meta[name=treeObj]").getAttribute("content");
+            let treeJSON = unescapeHtml(treeContent);
+            let tree = null;
+            if(!treeJSON.startsWith("\{\{\{")) {
+                tree = JSON.parse(treeJSON);
+            }
+
+            let runnerContent = document.querySelector("meta[name=runnerObj]").getAttribute("content");
+            let runnerJSON = unescapeHtml(runnerContent);
+            let runner = null;
+            if(!runnerJSON.startsWith("\{\{\{")) {
+                runner = JSON.parse(runnerJSON);
+            }
+
             // Progress bar
             function setProgress(decimal) {
                 let filledBar = document.querySelector(".progress-bar .filled-bar");

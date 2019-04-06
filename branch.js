@@ -34,6 +34,7 @@ class Branch {
 
         this.elapsed = 0;                   // number of ms it took this step to execute
         this.timeStarted = {};              // Date object (time) of when this branch started being executed
+        this.timeEnded = {};                // Date object (time) of when this branch ended execution
         */
     }
 

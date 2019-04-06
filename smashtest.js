@@ -1,5 +1,4 @@
 const readFiles = require('read-files-promise');
-const fs = require('fs');
 const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
@@ -162,48 +161,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         }
 
         // Initialize the reporter
-        let reportPath = process.cwd() + "/report.html";
-        let dateReportPath = process.cwd() + "/reports/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_') + (tree.isDebug ? "_debug" : "") + ".html";
-        let dateReportsDirPath = process.cwd() + "/reports";
         let lastReportPath = null;
-
-        reporter.onReportChanged = async function() {
-            // Write the new report to report.html and reports/<datetime>.html
-            await new Promise((resolve, reject) => {
-                fs.mkdir(dateReportsDirPath, { recursive: true }, (err) => {
-                    if(err) {
-                        reject(err);
-                    }
-                    else {
-                        resolve();
-                    }
-                });
-            });
-
-            let reportPromise = new Promise((resolve, reject) => {
-                fs.writeFile(reportPath, reporter.htmlReport, (err) => {
-                    if(err) {
-                        reject(err);
-                    }
-                    else {
-                        resolve();
-                    }
-                });
-            });
-
-            let dateReportPromise = new Promise((resolve, reject) => {
-                fs.writeFile(dateReportPath, reporter.htmlReport, (err) => {
-                    if(err) {
-                        reject(err);
-                    }
-                    else {
-                        resolve();
-                    }
-                });
-            });
-
-            await Promise.all[reportPromise, dateReportPromise];
-        };
 
         // Build the tree
         if(runner.rerunNotPassed) {
@@ -249,12 +207,14 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
              */
             async function rerunNotPassed(filename) {
                 lastReportPath = process.cwd() + "/" + filename;
-                console.log("Will be skipping branches already passed in: " + chalk.gray(lastReportPath));
+                console.log("Including passed branches from: " + chalk.gray(lastReportPath));
                 console.log("");
 
-                let fileBuffers = await readFiles([ filename ], {encoding: 'utf8'});
-
-                if(fileBuffers.length == 0) {
+                let fileBuffers = null;
+                try {
+                    fileBuffers = await readFiles([ filename ], {encoding: 'utf8'});
+                }
+                catch(e) {
                     utils.error(`The file ${filename} could not be found`);
                 }
 
@@ -279,14 +239,14 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             console.log(chalk.yellow("Run complete" + (tree.passed == tree.totalToRun ? " 👍" : "")));
             console.log(`${tree.complete} branches ran` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``));
             if(!runner.noReport) {
-                console.log(`Report at: ` + chalk.gray.italic(reportPath));
+                console.log(`Report at: ` + chalk.gray.italic(reporter.reportPath));
             }
             console.log(``);
         }
 
         if(!runner.repl) {
             if(tree.totalToRun == 0 && runner.rerunNotPassed) {
-                console.log("No branches left to run. All branches available have passed last time.");
+                console.log("No branches left to run. All branches have passed last time.");
 
                 isComplete = true;
                 outputCompleteMessage();
@@ -297,7 +257,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
             console.log(`${tree.totalToRun} branches to run` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + chalk.yellow(`In DEBUG mode (~)`) : ``));
             if(!runner.noReport) {
-                console.log(`Live report at: ` + chalk.gray.italic(reportPath));
+                console.log(`Live report at: ` + chalk.gray.italic(reporter.reportPath));
             }
             console.log(``);
         }

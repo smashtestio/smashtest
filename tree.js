@@ -24,6 +24,7 @@ class Tree {
 
         this.elapsed = 0;                    // number of ms it took for all branches to execute, set to -1 if paused
         this.timeStarted = {};               // Date object (time) of when this tree started being executed
+        this.timeEnded = {};                 // Date object (time) of when this tree ended execution
 
         this.passed = 0;                     // total number of passed branches in this tree
         this.failed = 0;                     // total number of failed branches in this tree

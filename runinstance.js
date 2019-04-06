@@ -76,8 +76,9 @@ class RunInstance {
                         // After Every Branch hooks and advance to the next branch
                         await this.runAfterEveryBranch();
 
+                        this.currBranch.timeEnded = new Date();
                         if(this.currBranch.elapsed != -1) { // measure elapsed only if this RunInstance has never been paused
-                            this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
+                            this.currBranch.elapsed = this.currBranch.timeEnded - this.currBranch.timeStarted;
                         }
                         // NOTE: else is probably unreachable because a branch auto-completes as failed if a Before Every Branch error occurs (and pauses are only allowed when there 1 branch)
 
@@ -311,7 +312,8 @@ class RunInstance {
             this.setPause(true);
         }
 
-        step.elapsed = new Date() - step.timeStarted;
+        step.timeEnded = new Date();
+        step.elapsed = step.timeEnded - step.timeStarted;
 
         if(this.runner.consoleOutput) {
             let seconds = step.elapsed/1000;
@@ -849,8 +851,9 @@ class RunInstance {
             }
         }
 
+        this.currBranch.timeEnded = new Date();
         if(this.currBranch.elapsed != -1) { // measure elapsed only if this RunInstance has never been paused
-            this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
+            this.currBranch.elapsed = this.currBranch.timeEnded - this.currBranch.timeStarted;
         }
 
         if(this.runner.consoleOutput) {
@@ -964,7 +967,8 @@ class RunInstance {
      */
     checkForStopped() {
         if(this.isStopped) {
-            this.currBranch.elapsed = new Date() - this.currBranch.timeStarted;
+            this.currBranch.timeEnded = new Date();
+            this.currBranch.elapsed = this.currBranch.timeEnded - this.currBranch.timeStarted;
             return true;
         }
 

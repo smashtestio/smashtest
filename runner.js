@@ -276,8 +276,9 @@ class Runner {
             }
         }
 
+        this.tree.timeEnded = new Date();
         if(this.tree.elapsed != -1) {
-            this.tree.elapsed = new Date() - this.tree.timeStarted; // only measure elapsed if we've never been paused
+            this.tree.elapsed = this.tree.timeEnded - this.tree.timeStarted; // only measure elapsed if we've never been paused
         }
 
         this.isComplete = true;
