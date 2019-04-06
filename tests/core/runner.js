@@ -1216,4 +1216,23 @@ Step to Inject {
             expect(runner.ranInjectedStep).to.be.true;
         });
     });
+
+    describe("serialize()", function() {
+        it.only("serializes a Runner to JSON", async function() {
+            let tree = new Tree();
+            let runner = new Runner();
+            runner.init(tree);
+
+            runner.flags = [ 'one', 'two' ];
+            runner.rerunNotPassed = true;
+            runner.maxInstances = 10;
+
+            let json = runner.serialize();
+            let obj = JSON.parse(json);
+
+            expect(obj.flags).to.eql([ 'one', 'two' ]);
+            expect(obj.rerunNotPassed).to.be.true;
+            expect(obj.maxInstances).to.equal(10);
+        });
+    });
 });

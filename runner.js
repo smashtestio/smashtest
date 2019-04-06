@@ -204,6 +204,22 @@ class Runner {
         this.runInstances[0].isPaused = true;
     }
 
+    /**
+     * @return {String} JSON representation of this Runner, but without variables, runInstances, tree, reporter, or other complex objects (that may have circular references)
+     */
+    serialize() {
+        let obj = {};
+        const BLACKLIST = [ 'persistent', 'globalInit', 'runInstances', 'tree', 'reporter' ];
+
+        for(let property in this) {
+            if(this.hasOwnProperty(property) && BLACKLIST.indexOf(property) == -1) {
+                obj[property] = this[property];
+            }
+        }
+
+        return JSON.stringify(obj);
+    }
+
     // ***************************************
     // PRIVATE FUNCTIONS
     // Only use these internally
