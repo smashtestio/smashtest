@@ -71,8 +71,7 @@ class Reporter {
         }
         else {
             let view = {
-                branchesJSON: utils.escapeHtml(this.tree.serializeBranches()),
-                body: "TODO"
+                branchesJSON: utils.escapeHtml(this.tree.serializeBranches())
             }
             return mustache.render(this.reportTemplate, view);
         }

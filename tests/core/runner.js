@@ -58,7 +58,7 @@ A {
             runner.init(tree);
             let isComplete = await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -66,7 +66,7 @@ A {
 
             isComplete = await runner.run();
 
-            expect(runner.hasPaused()).to.be.false;
+            expect(runner.isPaused).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -304,7 +304,7 @@ A {
             runner.init(tree);
             let isComplete = await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -312,7 +312,7 @@ A {
 
             isComplete = await runner.run();
 
-            expect(runner.hasPaused()).to.be.false;
+            expect(runner.isPaused).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -341,7 +341,7 @@ A {
             runner.init(tree);
             let isComplete = await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -350,7 +350,7 @@ A {
 
             isComplete = await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -359,7 +359,7 @@ A {
 
             isComplete = await runner.run();
 
-            expect(runner.hasPaused()).to.be.false;
+            expect(runner.isPaused).to.be.false;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -856,7 +856,7 @@ A {
             runner.init(tree);
             await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -864,7 +864,7 @@ A {
 
             let isBranchComplete = await runner.runOneStep();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.undefined;
@@ -873,7 +873,7 @@ A {
 
             isBranchComplete = await runner.runOneStep();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -882,7 +882,7 @@ A {
 
             isBranchComplete = await runner.runOneStep();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -912,7 +912,7 @@ A {
             runner.init(tree);
             await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -920,7 +920,7 @@ A {
 
             let isBranchComplete = await runner.runOneStep();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.undefined;
@@ -957,7 +957,7 @@ A {
             runner.init(tree);
             await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -965,7 +965,7 @@ A {
 
             let isBranchComplete = await runner.runOneStep();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.undefined;
@@ -974,7 +974,7 @@ A {
 
             isBranchComplete = await runner.runOneStep();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.true;
             expect(runner.ranStepC).to.be.true;
@@ -1020,7 +1020,7 @@ A {
             runner.init(tree);
             await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1029,7 +1029,7 @@ A {
             let isBranchComplete = await runner.skipOneStep();
 
             // We are at the start of C
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1039,7 +1039,7 @@ A {
             isBranchComplete = await runner.skipOneStep();
 
             // We are at the start of After Everythings
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1049,7 +1049,7 @@ A {
             isBranchComplete = await runner.skipOneStep();
 
             // We finished the branch
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1079,7 +1079,7 @@ A {
             runner.init(tree);
             await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1088,7 +1088,7 @@ A {
             let isBranchComplete = await runner.skipOneStep();
 
             // We are at the start of C
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1125,7 +1125,7 @@ A {
             runner.init(tree);
             await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1134,7 +1134,7 @@ A {
             let isBranchComplete = await runner.skipOneStep();
 
             // We are at the start of C
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1144,7 +1144,7 @@ A {
             isBranchComplete = await runner.skipOneStep();
 
             // We are at the start of After Everythings
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1195,7 +1195,7 @@ A {
             runner.init(tree);
             await runner.run();
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;
@@ -1209,7 +1209,7 @@ Step to Inject {
 
             await runner.injectStep(t.root.children[0]);
 
-            expect(runner.hasPaused()).to.be.true;
+            expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
             expect(runner.ranStepB).to.be.undefined;
             expect(runner.ranStepC).to.be.undefined;

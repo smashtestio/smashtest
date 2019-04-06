@@ -29,6 +29,7 @@ class Runner {
         this.globalInit = {};            // init each branch with these global variables
         this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
 
+        this.isPaused = false;           // True if this runner has been paused (set by the RunInstance within this.runInstances)
         this.isStopped = false;          // True if this runner has been stopped
         this.isComplete = false;         // True if this runner is done running its tree
     }
@@ -61,12 +62,12 @@ class Runner {
             this.pauseOnFail = true;
         }
 
-        if(this.hasStopped()) { // starting from a stop
+        if(this.isStopped) { // starting from a stop
             utils.error("Cannot run a stopped runner");
         }
-        else if(this.hasPaused()) { // starting from a pause
+        else if(this.isPaused) { // starting from a pause
             await this.runInstances[0].run(); // resume that one branch that was paused
-            if(this.hasPaused()) {
+            if(this.isPaused) {
                 this.tree.elapsed = -1;
             }
             else {
@@ -108,7 +109,7 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async runOneStep() {
-        if(!this.hasPaused()) {
+        if(!this.isPaused) {
             utils.error("Must be paused to run a step");
         }
 
@@ -130,7 +131,7 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async skipOneStep() {
-        if(!this.hasPaused()) {
+        if(!this.isPaused) {
             utils.error("Must be paused to skip a step");
         }
 
@@ -151,18 +152,11 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes
      */
     async runLastStep() {
-        if(!this.hasPaused()) {
+        if(!this.isPaused) {
             utils.error("Must be paused to run a step");
         }
 
         await this.runInstances[0].runLastStep();
-    }
-
-    /**
-     * @return {Step} The last step run, null if none
-     */
-    getLastStep() {
-        return this.runInstances[0].getLastStep();
     }
 
     /**
@@ -173,25 +167,13 @@ class Runner {
      * @throws {Error} Any errors that may occur during a branchify() of the given step, or if this Runner isn't paused
      */
     async injectStep(step) {
-        if(!this.hasPaused()) {
+        if(!this.isPaused) {
             utils.error("Must be paused to run a step");
         }
 
-        return await this.runInstances[0].injectStep(step);
-    }
+        let branchRan = await this.runInstances[0].injectStep(step);
 
-    /**
-     * @return {Boolean} True if we're paused, false otherwise
-     */
-    hasPaused() {
-        return this.runInstances.length == 1 && this.runInstances[0].isPaused;
-    }
-
-    /**
-     * @return {Boolean} True if we're stopped, false otherwise
-     */
-    hasStopped() {
-        return this.isStopped;
+        return branchRan;
     }
 
     /**
@@ -204,6 +186,13 @@ class Runner {
         else {
             return this.runInstances[0].getNextReadyStep();
         }
+    }
+
+    /**
+     * @return {Step} The last step run, null if none
+     */
+    getLastStep() {
+        return this.runInstances[0].getLastStep();
     }
 
     /**
@@ -229,7 +218,7 @@ class Runner {
         for(let i = 0; i < this.tree.beforeEverything.length; i++) {
             let s = this.tree.beforeEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
-            if(s.error || this.hasStopped()) {
+            if(s.error || this.isStopped) {
                 return false;
             }
         }
@@ -282,10 +271,10 @@ class Runner {
      * Ending tasks, such as Run After Everything hooks
      */
     async end() {
-        if(this.hasStopped()) {
+        if(this.isStopped) {
             // don't do anything, since stop() will call runAfterEverything() immediately
         }
-        else if(this.hasPaused()) {
+        else if(this.isPaused) {
             this.tree.elapsed = -1;
         }
         else {

@@ -39,7 +39,7 @@ class RunInstance {
         let wasPaused = false;
         let overrideDebug = false;
         if(this.isPaused) {
-            this.isPaused = false; // resume if we're already paused
+            this.setPause(false); // resume if we're already paused
             wasPaused = true;
             overrideDebug = true;
         }
@@ -128,7 +128,7 @@ class RunInstance {
      */
     async runStep(step, branch, overrideDebug) {
         if(step.isBeforeDebug && !overrideDebug) {
-            this.isPaused = true;
+            this.setPause(true);
             return;
         }
 
@@ -308,7 +308,7 @@ class RunInstance {
 
         // Pause if pauseOnFail is set and the step failed or is unexpected
         if(this.runner.pauseOnFail && (!step.isPassed || !step.asExpected)) {
-            this.isPaused = true;
+            this.setPause(true);
         }
 
         step.elapsed = new Date() - step.timeStarted;
@@ -343,7 +343,7 @@ class RunInstance {
         }
 
         if(step.isAfterDebug && !overrideDebug) {
-            this.isPaused = true;
+            this.setPause(true);
             return;
         }
     }
@@ -403,7 +403,7 @@ class RunInstance {
         if(this.currStep) {
             await this.runStep(this.currStep, this.currBranch, true);
             this.toNextReadyStep();
-            this.isPaused = true;
+            this.setPause(true);
             return false;
         }
         else { // all steps in current branch finished running, finish off the branch
@@ -425,7 +425,7 @@ class RunInstance {
                 this.tree.markStepSkipped(this.currStep, this.currBranch); // mark the current step as skipped
                 this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
 
-                this.isPaused = true;
+                this.setPause(true);
                 return false;
             }
             else { // all steps in current branch finished running, finish off the branch
@@ -511,7 +511,7 @@ class RunInstance {
             }
         }
 
-        this.isPaused = true;
+        this.setPause(true);
 
         return stepsToRun;
     }
@@ -969,6 +969,14 @@ class RunInstance {
         }
 
         return false;
+    }
+
+    /**
+     * Sets the pause state of this RunInstance and its Runner
+     */
+    setPause(isPaused) {
+        this.isPaused = isPaused;
+        this.runner.isPaused = isPaused;
     }
 }
 module.exports = RunInstance;
