@@ -271,7 +271,30 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
         tree.initCounts();
 
+        /**
+         * Outputs a message upon the completion of a run
+         */
+        function outputCompleteMessage() {
+            console.log(``);
+            console.log(chalk.yellow("Run complete" + (tree.passed == tree.totalToRun ? " 👍" : "")));
+            console.log(`${tree.complete} branches ran` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``));
+            if(!runner.noReport) {
+                console.log(`Report at: ` + chalk.gray.italic(reportPath));
+            }
+            console.log(``);
+        }
+
         if(!runner.repl) {
+            if(tree.totalToRun == 0 && runner.rerunNotPassed) {
+                console.log("No branches left to run. All branches available have passed last time.");
+
+                isComplete = true;
+                outputCompleteMessage();
+
+                forcedStop = false;
+                return;
+            }
+
             console.log(`${tree.totalToRun} branches to run` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + chalk.yellow(`In DEBUG mode (~)`) : ``));
             if(!runner.noReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reportPath));
@@ -288,7 +311,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     runner.createEmptyRunner();
                     runner.consoleOutput = true;
                 }
-                else if(tree.branches.length > 1) {
+                else if(tree.totalToRun > 1) {
                     utils.error(`There are ${tree.totalToRun} branches to run but you can only have 1 to run -repl. Try isolating a branch with ~.`);
                 }
                 else {
@@ -487,13 +510,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     outputCounts();
                     progressBar.stop();
 
-                    console.log(``);
-                    console.log(chalk.yellow("Run complete" + (tree.passed == tree.totalToRun ? " 👍" : "")));
-                    console.log(`${tree.complete} branches ran` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``));
-                    if(!runner.noReport) {
-                        console.log(`Report at: ` + chalk.gray.italic(reportPath));
-                    }
-                    console.log(``);
+                    outputCompleteMessage();
 
                     // If any branch failed, exit with 1, otherwise exit with 0
                     for(let i = 0; i < tree.branches.length; i++) {

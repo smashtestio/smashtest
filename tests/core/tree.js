@@ -11615,13 +11615,15 @@ A -
             tree.generateBranches();
             tree.isDebug = true;
             tree.elapsed = "DATE";
+            tree.branches[0].passedLastTime = true;
             let json = tree.serialize();
             let obj = JSON.parse(json);
 
             expect(obj).to.containSubsetInOrder({
                 branches: [
                     {
-                        steps: [ { text: "A" }, { text: "B" } ]
+                        steps: [ { text: "A" }, { text: "B" } ],
+                        isPassed: true
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" } ]

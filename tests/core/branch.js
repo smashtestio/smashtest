@@ -536,6 +536,57 @@ describe("Branch", function() {
 
             expect(branch1.equals(branch2, 1)).to.equal(true);
         });
+
+        it("finds two branches with the same steps but different code blocks to not be equal", function() {
+            let stepA1 = new Step();
+            stepA1.text = 'A';
+            stepA1.codeBlock = "foo";
+
+            let stepB1 = new Step();
+            stepB1.text = 'A';
+
+            let branch1 = new Branch();
+            branch1.steps = [ stepA1 ];
+
+            let branch2 = new Branch();
+            branch2.steps = [ stepB1 ];
+
+            expect(branch1.equals(branch2)).to.equal(false);
+
+            stepA1 = new Step();
+            stepA1.text = 'A';
+            stepA1.codeBlock = "foo";
+
+            stepB1 = new Step();
+            stepB1.text = 'A';
+            stepB1.codeBlock = "bar";
+
+            branch1 = new Branch();
+            branch1.steps = [ stepA1 ];
+
+            branch2 = new Branch();
+            branch2.steps = [ stepB1 ];
+
+            expect(branch1.equals(branch2)).to.equal(false);
+        });
+
+        it("finds two branches with the same steps and the same code blocks to be equal", function() {
+            let stepA1 = new Step();
+            stepA1.text = 'A';
+            stepA1.codeBlock = "foo";
+
+            let stepB1 = new Step();
+            stepB1.text = 'A';
+            stepB1.codeBlock = "foo";
+
+            let branch1 = new Branch();
+            branch1.steps = [ stepA1 ];
+
+            let branch2 = new Branch();
+            branch2.steps = [ stepB1 ];
+
+            expect(branch1.equals(branch2)).to.equal(true);
+        });
     });
 
     describe("finishOffBranch()", function() {

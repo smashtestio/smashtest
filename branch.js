@@ -215,6 +215,10 @@ class Branch {
              if(getCanonicalStepText(this.steps[i]) != getCanonicalStepText(branch.steps[i])) {
                  return false;
              }
+
+             if(this.steps[i].codeBlock != branch.steps[i].codeBlock) {
+                 return false;
+             }
          }
 
          function getCanonicalStepText(step) {

@@ -1225,7 +1225,11 @@ class Tree {
         };
 
         this.branches.forEach(branch => {
-            obj.branches.push(branch.clone(true));
+            let clone = branch.clone(true);
+            if(branch.passedLastTime) {
+                clone.isPassed = true;
+            }
+            obj.branches.push(clone);
         });
 
         this.beforeEverything.forEach(s => {
