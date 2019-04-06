@@ -55,6 +55,7 @@ Running tests
         - -g:varname=value or "value" (global var)
             - g:screenshotOnFail=true
         - -p:varname=value or "value" (persistent var)
+    - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
 
 Reports
     - Where to find the report
