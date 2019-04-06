@@ -160,15 +160,12 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             utils.error("0 branches generated from given files");
         }
 
-        // Initialize the reporter
-        let lastReportPath = null;
-
         // Build the tree
         if(runner.rerunNotPassed) {
             let buffer = null;
             if(typeof runner.rerunNotPassed == 'string') {
                 // -rerunNotPassed='filename of report that constitutes last run'
-                await rerunNotPassed(runner.rerunNotPassed);
+                await reporter.mergeInLastReport(runner.rerunNotPassed);
             }
             else {
                 // -rerunNotPassed with no filename
@@ -185,14 +182,14 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                         if(filenames && filenames.length > 0) {
                             filenames.sort();
                             filenames.reverse();
-                            rerunNotPassed(filenames[0])
+                            reporter.mergeInLastReport(filenames[0])
                                 .then(resolve)
                                 .catch((e) => {
                                     reject(e);
                                 });
                         }
                         else {
-                            rerunNotPassed("report.html")
+                            reporter.mergeInLastReport("report.html")
                                 .then(resolve)
                                 .catch((e) => {
                                     reject(e);
@@ -200,29 +197,6 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                         }
                     });
                 });
-            }
-
-            /**
-             * Reads in the given report html file, extracts json, merges it with tree
-             */
-            async function rerunNotPassed(filename) {
-                lastReportPath = process.cwd() + "/" + filename;
-                console.log("Including passed branches from: " + chalk.gray(lastReportPath));
-                console.log("");
-
-                let fileBuffers = null;
-                try {
-                    fileBuffers = await readFiles([ filename ], {encoding: 'utf8'});
-                }
-                catch(e) {
-                    utils.error(`The file ${filename} could not be found`);
-                }
-
-                let buffer = fileBuffers[0];
-                buffer = reporter.extractBranchesJson(buffer);
-
-                let json = JSON.parse(JSON.stringify(buffer));
-                tree.mergeBranchesFromPrevRun(json);
             }
         }
 
