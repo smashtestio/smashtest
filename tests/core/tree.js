@@ -12802,8 +12802,12 @@ A - +
             expect(branch3.isSkipped).to.equal(true);
             expect(branch4.isSkipped).to.equal(undefined);
 
-            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch that ran and failed\n");
-            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch that ran and failed\n");
+            expect(branch2.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch that ran and failed" }
+            ]);
+            expect(branch3.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch that ran and failed" }
+            ]);
             expect(branch4.log).to.equal(undefined);
         });
 
@@ -12860,7 +12864,9 @@ A - +
             expect(branch3.isSkipped).to.equal(undefined);
             expect(branch4.isSkipped).to.equal(undefined);
 
-            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch that ran and failed\n");
+            expect(branch2.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch that ran and failed" }
+            ]);
             expect(branch3.log).to.equal(undefined);
             expect(branch4.log).to.equal(undefined);
         });
@@ -12918,7 +12924,9 @@ A - +
             expect(branch3.isSkipped).to.equal(undefined);
             expect(branch4.isSkipped).to.equal(undefined);
 
-            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch that ran and failed\n");
+            expect(branch2.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch that ran and failed" }
+            ]);
             expect(branch3.log).to.equal(undefined);
             expect(branch4.log).to.equal(undefined);
         });
@@ -13384,8 +13392,12 @@ A - +
             expect(branch4.isSkipped).to.equal(undefined);
 
             expect(branch1.log).to.equal(undefined);
-            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -M step\n");
-            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -M step\n");
+            expect(branch2.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -M step" }
+            ]);
+            expect(branch3.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -M step" }
+            ]);
             expect(branch4.log).to.equal(undefined);
         });
 
@@ -13441,8 +13453,12 @@ A - +
             expect(branch4.isSkipped).to.equal(undefined);
 
             expect(branch1.log).to.equal(undefined);
-            expect(branch2.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -T step\n");
-            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -T step\n");
+            expect(branch2.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
+            ]);
+            expect(branch3.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
+            ]);
             expect(branch4.log).to.equal(undefined);
         });
 
@@ -13543,7 +13559,9 @@ A - +
 
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.equal(undefined);
-            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -T step\n");
+            expect(branch3.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
+            ]);
             expect(branch4.log).to.equal(undefined);
         });
 
@@ -13597,7 +13615,9 @@ A - +
 
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.equal(undefined);
-            expect(branch3.log).to.equal("Branch skipped because it is identical to an earlier branch, up to the -T step\n");
+            expect(branch3.log).to.eql([
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
+            ]);
             expect(branch4.log).to.equal(undefined);
         });
     });

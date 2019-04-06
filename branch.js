@@ -30,7 +30,7 @@ class Branch {
         this.isRunning = false;             // true if this branch is currently running
 
         this.error = {};                    // if this branch failed, this is the Error that was thrown (only for failure that occurs within the branch but not within a particular step)
-        this.log = "";                      // string of logs related to this branch (logs related to the branch but not to a particular step)
+        this.log = [];                      // Array of objects that represent the logs of this branch (logs related to the branch but not to a particular step)
 
         this.elapsed = 0;                   // number of ms it took this step to execute
         this.timeStarted = {};              // Date object (time) of when this branch started being executed
@@ -297,14 +297,20 @@ class Branch {
      }
 
      /**
-      * Logs the given text to this Branch
+      * Logs the given item to this Branch
+      * @param {Object or String} item - The item to log
       */
-     appendToLog(text) {
+     appendToLog(item) {
          if(!this.log) {
-             this.log = "";
+             this.log = [];
          }
 
-         this.log += text + "\n";
+         if(typeof item == 'string') {
+             this.log.push( { text: item } );
+         }
+         else {
+             this.log.push(item);
+         }
      }
 }
 module.exports = Branch;

@@ -1,8 +1,252 @@
 <html>
     <head>
         <meta name="branchesJSON" content="{{{branchesJSON}}}"/>
+
+        <script src="https://unpkg.com/popper.js@1"></script>
+        <script src="https://unpkg.com/tippy.js@4"></script>
+
+        <style>
+            body {
+                background-color: black;
+                color: white;
+                font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+                margin: 0;
+                padding: 6px 0;
+            }
+
+            .header {
+                font-size: 16px;
+                margin: 0 0 10px 6px;
+            }
+
+            .divider {
+                width: 100%;
+                border: 0;
+                margin: 0;
+                padding: 0;
+            }
+
+            .divider-pane {
+                position: relative;
+                width: 50%;
+                vertical-align: top;
+            }
+
+            .branch {
+                margin-bottom: 6px;
+            }
+
+            .branch table {
+                border: 0;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            .branch-state {
+                width: 8px;
+                border: 0;
+                margin: 0;
+                padding: 0;
+            }
+
+            .branch-state.notrun {
+                background-color: gray;
+            }
+
+            .branch-state.running {
+                background-color: orange;
+                animation: blinker 2s linear infinite;
+            }
+            @keyframes blinker {
+                50% {
+                    opacity: 0.3;
+                }
+            }
+
+            .branch-state.passed {
+                background-color: green;
+            }
+
+            .branch-state.failed {
+                background-color: red;
+            }
+
+            .branch-state.skipped {
+                background-color: rgb(0,200,200);
+            }
+
+            .branch-contents {
+                width: calc(100% - 8px);
+                overflow-x: auto;
+                border: 0;
+                margin: 0;
+                padding: 0 0 0 5px;
+            }
+
+            .line {
+                font-size: 14px;
+                position: relative;
+            }
+
+            .line .filelocation {
+                visibility: hidden;
+                position: absolute;
+                color: rgb(150,150,150);
+                top: 0;
+                right: 0;
+                padding: 0 10px;
+            }
+
+            .line:hover .filelocation {
+                visibility: visible;
+            }
+
+            .line .content.notrun {
+                color: gray;
+            }
+
+            .line .content.running {
+                color: orange;
+                animation: blinker 2s linear infinite;
+            }
+
+            .line .content.passed-expected {
+                color: rgb(0,200,0);
+            }
+
+            .line .content.passed-unexpected {
+                color: rgb(0,200,0);
+            }
+
+            .line .content.failed-expected {
+                color: red;
+            }
+
+            .line .content.failed-unexpected {
+                color: red;
+            }
+
+            .line .content.skipped {
+                color: rgb(0,200,200);
+            }
+
+            .line:hover {
+                background-color: rgb(70,70,70);
+                cursor: pointer;
+            }
+
+            .unexpected-pill {
+                background-color: red;
+                color: white;
+                padding: 1px 3px;
+                border-radius: 5px;
+                font-size: 11px;
+            }
+        </style>
     </head>
     <body>
-        {{{body}}}
+        <table class="divider">
+            <tr>
+                <td class="divider-pane">
+                    <div class="tree-header">
+                    </div>
+                    <div class="header">Branches currently running</div>
+                    <div class="branch">
+                        <table>
+                            <tr>
+                                <td class="branch-state running">
+                                </td>
+                                <td class="branch-contents">
+                                    <div class="branch-header">
+                                    </div>
+                                    <div class="steps">
+                                        <div class="line">
+                                            <div class="content passed-expected">
+                                                Passed expected
+                                            </div>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </div>
+                                        <div class="line">
+                                            <div class="content passed-expected">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;Passed expected
+                                            </div>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </div>
+                                        <div class="line">
+                                            <div class="content passed-unexpected">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Passed unexpected
+                                            </div>
+                                            <span class="unexpected-pill">UNEXPECTED</span>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </div>
+                                        <div class="line">
+                                            <div class="content failed-expected">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed expected
+                                            </div>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </div>
+                                        <div class="line">
+                                            <div class="content failed-unexpected">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed unexpected
+                                            </div>
+                                            <span class="unexpected-pill">UNEXPECTED</span>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </div>
+                                        <div class="line">
+                                            <div class="content skipped">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Skipped
+                                            </div>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </div>
+                                        <div class="line">
+                                            <div class="content running">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running
+                                            </div>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </div>
+                                        <div class="line">
+                                            <div class="content notrun">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not run yet
+                                            </div>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <br><br>
+                    {{{body}}}
+                </td>
+                <td class="divider-pane">
+                    Right side
+                </td>
+            </tr>
+        </table>
+
+        <script type="text/javascript">
+            let tippyOptions = {
+                placement: "right",
+                followCursor: true,
+                delay: 0,
+                animation: "fade",
+                arrow: true,
+                arrowType: "sharp"
+            };
+
+            tippyOptions.content = "Currently running branch";
+            tippy(".branch-state.running", tippyOptions);
+
+            tippyOptions.content = "Branch passed";
+            tippy(".branch-state.passed", tippyOptions);
+
+
+
+
+
+
+        </script>
     </body>
 </html>

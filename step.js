@@ -59,7 +59,7 @@ class Step {
         this.asExpected = false;              // true if the passed/failed state is as expected
 
         this.error = {};                      // if this step failed, this is the Error that was thrown
-        this.log = "";                        // string of logs related to this step
+        this.log = [];                        // Array of objects that represent the logs of this step
 
         this.elapsed = 0;                     // number of ms it took this step to execute
         this.timeStarted = {};                // Date object (time) of when this step started being executed
@@ -229,14 +229,20 @@ class Step {
     }
 
     /**
-     * Logs the given text to this Step
+     * Logs the given item to this Step
+     * @param {Object or String} item - The item to log
      */
-    appendToLog(text) {
+    appendToLog(item) {
         if(!this.log) {
-            this.log = "";
+            this.log = [];
         }
 
-        this.log += text + "\n";
+        if(typeof item == 'string') {
+            this.log.push( { text: item } );
+        }
+        else {
+            this.log.push(item);
+        }
     }
 
     /**

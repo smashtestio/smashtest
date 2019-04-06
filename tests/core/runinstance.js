@@ -3397,8 +3397,14 @@ My function
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[0].log).to.equal("A\nB\n");
-            expect(tree.branches[0].steps[1].log).to.equal("C\nD\n");
+            expect(tree.branches[0].steps[0].log).to.eql([
+                {text: "A"},
+                {text: "B"}
+            ]);
+            expect(tree.branches[0].steps[1].log).to.eql([
+                {text: "C"},
+                {text: "D"}
+            ]);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -5140,7 +5146,9 @@ A -
 
             await runInstance.evalCodeBlock("log('foobar');", null, 0, step);
 
-            expect(step.log).to.equal("foobar\n");
+            expect(step.log).to.eql([
+                {text: "foobar"}
+            ]);
         });
 
         it("handles an error inside the code, with a function name and line number", async function() {
@@ -5282,7 +5290,9 @@ A -
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var1} is being set by a later step at file.txt:3\n");
+            expect(tree.branches[0].steps[0].log).to.eql([
+                {text: "The value of variable {var1} is being set by a later step at file.txt:3"}
+            ]);
         });
 
         it("throws an error if a local variable is not yet set but is set outside the scope of the current function", function() {
@@ -5316,7 +5326,9 @@ A -
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var ONE", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var ONE} is being set by a later step at file.txt:3\n");
+            expect(tree.branches[0].steps[0].log).to.eql([
+                {text: "The value of variable {var ONE} is being set by a later step at file.txt:3"}
+            ]);
         });
 
         it("returns the value of a variable given the same variable name but with varying amounts of whitespace", function() {
@@ -5331,7 +5343,9 @@ A -
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var one", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var one} is being set by a later step at file.txt:3\n");
+            expect(tree.branches[0].steps[0].log).to.eql([
+                { text: "The value of variable {var one} is being set by a later step at file.txt:3" }
+            ]);
 
             tree = new Tree();
             tree.parseIn(`
@@ -5344,7 +5358,9 @@ A -
             runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("    var     ONE     ", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value1");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {    var     ONE     } is being set by a later step at file.txt:3\n");
+            expect(tree.branches[0].steps[0].log).to.eql([
+                { text: "The value of variable {    var     ONE     } is being set by a later step at file.txt:3" }
+            ]);
         });
 
         it("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
@@ -5365,12 +5381,13 @@ A -
             runInstance.setGlobal("var0", "value0");
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value2 - value 4 - . value0 value5");
-            expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {{var2}} is being set by a later step at file.txt:3
-The value of variable {{var 4}} is being set by a later step at file.txt:7
-The value of variable {var 3} is being set by a later step at file.txt:5
-The value of variable {{var5}} is being set by a later step at file.txt:5
-The value of variable {var1} is being set by a later step at file.txt:4
-`);
+            expect(tree.branches[0].steps[0].log).to.eql([
+                { text: "The value of variable {{var2}} is being set by a later step at file.txt:3" },
+                { text: "The value of variable {{var 4}} is being set by a later step at file.txt:7" },
+                { text: "The value of variable {var 3} is being set by a later step at file.txt:5" },
+                { text: "The value of variable {{var5}} is being set by a later step at file.txt:5" },
+                { text: "The value of variable {var1} is being set by a later step at file.txt:4" }
+            ]);
         });
 
         it("returns the value of a variable that's not set yet and whose eventual value is generated from a sync code block function", function() {
@@ -5393,12 +5410,15 @@ A -
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("foobar");
-            expect(tree.branches[0].steps[0].log).to.equal("The value of variable {var1} is being set by a later step at file.txt:3\n");
+            expect(tree.branches[0].steps[0].log).to.eql([
+                { text: "The value of variable {var1} is being set by a later step at file.txt:3" }
+            ]);
 
             expect(runInstance.findVarValue("var2", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("blah");
-            expect(tree.branches[0].steps[0].log).to.equal(`The value of variable {var1} is being set by a later step at file.txt:3
-The value of variable {var2} is being set by a later step at file.txt:7
-`);
+            expect(tree.branches[0].steps[0].log).to.eql([
+                { text: "The value of variable {var1} is being set by a later step at file.txt:3" },
+                { text: "The value of variable {var2} is being set by a later step at file.txt:7" }
+            ]);
         });
 
         it("throws an error if the variable's value is never set", function() {
@@ -5447,7 +5467,9 @@ A -
 
             runInstance.appendToLog("foobar", step);
 
-            expect(step.log).to.equal("foobar\n");
+            expect(step.log).to.eql([
+                { text: "foobar" }
+            ]);
         });
 
         it("logs a string to a step, where other logs exist", function() {
@@ -5456,10 +5478,14 @@ A -
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
-            step.log = "foo\n";
+            branch.log = [
+                { text: "foo" }
+            ];
             runInstance.appendToLog("bar", step || branch);
 
-            expect(step.log).to.equal("foo\nbar\n");
+            expect(step.log).to.eql([
+                { text: "bar" }
+            ]);
         });
 
         it("logs a string to a branch, where no other logs exist and where there is no step", function() {
@@ -5469,7 +5495,9 @@ A -
 
             runInstance.appendToLog("foobar", null || branch);
 
-            expect(branch.log).to.equal("foobar\n");
+            expect(branch.log).to.eql([
+                { text: "foobar" }
+            ]);
         });
 
         it("logs a string to a branch, where other logs exist and where there is no step", function() {
@@ -5477,10 +5505,15 @@ A -
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
-            branch.log = "foo\n";
+            branch.log = [
+                { text: "foo" }
+            ];
             runInstance.appendToLog("bar", null || branch);
 
-            expect(branch.log).to.equal("foo\nbar\n");
+            expect(branch.log).to.eql([
+                { text: "foo" },
+                { text: "bar" }
+            ]);
         });
 
         it("fails silently when there is no step or branch", function() {

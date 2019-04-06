@@ -231,7 +231,11 @@ Code blocks
             - {{var1}} is setLocal("var1", "value") (NOTE: you can't set var1=value as this will not persist past the end of the code block)
             - {var2} is setGlobal("var2", "value")
             - persistent vars: setPersistent("var3", "value")
-    - Access RunInstance object via runInstance variable
+    - JS functions and variables available
+        - getLocal(), getGlobal(), getPersistent()
+        - setLocal(), setGlobal(), setPersistent()
+        - log(string)
+        - runInstance object
     - Pitfalls
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., setLocal(), setGlobal(), setPersistent()) instead.
@@ -315,7 +319,8 @@ Manual tests (-M)
 
 Only ($)
     - $ = Only run branches under this step, but no debugging.
-        - Show example. Comes at the start of the step, including before a function declaration's *.
+        - Show example. Comes at the beginning or end of the step, including before a function declaration's *.
+            - Beginning is recommended, so you can easily see which lines are $'ed
         - Multiple $'s with the same parent (on the same indent level) only run branches that fall under one of these branches (OR)
         - You can put $'s at different levels to isolate a branch or branches
         - Give more examples

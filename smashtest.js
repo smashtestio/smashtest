@@ -335,11 +335,11 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                     if(nextStep) {
                         console.log("Next step: [ " + chalk.gray(nextStep.line.trim()) + " ]");
-                        console.log(chalk.gray("enter = run next, s = skip, p = previous, r = resume, x = exit, or enter step to run it"));
+                        console.log(chalk.gray("enter = run next, p = run previous, s = skip, r = resume, x = exit, or enter step to run it"));
                     }
                     else if(prevStep) {
                         console.log(chalk.gray("Passed the very last step"));
-                        console.log(chalk.gray("enter or x = exit, p = previous, or enter step to run it"));
+                        console.log(chalk.gray("enter or x = exit, p = run previous, or enter step to run it"));
                     }
                     else {
                         console.log(chalk.gray("enter step to run it, enter or x = exit"));
@@ -427,7 +427,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                             if(input.startsWith('*')) {
                                 utils.error("Cannot define a * Function Declaration or ** Hook here");
                             }
-                            
+
                             let t = new Tree();
 
                             if(codeBlockStep === null) {

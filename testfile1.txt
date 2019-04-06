@@ -6,10 +6,10 @@ One -
         });*/
     }
 
-        ~ Three -
+        Three -
 
             Four {
-                throw new Error("oops!");
+                // throw new Error("oops!");
             }
 
     Five -
