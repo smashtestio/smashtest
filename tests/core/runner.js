@@ -1218,7 +1218,7 @@ Step to Inject {
     });
 
     describe("serialize()", function() {
-        it.only("serializes a Runner to JSON", async function() {
+        it("serializes a Runner to JSON", async function() {
             let tree = new Tree();
             let runner = new Runner();
             runner.init(tree);

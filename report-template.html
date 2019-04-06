@@ -31,10 +31,17 @@
                 position: relative;
                 width: 50%;
                 vertical-align: top;
+                border: 0;
+                margin: 0;
+                padding: 0;
             }
 
             .branch {
-                margin-bottom: 6px;
+                margin-bottom: 12px;
+            }
+
+            .branch.hover {
+                background-color: rgb(70,70,70);
             }
 
             .branch table {
@@ -44,18 +51,22 @@
                 width: 100%;
             }
 
-            .branch-state {
-                width: 8px;
+            .branch-indicator {
+                width: 10px;
                 border: 0;
                 margin: 0;
                 padding: 0;
             }
 
-            .branch-state.notrun {
+            .branch-indicator:hover {
+                cursor: pointer;
+            }
+
+            .branch-indicator.notrunyet {
                 background-color: gray;
             }
 
-            .branch-state.running {
+            .branch-indicator.running {
                 background-color: orange;
                 animation: blinker 2s linear infinite;
             }
@@ -65,20 +76,20 @@
                 }
             }
 
-            .branch-state.passed {
+            .branch-indicator.passed {
                 background-color: green;
             }
 
-            .branch-state.failed {
+            .branch-indicator.failed {
                 background-color: red;
             }
 
-            .branch-state.skipped {
+            .branch-indicator.skipped {
                 background-color: rgb(0,200,200);
             }
 
             .branch-contents {
-                width: calc(100% - 8px);
+                width: calc(100% - 10px);
                 overflow-x: auto;
                 border: 0;
                 margin: 0;
@@ -88,12 +99,19 @@
             .line {
                 font-size: 14px;
                 position: relative;
+                overflow-x: hidden;
+            }
+
+            .line:hover {
+                background-color: rgb(70,70,70);
+                cursor: pointer;
             }
 
             .line .filelocation {
                 visibility: hidden;
                 position: absolute;
                 color: rgb(150,150,150);
+                background-color: rgb(70,70,70);
                 top: 0;
                 right: 0;
                 padding: 0 10px;
@@ -103,7 +121,7 @@
                 visibility: visible;
             }
 
-            .line .content.notrun {
+            .line .content.notrunyet {
                 color: gray;
             }
 
@@ -132,17 +150,51 @@
                 color: rgb(0,200,200);
             }
 
-            .line:hover {
-                background-color: rgb(70,70,70);
-                cursor: pointer;
-            }
-
-            .unexpected-pill {
-                background-color: red;
+            .pill {
+                position: relative;
+                top: -1px;
                 color: white;
                 padding: 1px 3px;
                 border-radius: 5px;
                 font-size: 11px;
+            }
+
+            .pill.expected {
+                background-color: green;
+            }
+
+            .pill.unexpected {
+                background-color: red;
+            }
+
+            .pill.skipped {
+                background-color: rgb(0,200,200);
+            }
+
+            .pill.running {
+                background-color: orange;
+            }
+
+            .tooltip-text {
+                font-size: 12px;
+            }
+
+            .progress-bar {
+                height: 20px;
+                margin: 0 10px 10px;
+                padding: 0;
+            }
+
+            .progress-bar .filled-bar {
+                background-color: rgb(245,155,0);
+                color: white;
+                text-align: center;
+                height: 100%;
+                overflow-x: hidden;
+            }
+
+            .progress-bar .filled-bar-text {
+                padding: 0 5px;
             }
         </style>
     </head>
@@ -151,12 +203,18 @@
             <tr>
                 <td class="divider-pane">
                     <div class="tree-header">
+                        <div class="header">SmashTEST Run</div>
+                        <div class="progress-bar">
+                            <div class="filled-bar">
+                                <div class="filled-bar-text"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="header">Branches currently running</div>
                     <div class="branch">
                         <table>
                             <tr>
-                                <td class="branch-state running">
+                                <td class="branch-indicator running">
                                 </td>
                                 <td class="branch-contents">
                                     <div class="branch-header">
@@ -177,13 +235,14 @@
                                         <div class="line">
                                             <div class="content passed-unexpected">
                                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Passed unexpected
+                                                <span class="pill unexpected">UNEXPECTED</span>
                                             </div>
-                                            <span class="unexpected-pill">UNEXPECTED</span>
                                             <span class="filelocation">[file.txt:10]</span>
                                         </div>
                                         <div class="line">
                                             <div class="content failed-expected">
                                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed expected
+                                                <span class="pill expected">EXPECTED</span>
                                             </div>
                                             <span class="filelocation">[file.txt:10]</span>
                                         </div>
@@ -191,23 +250,24 @@
                                             <div class="content failed-unexpected">
                                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed unexpected
                                             </div>
-                                            <span class="unexpected-pill">UNEXPECTED</span>
                                             <span class="filelocation">[file.txt:10]</span>
                                         </div>
                                         <div class="line">
                                             <div class="content skipped">
                                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Skipped
+                                                <span class="pill skipped">SKIPPED</span>
                                             </div>
                                             <span class="filelocation">[file.txt:10]</span>
                                         </div>
                                         <div class="line">
                                             <div class="content running">
                                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running
+                                                <span class="pill running">RUNNING</span>
                                             </div>
                                             <span class="filelocation">[file.txt:10]</span>
                                         </div>
                                         <div class="line">
-                                            <div class="content notrun">
+                                            <div class="content notrunyet">
                                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not run yet
                                             </div>
                                             <span class="filelocation">[file.txt:10]</span>
@@ -217,6 +277,10 @@
                             </tr>
                         </table>
                     </div>
+                    <div class="header">Failed branches</div>
+                    <div class="header">Passed branches</div>
+                    <div class="header">Skipped branches</div>
+                    <div class="header">Branches not run yet</div>
 
                     <br><br>
                 </td>
@@ -227,6 +291,23 @@
         </table>
 
         <script type="text/javascript">
+            // Progress bar
+            function setProgress(decimal) {
+                let filledBar = document.querySelector(".progress-bar .filled-bar");
+                let percentage = (decimal * 100) + "%";
+                filledBar.style.width = percentage;
+
+                let filledBarText = document.querySelector(".progress-bar .filled-bar .filled-bar-text");
+                filledBarText.innerHTML = percentage;
+
+                if(filledBarText.scrollWidth > filledBar.offsetWidth) { // text doesn't have room
+                    filledBarText.innerHTML = "";
+                }
+            }
+
+            setProgress(.76);
+
+            // Tooltips
             let tippyOptions = {
                 placement: "right",
                 followCursor: true,
@@ -236,11 +317,59 @@
                 arrowType: "sharp"
             };
 
-            tippyOptions.content = "Currently running branch";
-            tippy(".branch-state.running", tippyOptions);
+            function wrapTippyContent(content) {
+                return "<span class='tooltip-text'>" + content + "</span>";
+            }
 
-            tippyOptions.content = "Branch passed";
-            tippy(".branch-state.passed", tippyOptions);
+            tippyOptions.content = wrapTippyContent("Currently running branch");
+            tippy(".branch-indicator.running", tippyOptions);
+
+            tippyOptions.content = wrapTippyContent("Branch passed");
+            tippy(".branch-indicator.passed", tippyOptions);
+
+            tippyOptions.content = wrapTippyContent("Branch failed");
+            tippy(".branch-indicator.failed", tippyOptions);
+
+            tippyOptions.content = wrapTippyContent("Branch skipped");
+            tippy(".branch-indicator.skipped", tippyOptions);
+
+            tippyOptions.content = wrapTippyContent("Branch not run yet");
+            tippy(".branch-indicator.notrunyet", tippyOptions);
+
+            tippyOptions.content = wrapTippyContent("This step passed, but was<br>expected to fail (#)");
+            tippy(".pill.unexpected", tippyOptions);
+
+            tippyOptions.content = wrapTippyContent("This step failed,<br>as was expected (#)");
+            tippy(".pill.expected", tippyOptions);
+
+
+
+
+
+
+
+            // Mouse over branch's indicator
+            document.querySelectorAll(".branch-indicator").forEach((elem) => {
+                elem.addEventListener("mouseover", () => {
+                    elem.closest(".branch").classList.add("hover");
+                });
+
+                elem.addEventListener("mouseout", () => {
+                    elem.closest(".branch").classList.remove("hover");
+                });
+            });
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
