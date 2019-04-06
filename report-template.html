@@ -25,6 +25,7 @@
                 border: 0;
                 margin: 0;
                 padding: 0;
+                table-layout: fixed;
             }
 
             .divider-pane {
@@ -34,6 +35,7 @@
                 border: 0;
                 margin: 0;
                 padding: 0;
+                overflow-x: auto;
             }
 
             .tree-header {
@@ -367,10 +369,12 @@
                                                         <span class="content failed-unexpected failed-item">
                                                             Failed unexpected
                                                             <div class="stacktrace">
-                                                                STACK TRACE HERE<br>
-                                                                STACK TRACE HERE<br>
-                                                                STACK TRACE HERE<br>
-                                                                STACK TRACE HERE
+                                                                Error: Something bad happened [file.txt:12] (add filename:lineNumber to error.message from error.filename/error.lineNumber)<br>
+                                                                &nbsp;&nbsp;Step with error (regardless of expectation) will have this section<br>
+                                                                &nbsp;&nbsp;STACK TRACE HERE<br>
+                                                                &nbsp;&nbsp;STACK TRACE HERE<br>
+                                                                &nbsp;&nbsp;&nbsp;&nbsp;STACK TRACE HERE<br>
+                                                                &nbsp;&nbsp;STACK TRACE HERE
                                                             </div>
                                                         </span>
                                                     </span>
