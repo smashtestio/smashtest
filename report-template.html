@@ -127,6 +127,10 @@
                 cursor: pointer;
             }
 
+            .line .content {
+                display: inline-block;
+            }
+
             .line .filelocation {
                 visibility: hidden;
                 position: absolute;
@@ -242,15 +246,29 @@
             .line-number {
                 color: rgb(100,100,100);
                 font-size: 11px;
+                display: inline-block;
+                vertical-align: top;
+                position: relative;
+                top: 2px;
             }
 
-            .vertical-line {
+            .vertical-line-container {
                 border-left: 1px dashed rgb(100,100,100);
-                margin: 0 3px;
+                margin-left: 4px;
+                padding-left: 8px;
                 display: inline-block;
-                height: 13px;
+            }
+
+            .line > .vertical-line-container {
                 position: relative;
                 top: 1px;
+                margin-bottom: 1px;
+            }
+
+            .stacktrace {
+                padding: 5px 0 20px 30px;
+                color: white;
+                font-size: 12px;
             }
         </style>
     </head>
@@ -311,66 +329,84 @@
                                             </div>
                                             <div class="line">
                                                 <span class="line-number">2</span>
-                                                <span class="vertical-line"></span>
-                                                <span class="content passed-expected passed-item">
-                                                    Passed expected
+                                                <span class="vertical-line-container">
+                                                    <span class="content passed-expected passed-item">
+                                                        Passed expected
+                                                    </span>
                                                 </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
                                                 <span class="line-number">3</span>
-                                                <span class="vertical-line"></span>
-                                                <span class="vertical-line"></span>
-                                                <span class="content passed-unexpected passed-item">
-                                                    Passed unexpected
-                                                    <span class="pill unexpected">UNEXPECTED</span>
+                                                <span class="vertical-line-container">
+                                                    <span class="vertical-line-container">
+                                                        <span class="content passed-unexpected passed-item">
+                                                            Passed unexpected
+                                                            <span class="pill unexpected">UNEXPECTED</span>
+                                                        </span>
+                                                    </span>
                                                 </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
                                                 <span class="line-number">4</span>
-                                                <span class="vertical-line"></span>
-                                                <span class="vertical-line"></span>
-                                                <span class="content failed-expected failed-item">
-                                                    Failed expected
-                                                    <span class="pill expected">EXPECTED</span>
+                                                <span class="vertical-line-container">
+                                                    <span class="vertical-line-container">
+                                                        <span class="content failed-expected failed-item">
+                                                            Failed expected
+                                                            <span class="pill expected">EXPECTED</span>
+                                                        </span>
+                                                    </span>
                                                 </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
                                                 <span class="line-number">5</span>
-                                                <span class="vertical-line"></span>
-                                                <span class="vertical-line"></span>
-                                                <span class="content failed-unexpected failed-item">
-                                                    Failed unexpected
+                                                <span class="vertical-line-container">
+                                                    <span class="vertical-line-container">
+                                                        <span class="content failed-unexpected failed-item">
+                                                            Failed unexpected
+                                                            <div class="stacktrace">
+                                                                STACK TRACE HERE<br>
+                                                                STACK TRACE HERE<br>
+                                                                STACK TRACE HERE<br>
+                                                                STACK TRACE HERE
+                                                            </div>
+                                                        </span>
+                                                    </span>
                                                 </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
                                                 <span class="line-number">6</span>
-                                                <span class="vertical-line"></span>
-                                                <span class="content skipped skipped-item">
-                                                    Skipped
-                                                    <span class="pill skipped">SKIPPED</span>
+                                                <span class="vertical-line-container">
+                                                    <span class="content skipped skipped-item">
+                                                        Skipped
+                                                        <span class="pill skipped">SKIPPED</span>
+                                                    </span>
                                                 </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
                                                 <span class="line-number">7</span>
-                                                <span class="vertical-line"></span>
-                                                <span class="vertical-line"></span>
-                                                <span class="content running running-item">
-                                                    Running
-                                                    <span class="pill running">RUNNING</span>
+                                                <span class="vertical-line-container">
+                                                    <span class="vertical-line-container">
+                                                        <span class="content running running-item">
+                                                            Running
+                                                            <span class="pill running">RUNNING</span>
+                                                        </span>
+                                                    </span>
                                                 </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
                                             <div class="line">
                                                 <span class="line-number">8</span>
-                                                <span class="vertical-line"></span>
-                                                <span class="vertical-line"></span>
-                                                <span class="content notrunyet notrunyet-item">
-                                                    Not run yet
+                                                <span class="vertical-line-container">
+                                                    <span class="vertical-line-container">
+                                                        <span class="content notrunyet notrunyet-item">
+                                                            Not run yet
+                                                        </span>
+                                                    </span>
                                                 </span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </div>
