@@ -266,23 +266,13 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             }
         }
 
-        let isComplete = false;
         let elapsed = 0;
+        isComplete = false;
 
-        // Branch counts
-        let passed = 0;
-        let failed = 0;
-        let skipped = 0;
-        let complete = 0;
-        let totalToRun = tree.getBranchCount(true, false);
-        let totalInReport = tree.getBranchCount(false, false);
-
-        // Step counts
-        let totalStepsComplete = 0;
-        let totalSteps = tree.getStepCount(true, false, false);
+        tree.initCounts();
 
         if(!runner.repl) {
-            console.log(`${totalToRun} branches to run` + (!runner.noReport ? ` | ${totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + chalk.yellow(`In DEBUG mode (~)`) : ``));
+            console.log(`${tree.totalToRun} branches to run` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + chalk.yellow(`In DEBUG mode (~)`) : ``));
             if(!runner.noReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reportPath));
             }
@@ -293,13 +283,13 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             let isBranchComplete = false;
 
             if(runner.repl) {
-                if(tree.branches.length == 0) {
+                if(tree.totalToRun == 0) {
                     // Create an empty, paused runner
                     runner.createEmptyRunner();
                     runner.consoleOutput = true;
                 }
                 else if(tree.branches.length > 1) {
-                    utils.error(`There are ${tree.branches.length} branches but you can only have 1 to run -repl. Try isolating a branch with ~.`);
+                    utils.error(`There are ${tree.totalToRun} branches to run but you can only have 1 to run -repl. Try isolating a branch with ~.`);
                 }
                 else {
                     runner.consoleOutput = true;
@@ -461,7 +451,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         else { // Normal run of whole tree
             // Progress bar
             let progressBar = generateProgressBar(true);
-            progressBar.start(totalSteps, totalStepsComplete);
+            progressBar.start(tree.totalSteps, tree.totalStepsComplete);
 
             let timer = null;
             activateProgressBarTimer();
@@ -483,33 +473,23 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
              * Called when the progress bar needs to be updated
              */
             function updateProgressBar() {
-                // Update branch counts
-                passed = tree.getBranchCount(true, true, true, false, false);
-                failed = tree.getBranchCount(true, true, false, true, false);
-                skipped = tree.getBranchCount(true, true, false, false, true);
-                complete = tree.getBranchCount(true, true);
-                totalToRun = tree.getBranchCount(true, false);
-                totalInReport = tree.getBranchCount(false, false);
-
-                // Update step counts
-                totalStepsComplete = tree.getStepCount(true, true, false);
-                totalSteps = tree.getStepCount(true, false, false);
+                tree.updateCounts();
 
                 progressBar.stop();
-                progressBar.start(totalSteps, totalStepsComplete);
+                progressBar.start(tree.totalSteps, tree.totalStepsComplete);
                 outputCounts();
 
                 if(isComplete) {
                     progressBar.stop();
 
                     progressBar = generateProgressBar(false);
-                    progressBar.start(totalSteps, totalStepsComplete);
+                    progressBar.start(tree.totalSteps, tree.totalStepsComplete);
                     outputCounts();
                     progressBar.stop();
 
                     console.log(``);
-                    console.log(chalk.yellow("Run complete" + (passed == totalToRun ? " 👍" : "")));
-                    console.log(`${complete} branches ran` + (!runner.noReport ? ` | ${totalInReport} branches in report` : ``));
+                    console.log(chalk.yellow("Run complete" + (tree.passed == tree.totalToRun ? " 👍" : "")));
+                    console.log(`${tree.complete} branches ran` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``));
                     if(!runner.noReport) {
                         console.log(`Report at: ` + chalk.gray.italic(reportPath));
                     }
@@ -544,16 +524,16 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
              * Outputs the given counts to the console
              */
             function outputCounts() {
-                if(!isComplete && passed == 0 && failed == 0 && skipped == 0 && complete == 0) {
+                if(!isComplete && tree.passed == 0 && tree.failed == 0 && tree.skipped == 0 && tree.complete == 0) {
                     return; // nothing to show yet
                 }
 
                 process.stdout.write(
                     (elapsed ? (`${elapsed} | `) : ``) +
-                    (passed > 0        || isComplete ? chalk.greenBright(`${passed} passed`) + ` | ` : ``) +
-                    (failed > 0        || isComplete ? chalk.redBright(`${failed} failed`) + ` | ` : ``) +
-                    (skipped > 0       || isComplete ? chalk.cyanBright(`${skipped} skipped`) + ` | ` : ``) +
-                    (complete > 0      || isComplete ? (`${complete} branches run`) : ``)
+                    (tree.passed > 0        || isComplete ? chalk.greenBright(`${tree.passed} passed`) + ` | ` : ``) +
+                    (tree.failed > 0        || isComplete ? chalk.redBright(`${tree.failed} failed`) + ` | ` : ``) +
+                    (tree.skipped > 0       || isComplete ? chalk.cyanBright(`${tree.skipped} skipped`) + ` | ` : ``) +
+                    (tree.complete > 0      || isComplete ? (`${tree.complete} branches run`) : ``)
                 );
             }
 

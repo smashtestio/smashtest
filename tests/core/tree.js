@@ -11585,18 +11585,22 @@ K-1 -
         */
     });
 
-    describe("serializeBranches()", function() {
+    describe("serialize()", function() {
         it("outputs json for an empty tree", function() {
             let tree = new Tree();
 
             tree.generateBranches();
-            let json = tree.serializeBranches();
+            tree.isDebug = true;
+            tree.elapsed = "DATE";
+            let json = tree.serialize();
             let obj = JSON.parse(json);
 
             expect(obj).to.containSubsetInOrder({
                 branches: [],
                 beforeEverything: [],
-                afterEverything: []
+                afterEverything: [],
+                isDebug: true,
+                elapsed: "DATE"
             });
         });
 
@@ -11609,7 +11613,9 @@ A -
 `);
 
             tree.generateBranches();
-            let json = tree.serializeBranches();
+            tree.isDebug = true;
+            tree.elapsed = "DATE";
+            let json = tree.serialize();
             let obj = JSON.parse(json);
 
             expect(obj).to.containSubsetInOrder({
@@ -11622,7 +11628,9 @@ A -
                     }
                 ],
                 beforeEverything: [],
-                afterEverything: []
+                afterEverything: [],
+                isDebug: true,
+                elapsed: "DATE"
             });
         });
 
@@ -11663,7 +11671,7 @@ A -
 `);
 
             tree.generateBranches();
-            let json = tree.serializeBranches();
+            let json = tree.serialize();
             let obj = JSON.parse(json);
 
             expect(obj.branches[0].beforeEveryBranch).to.have.lengthOf(1);
@@ -11713,7 +11721,7 @@ A -
 
             currTree.generateBranches();
             prevTree.generateBranches();
-            let prevJson = prevTree.serializeBranches();
+            let prevJson = prevTree.serialize();
 
             currTree.mergeBranchesFromPrevRun(prevJson);
 
@@ -11810,7 +11818,7 @@ A -
              prevTree.branches[5].steps[1].text = "2 clone-3 step-2";
              prevTree.branches[5].steps[2].text = "2 clone-3 step-3";
 
-             let prevJson = prevTree.serializeBranches();
+             let prevJson = prevTree.serialize();
              currTree.mergeBranchesFromPrevRun(prevJson);
 
              expect(currTree.branches).to.have.lengthOf(6);
@@ -13619,6 +13627,68 @@ A - +
                 { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
             ]);
             expect(branch4.log).to.equal(undefined);
+        });
+    });
+
+    describe("initCounts()", function() {
+        it("initializes counts", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+
+    C -
+
+    D -
+`, "file.txt");
+
+            tree.generateBranches();
+            tree.initCounts();
+
+            expect(tree.passed).to.equal(0);
+            expect(tree.failed).to.equal(0);
+            expect(tree.skipped).to.equal(0);
+            expect(tree.complete).to.equal(0);
+            expect(tree.totalToRun).to.equal(4);
+            expect(tree.totalInReport).to.equal(4);
+
+            expect(tree.totalStepsComplete).to.equal(0);
+            expect(tree.totalSteps).to.equal(8);
+        });
+    });
+
+    describe("updateCounts()", function() {
+        it("updates counts", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+B -
+
+    C -
+
+    D -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            tree.branches[0].isPassed = true;
+            tree.branches[0].steps[0].isPassed = true;
+            tree.branches[0].steps[1].isPassed = true;
+
+            tree.branches[1].isFailed = true;
+            tree.branches[1].steps[0].isFailed = true;
+
+            tree.updateCounts();
+
+            expect(tree.passed).to.equal(1);
+            expect(tree.failed).to.equal(1);
+            expect(tree.skipped).to.equal(0);
+            expect(tree.complete).to.equal(2);
+            expect(tree.totalToRun).to.equal(4);
+            expect(tree.totalInReport).to.equal(4);
+
+            expect(tree.totalStepsComplete).to.equal(4);
+            expect(tree.totalSteps).to.equal(8);
         });
     });
 });

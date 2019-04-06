@@ -24,6 +24,16 @@ class Tree {
 
         this.elapsed = 0;                    // number of ms it took for all branches to execute, set to -1 if paused
         this.timeStarted = {};               // Date object (time) of when this tree started being executed
+
+        this.passed = 0;                     // total number of passed branches in this tree
+        this.failed = 0;                     // total number of failed branches in this tree
+        this.skipped = 0;                    // total number of skipped branches in this tree
+        this.complete = 0;                   // total number of complete branches in this tree (passed, failed, or skipped)
+        this.totalToRun = 0;                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a -rerunNotPassed)
+        this.totalInReport = 0;              // total number of branches in this tree
+
+        this.totalStepsComplete = 0;         // total number of complete steps in this tree (out of the steps that will be in the next run)
+        this.totalSteps = = 0;               // total number of steps in this tree that will be in the next run
         */
     }
 
@@ -1207,7 +1217,7 @@ class Tree {
     /**
      * @return {String} JSON representation of this.branches, with references to other objects removed
      */
-    serializeBranches() {
+    serialize() {
         let obj = {
             branches: [],
             beforeEverything: [],
@@ -1226,6 +1236,14 @@ class Tree {
             obj.afterEverything.push(s.cloneForBranch(true));
         });
 
+        const BLACKLIST = [ 'branches', 'beforeEverything', 'afterEverything', 'root', 'latestBranchifiedStep' ];
+
+        for(let property in this) {
+            if(this.hasOwnProperty(property) && BLACKLIST.indexOf(property) == -1) {
+                obj[property] = this[property];
+            }
+        }
+
         return JSON.stringify(obj);
     }
 
@@ -1241,7 +1259,7 @@ class Tree {
      *         It will remain absent from current (tester got rid of this branch)
      *     3) Only exists in current
      *         It will remain included in current (this is a new branch)
-     * @param {String} json - A JSON representation of branches and hooks from a previous run. Same JSON that serializeBranches() returns.
+     * @param {String} json - A JSON representation of branches and hooks from a previous run. Same JSON that serialize() returns.
      */
     mergeBranchesFromPrevRun(json) {
         let previous = JSON.parse(json);
@@ -1551,6 +1569,40 @@ class Tree {
         }
 
         return nextStep;
+    }
+
+    /**
+     * Initializes the counts (prior to a run)
+     */
+    initCounts() {
+        // Branch counts
+        this.passed = 0;
+        this.failed = 0;
+        this.skipped = 0;
+        this.complete = 0;
+        this.totalToRun = this.getBranchCount(true, false);
+        this.totalInReport = this.getBranchCount(false, false);
+
+        // Step counts
+        this.totalStepsComplete = 0;
+        this.totalSteps = this.getStepCount(true, false, false);
+    }
+
+    /**
+     * Updates the counts
+     */
+    updateCounts() {
+        // Update branch counts
+        this.passed = this.getBranchCount(true, true, true, false, false);
+        this.failed = this.getBranchCount(true, true, false, true, false);
+        this.skipped = this.getBranchCount(true, true, false, false, true);
+        this.complete = this.getBranchCount(true, true);
+        this.totalToRun = this.getBranchCount(true, false);
+        this.totalInReport = this.getBranchCount(false, false);
+
+        // Update step counts
+        this.totalStepsComplete = this.getStepCount(true, true, false);
+        this.totalSteps = this.getStepCount(true, false, false);
     }
 }
 module.exports = Tree;
