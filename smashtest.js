@@ -71,6 +71,13 @@ for(let i = 2; i < process.argv.length; i++) {
                 runner.groups = value.split(/\s+/);
                 break;
 
+            case "group":
+                if(!runner.groups) {
+                    runner.groups = [];
+                }
+                runner.groups.push(group);
+                break;
+
             case "minfrequency":
                 if(['high', 'med', 'low'].indexOf(value) == -1) {
                     utils.error("Invalid minFrequency argument. Must be either high, med, or low.");
@@ -82,13 +89,13 @@ for(let i = 2; i < process.argv.length; i++) {
                 runner.maxInstances = value;
                 break;
 
-            case "rerunnotpassed":
-            case "r":
+            case "skippassed":
+            case "s":
                 if(value) {
-                    runner.rerunNotPassed = value;
+                    runner.skipPassed = value;
                 }
                 else {
-                    runner.rerunNotPassed = true;
+                    runner.skipPassed = true;
                 }
                 break;
 
@@ -103,6 +110,27 @@ for(let i = 2; i < process.argv.length; i++) {
             case "p":
                 runner.persistent[varName] = value;
                 break;
+
+            case "help":
+            case "?":
+                console.log(`Usage: smashtest [test files] [options]
+
+Options:
+  -repl                         Open the REPL (drive SmashTEST from command line)
+  -maxInstances=<N>             Do not run more than N branches simultaneously
+  -noDebug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
+  -noReport                     Do not output a report
+  -skipPassed or -s             Do not run branches that passed last time. Just carry them over into new report.
+  -groups="<group1> <group2>"   Only run branches that are part of one of these groups
+  -group="<group name>"         Same as -groups, but only one group. Multiple -group's ok. Useful for group names with spaces.
+  -minFrequency=<high/med/low>  Only run branches at or above this frequency
+  -g:<name>="<value>"           Set the global variable with the given name to the given value, before each branch
+  -g:screenshots=false          Do not output screenshots
+  -p:<name>="<value>"           Set the persistent variable with the given name to the given value
+  -help or -?                   Open this help prompt
+                `);
+                forcedStop = false;
+                return;
 
             default:
                 utils.error("Invalid argument " + arg);
@@ -161,14 +189,14 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         }
 
         // Build the tree
-        if(runner.rerunNotPassed) {
+        if(runner.skipPassed) {
             let buffer = null;
-            if(typeof runner.rerunNotPassed == 'string') {
-                // -rerunNotPassed='filename of report that constitutes last run'
-                await reporter.mergeInLastReport(runner.rerunNotPassed);
+            if(typeof runner.skipPassed == 'string') {
+                // -skipPassed='filename of report that constitutes last run'
+                await reporter.mergeInLastReport(runner.skipPassed);
             }
             else {
-                // -rerunNotPassed with no filename
+                // -skipPassed with no filename
                 // Use last report from /reports that doesn't have debug.html in its name
                 // If one isn't found, use report.html in same directory
 
@@ -219,7 +247,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         }
 
         if(!runner.repl) {
-            if(tree.totalToRun == 0 && runner.rerunNotPassed) {
+            if(tree.totalToRun == 0 && runner.skipPassed) {
                 console.log("No branches left to run. All branches have passed last time.");
 
                 isComplete = true;

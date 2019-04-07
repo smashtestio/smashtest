@@ -1224,14 +1224,14 @@ Step to Inject {
             runner.init(tree);
 
             runner.flags = [ 'one', 'two' ];
-            runner.rerunNotPassed = true;
+            runner.skipPassed = true;
             runner.maxInstances = 10;
 
             let json = runner.serialize();
             let obj = JSON.parse(json);
 
             expect(obj.flags).to.eql([ 'one', 'two' ]);
-            expect(obj.rerunNotPassed).to.be.true;
+            expect(obj.skipPassed).to.be.true;
             expect(obj.maxInstances).to.equal(10);
         });
     });

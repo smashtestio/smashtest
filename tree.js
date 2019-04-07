@@ -30,7 +30,7 @@ class Tree {
         this.failed = 0;                     // total number of failed branches in this tree
         this.skipped = 0;                    // total number of skipped branches in this tree
         this.complete = 0;                   // total number of complete branches in this tree (passed, failed, or skipped)
-        this.totalToRun = 0;                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a -rerunNotPassed)
+        this.totalToRun = 0;                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a -skipPassed)
         this.totalInReport = 0;              // total number of branches in this tree
 
         this.totalStepsComplete = 0;         // total number of complete steps in this tree (out of the steps that will be in the next run)
@@ -1320,7 +1320,7 @@ class Tree {
 
     /**
      * Get a count on the number of branches within this.branches
-     * @param {Boolean} [runnableOnly] - If true, only count branches that are set to run (i.e., those that passed last time don't count, if we're doing a -rerunNotPassed)
+     * @param {Boolean} [runnableOnly] - If true, only count branches that are set to run (i.e., those that passed last time don't count, if we're doing a -skipPassed)
      * @param {Boolean} [completeOnly] - If true, only count branches that are complete (passed, failed, or skipped)
      * @param {Boolean} [passedOnly] - If true, only count branches that have passed
      * @param {Boolean} [failedOnly] - If true, only count branches that have failed

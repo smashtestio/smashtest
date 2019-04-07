@@ -19,7 +19,7 @@ class Runner {
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
         this.noReport = false;           // If true, do not output a report
         this.maxInstances = 5;           // The maximum number of simultaneous branches to run
-        this.rerunNotPassed = undefined; // If true, only run branches in tree that didn't pass last time
+        this.skipPassed = undefined; // If true, don't run and carry over branches that passed last time
         this.repl = false;               // If true, run the REPL immediately
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)

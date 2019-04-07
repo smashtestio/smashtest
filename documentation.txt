@@ -38,24 +38,27 @@ Running tests
             - 5 if omitted
         - -noDebug
         - -noReport
-        - -rerunNotPassed or -r
+        - -skipPassed or -s
+            - Doesn't run branches that passed last time. Carries them and their state over into the new report.
+                - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
+                - Doesn't run branches that have since been removed from the tree
+                - Always runs the current hooks, not the hooks from the last run
             - For fixing problems in your tests that cause them to break, without having to rerun the whole entire suite again
-            - Doesn't run branches that passed last time, but still includes them and their last state in the report
-            - Doesn't run branches that have since been removed from the tree
-            - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
-            - Always runs the current hooks, not the hooks from the last run
+            - Helpful for when you are typing out new tests (or updating existing ones) and only want to run whatever's new
             - Format
-                - -rerunNotPassed=filename or "filename"
+                - -s/-skipPassed=filename or "filename"
                     - filename of report that constitutes last run
-                - -rerunNotPassed with no filename
+                - -s/-skipPassed with no filename
                     - Uses latest report from <current dir>/reports that didn't have a ~ (~ reports have "debug" at the end of their filenames)
                     - If one isn't found, uses report.html in the current directory
         - -groups=value or "val1 val2 val3"
+        - -group=value (you can do many of these - great for group names with spaces)
         - -minFrequency=med
             - med if omitted
         - -g:varname=value or "value" (global var)
             - g:screenshotOnFail=true
         - -p:varname=value or "value" (persistent var)
+        - -help/-?
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
 
 Reports
