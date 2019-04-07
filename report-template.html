@@ -13,7 +13,7 @@
                 color: white;
                 font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
                 margin: 0;
-                padding: 6px 0;
+                padding: 0;
             }
 
             .header {
@@ -21,22 +21,28 @@
                 margin: 0 0 10px 6px;
             }
 
-            .divider {
-                width: 100%;
-                border: 0;
-                margin: 0;
-                padding: 0;
-                table-layout: fixed;
-            }
-
             .divider-pane {
-                position: relative;
+                position: absolute;
+                top: 0;
+                bottom: 0;
                 width: 50%;
+                height: 100%;
                 vertical-align: top;
                 border: 0;
                 margin: 0;
-                padding: 0;
                 overflow-x: auto;
+                padding: 6px 4px;
+            }
+
+            .left-pane {
+                left: 0;
+                padding-right: 0;
+            }
+
+            .right-pane {
+                right: 0;
+                padding-left: 10px;
+                background-color: rgb(40,40,40);
             }
 
             .tree-header {
@@ -60,16 +66,23 @@
 
             .branch {
                 margin-bottom: 12px;
+                margin-left: 2px;
+            }
+
+            .branch.active {
+                background-color: rgb(40,40,40);
             }
 
             .branch.hover {
-                background-color: rgb(70,70,70);
+                background-color: rgb(40,40,40);
+                /*background-color: rgb(70,70,70);*/
             }
 
             .branch table {
                 border: 0;
                 margin: 0;
                 padding: 0;
+                border-spacing: 0;
                 width: 100%;
             }
 
@@ -113,20 +126,27 @@
             }
 
             .branch-contents {
-                width: calc(100% - 10px);
+                width: 100%;
                 border: 0;
                 margin: 0;
+                padding-left: 3px;
+                padding-right: 0;
             }
 
             .line {
                 font-size: 14px;
                 position: relative;
                 white-space: nowrap;
+                cursor: pointer;
+            }
+
+            .line.active {
+                background-color: rgb(40,40,40);
             }
 
             .line:hover {
-                background-color: rgb(70,70,70);
-                cursor: pointer;
+                background-color: rgb(40,40,40);
+                /*background-color: rgb(70,70,70);*/
             }
 
             .line .content {
@@ -138,7 +158,6 @@
                 display: inline-block;
                 vertical-align: top;
                 color: rgb(130,130,130);
-                background-color: rgb(70,70,70);
                 padding: 0 15px;
                 font-size: 13px;
             }
@@ -288,10 +307,6 @@
                 cursor: default;
             }
 
-            .right-pane {
-                padding: 0 0 0 20px;
-            }
-
             .right-pane .step-name .filelocation {
                 color: rgb(130,130,130);
                 font-size: 12px;
@@ -314,423 +329,419 @@
         </style>
     </head>
     <body>
-        <table class="divider">
-            <tr>
-                <td class="divider-pane">
-                    <div class="tree-header">
-                        <div class="header">SmashTEST Report</div>
-                        <div class="tree-header-container">
-                            <div class="progress-bar tree-header-item">
-                                <div class="filled-bar">
-                                    <div class="filled-bar-text"></div>
-                                </div>
+        <div class="divider">
+            <div class="divider-pane left-pane">
+                <div class="tree-header">
+                    <div class="header">SmashTEST Report</div>
+                    <div class="tree-header-container">
+                        <div class="progress-bar tree-header-item">
+                            <div class="filled-bar">
+                                <div class="filled-bar-text"></div>
                             </div>
-                            <div class="runner-status-msg tree-header-item">
-                                <div class="runner-complete">Run completed (34m 54s) <span class="thumbs-up">&#x1f44d;</span></div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                                <div class="runner-running running-item">Currently running</div>
-                                <div class="runner-paused skipped-item">Run paused</div>
-                                <div class="runner-stopped">Run stopped (12m 54s)</div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                                <div class="running-item-no-anim">In DEBUG mode (~)</div>
-                            </div>
-                            <div class="counts tree-header-item">
-                                <span class="passed-count passed-item">10 passed</span> |
-                                <span class="failed-count failed-item">7 failed</span> |
-                                <span class="skipped-count skipped-item">8 skipped</span> |
-                                <span class="notrunyet-count notrunyet-item">9 not run yet</span> |
-                                <span class="total-count">22 total branches</span>
-                            </div>
-                            <div class="msg tree-header-item" onclick="location.reload();">
-                                This report is a snapshot from [DATETIME] |
-                                <span class="refresh-msg">
-                                    <img class="refresh-icon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiBoZWlnaHQ9IjMycHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxnPjxwYXRoIGQ9Ik0yNS40NDQsNC4yOTFjMCwwLTEuMzI1LDEuMjkzLTIuMjQzLDIuMjAxQzE4LjUxNCwzLjA2OCwxMS45MDksMy40NTYsNy42NzYsNy42ODkgICBjLTIuNDcsMi40Ny0zLjYyMyw1Ljc0Ny0zLjQ4NCw4Ljk4M2g0QzguMDUxLDE0LjQ2LDguODEsMTIuMjA1LDEwLjUsMTAuNTE0YzIuNjYzLTIuNjYzLDYuNzM1LTMuMDQzLDkuODEyLTEuMTYyICAgYy0xLjA0MiwxLjAzMi0yLjI0NSwyLjIzOC0yLjI0NSwyLjIzOGMtMC44NDEsMS4wMDksMC4xMDQsMS41OTIsMC41ODQsMS41NzdsNS42MjQtMC4wMDFjMC4yOTcsMCwwLjUzOSwwLjAwMSwwLjUzOSwwLjAwMSAgIHMwLjI0NSwwLDAuNTQzLDBoMS4wOTJjMC4yOTgsMCwwLjU0LTAuMjQzLDAuNTQtMC41NDFWNC44OTVDMjcuMDIzLDQuMTg4LDI2LjI0NywzLjUwMiwyNS40NDQsNC4yOTF6IiBmaWxsPSIjNTE1MTUxIi8+PHBhdGggZD0iTTYuNTU1LDI3LjcwOWMwLDAsMS4zMjYtMS4yOTMsMi4yNDMtMi4yMDFjNC42ODgsMy40MjQsMTEuMjkyLDMuMDM2LDE1LjUyNi0xLjE5NyAgIGMyLjQ3LTIuNDcxLDMuNjIyLTUuNzQ3LDMuNDg0LTguOTgzaC00LjAwMWMwLjE0MiwyLjIxMS0wLjYxNyw0LjQ2Ny0yLjMwOCw2LjE1OWMtMi42NjMsMi42NjItNi43MzUsMy4wNDMtOS44MTIsMS4xNjEgICBjMS4wNDItMS4wMzIsMi4yNDUtMi4yMzgsMi4yNDUtMi4yMzhjMC44NDEtMS4wMS0wLjEwNC0xLjU5Mi0wLjU4NC0xLjU3N2wtNS42MjQsMC4wMDJjLTAuMjk3LDAtMC41NC0wLjAwMi0wLjU0LTAuMDAyICAgcy0wLjI0NSwwLTAuNTQzLDBINS41NTFjLTAuMjk4LDAtMC41NCwwLjI0Mi0wLjU0MSwwLjU0MXY3LjczMkM0Ljk3NywyNy44MTIsNS43NTMsMjguNDk4LDYuNTU1LDI3LjcwOXoiIGZpbGw9IiM1MTUxNTEiLz48L2c+PC9zdmc+">
-                                    </img>
-                                    Refresh for latest results
-                                </span>
-                            </div>
-                            <!--
-                            <div class="msg tree-header-item">
-                                Note: Each branch below shows steps in order of execution. Indents represent function calls.
-                            </div>
-                            -->
+                        </div>
+                        <div class="runner-status-msg tree-header-item">
+                            <div class="runner-complete">Run completed (34m 54s) <span class="thumbs-up">&#x1f44d;</span></div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
+                            <div class="runner-running running-item">Currently running</div>
+                            <div class="runner-paused skipped-item">Run paused</div>
+                            <div class="runner-stopped">Run stopped (12m 54s)</div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
+                            <div class="running-item-no-anim">In DEBUG mode (~)</div>
+                        </div>
+                        <div class="counts tree-header-item">
+                            <span class="passed-count passed-item">10 passed</span> |
+                            <span class="failed-count failed-item">7 failed</span> |
+                            <span class="skipped-count skipped-item">8 skipped</span> |
+                            <span class="notrunyet-count notrunyet-item">9 not run yet</span> |
+                            <span class="total-count">22 total branches</span>
+                        </div>
+                        <div class="msg tree-header-item" onclick="location.reload();">
+                            This report is a snapshot from [DATETIME] |
+                            <span class="refresh-msg">
+                                <img class="refresh-icon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiBoZWlnaHQ9IjMycHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxnPjxwYXRoIGQ9Ik0yNS40NDQsNC4yOTFjMCwwLTEuMzI1LDEuMjkzLTIuMjQzLDIuMjAxQzE4LjUxNCwzLjA2OCwxMS45MDksMy40NTYsNy42NzYsNy42ODkgICBjLTIuNDcsMi40Ny0zLjYyMyw1Ljc0Ny0zLjQ4NCw4Ljk4M2g0QzguMDUxLDE0LjQ2LDguODEsMTIuMjA1LDEwLjUsMTAuNTE0YzIuNjYzLTIuNjYzLDYuNzM1LTMuMDQzLDkuODEyLTEuMTYyICAgYy0xLjA0MiwxLjAzMi0yLjI0NSwyLjIzOC0yLjI0NSwyLjIzOGMtMC44NDEsMS4wMDksMC4xMDQsMS41OTIsMC41ODQsMS41NzdsNS42MjQtMC4wMDFjMC4yOTcsMCwwLjUzOSwwLjAwMSwwLjUzOSwwLjAwMSAgIHMwLjI0NSwwLDAuNTQzLDBoMS4wOTJjMC4yOTgsMCwwLjU0LTAuMjQzLDAuNTQtMC41NDFWNC44OTVDMjcuMDIzLDQuMTg4LDI2LjI0NywzLjUwMiwyNS40NDQsNC4yOTF6IiBmaWxsPSIjNTE1MTUxIi8+PHBhdGggZD0iTTYuNTU1LDI3LjcwOWMwLDAsMS4zMjYtMS4yOTMsMi4yNDMtMi4yMDFjNC42ODgsMy40MjQsMTEuMjkyLDMuMDM2LDE1LjUyNi0xLjE5NyAgIGMyLjQ3LTIuNDcxLDMuNjIyLTUuNzQ3LDMuNDg0LTguOTgzaC00LjAwMWMwLjE0MiwyLjIxMS0wLjYxNyw0LjQ2Ny0yLjMwOCw2LjE1OWMtMi42NjMsMi42NjItNi43MzUsMy4wNDMtOS44MTIsMS4xNjEgICBjMS4wNDItMS4wMzIsMi4yNDUtMi4yMzgsMi4yNDUtMi4yMzhjMC44NDEtMS4wMS0wLjEwNC0xLjU5Mi0wLjU4NC0xLjU3N2wtNS42MjQsMC4wMDJjLTAuMjk3LDAtMC41NC0wLjAwMi0wLjU0LTAuMDAyICAgcy0wLjI0NSwwLTAuNTQzLDBINS41NTFjLTAuMjk4LDAtMC41NCwwLjI0Mi0wLjU0MSwwLjU0MXY3LjczMkM0Ljk3NywyNy44MTIsNS43NTMsMjguNDk4LDYuNTU1LDI3LjcwOXoiIGZpbGw9IiM1MTUxNTEiLz48L2c+PC9zdmc+">
+                                </img>
+                                Refresh for latest results
+                            </span>
+                        </div>
+                        <!--
+                        <div class="msg tree-header-item">
+                            Note: Each branch below shows steps in order of execution. Indents represent function calls.
+                        </div>
+                        -->
+                    </div>
+                </div>
+                <div class="branch-container">
+                    <div class="tree-error">
+                        <div class="header failed-item">Hook errors</div>
+                        <div class="stacktrace">
+                            Error: Before/After Everything errors [file.txt:12] (from error.filename/error.lineNumber)<br>
+                            &nbsp;&nbsp;Get error object from before/afterEverything Step itself<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE
+                        </div>
+                        <div class="stacktrace">
+                            Error: Before/After Everything errors [file.txt:12] (from error.filename/error.lineNumber)<br>
+                            &nbsp;&nbsp;Get error object from before/afterEverything Step itself<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE
                         </div>
                     </div>
-                    <div class="branch-container">
-                        <div class="tree-error">
-                            <div class="header failed-item">Hook errors</div>
-                            <div class="stacktrace">
-                                Error: Before/After Everything errors [file.txt:12] (from error.filename/error.lineNumber)<br>
-                                &nbsp;&nbsp;Get error object from before/afterEverything Step itself<br>
-                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                &nbsp;&nbsp;STACK TRACE HERE
-                            </div>
-                            <div class="stacktrace">
-                                Error: Before/After Everything errors [file.txt:12] (from error.filename/error.lineNumber)<br>
-                                &nbsp;&nbsp;Get error object from before/afterEverything Step itself<br>
-                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                &nbsp;&nbsp;STACK TRACE HERE
-                            </div>
-                        </div>
-                        <div class="header">Branches currently running</div>
-                        <div class="branch">
-                            <table>
-                                <tr>
-                                    <td class="branch-indicator running">
-                                    </td>
-                                    <td class="branch-contents">
-                                        <div class="branch-error">
-                                            <div class="stacktrace">
-                                                Error: Before/After Every Branch Errors [file.txt:12] (from error.filename/error.lineNumber)<br>
-                                                &nbsp;&nbsp;Branch.error will have this<br>
-                                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                &nbsp;&nbsp;STACK TRACE HERE
-                                            </div>
+                    <div class="header">Branches currently running</div>
+                    <div class="branch">
+                        <table>
+                            <tr>
+                                <td class="branch-indicator running">
+                                </td>
+                                <td class="branch-contents">
+                                    <div class="branch-error">
+                                        <div class="stacktrace">
+                                            Error: Before/After Every Branch Errors [file.txt:12] (from error.filename/error.lineNumber)<br>
+                                            &nbsp;&nbsp;Branch.error will have this<br>
+                                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                                            &nbsp;&nbsp;STACK TRACE HERE
                                         </div>
-                                        <div class="steps">
-                                            <div class="line">
-                                                <span class="line-number">1</span> <!-- NOTE: Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch -->
+                                    </div>
+                                    <div class="steps">
+                                        <div class="line">
+                                            <span class="line-number">1</span> <!-- NOTE: Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch -->
+                                            <span class="content passed-expected passed-item">
+                                                Passed expected
+                                                <span class="filelocation">[file.txt:10]</span>
+                                            </span>
+                                        </div>
+                                        <div class="line">
+                                            <span class="line-number">2</span>
+                                            <span class="vertical-line-container">
                                                 <span class="content passed-expected passed-item">
                                                     Passed expected
                                                     <span class="filelocation">[file.txt:10]</span>
                                                 </span>
-                                            </div>
-                                            <div class="line">
-                                                <span class="line-number">2</span>
-                                                <span class="vertical-line-container">
-                                                    <span class="content passed-expected passed-item">
-                                                        Passed expected
-                                                        <span class="filelocation">[file.txt:10]</span>
-                                                    </span>
-                                                </span>
-                                            </div>
-                                            <div class="line">
-                                                <span class="line-number">3</span>
-                                                <span class="vertical-line-container">
-                                                    <span class="vertical-line-container">
-                                                        <span class="content passed-unexpected passed-item">
-                                                            Passed unexpected
-                                                            <span class="pill unexpected">UNEXPECTED</span>
-                                                            <span class="filelocation">[file.txt:10]</span>
-                                                        </span>
-                                                    </span>
-                                                </span>
-                                            </div>
-                                            <div class="line">
-                                                <span class="line-number">4</span>
-                                                <span class="vertical-line-container">
-                                                    <span class="vertical-line-container">
-                                                        <span class="content failed-expected failed-item">
-                                                            Failed expected
-                                                            <span class="pill expected">EXPECTED</span>
-                                                            <span class="filelocation">[file.txt:10]</span>
-                                                        </span>
-                                                    </span>
-                                                </span>
-                                            </div>
-                                            <div class="line">
-                                                <span class="line-number">5</span>
-                                                <span class="vertical-line-container">
-                                                    <span class="vertical-line-container">
-                                                        <span class="content failed-unexpected failed-item">
-                                                            Failed unexpected
-                                                            <span class="pill unexpected">UNEXPECTED</span>
-                                                            <span class="filelocation">[file.txt:10]</span>
-                                                            <div class="stacktrace">
-                                                                Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                                                                &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
-                                                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                                &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                                &nbsp;&nbsp;STACK TRACE HERE
-                                                            </div>
-                                                        </span>
-                                                    </span>
-                                                </span>
-                                            </div>
-                                            <div class="line">
-                                                <span class="line-number">6</span>
-                                                <span class="vertical-line-container">
-                                                    <span class="content skipped skipped-item">
-                                                        Skipped
-                                                        <span class="pill skipped">SKIPPED</span>
-                                                        <span class="filelocation">[file.txt:10]</span>
-                                                    </span>
-                                                </span>
-                                            </div>
-                                            <div class="line">
-                                                <span class="line-number">7</span>
-                                                <span class="vertical-line-container">
-                                                    <span class="vertical-line-container">
-                                                        <span class="content running running-item">
-                                                            Running
-                                                            <span class="pill running">RUNNING</span>
-                                                            <span class="filelocation">[file.txt:10]</span>
-                                                        </span>
-                                                    </span>
-                                                </span>
-                                            </div>
-                                            <div class="line">
-                                                <span class="line-number">8</span>
-                                                <span class="vertical-line-container">
-                                                    <span class="vertical-line-container">
-                                                        <span class="content notrunyet notrunyet-item">
-                                                            Not run yet
-                                                            <span class="filelocation">[file.txt:10]</span>
-                                                        </span>
-                                                    </span>
-                                                </span>
-                                            </div>
+                                            </span>
                                         </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                                        <div class="line">
+                                            <span class="line-number">3</span>
+                                            <span class="vertical-line-container">
+                                                <span class="vertical-line-container">
+                                                    <span class="content passed-unexpected passed-item">
+                                                        Passed unexpected
+                                                        <span class="pill unexpected">UNEXPECTED</span>
+                                                        <span class="filelocation">[file.txt:10]</span>
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="line">
+                                            <span class="line-number">4</span>
+                                            <span class="vertical-line-container">
+                                                <span class="vertical-line-container">
+                                                    <span class="content failed-expected failed-item">
+                                                        Failed expected
+                                                        <span class="pill expected">EXPECTED</span>
+                                                        <span class="filelocation">[file.txt:10]</span>
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="line">
+                                            <span class="line-number">5</span>
+                                            <span class="vertical-line-container">
+                                                <span class="vertical-line-container">
+                                                    <span class="content failed-unexpected failed-item">
+                                                        Failed unexpected
+                                                        <span class="pill unexpected">UNEXPECTED</span>
+                                                        <span class="filelocation">[file.txt:10]</span>
+                                                        <div class="stacktrace">
+                                                            Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
+                                                            &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
+                                                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                                                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                                                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                                                            &nbsp;&nbsp;STACK TRACE HERE
+                                                        </div>
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="line">
+                                            <span class="line-number">6</span>
+                                            <span class="vertical-line-container">
+                                                <span class="content skipped skipped-item">
+                                                    Skipped
+                                                    <span class="pill skipped">SKIPPED</span>
+                                                    <span class="filelocation">[file.txt:10]</span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="line">
+                                            <span class="line-number">7</span>
+                                            <span class="vertical-line-container">
+                                                <span class="vertical-line-container">
+                                                    <span class="content running running-item">
+                                                        Running
+                                                        <span class="pill running">RUNNING</span>
+                                                        <span class="filelocation">[file.txt:10]</span>
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="line">
+                                            <span class="line-number">8</span>
+                                            <span class="vertical-line-container">
+                                                <span class="vertical-line-container">
+                                                    <span class="content notrunyet notrunyet-item">
+                                                        Not run yet
+                                                        <span class="filelocation">[file.txt:10]</span>
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                    <div class="branch-container">
-                        <div class="header">Failed branches</div>
-                        <div class="none-indicator">None</div>
-                    </div>
-                    <div class="branch-container">
-                        <div class="header">Passed branches</div>
-                        <div class="none-indicator">None</div>
-                    </div>
-                    <div class="branch-container">
-                        <div class="header">Skipped branches</div>
-                        <div class="none-indicator">None</div>
-                    </div>
-                    <div class="branch-container">
-                        <div class="header">Branches not run yet</div>
-                        <div class="none-indicator">None</div>
-                    </div>
-                </td>
-                <td class="divider-pane right-pane">
-                    <div class="header step-name failed-item">
-                        My big failing step
-                        <span class="filelocation">[file.txt:10]</span>
-                        <span class="filelocation">(13m 45s)</span> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                    </div>
-                    <div class="step-state passed-item">
-                        Passed
-                    </div>
-                    <div class="step-state passed-item">
-                        Passed unexpectedly
-                    </div>
-                    <div class="step-state failed-item">
-                        Failed
-                    </div>
-                    <div class="step-state failed-item">
-                        Failed expectedly
-                    </div>
-                    <div class="step-state running-item-no-anim">
-                        Currently running
-                    </div>
-                    <div class="step-state skipped-item">
-                        Skipped
-                    </div>
-                    <div class="step-state notrunyet-item">
-                        Not run yet
-                    </div>
-                    <div class="header">Error</div>
-                    <div class="stacktrace">
-                        Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                        &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
-                        &nbsp;&nbsp;STACK TRACE HERE<br>
-                        &nbsp;&nbsp;STACK TRACE HERE<br>
-                        &nbsp;&nbsp;STACK TRACE HERE<br>
-                        &nbsp;&nbsp;STACK TRACE HERE
-                    </div>
-                    <div class="header">Details</div>
-                    <div class="step-report">
-                        <style>
-                            .screenshot {
-                                max-width: 100%;
-                                width: 600px;
-                                border: 3px solid gray;
-                                padding: 5px;
-                                border-radius: 3px;
-                            }
+                </div>
+                <div class="branch-container">
+                    <div class="header">Failed branches</div>
+                    <div class="none-indicator">None</div>
+                </div>
+                <div class="branch-container">
+                    <div class="header">Passed branches</div>
+                    <div class="none-indicator">None</div>
+                </div>
+                <div class="branch-container">
+                    <div class="header">Skipped branches</div>
+                    <div class="none-indicator">None</div>
+                </div>
+                <div class="branch-container">
+                    <div class="header">Branches not run yet</div>
+                    <div class="none-indicator">None</div>
+                </div>
+            </div>
+            <div class="divider-pane right-pane">
+                <div class="header step-name failed-item">
+                    My big failing step
+                    <span class="filelocation">[file.txt:10]</span>
+                    <span class="filelocation">(13m 45s)</span> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
+                </div>
+                <div class="step-state passed-item">
+                    Passed
+                </div>
+                <div class="step-state passed-item">
+                    Passed unexpectedly
+                </div>
+                <div class="step-state failed-item">
+                    Failed
+                </div>
+                <div class="step-state failed-item">
+                    Failed expectedly
+                </div>
+                <div class="step-state running-item-no-anim">
+                    Currently running
+                </div>
+                <div class="step-state skipped-item">
+                    Skipped
+                </div>
+                <div class="step-state notrunyet-item">
+                    Not run yet
+                </div>
+                <div class="header">Error</div>
+                <div class="stacktrace">
+                    Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
+                    &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
+                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                    &nbsp;&nbsp;STACK TRACE HERE
+                </div>
+                <div class="header">Details</div>
+                <div class="step-report">
+                    <style>
+                        .screenshot {
+                            max-width: 100%;
+                            width: 600px;
+                            border: 3px solid gray;
+                            padding: 5px;
+                            border-radius: 3px;
+                        }
 
-                            .screenshot:hover {
-                                cursor: pointer;
-                                border: 3px solid lightgray;
-                            }
+                        .screenshot:hover {
+                            cursor: pointer;
+                            border: 3px solid lightgray;
+                        }
 
-                            .screenshot-modal {
-                                display: none;
-                                position: fixed;
-                                width: 100%;
-                                height: calc(100% - 200px);
-                                z-index: 1;
-                                padding: 100px 0;
-                                left: 0;
-                                top: 0;
-                                background-color: rgb(0,0,0);
-                                background-color: rgba(0,0,0,0.9);
-                                overflow: auto;
-                            }
+                        .screenshot-modal {
+                            display: none;
+                            position: fixed;
+                            width: 100%;
+                            height: calc(100% - 100px);
+                            z-index: 1;
+                            padding: 50px 0;
+                            left: 0;
+                            top: 0;
+                            background-color: rgb(0,0,0);
+                            background-color: rgba(0,0,0,0.9);
+                            overflow: auto;
+                        }
 
-                            .screenshot-modal .image {
-                                margin: auto;
-                                display: block;
-                                width: 80%;
+                        .screenshot-modal .image {
+                            margin: auto;
+                            display: block;
+                            width: 80%;
 
-                                animation-name: zoom;
-                                animation-duration: 0.1s;
-                            }
+                            animation-name: zoom;
+                            animation-duration: 0.1s;
+                        }
 
-                            @keyframes zoom {
-                                from {transform:scale(0)}
-                                to {transform:scale(1)}
-                            }
+                        @keyframes zoom {
+                            from {transform:scale(0)}
+                            to {transform:scale(1)}
+                        }
 
-                            .screenshot-toggle {
-                                margin-left: 150px;
-                            }
+                        .screenshot-toggle {
+                            margin-left: 150px;
+                        }
 
-                            .screenshot-toggle .before,
-                            .screenshot-toggle .after {
-                                border: 1.5px solid gray;
-                                margin: 10px 0;
-                                background-color: black;
-                                color: gray;
-                                width: 150px;
-                                max-width: 40%;
-                                display: inline-block;
-                                text-align: center;
-                                padding: 4px 0;
-                                cursor: pointer;
-                            }
+                        .screenshot-toggle .before,
+                        .screenshot-toggle .after {
+                            margin: 10px 0;
+                            background-color: transparent;
+                            color: rgb(150,150,150);
+                            width: 150px;
+                            max-width: 40%;
+                            display: inline-block;
+                            text-align: center;
+                            padding: 4px 0;
+                            cursor: pointer;
+                        }
 
-                            .screenshot-toggle .before {
-                                border-top-left-radius: 3px;
-                                border-bottom-left-radius: 3px;
-                            }
+                        .screenshot-toggle .before {
+                            border-top-left-radius: 3px;
+                            border-bottom-left-radius: 3px;
+                        }
 
-                            .screenshot-toggle .after {
-                                border-top-right-radius: 3px;
-                                border-bottom-right-radius: 3px;
-                            }
+                        .screenshot-toggle .after {
+                            border-top-right-radius: 3px;
+                            border-bottom-right-radius: 3px;
+                        }
 
-                            .screenshot-toggle .before:hover:not(.active),
-                            .screenshot-toggle .after:hover:not(.active) {
-                                background-color: rgb(50,50,50);
-                            }
+                        .screenshot-toggle .before:hover:not(.active),
+                        .screenshot-toggle .after:hover:not(.active) {
+                            background-color: rgb(60,60,60);
+                        }
 
-                            .screenshot-toggle .text {
-                                font-size: 14px;
-                            }
+                        .screenshot-toggle .text {
+                            font-size: 14px;
+                        }
 
-                            .screenshot-toggle .active {
-                                background-color: gray;
-                                color: black;
-                            }
-                        </style>
+                        .screenshot-toggle .active {
+                            background-color: rgb(80,80,80);
+                        }
+                    </style>
 
-                        <div class="screenshot-toggle">
-                            <span class="before active">
-                                <span class="text">
-                                    Before
-                                </span>
-                            </span><span class="after">
-                                <span class="text">
-                                    After
-                                </span>
+                    <div class="screenshot-toggle">
+                        <span class="before active">
+                            <span class="text">
+                                Before
                             </span>
-                        </div>
-
-                        <img class="screenshot active" src="samplescreenshot1.png">
-                        <div class="screenshot-modal">
-                            <img class="image">
-                        </div>
-
-                        <script type="text/javascript">
-                            let modal = document.querySelector(".screenshot-modal");
-                            let modalImage = document.querySelector(".screenshot-modal .image");
-                            let screenshot = document.querySelector(".screenshot.active");
-
-                            screenshot.onclick = function() {
-                                modal.style.display = "block";
-                                modalImage.src = this.src;
-                            }
-
-                            modal.onclick = function() {
-                                modal.style.display = "none";
-                            }
-
-                            let beforeToggle = document.querySelector(".screenshot-toggle .before");
-                            let afterToggle = document.querySelector(".screenshot-toggle .after");
-
-                            beforeToggle.onclick = function() {
-                                screenshot.src = "samplescreenshot1.png";
-                                beforeToggle.classList.add("active");
-                                afterToggle.classList.remove("active");
-                            }
-
-                            afterToggle.onclick = function() {
-                                screenshot.src = "samplescreenshot2.png";
-                                afterToggle.classList.add("active");
-                                beforeToggle.classList.remove("active");
-                            }
-                        </script>
-                    </div>
-                    <div class="header">Logs</div>
-                    <div class="logs">
-                        LOG LINE<br>
-                        LOG LINE<br>
-                        LOG LINE<br>
-                        LOG LINE<br>
-                        LOG LINE<br>
-                        LOG LINE<br>
+                        </span><span class="after">
+                            <span class="text">
+                                After
+                            </span>
+                        </span>
                     </div>
 
-                    <br><br><br><br>
+                    <img class="screenshot active" src="samplescreenshot1.png">
+                    <div class="screenshot-modal">
+                        <img class="image">
+                    </div>
+
+                    <script type="text/javascript">
+                        let modal = document.querySelector(".screenshot-modal");
+                        let modalImage = document.querySelector(".screenshot-modal .image");
+                        let screenshot = document.querySelector(".screenshot.active");
+
+                        screenshot.onclick = function() {
+                            modal.style.display = "block";
+                            modalImage.src = this.src;
+                        }
+
+                        modal.onclick = function() {
+                            modal.style.display = "none";
+                        }
+
+                        let beforeToggle = document.querySelector(".screenshot-toggle .before");
+                        let afterToggle = document.querySelector(".screenshot-toggle .after");
+
+                        beforeToggle.onclick = function() {
+                            screenshot.src = "samplescreenshot1.png";
+                            beforeToggle.classList.add("active");
+                            afterToggle.classList.remove("active");
+                        }
+
+                        afterToggle.onclick = function() {
+                            screenshot.src = "samplescreenshot2.png";
+                            afterToggle.classList.add("active");
+                            beforeToggle.classList.remove("active");
+                        }
+                    </script>
+                </div>
+                <div class="header">Logs</div>
+                <div class="logs">
+                    LOG LINE<br>
+                    LOG LINE<br>
+                    LOG LINE<br>
+                    LOG LINE<br>
+                    LOG LINE<br>
+                    LOG LINE<br>
+                </div>
+
+                <br><br><br><br>
 
 
-                    <div class="header step-name failed-item">
-                        Branch ending at file.txt:10 <!-- filename:lineNumber of last step in this branch, whether or not that step passed or even ran -->
-                        <span class="filelocation">(13m 45s)</span> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                    </div>
-                    <div class="step-state passed-item">
-                        Passed
-                    </div>
-                    <div class="step-state failed-item">
-                        Failed
-                    </div>
-                    <div class="step-state running-item-no-anim">
-                        Currently running
-                    </div>
-                    <div class="step-state skipped-item">
-                        Skipped
-                    </div>
-                    <div class="step-state notrunyet-item">
-                        Not run yet
-                    </div>
-                    <div class="header">Error</div>
-                    <div class="stacktrace">
-                        Error: Before/After Every Branch error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                        &nbsp;&nbsp;If Branch.error exists, this section will be rendered<br>
-                        &nbsp;&nbsp;STACK TRACE HERE<br>
-                        &nbsp;&nbsp;STACK TRACE HERE<br>
-                        &nbsp;&nbsp;STACK TRACE HERE<br>
-                        &nbsp;&nbsp;STACK TRACE HERE
-                    </div>
-                    <div class="header">Logs</div>
-                    <div class="logs">
-                        LOG LINE<br>
-                        LOG LINE<br>
-                        LOG LINE<br>
-                        LOG LINE<br>
-                        LOG LINE<br>
-                        LOG LINE<br>
-                    </div>
-                </td>
-            </tr>
-        </table>
+                <div class="header step-name failed-item">
+                    Branch ending at file.txt:10 <!-- filename:lineNumber of last step in this branch, whether or not that step passed or even ran -->
+                    <span class="filelocation">(13m 45s)</span> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
+                </div>
+                <div class="step-state passed-item">
+                    Passed
+                </div>
+                <div class="step-state failed-item">
+                    Failed
+                </div>
+                <div class="step-state running-item-no-anim">
+                    Currently running
+                </div>
+                <div class="step-state skipped-item">
+                    Skipped
+                </div>
+                <div class="step-state notrunyet-item">
+                    Not run yet
+                </div>
+                <div class="header">Error</div>
+                <div class="stacktrace">
+                    Error: Before/After Every Branch error [file.txt:12] (from error.filename/error.lineNumber)<br>
+                    &nbsp;&nbsp;If Branch.error exists, this section will be rendered<br>
+                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                    &nbsp;&nbsp;STACK TRACE HERE
+                </div>
+                <div class="header">Logs</div>
+                <div class="logs">
+                    LOG LINE<br>
+                    LOG LINE<br>
+                    LOG LINE<br>
+                    LOG LINE<br>
+                    LOG LINE<br>
+                    LOG LINE<br>
+                </div>
+            </div>
+        </div>
 
         <script type="text/javascript">
             // Parse in tree and runner objects
@@ -819,16 +830,45 @@
 
 
 
-            // Mouse over branch's indicator
+            // Branch's indicator events
             document.querySelectorAll(".branch-indicator").forEach((elem) => {
+                let branch = elem.closest(".branch");
+
                 elem.addEventListener("mouseover", () => {
-                    elem.closest(".branch").classList.add("hover");
+                    branch.classList.add("hover");
                 });
 
                 elem.addEventListener("mouseout", () => {
-                    elem.closest(".branch").classList.remove("hover");
+                    branch.classList.remove("hover");
+                });
+
+                elem.addEventListener("click", () => {
+                    toggleActive(branch);
+                    clearSelections(branch);
                 });
             });
+
+            // Line events
+            document.querySelectorAll(".line").forEach((elem) => {
+                elem.addEventListener("click", () => {
+                    toggleActive(elem);
+                    clearSelections(elem);
+                });
+            });
+
+            function clearSelections(notElem) {
+                document.querySelectorAll(".branch").forEach(elem => elem !== notElem ? elem.classList.remove("active") : null);
+                document.querySelectorAll(".line").forEach(elem => elem !== notElem ? elem.classList.remove("active") : null);
+            }
+
+            function toggleActive(elem) {
+                if(elem.classList.contains("active")) {
+                    elem.classList.remove("active");
+                }
+                else {
+                    elem.classList.add("active");
+                }
+            }
 
 
 
