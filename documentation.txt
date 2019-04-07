@@ -39,6 +39,7 @@ Running tests
         - -noDebug
         - -noReport
         - -rerunNotPassed or -r
+            - For fixing problems in your tests that cause them to break, without having to rerun the whole entire suite again
             - Doesn't run branches that passed last time, but still includes them and their last state in the report
             - Doesn't run branches that have since been removed from the tree
             - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)

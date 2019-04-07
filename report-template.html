@@ -2,6 +2,7 @@
     <head>
         <meta name="treeObj" content="{{{treeObj}}}"/>
         <meta name="runnerObj" content="{{{runnerObj}}}"/>
+        <meta name="reportTime" content="{{{reportTime}}}"/>
 
         <script src="https://unpkg.com/popper.js@1"></script>
         <script src="https://unpkg.com/tippy.js@4"></script>
@@ -39,7 +40,7 @@
             }
 
             .tree-header {
-                margin: 0 0 30px 0;
+                margin: 0 0 20px 0;
             }
 
             .tree-header-container {
@@ -194,14 +195,14 @@
                 padding: 0 5px;
             }
 
-            .runner-status-msg {
-                font-weight: bold;
-            }
-
             .msg {
                 color: rgb(100,100,100);
                 font-size: 12px;
                 font-weight: normal;
+            }
+
+            .refresh-msg {
+                white-space: nowrap;
             }
 
             .refresh-msg:hover {
@@ -324,15 +325,11 @@
                                 </div>
                             </div>
                             <div class="runner-status-msg tree-header-item">
-                                <div class="runner-complete">Run completed at [TIME ENDED] (34m 54s) <span class="thumbs-up">👍</span></div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
+                                <div class="runner-complete">Run completed (34m 54s) <span class="thumbs-up">&#x1f44d;</span></div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
                                 <div class="runner-running running-item">Currently running</div>
                                 <div class="runner-paused skipped-item">Run paused</div>
-                                <div class="runner-stopped">Run stopped at [TIME ENDED] (12m 54s)</div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                            </div>
-                            <div class="refresh-msg msg tree-header-item" onclick="location.reload();">
-                                <img class="refresh-icon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiBoZWlnaHQ9IjMycHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxnPjxwYXRoIGQ9Ik0yNS40NDQsNC4yOTFjMCwwLTEuMzI1LDEuMjkzLTIuMjQzLDIuMjAxQzE4LjUxNCwzLjA2OCwxMS45MDksMy40NTYsNy42NzYsNy42ODkgICBjLTIuNDcsMi40Ny0zLjYyMyw1Ljc0Ny0zLjQ4NCw4Ljk4M2g0QzguMDUxLDE0LjQ2LDguODEsMTIuMjA1LDEwLjUsMTAuNTE0YzIuNjYzLTIuNjYzLDYuNzM1LTMuMDQzLDkuODEyLTEuMTYyICAgYy0xLjA0MiwxLjAzMi0yLjI0NSwyLjIzOC0yLjI0NSwyLjIzOGMtMC44NDEsMS4wMDksMC4xMDQsMS41OTIsMC41ODQsMS41NzdsNS42MjQtMC4wMDFjMC4yOTcsMCwwLjUzOSwwLjAwMSwwLjUzOSwwLjAwMSAgIHMwLjI0NSwwLDAuNTQzLDBoMS4wOTJjMC4yOTgsMCwwLjU0LTAuMjQzLDAuNTQtMC41NDFWNC44OTVDMjcuMDIzLDQuMTg4LDI2LjI0NywzLjUwMiwyNS40NDQsNC4yOTF6IiBmaWxsPSIjNTE1MTUxIi8+PHBhdGggZD0iTTYuNTU1LDI3LjcwOWMwLDAsMS4zMjYtMS4yOTMsMi4yNDMtMi4yMDFjNC42ODgsMy40MjQsMTEuMjkyLDMuMDM2LDE1LjUyNi0xLjE5NyAgIGMyLjQ3LTIuNDcxLDMuNjIyLTUuNzQ3LDMuNDg0LTguOTgzaC00LjAwMWMwLjE0MiwyLjIxMS0wLjYxNyw0LjQ2Ny0yLjMwOCw2LjE1OWMtMi42NjMsMi42NjItNi43MzUsMy4wNDMtOS44MTIsMS4xNjEgICBjMS4wNDItMS4wMzIsMi4yNDUtMi4yMzgsMi4yNDUtMi4yMzhjMC44NDEtMS4wMS0wLjEwNC0xLjU5Mi0wLjU4NC0xLjU3N2wtNS42MjQsMC4wMDJjLTAuMjk3LDAtMC41NC0wLjAwMi0wLjU0LTAuMDAyICAgcy0wLjI0NSwwLTAuNTQzLDBINS41NTFjLTAuMjk4LDAtMC41NCwwLjI0Mi0wLjU0MSwwLjU0MXY3LjczMkM0Ljk3NywyNy44MTIsNS43NTMsMjguNDk4LDYuNTU1LDI3LjcwOXoiIGZpbGw9IiM1MTUxNTEiLz48L2c+PC9zdmc+">
-                                </img>
-                                Refresh for latest results
+                                <div class="runner-stopped">Run stopped (12m 54s)</div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
+                                <div class="running-item-no-anim">In DEBUG mode (~)</div>
                             </div>
                             <div class="counts tree-header-item">
                                 <span class="passed-count passed-item">10 passed</span> |
@@ -340,6 +337,14 @@
                                 <span class="skipped-count skipped-item">8 skipped</span> |
                                 <span class="notrunyet-count notrunyet-item">9 not run yet</span> |
                                 <span class="total-count">22 total branches</span>
+                            </div>
+                            <div class="msg tree-header-item" onclick="location.reload();">
+                                This report is a snapshot from [DATETIME] |
+                                <span class="refresh-msg">
+                                    <img class="refresh-icon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiBoZWlnaHQ9IjMycHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxnPjxwYXRoIGQ9Ik0yNS40NDQsNC4yOTFjMCwwLTEuMzI1LDEuMjkzLTIuMjQzLDIuMjAxQzE4LjUxNCwzLjA2OCwxMS45MDksMy40NTYsNy42NzYsNy42ODkgICBjLTIuNDcsMi40Ny0zLjYyMyw1Ljc0Ny0zLjQ4NCw4Ljk4M2g0QzguMDUxLDE0LjQ2LDguODEsMTIuMjA1LDEwLjUsMTAuNTE0YzIuNjYzLTIuNjYzLDYuNzM1LTMuMDQzLDkuODEyLTEuMTYyICAgYy0xLjA0MiwxLjAzMi0yLjI0NSwyLjIzOC0yLjI0NSwyLjIzOGMtMC44NDEsMS4wMDksMC4xMDQsMS41OTIsMC41ODQsMS41NzdsNS42MjQtMC4wMDFjMC4yOTcsMCwwLjUzOSwwLjAwMSwwLjUzOSwwLjAwMSAgIHMwLjI0NSwwLDAuNTQzLDBoMS4wOTJjMC4yOTgsMCwwLjU0LTAuMjQzLDAuNTQtMC41NDFWNC44OTVDMjcuMDIzLDQuMTg4LDI2LjI0NywzLjUwMiwyNS40NDQsNC4yOTF6IiBmaWxsPSIjNTE1MTUxIi8+PHBhdGggZD0iTTYuNTU1LDI3LjcwOWMwLDAsMS4zMjYtMS4yOTMsMi4yNDMtMi4yMDFjNC42ODgsMy40MjQsMTEuMjkyLDMuMDM2LDE1LjUyNi0xLjE5NyAgIGMyLjQ3LTIuNDcxLDMuNjIyLTUuNzQ3LDMuNDg0LTguOTgzaC00LjAwMWMwLjE0MiwyLjIxMS0wLjYxNyw0LjQ2Ny0yLjMwOCw2LjE1OWMtMi42NjMsMi42NjItNi43MzUsMy4wNDMtOS44MTIsMS4xNjEgICBjMS4wNDItMS4wMzIsMi4yNDUtMi4yMzgsMi4yNDUtMi4yMzhjMC44NDEtMS4wMS0wLjEwNC0xLjU5Mi0wLjU4NC0xLjU3N2wtNS42MjQsMC4wMDJjLTAuMjk3LDAtMC41NC0wLjAwMi0wLjU0LTAuMDAyICAgcy0wLjI0NSwwLTAuNTQzLDBINS41NTFjLTAuMjk4LDAtMC41NCwwLjI0Mi0wLjU0MSwwLjU0MXY3LjczMkM0Ljk3NywyNy44MTIsNS43NTMsMjguNDk4LDYuNTU1LDI3LjcwOXoiIGZpbGw9IiM1MTUxNTEiLz48L2c+PC9zdmc+">
+                                    </img>
+                                    Refresh for latest results
+                                </span>
                             </div>
                             <!--
                             <div class="msg tree-header-item">
@@ -750,6 +755,8 @@
             if(!runnerJSON.startsWith("\{\{\{")) {
                 runner = JSON.parse(runnerJSON);
             }
+
+            let reportTime = document.querySelector("meta[name=reportTime]").getAttribute("content");
 
             // Progress bar
             function setProgress(decimal) {
