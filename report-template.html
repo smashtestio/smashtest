@@ -67,6 +67,7 @@
             .branch {
                 margin-bottom: 12px;
                 margin-left: 2px;
+                position: relative;
             }
 
             .branch.active {
@@ -78,16 +79,13 @@
                 /*background-color: rgb(70,70,70);*/
             }
 
-            .branch table {
-                border: 0;
-                margin: 0;
-                padding: 0;
-                border-spacing: 0;
-                width: 100%;
-            }
-
             .branch-indicator {
+                display: inline-block;
+                position: absolute;
+                top: 0;
+                left: 0;
                 width: 10px;
+                height: 100%;
                 min-width: 10px;
                 border: 0;
                 margin: 0;
@@ -126,10 +124,11 @@
             }
 
             .branch-contents {
+                display: inline-block;
                 width: 100%;
                 border: 0;
                 margin: 0;
-                padding-left: 3px;
+                padding-left: 10px;
                 padding-right: 0;
             }
 
@@ -275,7 +274,7 @@
                 vertical-align: top;
                 position: relative;
                 top: 2px;
-                margin-left: 5px;
+                margin-left: 8px;
             }
 
             .vertical-line-container {
@@ -398,119 +397,115 @@
                     </div>
                     <div class="header">Branches currently running</div>
                     <div class="branch">
-                        <table>
-                            <tr>
-                                <td class="branch-indicator running">
-                                </td>
-                                <td class="branch-contents">
-                                    <div class="branch-error">
-                                        <div class="stacktrace">
-                                            Error: Before/After Every Branch Errors [file.txt:12] (from error.filename/error.lineNumber)<br>
-                                            &nbsp;&nbsp;Branch.error will have this<br>
-                                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                                            &nbsp;&nbsp;STACK TRACE HERE
-                                        </div>
-                                    </div>
-                                    <div class="steps">
-                                        <div class="line">
-                                            <span class="line-number">1</span> <!-- NOTE: Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch -->
-                                            <span class="content passed-expected passed-item">
-                                                Passed expected
+                        <div class="branch-indicator running">
+                        </div>
+                        <div class="branch-contents">
+                            <div class="branch-error">
+                                <div class="stacktrace">
+                                    Error: Before/After Every Branch Errors [file.txt:12] (from error.filename/error.lineNumber)<br>
+                                    &nbsp;&nbsp;Branch.error will have this<br>
+                                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                                    &nbsp;&nbsp;STACK TRACE HERE
+                                </div>
+                            </div>
+                            <div class="steps">
+                                <div class="line">
+                                    <span class="line-number">1</span> <!-- NOTE: Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch -->
+                                    <span class="content passed-expected passed-item">
+                                        Passed expected
+                                        <span class="filelocation">[file.txt:10]</span>
+                                    </span>
+                                </div>
+                                <div class="line">
+                                    <span class="line-number">2</span>
+                                    <span class="vertical-line-container">
+                                        <span class="content passed-expected passed-item">
+                                            Passed expected
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="line">
+                                    <span class="line-number">3</span>
+                                    <span class="vertical-line-container">
+                                        <span class="vertical-line-container">
+                                            <span class="content passed-unexpected passed-item">
+                                                Passed unexpected
+                                                <span class="pill unexpected">UNEXPECTED</span>
                                                 <span class="filelocation">[file.txt:10]</span>
                                             </span>
-                                        </div>
-                                        <div class="line">
-                                            <span class="line-number">2</span>
-                                            <span class="vertical-line-container">
-                                                <span class="content passed-expected passed-item">
-                                                    Passed expected
-                                                    <span class="filelocation">[file.txt:10]</span>
-                                                </span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="line">
+                                    <span class="line-number">4</span>
+                                    <span class="vertical-line-container">
+                                        <span class="vertical-line-container">
+                                            <span class="content failed-expected failed-item">
+                                                Failed expected
+                                                <span class="pill expected">EXPECTED</span>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </span>
-                                        </div>
-                                        <div class="line">
-                                            <span class="line-number">3</span>
-                                            <span class="vertical-line-container">
-                                                <span class="vertical-line-container">
-                                                    <span class="content passed-unexpected passed-item">
-                                                        Passed unexpected
-                                                        <span class="pill unexpected">UNEXPECTED</span>
-                                                        <span class="filelocation">[file.txt:10]</span>
-                                                    </span>
-                                                </span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="line">
+                                    <span class="line-number">5</span>
+                                    <span class="vertical-line-container">
+                                        <span class="vertical-line-container">
+                                            <span class="content failed-unexpected failed-item">
+                                                Failed unexpected
+                                                <span class="pill unexpected">UNEXPECTED</span>
+                                                <span class="filelocation">[file.txt:10]</span>
+                                                <div class="stacktrace">
+                                                    Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
+                                                    &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
+                                                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                                                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                                                    &nbsp;&nbsp;STACK TRACE HERE<br>
+                                                    &nbsp;&nbsp;STACK TRACE HERE
+                                                </div>
                                             </span>
-                                        </div>
-                                        <div class="line">
-                                            <span class="line-number">4</span>
-                                            <span class="vertical-line-container">
-                                                <span class="vertical-line-container">
-                                                    <span class="content failed-expected failed-item">
-                                                        Failed expected
-                                                        <span class="pill expected">EXPECTED</span>
-                                                        <span class="filelocation">[file.txt:10]</span>
-                                                    </span>
-                                                </span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="line">
+                                    <span class="line-number">6</span>
+                                    <span class="vertical-line-container">
+                                        <span class="content skipped skipped-item">
+                                            Skipped
+                                            <span class="pill skipped">SKIPPED</span>
+                                            <span class="filelocation">[file.txt:10]</span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="line">
+                                    <span class="line-number">7</span>
+                                    <span class="vertical-line-container">
+                                        <span class="vertical-line-container">
+                                            <span class="content running running-item">
+                                                Running
+                                                <span class="pill running">RUNNING</span>
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </span>
-                                        </div>
-                                        <div class="line">
-                                            <span class="line-number">5</span>
-                                            <span class="vertical-line-container">
-                                                <span class="vertical-line-container">
-                                                    <span class="content failed-unexpected failed-item">
-                                                        Failed unexpected
-                                                        <span class="pill unexpected">UNEXPECTED</span>
-                                                        <span class="filelocation">[file.txt:10]</span>
-                                                        <div class="stacktrace">
-                                                            Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                                                            &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
-                                                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                            &nbsp;&nbsp;STACK TRACE HERE
-                                                        </div>
-                                                    </span>
-                                                </span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="line">
+                                    <span class="line-number">8</span>
+                                    <span class="vertical-line-container">
+                                        <span class="vertical-line-container">
+                                            <span class="content notrunyet notrunyet-item">
+                                                Not run yet
+                                                <span class="filelocation">[file.txt:10]</span>
                                             </span>
-                                        </div>
-                                        <div class="line">
-                                            <span class="line-number">6</span>
-                                            <span class="vertical-line-container">
-                                                <span class="content skipped skipped-item">
-                                                    Skipped
-                                                    <span class="pill skipped">SKIPPED</span>
-                                                    <span class="filelocation">[file.txt:10]</span>
-                                                </span>
-                                            </span>
-                                        </div>
-                                        <div class="line">
-                                            <span class="line-number">7</span>
-                                            <span class="vertical-line-container">
-                                                <span class="vertical-line-container">
-                                                    <span class="content running running-item">
-                                                        Running
-                                                        <span class="pill running">RUNNING</span>
-                                                        <span class="filelocation">[file.txt:10]</span>
-                                                    </span>
-                                                </span>
-                                            </span>
-                                        </div>
-                                        <div class="line">
-                                            <span class="line-number">8</span>
-                                            <span class="vertical-line-container">
-                                                <span class="vertical-line-container">
-                                                    <span class="content notrunyet notrunyet-item">
-                                                        Not run yet
-                                                        <span class="filelocation">[file.txt:10]</span>
-                                                    </span>
-                                                </span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="branch-container">

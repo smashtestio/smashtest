@@ -71,7 +71,7 @@ class Reporter {
         }
 
         if(!this.stopped) {
-            const REPORT_GENERATE_FREQUENCY = 1000; // ms
+            const REPORT_GENERATE_FREQUENCY = 2000; // ms
             this.timer = setTimeout(this.checkForChanges, REPORT_GENERATE_FREQUENCY);
         }
     }
