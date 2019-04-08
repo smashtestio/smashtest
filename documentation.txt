@@ -218,6 +218,8 @@ Comments
             C
                 is still a step block, with members A and C
 
+    - Use -T to "comment out" everything under a step (see To-Do identifier section)
+
 Code blocks
     - Types
         - * Function {code}
@@ -380,6 +382,9 @@ Selective test running
 
 Testing APIs
     - Tutorials on how to test APIs (using existing npm libraries in code blocks)
+        - fetch + chai subsets?
+            - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+            - swapi.co for sample data
 
 Stubbing out APIs
     - Examples
