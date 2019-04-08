@@ -59,7 +59,7 @@
                 font-size: 13px;
             }
 
-            .branch-container {
+            .branch-list {
                 margin: 0 0 30px 0;
             }
 
@@ -311,17 +311,17 @@
                 cursor: default;
             }
 
-            .preview-pane .step-name .filelocation {
+            .preview-pane .preview-name .filelocation {
                 color: rgb(130,130,130);
                 font-size: 12px;
             }
 
-            .preview-pane .step-name .elapsed {
+            .preview-pane .preview-name .elapsed {
                 color: rgb(130,130,130);
                 font-size: 12px;
             }
 
-            .preview-pane .step-state {
+            .preview-pane .preview-state {
                 margin-left: 20px;
                 margin-bottom: 20px;
                 font-size: 13px;
@@ -342,296 +342,6 @@
     </head>
     <body>
         <div id="root"></div>
-
-
-
-
-
-
-
-        <div class="divider">
-            <div class="divider-pane tree-pane">
-                <div class="tree-header">
-                    <div class="header">SmashTEST Report</div>
-                    <div class="tree-header-container">
-                        <div class="progress-bar tree-header-item">
-                            <div class="filled-bar">
-                                <div class="filled-bar-text"></div>
-                            </div>
-                        </div>
-                        <div class="runner-status-msg tree-header-item">
-                            <div class="runner-complete">Run completed (34m 54s) <span class="thumbs-up">&#x1f44d;</span></div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                            <div class="runner-running running-item">Currently running</div>
-                            <div class="runner-paused skipped-item">Run paused</div>
-                            <div class="runner-stopped">Run stopped (12m 54s)</div> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                            <div class="running-item-no-anim">In DEBUG mode (~)</div>
-                        </div>
-                        <div class="counts tree-header-item">
-                            <span class="passed-count passed-item">10 passed</span> |
-                            <span class="failed-count failed-item">7 failed</span> |
-                            <span class="skipped-count skipped-item">8 skipped</span> |
-                            <span class="notrunyet-count notrunyet-item">9 not run yet</span> |
-                            <span class="total-count">22 total branches</span>
-                        </div>
-                        <div class="msg tree-header-item" onclick="location.reload();">
-                            This report is a snapshot from [DATETIME] |
-                            <span class="refresh-msg">
-                                <img class="refresh-icon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiBoZWlnaHQ9IjMycHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxnPjxwYXRoIGQ9Ik0yNS40NDQsNC4yOTFjMCwwLTEuMzI1LDEuMjkzLTIuMjQzLDIuMjAxQzE4LjUxNCwzLjA2OCwxMS45MDksMy40NTYsNy42NzYsNy42ODkgICBjLTIuNDcsMi40Ny0zLjYyMyw1Ljc0Ny0zLjQ4NCw4Ljk4M2g0QzguMDUxLDE0LjQ2LDguODEsMTIuMjA1LDEwLjUsMTAuNTE0YzIuNjYzLTIuNjYzLDYuNzM1LTMuMDQzLDkuODEyLTEuMTYyICAgYy0xLjA0MiwxLjAzMi0yLjI0NSwyLjIzOC0yLjI0NSwyLjIzOGMtMC44NDEsMS4wMDksMC4xMDQsMS41OTIsMC41ODQsMS41NzdsNS42MjQtMC4wMDFjMC4yOTcsMCwwLjUzOSwwLjAwMSwwLjUzOSwwLjAwMSAgIHMwLjI0NSwwLDAuNTQzLDBoMS4wOTJjMC4yOTgsMCwwLjU0LTAuMjQzLDAuNTQtMC41NDFWNC44OTVDMjcuMDIzLDQuMTg4LDI2LjI0NywzLjUwMiwyNS40NDQsNC4yOTF6IiBmaWxsPSIjNTE1MTUxIi8+PHBhdGggZD0iTTYuNTU1LDI3LjcwOWMwLDAsMS4zMjYtMS4yOTMsMi4yNDMtMi4yMDFjNC42ODgsMy40MjQsMTEuMjkyLDMuMDM2LDE1LjUyNi0xLjE5NyAgIGMyLjQ3LTIuNDcxLDMuNjIyLTUuNzQ3LDMuNDg0LTguOTgzaC00LjAwMWMwLjE0MiwyLjIxMS0wLjYxNyw0LjQ2Ny0yLjMwOCw2LjE1OWMtMi42NjMsMi42NjItNi43MzUsMy4wNDMtOS44MTIsMS4xNjEgICBjMS4wNDItMS4wMzIsMi4yNDUtMi4yMzgsMi4yNDUtMi4yMzhjMC44NDEtMS4wMS0wLjEwNC0xLjU5Mi0wLjU4NC0xLjU3N2wtNS42MjQsMC4wMDJjLTAuMjk3LDAtMC41NC0wLjAwMi0wLjU0LTAuMDAyICAgcy0wLjI0NSwwLTAuNTQzLDBINS41NTFjLTAuMjk4LDAtMC41NCwwLjI0Mi0wLjU0MSwwLjU0MXY3LjczMkM0Ljk3NywyNy44MTIsNS43NTMsMjguNDk4LDYuNTU1LDI3LjcwOXoiIGZpbGw9IiM1MTUxNTEiLz48L2c+PC9zdmc+">
-                                </img>
-                                Refresh for latest results
-                            </span>
-                        </div>
-                        <!--
-                        <div class="msg tree-header-item">
-                            Note: Each branch below shows steps in order of execution. Indents represent function calls.
-                        </div>
-                        -->
-                    </div>
-                </div>
-                <div class="branch-container">
-                    <div class="tree-error">
-                        <div class="header failed-item">Hook errors</div>
-                        <div class="stacktrace">
-                            Error: Before/After Everything errors [file.txt:12] (from error.filename/error.lineNumber)<br>
-                            &nbsp;&nbsp;Get error object from before/afterEverything Step itself<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE
-                        </div>
-                        <div class="stacktrace">
-                            Error: Before/After Everything errors [file.txt:12] (from error.filename/error.lineNumber)<br>
-                            &nbsp;&nbsp;Get error object from before/afterEverything Step itself<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE
-                        </div>
-                    </div>
-                    <div class="header">Branches currently running</div>
-                    <div class="branch">
-                        <div class="branch-indicator running">
-                        </div>
-                        <div class="branch-contents">
-                            <div class="branch-error">
-                                <div class="stacktrace">
-                                    Error: Before/After Every Branch Errors [file.txt:12] (from error.filename/error.lineNumber)<br>
-                                    &nbsp;&nbsp;Branch.error will have this<br>
-                                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                                    &nbsp;&nbsp;STACK TRACE HERE
-                                </div>
-                            </div>
-                            <div class="steps">
-                                <div class="line">
-                                    <span class="line-number">1</span> <!-- NOTE: Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch -->
-                                    <span class="content passed-expected passed-item">
-                                        Passed expected
-                                        <span class="filelocation">[file.txt:10]</span>
-                                    </span>
-                                </div>
-                                <div class="line">
-                                    <span class="line-number">2</span>
-                                    <span class="vertical-line-container">
-                                        <span class="content passed-expected passed-item">
-                                            Passed expected
-                                            <span class="filelocation">[file.txt:10]</span>
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="line">
-                                    <span class="line-number">3</span>
-                                    <span class="vertical-line-container">
-                                        <span class="vertical-line-container">
-                                            <span class="content passed-unexpected passed-item">
-                                                Passed unexpected
-                                                <span class="pill unexpected">UNEXPECTED</span>
-                                                <span class="filelocation">[file.txt:10]</span>
-                                            </span>
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="line">
-                                    <span class="line-number">4</span>
-                                    <span class="vertical-line-container">
-                                        <span class="vertical-line-container">
-                                            <span class="content failed-expected failed-item">
-                                                Failed expected
-                                                <span class="pill expected">EXPECTED</span>
-                                                <span class="filelocation">[file.txt:10]</span>
-                                            </span>
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="line">
-                                    <span class="line-number">5</span>
-                                    <span class="vertical-line-container">
-                                        <span class="vertical-line-container">
-                                            <span class="content failed-unexpected failed-item">
-                                                Failed unexpected
-                                                <span class="pill unexpected">UNEXPECTED</span>
-                                                <span class="filelocation">[file.txt:10]</span>
-                                                <div class="stacktrace">
-                                                    Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                                                    &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
-                                                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                                                    &nbsp;&nbsp;STACK TRACE HERE
-                                                </div>
-                                            </span>
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="line">
-                                    <span class="line-number">6</span>
-                                    <span class="vertical-line-container">
-                                        <span class="content skipped skipped-item">
-                                            Skipped
-                                            <span class="pill skipped">SKIPPED</span>
-                                            <span class="filelocation">[file.txt:10]</span>
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="line">
-                                    <span class="line-number">7</span>
-                                    <span class="vertical-line-container">
-                                        <span class="vertical-line-container">
-                                            <span class="content running running-item">
-                                                Running
-                                                <span class="pill running">RUNNING</span>
-                                                <span class="filelocation">[file.txt:10]</span>
-                                            </span>
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="line">
-                                    <span class="line-number">8</span>
-                                    <span class="vertical-line-container">
-                                        <span class="vertical-line-container">
-                                            <span class="content notrunyet notrunyet-item">
-                                                Not run yet
-                                                <span class="filelocation">[file.txt:10]</span>
-                                            </span>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="branch-container">
-                    <div class="header">Failed branches</div>
-                    <div class="none-indicator">None</div>
-                </div>
-                <div class="branch-container">
-                    <div class="header">Passed branches</div>
-                    <div class="none-indicator">None</div>
-                </div>
-                <div class="branch-container">
-                    <div class="header">Skipped branches</div>
-                    <div class="none-indicator">None</div>
-                </div>
-                <div class="branch-container">
-                    <div class="header">Branches not run yet</div>
-                    <div class="none-indicator">None</div>
-                </div>
-            </div>
-            <div class="divider-pane preview-pane">
-                <div class="preview-pane-msg">
-                    < Select a step to preview
-                </div>
-                <div class="header step-name failed-item">
-                    My big failing step
-                    <span class="filelocation">[file.txt:10]</span>
-                    <span class="filelocation">(13m 45s)</span> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                </div>
-                <div class="step-state passed-item">
-                    Passed
-                </div>
-                <div class="step-state passed-item">
-                    Passed unexpectedly
-                </div>
-                <div class="step-state failed-item">
-                    Failed
-                </div>
-                <div class="step-state failed-item">
-                    Failed expectedly
-                </div>
-                <div class="step-state running-item-no-anim">
-                    Currently running
-                </div>
-                <div class="step-state skipped-item">
-                    Skipped
-                </div>
-                <div class="step-state notrunyet-item">
-                    Not run yet
-                </div>
-                <div class="header">Error</div>
-                <div class="stacktrace">
-                    Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                    &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
-                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                    &nbsp;&nbsp;STACK TRACE HERE
-                </div>
-                <div class="header">Details</div>
-                <div class="step-report">
-                </div>
-                <div class="header">Logs</div>
-                <div class="logs">
-                    LOG LINE<br>
-                    LOG LINE<br>
-                    LOG LINE<br>
-                    LOG LINE<br>
-                    LOG LINE<br>
-                    LOG LINE<br>
-                </div>
-
-                <br><br><br><br>
-
-
-                <div class="header step-name failed-item">
-                    Branch ending at file.txt:10 <!-- filename:lineNumber of last step in this branch, whether or not that step passed or even ran -->
-                    <span class="filelocation">(13m 45s)</span> <!-- NOTE: If timeElapsed is -1 or undefined, don't print it out -->
-                </div>
-                <div class="step-state passed-item">
-                    Passed
-                </div>
-                <div class="step-state failed-item">
-                    Failed
-                </div>
-                <div class="step-state running-item-no-anim">
-                    Currently running
-                </div>
-                <div class="step-state skipped-item">
-                    Skipped
-                </div>
-                <div class="step-state notrunyet-item">
-                    Not run yet
-                </div>
-                <div class="header">Error</div>
-                <div class="stacktrace">
-                    Error: Before/After Every Branch error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                    &nbsp;&nbsp;If Branch.error exists, this section will be rendered<br>
-                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                    &nbsp;&nbsp;STACK TRACE HERE<br>
-                    &nbsp;&nbsp;STACK TRACE HERE
-                </div>
-                <div class="header">Logs</div>
-                <div class="logs">
-                    LOG LINE<br>
-                    LOG LINE<br>
-                    LOG LINE<br>
-                    LOG LINE<br>
-                    LOG LINE<br>
-                    LOG LINE<br>
-                </div>
-            </div>
-        </div>
 
         <script type="text/babel">
             class App extends React.Component {
@@ -682,145 +392,595 @@
 
                 render() {
                     return (
-                        <TreePane data={this.state}/>
-                        <PreviewPane previewed={this.previewed}/>
+                        <div className="divider">
+                            <TreePane data={this.state}/>
+                            <PreviewPane previewed={this.previewed}/>
+                        </div>
                     );
                 }
             }
 
             function TreePane(props) {
-
+                return (
+                    <div className="divider-pane tree-pane">
+                        <TreeHeader data={props.data}/>
+                        <TreeError data={props.data}/>
+                        <BranchList branches={props.data.tree.branches}/>
+                    </div>
+                );
             }
 
             function TreeHeader(props) {
+                let elapsedText = "";
+                let elapsed = props.data.tree.elapsed;
+                if(elapsed && elapsed != -1) {
+                    elapsedText = "(" + formatSecs(elapsed) + ")";
+                }
 
+                let anyFailed = false;
+                for(let i = 0; i < props.data.tree.branches.length; i++) {
+                    let branch = props.data.tree.branches[i];
+                    if(branch.isFailed) {
+                        anyFailed = true;
+                        break;
+                    }
+                }
+
+                return (
+                    <div className="tree-header">
+                        <div className="header">SmashTEST Report</div>
+                        <div className="tree-header-container">
+                            <ProgressBar decimal={props.data.tree.totalStepsComplete / props.data.tree.totalSteps}/>
+                            <div className="runner-status-msg tree-header-item">
+                                <div className="runner-complete">
+                                    {
+                                        props.data.runner.isComplete ?
+                                        `Run completed ${elapsedText}` :
+                                        ""
+                                    }
+                                    {
+                                        !anyFailed && !props.data.tree.isDebug ?
+                                        <span className="thumbs-up">&#x1f44d;</span> :
+                                        ""
+                                    }
+                                </div>
+
+                                <div className="runner-running running-item">
+                                    {
+                                        !props.data.isComplete && props.data.isStopped && !props.data.isPaused ?
+                                        "Currently running" :
+                                        ""
+                                    }
+                                </div>
+
+                                <div className="runner-paused skipped-item">
+                                    {
+                                        props.data.isPaused ?
+                                        "Run paused" :
+                                        ""
+                                    }
+                                </div>
+
+                                <div className="runner-stopped">
+                                    {
+                                        props.data.isStopped ?
+                                        `Run stopped ${elapsedText}` :
+                                        ""
+                                    }
+                                </div>
+
+                                <div className="running-item-no-anim">
+                                    {
+                                        props.data.tree.isDebug ?
+                                        "In DEBUG mode (~)" :
+                                        ""
+                                    }
+                                </div>
+                            </div>
+                            <div className="counts tree-header-item">
+                                <span className="passed-count passed-item">{props.data.tree.passed} passed</span> |
+                                <span className="failed-count failed-item">{props.data.tree.failed} failed</span> |
+                                <span className="skipped-count skipped-item">{props.data.tree.skipped} skipped</span> |
+                                <span className="notrunyet-count notrunyet-item">{props.data.tree.totalToRun - props.data.tree.complete} not run yet</span> |
+                                <span className="total-count">{props.data.tree.totalInReport} total branches</span>
+                            </div>
+                            <div className="msg tree-header-item">
+                                This report is paused. Unselect a step/branch to resume live updates.
+                            </div>
+                        </div>
+                    </div>
+                );
             }
 
-            function ProgressBar(props) {
+            class ProgressBar extends React.Component {
+                constructor() {
+                    super();
+                    this.state = {
+                        percentageText: (this.props.decimal * 100) + "%"
+                    };
+                }
 
+                componentDidUpdate() {
+                    if(this.filledBarText.scrollWidth > this.filledBar.offsetWidth) { // text doesn't have room
+                        this.setState({
+                            percentageText: ""
+                        });
+                    }
+                }
+
+                render() {
+                    return (
+                        <div className="progress-bar tree-header-item">
+                            <div className="filled-bar" style={ {width: percentage}} ref={(elem) => {this.filledBar = elem} }>
+                                <div className="filled-bar-text" ref={(elem) => {this.filledBarText = elem}}>
+                                    {percentageText}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
             }
 
             function TreeErrors(props) {
+                let errors =
+                    props.data.tree.beforeEverything
+                    .concat(props.data.tree.afterEverything)
+                    .filter(hook => {
+                        return hook.error;
+                    })
+                    .map(hook => {
+                        return (
+                            <div className="stacktrace">
+                                {injectLineNumberIntoError(hook.error)}
+                            </div>
+                        );
+                    });
 
-            }
-
-            function TreeError(props) {
-
+                return (
+                    <div className="tree-errors">
+                        <div className="header failed-item">Hook errors</div>
+                        {errors}
+                    </div>
+                );
             }
 
             function BranchList(props) {
+                let branchesRunning = props.branches.filter(branch => branch.isRunning).map(branch => <Branch branch={branch}>);
+                let branchesFailed = props.branches.filter(branch => branch.isFailed).map(branch => <Branch branch={branch}>);
+                let branchesPassed = props.branches.filter(branch => branch.isPassed).map(branch => <Branch branch={branch}>);
+                let branchesSkipped = props.branches.filter(branch => branch.isSkipped).map(branch => <Branch branch={branch}>);
+                let branchesNotRunYet = props.branches.filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped).map(branch => <Branch branch={branch}>);
 
+                return (
+                    <div className="branch-list">
+                        <div className="header">Branches currently running</div>
+                        {branchesRunning.length > 0 ? branchesRunning : <div className="none-indicator">None</div>}
+                    </div>
+
+
+
+                    <div className="branch-list">
+                        <div className="header">Failed branches</div>
+                        {branchesFailed.length > 0 ? branchesFailed : <div className="none-indicator">None</div>}
+                    </div>
+
+
+
+                    <div className="branch-list">
+                        <div className="header">Passed branches</div>
+                        {branchesPassed.length > 0 ? branchesPassed : <div className="none-indicator">None</div>}
+                    </div>
+
+
+
+                    <div className="branch-list">
+                        <div className="header">Skipped branches</div>
+                        {branchesSkipped.length > 0 ? branchesSkipped : <div className="none-indicator">None</div>}
+                    </div>
+
+
+
+                    <div className="branch-list">
+                        <div className="header">Branches not run yet</div>
+                        {branchesNotRunYet.length > 0 ? branchesNotRunYet : <div className="none-indicator">None</div>}
+                    </div>
+                );
             }
 
             function Branch(props) {
+                let indicatorClassName = "branch-indicator ";
+                if(props.branch.isRunning) {
+                    indicatorClassName += "running";
+                }
+                else if(props.branch.isFailed) {
+                    indicatorClassName += "failed";
+                }
+                else if(props.branch.isPassed) {
+                    indicatorClassName += "passed";
+                }
+                else if(props.branch.isSkipped) {
+                    indicatorClassName += "skipped";
+                }
+                else {
+                    indicatorClassName += "notrunyet";
+                }
 
-            }
+                let error = "";
+                if(props.branch.error) {
+                    error = (
+                        <div className="stacktrace">
+                            {injectLineNumberIntoError(props.branch.error)}
+                        </div>
+                    );
+                }
 
-            function BranchError(props) {
+                let lines = props.branch.steps.map(step => <Line step={step}/>);
 
-            }
-
-            function Steps(props) {
-
+                return (
+                    <div className="branch">
+                        <div className={indicatorClassName}>
+                        </div>
+                        <div className="branch-contents">
+                            {error}
+                            <div className="steps">
+                                {lines}
+                            </div>
+                        </div>
+                    </div>
+                );
             }
 
             function Line(props) {
 
+
+
+
+
+
+                
+                return (
+                    <div className="line">
+                        <span className="line-number">1</span> <!-- NOTE: Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch -->
+                        <span className="content passed-expected passed-item">
+                            Passed expected
+                            <span className="filelocation">[file.txt:10]</span>
+                        </span>
+                    </div>
+
+
+
+                    <div className="line">
+                        <span className="line-number">2</span>
+                        <span className="vertical-line-container">
+                            <span className="content passed-expected passed-item">
+                                Passed expected
+                                <span className="filelocation">[file.txt:10]</span>
+                            </span>
+                        </span>
+                    </div>
+
+
+
+                    <div className="line">
+                        <span className="line-number">3</span>
+                        <span className="vertical-line-container">
+                            <span className="vertical-line-container">
+                                <span className="content passed-unexpected passed-item">
+                                    Passed unexpected
+                                    <span className="pill unexpected">UNEXPECTED</span>
+                                    <span className="filelocation">[file.txt:10]</span>
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+
+
+
+                    <div className="line">
+                        <span className="line-number">4</span>
+                        <span className="vertical-line-container">
+                            <span className="vertical-line-container">
+                                <span className="content failed-expected failed-item">
+                                    Failed expected
+                                    <span className="pill expected">EXPECTED</span>
+                                    <span className="filelocation">[file.txt:10]</span>
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+
+
+
+                    <div className="line">
+                        <span className="line-number">5</span>
+                        <span className="vertical-line-container">
+                            <span className="vertical-line-container">
+                                <span className="content failed-unexpected failed-item">
+                                    Failed unexpected
+                                    <span className="pill unexpected">UNEXPECTED</span>
+                                    <span className="filelocation">[file.txt:10]</span>
+                                    <LineError />
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+
+
+
+                    <div className="line">
+                        <span className="line-number">6</span>
+                        <span className="vertical-line-container">
+                            <span className="content skipped skipped-item">
+                                Skipped
+                                <span className="pill skipped">SKIPPED</span>
+                                <span className="filelocation">[file.txt:10]</span>
+                            </span>
+                        </span>
+                    </div>
+
+
+
+                    <div className="line">
+                        <span className="line-number">7</span>
+                        <span className="vertical-line-container">
+                            <span className="vertical-line-container">
+                                <span className="content running running-item">
+                                    Running
+                                    <span className="pill running">RUNNING</span>
+                                    <span className="filelocation">[file.txt:10]</span>
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+
+
+
+                    <div className="line">
+                        <span className="line-number">8</span>
+                        <span className="vertical-line-container">
+                            <span className="vertical-line-container">
+                                <span className="content notrunyet notrunyet-item">
+                                    Not run yet
+                                    <span className="filelocation">[file.txt:10]</span>
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                );
             }
 
             function LineError(props) {
-
+                return (
+                    <div className="line-error">
+                        <div className="stacktrace">
+                            Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
+                            &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE
+                        </div>
+                    </div>
+                );
             }
 
             function PreviewPane(props) {
+                return (
+                    <NoPreview />
 
+
+
+                    <StepPreview />
+
+
+
+
+                    <BranchPreview />
+                );
             }
 
-            function PreviewHeader(props) {
+            function NoPreview(props) {
+                return (
+                    <div className="divider-pane preview-pane">
+                        <div className="preview-pane-msg">
+                            < Select a step to preview
+                        </div>
+                    </div>
+                );
+            }
 
+            function StepPreview(props) {
+                return (
+                    <div className="divider-pane preview-pane step-preview">
+                        <div className="header preview-name failed-item">
+                            My big failing step
+                            <span className="filelocation">[file.txt:10]</span>
+                            <span className="filelocation">(13 m 45 s)</span>
+                        </div>
+
+
+
+                        <div className="preview-state passed-item">
+                            Passed
+                        </div>
+
+
+
+                        <div className="preview-state passed-item">
+                            Passed unexpectedly
+                        </div>
+
+
+
+                        <div className="preview-state failed-item">
+                            Failed
+                        </div>
+
+
+
+                        <div className="preview-state failed-item">
+                            Failed expectedly
+                        </div>
+
+
+
+                        <div className="preview-state running-item-no-anim">
+                            Currently running
+                        </div>
+
+
+
+                        <div className="preview-state skipped-item">
+                            Skipped
+                        </div>
+
+
+
+                        <div className="preview-state notrunyet-item">
+                            Not run yet
+                        </div>
+
+                        <PreviewError />
+                        <PreviewDetails />
+                        <PreviewLogs />
+                    </div>
+                );
+            }
+
+            function BranchPreview(props) {
+                return (
+                    <div className="divider-pane preview-pane branch-preview">
+                        // NOTE: If timeElapsed is -1 or undefined, don't print it out
+                        // NOTE: filename:lineNumber of last step in this branch, whether or not that step passed or even ran
+
+                        <div className="header preview-name failed-item">
+                            Branch ending at file.txt:10
+                            <span className="filelocation">(13 m 45 s)</span>
+                        </div>
+
+
+
+                        <div className="preview-state passed-item">
+                            Passed
+                        </div>
+
+
+
+                        <div className="preview-state failed-item">
+                            Failed
+                        </div>
+
+
+
+                        <div className="preview-state running-item-no-anim">
+                            Currently running
+                        </div>
+
+
+
+                        <div className="preview-state skipped-item">
+                            Skipped
+                        </div>
+
+
+
+                        <div className="preview-state notrunyet-item">
+                            Not run yet
+                        </div>
+
+
+                        <PreviewError />
+                        <PreviewLogs />
+                    </div>
+                );
             }
 
             function PreviewError(props) {
+                return (
+                    <div className="preview-error">
+                        <div className="header">Error</div>
+                        <div className="stacktrace">
+                            Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
+                            &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE
+                        </div>
 
+
+
+
+                        <div className="stacktrace">
+                            Error: Before/After Every Branch error [file.txt:12] (from error.filename/error.lineNumber)<br>
+                            &nbsp;&nbsp;If Branch.error exists, this section will be rendered<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE<br>
+                            &nbsp;&nbsp;STACK TRACE HERE
+                        </div>
+                    </div>
+                );
             }
 
             function PreviewDetails(props) {
-
+                return (
+                    <div className="preview-details">
+                        <div className="header">Details</div>
+                        <div className="step-report">
+                        </div>
+                    </div>
+                );
             }
 
             function PreviewLogs(props) {
-
+                return (
+                    <div className="header">Logs</div>
+                    <div className="logs">
+                        <div className="log-line">LOG LINE</div>
+                        <div className="log-line">LOG LINE</div>
+                        <div className="log-line">LOG LINE</div>
+                        <div className="log-line">LOG LINE</div>
+                        <div className="log-line">LOG LINE</div>
+                        <div className="log-line">LOG LINE</div>
+                    </div>
+                );
             }
-
-            /*
-                App
-                    TreePane
-                        TreeHeader
-                            ProgressBar
-                        TreeErrors
-                            TreeError
-                            TreeError
-                            ...
-                        BranchList
-                            Branch
-                                BranchError
-                                Steps
-                                    Line
-                                        LineError
-                                    Line
-                                    Line
-                                    ...
-                            Branch
-                            ...
-                        BranchList
-                        BranchList
-                        BranchList
-                        BranchList
-                    PreviewPane
-                        PreviewHeader
-                        PreviewError
-                        PreviewDetails
-                        PreviewLogs
-
-
-
-                        return (
-                            <div>
-                                <div className="cats" onClick={this.func}>
-                                    {this.state.msg + " " + this.props.message}
-                                </div>
-                                {this.arr.map(item => <div>{item}</div>)}
-                            </div>
-                        );
-            */
 
             ReactDOM.render(
                 <App message="meow"/>,
                 document.querySelector("#root")
             );
 
+            /**
+             * Converts a number of seconds to Xh Xm Xs format
+             */
+            function formatSecs(secs) {
+                let hours = Math.floor(secs/3600);
+                secs %= 3600;
+                let mins = Math.floor(secs/60);
+                secs %= 60;
 
-
-
-
-
-
-
-            // Progress bar
-            function setProgress(decimal) {
-                let filledBar = document.querySelector(".progress-bar .filled-bar");
-                let percentage = (decimal * 100) + "%";
-                filledBar.style.width = percentage;
-
-                let filledBarText = document.querySelector(".progress-bar .filled-bar .filled-bar-text");
-                filledBarText.innerHTML = percentage;
-
-                if(filledBarText.scrollWidth > filledBar.offsetWidth) { // text doesn't have room
-                    filledBarText.innerHTML = "";
-                }
+                return
+                    (hours > 0 ? hours + "h " : "") +
+                    (hours > 0 || mins > 0 ? mins + "m " : "") +
+                    (secs + "s");
             }
 
-            setProgress(.76);
+            /**
+             * Injects [filename:lineNumber] into the given Error's stack trace, and returns it
+             */
+            function injectLineNumberIntoError(error) {
+                return error.stack.replace(/\n/, `[${error.filename}:${error.lineNumber}]\n`);
+            }
+
+
+
+
+
+
+
+
 
             // Tooltips
             let tippyOptions = {
