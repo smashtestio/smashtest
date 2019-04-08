@@ -39,12 +39,12 @@
                 padding: 6px 4px;
             }
 
-            .left-pane {
+            .tree-pane {
                 left: 0;
                 padding-right: 0;
             }
 
-            .right-pane {
+            .preview-pane {
                 right: 0;
                 padding-left: 10px;
                 background-color: rgb(40,40,40);
@@ -311,17 +311,17 @@
                 cursor: default;
             }
 
-            .right-pane .step-name .filelocation {
+            .preview-pane .step-name .filelocation {
                 color: rgb(130,130,130);
                 font-size: 12px;
             }
 
-            .right-pane .step-name .elapsed {
+            .preview-pane .step-name .elapsed {
                 color: rgb(130,130,130);
                 font-size: 12px;
             }
 
-            .right-pane .step-state {
+            .preview-pane .step-state {
                 margin-left: 20px;
                 margin-bottom: 20px;
                 font-size: 13px;
@@ -343,13 +343,40 @@
     <body>
         <div id="root"></div>
 
-
+        App
+            TreePane
+                TreeHeader
+                    ProgressBar
+                TreeErrors
+                    TreeError
+                    TreeError
+                    ...
+                BranchList
+                    Branch
+                        BranchError
+                        Steps
+                            Line
+                                LineError
+                            Line
+                            Line
+                            ...
+                    Branch
+                    ...
+                BranchList
+                BranchList
+                BranchList
+                BranchList
+            PreviewPane
+                PreviewHeader
+                PreviewError
+                PreviewDetails
+                PreviewLogs
 
 
 
 
         <div class="divider">
-            <div class="divider-pane left-pane">
+            <div class="divider-pane tree-pane">
                 <div class="tree-header">
                     <div class="header">SmashTEST Report</div>
                     <div class="tree-header-container">
@@ -537,7 +564,7 @@
                     <div class="none-indicator">None</div>
                 </div>
             </div>
-            <div class="divider-pane right-pane">
+            <div class="divider-pane preview-pane">
                 <div class="preview-pane-msg">
                     < Select a step to preview
                 </div>
