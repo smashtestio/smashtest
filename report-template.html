@@ -342,36 +342,10 @@
     </head>
     <body>
         <div id="root"></div>
-<!--
-        App
-            TreePane
-                TreeHeader
-                    ProgressBar
-                TreeErrors
-                    TreeError
-                    TreeError
-                    ...
-                BranchList
-                    Branch
-                        BranchError
-                        Steps
-                            Line
-                                LineError
-                            Line
-                            Line
-                            ...
-                    Branch
-                    ...
-                BranchList
-                BranchList
-                BranchList
-                BranchList
-            PreviewPane
-                PreviewHeader
-                PreviewError
-                PreviewDetails
-                PreviewLogs
--->
+
+
+
+
 
 
 
@@ -667,7 +641,8 @@
                     this.state = {
                         tree: null,
                         runner: null,
-                        reportTime: null
+                        reportTime: null,
+                        previewed: null
                     };
 
                     // Parse in tree
@@ -687,20 +662,7 @@
                     // Parse in reportTime
                     this.state.reportTime = document.querySelector("meta[name=reportTime]").getAttribute("content");
 
-
-
-
-
-
-                    this.arr = ['one', 'two'];
-
-                    this.setState(state => {
-                        return {
-
-                        };
-                    });
-
-                    this.func = this.func.bind(this);
+                    this.onChangePreview = this.onChangePreview.bind(this);
                 }
 
                 unescapeHtml(str) {
@@ -712,21 +674,125 @@
                         .replace(/&amp;/g, "&");
                 }
 
-                func() {
-                    console.log("purr");
+                onChangePreview(previewed) {
+                    this.setState({
+                        previewed: previewed
+                    });
                 }
 
                 render() {
                     return (
-                        <div>
-                            <div className="cats" onClick={this.func}>
-                                {this.state.msg + " " + this.props.message}
-                            </div>
-                            {this.arr.map(item => <div>{item}</div>)}
-                        </div>
+                        <TreePane data={this.state}/>
+                        <PreviewPane previewed={this.previewed}/>
                     );
                 }
             }
+
+            function TreePane(props) {
+
+            }
+
+            function TreeHeader(props) {
+
+            }
+
+            function ProgressBar(props) {
+
+            }
+
+            function TreeErrors(props) {
+
+            }
+
+            function TreeError(props) {
+
+            }
+
+            function BranchList(props) {
+
+            }
+
+            function Branch(props) {
+
+            }
+
+            function BranchError(props) {
+
+            }
+
+            function Steps(props) {
+
+            }
+
+            function Line(props) {
+
+            }
+
+            function LineError(props) {
+
+            }
+
+            function PreviewPane(props) {
+
+            }
+
+            function PreviewHeader(props) {
+
+            }
+
+            function PreviewError(props) {
+
+            }
+
+            function PreviewDetails(props) {
+
+            }
+
+            function PreviewLogs(props) {
+
+            }
+
+            /*
+                App
+                    TreePane
+                        TreeHeader
+                            ProgressBar
+                        TreeErrors
+                            TreeError
+                            TreeError
+                            ...
+                        BranchList
+                            Branch
+                                BranchError
+                                Steps
+                                    Line
+                                        LineError
+                                    Line
+                                    Line
+                                    ...
+                            Branch
+                            ...
+                        BranchList
+                        BranchList
+                        BranchList
+                        BranchList
+                    PreviewPane
+                        PreviewHeader
+                        PreviewError
+                        PreviewDetails
+                        PreviewLogs
+
+
+
+                        return (
+                            <div>
+                                <div className="cats" onClick={this.func}>
+                                    {this.state.msg + " " + this.props.message}
+                                </div>
+                                {this.arr.map(item => <div>{item}</div>)}
+                            </div>
+                        );
+            */
 
             ReactDOM.render(
                 <App message="meow"/>,
