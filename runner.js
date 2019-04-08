@@ -94,7 +94,7 @@ class Runner {
      * Ends all running RunInstances and runs all After Everything hooks synchronously
      */
     stop() {
-        if(!this.isStopped) {
+        if(!this.isStopped && !this.isComplete) {
             this.isStopped = true;
             this.runInstances.forEach(runInstance => {
                 runInstance.stop();
