@@ -41,12 +41,7 @@
     }
 
     .screenshot-toggle {
-        margin-left: 150px;
-    }
-
-    .screenshot-toggle .before,
-    .screenshot-toggle .after {
-        margin: 10px 0;
+        margin: 10px 0 10px 225px;;
         background-color: transparent;
         color: rgb(150,150,150);
         width: 150px;
@@ -55,20 +50,11 @@
         text-align: center;
         padding: 4px 0;
         cursor: pointer;
+        border: 2px solid rgb(60,60,60);
+        border-radius: 3px;
     }
 
-    .screenshot-toggle .before {
-        border-top-left-radius: 3px;
-        border-bottom-left-radius: 3px;
-    }
-
-    .screenshot-toggle .after {
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-    }
-
-    .screenshot-toggle .before:hover:not(.active),
-    .screenshot-toggle .after:hover:not(.active) {
+    .screenshot-toggle:hover:not(.active) {
         background-color: rgb(60,60,60);
     }
 
@@ -76,24 +62,19 @@
         font-size: 14px;
     }
 
-    .screenshot-toggle .active {
+    .screenshot-toggle.active {
         background-color: rgb(80,80,80);
+        border-color: rgb(80,80,80);
     }
 </style>
 
 <div class="screenshot-toggle">
-    <span class="before active">
-        <span class="text">
-            Before
-        </span>
-    </span><span class="after">
-        <span class="text">
-            After
-        </span>
+    <span class="text">
+        Show Before
     </span>
 </div>
 
-<img class="screenshot active" src="samplescreenshot1.png">
+<img class="screenshot active" src="samplescreenshot2.png">
 <div class="screenshot-modal">
     <img class="image">
 </div>
@@ -102,6 +83,7 @@
     let modal = document.querySelector(".screenshot-modal");
     let modalImage = document.querySelector(".screenshot-modal .image");
     let screenshot = document.querySelector(".screenshot.active");
+    let toggle = document.querySelector(".screenshot-toggle");
 
     screenshot.onclick = function() {
         modal.style.display = "block";
@@ -113,18 +95,15 @@
         modal.style.display = "none";
     }
 
-    let beforeToggle = document.querySelector(".screenshot-toggle .before");
-    let afterToggle = document.querySelector(".screenshot-toggle .after");
+    toggle.onclick = function() {
+        if(toggle.classList.contains("active")) {
+            screenshot.src = "samplescreenshot2.png";
+            toggle.classList.remove("active");
+        }
+        else {
+            screenshot.src = "samplescreenshot1.png";
+            toggle.classList.add("active");
+        }
 
-    beforeToggle.onclick = function() {
-        screenshot.src = "samplescreenshot1.png";
-        beforeToggle.classList.add("active");
-        afterToggle.classList.remove("active");
-    }
-
-    afterToggle.onclick = function() {
-        screenshot.src = "samplescreenshot2.png";
-        afterToggle.classList.add("active");
-        beforeToggle.classList.remove("active");
     }
 </script>
