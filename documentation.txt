@@ -179,6 +179,8 @@ Variables
         - {{var}} is local (internal to the function)
             - Goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
             - A local var is accessible inside the code block of a non-function-call step ( Text {code block} )
+        - Persistent vars also exist, but are only accessible in code blocks. They persist from branch to branch, for the lifetime of the whole run.
+            You shouldn't normally have to use these in your day-to-day testing. Only for advanced, internal stuff.
     - Where to use them (they are replaced with their value)
         - Function call
             F {var1} {{var2}}
@@ -409,6 +411,9 @@ Hooks (**)
         - after all branches end, execute this
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
+        - When smashtest app is being closed via Ctrl + C, After Everything code blocks will be exected synchronously, as there
+            is not enough time before the process exists. If you have async code, check the isSync js variable beforehand to see if
+            the code block is being executed sync.
     - Code blocks only. They cannot have children.
     - You're not allowed to have any identifiers (~, $, .., -T, etc.) on them
     - Hooks won't have a pass/fail state. If a hook fails, the step/branch it corresponds to will take the error.
