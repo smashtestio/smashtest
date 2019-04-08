@@ -341,16 +341,16 @@
         </style>
     </head>
     <body>
-        <div id="root"></div>
-
-
-
-
-
-
         <div class="divider">
             <div class="divider-pane left-pane">
                 <div class="tree-header">
+
+
+                    <div id="root"></div>
+
+
+
+
                     <div class="header">SmashTEST Report</div>
                     <div class="tree-header-container">
                         <div class="progress-bar tree-header-item">
@@ -763,9 +763,77 @@
         </div>
 
         <script type="text/babel">
+            class App extends React.Component {
+                constructor() {
+                    super();
+
+                    this.state = {
+                        tree: null,
+                        runner: null,
+                        reportTime: null
+                    };
+
+                    // Parse in tree
+                    let treeContent = document.querySelector("meta[name=treeObj]").getAttribute("content");
+                    let treeJSON = this.unescapeHtml(treeContent);
+                    if(!treeJSON.startsWith("\{\{\{")) {
+                        this.state.tree = JSON.parse(treeJSON);
+                    }
+
+                    // Parse in runner
+                    let runnerContent = document.querySelector("meta[name=runnerObj]").getAttribute("content");
+                    let runnerJSON = this.unescapeHtml(runnerContent);
+                    if(!runnerJSON.startsWith("\{\{\{")) {
+                        this.state.runner = JSON.parse(runnerJSON);
+                    }
+
+                    // Parse in reportTime
+                    this.state.reportTime = document.querySelector("meta[name=reportTime]").getAttribute("content");
+
+
+
+
+
+
+                    this.arr = ['one', 'two'];
+
+                    this.setState(state => {
+                        return {
+
+                        };
+                    });
+
+                    this.func = this.func.bind(this);
+                }
+
+                unescapeHtml(str) {
+                    return str
+                        .replace(/&#039;/g, "'")
+                        .replace(/&quot;/g, "\"")
+                        .replace(/&gt;/g, ">")
+                        .replace(/&lt;/g, "<")
+                        .replace(/&amp;/g, "&");
+                }
+
+                func() {
+                    console.log("purr");
+                }
+
+                render() {
+                    return (
+                        <div>
+                            <div className="cats" onClick={this.func}>
+                                {this.state.msg + " " + this.props.message}
+                            </div>
+                            {this.arr.map(item => <div>{item}</div>)}
+                        </div>
+                    );
+                }
+            }
+
             ReactDOM.render(
-                <div>MEOW</div>,
-                document.getElementById("root")
+                <App message="meow"/>,
+                document.querySelector("#root")
             );
 
 
@@ -773,31 +841,7 @@
 
 
 
-            // Parse in tree and runner objects
-            function unescapeHtml(str) {
-                return str
-                    .replace(/&#039;/g, "'")
-                    .replace(/&quot;/g, "\"")
-                    .replace(/&gt;/g, ">")
-                    .replace(/&lt;/g, "<")
-                    .replace(/&amp;/g, "&");
-            }
 
-            let treeContent = document.querySelector("meta[name=treeObj]").getAttribute("content");
-            let treeJSON = unescapeHtml(treeContent);
-            let tree = null;
-            if(!treeJSON.startsWith("\{\{\{")) {
-                tree = JSON.parse(treeJSON);
-            }
-
-            let runnerContent = document.querySelector("meta[name=runnerObj]").getAttribute("content");
-            let runnerJSON = unescapeHtml(runnerContent);
-            let runner = null;
-            if(!runnerJSON.startsWith("\{\{\{")) {
-                runner = JSON.parse(runnerJSON);
-            }
-
-            let reportTime = document.querySelector("meta[name=reportTime]").getAttribute("content");
 
             // Progress bar
             function setProgress(decimal) {
@@ -853,12 +897,6 @@
             tippyOptions.content = wrapTippyContent("Congrats! All branches passed");
             tippy(".thumbs-up", tippyOptions);
 
-
-
-
-
-
-
             // Branch's indicator events
             document.querySelectorAll(".branch-indicator").forEach((elem) => {
                 let branch = elem.closest(".branch");
@@ -886,8 +924,8 @@
             });
 
             function clearSelections(notElem) {
-                document.querySelectorAll(".branch").forEach(elem => elem !== notElem ? elem.classList.remove("active") : null);
-                document.querySelectorAll(".line").forEach(elem => elem !== notElem ? elem.classList.remove("active") : null);
+                document.querySelectorAll(".branch").forEach(elem => elem !== notElem && elem.classList.remove("active"));
+                document.querySelectorAll(".line").forEach(elem => elem !== notElem && elem.classList.remove("active"));
             }
 
             function toggleActive(elem) {
@@ -898,24 +936,6 @@
                     elem.classList.add("active");
                 }
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         </script>
     </body>
 </html>
