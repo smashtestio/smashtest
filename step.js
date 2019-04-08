@@ -102,9 +102,9 @@ class Step {
         // Restore originals
         this.parent = originalParent;
         this.children = originalChildren;
-        originalFunctionDeclarationInTree ? this.functionDeclarationInTree = originalFunctionDeclarationInTree : null; // if originalFunctionDeclarationInTree is undefined, don't do anything ("null;")
-        originalContainingStepBlock ? this.containingStepBlock = originalContainingStepBlock : null;
-        originalOriginalStepInTree ? this.originalStepInTree = originalOriginalStepInTree : null;
+        originalFunctionDeclarationInTree && (this.functionDeclarationInTree = originalFunctionDeclarationInTree);
+        originalContainingStepBlock && (this.containingStepBlock = originalContainingStepBlock);
+        originalOriginalStepInTree && (this.originalStepInTree = originalOriginalStepInTree);
 
         return clone;
     }
@@ -180,37 +180,37 @@ class Step {
      */
     mergeInFunctionDeclaration(functionDeclarationInTree) {
         let isToDo = this.isToDo || functionDeclarationInTree.isToDo;
-        isToDo ? this.isToDo = isToDo : null; // don't do anything ("null;") if isTodo isn't true
+        isToDo && (this.isToDo = isToDo);
 
         let isManual = this.isManual || functionDeclarationInTree.isManual;
-        isManual ? this.isManual = isManual : null;
+        isManual && (this.isManual = isManual);
 
         let isDebug = this.isDebug || functionDeclarationInTree.isDebug;
-        isDebug ? this.isDebug = isDebug : null;
+        isDebug && (this.isDebug = isDebug);
 
         let isBeforeDebug = this.isBeforeDebug || functionDeclarationInTree.isBeforeDebug;
-        isBeforeDebug ? this.isBeforeDebug = isBeforeDebug : null;
+        isBeforeDebug && (this.isBeforeDebug = isBeforeDebug);
 
         let isAfterDebug = this.isAfterDebug || functionDeclarationInTree.isAfterDebug;
-        isAfterDebug ? this.isAfterDebug = isAfterDebug : null;
+        isAfterDebug && (this.isAfterDebug = isAfterDebug);
 
         let isOnly = this.isOnly || functionDeclarationInTree.isOnly;
-        isOnly ? this.isOnly = isOnly : null;
+        isOnly && (this.isOnly = isOnly);
 
         let isNonParallel = this.isNonParallel || functionDeclarationInTree.isNonParallel;
-        isNonParallel ? this.isNonParallel = isNonParallel : null;
+        isNonParallel && (this.isNonParallel = isNonParallel);
 
         let isSequential = this.isSequential || functionDeclarationInTree.isSequential;
-        isSequential ? this.isSequential = isSequential : null;
+        isSequential && (this.isSequential = isSequential);
 
         let isExpectedFail = this.isExpectedFail || functionDeclarationInTree.isExpectedFail;
-        isExpectedFail ? this.isExpectedFail = isExpectedFail : null;
+        isExpectedFail && (this.isExpectedFail = isExpectedFail);
 
         let isPackaged = this.isPackaged || functionDeclarationInTree.isPackaged;
-        isPackaged ? this.isPackaged = isPackaged : null;
+        isPackaged && (this.isPackaged = isPackaged);
 
         let isHook = this.isHook || functionDeclarationInTree.isHook;
-        isHook ? this.isHook = isHook : null;
+        isHook && (this.isHook = isHook);
 
         if(functionDeclarationInTree.hasCodeBlock()) {
             this.codeBlock = functionDeclarationInTree.codeBlock;

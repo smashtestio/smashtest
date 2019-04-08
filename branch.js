@@ -45,8 +45,8 @@ class Branch {
     mergeToEnd(branch) {
         this.steps = this.steps.concat(branch.steps);
 
-        branch.nonParallelId ? this.nonParallelId = branch.nonParallelId : null; // if branch.nonParallelId doesn't exist, don't do anything (null)
-        branch.frequency ? this.frequency = branch.frequency : null;
+        branch.nonParallelId && (this.nonParallelId = branch.nonParallelId);
+        branch.frequency && (this.frequency = branch.frequency);
 
         if(branch.groups) {
             if(typeof this.groups == 'undefined') {
@@ -58,8 +58,8 @@ class Branch {
             });
         }
 
-        branch.isOnly ? this.isOnly = branch.isOnly : null;
-        branch.isDebug ? this.isDebug = branch.isDebug : null;
+        branch.isOnly && (this.isOnly = branch.isOnly);
+        branch.isDebug && (this.isDebug = branch.isDebug);
 
         // Attach branch.beforeEveryBranch to the beginning of this.beforeEveryBranch (so that packages comes first)
         if(branch.beforeEveryBranch) {
@@ -103,8 +103,8 @@ class Branch {
      */
     push(step) {
         this.steps.push(step);
-        step.isOnly ? this.isOnly = true : null;
-        step.isDebug ? this.isDebug = true : null;
+        step.isOnly && (this.isOnly = true);
+        step.isDebug && (this.isDebug = true);
     }
 
     /**
@@ -112,8 +112,8 @@ class Branch {
      */
     unshift(step) {
         this.steps.unshift(step);
-        step.isOnly ? this.isOnly = true : null;
-        step.isDebug ? this.isDebug = true : null;
+        step.isOnly && (this.isOnly = true);
+        step.isDebug && (this.isDebug = true);
     }
 
     /**
