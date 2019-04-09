@@ -213,9 +213,13 @@
                 font-size: 12px;
             }
 
+            .tree-header-item {
+                margin-bottom: 5px;
+            }
+
             .progress-bar {
                 height: 20px;
-                margin-right: 10px;
+                margin: -6px 10px 15px 0;
                 padding: 0;
             }
 
@@ -224,6 +228,7 @@
                 color: white;
                 text-align: center;
                 height: 100%;
+                border-radius: 4px;
                 overflow-x: hidden;
             }
 
@@ -251,10 +256,6 @@
             .refresh-icon {
                 width: 14px;
                 vertical-align: bottom;
-            }
-
-            .tree-header-item {
-                margin-bottom: 5px;
             }
 
             .notrunyet-item {
@@ -630,7 +631,7 @@
                 }
 
                 render() {
-                    let percentageText = (this.props.decimal * 100) + "%";
+                    let percentageText = (Math.floor(this.props.decimal * 100)) + "%";
                     return (
                         <div className="progress-bar tree-header-item">
                             <div className="filled-bar" style={ {width: percentageText} } ref={(elem) => {this.filledBar = elem} }>
@@ -1172,7 +1173,7 @@
 
                 return (hours > 0 ? hours + "h " : "") +
                     (hours > 0 || mins > 0 ? mins + "m " : "") +
-                    (hours > 0 || mins > 0 || secs > 0 ? secs + "s " : "") +
+                    (hours > 0 || mins > 0 || secs > 0 ? secs + "s" : "") +
                     (hours == 0 && mins == 0 && secs == 0 ? ms + "ms" : "");
             }
 

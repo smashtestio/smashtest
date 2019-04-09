@@ -1,0 +1,45 @@
+Long running test -
+
+    Branch 1 -
+    Branch 2 -
+    Branch 3 -
+    Branch 4 -
+
+        Long-running function
+
+
+* Long-running function
+
+    Step one {
+        await runInstance.runner.wait(6000 * Math.random());
+    }
+
+        Step two {
+            await runInstance.runner.wait(6000 * Math.random());
+        }
+
+            Step three {
+                await runInstance.runner.wait(6000 * Math.random());
+            }
+
+                Step four {
+                    await runInstance.runner.wait(6000 * Math.random());
+                }
+
+                    Step five {
+                        await runInstance.runner.wait(6000 * Math.random());
+                    }
+
+                        Step six {
+                            await runInstance.runner.wait(6000 * Math.random());
+                        }
+
+** Before Everything {
+    runInstance.runner.wait = (n) => {
+        return new Promise((res, rej) => {
+            setTimeout(() => {
+                res();
+            }, n);
+        });
+    }
+}

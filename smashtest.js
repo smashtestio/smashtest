@@ -448,12 +448,17 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             }
         }
         else { // Normal run of whole tree
-            // Progress bar
-            let progressBar = generateProgressBar(true);
-            progressBar.start(tree.totalSteps, tree.totalStepsComplete);
-
+            const PROGRESS_BAR_ON = true;
             let timer = null;
-            activateProgressBarTimer();
+            let progressBar = null;
+
+            if(PROGRESS_BAR_ON) {
+                // Progress bar
+                progressBar = generateProgressBar(true);
+                progressBar.start(tree.totalSteps, tree.totalStepsComplete);
+
+                activateProgressBarTimer();
+            }
 
             // Run
             await runner.run();
@@ -465,7 +470,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
              */
             function activateProgressBarTimer() {
                 const UPDATE_PROGRESS_BAR_FREQUENCY = 250; // ms
-                timer = setTimeout(updateProgressBar, UPDATE_PROGRESS_BAR_FREQUENCY);
+                timer = setTimeout(() => { updateProgressBar(); }, UPDATE_PROGRESS_BAR_FREQUENCY);
             }
 
             /**
@@ -517,16 +522,12 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
              * Outputs the given counts to the console
              */
             function outputCounts() {
-                if(!isComplete && tree.passed == 0 && tree.failed == 0 && tree.skipped == 0 && tree.complete == 0) {
-                    return; // nothing to show yet
-                }
-
                 process.stdout.write(
                     (elapsed ? (`${elapsed} | `) : ``) +
-                    (tree.passed > 0        || isComplete ? chalk.greenBright(`${tree.passed} passed`) + ` | ` : ``) +
-                    (tree.failed > 0        || isComplete ? chalk.redBright(`${tree.failed} failed`) + ` | ` : ``) +
-                    (tree.skipped > 0       || isComplete ? chalk.cyanBright(`${tree.skipped} skipped`) + ` | ` : ``) +
-                    (tree.complete > 0      || isComplete ? (`${tree.complete} branches run`) : ``)
+                    (chalk.greenBright(`${tree.passed} passed`) + ` | `) +
+                    (chalk.redBright(`${tree.failed} failed`) + ` | `) +
+                    (chalk.cyanBright(`${tree.skipped} skipped`) + ` | `) +
+                    (`${tree.complete} branches run`)
                 );
             }
 

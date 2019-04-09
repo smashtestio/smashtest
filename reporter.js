@@ -64,6 +64,10 @@ class Reporter {
      * Checks for changes to the report, and if so, writes the new report to disk
      */
     async checkForChanges() {
+        if(!this.generateReport) { // this object was destroyed already
+            return;
+        }
+
         let newHtmlReport = this.generateReport();
         if(newHtmlReport != this.htmlReport) {
             this.htmlReport = newHtmlReport;
@@ -71,8 +75,8 @@ class Reporter {
         }
 
         if(!this.stopped) {
-            const REPORT_GENERATE_FREQUENCY = 2000; // ms
-            this.timer = setTimeout(this.checkForChanges, REPORT_GENERATE_FREQUENCY);
+            const REPORT_GENERATE_FREQUENCY = 500; // ms
+            this.timer = setTimeout(() => { this.checkForChanges(); }, REPORT_GENERATE_FREQUENCY);
         }
     }
 
