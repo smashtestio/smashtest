@@ -155,6 +155,16 @@ class Branch {
             }
         }
 
+        if(this.error) {
+            clone.error = {};
+            Object.assign(clone.error, this.error);
+        }
+
+        this.log && (clone.log = [].concat(this.log));
+
+        this.timeStarted && (clone.timeStarted = new Date(this.timeStarted.getTime()));
+        this.timeEnded && (clone.timeEnded = new Date(this.timeEnded.getTime()));
+
         return clone;
     }
 

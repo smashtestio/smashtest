@@ -994,6 +994,10 @@
 
                     previewStateText = "Failed";
 
+                    if(previewedItem.error && previewedItem.error.continue) {
+                        previewStateText += ", but continued branch";
+                    }
+
                     if(previewedItem.asExpected === true) {
                         pill = <span className="pill expected">EXPECTED</span>;
                     }
@@ -1091,7 +1095,7 @@
             }
 
             function PreviewLogs(props) {
-                let logs = props.previewedItem.logs;
+                let logs = props.previewedItem.log;
                 if(logs) {
                     logs = logs.map(logItem => <div className="log-line">{logItem.text}</div>);
                 }

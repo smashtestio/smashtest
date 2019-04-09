@@ -1,4 +1,4 @@
-Passing branch -
+Passing -
 
     Passing step -
 
@@ -12,7 +12,7 @@ Passing branch -
 
 
 
-Failing branch -
+Failing -
     Passing step -
         Passing step -
 
@@ -25,7 +25,7 @@ Failing branch -
 
 
 
-Branch for testing function calls -
+Function calls -
     Passing function
         Step after passing function -
             Passing function
@@ -37,9 +37,25 @@ Branch for testing function calls -
 
     Function with empty body
 
+    * Passing function
+        Passing step -
+
+    * Failing function
+        Passing step -
+            Failing step {
+                throw new Error("oops2");
+            }
+
+    * Function with multiple branches
+        Branch 1 -
+        Branch 2 -
+
+    * Function with empty body
 
 
-Branch for testing multiple levels of function calls -
+
+
+Multiple levels of function calls -
     Function one
 
     * Function one
@@ -62,7 +78,7 @@ Branch for testing multiple levels of function calls -
 
 
 
-Branch with over 10 steps -
+Over 10 steps -
     ..
     Two -
     Three -
@@ -77,7 +93,42 @@ Branch with over 10 steps -
 
 
 
-Branch for testing expectations -
+Very long step name word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word  -
+
+
+
+Very long step name wordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword -
+
+
+
+Lots of function indents -
+    * One
+        * Two
+            * Three
+                * Four
+                    * Five
+                        * Six
+                            * Seven
+                                * Eight
+                                    * Nine
+                                        * Ten
+                                            * Eleven
+
+                                            Eleven
+                                        Ten
+                                    Nine
+                                Eight
+                            Seven
+                        Six
+                    Five
+                Four
+            Three
+        Two
+    One
+
+
+
+Expectations -
     Expected pass -
         Expected fail # {
             throw new Error("oops");
@@ -102,18 +153,47 @@ Branch for testing expectations -
         Expected pass -
 
 
+Continue failed -
+    Step that fails but continues {
+        let e = new Error("oops");
+        e.continue = true;
+        throw e;
+    }
 
-* Passing function
-    Passing step -
-
-* Failing function
-    Passing step -
-        Failing step {
-            throw new Error("oops2");
+        Step that fails and doesn't continue {
+            throw new Error("oops 2");
         }
 
-* Function with multiple branches
-    Branch 1 -
-    Branch 2 -
+            We never get here -
 
-* Function with empty body
+
+
+Before Every Step Error -
+    One -
+        Two -
+
+    ** Before Every Step {
+        throw new Error("oops");
+    }
+
+
+
+After Every Step Error -
+    One -
+        Two -
+
+    ** After Every Step {
+        throw new Error("oops");
+    }
+
+
+
+Skipping similar branches on fail + -
+
+    Failing step {
+        throw new Error("oops");
+    }
+
+        Branch one -
+        Branch two will be skipped -
+        Branch three will be skipped -

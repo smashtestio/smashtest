@@ -1495,7 +1495,7 @@ class Tree {
                 branchesToSkip.forEach(branchToSkip => {
                     if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
                         branchToSkip.isSkipped = true;
-                        branchToSkip.appendToLog("Branch skipped because it is identical to an earlier branch that ran and failed");
+                        branchToSkip.appendToLog(`Branch skipped because it is identical to an earlier branch that ran and failed (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`);
                     }
                 });
             }
