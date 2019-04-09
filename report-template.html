@@ -1093,11 +1093,21 @@
                 }
 
                 componentDidMount() {
+                    this.updateScripts();
+                }
+
+                componentDidUpdate() {
+                    this.updateScripts();
+                }
+
+                updateScripts() {
                     // Since <script> scripts aren't executed when they're injected into the DOM by React, we have to do a workaround
                     // Execute <script> tags with class details-init-js
                     let oldScriptElem = document.querySelector(".details-init-js");
                     if(oldScriptElem) {
                         let oldScriptText = oldScriptElem.innerText;
+                        oldScriptElem.parentNode.removeChild(oldScriptElem);
+
                         let newScriptElem = document.createElement("script");
                         let newScriptTextNode = document.createTextNode(oldScriptText);
                         newScriptElem.appendChild(newScriptTextNode);

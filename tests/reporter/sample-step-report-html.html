@@ -80,10 +80,12 @@
 </div>
 
 <script type="text/javascript" class="details-init-js">
-    let modal = document.querySelector(".screenshot-modal");
-    let modalImage = document.querySelector(".screenshot-modal .image");
-    let screenshot = document.querySelector(".screenshot.active");
-    let toggle = document.querySelector(".screenshot-toggle");
+    // NOTE: Use var and not let since this script will execute every time the preview pane opens
+    
+    var modal = document.querySelector(".screenshot-modal");
+    var modalImage = document.querySelector(".screenshot-modal .image");
+    var screenshot = document.querySelector(".screenshot.active");
+    var toggle = document.querySelector(".screenshot-toggle");
 
     screenshot.onclick = function() {
         modal.style.display = "block";
