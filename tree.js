@@ -1573,12 +1573,19 @@ class Tree {
                 branchesToSkip.forEach(branchToSkip => {
                     if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
                         branchToSkip.isSkipped = true;
-                        branchToSkip.appendToLog("Branch skipped because it is identical to an earlier branch, up to the " + (nextStep.isManual ? "-M" : "-T") + " step");
+                        branchToSkip.appendToLog(
+                            `Branch skipped because it is identical to an earlier branch, up to the ` +
+                            (nextStep.isManual ? "-M" : "-T") +
+                            ` step (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`
+                        );
                     }
                 });
             }
 
-            branch.finishOffBranch();
+            if(advance) {
+                branch.finishOffBranch();
+            }
+
             return null;
         }
 

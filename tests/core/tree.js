@@ -13385,6 +13385,8 @@ A - +
 
             let stepD = new Step();
             stepD.text = "D";
+            stepD.filename = "file.txt";
+            stepD.lineNumber = 10;
 
             let branch1 = new Branch();
             let branch2 = new Branch();
@@ -13418,10 +13420,10 @@ A - +
 
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -M step" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -M step (ends at file.txt:10)" }
             ]);
             expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -M step" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -M step (ends at file.txt:10)" }
             ]);
             expect(branch4.log).to.equal(undefined);
         });
@@ -13446,6 +13448,8 @@ A - +
 
             let stepD = new Step();
             stepD.text = "D";
+            stepD.filename = "file.txt";
+            stepD.lineNumber = 10;
 
             let branch1 = new Branch();
             let branch2 = new Branch();
@@ -13479,10 +13483,10 @@ A - +
 
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step (ends at file.txt:10)" }
             ]);
             expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step (ends at file.txt:10)" }
             ]);
             expect(branch4.log).to.equal(undefined);
         });
@@ -13554,6 +13558,8 @@ A - +
 
             let stepD = new Step();
             stepD.text = "D";
+            stepD.filename = "file.txt";
+            stepD.lineNumber = 10;
 
             let branch1 = new Branch();
             let branch2 = new Branch();
@@ -13585,7 +13591,7 @@ A - +
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.equal(undefined);
             expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step (ends at file.txt:10)" }
             ]);
             expect(branch4.log).to.equal(undefined);
         });
@@ -13610,6 +13616,8 @@ A - +
 
             let stepD = new Step();
             stepD.text = "D";
+            stepD.filename = "file.txt";
+            stepD.lineNumber = 10;
 
             let branch1 = new Branch();
             let branch2 = new Branch();
@@ -13641,7 +13649,7 @@ A - +
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.equal(undefined);
             expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step (ends at file.txt:10)" }
             ]);
             expect(branch4.log).to.equal(undefined);
         });

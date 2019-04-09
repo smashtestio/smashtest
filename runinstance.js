@@ -872,7 +872,7 @@ class RunInstance {
      */
     toNextReadyStep() {
         let nextReadyStep = this.getNextReadyStep();
-        if(this.currStep !== nextReadyStep) {
+        if(!nextReadyStep || this.currStep !== nextReadyStep) {
             this.currStep = this.tree.nextStep(this.currBranch, true, true);
         }
     }

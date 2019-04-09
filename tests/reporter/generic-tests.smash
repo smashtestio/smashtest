@@ -199,9 +199,27 @@ Skipping similar branches on fail + -
         Branch three will be skipped -
 
 
-Skipping similar branches on -T -
+
+Not running a TODO step -T
+
+
+
+Not running a MANUAL step -M
+
+
+
+Skipping similar branches for TODO steps + -
 
     TODO step -T
 
-        Branch one will be skipped -
-        Branch two will be skipped -
+        Branch one will be run, but not including the TODO step above -
+        Branch two will be skipped entirely -
+
+
+
+Skipping similar branches for MANUAL steps + -
+
+    MANUAL step -M
+
+        Branch one will be run, but not including the MANUAL step above -
+        Branch two will be skipped entirely -

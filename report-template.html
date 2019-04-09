@@ -350,12 +350,14 @@
 
             .preview-pane .preview-state {
                 margin-left: 20px;
-                margin-bottom: 30px;
                 font-size: 13px;
             }
 
-            .preview-pane .preview-state .msg {
+            .preview-pane .msg {
                 margin-top: 10px;
+                margin-bottom: 30px;
+                margin-left: 20px;
+                font-size: 13px;
             }
 
             .preview-pane .preview-state .pill {
@@ -971,9 +973,8 @@
                 let previewStateText = "";
                 let pill = "";
                 if(previewedItem.isRunning) {
-                    const className = "running-item-no-anim";
-                    headerClassName += className;
-                    previewStateClassName += className;
+                    headerClassName += "running-item-no-anim";
+                    previewStateClassName += "running-item";
                     previewStateText = "Currently running";
                 }
                 else if(previewedItem.isPassed) {
@@ -1049,9 +1050,10 @@
                         <div className={previewStateClassName}>
                             {previewStateText}
                             {pill}
-                            <div className="msg">
-                                This report is paused. Unselect this {isBranch ? "branch" : "step"} to resume live updates.
-                            </div>
+                        </div>
+
+                        <div className="msg">
+                            This report is paused. Unselect this {isBranch ? "branch" : "step"} to resume live updates.
                         </div>
 
                         <PreviewError previewedItem={previewedItem}/>
