@@ -1562,7 +1562,9 @@ class Tree {
 
         // End the branch if next step is a -T or -M
         if(nextStep && (nextStep.isManual || nextStep.isToDo)) {
-            delete nextStep.isRunning;
+            if(advance) {
+                delete nextStep.isRunning;
+            }
 
             // Skip other repeat branches
             if(skipsRepeats) {

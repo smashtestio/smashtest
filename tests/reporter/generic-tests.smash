@@ -197,3 +197,11 @@ Skipping similar branches on fail + -
         Branch one -
         Branch two will be skipped -
         Branch three will be skipped -
+
+
+Skipping similar branches on -T -
+
+    TODO step -T
+
+        Branch one will be skipped -
+        Branch two will be skipped -
