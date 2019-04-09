@@ -243,3 +243,11 @@ After Every Branch Error -
     ** After Every Branch {
         throw new Error("oops");
     }
+
+
+
+Setting a step's details html {
+    let readFiles = require('read-files-promise');
+    let fileBuffers = await readFiles(['tests/reporter/sample-step-report-html.html'], {encoding: 'utf8'});
+    runInstance.currStep.htmlReport = fileBuffers[0];
+}

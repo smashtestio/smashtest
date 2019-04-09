@@ -1087,21 +1087,39 @@
                 }
             }
 
-            function PreviewDetails(props) {
-                return (
-                    <div className="preview-section preview-details">
-                        <div className="header">Details</div>
-                        {
-                            props.previewedItem.htmlReport ?
-                            <div className="step-report">
-                                {props.previewedItem.htmlReport}
-                            </div> :
-                            <div className="none-indicator">
-                                None
-                            </div>
-                        }
-                    </div>
-                );
+            class PreviewDetails extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                componentDidMount() {
+                    // Since <script> scripts aren't executed when they're injected into the DOM by React, we have to do a workaround
+                    // Execute <script> tags with class details-init-js
+                    let oldScriptElem = document.querySelector(".details-init-js");
+                    if(oldScriptElem) {
+                        let oldScriptText = oldScriptElem.innerText;
+                        let newScriptElem = document.createElement("script");
+                        let newScriptTextNode = document.createTextNode(oldScriptText);
+                        newScriptElem.appendChild(newScriptTextNode);
+                        document.querySelector(".step-report").appendChild(newScriptElem);
+                    }
+                }
+
+                render() {
+                    return (
+                        <div className="preview-section preview-details">
+                            <div className="header">Details</div>
+                            {
+                                this.props.previewedItem.htmlReport ?
+                                <div className="step-report" dangerouslySetInnerHTML={ {__html: this.props.previewedItem.htmlReport} }>
+                                </div> :
+                                <div className="none-indicator">
+                                    None
+                                </div>
+                            }
+                        </div>
+                    );
+                }
             }
 
             function PreviewLogs(props) {
