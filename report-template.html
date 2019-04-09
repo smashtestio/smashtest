@@ -26,7 +26,7 @@
                 margin: 0 0 20px 6px;
             }
 
-            .divider-pane {
+            .pane {
                 position: absolute;
                 top: 0;
                 bottom: 0;
@@ -156,7 +156,7 @@
                 display: inline-block;
             }
 
-            .line .filelocation {
+            .line .location {
                 visibility: hidden;
                 display: inline-block;
                 vertical-align: top;
@@ -165,7 +165,7 @@
                 font-size: 13px;
             }
 
-            .line:hover .filelocation {
+            .line:hover .location {
                 visibility: visible;
             }
 
@@ -310,9 +310,12 @@
                 cursor: default;
             }
 
-            .preview-pane .preview-name .filelocation {
+            .preview-pane .preview-name .location {
                 color: rgb(130,130,130);
                 font-size: 12px;
+                margin-left: 20px;
+                position: relative;
+                top: -1px;
             }
 
             .preview-pane .preview-name .elapsed {
@@ -399,9 +402,9 @@
 
                 render() {
                     return (
-                        <div className="divider">
+                        <div className="main">
                             <TreePane data={this.state} setPreview={this.setPreview}/>
-                            <PreviewPane previewedItem={this.previewedItem}/>
+                            <PreviewPane previewedItem={this.state.previewedItem}/>
                         </div>
                     );
                 }
@@ -413,7 +416,7 @@
                 }
 
                 return (
-                    <div className="divider-pane tree-pane">
+                    <div className="pane tree-pane">
                         <TreeHeader data={props.data}/>
                         <TreeErrors data={props.data}/>
                         <BranchListing branches={props.data.tree.branches} setPreview={props.setPreview} previewedItem={props.data.previewedItem}/>
@@ -424,8 +427,8 @@
             function TreeHeader(props) {
                 let elapsedText = "";
                 let elapsed = props.data.tree.elapsed;
-                if(elapsed && elapsed != -1) {
-                    elapsedText = "(" + formatSecs(elapsed) + ")";
+                if(typeof elapsed != undefined && elapsed != -1) {
+                    elapsedText = "(" + formatElapsed(elapsed) + ")";
                 }
 
                 let anyFailed = false;
@@ -806,7 +809,7 @@
                         <span className={className}>
                             {this.props.step.line.trim()}
                             {pill}
-                            <span className="filelocation">[{this.props.step.filename}:{this.props.step.lineNumber}]</span>
+                            <span className="location">[{this.props.step.filename}:{this.props.step.lineNumber}]</span>
                             {error}
                         </span>
                     );
@@ -841,7 +844,7 @@
 
             function NoPreview(props) {
                 return (
-                    <div className="divider-pane preview-pane">
+                    <div className="pane preview-pane">
                         <div className="preview-pane-msg">
                             &lt; Select a step to preview
                         </div>
@@ -850,48 +853,49 @@
             }
 
             function Preview(props) {
-                let isBranch = props.previewedItem.hasOwnProperty("steps");
+                let previewedItem = props.previewedItem.props.step || props.previewedItem.props.branch;
+                let isBranch = previewedItem.hasOwnProperty("steps");
 
                 let headerClassName = "header preview-name ";
                 let previewStateClassName = "preview-state ";
                 let previewStateText = "";
-                if(props.previewedItem.isRunning) {
+                if(previewedItem.isRunning) {
                     const className = "running-item-no-anim";
                     headerClassName += className;
                     previewStateClassName += className;
                     previewStateText = "Currently running";
                 }
-                else if(props.previewedItem.isPassed) {
+                else if(previewedItem.isPassed) {
                     const className = "passed-item";
                     headerClassName += className;
                     previewStateClassName += className;
 
-                    if(!props.previewedItem.hasOwnProperty("asExpected")) {
+                    if(!previewedItem.hasOwnProperty("asExpected")) {
                         previewStateText = "Passed";
                     }
-                    else if(props.previewedItem.asExpected) {
+                    else if(previewedItem.asExpected) {
                         previewStateText = "Passed";
                     }
                     else {
                         previewStateText = "Passed unexpectedly";
                     }
                 }
-                else if(props.previewedItem.isFailed) {
+                else if(previewedItem.isFailed) {
                     const className = "failed-item";
                     headerClassName += className;
                     previewStateClassName += className;
 
-                    if(!props.previewedItem.hasOwnProperty("asExpected")) {
+                    if(!previewedItem.hasOwnProperty("asExpected")) {
                         previewStateText = "Failed";
                     }
-                    else if(props.previewedItem.asExpected) {
+                    else if(previewedItem.asExpected) {
                         previewStateText = "Failed expectedly";
                     }
                     else {
                         previewStateText = "Failed";
                     }
                 }
-                else if(props.previewedItem.isSkipped) {
+                else if(previewedItem.isSkipped) {
                     const className = "skipped-item";
                     headerClassName += className;
                     previewStateClassName += className;
@@ -905,19 +909,19 @@
                 }
 
                 let elapsedText = "";
-                let elapsed = props.previewedItem.elapsed;
-                if(elapsed && elapsed != -1) {
-                    elapsedText = "(" + formatSecs(elapsed) + ")";
+                let elapsed = previewedItem.elapsed;
+                if(typeof elapsed != "undefined" && elapsed != -1) {
+                    elapsedText = "(" + formatElapsed(elapsed) + ")";
                 }
 
-                let className = "divider-pane preview-pane " + (isBranch ? "branch-preview" : "step-preview");
+                let className = "pane preview-pane " + (isBranch ? "branch-preview" : "step-preview");
 
                 let previewedItemText = "";
                 if(isBranch) {
-                    previewedItemText = `Branch ending at ${props.previewedItem.filename}:${props.previewedItem.lineNumber}`;
+                    previewedItemText = `Branch ending at ${previewedItem.steps[previewedItem.steps.length - 1].filename}:${previewedItem.steps[previewedItem.steps.length - 1].lineNumber}`;
                 }
                 else {
-                    previewedItemText = props.previewedItem.line.trim();
+                    previewedItemText = previewedItem.line.trim();
                 }
 
                 let postPreviewedItemText = "";
@@ -925,23 +929,23 @@
                     postPreviewedItemText = `${elapsedText}`;
                 }
                 else {
-                    postPreviewedItemText = `[${props.previewedItem.filename}:${props.previewedItem.lineNumber}] ${elapsedText}`;
+                    postPreviewedItemText = `[${previewedItem.filename}:${previewedItem.lineNumber}] ${elapsedText}`;
                 }
 
                 return (
                     <div className={className}>
-                        <div className="header preview-name failed-item">
+                        <div className={headerClassName}>
                             {previewedItemText}
-                            <span className="filelocation">{postPreviewedItemText}</span>
+                            <span className="location">{postPreviewedItemText}</span>
                         </div>
 
                         <div className={previewStateClassName}>
                             {previewStateText}
                         </div>
 
-                        <PreviewError previewedItem={props.previewedItem}/>
-                        {isBranch ? "" : <PreviewDetails previewedItem={props.previewedItem}/>}
-                        <PreviewLogs previewedItem={props.previewedItem}/>
+                        <PreviewError previewedItem={previewedItem}/>
+                        {isBranch ? "" : <PreviewDetails previewedItem={previewedItem}/>}
+                        <PreviewLogs previewedItem={previewedItem}/>
                     </div>
                 );
             }
@@ -975,7 +979,10 @@
 
             function PreviewLogs(props) {
                 let logs = props.previewedItem.logs;
-                logs = logs.map(logItem => <div className="log-line">{logItem.text}</div>);
+                if(logs) {
+                    logs = logs.map(logItem => <div className="log-line">{logItem.text}</div>);
+                }
+
                 return (
                     <div className="preview-logs">
                         <div className="header">Logs</div>
@@ -992,17 +999,20 @@
             );
 
             /**
-             * Converts a number of seconds to Xh Xm Xs format
+             * Converts a number of ms to Xh Xm Xs Xms format
              */
-            function formatSecs(secs) {
-                let hours = Math.floor(secs/3600);
-                secs %= 3600;
-                let mins = Math.floor(secs/60);
-                secs %= 60;
+            function formatElapsed(ms) {
+                let hours = Math.floor(ms/3600000);
+                ms %= 3600000;
+                let mins = Math.floor(ms/60000);
+                ms %= 60000;
+                let secs = Math.floor(ms/1000);
+                ms %= 1000;
 
                 return (hours > 0 ? hours + "h " : "") +
                     (hours > 0 || mins > 0 ? mins + "m " : "") +
-                    (secs + "s");
+                    (hours > 0 || mins > 0 || secs > 0 ? secs + "s " : "") +
+                    (hours == 0 && mins == 0 && secs == 0 ? ms + "ms" : "");
             }
 
             /**
