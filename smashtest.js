@@ -529,6 +529,8 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         }
     }
     catch(e) {
-        console.error(e);
+        console.log(e);
+        console.log("");
+        forcedStop = false;
     }
 });

@@ -146,6 +146,11 @@
                 cursor: pointer;
                 overflow-x: auto;
                 padding-right: 20px;
+                /*padding: 1px 20px 1px 0;*/
+            }
+
+            .line::-webkit-scrollbar {
+                display: none;
             }
 
             .line.active {
@@ -308,9 +313,13 @@
             }
 
             .preview-pane .stacktrace {
-                padding: 0 30px;
+                padding: 0 30px 15px;
                 overflow-x: auto;
             }
+
+            /*.preview-pane .stacktrace::-webkit-scrollbar {
+                display: none;
+            }*/
 
             .logs {
                 padding: 5px 0 20px 30px;
@@ -345,6 +354,16 @@
                 font-size: 13px;
             }
 
+            .preview-pane .preview-state .msg {
+                margin-top: 10px;
+            }
+
+            .preview-pane .preview-state .pill {
+                position: relative;
+                top: -1px;
+                cursor: pointer;
+            }
+
             .step-report {
                 margin: 20px;
             }
@@ -371,6 +390,57 @@
         <div id="root"></div>
 
         <script type="text/babel">
+            // Tooltips
+
+            let tippyOptions = {
+                placement: "right",
+                followCursor: true,
+                delay: 0,
+                animation: "fade",
+                arrow: true,
+                arrowType: "sharp"
+            };
+
+            function wrapTippyContent(content) {
+                return "<span class='tooltip-text'>" + content + "</span>";
+            }
+
+            function attachPreviewPaneTooltips() {
+                tippyOptions.content = wrapTippyContent("This step passed, but was<br>expected to fail (#)");
+                tippy(".preview-pane .pill.unexpected", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("This step failed,<br>as was expected (#)");
+                tippy(".preview-pane .pill.expected", tippyOptions);
+            }
+
+            function attachTreePaneTooltips() {
+                tippyOptions.content = wrapTippyContent("Currently running branch");
+                tippy(".branch-indicator.running", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("Branch passed");
+                tippy(".branch-indicator.passed", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("Branch failed");
+                tippy(".branch-indicator.failed", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("Branch skipped");
+                tippy(".branch-indicator.skipped", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("Branch not run yet");
+                tippy(".branch-indicator.notrunyet", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("This step passed, but was<br>expected to fail (#)");
+                tippy(".pill.unexpected", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("This step failed,<br>as was expected (#)");
+                tippy(".pill.expected", tippyOptions);
+
+                /*tippyOptions.content = wrapTippyContent("Congrats! All branches passed");
+                tippy(".thumbs-up", tippyOptions);*/
+            }
+
+            // React Components
+
             class App extends React.Component {
                 constructor() {
                     super();
@@ -527,9 +597,6 @@
                                 <span className="skipped-count skipped-item"> {props.data.tree.skipped} skipped</span> |
                                 <span className="notrunyet-count notrunyet-item"> {props.data.tree.totalToRun - props.data.tree.complete} not run yet</span> |
                                 <span className="total-count notrunyet-item"> {props.data.tree.totalInReport} total branches</span>
-                            </div>
-                            <div className="msg tree-header-item">
-                                This report is paused. Unselect a step/branch to resume live updates.
                             </div>
                         </div>
                     </div>
@@ -786,8 +853,15 @@
                     let index = this.props.index;
                     let indexDigits = index.toString().length;
                     let maxDigits = this.props.lastIndex.toString().length;
-                    for(let i = indexDigits; i < maxDigits; i++) {
-                        index = "&nbsp;" + index;
+
+                    function getIndexElem(index) {
+                        return <span className="line-index">{indexElemSpaces(indexDigits)}{index}</span>;
+                    }
+
+                    function indexElemSpaces(i) {
+                        if(i < maxDigits) {
+                            return <span>&nbsp;{indexElemSpaces(i+1)}</span>;
+                        }
                     }
 
                     let className = "content ";
@@ -848,23 +922,33 @@
 
                     return (
                         <div className={lineClassName} onClick={this.toggleActiveState}>
-                            <span className="line-index">{index}</span>
+                            {getIndexElem(index)}
                             {lineElem}
                         </div>
                     );
                 }
             }
 
-            function PreviewPane(props) {
-                if(props.previewedItem) {
-                    return (
-                        <Preview previewedItem={props.previewedItem}/>
-                    );
+            class PreviewPane extends React.Component {
+                constructor() {
+                    super();
                 }
-                else {
-                    return (
-                        <NoPreview />
-                    );
+
+                componentDidUpdate() {
+                    attachPreviewPaneTooltips();
+                }
+
+                render() {
+                    if(this.props.previewedItem) {
+                        return (
+                            <Preview previewedItem={this.props.previewedItem}/>
+                        );
+                    }
+                    else {
+                        return (
+                            <NoPreview />
+                        );
+                    }
                 }
             }
 
@@ -885,6 +969,7 @@
                 let headerClassName = "header preview-name ";
                 let previewStateClassName = "preview-state ";
                 let previewStateText = "";
+                let pill = "";
                 if(previewedItem.isRunning) {
                     const className = "running-item-no-anim";
                     headerClassName += className;
@@ -896,14 +981,10 @@
                     headerClassName += className;
                     previewStateClassName += className;
 
-                    if(!previewedItem.hasOwnProperty("asExpected")) {
-                        previewStateText = "Passed";
-                    }
-                    else if(previewedItem.asExpected) {
-                        previewStateText = "Passed";
-                    }
-                    else {
-                        previewStateText = "Passed unexpectedly";
+                    previewStateText = "Passed";
+
+                    if(previewedItem.asExpected === false) {
+                        pill = <span className="pill unexpected">UNEXPECTED</span>;
                     }
                 }
                 else if(previewedItem.isFailed) {
@@ -911,14 +992,10 @@
                     headerClassName += className;
                     previewStateClassName += className;
 
-                    if(!previewedItem.hasOwnProperty("asExpected")) {
-                        previewStateText = "Failed";
-                    }
-                    else if(previewedItem.asExpected) {
-                        previewStateText = "Failed expectedly";
-                    }
-                    else {
-                        previewStateText = "Failed";
+                    previewStateText = "Failed";
+
+                    if(previewedItem.asExpected === true) {
+                        pill = <span className="pill expected">EXPECTED</span>;
                     }
                 }
                 else if(previewedItem.isSkipped) {
@@ -967,6 +1044,10 @@
 
                         <div className={previewStateClassName}>
                             {previewStateText}
+                            {pill}
+                            <div className="msg">
+                                This report is paused. Unselect this {isBranch ? "branch" : "step"} to resume live updates.
+                            </div>
                         </div>
 
                         <PreviewError previewedItem={previewedItem}/>
@@ -1060,43 +1141,7 @@
                 return error.stackTrace.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
             }
 
-            // Tooltips
-            let tippyOptions = {
-                placement: "right",
-                followCursor: true,
-                delay: 0,
-                animation: "fade",
-                arrow: true,
-                arrowType: "sharp"
-            };
-
-            function wrapTippyContent(content) {
-                return "<span class='tooltip-text'>" + content + "</span>";
-            }
-
-            tippyOptions.content = wrapTippyContent("Currently running branch");
-            tippy(".branch-indicator.running", tippyOptions);
-
-            tippyOptions.content = wrapTippyContent("Branch passed");
-            tippy(".branch-indicator.passed", tippyOptions);
-
-            tippyOptions.content = wrapTippyContent("Branch failed");
-            tippy(".branch-indicator.failed", tippyOptions);
-
-            tippyOptions.content = wrapTippyContent("Branch skipped");
-            tippy(".branch-indicator.skipped", tippyOptions);
-
-            tippyOptions.content = wrapTippyContent("Branch not run yet");
-            tippy(".branch-indicator.notrunyet", tippyOptions);
-
-            tippyOptions.content = wrapTippyContent("This step passed, but was<br>expected to fail (#)");
-            tippy(".pill.unexpected", tippyOptions);
-
-            tippyOptions.content = wrapTippyContent("This step failed,<br>as was expected (#)");
-            tippy(".pill.expected", tippyOptions);
-
-            tippyOptions.content = wrapTippyContent("Congrats! All branches passed");
-            tippy(".thumbs-up", tippyOptions);
+            attachTreePaneTooltips();
         </script>
     </body>
 </html>

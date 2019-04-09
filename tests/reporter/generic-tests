@@ -10,10 +10,10 @@ Passing branch -
 
         Passing step -
 
+
+
 Failing branch -
-
     Passing step -
-
         Passing step -
 
             Failing step {
@@ -21,38 +21,99 @@ Failing branch -
             }
 
                 Step never gotten to 1 -
-
                 Step never gotten to 2 -
 
+
+
 Branch for testing function calls -
-
     Passing function
-
         Step after passing function -
+            Passing function
 
     Failing function
-
         Step never gotten to -
 
     Function with multiple branches
 
     Function with empty body
 
-    * Passing function
 
-        Passing step -
 
-    * Failing function
+Branch for testing multiple levels of function calls -
+    Function one
 
-        Passing step -
+    * Function one
+        ..
+        - Step one
+        Function two
+        - Step two
 
-            Failing step {
-                throw new Error("oops2");
-            }
+    * Function two
+        ..
+        - Step three
+        Function three
+        - Step four
 
-    * Function with multiple branches
+    * Function three
+        ..
+        - Step five
+        - Step six
+        - Step seven
 
-        Branch 1 -
-        Branch 2 -
 
-    * Function with empty body
+
+Branch with over 10 steps -
+    ..
+    Two -
+    Three -
+    Four -
+    Five -
+    Six -
+    Seven -
+    Eight -
+    Nine -
+    Ten -
+    Eleven -
+
+
+
+Branch for testing expectations -
+    Expected pass -
+        Expected fail # {
+            throw new Error("oops");
+        }
+            We never get here -
+
+        Expected fail and continue # {
+            let e = new Error("oops");
+            e.continue = true;
+            throw e;
+        }
+            Expected pass -
+
+    Unexpected fail {
+        throw new Error("oops");
+    }
+
+        We never get here -
+
+    Unexpected pass # -
+
+        Expected pass -
+
+
+
+* Passing function
+    Passing step -
+
+* Failing function
+    Passing step -
+        Failing step {
+            throw new Error("oops2");
+        }
+
+* Function with multiple branches
+    Branch 1 -
+    Branch 2 -
+
+* Function with empty body
