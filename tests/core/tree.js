@@ -13639,6 +13639,40 @@ A - +
             ]);
             expect(branch4.log).to.equal(undefined);
         });
+
+        it("clears isRunning on all steps in the branch if the branch completed already", function() {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.asExpected = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+            stepB.isPassed = true;
+            stepB.asExpected = true;
+            stepB.isRunning = true;
+
+            let stepC = new Step();
+            stepC.text = "C";
+
+            let stepD = new Step();
+            stepD.text = "D";
+
+            let branch1 = new Branch();
+            branch1.steps = [ stepA, stepB, stepC, stepD ];
+            branch1.isPassed = true;
+            tree.branches = [ branch1 ];
+
+            expect(tree.nextStep(branch1, true, true)).to.equal(null);
+
+            expect(stepA.isRunning).to.equal(undefined);
+            expect(stepB.isRunning).to.equal(undefined);
+            expect(stepC.isRunning).to.equal(undefined);
+            expect(stepD.isRunning).to.equal(undefined);
+            expect(branch1.isRunning).to.equal(undefined);
+        });
     });
 
     describe("initCounts()", function() {

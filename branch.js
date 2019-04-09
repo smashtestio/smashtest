@@ -264,7 +264,7 @@ class Branch {
      /**
       * Marks this branch as passed or failed
       */
-     markBranch(isPassed) {
+     markBranch(isPassed, error) {
          if(isPassed) {
              this.isPassed = true;
              delete this.isFailed;
@@ -276,6 +276,12 @@ class Branch {
              delete this.isPassed;
              delete this.isSkipped;
              delete this.isRunning;
+         }
+
+         if(error) {
+             this.error = error;
+             this.error.msg = error.message.toString();
+             this.error.stackTrace = error.stack.toString();
          }
      }
 

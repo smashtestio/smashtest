@@ -1481,6 +1481,8 @@ class Tree {
 
         if(error) {
             step.error = error;
+            step.error.msg = error.message.toString();
+            step.error.stackTrace = error.stack.toString();
         }
 
         // If this is the very last step in the branch, mark the branch as passed/failed
@@ -1514,14 +1516,19 @@ class Tree {
     }
 
     /**
-     * Returns the next step in the given branch (after the currently running step), or null if no steps are left, the next step is a -T or -M, or the branch already failed/skipped
+     * Returns and/or advances to the next step in the given branch (after the currently running step), or null if no steps are left, the next step is a -T or -M, or the branch already failed/skipped
+     * NOTE: This is the only function that's allowed to change Step.isRunning
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
      * @param {Boolean} [skipsRepeats] - If true, if the next step is a -T or -M, skips every other branch whose first N steps are identical to this one's (up until the -T or -M step)
      * @return {Step} The next step in the given branch, null if there are none left
      */
     nextStep(branch, advance, skipsRepeats) {
-        if(branch.isFailed || branch.isSkipped) {
+        if(branch.isComplete()) {
+            if(advance) {
+                branch.steps.forEach(step => delete step.isRunning);
+            }
+
             return null;
         }
 

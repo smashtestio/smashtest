@@ -1,0 +1,58 @@
+Passing branch -
+
+    Passing step -
+
+        Passing step -
+
+    Step block step 1 -
+    Step block step 2 -
+    Step block step 3 -
+
+        Passing step -
+
+Failing branch -
+
+    Passing step -
+
+        Passing step -
+
+            Failing step {
+                throw new Error("oops");
+            }
+
+                Step never gotten to 1 -
+
+                Step never gotten to 2 -
+
+Branch for testing function calls -
+
+    Passing function
+
+        Step after passing function -
+
+    Failing function
+
+        Step never gotten to -
+
+    Function with multiple branches
+
+    Function with empty body
+
+    * Passing function
+
+        Passing step -
+
+    * Failing function
+
+        Passing step -
+
+            Failing step {
+                throw new Error("oops2");
+            }
+
+    * Function with multiple branches
+
+        Branch 1 -
+        Branch 2 -
+
+    * Function with empty body

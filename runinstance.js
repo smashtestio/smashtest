@@ -373,10 +373,10 @@ class RunInstance {
                 }
             }
             else if(branchToGetError) {
-                if(!branchToGetError.error) { // do not set branchToGetError.error if it's already set
-                    branchToGetError.error = e;
+                if(branchToGetError.error) { // do not set branchToGetError.error if it's already set
+                    e = undefined;
                 }
-                branchToGetError.markBranch(false);
+                branchToGetError.markBranch(false, e);
             }
 
             return false;

@@ -30,12 +30,11 @@
                 position: absolute;
                 top: 0;
                 bottom: 0;
-                width: 50%;
+                width: calc(50% - 20px);
                 height: 100%;
                 vertical-align: top;
                 border: 0;
                 margin: 0;
-                overflow-x: auto;
                 padding: 10px 8px;
             }
 
@@ -45,7 +44,7 @@
 
             .preview-pane {
                 right: 0;
-                padding-left: 10px;
+                padding-left: 14px;
                 background-color: rgb(40,40,40);
             }
 
@@ -141,6 +140,7 @@
                 position: relative;
                 white-space: nowrap;
                 cursor: pointer;
+                overflow-x: auto;
             }
 
             .line.active {
@@ -176,6 +176,7 @@
                 padding: 1px 3px;
                 border-radius: 5px;
                 font-size: 11px;
+                margin: 0 10px;
             }
 
             .pill.expected {
@@ -295,9 +296,15 @@
             }
 
             .stacktrace {
-                padding: 5px 0 20px 30px;
+                padding: 10px 0 25px 30px;
                 color: white;
                 font-size: 12px;
+                white-space: pre;
+            }
+
+            .preview-pane .stacktrace {
+                padding: 0 30px;
+                overflow-x: auto;
             }
 
             .logs {
@@ -308,6 +315,10 @@
 
             .thumbs-up {
                 cursor: default;
+            }
+
+            .preview-pane .preview-name {
+                margin-bottom: 10px;
             }
 
             .preview-pane .preview-name .location {
@@ -325,7 +336,7 @@
 
             .preview-pane .preview-state {
                 margin-left: 20px;
-                margin-bottom: 20px;
+                margin-bottom: 30px;
                 font-size: 13px;
             }
 
@@ -338,6 +349,16 @@
                 font-size: 16px;
                 padding-top: 70px;
                 text-align: center;
+            }
+
+            .preview-section {
+                margin: 0 0 30px 0;
+            }
+
+            .none-indicator {
+                color: rgb(90,90,90);
+                font-size: 13px;
+                margin-left: 20px;
             }
         </style>
     </head>
@@ -550,7 +571,7 @@
                     .map(hook => {
                         return (
                             <div className="stacktrace">
-                                {injectLineNumberIntoError(hook.error)}
+                                {formatStackTrace(hook.error)}
                             </div>
                         );
                     });
@@ -686,7 +707,7 @@
                     if(this.props.branch.error) {
                         error = (
                             <div className="stacktrace">
-                                {injectLineNumberIntoError(this.props.branch.error)}
+                                {formatStackTrace(this.props.branch.error)}
                             </div>
                         );
                     }
@@ -800,7 +821,7 @@
                     if(this.props.step.error) {
                         error = (
                             <div className="stacktrace">
-                                {injectLineNumberIntoError(this.props.step.error)}
+                                {formatStackTrace(this.props.step.error)}
                             </div>
                         );
                     }
@@ -953,10 +974,10 @@
             function PreviewError(props) {
                 if(props.previewedItem.error) {
                     return (
-                        <div className="preview-error">
+                        <div className="preview-section preview-error">
                             <div className="header">Error</div>
                             <div className="stacktrace">
-                                {injectLineNumberIntoError(props.previewedItem.error)}
+                                {formatStackTrace(props.previewedItem.error)}
                             </div>
                         </div>
                     );
@@ -968,11 +989,17 @@
 
             function PreviewDetails(props) {
                 return (
-                    <div className="preview-details">
+                    <div className="preview-section preview-details">
                         <div className="header">Details</div>
-                        <div className="step-report">
-                            {props.previewedItem.htmlReport || "None"}
-                        </div>
+                        {
+                            props.previewedItem.htmlReport ?
+                            <div className="step-report">
+                                {props.previewedItem.htmlReport}
+                            </div> :
+                            <div className="none-indicator">
+                                None
+                            </div>
+                        }
                     </div>
                 );
             }
@@ -984,11 +1011,17 @@
                 }
 
                 return (
-                    <div className="preview-logs">
+                    <div className="preview-section preview-logs">
                         <div className="header">Logs</div>
-                        <div className="logs">
-                            {logs || "None"}
-                        </div>
+                        {
+                            logs ?
+                            <div className="logs">
+                                {logs}
+                            </div> :
+                            <div className="none-indicator">
+                                None
+                            </div>
+                        }
                     </div>
                 );
             }
@@ -1018,8 +1051,8 @@
             /**
              * Injects [filename:lineNumber] into the given Error's stack trace, and returns it
              */
-            function injectLineNumberIntoError(error) {
-                return error.stack.replace(/\n/, `[${error.filename}:${error.lineNumber}]\n`);
+            function formatStackTrace(error) {
+                return error.stackTrace.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
             }
 
             // Tooltips
