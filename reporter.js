@@ -122,6 +122,7 @@ class Reporter {
      */
     generateReport() {
         this.reportTime = new Date();
+        this.tree.updateCounts();
 
         if(this.tree.branches.length == 0) {
             return "";

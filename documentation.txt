@@ -245,6 +245,7 @@ Code blocks
         - setLocal(), setGlobal(), setPersistent()
         - log(string)
         - runInstance object
+        - throw new Error("error msg")
     - Pitfalls
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., setLocal(), setGlobal(), setPersistent()) instead.

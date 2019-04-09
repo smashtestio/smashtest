@@ -9,8 +9,10 @@ const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
 
+const yellowChalk = chalk.hex("#ffb347");
+
 console.log("");
-console.log(chalk.bold.yellow("SmashTEST 0.1.1 BETA"));
+console.log(yellowChalk.bold("SmashTEST 0.1.1 BETA"));
 console.log("");
 
 if(process.argv.length < 3) {
@@ -238,7 +240,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
          */
         function outputCompleteMessage() {
             console.log(``);
-            console.log(chalk.yellow("Run complete" + (tree.passed == tree.totalToRun ? " 👍" : "")));
+            console.log(yellowChalk("Run complete" /*+ (tree.passed == tree.totalToRun ? " 👍" : "")*/));
             console.log(`${tree.complete} branches ran` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``));
             if(!runner.noReport) {
                 console.log(`Report at: ` + chalk.gray.italic(reporter.reportPath));
@@ -257,7 +259,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                 return;
             }
 
-            console.log(`${tree.totalToRun} branches to run` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + chalk.yellow(`In DEBUG mode (~)`) : ``));
+            console.log(`${tree.totalToRun} branches to run` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
             if(!runner.noReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reporter.reportPath));
             }

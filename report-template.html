@@ -23,7 +23,7 @@
 
             .header {
                 font-size: 16px;
-                margin: 0 0 10px 6px;
+                margin: 0 0 20px 6px;
             }
 
             .divider-pane {
@@ -36,12 +36,11 @@
                 border: 0;
                 margin: 0;
                 overflow-x: auto;
-                padding: 6px 4px;
+                padding: 10px 8px;
             }
 
             .tree-pane {
                 left: 0;
-                padding-right: 0;
             }
 
             .preview-pane {
@@ -59,19 +58,17 @@
                 font-size: 13px;
             }
 
+            .runner-complete {
+                color: #ffb347;
+            }
+
             .branch-list {
                 margin: 0 0 30px 0;
             }
 
-            .none-indicator {
-                font-size: 14px;
-                color: rgb(100,100,100);
-                padding-left: 40px;
-            }
-
             .branch {
-                margin-bottom: 12px;
-                margin-left: 2px;
+                margin-bottom: 30px;
+                margin-left: 8px;
                 position: relative;
             }
 
@@ -95,6 +92,8 @@
                 border: 0;
                 margin: 0;
                 padding: 0;
+                border-radius: 3px;
+                z-index: 3;
             }
 
             .branch-indicator:hover {
@@ -161,8 +160,8 @@
                 visibility: hidden;
                 display: inline-block;
                 vertical-align: top;
-                color: rgb(130,130,130);
-                padding: 0 15px;
+                color: rgb(90,90,90);
+                padding: 0 30px;
                 font-size: 13px;
             }
 
@@ -240,7 +239,7 @@
             }
 
             .tree-header-item {
-                margin-bottom: 10px;
+                margin-bottom: 5px;
             }
 
             .notrunyet-item {
@@ -272,14 +271,14 @@
                 line-height: 16px;
             }
 
-            .line-number {
+            .line-index {
                 color: rgb(100,100,100);
                 font-size: 11px;
                 display: inline-block;
                 vertical-align: top;
                 position: relative;
                 top: 2px;
-                margin-left: 8px;
+                margin: 0 8px;
             }
 
             .vertical-line-container {
@@ -334,7 +333,6 @@
             .preview-pane-msg {
                 color: rgb(90,90,90);
                 font-size: 16px;
-                height: 100%;
                 padding-top: 70px;
                 text-align: center;
             }
@@ -352,7 +350,7 @@
                         tree: null,
                         runner: null,
                         reportTime: null,
-                        previewed: null
+                        previewedItem: null
                     };
 
                     // Parse in tree
@@ -372,7 +370,7 @@
                     // Parse in reportTime
                     this.state.reportTime = document.querySelector("meta[name=reportTime]").getAttribute("content");
 
-                    this.onChangePreview = this.onChangePreview.bind(this);
+                    this.setPreview = this.setPreview.bind(this);
                 }
 
                 unescapeHtml(str) {
@@ -384,28 +382,41 @@
                         .replace(/&amp;/g, "&");
                 }
 
-                onChangePreview(previewed) {
-                    this.setState({
-                        previewed: previewed
+                setPreview(previewedItem) {
+                    this.setState(state => {
+                        if(state.previewedItem === previewedItem) { // toggle off
+                            return {
+                                previewedItem: null
+                            };
+                        }
+                        else { // toggle on
+                            return {
+                                previewedItem: previewedItem
+                            };
+                        }
                     });
                 }
 
                 render() {
                     return (
                         <div className="divider">
-                            <TreePane data={this.state}/>
-                            <PreviewPane previewed={this.previewed}/>
+                            <TreePane data={this.state} setPreview={this.setPreview}/>
+                            <PreviewPane previewedItem={this.previewedItem}/>
                         </div>
                     );
                 }
             }
 
             function TreePane(props) {
+                if(!props.data.tree) {
+                    return "";
+                }
+
                 return (
                     <div className="divider-pane tree-pane">
                         <TreeHeader data={props.data}/>
-                        <TreeError data={props.data}/>
-                        <BranchList branches={props.data.tree.branches}/>
+                        <TreeErrors data={props.data}/>
+                        <BranchListing branches={props.data.tree.branches} setPreview={props.setPreview} previewedItem={props.data.previewedItem}/>
                     </div>
                 );
             }
@@ -430,7 +441,11 @@
                     <div className="tree-header">
                         <div className="header">SmashTEST Report</div>
                         <div className="tree-header-container">
-                            <ProgressBar decimal={props.data.tree.totalStepsComplete / props.data.tree.totalSteps}/>
+                            {
+                                !props.data.runner.isComplete && !props.data.runner.isStopped ?
+                                <ProgressBar decimal={props.data.tree.totalStepsComplete / props.data.tree.totalSteps}/> :
+                                ""
+                            }
                             <div className="runner-status-msg tree-header-item">
                                 <div className="runner-complete">
                                     {
@@ -438,11 +453,11 @@
                                         `Run completed ${elapsedText}` :
                                         ""
                                     }
-                                    {
+                                    {/*
                                         !anyFailed && !props.data.tree.isDebug ?
-                                        <span className="thumbs-up">&#x1f44d;</span> :
+                                        <span className="thumbs-up"> &#x2714;</span> :
                                         ""
-                                    }
+                                    */}
                                 </div>
 
                                 <div className="runner-running running-item">
@@ -478,11 +493,11 @@
                                 </div>
                             </div>
                             <div className="counts tree-header-item">
-                                <span className="passed-count passed-item">{props.data.tree.passed} passed</span> |
-                                <span className="failed-count failed-item">{props.data.tree.failed} failed</span> |
-                                <span className="skipped-count skipped-item">{props.data.tree.skipped} skipped</span> |
-                                <span className="notrunyet-count notrunyet-item">{props.data.tree.totalToRun - props.data.tree.complete} not run yet</span> |
-                                <span className="total-count">{props.data.tree.totalInReport} total branches</span>
+                                <span className="passed-count passed-item"> {props.data.tree.passed} passed</span> |
+                                <span className="failed-count failed-item"> {props.data.tree.failed} failed</span> |
+                                <span className="skipped-count skipped-item"> {props.data.tree.skipped} skipped</span> |
+                                <span className="notrunyet-count notrunyet-item"> {props.data.tree.totalToRun - props.data.tree.complete} not run yet</span> |
+                                <span className="total-count notrunyet-item"> {props.data.tree.totalInReport} total branches</span>
                             </div>
                             <div className="msg tree-header-item">
                                 This report is paused. Unselect a step/branch to resume live updates.
@@ -496,24 +511,25 @@
                 constructor() {
                     super();
                     this.state = {
-                        percentageText: (this.props.decimal * 100) + "%"
+                        showPercentage: true
                     };
                 }
 
                 componentDidUpdate() {
                     if(this.filledBarText.scrollWidth > this.filledBar.offsetWidth) { // text doesn't have room
                         this.setState({
-                            percentageText: ""
+                            showPercentage: false
                         });
                     }
                 }
 
                 render() {
+                    let percentageText = (this.props.decimal * 100) + "%";
                     return (
                         <div className="progress-bar tree-header-item">
-                            <div className="filled-bar" style={ {width: percentage}} ref={(elem) => {this.filledBar = elem} }>
+                            <div className="filled-bar" style={ {width: percentageText} } ref={(elem) => {this.filledBar = elem} }>
                                 <div className="filled-bar-text" ref={(elem) => {this.filledBarText = elem}}>
-                                    {percentageText}
+                                    {this.state.showPercentage ? percentageText : ""}
                                 </div>
                             </div>
                         </div>
@@ -536,391 +552,414 @@
                         );
                     });
 
-                return (
-                    <div className="tree-errors">
-                        <div className="header failed-item">Hook errors</div>
-                        {errors}
-                    </div>
-                );
-            }
-
-            function BranchList(props) {
-                let branchesRunning = props.branches.filter(branch => branch.isRunning).map(branch => <Branch branch={branch}>);
-                let branchesFailed = props.branches.filter(branch => branch.isFailed).map(branch => <Branch branch={branch}>);
-                let branchesPassed = props.branches.filter(branch => branch.isPassed).map(branch => <Branch branch={branch}>);
-                let branchesSkipped = props.branches.filter(branch => branch.isSkipped).map(branch => <Branch branch={branch}>);
-                let branchesNotRunYet = props.branches.filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped).map(branch => <Branch branch={branch}>);
-
-                return (
-                    <div className="branch-list">
-                        <div className="header">Branches currently running</div>
-                        {branchesRunning.length > 0 ? branchesRunning : <div className="none-indicator">None</div>}
-                    </div>
-
-
-
-                    <div className="branch-list">
-                        <div className="header">Failed branches</div>
-                        {branchesFailed.length > 0 ? branchesFailed : <div className="none-indicator">None</div>}
-                    </div>
-
-
-
-                    <div className="branch-list">
-                        <div className="header">Passed branches</div>
-                        {branchesPassed.length > 0 ? branchesPassed : <div className="none-indicator">None</div>}
-                    </div>
-
-
-
-                    <div className="branch-list">
-                        <div className="header">Skipped branches</div>
-                        {branchesSkipped.length > 0 ? branchesSkipped : <div className="none-indicator">None</div>}
-                    </div>
-
-
-
-                    <div className="branch-list">
-                        <div className="header">Branches not run yet</div>
-                        {branchesNotRunYet.length > 0 ? branchesNotRunYet : <div className="none-indicator">None</div>}
-                    </div>
-                );
-            }
-
-            function Branch(props) {
-                let indicatorClassName = "branch-indicator ";
-                if(props.branch.isRunning) {
-                    indicatorClassName += "running";
-                }
-                else if(props.branch.isFailed) {
-                    indicatorClassName += "failed";
-                }
-                else if(props.branch.isPassed) {
-                    indicatorClassName += "passed";
-                }
-                else if(props.branch.isSkipped) {
-                    indicatorClassName += "skipped";
-                }
-                else {
-                    indicatorClassName += "notrunyet";
-                }
-
-                let error = "";
-                if(props.branch.error) {
-                    error = (
-                        <div className="stacktrace">
-                            {injectLineNumberIntoError(props.branch.error)}
+                if(errors.length > 0) {
+                    return (
+                        <div className="tree-errors">
+                            <div className="header failed-item">Hook errors</div>
+                            {errors}
                         </div>
                     );
                 }
+                else {
+                    return "";
+                }
+            }
 
-                let lines = props.branch.steps.map(step => <Line step={step}/>);
+            function BranchListing(props) {
+                let branchesRunning = props.branches
+                    .filter(branch => branch.isRunning)
+                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                let branchesFailed = props.branches
+                    .filter(branch => branch.isFailed)
+                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                let branchesPassed = props.branches
+                    .filter(branch => branch.isPassed)
+                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                let branchesSkipped = props.branches
+                    .filter(branch => branch.isSkipped)
+                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                let branchesNotRunYet = props.branches
+                    .filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped)
+                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
 
                 return (
-                    <div className="branch">
-                        <div className={indicatorClassName}>
-                        </div>
-                        <div className="branch-contents">
-                            {error}
-                            <div className="steps">
-                                {lines}
+                    <div className="branch-listing">
+                        {
+                            branchesRunning.length > 0 ? (
+                                <div className="branch-list">
+                                    <div className="header">Branches currently running</div>
+                                    {branchesRunning}
+                                </div>
+                            ) : ""
+                        }
+
+                        {
+                            branchesFailed.length > 0 ? (
+                                <div className="branch-list">
+                                    <div className="header">Failed branches</div>
+                                    {branchesFailed}
+                                </div>
+                            ) : ""
+                        }
+
+                        {
+                            branchesPassed.length > 0 ? (
+                                <div className="branch-list">
+                                    <div className="header">Passed branches</div>
+                                    {branchesPassed}
+                                </div>
+                            ) : ""
+                        }
+
+                        {
+                            branchesSkipped.length > 0 ? (
+                                <div className="branch-list">
+                                    <div className="header">Skipped branches</div>
+                                    {branchesSkipped}
+                                </div>
+                            ) : ""
+                        }
+
+                        {
+                            branchesNotRunYet.length > 0 ? (
+                                <div className="branch-list">
+                                    <div className="header">Branches not run yet</div>
+                                    {branchesNotRunYet}
+                                </div>
+                            ) : ""
+                        }
+                    </div>
+                );
+            }
+
+            class Branch extends React.Component {
+                constructor() {
+                    super();
+                    this.state = {
+                        hovered: false
+                    };
+
+                    this.hoverStateOn = this.hoverStateOn.bind(this);
+                    this.hoverStateOff = this.hoverStateOff.bind(this);
+                    this.toggleActiveState = this.toggleActiveState.bind(this);
+                }
+
+                hoverStateOn() {
+                    this.setState({
+                        hovered: true
+                    });
+                }
+
+                hoverStateOff() {
+                    this.setState({
+                        hovered: false
+                    });
+                }
+
+                toggleActiveState() {
+                    this.props.setPreview(this);
+                }
+
+                render() {
+                    let indicatorClassName = "branch-indicator ";
+
+                    if(this.props.branch.isRunning) {
+                        indicatorClassName += "running";
+                    }
+                    else if(this.props.branch.isFailed) {
+                        indicatorClassName += "failed";
+                    }
+                    else if(this.props.branch.isPassed) {
+                        indicatorClassName += "passed";
+                    }
+                    else if(this.props.branch.isSkipped) {
+                        indicatorClassName += "skipped";
+                    }
+                    else {
+                        indicatorClassName += "notrunyet";
+                    }
+
+                    let error = "";
+                    if(this.props.branch.error) {
+                        error = (
+                            <div className="stacktrace">
+                                {injectLineNumberIntoError(this.props.branch.error)}
+                            </div>
+                        );
+                    }
+
+                    let lines = this.props.branch.steps.map((step, index) =>
+                            <Line
+                                step={step}
+                                index={index+1}
+                                key={index}
+                                lastIndex={this.props.branch.steps.length - 1}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                            />);
+
+                    let branchClassName = "branch ";
+                    if(this.state.hovered) {
+                        branchClassName += "hover ";
+                    }
+                    if(this.props.previewedItem === this) {
+                        branchClassName += "active ";
+                    }
+
+                    return (
+                        <div className={branchClassName}>
+                            <div
+                                className={indicatorClassName}
+                                onMouseOver={this.hoverStateOn}
+                                onMouseOut={this.hoverStateOff}
+                                onClick={this.toggleActiveState}
+                            >
+                            </div>
+                            <div className="branch-contents">
+                                {error}
+                                <div className="steps">
+                                    {lines}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                );
+                    );
+                }
             }
 
-            function Line(props) {
+            class Line extends React.Component {
+                constructor() {
+                    super();
+                    this.toggleActiveState = this.toggleActiveState.bind(this);
+                }
 
+                surroundByVerticalLineContainers(elem, n) {
+                    for(let i = 0; i < n; i++) {
+                        elem = this.surroundByVerticalLineContainer(elem);
+                    }
 
+                    return elem;
+                }
 
-
-
-
-                
-                return (
-                    <div className="line">
-                        <span className="line-number">1</span> <!-- NOTE: Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch -->
-                        <span className="content passed-expected passed-item">
-                            Passed expected
-                            <span className="filelocation">[file.txt:10]</span>
-                        </span>
-                    </div>
-
-
-
-                    <div className="line">
-                        <span className="line-number">2</span>
+                surroundByVerticalLineContainer(elem) {
+                    return (
                         <span className="vertical-line-container">
-                            <span className="content passed-expected passed-item">
-                                Passed expected
-                                <span className="filelocation">[file.txt:10]</span>
-                            </span>
+                            {elem}
                         </span>
-                    </div>
+                    );
+                }
 
+                toggleActiveState() {
+                    this.props.setPreview(this);
+                }
 
+                render() {
+                    // Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch (so they're all the same length)
+                    let index = this.props.index;
+                    let indexDigits = index.toString().length;
+                    let maxDigits = this.props.lastIndex.toString().length;
+                    for(let i = indexDigits; i < maxDigits; i++) {
+                        index = "&nbsp;" + index;
+                    }
 
-                    <div className="line">
-                        <span className="line-number">3</span>
-                        <span className="vertical-line-container">
-                            <span className="vertical-line-container">
-                                <span className="content passed-unexpected passed-item">
-                                    Passed unexpected
-                                    <span className="pill unexpected">UNEXPECTED</span>
-                                    <span className="filelocation">[file.txt:10]</span>
-                                </span>
-                            </span>
+                    let className = "content ";
+                    let pill = "";
+                    if(this.props.step.isRunning) {
+                        className += "running running-item";
+                        pill = <span className="pill running">RUNNING</span>;
+                    }
+                    else if(this.props.step.isPassed) {
+                        if(this.props.step.asExpected) {
+                            className += "passed-expected passed-item";
+                        }
+                        else {
+                            className += "passed-unexpected passed-item";
+                            pill = <span className="pill unexpected">UNEXPECTED</span>;
+                        }
+                    }
+                    else if(this.props.step.isFailed) {
+                        if(this.props.step.asExpected) {
+                            className += "failed-expected failed-item";
+                            pill = <span className="pill expected">EXPECTED</span>;
+                        }
+                        else {
+                            className += "failed-unexpected failed-item";
+                        }
+                    }
+                    else if(this.props.step.isSkipped) {
+                        className += "skipped skipped-item";
+                        pill = <span className="pill skipped">SKIPPED</span>;
+                    }
+                    else { // not run yet
+                        className += "notrunyet notrunyet-item";
+                    }
+
+                    let error = "";
+                    if(this.props.step.error) {
+                        error = (
+                            <div className="stacktrace">
+                                {injectLineNumberIntoError(this.props.step.error)}
+                            </div>
+                        );
+                    }
+
+                    let lineElem = (
+                        <span className={className}>
+                            {this.props.step.line.trim()}
+                            {pill}
+                            <span className="filelocation">[{this.props.step.filename}:{this.props.step.lineNumber}]</span>
+                            {error}
                         </span>
-                    </div>
+                    );
+                    lineElem = this.surroundByVerticalLineContainers(lineElem, this.props.step.branchIndents);
 
+                    let lineClassName = "line ";
+                    if(this.props.previewedItem === this) {
+                        lineClassName += "active ";
+                    }
 
-
-                    <div className="line">
-                        <span className="line-number">4</span>
-                        <span className="vertical-line-container">
-                            <span className="vertical-line-container">
-                                <span className="content failed-expected failed-item">
-                                    Failed expected
-                                    <span className="pill expected">EXPECTED</span>
-                                    <span className="filelocation">[file.txt:10]</span>
-                                </span>
-                            </span>
-                        </span>
-                    </div>
-
-
-
-                    <div className="line">
-                        <span className="line-number">5</span>
-                        <span className="vertical-line-container">
-                            <span className="vertical-line-container">
-                                <span className="content failed-unexpected failed-item">
-                                    Failed unexpected
-                                    <span className="pill unexpected">UNEXPECTED</span>
-                                    <span className="filelocation">[file.txt:10]</span>
-                                    <LineError />
-                                </span>
-                            </span>
-                        </span>
-                    </div>
-
-
-
-                    <div className="line">
-                        <span className="line-number">6</span>
-                        <span className="vertical-line-container">
-                            <span className="content skipped skipped-item">
-                                Skipped
-                                <span className="pill skipped">SKIPPED</span>
-                                <span className="filelocation">[file.txt:10]</span>
-                            </span>
-                        </span>
-                    </div>
-
-
-
-                    <div className="line">
-                        <span className="line-number">7</span>
-                        <span className="vertical-line-container">
-                            <span className="vertical-line-container">
-                                <span className="content running running-item">
-                                    Running
-                                    <span className="pill running">RUNNING</span>
-                                    <span className="filelocation">[file.txt:10]</span>
-                                </span>
-                            </span>
-                        </span>
-                    </div>
-
-
-
-                    <div className="line">
-                        <span className="line-number">8</span>
-                        <span className="vertical-line-container">
-                            <span className="vertical-line-container">
-                                <span className="content notrunyet notrunyet-item">
-                                    Not run yet
-                                    <span className="filelocation">[file.txt:10]</span>
-                                </span>
-                            </span>
-                        </span>
-                    </div>
-                );
-            }
-
-            function LineError(props) {
-                return (
-                    <div className="line-error">
-                        <div className="stacktrace">
-                            Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                            &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE
+                    return (
+                        <div className={lineClassName} onClick={this.toggleActiveState}>
+                            <span className="line-index">{index}</span>
+                            {lineElem}
                         </div>
-                    </div>
-                );
+                    );
+                }
             }
 
             function PreviewPane(props) {
-                return (
-                    <NoPreview />
-
-
-
-                    <StepPreview />
-
-
-
-
-                    <BranchPreview />
-                );
+                if(props.previewedItem) {
+                    return (
+                        <Preview previewedItem={props.previewedItem}/>
+                    );
+                }
+                else {
+                    return (
+                        <NoPreview />
+                    );
+                }
             }
 
             function NoPreview(props) {
                 return (
                     <div className="divider-pane preview-pane">
                         <div className="preview-pane-msg">
-                            < Select a step to preview
+                            &lt; Select a step to preview
                         </div>
                     </div>
                 );
             }
 
-            function StepPreview(props) {
+            function Preview(props) {
+                let isBranch = props.previewedItem.hasOwnProperty("steps");
+
+                let headerClassName = "header preview-name ";
+                let previewStateClassName = "preview-state ";
+                let previewStateText = "";
+                if(props.previewedItem.isRunning) {
+                    const className = "running-item-no-anim";
+                    headerClassName += className;
+                    previewStateClassName += className;
+                    previewStateText = "Currently running";
+                }
+                else if(props.previewedItem.isPassed) {
+                    const className = "passed-item";
+                    headerClassName += className;
+                    previewStateClassName += className;
+
+                    if(!props.previewedItem.hasOwnProperty("asExpected")) {
+                        previewStateText = "Passed";
+                    }
+                    else if(props.previewedItem.asExpected) {
+                        previewStateText = "Passed";
+                    }
+                    else {
+                        previewStateText = "Passed unexpectedly";
+                    }
+                }
+                else if(props.previewedItem.isFailed) {
+                    const className = "failed-item";
+                    headerClassName += className;
+                    previewStateClassName += className;
+
+                    if(!props.previewedItem.hasOwnProperty("asExpected")) {
+                        previewStateText = "Failed";
+                    }
+                    else if(props.previewedItem.asExpected) {
+                        previewStateText = "Failed expectedly";
+                    }
+                    else {
+                        previewStateText = "Failed";
+                    }
+                }
+                else if(props.previewedItem.isSkipped) {
+                    const className = "skipped-item";
+                    headerClassName += className;
+                    previewStateClassName += className;
+                    previewStateText = "Skipped";
+                }
+                else { // Not run yet
+                    const className = "notrunyet-item";
+                    headerClassName += className;
+                    previewStateClassName += className;
+                    previewStateText = "Not run yet";
+                }
+
+                let elapsedText = "";
+                let elapsed = props.previewedItem.elapsed;
+                if(elapsed && elapsed != -1) {
+                    elapsedText = "(" + formatSecs(elapsed) + ")";
+                }
+
+                let className = "divider-pane preview-pane " + (isBranch ? "branch-preview" : "step-preview");
+
+                let previewedItemText = "";
+                if(isBranch) {
+                    previewedItemText = `Branch ending at ${props.previewedItem.filename}:${props.previewedItem.lineNumber}`;
+                }
+                else {
+                    previewedItemText = props.previewedItem.line.trim();
+                }
+
+                let postPreviewedItemText = "";
+                if(isBranch) {
+                    postPreviewedItemText = `${elapsedText}`;
+                }
+                else {
+                    postPreviewedItemText = `[${props.previewedItem.filename}:${props.previewedItem.lineNumber}] ${elapsedText}`;
+                }
+
                 return (
-                    <div className="divider-pane preview-pane step-preview">
+                    <div className={className}>
                         <div className="header preview-name failed-item">
-                            My big failing step
-                            <span className="filelocation">[file.txt:10]</span>
-                            <span className="filelocation">(13 m 45 s)</span>
+                            {previewedItemText}
+                            <span className="filelocation">{postPreviewedItemText}</span>
                         </div>
 
-
-
-                        <div className="preview-state passed-item">
-                            Passed
+                        <div className={previewStateClassName}>
+                            {previewStateText}
                         </div>
 
-
-
-                        <div className="preview-state passed-item">
-                            Passed unexpectedly
-                        </div>
-
-
-
-                        <div className="preview-state failed-item">
-                            Failed
-                        </div>
-
-
-
-                        <div className="preview-state failed-item">
-                            Failed expectedly
-                        </div>
-
-
-
-                        <div className="preview-state running-item-no-anim">
-                            Currently running
-                        </div>
-
-
-
-                        <div className="preview-state skipped-item">
-                            Skipped
-                        </div>
-
-
-
-                        <div className="preview-state notrunyet-item">
-                            Not run yet
-                        </div>
-
-                        <PreviewError />
-                        <PreviewDetails />
-                        <PreviewLogs />
-                    </div>
-                );
-            }
-
-            function BranchPreview(props) {
-                return (
-                    <div className="divider-pane preview-pane branch-preview">
-                        // NOTE: If timeElapsed is -1 or undefined, don't print it out
-                        // NOTE: filename:lineNumber of last step in this branch, whether or not that step passed or even ran
-
-                        <div className="header preview-name failed-item">
-                            Branch ending at file.txt:10
-                            <span className="filelocation">(13 m 45 s)</span>
-                        </div>
-
-
-
-                        <div className="preview-state passed-item">
-                            Passed
-                        </div>
-
-
-
-                        <div className="preview-state failed-item">
-                            Failed
-                        </div>
-
-
-
-                        <div className="preview-state running-item-no-anim">
-                            Currently running
-                        </div>
-
-
-
-                        <div className="preview-state skipped-item">
-                            Skipped
-                        </div>
-
-
-
-                        <div className="preview-state notrunyet-item">
-                            Not run yet
-                        </div>
-
-
-                        <PreviewError />
-                        <PreviewLogs />
+                        <PreviewError previewedItem={props.previewedItem}/>
+                        {isBranch ? "" : <PreviewDetails previewedItem={props.previewedItem}/>}
+                        <PreviewLogs previewedItem={props.previewedItem}/>
                     </div>
                 );
             }
 
             function PreviewError(props) {
-                return (
-                    <div className="preview-error">
-                        <div className="header">Error</div>
-                        <div className="stacktrace">
-                            Error: Before/After Every Step error, or Step error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                            &nbsp;&nbsp;If Step.error exists (regardless of expectation), this section will be rendered<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE
+                if(props.previewedItem.error) {
+                    return (
+                        <div className="preview-error">
+                            <div className="header">Error</div>
+                            <div className="stacktrace">
+                                {injectLineNumberIntoError(props.previewedItem.error)}
+                            </div>
                         </div>
-
-
-
-
-                        <div className="stacktrace">
-                            Error: Before/After Every Branch error [file.txt:12] (from error.filename/error.lineNumber)<br>
-                            &nbsp;&nbsp;If Branch.error exists, this section will be rendered<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE<br>
-                            &nbsp;&nbsp;STACK TRACE HERE
-                        </div>
-                    </div>
-                );
+                    );
+                }
+                else {
+                    return "";
+                }
             }
 
             function PreviewDetails(props) {
@@ -928,28 +967,28 @@
                     <div className="preview-details">
                         <div className="header">Details</div>
                         <div className="step-report">
+                            {props.previewedItem.htmlReport || "None"}
                         </div>
                     </div>
                 );
             }
 
             function PreviewLogs(props) {
+                let logs = props.previewedItem.logs;
+                logs = logs.map(logItem => <div className="log-line">{logItem.text}</div>);
                 return (
-                    <div className="header">Logs</div>
-                    <div className="logs">
-                        <div className="log-line">LOG LINE</div>
-                        <div className="log-line">LOG LINE</div>
-                        <div className="log-line">LOG LINE</div>
-                        <div className="log-line">LOG LINE</div>
-                        <div className="log-line">LOG LINE</div>
-                        <div className="log-line">LOG LINE</div>
+                    <div className="preview-logs">
+                        <div className="header">Logs</div>
+                        <div className="logs">
+                            {logs || "None"}
+                        </div>
                     </div>
                 );
             }
 
             ReactDOM.render(
-                <App message="meow"/>,
-                document.querySelector("#root")
+                <App />,
+                document.getElementById("root")
             );
 
             /**
@@ -961,8 +1000,7 @@
                 let mins = Math.floor(secs/60);
                 secs %= 60;
 
-                return
-                    (hours > 0 ? hours + "h " : "") +
+                return (hours > 0 ? hours + "h " : "") +
                     (hours > 0 || mins > 0 ? mins + "m " : "") +
                     (secs + "s");
             }
@@ -973,14 +1011,6 @@
             function injectLineNumberIntoError(error) {
                 return error.stack.replace(/\n/, `[${error.filename}:${error.lineNumber}]\n`);
             }
-
-
-
-
-
-
-
-
 
             // Tooltips
             let tippyOptions = {
@@ -1019,46 +1049,6 @@
 
             tippyOptions.content = wrapTippyContent("Congrats! All branches passed");
             tippy(".thumbs-up", tippyOptions);
-
-            // Branch's indicator events
-            document.querySelectorAll(".branch-indicator").forEach((elem) => {
-                let branch = elem.closest(".branch");
-
-                elem.addEventListener("mouseover", () => {
-                    branch.classList.add("hover");
-                });
-
-                elem.addEventListener("mouseout", () => {
-                    branch.classList.remove("hover");
-                });
-
-                elem.addEventListener("click", () => {
-                    toggleActive(branch);
-                    clearSelections(branch);
-                });
-            });
-
-            // Line events
-            document.querySelectorAll(".line").forEach((elem) => {
-                elem.addEventListener("click", () => {
-                    toggleActive(elem);
-                    clearSelections(elem);
-                });
-            });
-
-            function clearSelections(notElem) {
-                document.querySelectorAll(".branch").forEach(elem => elem !== notElem && elem.classList.remove("active"));
-                document.querySelectorAll(".line").forEach(elem => elem !== notElem && elem.classList.remove("active"));
-            }
-
-            function toggleActive(elem) {
-                if(elem.classList.contains("active")) {
-                    elem.classList.remove("active");
-                }
-                else {
-                    elem.classList.add("active");
-                }
-            }
         </script>
     </body>
 </html>
