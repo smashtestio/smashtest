@@ -1,4 +1,5 @@
 const Constants = require('./constants.js');
+const clonedeep = require('lodash/clonedeep');
 
 /**
  * Represents a Branch from the test tree
@@ -160,7 +161,7 @@ class Branch {
             Object.assign(clone.error, this.error);
         }
 
-        this.log && (clone.log = [].concat(this.log));
+        this.log && (clone.log = clonedeep(this.log));
 
         this.timeStarted && (clone.timeStarted = new Date(this.timeStarted.getTime()));
         this.timeEnded && (clone.timeEnded = new Date(this.timeEnded.getTime()));

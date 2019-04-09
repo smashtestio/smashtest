@@ -48,7 +48,7 @@
 
             .preview-pane {
                 right: 0;
-                padding: 10px 8px 10px 14px;
+                padding: 10px 14px;
                 background-color: rgb(40,40,40);
             }
 
@@ -1097,7 +1097,7 @@
             function PreviewLogs(props) {
                 let logs = props.previewedItem.log;
                 if(logs) {
-                    logs = logs.map(logItem => <div className="log-line">{logItem.text}</div>);
+                    logs = logs.map((logItem, index) => <div className="log-line" key={index}>{logItem.text}</div>);
                 }
 
                 return (

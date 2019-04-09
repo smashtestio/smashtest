@@ -153,7 +153,12 @@ describe("Branch", function() {
                 beforeEveryBranch: undefined,
                 afterEveryBranch: undefined,
                 beforeEveryStep: undefined,
-                afterEveryStep: undefined
+                afterEveryStep: undefined,
+                error: undefined,
+                log: undefined,
+                elapsed: undefined,
+                timeStarted: undefined,
+                timeEnded: undefined
             });
 
             expect(branch.steps).to.have.lengthOf(0);
@@ -189,7 +194,12 @@ describe("Branch", function() {
                 beforeEveryBranch: undefined,
                 afterEveryBranch: undefined,
                 beforeEveryStep: undefined,
-                afterEveryStep: undefined
+                afterEveryStep: undefined,
+                error: undefined,
+                log: undefined,
+                elapsed: undefined,
+                timeStarted: undefined,
+                timeEnded: undefined
             });
 
             expect(clonedBranch.steps).to.have.lengthOf(2);
@@ -212,7 +222,12 @@ describe("Branch", function() {
                 beforeEveryBranch: undefined,
                 afterEveryBranch: undefined,
                 beforeEveryStep: undefined,
-                afterEveryStep: undefined
+                afterEveryStep: undefined,
+                error: undefined,
+                log: undefined,
+                elapsed: undefined,
+                timeStarted: undefined,
+                timeEnded: undefined
             });
 
             expect(branch.steps).to.have.lengthOf(2);
@@ -262,6 +277,12 @@ describe("Branch", function() {
             branch.afterEveryBranch = [ stepD, stepE ];
             branch.beforeEveryStep = [ stepG ];
             branch.afterEveryStep = [ stepF, stepG ];
+            branch.error = new Error("oops");
+            branch.error.msg = "oops2";
+            branch.log = [{text: 'one'}, {text: 'two'}];
+            branch.elapsed = 45;
+            branch.timeStarted = new Date();
+            branch.timeEnded = new Date();
 
             let clonedBranch = branch.clone();
 
@@ -293,9 +314,21 @@ describe("Branch", function() {
                 afterEveryStep: [
                     { text: "F" },
                     { text: "G" }
-                ]
+                ],
+                error: {
+                    msg: "oops2"
+                },
+                log: [
+                    {text: 'one'},
+                    {text: 'two'}
+                ],
+                elapsed: 45,
+                timeStarted: {},
+                timeEnded: {}
             });
-
+            
+            expect(clonedBranch.timeStarted instanceof Date).to.be.true;
+            expect(clonedBranch.timeEnded instanceof Date).to.be.true;
             expect(clonedBranch.steps).to.have.lengthOf(2);
 
             expect(branch).to.containSubset({
@@ -326,9 +359,21 @@ describe("Branch", function() {
                 afterEveryStep: [
                     { text: "F" },
                     { text: "G" }
-                ]
+                ],
+                error: {
+                    msg: "oops2"
+                },
+                log: [
+                    {text: 'one'},
+                    {text: 'two'}
+                ],
+                elapsed: 45,
+                timeStarted: {},
+                timeEnded: {}
             });
 
+            expect(branch.timeStarted instanceof Date).to.be.true;
+            expect(branch.timeEnded instanceof Date).to.be.true;
             expect(branch.steps).to.have.lengthOf(2);
         });
     });
