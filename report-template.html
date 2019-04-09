@@ -28,6 +28,10 @@
                 margin: 0 0 20px 6px;
             }
 
+            .tree-errors .header {
+                margin-bottom: 0;
+            }
+
             .pane {
                 position: absolute;
                 top: 0;
@@ -310,6 +314,10 @@
                 color: white;
                 font-size: 12px;
                 white-space: pre;
+            }
+
+            .tree-errors .stacktrace {
+                overflow-x: auto;
             }
 
             .preview-pane .stacktrace {
@@ -642,9 +650,9 @@
                     .filter(hook => {
                         return hook.error;
                     })
-                    .map(hook => {
+                    .map((hook, index) => {
                         return (
-                            <div className="stacktrace">
+                            <div className="stacktrace" key={index}>
                                 {formatStackTrace(hook.error)}
                             </div>
                         );

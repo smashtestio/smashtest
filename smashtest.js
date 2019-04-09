@@ -245,6 +245,18 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             if(!runner.noReport) {
                 console.log(`Report at: ` + chalk.gray.italic(reporter.reportPath));
             }
+
+            let failingHooks = tree.beforeEverything.concat(tree.afterEverything).filter(s => s.error);
+            if(failingHooks.length > 0) {
+                console.log(``);
+                console.log(`Hook errors occurred:`);
+
+                failingHooks.forEach(hook => {
+                    console.log(``);
+                    console.log(hook.error.stackTrace);
+                });
+            }
+
             console.log(``);
         }
 

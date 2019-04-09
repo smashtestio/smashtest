@@ -1,0 +1,12 @@
+One -
+    Two -
+
+Three -
+
+** Before Everything {
+    throw new Error("oops2");
+}
+
+** Before Everything {
+    throw new Error("oops1");
+}

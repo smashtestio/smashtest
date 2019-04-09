@@ -223,3 +223,23 @@ Skipping similar branches for MANUAL steps + -
 
         Branch one will be run, but not including the MANUAL step above -
         Branch two will be skipped entirely -
+
+
+
+Before Every Branch Error -
+    One -
+        Two -
+
+    ** Before Every Branch {
+        throw new Error("oops");
+    }
+
+
+
+After Every Branch Error -
+    One -
+        Two -
+
+    ** After Every Branch {
+        throw new Error("oops");
+    }
