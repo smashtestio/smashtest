@@ -24,6 +24,7 @@ Steps
         - Use them for stylistic organization and to group similar steps
         - Recommended to put a blank line above and below a step block, to make it easier to see.
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
+    - Identifiers are symbols that can come before or after the step. Usually after is recommended, for consistency.
 
 Running tests
     - Basic command line invocation

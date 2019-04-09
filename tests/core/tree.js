@@ -339,6 +339,11 @@ describe("Tree", function() {
             assert.equal(step.isToDo, true);
             assert.equal(step.isTextualStep, true);
 
+            step = tree.parseLine(`-T Click {button}`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isToDo, true);
+            assert.equal(step.isTextualStep, true);
+
             step = tree.parseLine(`Click {button} + -T ..`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isToDo, true);
@@ -359,6 +364,10 @@ describe("Tree", function() {
 
         it("parses the textual step identifier (-)", function() {
             let step = tree.parseLine(`Click {button} -`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isTextualStep, true);
+
+            step = tree.parseLine(`-M Click {button} +`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isTextualStep, true);
 

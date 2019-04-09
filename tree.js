@@ -160,40 +160,40 @@ class Tree {
                 step.isDebug = true;
                 step.isBeforeDebug = true;
             }
-            if(step.frontIdentifiers.includes('$')) {
-                step.isOnly = true;
-            }
+
         }
         if(step.backIdentifiers) {
-            if(step.backIdentifiers.includes('-T')) {
+            if(step.backIdentifiers.includes('~')) {
+                step.isDebug = true;
+                step.isAfterDebug = true;
+            }
+        }
+        if(step.identifiers) {
+            if(step.identifiers.includes('-T')) {
                 step.isToDo = true;
                 step.isTextualStep = true;
             }
-            if(step.backIdentifiers.includes('-M')) {
+            if(step.identifiers.includes('-M')) {
                 step.isManual = true;
                 step.isTextualStep = true;
             }
-            if(step.backIdentifiers.includes('-')) {
+            if(step.identifiers.includes('-')) {
                 step.isTextualStep = true;
 
                 if(step.isFunctionDeclaration) {
                     utils.error("A * Function declaration cannot be a textual step (-) as well", filename, lineNumber);
                 }
             }
-            if(step.backIdentifiers.includes('~')) {
-                step.isDebug = true;
-                step.isAfterDebug = true;
-            }
-            if(step.backIdentifiers.includes('$')) {
+            if(step.identifiers.includes('$')) {
                 step.isOnly = true;
             }
-            if(step.backIdentifiers.includes('+')) {
+            if(step.identifiers.includes('+')) {
                 step.isNonParallel = true;
             }
-            if(step.backIdentifiers.includes('..')) {
+            if(step.identifiers.includes('..')) {
                 step.isSequential = true;
             }
-            if(step.backIdentifiers.includes('#')) {
+            if(step.identifiers.includes('#')) {
                 step.isExpectedFail = true;
             }
         }

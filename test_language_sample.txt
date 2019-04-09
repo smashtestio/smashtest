@@ -83,7 +83,7 @@ Test the Widget Maker -
 
                                         Click [ 'Login' button ]
 
-                                            Get MFA code sent via SMS -
+                                            - Get MFA code sent via SMS
                                                 {mfacode} = Get SMS code
 
                                                     Enter {mfacode} into {MFA Code box} ~   // ~ tells the commandline interpreter to run a new selenium browser to this branch, then stop here
