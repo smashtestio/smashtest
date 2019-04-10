@@ -2,6 +2,7 @@
     /*
     - If webdriver hasn't been require()'ed yet, does so and into a new var in RunInstance
     - Creates browser object in RunInstance
+    - Logs the version, dimensions, etc.
     */
 }
 
@@ -15,4 +16,8 @@
 
 * Open IE {
 
+}
+
+** After Everything {
+    // TODO: kill all Selenium browsers
 }

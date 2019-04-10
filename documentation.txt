@@ -118,6 +118,7 @@ Step blocks
         - Function in the list with multiple branches will cause the list to branch (give example - like the one in the Hooks section below)
 
 Textual steps (-)
+    - -, -M, or -T
 
 Step reference
     - From built-in packages
