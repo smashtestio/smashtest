@@ -296,7 +296,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
             }
         }
 
-        glob('packages/*', async function(err, packageFilenames) { // new array of filenames under packages/
+        glob('packages/*.smash', async function(err, packageFilenames) { // new array of filenames under packages/
             try {
                 if(err) {
                     throw err;

@@ -1,7 +1,7 @@
 <style>
     .screenshot {
+        max-height: 80vh;
         max-width: 100%;
-        width: 600px;
         border: 3px solid gray;
         padding: 5px;
         border-radius: 3px;
@@ -40,12 +40,16 @@
         to {transform:scale(1)}
     }
 
+    .screenshot-container {
+        text-align: center;
+    }
+
     .screenshot-toggle {
-        margin: 10px 0 10px 225px;;
+        display: inline-block;
+        margin: 10px 0;
         background-color: transparent;
         color: rgb(150,150,150);
         width: 150px;
-        max-width: 40%;
         text-align: center;
         padding: 4px 0;
         cursor: pointer;
@@ -67,13 +71,17 @@
     }
 </style>
 
-<div class="screenshot-toggle">
-    <span class="text">
-        Show Before
-    </span>
+<div class="screenshot-container">
+    <div class="screenshot-toggle">
+        <span class="text">
+            Show Before
+        </span>
+    </div>
+</div>
+<div class="screenshot-container">
+    <img class="screenshot active" src="samplescreenshot2.png">
 </div>
 
-<img class="screenshot active" src="samplescreenshot2.png">
 <div class="screenshot-modal">
     <img class="image">
 </div>
