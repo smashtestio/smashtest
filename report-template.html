@@ -65,8 +65,12 @@
                 font-size: 13px;
             }
 
-            .runner-complete {
+            .runner-status-msg {
                 color: #ffb347;
+            }
+
+            .debug-mode {
+                margin-left: 30px;
             }
 
             .branch-list {
@@ -219,8 +223,8 @@
 
             .progress-bar {
                 height: 20px;
-                margin: -6px 10px 15px 0;
-                padding: 0;
+                margin: -6px 10px 15px 10px;
+                padding-right: 20px;
             }
 
             .progress-bar .filled-bar {
@@ -267,7 +271,8 @@
                 animation: blinker 2s linear infinite;
             }
 
-            .running-item-no-anim {
+            .running-item-no-anim,
+            .orange-item {
                 color: orange;
             }
 
@@ -557,7 +562,7 @@
                                 ""
                             }
                             <div className="runner-status-msg tree-header-item">
-                                <div className="runner-complete">
+                                <span>
                                     {
                                         props.data.runner.isComplete ?
                                         `Run completed ${elapsedText}` :
@@ -568,39 +573,39 @@
                                         <span className="thumbs-up"> &#x2714;</span> :
                                         ""
                                     */}
-                                </div>
+                                </span>
 
-                                <div className="runner-running running-item">
+                                <span className="running-item">
                                     {
-                                        !props.data.isComplete && props.data.isStopped && !props.data.isPaused ?
+                                        !props.data.runner.isComplete && !props.data.runner.isStopped && !props.data.runner.isPaused ?
                                         "Currently running" :
                                         ""
                                     }
-                                </div>
+                                </span>
 
-                                <div className="runner-paused skipped-item">
+                                <span>
                                     {
-                                        props.data.isPaused ?
+                                        props.data.runner.isPaused ?
                                         "Run paused" :
                                         ""
                                     }
-                                </div>
+                                </span>
 
-                                <div className="runner-stopped">
+                                <span>
                                     {
-                                        props.data.isStopped ?
+                                        props.data.runner.isStopped ?
                                         `Run stopped ${elapsedText}` :
                                         ""
                                     }
-                                </div>
+                                </span>
 
-                                <div className="running-item-no-anim">
+                                <span className="debug-mode">
                                     {
                                         props.data.tree.isDebug ?
                                         "In DEBUG mode (~)" :
                                         ""
                                     }
-                                </div>
+                                </span>
                             </div>
                             <div className="counts tree-header-item">
                                 <span className="passed-count passed-item"> {props.data.tree.passed} passed</span> |
