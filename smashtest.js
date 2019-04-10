@@ -60,7 +60,7 @@ function exit() {
 }
 
 // ***************************************
-//  Functions
+//  Helper Functions
 // ***************************************
 
 /**
@@ -151,6 +151,15 @@ Options:
         default:
             break;
     }
+}
+
+/**
+ * Handles a generic error inside of a catch block
+ */
+function onError(e) {
+    console.log(e);
+    console.log("");
+    forcedStop = false;
 }
 
 // ***************************************
@@ -315,6 +324,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                     console.log(``);
                 }
 
+                // Output header that contains number of branches to run and live report location
                 if(!runner.repl) {
                     if(tree.totalToRun == 0 && runner.skipPassed) {
                         console.log("No branches left to run. All branches have passed last time.");
@@ -333,6 +343,9 @@ readFiles(["config.json"], {encoding: 'utf8'})
                 }
 
                 if(tree.isDebug || runner.repl) {
+                    // ***************************************
+                    //  REPL
+                    // ***************************************
                     let isBranchComplete = false;
 
                     if(runner.repl) {
@@ -506,7 +519,10 @@ readFiles(["config.json"], {encoding: 'utf8'})
                         }
                     }
                 }
-                else { // Normal run of whole tree
+                else {
+                    // ***************************************
+                    //  Full run
+                    // ***************************************
                     const PROGRESS_BAR_ON = true;
                     let timer = null;
                     let progressBar = null;
@@ -600,14 +616,8 @@ readFiles(["config.json"], {encoding: 'utf8'})
                 }
             }
             catch(e) {
-                console.log(e);
-                console.log("");
-                forcedStop = false;
+                onError(e);
             }
         });
     })
-    .catch(e => {
-        console.log(e);
-        console.log("");
-        forcedStop = false;
-    });
+    .catch(onError);
