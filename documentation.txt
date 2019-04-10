@@ -39,6 +39,7 @@ Running tests
             - 5 if omitted
         - -noDebug
         - -noReport
+        - -screenshots=false (default is true)
         - -skipPassed or -s
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.
                 - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
@@ -57,9 +58,9 @@ Running tests
         - -minFrequency=med
             - med if omitted
         - -g:varname=value or "value" (global var)
-            - g:screenshotOnFail=true
         - -p:varname=value or "value" (persistent var)
         - -help/-?
+    - Config file, config.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
 
 Reports
