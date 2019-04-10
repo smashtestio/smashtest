@@ -39,6 +39,8 @@ Running tests
             - 5 if omitted
         - -noDebug
         - -noReport
+        - -reportPort=8888 (to set default port)
+        - -noReportServer
         - -screenshots=false (default is true)
         - -skipPassed or -s
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.
@@ -65,6 +67,9 @@ Running tests
 
 Reports
     - Where to find the report
+        - report.html in directory where smashtest run
+        - dates/
+        - localhost:9000 (if 9000 isn't taken) (not recommended since this endpoint dies when smashtest ends)
     - Pass/fail and expected/unexpected
         - Steps
             - A step passes is no errors are thrown inside of it

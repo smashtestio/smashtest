@@ -1232,8 +1232,7 @@ Step to Inject {
             runner.skipPassed = true;
             runner.maxInstances = 10;
 
-            let json = runner.serialize();
-            let obj = JSON.parse(json);
+            let obj = runner.serialize();
 
             expect(obj.flags).to.eql([ 'one', 'two' ]);
             expect(obj.skipPassed).to.be.true;

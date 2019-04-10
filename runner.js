@@ -18,8 +18,10 @@ class Runner {
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
         this.noReport = false;           // If true, do not output a report
+        this.noReportServer = false;     // If true, do not run a local report server
+        this.reportPort = undefined;     // Port where to run the local report server
         this.maxInstances = 5;           // The maximum number of simultaneous branches to run
-        this.skipPassed = undefined; // If true, don't run and carry over branches that passed last time
+        this.skipPassed = undefined;     // If true, don't run and carry over branches that passed last time
         this.repl = false;               // If true, run the REPL immediately
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
@@ -30,7 +32,7 @@ class Runner {
         this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
 
         this.isPaused = false;           // True if this runner has been paused (set by the RunInstance within this.runInstances)
-        this.isStopped = false;          // True if this runner has been stopped
+        this.isStopped = false;           // True if this runner has been stopped
         this.isComplete = false;         // True if this runner is done running its tree
     }
 
@@ -208,7 +210,7 @@ class Runner {
     }
 
     /**
-     * @return {String} JSON representation of this Runner, but without variables, runInstances, tree, reporter, or other complex objects (that may have circular references)
+     * @return {Object} Object representing this runner, but without variables, runInstances, tree, reporter, or other complex objects (that may have circular references)
      */
     serialize() {
         let obj = {};
@@ -220,7 +222,7 @@ class Runner {
             }
         }
 
-        return JSON.stringify(obj);
+        return obj;
     }
 
     // ***************************************

@@ -11632,8 +11632,7 @@ K-1 -
             tree.generateBranches();
             tree.isDebug = true;
             tree.elapsed = "DATE";
-            let json = tree.serialize();
-            let obj = JSON.parse(json);
+            let obj = tree.serialize();
 
             expect(obj).to.containSubsetInOrder({
                 branches: [],
@@ -11656,8 +11655,7 @@ A -
             tree.isDebug = true;
             tree.elapsed = "DATE";
             tree.branches[0].passedLastTime = true;
-            let json = tree.serialize();
-            let obj = JSON.parse(json);
+            let obj = tree.serialize();
 
             expect(obj).to.containSubsetInOrder({
                 branches: [
@@ -11713,8 +11711,7 @@ A -
 `);
 
             tree.generateBranches();
-            let json = tree.serialize();
-            let obj = JSON.parse(json);
+            let obj = tree.serialize();
 
             expect(obj.branches[0].beforeEveryBranch).to.have.lengthOf(1);
             expect(obj.branches[0].afterEveryBranch).to.have.lengthOf(1);
@@ -11763,7 +11760,8 @@ A -
 
             currTree.generateBranches();
             prevTree.generateBranches();
-            let prevJson = prevTree.serialize();
+            let prevObj = prevTree.serialize();
+            let prevJson = JSON.stringify(prevObj);
 
             currTree.mergeBranchesFromPrevRun(prevJson);
 
@@ -11860,7 +11858,8 @@ A -
              prevTree.branches[5].steps[1].text = "2 clone-3 step-2";
              prevTree.branches[5].steps[2].text = "2 clone-3 step-3";
 
-             let prevJson = prevTree.serialize();
+             let prevObj = prevTree.serialize();
+             let prevJson = JSON.stringify(prevObj);
              currTree.mergeBranchesFromPrevRun(prevJson);
 
              expect(currTree.branches).to.have.lengthOf(6);

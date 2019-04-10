@@ -4,6 +4,8 @@ const utils = require('./utils');
 const chalk = require('chalk');
 const progress = require('cli-progress');
 const repl = require('repl');
+const getPort = require('get-port');
+const express = require('express');
 
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
@@ -28,17 +30,14 @@ let reporter = new Reporter(tree, runner);
 
 // ***************************************
 //  Exit and cleanup
-// ***************************************
-let forcedStop = true;
-
+// ******************************g*********
 process.on('SIGINT', () => { // Ctrl + C (except when REPL is open)
     console.log("");
     console.log("");
-    forcedStop = true;
-    exit();
+    exit(true);
 });
 
-function exit() {
+function exit(forcedStop, exitCode) {
     if(forcedStop) {
         console.log("Stopping...");
         console.log("");
@@ -47,15 +46,21 @@ function exit() {
     if(runner) {
         runner.stop()
             .then(() => {
-                process.exit();
+                // sleep for 1 sec to give reports a chance to get the final state of the tree before the server goes down
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => { resolve(); }, 1000);
+                });
+            })
+            .then(() => {
+                process.exit(exitCode);
             })
             .catch((e) => {
                 console.log(e);
-                process.exit();
+                process.exit(exitCode);
             });
     }
     else {
-        process.exit();
+        process.exit(exitCode);
     }
 }
 
@@ -81,6 +86,14 @@ function processFlag(name, value) {
 
         case "noreport":
             runner.noReport = true;
+            break;
+
+        case "noreportserver":
+            runner.noReportServer = true;
+            break;
+
+        case "reportport":
+            runner.reportPort = parseInt(value);
             break;
 
         case "groups":
@@ -145,8 +158,7 @@ Options:
 -p:<name>="<value>"           Set the persistent variable with the given name to the given value
 -help or -?                   Open this help prompt
             `);
-            forcedStop = false;
-            return;
+            process.exit();
 
         default:
             break;
@@ -159,7 +171,45 @@ Options:
 function onError(e) {
     console.log(e);
     console.log("");
-    forcedStop = false;
+    process.exit();
+}
+
+/**
+ * Runs HTTP server in an available port
+ */
+async function runServer() {
+    if(runner.noReportServer) {
+        return;
+    }
+
+    const port = runner.reportPort ? runner.reportPort : await getPort({port: getPort.makeRange(9000,9999)});
+    const server = express();
+
+    server.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "null"); // allow requests from local files
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    });
+
+    server.get('/', (req, res) => {
+        if(reporter.reportPath) {
+            res.sendFile(reporter.reportPath);
+        }
+    });
+
+    server.get('/state', (req, res) => {
+        if(reporter.reportPath == req.query.file || req.query.file.match(/^https?\:\/\/(localhost|127\.0\.0\.1)(\:[0-9]*)?\/?$/)) { // only send back data for the report that's currently running (or the report on localhost)
+            res.json(reporter.generateStateObj());
+        }
+        else {
+            res.status(400).json({error: "This port is serving data for a different report"});
+        }
+    });
+
+    server.listen(port, () => {
+        //console.log(`Running on port ${port}`);
+        reporter.port = port;
+    });
 }
 
 // ***************************************
@@ -328,10 +378,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                 if(!runner.repl) {
                     if(tree.totalToRun == 0 && runner.skipPassed) {
                         console.log("No branches left to run. All branches have passed last time.");
-
                         outputCompleteMessage(true);
-
-                        forcedStop = false;
                         return;
                     }
 
@@ -341,6 +388,8 @@ readFiles(["config.json"], {encoding: 'utf8'})
                     }
                     console.log(``);
                 }
+
+                runServer(); // sync call to start server in background
 
                 if(tree.isDebug || runner.repl) {
                     // ***************************************
@@ -423,7 +472,9 @@ readFiles(["config.json"], {encoding: 'utf8'})
                                     }
                                 })()
                                 .then(() => {
-                                    callback(null);
+                                    if(!runner.isStopped && !runner.isComplete) {
+                                        callback(null);
+                                    }
                                 })
                                 .catch((e) => {
                                     console.log(e);
@@ -436,7 +487,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                         });
 
                         replServer.on('exit', () => {
-                            exit();
+                            exit(true);
                         });
 
                         /**
@@ -456,7 +507,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                                     console.log("");
                                     if(runner.repl && tree.branches == 0) {
                                         // this is an empty repl, so exit
-                                        exit();
+                                        exit(false);
                                     }
                                     else {
                                         isBranchComplete = await runner.runOneStep();
@@ -480,8 +531,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
 
                                 case "x":
                                     console.log("");
-                                    forcedStop = true;
-                                    exit();
+                                    exit(true);
                                     return;
 
                                 default:
@@ -513,8 +563,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                             }
 
                             if(isBranchComplete && runner.isComplete) {
-                                forcedStop = false;
-                                exit();
+                                exit(false);
                             }
                         }
                     }
@@ -537,7 +586,6 @@ readFiles(["config.json"], {encoding: 'utf8'})
 
                     // Run
                     await runner.run();
-                    forcedStop = false;
 
                     /**
                      * Activates the progress bar timer
@@ -551,6 +599,10 @@ readFiles(["config.json"], {encoding: 'utf8'})
                      * Called when the progress bar needs to be updated
                      */
                     function updateProgressBar(forceComplete) {
+                        if(runner.isStopped) {
+                            return;
+                        }
+
                         tree.updateCounts();
 
                         progressBar.stop();
@@ -570,10 +622,10 @@ readFiles(["config.json"], {encoding: 'utf8'})
                             // If any branch failed, exit with 1, otherwise exit with 0
                             for(let i = 0; i < tree.branches.length; i++) {
                                 if(tree.branches[i].isFailed) {
-                                    process.exit(1);
+                                    exit(false, 1);
                                 }
                             }
-                            process.exit(0);
+                            exit(false, 0);
                         }
                         else {
                             activateProgressBarTimer();

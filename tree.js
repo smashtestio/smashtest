@@ -1223,7 +1223,7 @@ class Tree {
     }
 
     /**
-     * @return {String} JSON representation of this.branches, with references to other objects removed
+     * @return {Object} Object containing this.branches, with references to other objects removed
      */
     serialize() {
         let obj = {
@@ -1256,7 +1256,7 @@ class Tree {
             }
         }
 
-        return JSON.stringify(obj);
+        return obj;
     }
 
     /**

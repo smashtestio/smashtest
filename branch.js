@@ -270,6 +270,8 @@ class Branch {
          this.steps.forEach(step => {
             delete step.isRunning;
          });
+
+         delete this.isRunning;
      }
 
      /**
