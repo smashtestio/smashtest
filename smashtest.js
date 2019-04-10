@@ -231,8 +231,6 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
         }
 
         let elapsed = 0;
-        isComplete = false;
-
         tree.initCounts();
 
         /**
@@ -264,8 +262,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             if(tree.totalToRun == 0 && runner.skipPassed) {
                 console.log("No branches left to run. All branches have passed last time.");
 
-                isComplete = true;
-                outputCompleteMessage();
+                outputCompleteMessage(true);
 
                 forcedStop = false;
                 return;
@@ -462,7 +459,6 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
             // Run
             await runner.run();
-            isComplete = true;
             forcedStop = false;
 
             /**
@@ -476,14 +472,14 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
             /**
              * Called when the progress bar needs to be updated
              */
-            function updateProgressBar() {
+            function updateProgressBar(forceComplete) {
                 tree.updateCounts();
 
                 progressBar.stop();
                 progressBar.start(tree.totalSteps, tree.totalStepsComplete);
                 outputCounts();
 
-                if(isComplete) {
+                if(forceComplete || runner.isComplete) {
                     progressBar.stop();
 
                     progressBar = generateProgressBar(false);
