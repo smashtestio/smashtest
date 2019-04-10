@@ -18,8 +18,8 @@ class Runner {
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
         this.noReport = false;           // If true, do not output a report
-        this.noReportServer = false;     // If true, do not run a local report server
-        this.reportPort = undefined;     // Port where to run the local report server
+        this.noReportServer = false;     // If true, do not run a report server
+        this.reportDomain = undefined;   // http(s)://domain:port where to run the report server
         this.maxInstances = 5;           // The maximum number of simultaneous branches to run
         this.skipPassed = undefined;     // If true, don't run and carry over branches that passed last time
         this.repl = false;               // If true, run the REPL immediately

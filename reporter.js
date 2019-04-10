@@ -20,7 +20,7 @@ class Reporter {
         this.reportsDirPath = null;     // absolute path of reports/ directory
         this.datedReportPath = null;    // absolute path of report in reports/ directory with a date in its filename
         this.lastReportPath = null;     // absolute path of the last report (if we're doing a -skipPassed)
-        this.port = null;               // localhost port where api endpoints available
+        this.domain = null;             // http(s)://domain:port where api endpoints available
 
         this.timer = null;              // timer that goes off when it's time to re-generate the report
         this.stopped = false;           // true if this Reporter was already stopped
@@ -137,7 +137,7 @@ class Reporter {
                 tree: stringify(stateObj.tree),
                 runner: stringify(stateObj.runner),
                 reportTime: stringify(this.reportTime),
-                port: this.port || ""
+                domain: this.domain || ""
             }
             return mustache.render(this.reportTemplate, view);
         }

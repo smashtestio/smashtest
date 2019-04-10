@@ -3,7 +3,7 @@
         <meta name="tree" content="{{{tree}}}"/>
         <meta name="runner" content="{{{runner}}}"/>
         <meta name="reportTime" content="{{{reportTime}}}"/>
-        <meta name="port" content="{{{port}}}"/>
+        <meta name="domain" content="{{{domain}}}"/>
 
         <title>SmashTEST Report</title>
 
@@ -486,8 +486,8 @@
                     // Parse in reportTime
                     this.state.reportTime = document.querySelector("meta[name=reportTime]").getAttribute("content");
 
-                    // Parse in port
-                    this.state.port = document.querySelector("meta[name=port]").getAttribute("content");
+                    // Parse in domain
+                    this.state.domain = document.querySelector("meta[name=domain]").getAttribute("content");
 
                     this.setUpdateLoop = this.setUpdateLoop.bind(this);
                     this.updateData = this.updateData.bind(this);
@@ -517,7 +517,7 @@
                 updateData() {
                     let self = this;
                     return new Promise((resolve, reject) => {
-                        if(this.state.port) {
+                        if(this.state.domain) {
                             let xhr = new XMLHttpRequest();
                             xhr.addEventListener("load", () => {
                                 let preState = null
@@ -543,7 +543,7 @@
                                 resolve(); // fail silently
                             });
 
-                            xhr.open("GET", `http://localhost:${this.state.port}/state?file=${encodeURIComponent(window.location.href.replace(/file\:\/\//, ''))}`);
+                            xhr.open("GET", `${this.state.domain}/state?file=${encodeURIComponent(window.location.href.replace(/file\:\/\//, ''))}`);
                             xhr.send();
                         }
                         else {
@@ -553,7 +553,7 @@
                 }
 
                 updateState() {
-                    if(!this.state.previewedItem) {
+                    if(!this.state.previewedItem && this.preState) {
                         this.setState({
                             tree: this.preState.tree,
                             runner: this.preState.runner,

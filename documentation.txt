@@ -40,7 +40,12 @@ Running tests
             - 5 if omitted
         - -noDebug
         - -noReport
-        - -reportPort=8888 (to set default port)
+        - -reportDomain=http(s)://domain:port
+            - This is where the apis will be exposed for reports to get live updates
+            - If omitted, localhost and an open port will be chosen (starting with port 9000)
+            - If a port is omitted, an open port will be chosen (starting with port 9000)
+            - If http/https is omitted, http:// is chosen by default
+            - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
         - -noReportServer
         - -screenshots=false (default is true)
         - -skipPassed or -s
@@ -409,6 +414,10 @@ Stubbing out APIs
             - https://sinonjs.org/releases/latest/fake-xhr-and-server/
             - Give examples of a few GET/POST routes and their responses
         - Restores original XHR once test is over
+
+CI/CD Integration
+    - Exit codes 0 and 1
+    - -reportDomain
 
 Hooks (**)
     - Piece of code that runs at certain points. Not for testing. For internal stuff, like reporting, requires,

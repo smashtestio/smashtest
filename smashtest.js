@@ -92,8 +92,14 @@ function processFlag(name, value) {
             runner.noReportServer = true;
             break;
 
-        case "reportport":
-            runner.reportPort = parseInt(value);
+        case "reportdomain":
+            if(!value.match(/^https?/)) { // add an http:// if one is missing
+                value = "http://" + value;
+            }
+            if(!value.match(/^https?\:\/\/[^\/ ]+(\:[0-9]+)?$/)) {
+                utils.error("Invalid reportDomain");
+            }
+            runner.reportDomain = value;
             break;
 
         case "groups":
@@ -175,18 +181,37 @@ function onError(e) {
 }
 
 /**
- * Runs HTTP server in an available port
+ * Runs HTTP server
  */
 async function runServer() {
     if(runner.noReportServer) {
         return;
     }
 
-    const port = runner.reportPort ? runner.reportPort : await getPort({port: getPort.makeRange(9000,9999)});
+    // Set port and fill reportDomain
+    let port = null;
+    if(runner.reportDomain) {
+        let matches = runner.reportDomain.match(/\:([0-9]+)/);
+        if(matches && matches[1]) { // reportDomain has a domain and port
+            port = parseInt(matches[1]);
+        }
+        else { // reportDomain only has a domain
+            port = await getPort({port: getPort.makeRange(9000,9999)}); // avoid 8000's, since that's where localhost apps tend to be run
+            runner.reportDomain += ":" + port;
+        }
+    }
+    else { // reportDomain has nothing
+        port = await getPort({port: getPort.makeRange(9000,9999)});
+        runner.reportDomain = "http://localhost:" + port;
+    }
+
+    reporter.domain = runner.reportDomain;
+
     const server = express();
 
     server.use(function(req, res, next) {
-        res.header("Access-Control-Allow-Origin", "null"); // allow requests from local files
+        let isLocalHost = runner.reportDomain.match(/^https?\:\/\/(localhost|127\.0\.0\.1)/);
+        res.header("Access-Control-Allow-Origin", isLocalHost ? null : runner.reportDomain);
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
     });
@@ -198,17 +223,16 @@ async function runServer() {
     });
 
     server.get('/state', (req, res) => {
-        if(reporter.reportPath == req.query.file || req.query.file.match(/^https?\:\/\/(localhost|127\.0\.0\.1)(\:[0-9]*)?\/?$/)) { // only send back data for the report that's currently running (or the report on localhost)
+        if(req.query.file && (reporter.reportPath == req.query.file || req.query.file.startsWith(runner.reportDomain))) { // only send back data for the report that's currently running (or the report server)
             res.json(reporter.generateStateObj());
         }
         else {
-            res.status(400).json({error: "This port is serving data for a different report"});
+            res.status(400).json({error: "Invalid file param"});
         }
     });
 
     server.listen(port, () => {
         //console.log(`Running on port ${port}`);
-        reporter.port = port;
     });
 }
 
