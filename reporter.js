@@ -96,7 +96,7 @@ class Reporter {
             });
         });
 
-        let reportPromise = new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             fs.writeFile(this.reportPath, this.htmlReport, (err) => {
                 if(err) {
                     reject(err);
@@ -107,7 +107,7 @@ class Reporter {
             });
         });
 
-        let dateReportPromise = new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             fs.writeFile(this.datedReportPath, this.htmlReport, (err) => {
                 if(err) {
                     reject(err);
@@ -117,8 +117,6 @@ class Reporter {
                 }
             });
         });
-
-        await Promise.all[reportPromise, dateReportPromise];
     }
 
     /**

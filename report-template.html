@@ -552,6 +552,20 @@
                     }
                 }
 
+                let runnerStatusElem = null;
+                if(props.data.runner.isStopped) {
+                    runnerStatusElem = <span>Run stopped {elapsedText}</span>
+                }
+                else if(props.data.runner.isComplete) {
+                    runnerStatusElem = <span>Run completed {elapsedText}</span>;
+                }
+                else if(props.data.runner.isPaused) {
+                    runnerStatusElem = <span>Run paused</span>;
+                }
+                else { // currently running
+                    runnerStatusElem = <span className="running-item">Currently running</span>;
+                }
+
                 return (
                     <div className="tree-header">
                         <div className="header">SmashTEST Report</div>
@@ -562,49 +576,9 @@
                                 ""
                             }
                             <div className="runner-status-msg tree-header-item">
-                                <span>
-                                    {
-                                        props.data.runner.isComplete ?
-                                        `Run completed ${elapsedText}` :
-                                        ""
-                                    }
-                                    {/*
-                                        !anyFailed && !props.data.tree.isDebug ?
-                                        <span className="thumbs-up"> &#x2714;</span> :
-                                        ""
-                                    */}
-                                </span>
-
-                                <span className="running-item">
-                                    {
-                                        !props.data.runner.isComplete && !props.data.runner.isStopped && !props.data.runner.isPaused ?
-                                        "Currently running" :
-                                        ""
-                                    }
-                                </span>
-
-                                <span>
-                                    {
-                                        props.data.runner.isPaused ?
-                                        "Run paused" :
-                                        ""
-                                    }
-                                </span>
-
-                                <span>
-                                    {
-                                        props.data.runner.isStopped ?
-                                        `Run stopped ${elapsedText}` :
-                                        ""
-                                    }
-                                </span>
-
+                                {runnerStatusElem}
                                 <span className="debug-mode">
-                                    {
-                                        props.data.tree.isDebug ?
-                                        "In DEBUG mode (~)" :
-                                        ""
-                                    }
+                                    {props.data.tree.isDebug ? "In DEBUG mode (~)" : ""}
                                 </span>
                             </div>
                             <div className="counts tree-header-item">

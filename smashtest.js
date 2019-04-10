@@ -28,16 +28,34 @@ let reporter = new Reporter(tree, runner);
 
 // Handles cleanup
 let forcedStop = true;
-process.on('exit', () => {
+
+process.on('SIGINT', () => { // Ctrl + C (except when REPL is open)
+    console.log("");
+    console.log("");
+    forcedStop = true;
+    exit();
+});
+
+function exit() {
     if(forcedStop) {
         console.log("Stopping...");
         console.log("");
     }
 
     if(runner) {
-        runner.stop();
+        runner.stop()
+            .then(() => {
+                process.exit();
+            })
+            .catch((e) => {
+                console.log(e);
+                process.exit();
+            });
     }
-});
+    else {
+        process.exit();
+    }
+}
 
 // Sort command line arguments into filenames (non-js files), jsFilenames, and flags
 for(let i = 2; i < process.argv.length; i++) {
@@ -334,7 +352,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     console.log("");
                 }
 
-                repl.start({
+                let replServer = repl.start({
                     prompt: chalk.gray("> "),
                     completer: (line) => {
                         process.stdout.write("    "); // enter a tab made up of 4 spaces
@@ -365,6 +383,10 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                     }
                 });
 
+                replServer.on('exit', () => {
+                    exit();
+                });
+
                 /**
                  * Called when the REPL needs to eval input
                  */
@@ -382,7 +404,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
                             console.log("");
                             if(runner.repl && tree.branches == 0) {
                                 // this is an empty repl, so exit
-                                process.exit();
+                                exit();
                             }
                             else {
                                 isBranchComplete = await runner.runOneStep();
@@ -406,7 +428,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                         case "x":
                             console.log("");
-                            process.exit();
+                            exit();
                             return;
 
                         default:
@@ -439,7 +461,7 @@ glob('packages/*', async function(err, packageFilenames) { // new array of filen
 
                     if(isBranchComplete && runner.isComplete) {
                         forcedStop = false;
-                        process.exit();
+                        exit();
                     }
                 }
             }

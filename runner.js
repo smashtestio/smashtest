@@ -91,15 +91,18 @@ class Runner {
     }
 
     /**
-     * Ends all running RunInstances and runs all After Everything hooks synchronously
+     * Ends all running RunInstances and runs all After Everything hooks
+     * @return {Promise} Promise that resolves when stopping is complete
      */
-    stop() {
+    async stop() {
         if(!this.isStopped && !this.isComplete) {
             this.isStopped = true;
             this.runInstances.forEach(runInstance => {
                 runInstance.stop();
-            })
-            this.runAfterEverything(true);
+            });
+
+            await this.runAfterEverything();
+            await this.stopReporter();
         }
     }
 
@@ -261,19 +264,13 @@ class Runner {
 
     /**
      * Executes all After Everything steps, sequentially
-     * @param {Boolean} [isSync] - If true, runs all After Everything steps synchronously
      * @return {Promise} Promise that resolves once all of them finish running
      */
-    async runAfterEverything(isSync) {
+    async runAfterEverything() {
         let hookExecInstance = new RunInstance(this);
         for(let i = 0; i < this.tree.afterEverything.length; i++) {
             let s = this.tree.afterEverything[i];
-            if(isSync) {
-                hookExecInstance.runHookStep(s, s, null, true);
-            }
-            else {
-                await hookExecInstance.runHookStep(s, s, null);
-            }
+            await hookExecInstance.runHookStep(s, s, null);
         }
 
         this.tree.timeEnded = new Date();

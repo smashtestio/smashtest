@@ -789,7 +789,7 @@ Branch 3 -
             }, 10);
         });
 
-        it("runs all After Everything steps synchronously immediately after a stop occurs", function(done) {
+        it("runs all After Everything steps asynchronously after a stop occurs", function(done) {
             let tree = new Tree();
             tree.parseIn(`
 Branch 1 -
@@ -802,7 +802,12 @@ Branch 3 -
     Wait '20' ms
 
 ** After Everything {
-    runInstance.runner.afterEverythingRan = true;
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            runInstance.runner.afterEverythingRan = true;
+            resolve();
+        }, 5);
+    });
 }
 
 * Wait {{N}} ms {
@@ -820,7 +825,7 @@ Branch 3 -
 
             // do a stop() after 10 ms
             setTimeout(async() => {
-                runner.stop();
+                await runner.stop();
 
                 expect(tree.elapsed).to.be.above(8);
                 expect(tree.elapsed).to.be.below(20);
