@@ -158,17 +158,28 @@ Options:
 // ***************************************
 
 // Open config file, if there is one
+let fileBuffers = null;
 readFiles(["config.json"], {encoding: 'utf8'})
-    .then(fileBuffers => {
+    .then(buffers => {
+        fileBuffers = buffers;
+    })
+    .catch(err => {}) // it's ok if there's no config file
+    .then(() => {
         if(fileBuffers && fileBuffers.length > 0) {
-            let config = JSON.parse(fileBuffers[0]);
+            let config = null;
+            try {
+                config = JSON.parse(fileBuffers[0]);
+            }
+            catch(e) {
+                utils.error("Syntax error in config.json");
+                return;
+            }
+
             for(name in config) {
                 processFlag(name, config[name]);
             }
         }
-    })
-    .catch(err => {}) // it's ok if there's no config file
-    .then(() => {
+
         // Sort command line arguments into filenames (non-js files), jsFilenames, and flags
         for(let i = 2; i < process.argv.length; i++) {
             let arg = process.argv[i];
@@ -284,7 +295,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                  */
                 function outputCompleteMessage() {
                     console.log(``);
-                    console.log(yellowChalk("Run complete" /*+ (tree.passed == tree.totalToRun ? " 👍" : "")*/));
+                    console.log(yellowChalk("Run complete"));
                     console.log(`${tree.complete} branches ran` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``));
                     if(!runner.noReport) {
                         console.log(`Report at: ` + chalk.gray.italic(reporter.reportPath));
