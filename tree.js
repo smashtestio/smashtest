@@ -1213,6 +1213,13 @@ class Tree {
             }
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
+
+        // Marks branches with a first step of -T or -M as skipped
+        this.branches.forEach(branch => {
+            if(branch.steps[0].isManual || branch.steps[0].isToDo) {
+                branch.isSkipped = true;
+            }
+        });
     }
 
     /**

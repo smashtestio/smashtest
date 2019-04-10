@@ -279,14 +279,14 @@ class Branch {
          if(isPassed) {
              this.isPassed = true;
              delete this.isFailed;
-             delete this.isSkipped;
              delete this.isRunning;
+             delete this.isSkipped;
          }
          else {
              this.isFailed = true;
              delete this.isPassed;
-             delete this.isSkipped;
              delete this.isRunning;
+             delete this.isSkipped;
          }
 
          if(error) {

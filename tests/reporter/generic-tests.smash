@@ -200,11 +200,11 @@ Skipping similar branches on fail + -
 
 
 
-Not running a TODO step -T
+Skipping a TODO step -T
 
 
 
-Not running a MANUAL step -M
+Skipping a MANUAL step -M
 
 
 

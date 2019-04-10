@@ -11424,6 +11424,37 @@ D -
             ]);
         });
 
+        it("marks as skipped branches that start with -M or -T", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+B -M
+C -T
+D -
+`, "file.txt");
+
+            tree.generateBranches();
+
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    isSkipped: undefined
+                },
+                {
+                    steps: [ { text: "B" } ],
+                    isSkipped: true
+                },
+                {
+                    steps: [ { text: "C" } ],
+                    isSkipped: true
+                },
+                {
+                    steps: [ { text: "D" } ],
+                    isSkipped: undefined
+                }
+            ]);
+        });
+
         it("handles an error from branchify()", function() {
             let tree = new Tree();
             tree.parseIn(`

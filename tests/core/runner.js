@@ -806,7 +806,7 @@ Branch 3 -
         setTimeout(() => {
             runInstance.runner.afterEverythingRan = true;
             resolve();
-        }, 5);
+        }, 1);
     });
 }
 
