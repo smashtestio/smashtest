@@ -11,25 +11,6 @@
     */
 }
 
-* Open Chrome {
-    /*
-    - If webdriver hasn't been require()'ed yet, does so and into a new var in RunInstance
-    - Creates browser object in RunInstance
-    */
-}
-
-* Open Firefox {
-
-}
-
-* Open Safari {
-
-}
-
-* Open IE {
-
-}
-
 * Navigate to {{url}} {
     // url is absolute or relative
     // check that browser is open and throw a relevant error otherwise
