@@ -854,36 +854,36 @@
                         }
                     }
 
-                    let className = "content ";
+                    let contentClassName = "content ";
                     let pill = "";
                     if(this.props.step.isRunning) {
-                        className += "running running-item";
+                        contentClassName += "running running-item";
                         pill = <span className="pill running">RUNNING</span>;
                     }
                     else if(this.props.step.isPassed) {
                         if(this.props.step.asExpected) {
-                            className += "passed-expected passed-item";
+                            contentClassName += "passed-expected passed-item";
                         }
                         else {
-                            className += "passed-unexpected passed-item";
+                            contentClassName += "passed-unexpected passed-item";
                             pill = <span className="pill unexpected">UNEXPECTED</span>;
                         }
                     }
                     else if(this.props.step.isFailed) {
                         if(this.props.step.asExpected) {
-                            className += "failed-expected failed-item";
+                            contentClassName += "failed-expected failed-item";
                             pill = <span className="pill expected">EXPECTED</span>;
                         }
                         else {
-                            className += "failed-unexpected failed-item";
+                            contentClassName += "failed-unexpected failed-item";
                         }
                     }
                     else if(this.props.step.isSkipped) {
-                        className += "skipped skipped-item";
+                        contentClassName += "skipped skipped-item";
                         pill = <span className="pill skipped">SKIPPED</span>;
                     }
                     else { // not run yet
-                        className += "notrunyet notrunyet-item";
+                        contentClassName += "notrunyet notrunyet-item";
                     }
 
                     let error = "";
@@ -896,9 +896,11 @@
                     }
 
                     let lineElem = (
-                        <span className={className}>
-                            {this.props.step.line.trim()}
-                            {pill}
+                        <span className="line-container">
+                            <span className={contentClassName}>
+                                {this.props.step.line.trim()}
+                                {pill}
+                            </span>
                             <span className="location">[{this.props.step.filename}:{this.props.step.lineNumber}]</span>
                             {error}
                         </span>
