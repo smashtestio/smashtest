@@ -68,8 +68,13 @@ Running tests
 Reports
     - Where to find the report
         - report.html in directory where smashtest run
+            - Live updates. Click a step/branch to pause live updates.
         - dates/
-        - localhost:9000 (if 9000 isn't taken) (not recommended since this endpoint dies when smashtest ends)
+            - Snapshots, not live
+            - _debug.html for debug runs
+        - localhost:9000 (if 9000 isn't taken)
+            - Live updates
+            - Not recommended since this endpoint dies when smashtest ends. Use report.html instead (see console output for absolute path).
     - Pass/fail and expected/unexpected
         - Steps
             - A step passes is no errors are thrown inside of it
