@@ -4580,6 +4580,32 @@ F
             ]);
         });
 
+        it("branchifies a function call where both the function declaration above, and the function call above, have child function declarations of the same name", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
+    F
+
+    * F
+        D -
+
+* A
+    * F
+        C -
+`);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" }, { text: "F" }, { text: "D" } ]
+                }
+            ]);
+        });
+
         it("branchifies a function call with children, whose function declaration has one branch", function() {
             let tree = new Tree();
             tree.parseIn(`

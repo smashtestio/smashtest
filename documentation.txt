@@ -187,6 +187,8 @@ Functions
                     Click Beans
 
                 (Also useful for "Get to page X", where you can either click a link or enter a url)
+                (Also useful for "Select option X", and doing it via keyboard and mouse, or a combination of both -
+                    great for accessibility testing)
         - On Page X pattern, with verifications and setting global vars to selectors in a .. step block
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
