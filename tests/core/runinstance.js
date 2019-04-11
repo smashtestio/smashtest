@@ -5261,6 +5261,24 @@ A -
 
             expect(errorThrown).to.be.true;
         });
+
+        it("can import packages", async function() {
+            let runner = new Runner(new Tree());
+            let runInstance = new RunInstance(runner);
+
+            await expect(runInstance.evalCodeBlock(`
+                let chai = imp('chai');
+                chai.expect(2+3).to.equal(2);
+            `)).to.be.rejectedWith("expected 5 to equal 2");
+
+            await expect(runInstance.evalCodeBlock(`
+                imp('chai');
+                imp('chai-as-promised');
+
+                getPersistent('chai').expect(!!getPersistent('chaiAsPromised')).to.be.true;
+                getPersistent('chai').expect(2+3).to.equal(2);
+            `)).to.be.rejectedWith("expected 5 to equal 2");
+        });
     });
 
     describe("findVarValue()", function() {

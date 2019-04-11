@@ -491,7 +491,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                                         let line = linesToEval[i];
                                         await evalLine(line);
 
-                                        if(i == linesToEval.length - 1 && codeBlockStep === null && !runner.isComplete) {
+                                        if(i == linesToEval.length - 1 && codeBlockStep === null && !runner.isStopped && !runner.isComplete) {
                                             prePrompt(); // include prompt after last line, and only if we're not in the middle of inputting a code block
                                         }
                                     }

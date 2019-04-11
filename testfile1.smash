@@ -4,6 +4,8 @@ One -
         /*return new Promise((res, rej) => {
             setTimeout(res, 10000);
         });*/
+
+        expect(2+3).to.equal(5);
     }
 
         Three -
@@ -15,6 +17,11 @@ One -
     Five -
 
         Six -
+
+Browser test -
+
+    Open Chrome
+
 
 ** Before Every Branch {
     //throw new Error("oops!");

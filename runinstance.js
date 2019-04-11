@@ -589,6 +589,20 @@ class RunInstance {
     }
 
     /**
+     * Imports (via require()) the given package, sets persistent var to the imported object and returns the imported object
+     * If name has -'s, the persistent var's name will be camel cased (e.g., one-two-three --> oneTwoThree)
+     */
+    imp(name) {
+        if(!getPersistent(name)) {
+            let imported = require(name);
+            name = name.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
+            setPersistent(name, imported);
+        }
+
+        return getPersistent(name);
+    }
+
+    /**
      * Evals the given code block
      * @param {String} code - JS code to eval
      * @param {String} [funcName] - The name of the function associated with code
@@ -645,6 +659,16 @@ class RunInstance {
             }
 
             return runInstance.currStep.text;
+        }
+
+        function imp(name) {
+            if(!getPersistent(name)) {
+                let imported = require(name);
+                name = name.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
+                setPersistent(name, imported);
+            }
+
+            return getPersistent(name);
         }
 
         // Generate code
@@ -961,7 +985,7 @@ class RunInstance {
      * @return {Number} The line number offset for evalCodeBlock(), based on the given step
      */
     getLineNumberOffset(step) {
-        if(step.isFunctionCall && !step.isPackaged && !step.isHook) {
+        if(step.isFunctionCall && /*!step.isPackaged &&*/ !step.isHook) {
             return step.originalStepInTree.functionDeclarationInTree.lineNumber;
         }
         else {

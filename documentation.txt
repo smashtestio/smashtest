@@ -269,6 +269,8 @@ Code blocks
         - setLocal(), setGlobal(), setPersistent()
         - getStepText() - great for when matching first part only
         - log(string)
+        - imp(packagename) - sets persistent var and returns the object, camelCases the persistent var name if there are -'s
+            - Usage: let chai = imp('chai');
         - runInstance object (quick summary)
             - runInstance.currStep
             - runInstance.currBranch
