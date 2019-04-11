@@ -159,8 +159,8 @@ Functions
         - Function {{var}} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
             - All function inputs are either {vars}, {{vars}}, 'strings', "strings", or [strings]
             - {{vars}} in a function declaration must all be {{local}}, not {global}
-        - Finds closest matching function declaration in the tree, otherwise looks to packaged functions
-            - Function declaration matches any function call that starts with that declaration, but extra text at end is ok
+        - Finds closest matching function declaration in the tree (always looking top to bottom among siblings), otherwise looks to packaged functions
+            - Function declaration that ends in * matches any function call that starts with that declaration (extra text at end is ok)
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
             - Show example
     - Declaring

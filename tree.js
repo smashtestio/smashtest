@@ -322,7 +322,7 @@ class Tree {
      * @param {Boolean} [isPackaged] - If true, filename is a package file
      */
     parseIn(buffer, filename, isPackaged) {
-        let lines = buffer.split(/[\r\n|\r|\n]/);
+        let lines = buffer.split(/\n/);
 
         // Convert each string in lines to either a Step object
         // For a line that's part of a code block, insert the code into the Step representing the code block and remove that line

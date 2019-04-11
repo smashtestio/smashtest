@@ -1,6 +1,27 @@
-** After Everything {
-    // TODO: kill all Selenium browsers
+// ***************************************
+//  Hooks
+// ***************************************
+
+** Before Everything {
+
 }
+
+** After Everything {
+    // TODO: kill all Selenium browsers, if they exist
+}
+
+** After Every Step {
+    // Take screenshot upon failure
+
+    /*
+        After Every Step sets step.htmlReport to the report html for this step.
+        This is the logging and screenshots that go under the step's name in the report.
+    */
+}
+
+// ***************************************
+//  Open browsers
+// ***************************************
 
 * Open Chrome {
     /*
@@ -9,6 +30,7 @@
     - Logs the version, dimensions, etc.
     */
 }
+    Start 'Chrome desktop'
 
 * Open Firefox {
 
@@ -22,6 +44,10 @@
 
 }
 
+// ***************************************
+//  Browser-dependent functions
+// ***************************************
+
 * Start {{browser}} {
 
 }
@@ -30,32 +56,218 @@
     //  Actions
     // ***************************************
 
+    * Navigate to {{url}} {
+        // url is absolute or relative
+        // check that browser is open and throw a relevant error otherwise
+    }
 
-    // ***************************************
-    //  Asserts
-    // ***************************************
+    * Click {{element}} {
+        // element is selector string or ElementFinder
+    }
+
+    * Double click {{element}} {
+
+    }
+
+    * Hover over {{element}} {
+
+    }
+
+    * Touch {{element}} {
+
+    }
+
+    * Scroll to {{element}} {
+
+    }
+
+    * Get cookie {{name}} {
+
+    }
+
+    * Set cookie {{name}} to {{value}} {
+        // value can include expiration, etc.
+    }
+
+    * Delete cookie {{name}} {
+
+    }
+
+    * Delete all cookies {
+
+    }
+
+    * Clear local storage {
+
+    }
+
+    * Clear cache and cookies {
+        // including local storage
+    }
+
+    * Set browser dimensions to {{x}} by {{y}} {
 
 
-    // ***************************************
-    //  Output
-    // ***************************************
+    }
 
+    * Set browser dimensions to {{preset}} {
+        // 'desktop'/'tablet'/'mobile'
+    }
+
+    * Maximize the browser {
+
+    }
+
+    * Click Back button {
+
+    }
+
+    * Click Forward button {
+
+    }
+
+    * Click Refresh button {
+
+    }
+
+    * Press enter inside of {{element}} {
+
+    }
+
+    * Enter {{text}} into {{element}} {
+        // sendkeys, you can also use unicode codes for special keys like arrows (represented as "<enter>", etc.)
+    }
+
+    * Set {{element}} to {{value}} {
+        // can be textbox, dropdown, etc. (anything with a value)
+    }
+
+    * Check {{element}} {
+        // checkboxes or radio
+    }
+
+    * Uncheck {{element}} {
+        // checkboxes or radio
+    }
+
+    * Select {{value}} from {{element}} {
+        // dropdown, where value is exact text, or nearest text with a warning logged (via log())
+    }
+
+    * Current url {
+        // return current absolute url
+    }
+
+    * Window title {
+        // returns window title
+    }
+
+    * Value of {{element}} {
+        // returns value of element
+    }
+
+    * New tab {
+
+    }
+
+    * Switch to tab with title {{text}} {
+        // window title contains given text
+    }
+
+    * Switch to tab with url {{url}} {
+        // search for full url, then do partial matches
+    }
+
+    * Switch to the {{nth}} tab {
+        // nth in an actual ordinal (strip out the number from this string)
+    }
+
+    * Switch to iframe {{element}} {
+        // element is a selector or ElementFinder of an iframe
+    }
+
+    * Switch to original iframe {
+        // parentFrame aka defaultContent
+    }
+
+    * Wait {{n}} seconds {
+        // webdriver has a function for this
+    }
 
     // ***************************************
     //  Verify
     // ***************************************
 
-    // Verify
-    // Verify 'condition'
-    // condition = 'at least N'/'at most N'/'exactly N'/'every'
+    // TODO:
+    // Set error.continue = true for these steps
+    // All of these steps will verify immediately and fail immediately
 
+    * Verify at page {{page}} {
+        // page is page title or url (absolute or relative)
+        // do a partial match
+    }
+
+    * Verify cookie {{name}} contains {{value}} {
+
+    }
+
+    * Verify {{elementOrText}} comes next {
+        // Verify {{element}} contains {{elementOrText}} sets a pointer the element that was matched
+        // This validates that the given element or text comes after that element in the DOM
+        // Makes it much easier to verify a whole page in a particular order
+    }
+
+    * Verify {{element}} * {
+
+        /*
+            Verify
+            (
+               <empty>
+               |at most N|at least N|exactly N|
+               |at most N of|at least N of|exactly N of|
+               |every
+            )
+            (ElementFinder|Selector|Text)
+            (
+               is|is not|isn't|
+               are|are not|aren't|
+               contains|does not contain|doesn't contain|
+               contain|do not contain|don't contain|
+               exactly contains|does not exactly contain|doesn't exactly contain|
+               exactly contain|do not exactly contain|don't exactly contain|
+               comes before|comes after|
+               come before|come after
+            )
+            (
+               visible|enabled|disabled|checked|unchecked|selected|
+               ElementFinder|Selector|Text
+            )
+        */
+
+        // not visible = in the DOM but hidden, or not in the DOM at all
+
+        // for contains, Text = in innerText, value, etc.
+        //    Checks both inside the DOM (visible stuff) and the element's value (and similar properties)
+        //    Works for checking the selected item in a dropdown too
+
+        // exactly contains = text only
+
+    }
 
     // ***************************************
     //  Wait until
     // ***************************************
 
-    // Wait until
-    // Wait until 'condition'
-    // Wait until X for up to N secs
-    // Wait until 'condition' for up to N secs
-    // condition = 'at least N'/'at most N'/'exactly N'/'every'
+    * Wait until {{element}} * {
+
+    }
+
+    // Same as for Verify, with optional (for up to N (secs|sec|s)|up to N (secs|sec|s)) at the end
+
+    // ***************************************
+    //  Misc
+    // ***************************************
+
+    * Print {{text}} to console {
+
+    }
