@@ -227,7 +227,7 @@ class RunInstance {
                                 }
 
                                 this.setLocalPassedIn(varname, value);
-                                this.appendToLog(`Function parameter {{${varname}}} is '${value}'`, step);
+                                this.appendToLog(`Function parameter {{${varname}}} is ${this.getLogValue(value)}`, step);
                             }
                         }
                         // NOTE: else probably unreachable as varList and inputList are supposed to be the same size
@@ -243,10 +243,10 @@ class RunInstance {
                         this.setVarBeingSet(varBeingSet, value);
 
                         if(varBeingSet.isLocal) {
-                            this.appendToLog(`Setting {{${varBeingSet.name}}} to '${value}'`, step);
+                            this.appendToLog(`Setting {{${varBeingSet.name}}} to ${this.getLogValue(value)}`, step);
                         }
                         else {
-                            this.appendToLog(`Setting {${varBeingSet.name}} to '${value}'`, step);
+                            this.appendToLog(`Setting {${varBeingSet.name}} to ${this.getLogValue(value)}`, step);
                         }
                     }
                 }
@@ -1032,6 +1032,18 @@ class RunInstance {
     setPause(isPaused) {
         this.isPaused = isPaused;
         this.runner.isPaused = isPaused;
+    }
+
+    /**
+     * Returns value, only with quotes attached if it's a string
+     */
+    getLogValue(value) {
+        if(typeof value == 'string') {
+            return `"${value}"`;
+        }
+        else {
+            return value;
+        }
     }
 }
 module.exports = RunInstance;

@@ -25,7 +25,8 @@ Browser test -
         My function '{A} and {{B}}'
             {A} = "Bob"
                 {{B}} = "sucks"
-                
+                    {C} = "{A} {{B}}"
+
         * My function {{text}}
 
 
