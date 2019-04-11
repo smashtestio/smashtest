@@ -603,10 +603,10 @@ class RunInstance {
      */
     imp(packageName, varName) {
         varName = varName || packageName.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
-        if(!getPersistent(varName)) {
-            setPersistent(varName, require(packageName));
+        if(!this.getPersistent(varName)) {
+            this.setPersistent(varName, require(packageName));
         }
-        return getPersistent(varName);
+        return this.getPersistent(varName);
     }
 
     /**
@@ -631,49 +631,35 @@ class RunInstance {
         }
 
         function getPersistent(varname) {
-            return runInstance.persistent[utils.canonicalize(varname)];
+            return runInstance.getPersistent(varname);
         }
 
         function getGlobal(varname) {
-            return runInstance.global[utils.canonicalize(varname)];
+            return runInstance.getGlobal(varname);
         }
 
         function getLocal(varname) {
-            varname = utils.canonicalize(varname);
-            if(runInstance.localsPassedIntoFunc.hasOwnProperty(varname)) {
-                return runInstance.localsPassedIntoFunc[varname]; // probably unreachable from within a code block
-            }
-            else {
-                return runInstance.local[varname];
-            }
+            return runInstance.getLocal(varname);
         }
 
         function setPersistent(varname, value) {
-            runInstance.persistent[utils.canonicalize(varname)] = value;
+            runInstance.setPersistent(varname, value);
         }
 
         function setGlobal(varname, value) {
-            runInstance.global[utils.canonicalize(varname)] = value;
+            runInstance.setGlobal(varname, value);
         }
 
         function setLocal(varname, value) {
-            runInstance.local[utils.canonicalize(varname)] = value;
+            runInstance.setLocal(varname, value);
         }
 
         function getStepText() {
-            if(!runInstance.currStep) {
-                return null;
-            }
-
-            return runInstance.currStep.text;
+            return runInstance.getStepText();
         }
 
         function imp(packageName, varName) {
-            varName = varName || packageName.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
-            if(!getPersistent(varName)) {
-                setPersistent(varName, require(packageName));
-            }
-            return getPersistent(varName);
+            return runInstance.imp(packageName, varName);
         }
 
         // Generate code
