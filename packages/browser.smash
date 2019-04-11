@@ -26,39 +26,28 @@
 // ***************************************
 
 * Open Chrome
-    Start 'chrome'
+    Open browser 'chrome'
 
 * Open Firefox
-    Start 'firefox'
+    Open browser 'firefox'
 
 * Open Safari
-    Start 'safari'
+    Open browser 'safari'
 
 * Open IE
-    Start 'ie'
+    Open browser 'ie'
 
 // ***************************************
 //  Browser-dependent functions
 // ***************************************
 
-// Note: functions under Start {{browser}} are indented because they're only available after a Start {{browser}}
+// Note: functions under Open browser {{browser}} are indented because they're only available after a Open browser {{browser}}
 
-* Start {{browser}} {
-    let webdriver = imp('selenium-webdriver');
-
-    let driver = new webdriver.Builder()
-        .forBrowser('chrome')
-        .build();
-
-    await driver.get('http://www.webdriverjs.com/');
+* Open browser {{browser}} {
+    setGlobal("browser", imp('./js/browser.js'));
 
 
 
-
-
-    // TODO: Start 'chrome 15 desktop headless 1900x1280' (any order)
-    // TODO: headless browsers too
-    // TODO: Log the version, dimensions, etc.
 
 }
 

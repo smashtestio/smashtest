@@ -5320,6 +5320,14 @@ A -
                 getPersistent('chai').expect(!!getPersistent('chaiAsPromised')).to.be.true;
                 getPersistent('chai').expect(2+3).to.equal(2);
             `)).to.be.rejectedWith("expected 5 to equal 2");
+
+            await expect(runInstance.evalCodeBlock(`
+                imp('chai', 'chai');
+                imp('chai-as-promised', 'chaiAsPromised');
+
+                getPersistent('chai').expect(!!getPersistent('chaiAsPromised')).to.be.true;
+                getPersistent('chai').expect(2+3).to.equal(2);
+            `)).to.be.rejectedWith("expected 5 to equal 2");
         });
     });
 

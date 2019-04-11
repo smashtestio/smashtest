@@ -597,17 +597,16 @@ class RunInstance {
     }
 
     /**
-     * Imports (via require()) the given package, sets persistent var to the imported object and returns the imported object
-     * If name has -'s, the persistent var's name will be camel cased (e.g., one-two-three --> oneTwoThree)
+     * Imports (via require()) the given package, sets persistent var varName to the imported object and returns the imported object
+     * If a persistent var with that name already exists, this function only returns the value of that var
+     * If varName is omitted, it is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
      */
-    imp(name) {
-        if(!getPersistent(name)) {
-            let imported = require(name);
-            name = name.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
-            setPersistent(name, imported);
+    imp(packageName, varName) {
+        varName = varName || packageName.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
+        if(!getPersistent(varName)) {
+            setPersistent(varName, require(packageName));
         }
-
-        return getPersistent(name);
+        return getPersistent(varName);
     }
 
     /**
@@ -669,14 +668,12 @@ class RunInstance {
             return runInstance.currStep.text;
         }
 
-        function imp(name) {
-            if(!getPersistent(name)) {
-                let imported = require(name);
-                name = name.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
-                setPersistent(name, imported);
+        function imp(packageName, varName) {
+            varName = varName || packageName.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
+            if(!getPersistent(varName)) {
+                setPersistent(varName, require(packageName));
             }
-
-            return getPersistent(name);
+            return getPersistent(varName);
         }
 
         // Generate code
