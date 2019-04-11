@@ -235,6 +235,7 @@
 
         /*
             Verify
+            (<empty>|that)
             (
                <empty>
                |at most N|at least N|exactly N|
@@ -256,6 +257,22 @@
                visible|enabled|disabled|checked|unchecked|selected|
                ElementFinder|Selector|Text
             )
+
+
+
+
+
+            Verify ['Login' box] ..
+                -> comes after 'something'
+                -> contains 'all the right stuff'
+
+
+            Verify (ElementFinder|Selector|Text) ..
+                -><stuff above, after (ElementFinder|Selector|Text)>
+                -><etc.>
+
+                Implement * -> * right under this function
+                sets runInstance.context = element, and acts on the variable
         */
 
         // not visible = in the DOM but hidden, or not in the DOM at all
