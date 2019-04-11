@@ -26,14 +26,12 @@
 //  Browser-dependent functions
 // ***************************************
 
-// Note: functions under Open browser {{browser}} are indented because they're only available after a Open browser {{browser}}
+// Note: functions under Open browser are indented because they're only available after a Open browser
 
-* Open browser {{browser}} {
-    let b = imp('./packages/js/browser.js', 'b');
-    await b.openBrowser(browser);
-
-
-
+* Open browser {{description}} {
+    let Browser = imp('./packages/js/browser.js', 'Browser');
+    let browser = setGlobal("browser", new Browser());
+    await browser.open(description);
 }
 
     // ***************************************
@@ -56,6 +54,9 @@
     * Navigate to {{url}} {
         // url is absolute or relative
         // check that browser is open and throw a relevant error otherwise
+
+
+        browser.
     }
 
     * Click {{element}} {

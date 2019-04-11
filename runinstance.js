@@ -559,6 +559,7 @@ class RunInstance {
     setPersistent(varname, value) {
         this.persistent[utils.canonicalize(varname)] = value;
         this.persistent[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
+        return value;
     }
 
     /**
@@ -567,6 +568,7 @@ class RunInstance {
     setGlobal(varname, value) {
         this.global[utils.canonicalize(varname)] = value;
         this.global[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
+        return value;
     }
 
     /**
@@ -575,6 +577,7 @@ class RunInstance {
     setLocal(varname, value) {
         this.local[utils.canonicalize(varname)] = value;
         this.local[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
+        return value;
     }
 
     /**
@@ -583,6 +586,7 @@ class RunInstance {
     setLocalPassedIn(varname, value) {
         this.localsPassedIntoFunc[utils.canonicalize(varname)] = value;
         this.localsPassedIntoFunc[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
+        return value;
     }
 
     /**
@@ -643,15 +647,15 @@ class RunInstance {
         }
 
         function setPersistent(varname, value) {
-            runInstance.setPersistent(varname, value);
+            return runInstance.setPersistent(varname, value);
         }
 
         function setGlobal(varname, value) {
-            runInstance.setGlobal(varname, value);
+            return runInstance.setGlobal(varname, value);
         }
 
         function setLocal(varname, value) {
-            runInstance.setLocal(varname, value);
+            return runInstance.setLocal(varname, value);
         }
 
         function getStepText() {

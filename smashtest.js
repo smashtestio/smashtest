@@ -676,8 +676,8 @@ readFiles(["config.json"], {encoding: 'utf8'})
                         process.stdout.write(
                             (elapsed ? (`${elapsed} | `) : ``) +
                             (chalk.greenBright(`${tree.passed} passed`) + ` | `) +
-                            (chalk.redBright(`${tree.failed} failed`) + ` | `) +
-                            (chalk.cyanBright(`${tree.skipped} skipped`) + ` | `) +
+                            (tree.failed > 0 ? chalk.redBright(`${tree.failed} failed`) + ` | ` : ``) +
+                            (tree.skipped > 0 ? chalk.cyanBright(`${tree.skipped} skipped`) + ` | ` : ``) +
                             (`${tree.complete} branches run`)
                         );
                     }
