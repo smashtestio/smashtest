@@ -629,6 +629,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                         }
 
                         tree.updateCounts();
+                        updateElapsed();
 
                         progressBar.stop();
                         progressBar.start(tree.totalSteps, tree.totalStepsComplete);
@@ -675,7 +676,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                     function outputCounts() {
                         process.stdout.write(
                             (elapsed ? (`${elapsed} | `) : ``) +
-                            (chalk.greenBright(`${tree.passed} passed`) + ` | `) +
+                            (tree.passed > 0 ? chalk.greenBright(`${tree.passed} passed`) + ` | ` : ``) +
                             (tree.failed > 0 ? chalk.redBright(`${tree.failed} failed`) + ` | ` : ``) +
                             (tree.skipped > 0 ? chalk.cyanBright(`${tree.skipped} skipped`) + ` | ` : ``) +
                             (`${tree.complete} branches run`)

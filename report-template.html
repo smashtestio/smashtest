@@ -646,6 +646,11 @@
                     runnerStatusElem = <span className="running-item">Currently running</span>;
                 }
 
+                let totalRunning = 0;
+                props.data.tree.branches.forEach(branch => branch.isRunning && totalRunning++);
+
+                let totalNotRunYet = props.data.tree.totalToRun - props.data.tree.complete - totalRunning;
+
                 return (
                     <div className="tree-header">
                         <div className="header">{/*props.data.live ? "Live " : ""*/}SmashTEST Report</div>
@@ -662,10 +667,31 @@
                                 </span>
                             </div>
                             <div className="counts tree-header-item">
-                                <span className="passed-count passed-item"> {props.data.tree.passed} passed</span> |
-                                <span className="failed-count failed-item"> {props.data.tree.failed} failed</span> |
-                                <span className="skipped-count skipped-item"> {props.data.tree.skipped} skipped</span> |
-                                <span className="notrunyet-count notrunyet-item"> {props.data.tree.totalToRun - props.data.tree.complete} not run yet</span> |
+                                {
+                                    totalRunning > 0 ?
+                                    <span><span className="running-count running-item"> {totalRunning} running</span> | </span> :
+                                    ""
+                                }
+                                {
+                                    props.data.tree.passed > 0 ?
+                                    <span><span className="passed-count passed-item"> {props.data.tree.passed} passed</span> | </span> :
+                                    ""
+                                }
+                                {
+                                    props.data.tree.failed > 0 ?
+                                    <span><span className="failed-count failed-item"> {props.data.tree.failed} failed</span> | </span> :
+                                    ""
+                                }
+                                {
+                                    props.data.tree.skipped > 0 ?
+                                    <span><span className="skipped-count skipped-item"> {props.data.tree.skipped} skipped</span> | </span> :
+                                    ""
+                                }
+                                {
+                                    totalNotRunYet > 0 ?
+                                    <span><span className="notrunyet-count notrunyet-item"> {totalNotRunYet} not run yet</span> | </span> :
+                                    ""
+                                }
                                 <span className="total-count notrunyet-item"> {props.data.tree.totalInReport} total branches</span>
                             </div>
 

@@ -1,0 +1,10 @@
+Browser test -
+
+    Open Chrome
+
+        My function '{A} and {{B}}'
+            {A} = "Bob"
+                {{B}} = "sucks"
+                    {C} = "{A} {{B}}"
+
+        * My function {{text}}
