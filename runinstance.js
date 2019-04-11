@@ -243,13 +243,6 @@ class RunInstance {
                     }
                 }
 
-                // Set step's evaluated text
-                let replaceableVars = step.evaluatedText.match(VAR_NOT_EQUAL);
-
-
-
-
-
                 // Step has a code block to execute
                 if(step.hasCodeBlock()) {
                     if(step.isFunctionCall) {
@@ -992,7 +985,7 @@ class RunInstance {
      * @return {Number} The line number offset for evalCodeBlock(), based on the given step
      */
     getLineNumberOffset(step) {
-        if(step.isFunctionCall && !step.isHook) {
+        if(step.isFunctionCall && /*!step.isPackaged &&*/ !step.isHook) {
             return step.originalStepInTree.functionDeclarationInTree.lineNumber;
         }
         else {

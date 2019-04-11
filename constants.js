@@ -30,9 +30,6 @@ exports.VAR = /\{\{[^\{\}\\]+\}\}|\{[^\{\}\\]+\}/g;
 // Same as VAR, only matches the whole line
 exports.VAR_WHOLE = new RegExp("^" + exports.VAR.source + "$");
 
-// Matches {var} or {{var}} that isn't followed by a =
-exports.VAR_NOT_EQUAL = new RegExp(exports.VAR.source + "(?! *=)");
-
 // Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val) as the whole line
 exports.VARS_SET_WHOLE = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)*$/;
 

@@ -31,7 +31,6 @@ class Step {
         this.isTextualStep = false;           // true if this step is textual (-) and not a function call
         this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
         this.functionDeclarationText = "";    // if this step is a function call, this is set to the corresponding function declaration's text
-        this.evaluatedText = "";              // the text of this step, with variables evaluated to their values
 
         this.isToDo = false;                  // true if this step has the To Do identifier (-T)
         this.isManual = false;                // true if this step has the manual identifier (-M)
