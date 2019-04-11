@@ -1162,6 +1162,8 @@ My 'foo' Function 'bar'
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
+
+            expect(tree.branches[0].steps[0].evaluatedText).to.equal(`"foo" My "bar"  Function 'blah'`);
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in {variables}", async function() {

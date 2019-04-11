@@ -103,6 +103,7 @@ class Tree {
 
         // Parsed parts of the line
         step.text = matches[5];
+        step.evaluatedText = step.text;
         if(matches[4]) {
             step.isFunctionDeclaration = true;
             if(matches[4].trim() == '**') {
