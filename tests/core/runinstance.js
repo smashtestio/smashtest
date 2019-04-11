@@ -1201,6 +1201,31 @@ My {A} Function { b }
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
+        it("executes a function call with {{variables}} in its function declaration, passing in {variables} set to js objects", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Set vars {
+    setGlobal("A", {foo:"bar"});
+}
+
+    My Function { A }
+
+* My Function {{X}} {
+    runInstance.one = x;
+}
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+            expect(runInstance.one).to.eql({foo:"bar"});
+            expect(tree.branches[0].steps[1].log[0]).to.eql( {text: "Function parameter {{X}} is [object Object]"} );
+        });
+
         it("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async function() {
             let tree = new Tree();
             tree.parseIn(`

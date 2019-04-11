@@ -25,31 +25,23 @@
 //  Open browsers
 // ***************************************
 
-* Open Chrome {
-    /*
-    - Logs the version, dimensions, etc.
-    */
-}
+* Open Chrome
     Start 'chrome'
 
-* Open Firefox {
+* Open Firefox
+    Start 'firefox'
 
-}
-    Start {{browser}}
+* Open Safari
+    Start 'safari'
 
-* Open Safari {
-
-}
-    Start {{browser}}
-
-* Open IE {
-
-}
-    Start {{browser}}
+* Open IE
+    Start 'ie'
 
 // ***************************************
 //  Browser-dependent functions
 // ***************************************
+
+// Note: functions under Start {{browser}} are indented because they're only available after a Start {{browser}}
 
 * Start {{browser}} {
     let webdriver = imp('selenium-webdriver');
@@ -66,6 +58,7 @@
 
     // TODO: Start 'chrome 15 desktop headless 1900x1280' (any order)
     // TODO: headless browsers too
+    // TODO: Log the version, dimensions, etc.
 
 }
 
@@ -301,6 +294,8 @@
         //    Works for checking the selected item in a dropdown too
 
         // exactly contains = text only
+
+        // don't forget to log "Function parameter..." for params that come after the *
 
     }
 
