@@ -227,6 +227,7 @@ class RunInstance {
                                 }
 
                                 this.setLocalPassedIn(varname, value);
+                                this.appendToLog(`Function parameter {{${varname}}} is '${value}'`, step);
                             }
                         }
                         // NOTE: else probably unreachable as varList and inputList are supposed to be the same size
@@ -240,6 +241,13 @@ class RunInstance {
                         let value = utils.stripQuotes(varBeingSet.value);
                         value = this.replaceVars(value, step, branch);
                         this.setVarBeingSet(varBeingSet, value);
+
+                        if(varBeingSet.isLocal) {
+                            this.appendToLog(`Setting {{${varBeingSet.name}}} to '${value}'`, step);
+                        }
+                        else {
+                            this.appendToLog(`Setting {${varBeingSet.name}} to '${value}'`, step);
+                        }
                     }
                 }
 
@@ -985,7 +993,7 @@ class RunInstance {
      * @return {Number} The line number offset for evalCodeBlock(), based on the given step
      */
     getLineNumberOffset(step) {
-        if(step.isFunctionCall && /*!step.isPackaged &&*/ !step.isHook) {
+        if(step.isFunctionCall && !step.isHook) {
             return step.originalStepInTree.functionDeclarationInTree.lineNumber;
         }
         else {

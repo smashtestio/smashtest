@@ -22,6 +22,12 @@ Browser test -
 
     Open Chrome
 
+        My function '{A} and {{B}}'
+            {A} = "Bob"
+                {{B}} = "sucks"
+                
+        * My function {{text}}
+
 
 ** Before Every Branch {
     //throw new Error("oops!");
