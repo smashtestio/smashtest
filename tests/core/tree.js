@@ -3601,6 +3601,66 @@ My function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
+        it("finds the first function declaration when multiple sibling function declarations match the same name", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My big function
+
+* My big function
+    First -
+
+* My big *
+    Second -
+`);
+
+            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "My big function",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "First",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+        });
+
+        it("finds the first function declaration, that ends in a *, when multiple sibling function declarations match the same name", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My big function
+
+* My big *
+    First -
+
+* My big function
+    Second -
+`);
+
+            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "My big *",
+                isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "First",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+        });
+
         it("finds the right function when a function call contains strings and variables", function() {
             let tree = new Tree();
             tree.parseIn(`
