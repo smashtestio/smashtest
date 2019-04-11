@@ -274,6 +274,8 @@
 
                 Implement * -> * right under this function
                 sets runInstance.context = element, and acts on the variable
+                A Verify step with only Verify X will check that runInstance.currStep.isSequential, or that it only has one
+                    child in the tree (either a Step or a StepBlock with isSequential set), and if not will throw a runtime Error
         */
 
         // not visible = in the DOM but hidden, or not in the DOM at all
