@@ -1900,6 +1900,33 @@ My 'foo' Function 'bar'
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
+        it('handles extra text in a step, and the step text is accessible via getStepText()', async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My 'foo' Function 'bar' other text
+
+* My {{one}} Function {{two}} {
+    runInstance.one = one;
+    runInstance.two = two;
+    runInstance.three = getStepText();
+}
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            runInstance.currStep = tree.branches[0].steps[0];
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.one).to.equal("foo");
+            expect(runInstance.two).to.equal("bar");
+            expect(runInstance.three).to.equal("My 'foo' Function 'bar' other text");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+        });
+
         it("executes a {var} = 'string' step", async function() {
             let tree = new Tree();
             tree.parseIn(`

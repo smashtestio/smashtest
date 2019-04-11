@@ -504,22 +504,28 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("doesn't match a function declaration with {{vars}} and a function call with extra {vars} at the end", function() {
+        it("matches a function declaration with {{vars}} and a function call with extra text at the end", function() {
+            functionDeclaration.text = "Step {{var1}}";
+            functionCall.text = "Step 'one' two three";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function declaration with {{vars}} and a function call with extra {vars} at the end", function() {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step {varA} {varB}";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("doesn't match a function declaration with {{vars}} and a function call with extra 'strings' at the end", function() {
+        it("matches a function declaration with {{vars}} and a function call with extra 'strings' at the end", function() {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step 'stringA' 'stringB'";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("doesn't match a function declaration with {{vars}} and a function call with extra [string] at the end", function() {
+        it("matches a function declaration with {{vars}} and a function call with extra [string] at the end", function() {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step {varA} ['element' finderB]";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
     });
 

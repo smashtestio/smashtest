@@ -160,6 +160,7 @@ Functions
             - All function inputs are either {vars}, {{vars}}, 'strings', "strings", or [strings]
             - {{vars}} in a function declaration must all be {{local}}, not {global}
         - Finds closest matching function declaration in the tree, otherwise looks to packaged functions
+            - Function declaration matches any function call that starts with that declaration, but extra text at end is ok
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
             - Show example
     - Declaring
@@ -264,6 +265,7 @@ Code blocks
     - JS functions and variables available
         - getLocal(), getGlobal(), getPersistent()
         - setLocal(), setGlobal(), setPersistent()
+        - getStepText() - great for when matching first part only
         - log(string)
         - runInstance object (quick summary)
             - runInstance.currStep

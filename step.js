@@ -151,7 +151,7 @@ class Step {
         functionCallText = utils.unescape(functionCallText);
         functionCallText = utils.canonicalize(functionCallText);
 
-        return functionDeclarationText == functionCallText;
+        return functionCallText.startsWith(functionDeclarationText);
     }
 
     /**

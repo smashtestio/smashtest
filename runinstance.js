@@ -578,6 +578,17 @@ class RunInstance {
     }
 
     /**
+     * @return Text of the current step, or null if there's no current step
+     */
+    getStepText() {
+        if(!this.currStep) {
+            return null;
+        }
+
+        return this.currStep.text;
+    }
+
+    /**
      * Evals the given code block
      * @param {String} code - JS code to eval
      * @param {String} [funcName] - The name of the function associated with code
@@ -626,6 +637,14 @@ class RunInstance {
 
         function setLocal(varname, value) {
             runInstance.local[utils.canonicalize(varname)] = value;
+        }
+
+        function getStepText() {
+            if(!runInstance.currStep) {
+                return null;
+            }
+
+            return runInstance.currStep.text;
         }
 
         // Generate code

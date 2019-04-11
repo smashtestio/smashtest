@@ -30,7 +30,7 @@ let reporter = new Reporter(tree, runner);
 
 // ***************************************
 //  Exit and cleanup
-// ******************************g*********
+// ***************************************
 process.on('SIGINT', () => { // Ctrl + C (except when REPL is open)
     console.log("");
     console.log("");

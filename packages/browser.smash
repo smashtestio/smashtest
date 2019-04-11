@@ -1,0 +1,61 @@
+** After Everything {
+    // TODO: kill all Selenium browsers
+}
+
+* Open Chrome {
+    /*
+    - If webdriver hasn't been require()'ed yet, does so and into a new var in RunInstance
+    - Creates browser object in RunInstance
+    - Logs the version, dimensions, etc.
+    */
+}
+
+* Open Firefox {
+
+}
+
+* Open Safari {
+
+}
+
+* Open IE {
+
+}
+
+* Start {{browser}} {
+
+}
+
+    // ***************************************
+    //  Actions
+    // ***************************************
+
+
+    // ***************************************
+    //  Asserts
+    // ***************************************
+
+
+    // ***************************************
+    //  Output
+    // ***************************************
+
+
+    // ***************************************
+    //  Verify
+    // ***************************************
+
+    // Verify
+    // Verify 'condition'
+    // condition = 'at least N'/'at most N'/'exactly N'/'every'
+
+
+    // ***************************************
+    //  Wait until
+    // ***************************************
+
+    // Wait until
+    // Wait until 'condition'
+    // Wait until X for up to N secs
+    // Wait until 'condition' for up to N secs
+    // condition = 'at least N'/'at most N'/'exactly N'/'every'
