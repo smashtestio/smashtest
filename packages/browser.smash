@@ -2,21 +2,6 @@
 //  Hooks
 // ***************************************
 
-** Before Everything {
-    let chai = imp('chai');
-    let chaiSubset = imp('chai-subset');
-    let chaiSubsetInOrder = imp('chai-subset-in-order');
-
-    chai.use(chaiSubset);
-    chai.use(chaiSubsetInOrder);
-
-    let expect = chai.expect;
-    let assert = chai.assert;
-
-    setPersistent("expect", expect);
-    setPersistent("assert", assert);
-}
-
 ** After Everything {
     // TODO: kill all Selenium browsers, if they exist
 }
@@ -44,8 +29,8 @@
 // Note: functions under Open browser {{browser}} are indented because they're only available after a Open browser {{browser}}
 
 * Open browser {{browser}} {
-    setGlobal("browser", imp('./js/browser.js'));
-
+    let b = imp('./packages/js/browser.js', 'browser');
+    await b.openBrowser('chrome');
 
 
 

@@ -1,41 +1,122 @@
-// TODO: Set error.continue = true for these steps
+// ***************************************
+//  Hooks
+// ***************************************
+
+** Before Everything {
+    let chai = imp('chai');
+    let chaiSubset = imp('chai-subset');
+    let chaiSubsetInOrder = imp('chai-subset-in-order');
+
+    chai.use(chaiSubset);
+    chai.use(chaiSubsetInOrder);
+
+    let expect = chai.expect;
+    let assert = chai.assert;
+
+    setPersistent("expect", expect);
+    setPersistent("assert", assert);
+}
+
+// ***************************************
+//  Functions
+// ***************************************
 
 * Verify {{a}} equals {{b}} {
-
+    try {
+        expect(a).to.equal(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} == {{b}} {
-
+    try {
+        expect(a).to.equal(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} is greater than {{b}} {
-
+    try {
+        expect(a).to.be.above(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} > {{b}} {
-
+    try {
+        expect(a).to.be.above(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} is greater than or equal to {{b}} {
-
+    try {
+        expect(a).to.be.at.least(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} >= {{b}} {
-
+    try {
+        expect(a).to.be.at.least(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} is less than {{b}} {
-
+    try {
+        expect(a).to.be.below(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} < {{b}} {
-
+    try {
+        expect(a).to.be.below(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} is less than or equal to {{b}} {
-
+    try {
+        expect(a).to.be.at.most(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }
 
 * Verify {{a}} <= {{b}} {
-
+    try {
+        expect(a).to.be.at.most(b);
+    }
+    catch(e) {
+        e.continue = true;
+        throw e;
+    }
 }

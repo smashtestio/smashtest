@@ -1,12 +1,11 @@
-function openBrowser(browser) {
-    let webdriver = imp('selenium-webdriver');
+const webdriver = require('selenium-webdriver');
 
+module.exports.openBrowser = async (browserName) => {
     let driver = new webdriver.Builder()
-        .forBrowser('chrome')
+        .forBrowser(browserName)
         .build();
 
     await driver.get('http://www.webdriverjs.com/');
-
 
 
 

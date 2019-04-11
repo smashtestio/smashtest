@@ -269,7 +269,7 @@ Code blocks
         - setLocal(), setGlobal(), setPersistent()
         - getStepText() - great for when matching first part only
         - log(string)
-        - imp(packagename) - sets persistent var and returns the object, camelCases the persistent var name if there are -'s
+        - imp(packageName, varName) - sets persistent var varName and returns the object (if varName omitted, generates it by camel casing packageName, e.g., one-two-three --> oneTwoThree)
             - Usage: let chai = imp('chai');
         - runInstance object (quick summary)
             - runInstance.currStep
@@ -277,6 +277,12 @@ Code blocks
             - runInstance.tree
         - runInstance.runner Object (quick summary)
         - throw new Error("error msg")
+    - JS file pattern
+        - Discuss putting complex code into its own js file, and doing this in a code block: {
+            let yf = imp('./yourfile.js', 'yf');
+            yf.something();
+        }
+            - Helps a lot with stack traces. Code blocks are recommended for short snippets of code, 1-5 lines long.
     - Pitfalls
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., setLocal(), setGlobal(), setPersistent()) instead.
