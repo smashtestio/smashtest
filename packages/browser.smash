@@ -53,6 +53,16 @@
 // ***************************************
 
 * Start {{browser}} {
+    if(!runInstance.webdriver) {
+        runInstance.webdriver = require('selenium-webdriver');
+    }
+
+
+
+
+
+
+
 
 }
 

@@ -13,7 +13,7 @@
     "mustache": "^3.0.1",
     "read-files-promise": "^1.1.1",
     "save": "^2.3.3",
-    "webdriverio": "^5.0.0"
+    "selenium-webdriver": "^4.0.0-alpha.1"
   },
   "private": true,
   "devDependencies": {
