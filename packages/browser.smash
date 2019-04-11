@@ -29,8 +29,8 @@
 // Note: functions under Open browser {{browser}} are indented because they're only available after a Open browser {{browser}}
 
 * Open browser {{browser}} {
-    let b = imp('./packages/js/browser.js', 'browser');
-    await b.openBrowser('chrome');
+    let b = imp('./packages/js/browser.js', 'b');
+    await b.openBrowser(browser);
 
 
 
@@ -221,8 +221,8 @@
             (<empty>|that)
             (
                <empty>
-               |at most N|at least N|exactly N|
-               |at most N of|at least N of|exactly N of|
+               |at most N|at least N|more than N|less than N|exactly N|
+               |at most N of|at least N of|more than N of|less than N of|exactly N of|
                |every
             )
             (ElementFinder|Selector|Text)
