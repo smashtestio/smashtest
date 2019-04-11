@@ -468,6 +468,7 @@
                         live: true
                     };
                     this.preState = null;
+                    this.slowPoll = false;
 
                     // Parse in tree
                     let treeContent = document.querySelector("meta[name=tree]").getAttribute("content");
@@ -509,9 +510,10 @@
                 setUpdateLoop() {
                     // Start update loop
                     const UPDATE_FREQUENCY = 500; // in ms
+                    const UPDATE_FREQUENCY_SLOW = 5000; // in ms
                     setTimeout(async() => {
                         this.updateData().finally(this.setUpdateLoop);
-                    }, UPDATE_FREQUENCY);
+                    }, this.slowPoll ? UPDATE_FREQUENCY_SLOW : UPDATE_FREQUENCY);
                 }
 
                 updateData() {
@@ -525,20 +527,24 @@
                                     preState = JSON.parse(xhr.response);
                                 }
                                 catch(e) {
+                                    this.slowPoll = true;
                                     resolve(); // fail silently
                                     return;
                                 }
 
                                 if(!preState) {
+                                    this.slowPoll = true;
                                     resolve(); // fail silently
                                     return;
                                 }
 
+                                this.slowPoll = false;
                                 self.preState = preState;
                                 self.updateState();
                                 resolve();
                             });
                             xhr.addEventListener("error", () => {
+                                this.slowPoll = true;
                                 self.updateState();
                                 resolve(); // fail silently
                             });
