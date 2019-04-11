@@ -35,7 +35,7 @@ Running tests
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
     - Command line options
-        - -repl
+        - -repl or -r
         - -maxInstances=5
             - 5 if omitted
         - -noDebug

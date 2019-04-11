@@ -134,6 +134,7 @@ function processFlag(name, value) {
             }
             break;
 
+        case "r":
         case "repl":
             runner.repl = true;
             break;
@@ -267,7 +268,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
         for(let i = 2; i < process.argv.length; i++) {
             let arg = process.argv[i];
             if(arg.startsWith("-")) {
-                let matches = arg.match(/\-([^\=]+)(\=(.*))?/);
+                let matches = arg.match(/\-\-?([^\=]+)(\=(.*))?/);
                 if(!matches) {
                     utils.error("Invalid argument: " + arg);
                 }

@@ -246,6 +246,7 @@
             (
                is|is not|isn't|
                are|are not|aren't|
+               has|has not|hasn't|
                contains|does not contain|doesn't contain|
                contain|do not contain|don't contain|
                exactly contains|does not exactly contain|doesn't exactly contain|
@@ -254,7 +255,7 @@
                come before|come after
             )
             (
-               visible|enabled|disabled|checked|unchecked|selected|
+               visible|enabled|disabled|checked|unchecked|selected|focused|in focus|focus
                ElementFinder|Selector|Text
             )
 
