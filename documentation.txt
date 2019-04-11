@@ -43,7 +43,7 @@ Running tests
         - -reportDomain=http://domain:port
             - This is where the apis will be exposed for reports to get live updates
             - Port indicates what port smashtest should run on
-                - If omitted, an open port will be chosen, starting with port 9000 (since 8000's are usually where your apps run)
+                - If omitted, an open port will be chosen, starting with port 9000
             - Domain indicates the domain of the machine you're running smashtest on
                 - If omitted, localhost will be chosen
                 - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
