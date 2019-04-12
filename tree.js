@@ -128,6 +128,12 @@ class Tree {
         if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
             utils.error("Invalid step name", filename, lineNumber);
         }
+        if(step.text.match(Constants.IDENTIFIER_START)) {
+            utils.error("You must have a space after an indentifier at the start of the line", filename, lineNumber);
+        }
+        if(step.text.match(Constants.IDENTIFIER_END)) {
+            utils.error("You must have a space before an indentifier at the end of the line", filename, lineNumber);
+        }
 
         // * Function Declaration
         if(step.isFunctionDeclaration) {

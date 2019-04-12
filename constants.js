@@ -6,6 +6,15 @@
 // Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
 exports.LINE_WHOLE = /^\s*(((\-T|\-M|\-|\+|\.\.|\#|\~|\$)\s+)*)(\*\*?\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-M|\-|\+|\.\.|\#|\~|\$))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
 
+// Matches an identifier by itself
+exports.IDENTIFIER = /\-T|\-M|\-|\+|\.\.|\#|\~|\$/;
+
+// Matches text that starts with an identifier
+exports.IDENTIFIER_START = new RegExp("^(" + exports.IDENTIFIER.source + ")");
+
+// Matches text that ends with an identifier
+exports.IDENTIFIER_END = new RegExp("(" + exports.IDENTIFIER.source + ")$");
+
 // Matches a line that's entirely a // comment
 exports.FULL_LINE_COMMENT = /^\s*\/\//;
 

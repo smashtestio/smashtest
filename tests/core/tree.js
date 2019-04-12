@@ -118,8 +118,36 @@ describe("Tree", function() {
             }, "Invalid step name [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`...`, "file.txt", 10);
+                tree.parseLine(`.`, "file.txt", 10);
             }, "Invalid step name [file.txt:10]");
+        });
+
+        it("throws an error if a step starts with an identifier followed by no space", function() {
+            assert.throws(() => {
+                tree.parseLine(`$Hello world`, "file.txt", 10);
+            }, "You must have a space after an indentifier at the start of the line [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`    ~ $Hello world    `, "file.txt", 10);
+            }, "You must have a space after an indentifier at the start of the line [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`~$ Hello world`, "file.txt", 10);
+            }, "You must have a space after an indentifier at the start of the line [file.txt:10]");
+        });
+
+        it("throws an error if a step ends with an identifier with no space before it", function() {
+            assert.throws(() => {
+                tree.parseLine(`Hello world$`, "file.txt", 10);
+            }, "You must have a space before an indentifier at the end of the line [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`    Hello world.. $    `, "file.txt", 10);
+            }, "You must have a space before an indentifier at the end of the line [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`Hello world ..$`, "file.txt", 10);
+            }, "You must have a space before an indentifier at the end of the line [file.txt:10]");
         });
 
         it("throws an error if a step has the name of a hook", function() {
@@ -507,7 +535,7 @@ describe("Tree", function() {
             }, "{vars} can only be set to 'strings', \"strings\", or [strings] [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`{var}=...`, "file.txt", 10);
+                tree.parseLine(`{var}=.`, "file.txt", 10);
             }, "{vars} can only be set to 'strings', \"strings\", or [strings] [file.txt:10]");
         });
 
