@@ -251,15 +251,26 @@
                 -> comes after 'something'
                 -> contains 'all the right stuff'
 
+                or
+
+                it comes after 'something'
+                it contains 'all the right stuff'
+
 
             Verify (ElementFinder|Selector|Text) ..
                 -><stuff above, after (ElementFinder|Selector|Text)>
                 -><etc.>
 
-                Implement * -> * right under this function
+                it <stuff above, after (ElementFinder|Selector|Text)>
+                it <etc.>
+
+                Implement * -> * / * it * right under this function
                 sets runInstance.context = element, and acts on the variable
+
                 A Verify step with only Verify X will check that runInstance.currStep.isSequential, or that it only has one
                     child in the tree (either a Step or a StepBlock with isSequential set), and if not will throw a runtime Error
+
+                The top Verify step waits for 1 sec as usual, but the ->/it statements don't wait at all, and they're continue = true
         */
 
         // not visible = in the DOM but hidden, or not in the DOM at all
@@ -271,6 +282,15 @@
         // exactly contains = text only
 
         // don't forget to log "Function parameter..." for params that come after the *
+
+        /*
+        Another idea:
+
+            The {{element}} ..  // The {{element}} merely sets the global {it} to the element
+                Verify {it} is 'red'
+                Verify {it} contains 'milk'
+                Click {it}
+        */
 
     }
 

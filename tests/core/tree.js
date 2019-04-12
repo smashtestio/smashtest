@@ -11494,7 +11494,7 @@ F
 
             expect(branches).to.containSubsetInOrder([
                 {
-                    steps: [ { text: "F" }, { text: "F" }, { text: "A" } ]
+                    steps: [ { text: "F", lineNumber: 2 }, { text: "F", lineNumber: 5 }, { text: "A", lineNumber: 8 } ]
                 }
             ]);
         });
