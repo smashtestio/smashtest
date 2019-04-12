@@ -125,29 +125,45 @@ describe("Tree", function() {
         it("throws an error if a step starts with an identifier followed by no space", function() {
             assert.throws(() => {
                 tree.parseLine(`$Hello world`, "file.txt", 10);
-            }, "You must have a space after an indentifier at the start of the line [file.txt:10]");
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`    ~ $Hello world    `, "file.txt", 10);
-            }, "You must have a space after an indentifier at the start of the line [file.txt:10]");
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`~$ Hello world`, "file.txt", 10);
-            }, "You must have a space after an indentifier at the start of the line [file.txt:10]");
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`.. ~$ Hello world`, "file.txt", 10);
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`~$ .. Hello world`, "file.txt", 10);
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
         });
 
         it("throws an error if a step ends with an identifier with no space before it", function() {
             assert.throws(() => {
                 tree.parseLine(`Hello world$`, "file.txt", 10);
-            }, "You must have a space before an indentifier at the end of the line [file.txt:10]");
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`    Hello world.. $    `, "file.txt", 10);
-            }, "You must have a space before an indentifier at the end of the line [file.txt:10]");
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`Hello world ..$`, "file.txt", 10);
-            }, "You must have a space before an indentifier at the end of the line [file.txt:10]");
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`Hello world ..$ ~`, "file.txt", 10);
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`Hello world ~ ..$`, "file.txt", 10);
+            }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
         });
 
         it("throws an error if a step has the name of a hook", function() {

@@ -9,11 +9,8 @@ exports.LINE_WHOLE = /^\s*(((\-T|\-M|\-|\+|\.\.|\#|\~|\$)\s+)*)(\*\*?\s+)?(('([^
 // Matches an identifier by itself
 exports.IDENTIFIER = /\-T|\-M|\-|\+|\.\.|\#|\~|\$/;
 
-// Matches text that starts with an identifier
-exports.IDENTIFIER_START = new RegExp("^(" + exports.IDENTIFIER.source + ")");
-
-// Matches text that ends with an identifier
-exports.IDENTIFIER_END = new RegExp("(" + exports.IDENTIFIER.source + ")$");
+// Matches text that starts or ends with an identifier
+exports.IDENTIFIER_START_OR_END = new RegExp("^(" + exports.IDENTIFIER.source + ")|(" + exports.IDENTIFIER.source + ")$");
 
 // Matches a line that's entirely a // comment
 exports.FULL_LINE_COMMENT = /^\s*\/\//;
