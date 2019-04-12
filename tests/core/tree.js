@@ -9748,18 +9748,6 @@ G -
         it("throws an exception when there's an infinite loop among function calls", function() {
             let tree = new Tree();
             tree.parseIn(`
-F
-
-* F
-    F
-    `, "file.txt");
-
-            assert.throws(() => {
-                tree.branchify(tree.root);
-            }, "Maximum call stack size exceeded");
-
-            tree = new Tree();
-            tree.parseIn(`
 A
 
 * A
@@ -11472,6 +11460,107 @@ A -
                 { text: "After Everything", codeBlock: "\n    C\n", isPackaged: true }
             ]);
         });
+
+        it("doesn't allow a function to call itself", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    F
+            `, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:5]");
+        });
+
+        it("doesn't allow a function to call itself and finds a function with the same name beyond", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    F
+
+* F
+    A -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" }, { text: "F" }, { text: "A" } ]
+                }
+            ]);
+        });
+
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, more complex example", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Start browser
+    Nav to page
+
+* Start browser
+    Starting browser -
+
+    * Nav to page
+        Specific nav to page -
+            Nav to page
+
+* Nav to page
+    Generic nav to page -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(6);
+
+            expect(branches[0].steps[0].text).to.equal("Start browser");
+            expect(branches[0].steps[1].text).to.equal("Starting browser");
+            expect(branches[0].steps[2].text).to.equal("Nav to page");
+            expect(branches[0].steps[3].text).to.equal("Specific nav to page");
+            expect(branches[0].steps[4].text).to.equal("Nav to page");
+            expect(branches[0].steps[5].text).to.equal("Generic nav to page");
+        });
+
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
+    F
+        F
+            F
+
+* A
+    * F
+        * F
+            * F
+                Specific -
+                    F
+
+* F
+    Generic -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(7);
+
+            expect(branches[0].steps[0].text).to.equal("A");
+            expect(branches[0].steps[1].text).to.equal("F");
+            expect(branches[0].steps[2].text).to.equal("F");
+            expect(branches[0].steps[3].text).to.equal("F");
+            expect(branches[0].steps[4].text).to.equal("Specific");
+            expect(branches[0].steps[5].text).to.equal("F");
+            expect(branches[0].steps[6].text).to.equal("Generic");
+        });
     });
 
     describe("generateBranches()", function() {
@@ -11556,18 +11645,6 @@ A -
 
         it("throws an exception when there's an infinite loop among function calls", function() {
             let tree = new Tree();
-            tree.parseIn(`
-F
-
-* F
-    F
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.generateBranches();
-            }, "Infinite loop detected [file.txt:5]");
-
-            tree = new Tree();
             tree.parseIn(`
 A
 

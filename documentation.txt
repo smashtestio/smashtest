@@ -172,7 +172,14 @@ Functions
             - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
                 - Functions and {vars} declared inside a function are accessible to children of the caller step
     - Functions are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
-    - Examples
+    - When * F has a call to F inside it, that call will find the closest * F, but not the parent * F.
+        - Prevents infinite loops and allows a specific function to call a more generic one
+        - For example, declare a * Navigate to intercept Navigate children, do something like logging or security checks, then
+            call Navigate to pass control to the generic * Navigate
+            * Navigate to {{url}}
+                Security checks
+                    Navigate to {{url}} // call to the generic one
+    - Examples (maybe distribute these among the sections above)
         - Using functions to encapsulate common steps
         - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)
         - Using functions to organize testing (have a high-level tree that describes your app, where each leaf is a function call to a function with multiple branches, where all the testing for that specific component occurs)
@@ -190,6 +197,9 @@ Functions
                 (Also useful for "Select option X", and doing it via keyboard and mouse, or a combination of both -
                     great for accessibility testing)
         - On Page X pattern, with verifications and setting global vars to selectors in a .. step block
+        - Setting context pattern, e.g., Open browser X will establish Click, etc. as browser-oriented functions. But a future call
+            to something like Open phone (whose function declaration has its own declarations for Click, etc.) sets the "context" to the phone,
+            sending further child steps to the phone's functions
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
 

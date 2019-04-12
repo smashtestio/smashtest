@@ -538,6 +538,7 @@ class Tree {
 
     /**
      * Finds the nearest function declaration step under this.root that matches a given function call step
+     * Does not choose a function declaration already represented inside stepsAbove (a function cannot call itself)
      * @param {Array} stepsAbove - Array of Step (no StepBlocks), steps above the function call step (with functions, step blocks, etc. already expanded by branchify()), with the function call step at the very end of the array
      * @return {Step} The nearest function declaration under this.root that matches the function call step
      * @throws {Error} If a matching function declaration could not be found
@@ -548,24 +549,30 @@ class Tree {
         // Suppose function declaration B is declared inside function declaration A. If A is called, B has to be accessible
         // to the steps under the call to A. This can only be done if the call to A has been "expanded" (has the steps from
         // A's declaration attached).
+        // Also, if F is called within * F, we search for the closest * F that's not the current * F
 
         let index = stepsAbove.length - 1;
         let functionCall = stepsAbove[index];
 
+        // Go all the way up the tree and find cases where F is being called from within * F (recursion not allowed)
+        // Add * F to a list of untouchables
+        let untouchables = [];
+        for(let s = functionCall.originalStepInTree; s.indents != -1; s = s.parent || s.containingStepBlock.parent) {
+            if(s.isFunctionDeclaration && functionCall.isFunctionMatch(s)) {
+                untouchables.push(s);
+            }
+        }
+
         for(; index >= 0; index--) {
             let currStepInTree = stepsAbove[index].originalStepInTree;
 
-            let siblings = [];
-            if(currStepInTree.parent) { // currStep is not inside a StepBlock
-                siblings = currStepInTree.parent.children;
-            }
-            else { // currStep is inside a StepBlock
-                siblings = currStepInTree.containingStepBlock.parent.children; // these are the siblings of the step block's parent (remember, step blocks themselves cannot have function declarations)
-            }
+            // Search for a sibling of currStepInTree that matches the function declaration we're looking for
+            let parent = currStepInTree.parent || currStepInTree.containingStepBlock.parent;
+            let siblings = parent.children;
 
             for(let i = 0; i < siblings.length; i++) {
                 let sibling = siblings[i];
-                if(sibling.isFunctionDeclaration && functionCall.isFunctionMatch(sibling)) {
+                if(sibling.isFunctionDeclaration && functionCall.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
                     return sibling;
                 }
             }
