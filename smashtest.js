@@ -177,6 +177,18 @@ function onError(e) {
 }
 
 /**
+ * Returns "es" if count == 1
+ */
+function plural(count) {
+    if(count == 1) {
+        return "";
+    }
+    else {
+        return "es";
+    }
+}
+
+/**
  * Runs HTTP server
  */
 async function runServer() {
@@ -380,7 +392,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                 function outputCompleteMessage() {
                     console.log(``);
                     console.log(yellowChalk("Run complete"));
-                    console.log(`${tree.complete} branches ran` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``));
+                    console.log(`${tree.complete} branch${plural(tree.complete)} ran` + (!runner.noReport ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``));
                     if(!runner.noReport) {
                         console.log(`Report at: ` + chalk.gray.italic(reporter.reportPath));
                     }
@@ -407,7 +419,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                         return;
                     }
 
-                    console.log(`${tree.totalToRun} branches to run` + (!runner.noReport ? ` | ${tree.totalInReport} branches in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
+                    console.log(`${tree.totalToRun} branch${plural(tree.totalToRun)} to run` + (!runner.noReport ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
                     if(!runner.noReport) {
                         console.log(`Live report at: ` + chalk.gray.italic(reporter.reportPath));
                     }
@@ -429,7 +441,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                             runner.consoleOutput = true;
                         }
                         else if(tree.totalToRun > 1) {
-                            utils.error(`There are ${tree.totalToRun} branches to run but you can only have 1 to run -repl. Try isolating a branch with ~.`);
+                            utils.error(`There are ${tree.totalToRun} branch${plural(tree.totalToRun)} to run but you can only have 1 to run -repl. Try isolating a branch with ~.`);
                         }
                         else {
                             runner.consoleOutput = true;
@@ -683,7 +695,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                             (tree.passed > 0 ? chalk.greenBright(`${tree.passed} passed`) + ` | ` : ``) +
                             (tree.failed > 0 ? chalk.redBright(`${tree.failed} failed`) + ` | ` : ``) +
                             (tree.skipped > 0 ? chalk.cyanBright(`${tree.skipped} skipped`) + ` | ` : ``) +
-                            (`${tree.complete} branches run`)
+                            (`${tree.complete} branch${plural(tree.complete)} run`)
                         );
                     }
 

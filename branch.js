@@ -170,7 +170,7 @@ class Branch {
     }
 
     /**
-     * @return {String} The string representation of Branch
+     * @return {String} The string representation of this branch
      */
     output(branchName, startIndent) {
         if(typeof startIndent == 'undefined') {
@@ -197,6 +197,17 @@ class Branch {
             return out;
         }
 
+        return output;
+    }
+
+    /**
+     * @return {String} A short string representation of this branch
+     */
+    quickOutput() {
+        let output = '';
+        this.steps.forEach(step => {
+            output += step.text + ' ';
+        });
         return output;
     }
 
