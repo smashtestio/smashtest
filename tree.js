@@ -1096,13 +1096,8 @@ class Tree {
                 });
             });
 
-            if(branchesBelow.length == 0) {
-                if(branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
-                    branchesBelow = branchesFromThisStep;
-                }
-                else {
-                    branchesBelow = [];
-                }
+            if(branchesBelow.length == 0 && branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
+                branchesBelow = branchesFromThisStep;
             }
         }
 
