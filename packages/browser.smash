@@ -4,6 +4,12 @@
 
 ** After Everything {
     // TODO: kill all Selenium browsers, if they exist
+
+
+
+
+
+    
 }
 
 // ***************************************
@@ -21,6 +27,9 @@
 
 * Open IE
     Open browser 'ie'
+
+* Open browser
+    Open browser 'any'
 
 // ***************************************
 //  Browser-dependent functions
