@@ -17,12 +17,7 @@ console.log("");
 console.log(yellowChalk.bold("SmashTEST 0.1.1 BETA"));
 console.log("");
 
-if(process.argv.length < 3) {
-    utils.error("No files inputted");
-}
-
 let filenames = [];
-let jsFilenames = [];
 
 let tree = new Tree();
 let runner = new Runner();
@@ -264,7 +259,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
             }
         }
 
-        // Sort command line arguments into filenames (non-js files), jsFilenames, and flags
+        // Sort command line arguments into filenames and flags
         for(let i = 2; i < process.argv.length; i++) {
             let arg = process.argv[i];
             if(arg.startsWith("-")) {
@@ -280,23 +275,31 @@ readFiles(["config.json"], {encoding: 'utf8'})
 
                 processFlag(name, value);
             }
-            else if(!arg.endsWith(".js")){
-                filenames.push(arg);
-            }
             else {
-                jsFilenames.push(arg);
+                filenames.push(arg);
             }
         }
 
         if(filenames.length == 0 && !runner.repl) {
-            if(jsFilenames.length > 0) {
-                utils.error("No files found (js files don't count)");
-            }
-            else {
-                utils.error("No files found");
-            }
-        }
+            return new Promise((resolve, reject) => {
+                glob('*.smash', function(err, smashFiles) { // if no filenames passed in, just choose all the .smash files
+                    if(err) {
+                        throw err;
+                    }
 
+                    if(!smashFiles) {
+                        utils.error("No files found");
+                    }
+                    else {
+                        smashFiles.forEach(filename => filenames.push(filename));
+                    }
+
+                    resolve();
+                });
+            });
+        }
+    }).
+    then(() => {
         glob('packages/*.smash', async function(err, packageFilenames) { // new array of filenames under packages/
             try {
                 if(err) {
@@ -307,9 +310,6 @@ readFiles(["config.json"], {encoding: 'utf8'})
                     // TODO: make sure this will work from any directory where you want to run smashtest from
                     utils.error("Make sure packages/ directory exists in the directory you're running this from");
                 }
-
-                // Remove JS files from packages
-                packageFilenames = packageFilenames.filter(filename => !filename.endsWith('.js'));
 
                 // Read in all files
                 let originalFilenamesLength = filenames.length;
@@ -435,9 +435,10 @@ readFiles(["config.json"], {encoding: 'utf8'})
                             runner.consoleOutput = true;
 
                             // Make the first step a ~ step. Start the runner, which will immediately pause before the first step.
+                            tree.branches = tree.branches.slice(0, 1);
                             tree.branches[0].steps[0].isDebug = true;
                             tree.isDebug = true;
-                            await runner.run();
+                            isBranchComplete = await runner.run();
                         }
                     }
                     else {
@@ -447,7 +448,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                         isBranchComplete = await runner.run();
                     }
 
-                    if(!isBranchComplete || runner.hasPaused()) {
+                    if(!isBranchComplete || runner.isPaused) {
                         // Tree not completed yet, open REPL and await user input
                         let nextStep = null;
                         let prevStep = null;
@@ -530,7 +531,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                             switch(input.toLowerCase().trim()) {
                                 case "":
                                     console.log("");
-                                    if(runner.repl && tree.branches == 0) {
+                                    if(runner.repl && (isBranchComplete || tree.branches == 0)) {
                                         // this is an empty repl, so exit
                                         exit(false);
                                     }
@@ -591,6 +592,9 @@ readFiles(["config.json"], {encoding: 'utf8'})
                                 exit(false);
                             }
                         }
+                    }
+                    else {
+                        exit(false);
                     }
                 }
                 else {

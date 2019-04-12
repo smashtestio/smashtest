@@ -31,7 +31,7 @@ Running tests
     - Basic command line invocation
         - File glob passed in
             - All files are merged into one big one, and everything at the top level is accessible to everything in other files
-            - js files matched by glob are ignored
+            - If glob omitted, *.smash is default
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
     - Command line options

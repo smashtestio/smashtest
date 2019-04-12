@@ -207,6 +207,7 @@ class Runner {
     createEmptyRunner() {
         this.runInstances = [ new RunInstance(this) ];
         this.runInstances[0].isPaused = true;
+        this.isPaused = true;
     }
 
     /**
