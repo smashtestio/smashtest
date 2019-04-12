@@ -510,7 +510,7 @@ class RunInstance {
             stepsAbove = [ tempStep.cloneForBranch() ];
         }
 
-        let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, undefined, stepsAbove); // branchify so that if step is an already-defined function call, it will work
+        let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, stepsAbove); // branchify so that if step is an already-defined function call, it will work
         let stepsToRun = branchesToRun[0];
 
         for(let i = 0; i < stepsToRun.steps.length; i++) {

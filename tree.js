@@ -643,7 +643,6 @@ class Tree {
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do include branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in the tree at or below the given step
-     * @param {Boolean} [isRotate] - If true, rotate parent branches over child branches instead of cross-join
      * @param {Array} [stepsAbove] - Array of Step, steps that comes above this step, with function calls, etc. already expanded (used to help find function declarations), [] if omitted
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
@@ -651,7 +650,7 @@ class Tree {
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
      * @throws {Error} If a function declaration cannot be found, or if a hook has children (which is not allowed)
      */
-    branchify(step, groups, minFrequency, noDebug, isRotate, stepsAbove, branchIndents, isFunctionCall, isSequential) {
+    branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, isFunctionCall, isSequential) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -715,7 +714,7 @@ class Tree {
                 isReplaceVarsInChildren = this.validateVarSettingFunction(step);
             }
 
-            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, isRotate, stepsAbove, branchIndents + 1, true); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, stepsAbove, branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
@@ -744,7 +743,7 @@ class Tree {
             // Branches from each step block member are cross joined sequentially to each other
             let branchesInThisStepBlock = [];
             step.steps.forEach(stepInBlock => {
-                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, isRotate, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
                 }
@@ -862,7 +861,7 @@ class Tree {
             if(child instanceof StepBlock && !child.isSequential) {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach(step => {
-                    let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, isRotate, stepsAbove, branchIndents, false, isSequential);
+                    let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -871,7 +870,7 @@ class Tree {
             }
             else {
                 // If this child is a step, call branchify() on it normally
-                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, isRotate, stepsAbove, branchIndents, false, isSequential);
+                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
                 if(branchesFromChild && branchesFromChild.length > 0) {
                     branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
@@ -1065,8 +1064,7 @@ class Tree {
         }
 
         // ***************************************
-        // 5) Fill branchesBelow by cross-joining branchesFromThisStep with the branches that come from this step's children
-        //    Other joining rules apply for sequential and rotate (not cross-join)
+        // 5) Fill branchesBelow by cross joining branchesFromThisStep with the branches that come from this step's children
         //    Also put branches from hook children into branchesBelow
         // ***************************************
 
@@ -1090,31 +1088,21 @@ class Tree {
             branchesBelow = [ bigBranch ];
         }
         else {
-            if(isRotate) { // rotate
-    console.log(branchesFromThisStep.length + " " + branchesFromChildren.length)
-                if(branchesFromThisStep.length > 0 && branchesFromChildren.length > 0) {
-                    for(let i = 0, j = 0; i < branchesFromThisStep.length || j < branchesFromChildren.length; i++, j++) {
-                        let branchFromThisStep = branchesFromThisStep[i % branchesFromThisStep.length];
-                        let branchFromChild = branchesFromChildren[j % branchesFromChildren.length];
-                        let newBranchBelow = branchFromThisStep.clone();
-                        newBranchBelow.mergeToEnd(branchFromChild);
-                        branchesBelow.push(newBranchBelow);
-                    }
-                }
-            }
-            else { // cross-join
-                branchesFromThisStep.forEach(branchFromThisStep => {
-                    branchesFromChildren.forEach(branchFromChild => {
-                        let newBranchBelow = branchFromThisStep.clone();
-                        newBranchBelow.mergeToEnd(branchFromChild.clone());
-                        branchesBelow.push(newBranchBelow);
-                    });
+            branchesFromThisStep.forEach(branchFromThisStep => {
+                branchesFromChildren.forEach(branchFromChild => {
+                    let newBranchBelow = branchFromThisStep.clone();
+                    newBranchBelow.mergeToEnd(branchFromChild.clone());
+                    branchesBelow.push(newBranchBelow);
                 });
-            }
+            });
 
-            // We've only been left with the "primed" branch
-            if(branchesBelow.length == 0 && branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
-                branchesBelow = branchesFromThisStep;
+            if(branchesBelow.length == 0) {
+                if(branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
+                    branchesBelow = branchesFromThisStep;
+                }
+                else {
+                    branchesBelow = [];
+                }
             }
         }
 
@@ -1186,12 +1174,11 @@ class Tree {
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
-     * @param {Boolean} [isRotate] - If true, rotate parent branches over child branches instead of cross-join
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
-    generateBranches(groups, minFrequency, noDebug, isRotate) {
+    generateBranches(groups, minFrequency, noDebug) {
         try {
-            this.branches = this.branchify(this.root, groups, minFrequency, noDebug, isRotate);
+            this.branches = this.branchify(this.root, groups, minFrequency, noDebug);
         }
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {

@@ -11472,65 +11472,6 @@ A -
                 { text: "After Everything", codeBlock: "\n    C\n", isPackaged: true }
             ]);
         });
-
-        it.only("can handle a rotate", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-B -
-C -
-
-    D -
-    E -
-    F -
-
-
-
-    `);
-/*
-G -
-
-    My function
-
-    My function 2
-    My function 3
-
-        H -
-
-* My function
-    W -
-    X -
-
-* My function 2
-    Y -
-
-    Z -
-
-* My function 3
-    ..
-    M -
-    N -
-
-        O -
-*/
-            let branches = tree.branchify(tree.root, undefined, undefined, undefined, true);
-
-            //expect(branches).to.have.lengthOf(3);
-utils.printBranches(branches);
-return;
-            expect(branches[0].steps).to.have.lengthOf(5);
-            expect(branches[1].steps).to.have.lengthOf(6);
-            //expect(branches[2].steps).to.have.lengthOf(1);
-
-            expect(branches).to.containSubsetInOrder([
-                {
-                    steps: [ { text: "A" }, { text: "D" }, { text: "G" }, { text: "My function" }, { text: "W" } ]
-                },
-                {
-                    steps: [ { text: "B" }, { text: "E" }, { text: "G" }, { text: "My function 2" }, { text: "Y" }, { text: "H" } ]
-                }
-            ]);
-        });
     });
 
     describe("generateBranches()", function() {
