@@ -6,7 +6,8 @@ class Browser {
     }
 
     async open(browserName) {
-        this.driver = new webdriver.Builder()
+        this.driver = new webdriver
+            .Builder()
             .forBrowser(browserName)
             .build();
 
