@@ -3882,7 +3882,7 @@ Other scope -
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
-        it("accepts function that has muliple branches in {x}='value' format and some are step blocks", function() {
+        it("accepts function that has muliple branches in {x}='value' or {x} = Function format and some are step blocks", function() {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -3895,6 +3895,7 @@ Other scope -
     {c}='4'
 
     {x}=[5]
+    {x}=Function
 `);
 
             let functionCall = tree.root.children[0].cloneForBranch();
@@ -5559,15 +5560,20 @@ FA
     {x}='1'
     {x}=F2
     {x}='4'
+    {x}=F3
 
 * F2
     {y}='2'
     {y}='3'
+
+* F3 {
+    return '5';
+}
     `);
             let branches = tree.branchify(tree.root);
 
             expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(14);
+            expect(branches[0].steps).to.have.lengthOf(17);
 
             expect(branches[0].steps[0].text).to.equal("{var} = F");
             expect(branches[0].steps[1].text).to.equal("{var}='1'");
@@ -5586,6 +5592,11 @@ FA
             expect(branches[0].steps[11].text).to.equal("{var} = F");
             expect(branches[0].steps[12].text).to.equal("{var}='4'");
             expect(branches[0].steps[13].text).to.equal("{var2}='0'");
+
+            expect(branches[0].steps[14].text).to.equal("{var} = F");
+            expect(branches[0].steps[15].text).to.equal("{var}=F3");
+            expect(branches[0].steps[15].codeBlock).to.equal("\n    return '5';\n");
+            expect(branches[0].steps[16].text).to.equal("{var2}='0'");
         });
 
         it("rejects {var} = F if F has a code block, but also has children", function() {
