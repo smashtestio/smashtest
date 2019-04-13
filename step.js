@@ -264,12 +264,5 @@ class Step {
     hasCodeBlock() {
         return typeof this.codeBlock != 'undefined';
     }
-
-    /**
-     * @return {Boolean} true if step is the same as this one, based on filename and lineNumber
-     */
-    equals(step) {
-        return step.filename == this.filename && step.lineNumber == this.lineNumber;
-    }
 }
 module.exports = Step;
