@@ -653,6 +653,7 @@ class Tree {
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do include branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in the tree at or below the given step
+     * @param {Boolean} [onewise] - If true, only selects the minimal amount of child branches such that each step is tested at least once
      * @param {Array} [stepsAbove] - Array of Step, steps that comes above this step, with function calls, etc. already expanded (used to help find function declarations), [] if omitted
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
@@ -660,7 +661,7 @@ class Tree {
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
      * @throws {Error} If a function declaration cannot be found, or if a hook has children (which is not allowed)
      */
-    branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, isFunctionCall, isSequential) {
+    branchify(step, groups, minFrequency, noDebug, onewise, stepsAbove, branchIndents, isFunctionCall, isSequential) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -724,7 +725,7 @@ class Tree {
                 isReplaceVarsInChildren = this.validateVarSettingFunction(step);
             }
 
-            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, stepsAbove, branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, onewise, stepsAbove, branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
@@ -753,7 +754,7 @@ class Tree {
             // Branches from each step block member are cross joined sequentially to each other
             let branchesInThisStepBlock = [];
             step.steps.forEach(stepInBlock => {
-                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, onewise, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
                 }
@@ -871,7 +872,7 @@ class Tree {
             if(child instanceof StepBlock && !child.isSequential) {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach(step => {
-                    let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                    let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, onewise, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -880,7 +881,7 @@ class Tree {
             }
             else {
                 // If this child is a step, call branchify() on it normally
-                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, onewise, stepsAbove, branchIndents, false, isSequential);
                 if(branchesFromChild && branchesFromChild.length > 0) {
                     branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
@@ -1098,18 +1099,44 @@ class Tree {
             branchesBelow = [ bigBranch ];
         }
         else {
-            branchesFromThisStep.forEach(branchFromThisStep => {
-                branchesFromChildren.forEach(branchFromChild => {
-                    let newBranchBelow = branchFromThisStep.clone();
-                    newBranchBelow.mergeToEnd(branchFromChild.clone());
-                    branchesBelow.push(newBranchBelow);
+            if(onewise) { // rotate
+                if(branchesFromThisStep.length > 0 && branchesFromChildren.length > 0) {
+                    for(let i = 0, j = 0; i < branchesFromThisStep.length || j < branchesFromChildren.length; i++, j++) {
+                        let branchFromThisStep = branchesFromThisStep[i % branchesFromThisStep.length];
+                        let branchFromChild = branchesFromChildren[j % branchesFromChildren.length];
+                        let newBranchBelow = branchFromThisStep.clone();
+                        newBranchBelow.mergeToEnd(branchFromChild);
+                        branchesBelow.push(newBranchBelow);
+                    }
+                }
+            }
+            else { // cross-join
+                branchesFromThisStep.forEach(branchFromThisStep => {
+                    branchesFromChildren.forEach(branchFromChild => {
+                        let newBranchBelow = branchFromThisStep.clone();
+                        newBranchBelow.mergeToEnd(branchFromChild.clone());
+                        branchesBelow.push(newBranchBelow);
+                    });
                 });
-            });
+            }
 
             if(branchesBelow.length == 0 && branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
                 branchesBelow = branchesFromThisStep;
             }
         }
+
+
+
+        if(onewise) {
+            console.log(branchesBelow.length + " before");
+            branchesBelow = this.onewise(branchesBelow);
+            console.log(branchesBelow.length + " after");
+            console.log("======================")
+        }
+
+
+
+
 
         // Attach beforeEveryBranch to each branch below
         if(beforeEveryBranch && beforeEveryBranch.length > 0) {
@@ -1179,11 +1206,12 @@ class Tree {
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
+     * @param {Boolean} [onewise] - If true, only selects the minimal amount of branches such that each step is tested at least once
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
-    generateBranches(groups, minFrequency, noDebug) {
+    generateBranches(groups, minFrequency, noDebug, onewise) {
         try {
-            this.branches = this.branchify(this.root, groups, minFrequency, noDebug);
+            this.branches = this.branchify(this.root, groups, minFrequency, noDebug, onewise);
         }
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
@@ -1228,13 +1256,11 @@ class Tree {
     }
 
     /**
-     * Chooses branches in an array such that every pair of steps is tested at least once somewhere
-     * @param {Array} arr - Array of Branches (not guaranteed to be the same after this function exits)
+     * Chooses branches in an array such that every step is tested at least once somewhere
+     * @param {Array} arr - Array of Branches
      * @return {Array} arr with excess branches removed
      */
-    pairwise(arr) {
-        // NOTE: Is brute force really the most efficient implementation of pairwise?
-
+    onewise(arr) {
         if(arr.length < 2) {
             return arr;
         }
@@ -1244,19 +1270,18 @@ class Tree {
 
         while(index != -1) {
             keepers.push(arr[index]);
-            arr.splice(index, 1);
             index = getBranchLeastCoveredInKeepers();
         }
 
-        return keepers;
+        return keepers.sort((a, b) => arr.indexOf(a) - arr.indexOf(b)); // restore original sorting order
 
         /**
-         * @return {Boolean} True if stepA and stepB exist at indexA and indexB respectively, in keepers
+         * @return {Boolean} True if step exists at index somewhere in keepers
          */
-        function isCoveredInKeepers(stepA, indexA, stepB, indexB) {
+        function isCoveredInKeepers(step, index) {
             for(let i = 0; i < keepers.length; i++) {
                 let keeper = keepers[i];
-                if(keeper.steps[indexA].equals(stepA) && keeper.steps[indexB].equals(stepB)) {
+                if(index < keeper.steps.length && keeper.steps[index].equals(step)) {
                     return true;
                 }
             }
@@ -1265,15 +1290,13 @@ class Tree {
         }
 
         /**
-         * @return {Number} Number of pairs in branch not covered in keepers
+         * @return {Number} Number of steps in branch not covered in keepers
          */
-        function getNumPairsNotCoveredInKeepers(branch) {
+        function getNumStepsNotCoveredInKeepers(branch) {
             let count = 0;
             for(let i = 0; i < branch.steps.length; i++) {
-                for(let j = i + 1; j < branch.steps.length; j++) {
-                    if(!isCoveredInKeepers(branch.steps[i], i, branch.steps[j], j)) {
-                        count++;
-                    }
+                if(!isCoveredInKeepers(branch.steps[i], i)) {
+                    count++;
                 }
             }
 
@@ -1281,13 +1304,13 @@ class Tree {
         }
 
         /**
-         * @return {Number} Index of branch in arr that has the least amount of pairs covered in keepers, or -1 if everything in arr is already covered in keepers
+         * @return {Number} Index of branch in arr that has the least amount of steps covered in keepers, or -1 if everything in arr is already covered in keepers
          */
         function getBranchLeastCoveredInKeepers() {
             let mostStepsCount = 0;
             let mostStepsIndex = 0;
             for(let i = 0; i < arr.length; i++) {
-                let count = getNumPairsNotCoveredInKeepers(arr[i]);
+                let count = getNumStepsNotCoveredInKeepers(arr[i]);
                 if(count > mostStepsCount) {
                     mostStepsCount = count;
                     mostStepsIndex = i;
