@@ -636,7 +636,7 @@ class Tree {
             return true;
 
             function validateChild(child) {
-                if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal || !utils.hasQuotes(child.varsBeingSet[0].value)) {
+                if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal) {
                     utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must have all steps in its declaration be in format {x}='string' (but " + child.filename + ":" + child.lineNumber + " is not)", step.filename, step.lineNumber);
                 }
 
@@ -737,7 +737,22 @@ class Tree {
                 if(isReplaceVarsInChildren) {
                     // replace {x} in each child to {var} (where this step is {var} = F)
                     branchesFromThisStep.forEach(branch => {
-                        branch.steps[0].varsBeingSet[0].name = clonedStep.varsBeingSet[0].name;
+                        for(let i = 0; i < branch.steps.length; i++) { // handles mulitple levels of {var} = F
+                            let s = branch.steps[i];
+
+                            let originalName = s.varsBeingSet[0].name;
+                            let newName = clonedStep.varsBeingSet[0].name;
+
+                            s.text = s.text.replace(new RegExp("(\\{\\s*)" + originalName + "(\\s*\\})"), "$1" + newName + "$2");
+                            s.varsBeingSet[0].name = newName;
+
+                            if(s.isFunctionCall) {
+                                delete step.varsBeingSet;
+                            }
+                            else {
+                                break;
+                            }
+                        }
                     });
 
                     // since {var} is being set in the children directly below, remove the varBeingSet from this step

@@ -5300,7 +5300,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{x}='1'",
+                            text: "{var}='1'",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         }
@@ -5314,7 +5314,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{x}='2'",
+                            text: "{var}='2'",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         }
@@ -5328,7 +5328,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{x}=''",
+                            text: "{var}=''",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         }
@@ -5342,7 +5342,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{x}=\"3\"",
+                            text: "{var}=\"3\"",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         }
@@ -5356,7 +5356,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{a}='4'",
+                            text: "{var}='4'",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         }
@@ -5398,7 +5398,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{x}='1'",
+                            text: "{var}='1'",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         },
@@ -5417,7 +5417,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{x}='2'",
+                            text: "{var}='2'",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         },
@@ -5436,7 +5436,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{x}=''",
+                            text: "{var}=''",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         },
@@ -5455,7 +5455,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{x}=\"3\"",
+                            text: "{var}=\"3\"",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         },
@@ -5474,7 +5474,7 @@ FA
                             branchIndents: 0
                         },
                         {
-                            text: "{a}='4'",
+                            text: "{var}='4'",
                             isFunctionCall: undefined,
                             branchIndents: 1
                         },
@@ -5514,6 +5514,78 @@ FA
                     ]
                 }
             ]);
+        });
+
+
+
+
+
+        it("branchifies {var} = F ..", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var} = F ..
+    A -
+
+* F
+    {x}='1'
+    {x}='2'
+    {x}='3'
+    `);
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(9);
+
+            expect(branches[0].steps[0].text).to.equal("{var} = F");
+            expect(branches[0].steps[1].text).to.equal("{var}='1'");
+            expect(branches[0].steps[2].text).to.equal("A");
+
+            expect(branches[0].steps[3].text).to.equal("{var} = F");
+            expect(branches[0].steps[4].text).to.equal("{var}='2'");
+            expect(branches[0].steps[5].text).to.equal("A");
+
+            expect(branches[0].steps[6].text).to.equal("{var} = F");
+            expect(branches[0].steps[7].text).to.equal("{var}='3'");
+            expect(branches[0].steps[8].text).to.equal("A");
+        });
+
+        it("branchifies {var} = F that has more {var} = F inside of it", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var} = F ..
+    {var2}='0'
+
+* F
+    {x}='1'
+    {x}=F2
+    {x}='4'
+
+* F2
+    {y}='2'
+    {y}='3'
+    `);
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(14);
+
+            expect(branches[0].steps[0].text).to.equal("{var} = F");
+            expect(branches[0].steps[1].text).to.equal("{var}='1'");
+            expect(branches[0].steps[2].text).to.equal("{var2}='0'");
+
+            expect(branches[0].steps[3].text).to.equal("{var} = F");
+            expect(branches[0].steps[4].text).to.equal("{var}=F2");
+            expect(branches[0].steps[5].text).to.equal("{var}='2'");
+            expect(branches[0].steps[6].text).to.equal("{var2}='0'");
+
+            expect(branches[0].steps[7].text).to.equal("{var} = F");
+            expect(branches[0].steps[8].text).to.equal("{var}=F2");
+            expect(branches[0].steps[9].text).to.equal("{var}='3'");
+            expect(branches[0].steps[10].text).to.equal("{var2}='0'");
+
+            expect(branches[0].steps[11].text).to.equal("{var} = F");
+            expect(branches[0].steps[12].text).to.equal("{var}='4'");
+            expect(branches[0].steps[13].text).to.equal("{var2}='0'");
         });
 
         it("rejects {var} = F if F has a code block, but also has children", function() {

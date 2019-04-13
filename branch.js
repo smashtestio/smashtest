@@ -181,14 +181,10 @@ class Branch {
             startIndent = 0;
         }
 
-        let output = spaces(startIndent) + branchName + ' ..\n';
+        let output = spaces(startIndent) + branchName + '\n';
 
         this.steps.forEach(step => {
-            let text = step.text;
-            if(!step.isPackaged) {
-                text += ' -';
-            }
-            output += spaces(step.branchIndents + startIndent + 1) + text + '\n';
+            output += spaces(step.branchIndents + startIndent + 1) + step.text + '\n';
         });
 
         function spaces(indents) {
