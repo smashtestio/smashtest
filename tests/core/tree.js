@@ -5517,10 +5517,6 @@ FA
             ]);
         });
 
-
-
-
-
         it("branchifies {var} = F ..", function() {
             let tree = new Tree();
             tree.parseIn(`
@@ -5550,7 +5546,39 @@ FA
             expect(branches[0].steps[8].text).to.equal("A");
         });
 
-        it("branchifies {var} = F that has more {var} = F inside of it", function() {
+        it("branchifies {var} = F under a .. step", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+S - ..
+    {var} = F ..
+        A -
+
+* F
+    {x}='1'
+    {x}='2'
+    {x}='3'
+    `);
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(10);
+
+            expect(branches[0].steps[0].text).to.equal("S");
+
+            expect(branches[0].steps[1].text).to.equal("{var} = F");
+            expect(branches[0].steps[2].text).to.equal("{var}='1'");
+            expect(branches[0].steps[3].text).to.equal("A");
+
+            expect(branches[0].steps[4].text).to.equal("{var} = F");
+            expect(branches[0].steps[5].text).to.equal("{var}='2'");
+            expect(branches[0].steps[6].text).to.equal("A");
+
+            expect(branches[0].steps[7].text).to.equal("{var} = F");
+            expect(branches[0].steps[8].text).to.equal("{var}='3'");
+            expect(branches[0].steps[9].text).to.equal("A");
+        });
+
+        it("branchifies {var} = F .. that has more {var} = F inside of it", function() {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F ..
@@ -5597,6 +5625,59 @@ FA
             expect(branches[0].steps[15].text).to.equal("{var}=F3");
             expect(branches[0].steps[15].codeBlock).to.equal("\n    return '5';\n");
             expect(branches[0].steps[16].text).to.equal("{var2}='0'");
+        });
+
+        it("branchifies {var} = F that has more {var} = F inside of it", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var} = F
+    {var2}='0'
+
+* F
+    {x}='1'
+    {x}=F2
+    {x}='4'
+    {x}=F3
+
+* F2
+    {y}='2'
+    {y}='3'
+
+* F3 {
+    return '5';
+}
+    `);
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(5);
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[2].steps).to.have.lengthOf(4);
+            expect(branches[3].steps).to.have.lengthOf(3);
+            expect(branches[4].steps).to.have.lengthOf(3);
+
+            expect(branches[0].steps[0].text).to.equal("{var} = F");
+            expect(branches[0].steps[1].text).to.equal("{var}='1'");
+            expect(branches[0].steps[2].text).to.equal("{var2}='0'");
+
+            expect(branches[1].steps[0].text).to.equal("{var} = F");
+            expect(branches[1].steps[1].text).to.equal("{var}=F2");
+            expect(branches[1].steps[2].text).to.equal("{var}='2'");
+            expect(branches[1].steps[3].text).to.equal("{var2}='0'");
+
+            expect(branches[2].steps[0].text).to.equal("{var} = F");
+            expect(branches[2].steps[1].text).to.equal("{var}=F2");
+            expect(branches[2].steps[2].text).to.equal("{var}='3'");
+            expect(branches[2].steps[3].text).to.equal("{var2}='0'");
+
+            expect(branches[3].steps[0].text).to.equal("{var} = F");
+            expect(branches[3].steps[1].text).to.equal("{var}='4'");
+            expect(branches[3].steps[2].text).to.equal("{var2}='0'");
+
+            expect(branches[4].steps[0].text).to.equal("{var} = F");
+            expect(branches[4].steps[1].text).to.equal("{var}=F3");
+            expect(branches[4].steps[1].codeBlock).to.equal("\n    return '5';\n");
+            expect(branches[4].steps[2].text).to.equal("{var2}='0'");
         });
 
         it("rejects {var} = F if F has a code block, but also has children", function() {
