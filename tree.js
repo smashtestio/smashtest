@@ -1242,7 +1242,7 @@ class Tree {
 
                     let lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
                     lastStep.isDebug = true;
-                    lastStep.isDebugBefore = true;
+                    lastStep.isDebugAfter = true;
                     this.isDebug = true;
 
                     found = true;
