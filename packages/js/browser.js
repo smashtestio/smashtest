@@ -6,6 +6,10 @@ class Browser {
     }
 
     async open(description) {
+        if(!description || description == 'functions only') {
+            return;
+        }
+
         this.driver = new webdriver
             .Builder()
             .forBrowser('chrome')
@@ -16,6 +20,7 @@ class Browser {
         // TODO: headless browsers too
         // TODO: Log the version, dimensions, etc.
         // TODO: description could be "any"
+        // TODO: if a browser dimension in not sent in via description, and a variable isn't set, use maximized as default
     }
 
     async get(url) {

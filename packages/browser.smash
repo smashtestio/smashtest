@@ -9,7 +9,7 @@
 
 
 
-    
+
 }
 
 // ***************************************
@@ -17,27 +17,33 @@
 // ***************************************
 
 * Open Chrome
-    Open browser 'chrome'
+    Use browser 'chrome'
 
 * Open Firefox
-    Open browser 'firefox'
+    Use browser 'firefox'
 
 * Open Safari
-    Open browser 'safari'
+    Use browser 'safari'
 
 * Open IE
-    Open browser 'ie'
+    Use browser 'ie'
 
 * Open browser
-    Open browser 'any'
+    Use browser 'any'
+
+* Open browser {{description}}
+    Use browser {{description}}
+
+* Use browser functions
+    Use browser 'functions only'
 
 // ***************************************
 //  Browser-dependent functions
 // ***************************************
 
-// Note: functions under Open browser are indented because they're only available after a Open browser
+// Note: functions under Use browser are indented because they're only available after a Open browser
 
-* Open browser {{description}} {
+* Use browser {{description}} {
     let Browser = imp('./packages/js/browser.js', 'Browser');
     let browser = setGlobal("browser", new Browser());
     await browser.open(description);
@@ -54,6 +60,39 @@
             After Every Step sets step.htmlReport to the report html for this step.
             This is the logging and screenshots that go under the step's name in the report.
         */
+    }
+
+    // ***************************************
+    //  Viewports
+    // ***************************************
+
+    * Desktop
+        Maximize window
+
+    * Tablet
+        Tablet Portrait
+
+    * Tablet Portrait
+        Set dimensions to width='768' height='1024'
+
+    * Tablet Landscape
+        Set dimensions to width='1024' height='768'
+
+    * Mobile
+        Mobile Portrait
+
+    * Mobile Portrait
+        Set dimensions to width='375' height='667'
+
+    * Mobile Landscape
+        Set dimensions to width='667' height='375'
+
+    * Set dimensions to width={{x}} height={{y}} {
+
+    }
+
+    * Maximize window {
+
     }
 
     // ***************************************
@@ -110,19 +149,6 @@
 
     * Clear cache and cookies {
         // including local storage
-    }
-
-    * Set browser dimensions to {{x}} by {{y}} {
-
-
-    }
-
-    * Set browser dimensions to {{preset}} {
-        // 'desktop'/'tablet'/'mobile'
-    }
-
-    * Maximize the browser {
-
     }
 
     * Click Back button {
