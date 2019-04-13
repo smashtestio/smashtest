@@ -185,7 +185,7 @@ class Reporter {
     extractBranchesJson(htmlReport) {
         const errMsg = "Error parsing the report from last time. Please try another file or do not use -s/-skipPassed.";
 
-        let matches = htmlReport.match(/<meta name="treeObj" content="([^"]*)"/);
+        let matches = htmlReport.match(/<meta name="tree" content="([^"]*)"/);
         if(matches) {
             let content = matches[1];
             content = utils.unescapeHtml(content);
