@@ -39,6 +39,8 @@ Running tests
         - -maxInstances=5
             - 5 if omitted
         - -noDebug
+        - -debug=[HASH] (or -d)
+            - Only run that branch as debugged. Ignore $'s, ~'s, groups, and frequency
         - -noReport
         - -reportDomain=http://domain:port
             - This is where the apis will be exposed for reports to get live updates

@@ -326,7 +326,7 @@ describe("Branch", function() {
                 timeStarted: {},
                 timeEnded: {}
             });
-            
+
             expect(clonedBranch.timeStarted instanceof Date).to.be.true;
             expect(clonedBranch.timeEnded instanceof Date).to.be.true;
             expect(clonedBranch.steps).to.have.lengthOf(2);
@@ -631,6 +631,28 @@ describe("Branch", function() {
             branch2.steps = [ stepB1 ];
 
             expect(branch1.equals(branch2)).to.equal(true);
+        });
+    });
+
+    describe("getHash()", function() {
+        it("generates the hash for the branch", function() {
+            let stepA = new Step();
+            stepA.text = "A";
+
+            let stepB = new Step();
+            stepB.text = "B";
+
+            let stepC = new Step();
+            stepC.text = "C";
+
+            let stepD = new Step();
+            stepD.text = "D";
+
+            let branch = new Branch();
+
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            expect(branch.getHash()).to.equal("47ece2e49e5c0333677fc34e044d8257");
         });
     });
 

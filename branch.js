@@ -1,5 +1,7 @@
-const Constants = require('./constants.js');
 const clonedeep = require('lodash/clonedeep');
+const md5 = require('md5');
+const Constants = require('./constants.js');
+const utils = require('./utils.js');
 
 /**
  * Represents a Branch from the test tree
@@ -36,6 +38,8 @@ class Branch {
         this.elapsed = 0;                   // number of ms it took this step to execute
         this.timeStarted = {};              // Date object (time) of when this branch started being executed
         this.timeEnded = {};                // Date object (time) of when this branch ended execution
+
+        this.hash = "";                     // hash value representing this branch
         */
     }
 
@@ -244,6 +248,8 @@ class Branch {
              }
          }
 
+         return true;
+
          function getCanonicalStepText(step) {
              let text = step.text.replace(/\s+/g, ' ');
              if(step.identifiers) {
@@ -256,8 +262,35 @@ class Branch {
 
              return text;
          }
+     }
 
-         return true;
+     /**
+      * @return {Boolean} True if the hash matches this branch, false otherwise
+      */
+     equalsHash(hash) {
+         if(!this.hash) {
+             this.updateHash();
+         }
+         return hash == this.hash;
+     }
+
+     /**
+      * Updates the hash of this branch
+      */
+     updateHash() {
+         this.hash = this.getHash();
+     }
+
+     /**
+      * @return {String} A hash representing this branch
+      */
+     getHash() {
+         let combinedStr = '';
+         this.steps.forEach(step => {
+             combinedStr += utils.canonicalize(step.text) + '\n';
+         })
+
+         return md5(combinedStr);
      }
 
      /**

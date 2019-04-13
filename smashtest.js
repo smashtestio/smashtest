@@ -79,6 +79,11 @@ function processFlag(name, value) {
             runner.noDebug = true;
             break;
 
+        case "debug":
+        case "d":
+            runner.debugHash = value;
+            break;
+
         case "noreport":
             runner.noReport = true;
             break;
@@ -147,10 +152,13 @@ function processFlag(name, value) {
             console.log(`Usage: smashtest [test files] [options]
 
 Options:
--repl                         Open the REPL (drive SmashTEST from command line)
+-repl or -r                   Open the REPL (drive SmashTEST from command line)
 -maxInstances=<N>             Do not run more than N branches simultaneously
 -noDebug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
+-debug=<hash> or -d           Run the branch associated with the hash in debug mode
 -noReport                     Do not output a report
+-reportDomain=<url>           Domain and port where report server should run (http://domain:port format)
+-noReportServer               Do not run a server during run for live report updates
 -screenshots=false            Do not output screenshots
 -skipPassed or -s             Do not run branches that passed last time. Just carry them over into new report.
 -groups="<group1> <group2>"   Only run branches that are part of one of these groups

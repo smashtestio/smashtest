@@ -17,6 +17,7 @@ class Runner {
         this.groups = undefined;         // Only run branches that are a part of one of these groups, no restrictions if this is undefined
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
+        this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
         this.noReport = false;           // If true, do not output a report
         this.noReportServer = false;     // If true, do not run a report server
         this.reportDomain = undefined;   // http(s)://domain:port where to run the report server
@@ -45,7 +46,7 @@ class Runner {
         }
         this.tree = tree;
 
-        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug);
+        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash);
     }
 
     /**

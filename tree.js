@@ -653,6 +653,7 @@ class Tree {
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do include branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in the tree at or below the given step
+     * @param {String} [debugHash] - If set, run the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
      * @param {Array} [stepsAbove] - Array of Step, steps that comes above this step, with function calls, etc. already expanded (used to help find function declarations), [] if omitted
      * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
@@ -660,7 +661,7 @@ class Tree {
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
      * @throws {Error} If a function declaration cannot be found, or if a hook has children (which is not allowed)
      */
-    branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, isFunctionCall, isSequential) {
+    branchify(step, groups, minFrequency, noDebug, debugHash, stepsAbove, branchIndents, isFunctionCall, isSequential) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -724,7 +725,7 @@ class Tree {
                 isReplaceVarsInChildren = this.validateVarSettingFunction(step);
             }
 
-            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, stepsAbove, branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, debugHash, stepsAbove, branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
@@ -753,7 +754,7 @@ class Tree {
             // Branches from each step block member are cross joined sequentially to each other
             let branchesInThisStepBlock = [];
             step.steps.forEach(stepInBlock => {
-                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, debugHash, stepsAbove, branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
                 }
@@ -871,7 +872,7 @@ class Tree {
             if(child instanceof StepBlock && !child.isSequential) {
                 // If this child is a non-sequential step block, just call branchify() directly on each member step
                 child.steps.forEach(step => {
-                    let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                    let branchesFromChild = this.branchify(step, groups, minFrequency, noDebug, debugHash, stepsAbove, branchIndents, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -880,7 +881,7 @@ class Tree {
             }
             else {
                 // If this child is a step, call branchify() on it normally
-                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, stepsAbove, branchIndents, false, isSequential);
+                let branchesFromChild = this.branchify(child, groups, minFrequency, noDebug, debugHash, stepsAbove, branchIndents, false, isSequential);
                 if(branchesFromChild && branchesFromChild.length > 0) {
                     branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                 }
@@ -891,186 +892,188 @@ class Tree {
         // 4) Remove branches we don't want run
         // ***************************************
 
-        /**
-         * @param {Branch} branch - The branch to look through
-         * @param {String} indentifier - The identifier to look for ('~' or '$')
-         * @return {Object} Object, in format { step = the first Step in the given branch to contain ~/$, depth = depth at which the ~/$ was found }, null if nothing found
-         */
-        function findIdentifierDepth(branch, identifier) {
-            let isDebug = identifier == '~';
-            for(let i = 0; i < branch.steps.length; i++) {
-                let step = branch.steps[i];
-                if(isDebug ? step.isDebug : step.isOnly) {
-                    if(step.isFunctionCall) {
-                        // Tie-break based on if the ~/$ is on the function call vs. function declaration
-                        if(isDebug ? step.originalStepInTree.isDebug : step.originalStepInTree.isOnly) { // ~/$ is on the function call
+        if(!debugHash) {
+            /**
+             * @param {Branch} branch - The branch to look through
+             * @param {String} indentifier - The identifier to look for ('~' or '$')
+             * @return {Object} Object, in format { step = the first Step in the given branch to contain ~/$, depth = depth at which the ~/$ was found }, null if nothing found
+             */
+            function findIdentifierDepth(branch, identifier) {
+                let isDebug = identifier == '~';
+                for(let i = 0; i < branch.steps.length; i++) {
+                    let step = branch.steps[i];
+                    if(isDebug ? step.isDebug : step.isOnly) {
+                        if(step.isFunctionCall) {
+                            // Tie-break based on if the ~/$ is on the function call vs. function declaration
+                            if(isDebug ? step.originalStepInTree.isDebug : step.originalStepInTree.isOnly) { // ~/$ is on the function call
+                                return {
+                                    step: step,
+                                    depth: i
+                                };
+                            }
+                            else { // ~/$ is slightly deeper, at the function declaration (so add .5 to the depth)
+                                return {
+                                    step: step,
+                                    depth: i + 0.5
+                                };
+                            }
+                        }
+                        else {
                             return {
                                 step: step,
                                 depth: i
                             };
                         }
-                        else { // ~/$ is slightly deeper, at the function declaration (so add .5 to the depth)
-                            return {
-                                step: step,
-                                depth: i + 0.5
-                            };
-                        }
-                    }
-                    else {
-                        return {
-                            step: step,
-                            depth: i
-                        };
                     }
                 }
+
+                return null; // probably won't be reached
             }
 
-            return null; // probably won't be reached
-        }
-
-        // Remove branches by $'s
-        // Choose the branch with the $ at the shallowest depth, choosing multiple branches if there's a tie
-        let shortestDepth = -1;
-        for(let i = 0; i < branchesFromChildren.length; i++) {
-            let branchFromChild = branchesFromChildren[i];
-            if(branchFromChild.isOnly) {
-                // A $ was found
-                let o = findIdentifierDepth(branchFromChild, '$');
-                if(o.depth < shortestDepth || shortestDepth == -1) {
-                    shortestDepth = o.depth;
-                }
-            }
-        }
-        if(shortestDepth != -1) {
-            branchesFromChildren = branchesFromChildren.filter(branch => {
-                let o = findIdentifierDepth(branch, '$');
-                if(!o) {
-                    return false;
-                }
-                else {
-                    return o.depth == shortestDepth;
-                }
-            });
-        }
-
-        let directIsOnlyFound = false;
-        for(let i = 0; i < branchesFromChildren.length; i++) {
-            let branchFromChild = branchesFromChildren[i];
-            if(branchFromChild.steps[0].isOnly) {
-                // A $ was found. Now find all of them.
-                directIsOnlyFound = true;
-                branchesFromChildren = branchesFromChildren.filter(branch => branch.steps[0].isOnly);
-                break;
-            }
-        }
-        if(!directIsOnlyFound) {
-            // If a isOnly child branch exists, remove the other branches that are not isOnly
+            // Remove branches by $'s
+            // Choose the branch with the $ at the shallowest depth, choosing multiple branches if there's a tie
+            let shortestDepth = -1;
             for(let i = 0; i < branchesFromChildren.length; i++) {
                 let branchFromChild = branchesFromChildren[i];
                 if(branchFromChild.isOnly) {
+                    // A $ was found
+                    let o = findIdentifierDepth(branchFromChild, '$');
+                    if(o.depth < shortestDepth || shortestDepth == -1) {
+                        shortestDepth = o.depth;
+                    }
+                }
+            }
+            if(shortestDepth != -1) {
+                branchesFromChildren = branchesFromChildren.filter(branch => {
+                    let o = findIdentifierDepth(branch, '$');
+                    if(!o) {
+                        return false;
+                    }
+                    else {
+                        return o.depth == shortestDepth;
+                    }
+                });
+            }
+
+            let directIsOnlyFound = false;
+            for(let i = 0; i < branchesFromChildren.length; i++) {
+                let branchFromChild = branchesFromChildren[i];
+                if(branchFromChild.steps[0].isOnly) {
                     // A $ was found. Now find all of them.
-                    branchesFromChildren = branchesFromChildren.filter(branch => branch.isOnly);
+                    directIsOnlyFound = true;
+                    branchesFromChildren = branchesFromChildren.filter(branch => branch.steps[0].isOnly);
                     break;
                 }
             }
-        }
-
-        // Remove branches by groups (but only for steps at the top of the tree)
-        if(groups && step.indents == -1) {
-            for(let i = 0; i < branchesFromChildren.length;) {
-                let branchFromChild = branchesFromChildren[i];
-
-                if(!branchFromChild.groups) {
-                    removeBranch();
-                    continue;
-                }
-
-                let isGroupMatched = false;
-                for(let j = 0; j < groups.length; j++) {
-                    let groupAllowedToRun = groups[j];
-                    if(branchFromChild.groups.indexOf(groupAllowedToRun) != -1) {
-                        isGroupMatched = true;
+            if(!directIsOnlyFound) {
+                // If a isOnly child branch exists, remove the other branches that are not isOnly
+                for(let i = 0; i < branchesFromChildren.length; i++) {
+                    let branchFromChild = branchesFromChildren[i];
+                    if(branchFromChild.isOnly) {
+                        // A $ was found. Now find all of them.
+                        branchesFromChildren = branchesFromChildren.filter(branch => branch.isOnly);
                         break;
                     }
                 }
+            }
 
-                if(isGroupMatched) {
-                    i++;
-                }
-                else {
-                    removeBranch();
-                }
+            // Remove branches by groups (but only for steps at the top of the tree)
+            if(groups && step.indents == -1) {
+                for(let i = 0; i < branchesFromChildren.length;) {
+                    let branchFromChild = branchesFromChildren[i];
 
-                function removeBranch() {
-                    if(branchFromChild.isDebug) {
-                        let debugStep = findIdentifierDepth(branchFromChild, '~').step;
-                        utils.error("This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.", debugStep.filename, debugStep.lineNumber);
+                    if(!branchFromChild.groups) {
+                        removeBranch();
+                        continue;
+                    }
+
+                    let isGroupMatched = false;
+                    for(let j = 0; j < groups.length; j++) {
+                        let groupAllowedToRun = groups[j];
+                        if(branchFromChild.groups.indexOf(groupAllowedToRun) != -1) {
+                            isGroupMatched = true;
+                            break;
+                        }
+                    }
+
+                    if(isGroupMatched) {
+                        i++;
                     }
                     else {
-                        branchesFromChildren.splice(i, 1); // remove this branch
+                        removeBranch();
+                    }
+
+                    function removeBranch() {
+                        if(branchFromChild.isDebug) {
+                            let debugStep = findIdentifierDepth(branchFromChild, '~').step;
+                            utils.error("This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.", debugStep.filename, debugStep.lineNumber);
+                        }
+                        else {
+                            branchesFromChildren.splice(i, 1); // remove this branch
+                        }
                     }
                 }
             }
-        }
 
-        // Remove branches by frequency (but only for steps at the top of the tree)
-        if(minFrequency && step.indents == -1) {
-            for(let i = 0; i < branchesFromChildren.length;) {
+            // Remove branches by frequency (but only for steps at the top of the tree)
+            if(minFrequency && step.indents == -1) {
+                for(let i = 0; i < branchesFromChildren.length;) {
+                    let branchFromChild = branchesFromChildren[i];
+                    let freqAllowed = freqToNum(minFrequency);
+                    let freqOfBranch = freqToNum(branchFromChild.frequency);
+
+                    if(freqOfBranch >= freqAllowed) {
+                        i++; // keep it
+                    }
+                    else {
+                        if(branchFromChild.isDebug) {
+                            let debugStep = findIdentifierDepth(branchFromChild, '~').step;
+                            utils.error("This step contains a ~, but is not above the frequency allowed to run (" + minFrequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
+                        }
+                        else {
+                            branchesFromChildren.splice(i, 1); // remove this branch
+                        }
+                    }
+
+                    /**
+                     * @return {Number} The given frequency string ('high', 'med', 'low', undefined) converted into an integer
+                     */
+                    function freqToNum(frequency) {
+                        if(frequency == 'low') {
+                            return 1;
+                        }
+                        else if(frequency == 'med') {
+                            return 2;
+                        }
+                        else if(frequency == 'high') {
+                            return 3;
+                        }
+                        else {
+                            return 2;
+                        }
+                    }
+                }
+            }
+
+            // Remove branches by ~'s
+            // If found, remove all branches other than the one that's connected with one or more ~'s
+            // When multiple branches have ~'s somewhere inside, always prefer the branch with the shallowest-depth ~
+            let branchFound = null;
+            shortestDepth = -1;
+            for(let i = 0; i < branchesFromChildren.length; i++) {
                 let branchFromChild = branchesFromChildren[i];
-                let freqAllowed = freqToNum(minFrequency);
-                let freqOfBranch = freqToNum(branchFromChild.frequency);
-
-                if(freqOfBranch >= freqAllowed) {
-                    i++; // keep it
-                }
-                else {
-                    if(branchFromChild.isDebug) {
-                        let debugStep = findIdentifierDepth(branchFromChild, '~').step;
-                        utils.error("This step contains a ~, but is not above the frequency allowed to run (" + minFrequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
-                    }
-                    else {
-                        branchesFromChildren.splice(i, 1); // remove this branch
-                    }
-                }
-
-                /**
-                 * @return {Number} The given frequency string ('high', 'med', 'low', undefined) converted into an integer
-                 */
-                function freqToNum(frequency) {
-                    if(frequency == 'low') {
-                        return 1;
-                    }
-                    else if(frequency == 'med') {
-                        return 2;
-                    }
-                    else if(frequency == 'high') {
-                        return 3;
-                    }
-                    else {
-                        return 2;
+                if(branchFromChild.isDebug) {
+                    // A ~ was found
+                    let o = findIdentifierDepth(branchFromChild, '~');
+                    if(o.depth < shortestDepth || shortestDepth == -1) {
+                        shortestDepth = o.depth;
+                        branchFound = branchFromChild;
                     }
                 }
             }
-        }
-
-        // Remove branches by ~'s
-        // If found, remove all branches other than the one that's connected with one or more ~'s
-        // When multiple branches have ~'s somewhere inside, always prefer the branch with the shallowest-depth ~
-        let branchFound = null;
-        shortestDepth = -1;
-        for(let i = 0; i < branchesFromChildren.length; i++) {
-            let branchFromChild = branchesFromChildren[i];
-            if(branchFromChild.isDebug) {
-                // A ~ was found
-                let o = findIdentifierDepth(branchFromChild, '~');
-                if(o.depth < shortestDepth || shortestDepth == -1) {
-                    shortestDepth = o.depth;
-                    branchFound = branchFromChild;
-                }
+            if(branchFound) {
+                branchesFromChildren = [ branchFound ]; // only keep the one we found
             }
-        }
-        if(branchFound) {
-            branchesFromChildren = [ branchFound ]; // only keep the one we found
         }
 
         // ***************************************
@@ -1179,11 +1182,12 @@ class Tree {
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
+     * @param {String} [debugHash] - If set, run the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
-    generateBranches(groups, minFrequency, noDebug) {
+    generateBranches(groups, minFrequency, noDebug, debugHash) {
         try {
-            this.branches = this.branchify(this.root, groups, minFrequency, noDebug);
+            this.branches = this.branchify(this.root, groups, minFrequency, noDebug, debugHash);
         }
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
@@ -1225,6 +1229,31 @@ class Tree {
                 branch.isSkipped = true;
             }
         });
+
+        // Updates hashes of all branches
+        this.branches.forEach(branch => branch.updateHash());
+
+        // Choose branch by debugHash, if one is set
+        if(debugHash) {
+            let found = false;
+            for(let i = 0; i < this.branches.length; i++) {
+                if(this.branches[i].equalsHash(debugHash)) {
+                    this.branches = [ this.branches[i] ];
+
+                    let lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
+                    lastStep.isDebug = true;
+                    lastStep.isDebugBefore = true;
+                    this.isDebug = true;
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found) {
+                utils.error("Couldn't find the branch with the given hash");
+            }
+        }
     }
 
     /**

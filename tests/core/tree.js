@@ -11702,7 +11702,49 @@ A
             assert.throws(() => {
                 tree.generateBranches();
             }, /Infinite loop detected \[file\.txt:(5|8)\]/);
+        });
 
+        it("can isolate a branch by hash", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B - $
+        C - ~
+
+D -
+    E -
+        F -
+
+H -
+    I -
+`, "file.txt");
+
+            tree.generateBranches(undefined, undefined, undefined, "30cb5a00b9b3401c1a038b06e19f1d21");
+
+            expect(tree.branches).to.have.lengthOf(1);
+            expect(tree.branches[0].steps).to.have.lengthOf(3);
+            expect(tree.branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isDebugBefore: true }  ]
+                }
+            ]);
+        });
+
+        it("throws an exception when it can't find a branch with a given hash", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B - $
+        C - ~
+
+D -
+    E -
+        F -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.generateBranches(undefined, undefined, undefined, "INVALID-HASH");
+            }, "Couldn't find the branch with the given hash");
         });
 
         // NOTE: this just freezes up the executable
