@@ -11705,160 +11705,6 @@ A
 
         });
 
-        it("handles onewise", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-B -
-
-    C -
-    D -
-    E -
-
-        F -
-        G -
-
-            Func
-
-* Func
-    H -
-    I -
-`, "file.txt");
-
-            tree.generateBranches(undefined, undefined, undefined, true);
-
-            expect(tree.branches).to.have.lengthOf(3);
-
-            expect(tree.branches[0].steps).to.containSubsetInOrder([
-                {text: "A"}, {text: "C"}, {text: "F"}, {text: "Func"}, {text: "H"}
-            ]);
-            expect(tree.branches[1].steps).to.containSubsetInOrder([
-                {text: "A"}, {text: "E"}, {text: "F"}, {text: "Func"}, {text: "H"}
-            ]);
-            expect(tree.branches[2].steps).to.containSubsetInOrder([
-                {text: "B"}, {text: "D"}, {text: "G"}, {text: "Func"}, {text: "I"}
-            ]);
-        });
-
-        it.only("onewise doesn't crash when a large number of permutations is generated", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A-1 -
-B-1 -
-C-1 -
-D-1 -
-E-1 -
-F-1 -
-G-1 -
-H-1 -
-I-1 -
-J-1 -
-
-    A-2 -
-    B-2 -
-    C-2 -
-    D-2 -
-    E-2 -
-    F-2 -
-    G-2 -
-    H-2 -
-    I-2 -
-    J-2 -
-
-        A-3 -
-        B-3 -
-        C-3 -
-        D-3 -
-        E-3 -
-        F-3 -
-        G-3 -
-        H-3 -
-        I-3 -
-        J-3 -
-
-            A-4 -
-            B-4 -
-            C-4 -
-            D-4 -
-            E-4 -
-            F-4 -
-            G-4 -
-            H-4 -
-            I-4 -
-            J-4 -
-
-                A-5 -
-                B-5 -
-                C-5 -
-                D-5 -
-                E-5 -
-                F-5 -
-                G-5 -
-                H-5 -
-                I-5 -
-                J-5 -
-
-                    A-6 -
-                    B-6 -
-                    C-6 -
-                    D-6 -
-                    E-6 -
-                    F-6 -
-                    G-6 -
-                    H-6 -
-                    I-6 -
-                    J-6 -
-
-                        A-7 -
-                        B-7 -
-                        C-7 -
-                        D-7 -
-                        E-7 -
-                        F-7 -
-                        G-7 -
-                        H-7 -
-                        I-7 -
-                        J-7 -
-
-                            A-8 -
-                            B-8 -
-                            C-8 -
-                            D-8 -
-                            E-8 -
-                            F-8 -
-                            G-8 -
-                            H-8 -
-                            I-8 -
-                            J-8 -
-
-                                A-9 -
-                                B-9 -
-                                C-9 -
-                                D-9 -
-                                E-9 -
-                                F-9 -
-                                G-9 -
-                                H-9 -
-                                I-9 -
-                                J-9 -
-
-                                    A-10 -
-                                    B-10 -
-                                    C-10 -
-                                    D-10 -
-                                    E-10 -
-                                    F-10 -
-                                    G-10 -
-                                    H-10 -
-                                    I-10 -
-                                    J-10 -
-`, "file.txt");
-
-            tree.generateBranches(undefined, undefined, undefined, true);
-
-            expect(tree.branches).to.have.lengthOf(10);
-        });
-
         // NOTE: this just freezes up the executable
         // Unlike the infinite loop which causes an immediate stack size exception, this probably blows out memory before stack size (and there is no exception thrown)
         // This many branches are unlikely in normal usage, though
@@ -11876,7 +11722,7 @@ F-1 -
 G-1 -
 H-1 -
 I-1 -
-J-1 -
+K-1 -
 
     A-2 -
     B-2 -
@@ -11887,7 +11733,7 @@ J-1 -
     G-2 -
     H-2 -
     I-2 -
-    J-2 -
+    K-2 -
 
         A-3 -
         B-3 -
@@ -11898,7 +11744,7 @@ J-1 -
         G-3 -
         H-3 -
         I-3 -
-        J-3 -
+        K-3 -
 
             A-4 -
             B-4 -
@@ -11909,7 +11755,7 @@ J-1 -
             G-4 -
             H-4 -
             I-4 -
-            J-4 -
+            K-4 -
 
                 A-5 -
                 B-5 -
@@ -11920,7 +11766,7 @@ J-1 -
                 G-5 -
                 H-5 -
                 I-5 -
-                J-5 -
+                K-5 -
 
                     A-6 -
                     B-6 -
@@ -11931,7 +11777,7 @@ J-1 -
                     G-6 -
                     H-6 -
                     I-6 -
-                    J-6 -
+                    K-6 -
 
                         A-7 -
                         B-7 -
@@ -11942,7 +11788,7 @@ J-1 -
                         G-7 -
                         H-7 -
                         I-7 -
-                        J-7 -
+                        K-7 -
 
                             A-8 -
                             B-8 -
@@ -11953,7 +11799,7 @@ J-1 -
                             G-8 -
                             H-8 -
                             I-8 -
-                            J-8 -
+                            K-8 -
 
                                 A-9 -
                                 B-9 -
@@ -11964,7 +11810,7 @@ J-1 -
                                 G-9 -
                                 H-9 -
                                 I-9 -
-                                J-9 -
+                                K-9 -
 
                                     A-10 -
                                     B-10 -
@@ -11975,7 +11821,7 @@ J-1 -
                                     G-10 -
                                     H-10 -
                                     I-10 -
-                                    J-10 -
+                                    K-10 -
 
 `, "file.txt");
 
@@ -11986,12 +11832,12 @@ J-1 -
         */
     });
 
-    describe("onewise()", function() {
+    describe("pairwise()", function() {
         it("returns an empty array for an empty array", function() {
             let tree = new Tree();
 
             let branches = [];
-            branches = tree.onewise(branches);
+            branches = tree.pairwise(branches);
 
             expect(branches).to.have.lengthOf(0);
         });
@@ -12004,7 +11850,7 @@ A -
 `, "file.txt");
 
             let branches = tree.branchify(tree.root);
-            branches = tree.onewise(branches);
+            branches = tree.pairwise(branches);
 
             expect(branches).to.have.lengthOf(1);
 
@@ -12013,42 +11859,6 @@ A -
         });
 
         it("handles a case where nothing is removed", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    C -
-    D -
-B -
-    E -
-        G -
-        H -
-    F -
-`, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-            branches = tree.onewise(branches);
-
-            expect(branches).to.have.lengthOf(5);
-
-            expect(branches[0].steps[0].text).to.equal("A");
-            expect(branches[0].steps[1].text).to.equal("C");
-
-            expect(branches[1].steps[0].text).to.equal("A");
-            expect(branches[1].steps[1].text).to.equal("D");
-
-            expect(branches[2].steps[0].text).to.equal("B");
-            expect(branches[2].steps[1].text).to.equal("E");
-            expect(branches[2].steps[2].text).to.equal("G");
-
-            expect(branches[3].steps[0].text).to.equal("B");
-            expect(branches[3].steps[1].text).to.equal("E");
-            expect(branches[3].steps[2].text).to.equal("H");
-
-            expect(branches[4].steps[0].text).to.equal("B");
-            expect(branches[4].steps[1].text).to.equal("F");
-        });
-
-        it("handles a combination of steps and step blocks", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12068,9 +11878,9 @@ J -
 `, "file.txt");
 
             let branches = tree.branchify(tree.root);
-            branches = tree.onewise(branches);
+            branches = tree.pairwise(branches);
 
-            expect(branches).to.have.lengthOf(7);
+            expect(branches).to.have.lengthOf(9);
 
             expect(branches[0].steps[0].text).to.equal("A");
             expect(branches[0].steps[1].text).to.equal("C");
@@ -12092,11 +11902,17 @@ J -
             expect(branches[5].steps[0].text).to.equal("I");
             expect(branches[5].steps[1].text).to.equal("K");
 
-            expect(branches[6].steps[0].text).to.equal("J");
+            expect(branches[6].steps[0].text).to.equal("I");
             expect(branches[6].steps[1].text).to.equal("L");
+
+            expect(branches[7].steps[0].text).to.equal("J");
+            expect(branches[7].steps[1].text).to.equal("K");
+
+            expect(branches[8].steps[0].text).to.equal("J");
+            expect(branches[8].steps[1].text).to.equal("L");
         });
 
-        it("handles lots of cross-joined step blocks and functions", function() {
+        it.only("handles a case where some branches are removed", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12104,32 +11920,39 @@ B -
 
     C -
     D -
-    E -
 
+        E -
         F -
-        G -
 
             Func
 
 * Func
+    G -
     H -
-    I -
 `, "file.txt");
 
             let branches = tree.branchify(tree.root);
-            branches = tree.onewise(branches);
+            branches = tree.pairwise(branches);
+utils.printBranches(branches);
+return;
+            expect(branches).to.have.lengthOf(5);
 
-            expect(branches).to.have.lengthOf(3);
+            expect(branches[0].steps[0].text).to.equal("A");
+            expect(branches[0].steps[1].text).to.equal("C");
 
-            expect(branches[0].steps).to.containSubsetInOrder([
-                {text: "A"}, {text: "C"}, {text: "F"}, {text: "Func"}, {text: "H"}
-            ]);
-            expect(branches[1].steps).to.containSubsetInOrder([
-                {text: "A"}, {text: "E"}, {text: "F"}, {text: "Func"}, {text: "H"}
-            ]);
-            expect(branches[2].steps).to.containSubsetInOrder([
-                {text: "B"}, {text: "D"}, {text: "G"}, {text: "Func"}, {text: "I"}
-            ]);
+            expect(branches[1].steps[0].text).to.equal("A");
+            expect(branches[1].steps[1].text).to.equal("D");
+
+            expect(branches[2].steps[0].text).to.equal("B");
+            expect(branches[2].steps[1].text).to.equal("E");
+            expect(branches[2].steps[2].text).to.equal("G");
+
+            expect(branches[3].steps[0].text).to.equal("B");
+            expect(branches[3].steps[1].text).to.equal("E");
+            expect(branches[3].steps[2].text).to.equal("H");
+
+            expect(branches[4].steps[0].text).to.equal("B");
+            expect(branches[4].steps[1].text).to.equal("F");
         });
     });
 
