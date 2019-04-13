@@ -3950,7 +3950,7 @@ Other scope -
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' (but file.txt:7 is not) [file.txt:2]");
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x} = Function (but file.txt:7 is not) [file.txt:2]");
 
             tree = new Tree();
             tree.parseIn(`
@@ -3967,7 +3967,7 @@ Other scope -
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' (but file.txt:6 is not) [file.txt:2]");
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x} = Function (but file.txt:6 is not) [file.txt:2]");
         });
 
         it("rejects function that has a code block, but also has children", function() {
@@ -5636,7 +5636,7 @@ FA
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' (but file.txt:6 is not) [file.txt:2]");
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x} = Function (but file.txt:6 is not) [file.txt:2]");
         });
 
         it("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", function() {

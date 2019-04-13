@@ -637,7 +637,7 @@ class Tree {
 
             function validateChild(child) {
                 if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal) {
-                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must have all steps in its declaration be in format {x}='string' (but " + child.filename + ":" + child.lineNumber + " is not)", step.filename, step.lineNumber);
+                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must have all steps in its declaration be in format {x}='string' or {x} = Function (but " + child.filename + ":" + child.lineNumber + " is not)", step.filename, step.lineNumber);
                 }
 
                 if(child.children.length > 0) {
