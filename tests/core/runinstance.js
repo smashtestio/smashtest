@@ -2292,6 +2292,37 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
+        it("executes a {var} = Function step, where the function declaration is in {x}='value' and {x}=Func format", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1} = My function
+
+* My function
+    {x} = My function 2
+
+* My function 2
+    {y}='foobar'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+            expect(runInstance.getGlobal("var1")).to.equal(undefined);
+
+            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+            expect(runInstance.getGlobal("var1")).to.equal(undefined);
+
+            await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+            expect(runInstance.getGlobal("var1")).to.equal("foobar");
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            expect(tree.branches[0].steps[2].error).to.equal(undefined);
+        });
+
         it("allows a code block to get local, global, and persistent variables via getter functions", async function() {
             let tree = new Tree();
             tree.parseIn(`
