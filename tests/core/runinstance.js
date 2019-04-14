@@ -366,11 +366,11 @@ A  {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -415,11 +415,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -466,11 +466,11 @@ A {
             throw e;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -579,7 +579,7 @@ A -
             runInstance.ranStepC = true;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = true;
     runInstance.nothingElseRanYet = (runInstance.ranStepB !== true);
 }
@@ -614,7 +614,7 @@ A -
             runInstance.ranStepC = true;
         }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = true;
     runInstance.everythingElseRanAlready = (runInstance.ranStepB === true && runInstance.ranStepC === true);
 }
@@ -645,19 +645,19 @@ A -
     D -
         E -
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.count += 1;
 }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.count *= 2;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.count += 3;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.count *= 4;
 }
 
@@ -684,11 +684,11 @@ A -
     D -
         E -
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.count++;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.count *= 2;
 }
 `, "file.txt");
@@ -715,11 +715,11 @@ A -
         runInstance.ranStepC = true;
     }
 
-** Before Every Branch {
+*** Before Every Branch {
     throw new Error("oops");
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterCount++;
 }
 
@@ -761,15 +761,15 @@ A -
         runInstance.ranStepC = true;
     }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeCount++;
 }
 
-** After Every Branch {
+*** After Every Branch {
     throw new Error("oops");
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterCount++;
 }
 
@@ -812,7 +812,7 @@ B {
     runInstance.ranStepB = true;
 }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.isStopped = true;
     runInstance.beforeCount++;
 
@@ -850,12 +850,12 @@ B {
     runInstance.ranStepB = true;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.isStopped = true;
     runInstance.afterCount++;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterCount++;
 }
 
@@ -880,7 +880,7 @@ B {
 {var1}='foo'
     {{var2}}='bar'
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.var1 = var1;
     runInstance.var2 = var2;
 }
@@ -3430,7 +3430,7 @@ My function
             tree.parseIn(`
 {var1}='foo'
 
-** After Every Step {
+*** After Every Step {
     runInstance.one = getGlobal('var1');
     runInstance.two = var1;
 }
@@ -3455,7 +3455,7 @@ My function
             tree.parseIn(`
 {{var1}}='foo'
 
-** After Every Step {
+*** After Every Step {
     runInstance.one = getLocal('var1');
     runInstance.two = var1;
 }
@@ -4278,7 +4278,7 @@ A -
             tree.parseIn(`
 A -
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.one = "foo";
 }
 `, "file.txt");
@@ -4303,19 +4303,19 @@ A {
         runInstance.two += "EIGHT";
     }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.one = "one";
 }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.two = "two";
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.one += "five";
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.two += "six";
 }
 `, "file.txt");
@@ -4340,7 +4340,7 @@ A {
             tree.parseIn(`
 A -
 
-** Before Every Step {
+*** Before Every Step {
     var a = 2 + 2;
     throw new Error("oops");
 }
@@ -4375,7 +4375,7 @@ A -
             tree.parseIn(`
 A # -
 
-** Before Every Step {
+*** Before Every Step {
     var a = 2 + 2;
     throw new Error("oops");
 }
@@ -4409,7 +4409,7 @@ A # -
             tree.parseIn(`
 A -
 
-** After Every Step {
+*** After Every Step {
     var a = 2 + 2;
     throw new Error("oops");
 }
@@ -4444,7 +4444,7 @@ A -
             tree.parseIn(`
 A - #
 
-** After Every Step {
+*** After Every Step {
     var a = 2 + 2;
     throw new Error("oops");
 }
@@ -4480,23 +4480,23 @@ A {
     runInstance.one += "THREE"; // this step will be skipped
 }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.one += "TWO"; // this hook will be skipped
 }
 
-** Before Every Step {
+*** Before Every Step {
     throw new Error("oops1"); // this will run second
 }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.one = "one"; // this will run first
 }
 
-** After Every Step {
+*** After Every Step {
     throw new Error("oops2"); // this will run third, but this error won't override the existing one
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.one += "four"; // this will run fourth
 }
 `, "file.txt");
@@ -4520,7 +4520,7 @@ A {
 A -
     B -
 
-** Before Every Step {
+*** Before Every Step {
     var a = 2 + 2;
     throw new Error("oops");
 }
@@ -4542,7 +4542,7 @@ A -
 A -
     B -
 
-** After Every Step {
+*** After Every Step {
     var a = 2 + 2;
     throw new Error("oops");
 }
@@ -4563,12 +4563,12 @@ A -
             tree.parseIn(`
 A -
 
-** Before Every Step {
+*** Before Every Step {
     var a = 2 + 2;
     throw new Error("oops");
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = true;
 }
 `, "file.txt");
@@ -4589,12 +4589,12 @@ A -
             tree.parseIn(`
 A -
 
-** After Every Step {
+*** After Every Step {
     var a = 2 + 2;
     throw new Error("oops");
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = true;
 }
 `, "file.txt");
@@ -4645,19 +4645,19 @@ First step {
         runInstance.secondStepRan = true;
     }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep2Ran = true;
 }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep1Ran = true;
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep1Ran = true;
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep2Ran = true;
 }
 `, "file.txt");
@@ -4687,20 +4687,20 @@ First step {
         runInstance.secondStepRan = true;
     }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep2Ran = true;
 }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep1Ran = true;
     throw new Error("oops");
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep1Ran = true;
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep2Ran = true;
 }
 `, "file.txt");
@@ -4730,20 +4730,20 @@ First step {
         runInstance.secondStepRan = true;
     }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep2Ran = true;
 }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep1Ran = true;
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep1Ran = true;
     throw new Error("oops");
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep2Ran = true;
 }
 `, "file.txt");
@@ -4780,19 +4780,19 @@ First step {
         runInstance.secondStepRan = true;
     }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep2Ran = true;
 }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep1Ran = true;
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep1Ran = true;
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep2Ran = true;
 }
 `, "file.txt");
@@ -4824,11 +4824,11 @@ First step {
         runInstance.secondStepRan = true;
     }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep2Ran = true;
 }
 
-** Before Every Step {
+*** Before Every Step {
     await new Promise((resolve, reject) => {
         setTimeout(() => {
             runInstance.beforeEveryStep1Ran = true;
@@ -4839,11 +4839,11 @@ First step {
     });
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep1Ran = true;
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep2Ran = true;
 }
 `, "file.txt");
@@ -4875,15 +4875,15 @@ First step {
         runInstance.secondStepRan = true;
     }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep2Ran = true;
 }
 
-** Before Every Step {
+*** Before Every Step {
     runInstance.beforeEveryStep1Ran = true;
 }
 
-** After Every Step {
+*** After Every Step {
     await new Promise((resolve, reject) => {
         setTimeout(() => {
             runInstance.afterEveryStep1Ran = true;
@@ -4894,7 +4894,7 @@ First step {
     });
 }
 
-** After Every Step {
+*** After Every Step {
     runInstance.afterEveryStep2Ran = true;
 }
 `, "file.txt");
@@ -5767,11 +5767,11 @@ Big step {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -5853,11 +5853,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -5926,11 +5926,11 @@ A  {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -5990,11 +5990,11 @@ A {
             throw e;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6043,11 +6043,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6088,11 +6088,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6135,11 +6135,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6193,11 +6193,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6251,11 +6251,11 @@ A {
             throw new Error("oops");
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6309,11 +6309,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6359,11 +6359,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6475,11 +6475,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6572,11 +6572,11 @@ A  {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6668,11 +6668,11 @@ A  {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6750,11 +6750,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -6832,11 +6832,11 @@ A {
             throw e;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -7145,11 +7145,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -7206,11 +7206,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");
@@ -7285,11 +7285,11 @@ A {
             runInstance.ranStepC = !runInstance.ranStepC;
         }
 
-** Before Every Branch {
+*** Before Every Branch {
     runInstance.beforeEveryBranchRan = !runInstance.beforeEveryBranchRan;
 }
 
-** After Every Branch {
+*** After Every Branch {
     runInstance.afterEveryBranchRan = !runInstance.afterEveryBranchRan;
 }
 `, "file.txt");

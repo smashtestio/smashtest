@@ -26,8 +26,9 @@ class Step {
         this.codeBlock = "";                  // if this is a code block step, contains the '{' followed by the code
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
-        this.isFunctionDeclaration = false;   // true if this step is a * Function Declaration
+        this.isFunctionDeclaration = false;   // true if this step is a function declaration
         this.isFunctionCall = false;          // true if this step is a function call
+        this.isPrivateFunctionDeclaration = false;   // true if this is a private function declaration
         this.isTextualStep = false;           // true if this step is textual (-) and not a function call
         this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
         this.functionDeclarationText = "";    // if this step is a function call, this is set to the corresponding function declaration's text

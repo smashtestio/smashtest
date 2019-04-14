@@ -172,7 +172,7 @@ Before Every Step Error -
     One -
         Two -
 
-    ** Before Every Step {
+    *** Before Every Step {
         throw new Error("oops");
     }
 
@@ -182,7 +182,7 @@ After Every Step Error -
     One -
         Two -
 
-    ** After Every Step {
+    *** After Every Step {
         throw new Error("oops");
     }
 
@@ -230,7 +230,7 @@ Before Every Branch Error -
     One -
         Two -
 
-    ** Before Every Branch {
+    *** Before Every Branch {
         throw new Error("oops");
     }
 
@@ -240,7 +240,7 @@ After Every Branch Error -
     One -
         Two -
 
-    ** After Every Branch {
+    *** After Every Branch {
         throw new Error("oops");
     }
 

@@ -386,19 +386,19 @@ C
     runInstance.runner.count++;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.count *= 3;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.count *= 2;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.count *= 4;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.count *= 5;
 }
 
@@ -431,19 +431,19 @@ C
     runInstance.runner.count++;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.count *= 3;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.count *= 2;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.count *= 4;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.count *= 5;
 }
 
@@ -469,20 +469,20 @@ A
     runInstance.runner.ranStepA = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything2 = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything1 = true;
     throw new Error("oops");
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything1 = true;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything2 = true;
 }
 `, "file.txt");
@@ -512,20 +512,20 @@ A
     runInstance.runner.ranStepA = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything2 = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything1 = true;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything1 = true;
     throw new Error("oops");
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything2 = true;
 }
 `, "file.txt");
@@ -555,20 +555,20 @@ A
     runInstance.runner.ranStepA = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything2 = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything1 = true;
     await runInstance.runner.stop();
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything1 = true;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything2 = true;
 }
 `, "file.txt");
@@ -594,20 +594,20 @@ A
     runInstance.runner.ranStepA = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything2 = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything1 = true;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything1 = true;
     await runInstance.runner.stop();
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything2 = true;
 }
 `, "file.txt");
@@ -634,19 +634,19 @@ A
     await runInstance.runner.stop();
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything2 = true;
 }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.ranBeforeEverything1 = true;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything1 = true;
 }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.ranAfterEverything2 = true;
 }
 `, "file.txt");
@@ -801,7 +801,7 @@ Branch 2 -
 Branch 3 -
     Wait '20' ms
 
-** After Everything {
+*** After Everything {
     await new Promise((resolve, reject) => {
         setTimeout(() => {
             runInstance.runner.afterEverythingRan = true;
@@ -852,7 +852,7 @@ A {
             runInstance.runner.ranStepC = true;
         }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.afterEverythingRan = true;
 }
 `, "file.txt");
@@ -908,7 +908,7 @@ A {
             runInstance.runner.ranStepC = true;
         }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.afterEverythingRan = true;
 }
 `, "file.txt");
@@ -953,7 +953,7 @@ A {
             runInstance.runner.ranStepC = true;
         }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.afterEverythingRan = true;
 }
 `, "file.txt");
@@ -1016,7 +1016,7 @@ A {
             runInstance.runner.ranStepC = true;
         }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.afterEverythingRan = true;
 }
 `, "file.txt");
@@ -1075,7 +1075,7 @@ A {
             runInstance.runner.ranStepC = true;
         }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.afterEverythingRan = true;
 }
 `, "file.txt");
@@ -1121,7 +1121,7 @@ A {
             runInstance.runner.ranStepC = true;
         }
 
-** After Everything {
+*** After Everything {
     runInstance.runner.afterEverythingRan = true;
 }
 `, "file.txt");

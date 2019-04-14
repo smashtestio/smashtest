@@ -3,10 +3,10 @@ One -
 
 Three -
 
-** Before Everything {
+*** Before Everything {
     throw new Error("oops2");
 }
 
-** Before Everything {
+*** Before Everything {
     throw new Error("oops1");
 }

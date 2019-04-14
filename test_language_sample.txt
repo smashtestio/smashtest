@@ -112,7 +112,7 @@ Test the Widget Maker -
 
                         Verify {response} has 6
 
-                    ** After Every Branch  // called at the end of every branch from this step's siblings on down
+                    *** After Every Branch  // called at the end of every branch from this step's siblings on down
 
                         Do cleanup
 

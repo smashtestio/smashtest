@@ -194,12 +194,12 @@ describe("Tree", function() {
 
         it("throws an error if a hook name is invalid", function() {
             assert.throws(() => {
-                tree.parseLine(`** Before`, "file.txt", 10);
-            }, "Invalid ** Hook name [file.txt:10]");
+                tree.parseLine(`*** Before`, "file.txt", 10);
+            }, "Invalid hook name [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`** Foobar`, "file.txt", 10);
-            }, "Invalid ** Hook name [file.txt:10]");
+                tree.parseLine(`*** Foobar`, "file.txt", 10);
+            }, "Invalid hook name [file.txt:10]");
         });
 
         it("does not throw an error if a hook has the right casing and has a code block, regardless of whitespace", function() {
@@ -230,27 +230,27 @@ describe("Tree", function() {
 
         it("throws an error if a hook doesn't start a code block", function() {
             assert.throws(() => {
-                tree.parseLine(`** Before  Every   Branch`, "file.txt", 10);
+                tree.parseLine(`*** Before  Every   Branch`, "file.txt", 10);
             }, "A hook must have a code block [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`** After  Every   Branch`, "file.txt", 10);
+                tree.parseLine(`*** After  Every   Branch`, "file.txt", 10);
             }, "A hook must have a code block [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`**    Before Every Step    `, "file.txt", 10);
+                tree.parseLine(`***    Before Every Step    `, "file.txt", 10);
             }, "A hook must have a code block [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`**    After Every Step     `, "file.txt", 10);
+                tree.parseLine(`***    After Every Step     `, "file.txt", 10);
             }, "A hook must have a code block [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`**  Before  Everything +   `, "file.txt", 10);
+                tree.parseLine(`***  Before  Everything +   `, "file.txt", 10);
             }, "A hook must have a code block [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`**  After  Everything .. +  `, "file.txt", 10);
+                tree.parseLine(`***  After  Everything .. +  `, "file.txt", 10);
             }, "A hook must have a code block [file.txt:10]");
         });
 
@@ -324,15 +324,15 @@ describe("Tree", function() {
         it("throws an error if a function declaration has 'strings'", function() {
             assert.throws(() => {
                 tree.parseLine(`* Something 'quote' something else`, "file.txt", 10);
-            }, "A * Function declaration cannot have 'strings', \"strings\", or [strings] inside of it [file.txt:10]");
+            }, "A function declaration cannot have 'strings', \"strings\", or [strings] inside of it [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`* Something "quote" something else`, "file.txt", 10);
-            }, "A * Function declaration cannot have 'strings', \"strings\", or [strings] inside of it [file.txt:10]");
+                tree.parseLine(`** Something "quote" something else`, "file.txt", 10);
+            }, "A function declaration cannot have 'strings', \"strings\", or [strings] inside of it [file.txt:10]");
 
             assert.throws(() => {
                 tree.parseLine(`* Something [quote] something else`, "file.txt", 10);
-            }, "A * Function declaration cannot have 'strings', \"strings\", or [strings] inside of it [file.txt:10]");
+            }, "A function declaration cannot have 'strings', \"strings\", or [strings] inside of it [file.txt:10]");
         });
 
         it("parses a function call", function() {
@@ -345,11 +345,11 @@ describe("Tree", function() {
         it("throws an error if a textual step is also a function declaration", function() {
             assert.throws(() => {
                 tree.parseLine(`* Something - +`, "file.txt", 10);
-            }, "A * Function declaration cannot be a textual step (-) as well [file.txt:10]");
+            }, "A function declaration cannot be a textual step (-) as well [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`    * Something - + {`, "file.txt", 10);
-            }, "A * Function declaration cannot be a textual step (-) as well [file.txt:10]");
+                tree.parseLine(`    ** Something - + {`, "file.txt", 10);
+            }, "A function declaration cannot be a textual step (-) as well [file.txt:10]");
         });
 
         it("parses a function declaration with a code block", function() {
@@ -501,17 +501,17 @@ describe("Tree", function() {
 
         it("rejects a hook with an identifier", function() {
             assert.throws(() => {
-                tree.parseLine(`$ ** After Every Branch + {`, "file.txt", 10);
+                tree.parseLine(`$ *** After Every Branch + {`, "file.txt", 10);
             }, "A hook cannot have any identifiers ($) [file.txt:10]");
         });
 
         it("rejects a hook with a ~", function() {
             assert.throws(() => {
-                tree.parseLine(`~ ** Before Every Step {`, "file.txt", 10);
+                tree.parseLine(`~ *** Before Every Step {`, "file.txt", 10);
             }, "A hook cannot have any identifiers (~) [file.txt:10]");
 
             assert.throws(() => {
-                tree.parseLine(`** Before Every Step ~ {`, "file.txt", 10);
+                tree.parseLine(`*** Before Every Step ~ {`, "file.txt", 10);
             }, "A hook cannot have any identifiers (~) [file.txt:10]");
         });
 
@@ -726,7 +726,7 @@ describe("Tree", function() {
         it("throws an error when a function declaration contains {non-local variables}", function() {
             assert.throws(() => {
                 tree.parseLine(`* Function {one} and {{two}}`, "file.txt", 10);
-            }, "All variables in a \* Function declaration must be {{local}} and {one} is not [file.txt:10]");
+            }, "All variables in a function declaration must be {{local}} and {one} is not [file.txt:10]");
         });
 
         it("throws an error when a step sets a variable and is a function declaration", function() {
@@ -2011,7 +2011,7 @@ C
 * B
 C`
                 , "file.txt");
-            }, "You cannot have a * Function declaration within a step block [file.txt:2]");
+            }, "You cannot have a function declaration within a step block [file.txt:2]");
         });
 
         it("rejects a step block containing a code block", function() {
@@ -3443,6 +3443,34 @@ My function
             expect(functionDeclaration).to.containSubset({
                 text: "My function",
                 isFunctionDeclaration: true,
+                parent: { indents: -1 },
+                children: [
+                    {
+                        text: "Step one",
+                        isTextualStep: true
+                    }
+                ]
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+        });
+
+        it("finds the right function when the declaration is private", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My function
+
+** My function
+    Step one -
+`);
+
+            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+
+            expect(functionDeclaration).to.containSubset({
+                text: "My function",
+                isFunctionDeclaration: true,
+                isPrivateFunctionDeclaration: true,
                 parent: { indents: -1 },
                 children: [
                     {
@@ -7947,14 +7975,14 @@ B -
             ]);
         });
 
-        it("branchifies the ** Before Every Branch hook", function() {
+        it("branchifies the *** Before Every Branch hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
 
     C -
-        ** Before Every Branch {
+        *** Before Every Branch {
             D
         }
 
@@ -8000,14 +8028,14 @@ E -
             ]);
         });
 
-        it("branchifies the ** After Every Branch hook", function() {
+        it("branchifies the *** After Every Branch hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
 
     C -
-        ** After Every Branch {
+        *** After Every Branch {
             D
         }
 
@@ -8053,11 +8081,11 @@ E -
             ]);
         });
 
-        it("branchifies an empty ** Before Every Branch hook", function() {
+        it("branchifies an empty *** Before Every Branch hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** Before Every Branch {
+    *** Before Every Branch {
     }
 `);
 
@@ -8077,11 +8105,11 @@ A -
             ]);
         });
 
-        it("branchifies an empty ** After Every Branch hook", function() {
+        it("branchifies an empty *** After Every Branch hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** After Every Branch {
+    *** After Every Branch {
     }
 `);
 
@@ -8101,12 +8129,12 @@ A -
             ]);
         });
 
-        it("branchifies the ** Before Every Branch hook under the root", function() {
+        it("branchifies the *** Before Every Branch hook under the root", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
 
-** Before Every Branch {
+*** Before Every Branch {
     B
 }
 
@@ -8139,12 +8167,12 @@ C -
             ]);
         });
 
-        it("branchifies the ** After Every Branch hook under the root", function() {
+        it("branchifies the *** After Every Branch hook under the root", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
 
-**  After  Every branch {
+***  After  Every branch {
     B
 }
 
@@ -8177,7 +8205,7 @@ C -
             ]);
         });
 
-        it("branchifies the ** Before Every Branch hook when it's inside a function declaration", function() {
+        it("branchifies the *** Before Every Branch hook when it's inside a function declaration", function() {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -8186,7 +8214,7 @@ F
     A -
     B -
 
-    ** Before Every Branch {
+    *** Before Every Branch {
         C
     }
     `);
@@ -8217,7 +8245,7 @@ F
             ]);
         });
 
-        it("branchifies the ** After Every Branch hook when it's inside a function declaration", function() {
+        it("branchifies the *** After Every Branch hook when it's inside a function declaration", function() {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -8226,7 +8254,7 @@ F
     A -
     B -
 
-    ** After Every Branch {
+    *** After Every Branch {
         C
     }
     `);
@@ -8257,14 +8285,14 @@ F
             ]);
         });
 
-        it("branchifies the ** Before Every Branch hook under a step block", function() {
+        it("branchifies the *** Before Every Branch hook under a step block", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
     C -
 
-        ** Before Every Branch {
+        *** Before Every Branch {
             D
         }
 
@@ -8303,14 +8331,14 @@ G -
             ]);
         });
 
-        it("branchifies the ** After Every Branch hook under a step block", function() {
+        it("branchifies the *** After Every Branch hook under a step block", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
     C -
 
-        ** After Every Branch {
+        *** After Every Branch {
             D
         }
 
@@ -8349,7 +8377,7 @@ G -
             ]);
         });
 
-        it("branchifies the ** Before Every Branch hook under a .. step", function() {
+        it("branchifies the *** Before Every Branch hook under a .. step", function() {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -8357,7 +8385,7 @@ A - ..
     B -
 
     C -
-        ** Before Every Branch {
+        *** Before Every Branch {
             D
         }
 
@@ -8388,7 +8416,7 @@ G -
             ]);
         });
 
-        it("branchifies the ** After Every Branch hook under a .. step", function() {
+        it("branchifies the *** After Every Branch hook under a .. step", function() {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -8396,7 +8424,7 @@ A - ..
     B -
 
     C -
-        ** After Every Branch {
+        *** After Every Branch {
             D
         }
 
@@ -8427,7 +8455,7 @@ G -
             ]);
         });
 
-        it("branchifies the ** Before Every Branch hook under a .. step block", function() {
+        it("branchifies the *** Before Every Branch hook under a .. step block", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8435,7 +8463,7 @@ A -
     B -
     C -
 
-        ** Before Every Branch {
+        *** Before Every Branch {
             D
         }
 
@@ -8466,7 +8494,7 @@ G -
             ]);
         });
 
-        it("branchifies the ** After Every Branch hook under a .. step block", function() {
+        it("branchifies the *** After Every Branch hook under a .. step block", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8474,7 +8502,7 @@ A -
     B -
     C -
 
-        ** After Every Branch {
+        *** After Every Branch {
             D
         }
 
@@ -8505,11 +8533,11 @@ G -
             ]);
         });
 
-        it("rejects a ** Before Every Branch hook that has children", function() {
+        it("rejects a *** Before Every Branch hook that has children", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** Before Every Branch {
+    *** Before Every Branch {
         B
     }
 
@@ -8523,11 +8551,11 @@ G -
             }, "A hook declaration cannot have children [file.txt:3]");
         });
 
-        it("rejects a ** After Every Branch hook that has children", function() {
+        it("rejects a *** After Every Branch hook that has children", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** After Every Branch {
+    *** After Every Branch {
         B
     }
 
@@ -8541,34 +8569,34 @@ G -
             }, "A hook declaration cannot have children [file.txt:3]");
         });
 
-        it("handles multiple ** Before Every Branch and ** After Every Branch hooks that are siblings", function() {
+        it("handles multiple *** Before Every Branch and *** After Every Branch hooks that are siblings", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
 
     C -
-        ** Before Every Branch {
+        *** Before Every Branch {
             D1
         }
 
-        ** After Every Branch {
+        *** After Every Branch {
             G1
         }
 
-        ** Before Every Branch {
+        *** Before Every Branch {
             D2
         }
 
-        ** Before Every Branch {
+        *** Before Every Branch {
             D3
         }
 
-        ** After Every Branch {
+        *** After Every Branch {
             G2
         }
 
-        ** After Every Branch {
+        *** After Every Branch {
             G3
         }
 
@@ -8618,7 +8646,7 @@ E -
             ]);
         });
 
-        it("branchifies many ** Before Every Branch and ** After Every Branch hooks in the tree", function() {
+        it("branchifies many *** Before Every Branch and *** After Every Branch hooks in the tree", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8628,11 +8656,11 @@ A -
 
             E -
 
-                ** After Every Branch {
+                *** After Every Branch {
                     U
                 }
 
-            ** After Every Branch {
+            *** After Every Branch {
                 T
             }
 
@@ -8641,7 +8669,7 @@ A -
     H -
     I -
 
-        ** After Every Branch {
+        *** After Every Branch {
             S
         }
 
@@ -8649,11 +8677,11 @@ A -
     J -
     K -
 
-        ** After Every Branch {
+        *** After Every Branch {
             R
         }
 
-        ** Before Every Branch {
+        *** Before Every Branch {
             X
         }
 
@@ -8661,17 +8689,17 @@ A -
         M -
             N -
 
-        ** After Every Branch {
+        *** After Every Branch {
             Q
         }
 
-        ** Before Every Branch {
+        *** Before Every Branch {
             Y
         }
 
         O -
 
-    ** After Every Branch {
+    *** After Every Branch {
         W
     }
 G -
@@ -8771,14 +8799,14 @@ G -
             ]);
         });
 
-        it("branchifies the ** Before Every Step hook", function() {
+        it("branchifies the *** Before Every Step hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
 
     C -
-        ** Before Every Step {
+        *** Before Every Step {
             D
         }
 
@@ -8824,14 +8852,14 @@ E -
             ]);
         });
 
-        it("branchifies the ** After Every Step hook", function() {
+        it("branchifies the *** After Every Step hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
 
     C -
-        ** After Every Step {
+        *** After Every Step {
             D
         }
 
@@ -8877,11 +8905,11 @@ E -
             ]);
         });
 
-        it("branchifies an empty ** Before Every Step hook", function() {
+        it("branchifies an empty *** Before Every Step hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** Before Every Step {
+    *** Before Every Step {
     }
 `);
 
@@ -8901,11 +8929,11 @@ A -
             ]);
         });
 
-        it("branchifies an empty ** After Every Step hook", function() {
+        it("branchifies an empty *** After Every Step hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** After Every Step {
+    *** After Every Step {
     }
 `);
 
@@ -8925,12 +8953,12 @@ A -
             ]);
         });
 
-        it("branchifies the ** Before Every Step hook under the root", function() {
+        it("branchifies the *** Before Every Step hook under the root", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
 
-** Before Every Step {
+*** Before Every Step {
     B
 }
 
@@ -8963,12 +8991,12 @@ C -
             ]);
         });
 
-        it("branchifies the ** After Every Step hook under the root", function() {
+        it("branchifies the *** After Every Step hook under the root", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
 
-** After Every Step {
+*** After Every Step {
     B
 }
 
@@ -9001,7 +9029,7 @@ C -
             ]);
         });
 
-        it("branchifies the ** Before Every Step hook when it's inside a function declaration", function() {
+        it("branchifies the *** Before Every Step hook when it's inside a function declaration", function() {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -9010,7 +9038,7 @@ F
     A -
     B -
 
-    ** Before Every Step {
+    *** Before Every Step {
         C
     }
     `);
@@ -9041,7 +9069,7 @@ F
             ]);
         });
 
-        it("branchifies the ** After Every Step hook when it's inside a function declaration", function() {
+        it("branchifies the *** After Every Step hook when it's inside a function declaration", function() {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -9050,7 +9078,7 @@ F
     A -
     B -
 
-    ** After Every Step {
+    *** After Every Step {
         C
     }
     `);
@@ -9081,14 +9109,14 @@ F
             ]);
         });
 
-        it("branchifies the ** Before Every Step hook under a step block", function() {
+        it("branchifies the *** Before Every Step hook under a step block", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
     C -
 
-        ** Before Every Step {
+        *** Before Every Step {
             D
         }
 
@@ -9127,14 +9155,14 @@ G -
             ]);
         });
 
-        it("branchifies the ** After Every Step hook under a step block", function() {
+        it("branchifies the *** After Every Step hook under a step block", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
     C -
 
-        ** After Every Step {
+        *** After Every Step {
             D
         }
 
@@ -9173,7 +9201,7 @@ G -
             ]);
         });
 
-        it("branchifies the ** Before Every Step hook under a .. step", function() {
+        it("branchifies the *** Before Every Step hook under a .. step", function() {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -9181,7 +9209,7 @@ A - ..
     B -
 
     C -
-        ** Before Every Step {
+        *** Before Every Step {
             D
         }
 
@@ -9212,7 +9240,7 @@ G -
             ]);
         });
 
-        it("branchifies the ** After Every Step hook under a .. step", function() {
+        it("branchifies the *** After Every Step hook under a .. step", function() {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -9220,7 +9248,7 @@ A - ..
     B -
 
     C -
-        ** After Every Step {
+        *** After Every Step {
             D
         }
 
@@ -9251,7 +9279,7 @@ G -
             ]);
         });
 
-        it("branchifies the ** Before Every Step hook under a .. step block", function() {
+        it("branchifies the *** Before Every Step hook under a .. step block", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9259,7 +9287,7 @@ A -
     B -
     C -
 
-        ** Before Every Step {
+        *** Before Every Step {
             D
         }
 
@@ -9290,7 +9318,7 @@ G -
             ]);
         });
 
-        it("branchifies the ** After Every Step hook under a .. step block", function() {
+        it("branchifies the *** After Every Step hook under a .. step block", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9298,7 +9326,7 @@ A -
     B -
     C -
 
-        ** After Every Step {
+        *** After Every Step {
             D
         }
 
@@ -9329,11 +9357,11 @@ G -
             ]);
         });
 
-        it("rejects a ** Before Every Step hook that has children", function() {
+        it("rejects a *** Before Every Step hook that has children", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** Before Every Step {
+    *** Before Every Step {
         B
     }
 
@@ -9347,11 +9375,11 @@ G -
             }, "A hook declaration cannot have children [file.txt:3]");
         });
 
-        it("rejects a ** After Every Step hook that has children", function() {
+        it("rejects a *** After Every Step hook that has children", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** After Every Step {
+    *** After Every Step {
         B
     }
 
@@ -9365,34 +9393,34 @@ G -
             }, "A hook declaration cannot have children [file.txt:3]");
         });
 
-        it("handles multiple ** Before Every Step and ** After Every Step hooks that are siblings", function() {
+        it("handles multiple *** Before Every Step and *** After Every Step hooks that are siblings", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
 
     C -
-        ** Before Every Step {
+        *** Before Every Step {
             D1
         }
 
-        ** After Every Step {
+        *** After Every Step {
             G1
         }
 
-        ** Before Every Step {
+        *** Before Every Step {
             D2
         }
 
-        ** Before Every Step {
+        *** Before Every Step {
             D3
         }
 
-        ** After Every Step {
+        *** After Every Step {
             G2
         }
 
-        ** After Every Step {
+        *** After Every Step {
             G3
         }
 
@@ -9442,7 +9470,7 @@ E -
             ]);
         });
 
-        it("branchifies many ** Before Every Step and ** After Every Step hooks in the tree", function() {
+        it("branchifies many *** Before Every Step and *** After Every Step hooks in the tree", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9452,11 +9480,11 @@ A -
 
             E -
 
-                ** After Every Step {
+                *** After Every Step {
                     U
                 }
 
-            ** After Every Step {
+            *** After Every Step {
                 T
             }
 
@@ -9465,7 +9493,7 @@ A -
     H -
     I -
 
-        ** After Every Step {
+        *** After Every Step {
             S
         }
 
@@ -9473,11 +9501,11 @@ A -
     J -
     K -
 
-        ** After Every Step {
+        *** After Every Step {
             R
         }
 
-        ** Before Every Step {
+        *** Before Every Step {
             X
         }
 
@@ -9485,17 +9513,17 @@ A -
         M -
             N -
 
-        ** After Every Step {
+        *** After Every Step {
             Q
         }
 
-        ** Before Every Step {
+        *** Before Every Step {
             Y
         }
 
         O -
 
-    ** After Every Step {
+    *** After Every Step {
         W
     }
 G -
@@ -9595,12 +9623,12 @@ G -
             ]);
         });
 
-        it("branchifies the ** Before Everything hook", function() {
+        it("branchifies the *** Before Everything hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
 
-** Before Everything {
+*** Before Everything {
     B
 }
     `);
@@ -9622,12 +9650,12 @@ A -
             ]);
         });
 
-        it("branchifies the ** After Everything hook", function() {
+        it("branchifies the *** After Everything hook", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
 
-** After Everything {
+*** After Everything {
     B
 }
     `);
@@ -9649,10 +9677,10 @@ A -
             ]);
         });
 
-        it("branchifies an empty ** Before Everything hook", function() {
+        it("branchifies an empty *** Before Everything hook", function() {
             let tree = new Tree();
             tree.parseIn(`
-** Before Everything {
+*** Before Everything {
 }
 `);
 
@@ -9665,10 +9693,10 @@ A -
             ]);
         });
 
-        it("branchifies an empty ** After Everything hook", function() {
+        it("branchifies an empty *** After Everything hook", function() {
             let tree = new Tree();
             tree.parseIn(`
-** After Everything {
+*** After Everything {
 }
 `);
 
@@ -9681,14 +9709,14 @@ A -
             ]);
         });
 
-        it("handles multiple ** Before Everything hooks that are siblings, and orders the last in tree to be first in tree.beforeEverything", function() {
+        it("handles multiple *** Before Everything hooks that are siblings, and orders the last in tree to be first in tree.beforeEverything", function() {
             let tree = new Tree();
             tree.parseIn(`
-** Before Everything {
+*** Before Everything {
     B
 }
 
-** Before Everything {
+*** Before Everything {
     C
 }
 
@@ -9715,14 +9743,14 @@ A -
             ]);
         });
 
-        it("handles multiple ** After Everything hooks that are siblings, and orders the last in tree to be last in tree.afterEverything", function() {
+        it("handles multiple *** After Everything hooks that are siblings, and orders the last in tree to be last in tree.afterEverything", function() {
             let tree = new Tree();
             tree.parseIn(`
-** After Everything {
+*** After Everything {
     B
 }
 
-** After Everything {
+*** After Everything {
     C
 }
 
@@ -9747,38 +9775,38 @@ A -
             ]);
         });
 
-        it("rejects the ** Before Everything hook when not at 0 indents", function() {
+        it("rejects the *** Before Everything hook when not at 0 indents", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** Before Everything {
+    *** Before Everything {
         B
     }
     `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "A '** Before Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
+            }, "A '*** Before Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
-        it("rejects the ** After Everything hook when not at 0 indents", function() {
+        it("rejects the *** After Everything hook when not at 0 indents", function() {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** After Everything {
+    *** After Everything {
         B
     }
     `, "file.txt");
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "An '** After Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
+            }, "An '*** After Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
-        it("rejects a ** Before Everything hook that has children", function() {
+        it("rejects a *** Before Everything hook that has children", function() {
             let tree = new Tree();
             tree.parseIn(`
-** Before Everything {
+*** Before Everything {
     B
 }
 
@@ -9790,10 +9818,10 @@ A -
             }, "A hook declaration cannot have children [file.txt:2]");
         });
 
-        it("rejects a ** After Everything hook that has children", function() {
+        it("rejects a *** After Everything hook that has children", function() {
             let tree = new Tree();
             tree.parseIn(`
-** After Everything {
+*** After Everything {
     B
 }
 
@@ -11604,33 +11632,33 @@ G -
             tree.parseIn(`
 A -
 
-** Before Everything {
+*** Before Everything {
     K
 }
 `, "file1.txt", false);
 
             tree.parseIn(`
-** Before Everything {
+*** Before Everything {
     B
 }
 
-** After Everything {
+*** After Everything {
     C
 }
 
-** After Every Branch {
+*** After Every Branch {
     D
 }
 
-** After Every Step {
+*** After Every Step {
     E
 }
 
-** Before Every Branch {
+*** Before Every Branch {
     F
 }
 
-** Before Every Step {
+*** Before Every Step {
     G
 }
 `, "file2.txt", true);
@@ -11737,6 +11765,36 @@ Start browser
             expect(branches[0].steps[5].text).to.equal("Generic nav to page");
         });
 
+        it("doesn't allow a function to call itself, with a private function, and finds a function with the same name beyond", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Start browser
+
+* Start browser
+    Starting browser -
+        Nav to page
+
+    ** Nav to page
+        Specific nav to page -
+            Nav to page
+
+* Nav to page
+    Generic nav to page -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(6);
+
+            expect(branches[0].steps[0].text).to.equal("Start browser");
+            expect(branches[0].steps[1].text).to.equal("Starting browser");
+            expect(branches[0].steps[2].text).to.equal("Nav to page");
+            expect(branches[0].steps[3].text).to.equal("Specific nav to page");
+            expect(branches[0].steps[4].text).to.equal("Nav to page");
+            expect(branches[0].steps[5].text).to.equal("Generic nav to page");
+        });
+
         it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", function() {
             let tree = new Tree();
             tree.parseIn(`
@@ -11768,6 +11826,57 @@ A
             expect(branches[0].steps[4].text).to.equal("Specific");
             expect(branches[0].steps[5].text).to.equal("F");
             expect(branches[0].steps[6].text).to.equal("Generic");
+        });
+
+        it("calls a private function it has access to", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    Private
+
+    ** Private
+        A -
+`, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" }, { text: "Private" }, { text: "A" } ]
+                }
+            ]);
+        });
+
+        it("doesn't allow a function to call a private function it doesn't have access to", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Start browser
+    Nav to page
+
+* Start browser
+    Starting browser -
+
+    ** Nav to page
+        Specific nav to page -
+
+* Nav to page
+    Generic nav to page -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches[0].steps[0].text).to.equal("Start browser");
+            expect(branches[0].steps[1].text).to.equal("Starting browser");
+            expect(branches[0].steps[2].text).to.equal("Nav to page");
+            expect(branches[0].steps[3].text).to.equal("Generic nav to page");
         });
     });
 
@@ -11842,13 +11951,13 @@ D -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    ** Before Everything {
+    *** Before Everything {
     }
     `, "file.txt");
 
             assert.throws(() => {
                 tree.generateBranches();
-            }, "A '** Before Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
+            }, "A '*** Before Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
         it("throws an exception when there's an infinite loop among function calls", function() {
@@ -12092,33 +12201,33 @@ A -
             tree.parseIn(`
 A -
     B -
-        ** After Every Branch {
+        *** After Every Branch {
             D
         }
 
-        ** After Every Step {
+        *** After Every Step {
             F
         }
 
-        ** Before Every Branch {
+        *** Before Every Branch {
             J
         }
 
-        ** Before Every Step {
+        *** Before Every Step {
             K
         }
 
     C -
 
-** Before Everything {
+*** Before Everything {
     G
 }
 
-** Before Everything {
+*** Before Everything {
     H
 }
 
-** After Everything {
+*** After Everything {
     I
 }
 `);
@@ -12482,19 +12591,19 @@ $ A -
 
             E -
 
-            ** After Every Branch {
+            *** After Every Branch {
                 M
             }
 
-            ** After Every Step {
+            *** After Every Step {
                 N
             }
 
-            ** Before Every Branch {
+            *** Before Every Branch {
                 O
             }
 
-            ** Before Every Step {
+            *** Before Every Step {
                 P
             }
 
@@ -12505,37 +12614,37 @@ $ A -
 F -
     G -
 
-** Before Everything {
+*** Before Everything {
     Q
 }
 
-** After Everything {
+*** After Everything {
     R
 }
 `, "file.txt");
 
             tree.parseIn(`
-** Before Everything {
+*** Before Everything {
     S
 }
 
-** After Everything {
+*** After Everything {
     T
 }
 
-** After Every Branch {
+*** After Every Branch {
     U
 }
 
-** After Every Step {
+*** After Every Step {
     V
 }
 
-** Before Every Branch {
+*** Before Every Branch {
     W
 }
 
-** Before Every Step {
+*** Before Every Step {
     X
 }
 `, "packages.txt", true);
@@ -12660,19 +12769,19 @@ $ A -
 
             E -
 
-            ** After Every Branch {
+            *** After Every Branch {
                 M
             }
 
-            ** After Every Step {
+            *** After Every Step {
                 N
             }
 
-            ** Before Every Branch {
+            *** Before Every Branch {
                 O
             }
 
-            ** Before Every Step {
+            *** Before Every Step {
                 P
             }
 
@@ -12683,37 +12792,37 @@ $ A -
 F -
     G -
 
-** Before Everything {
+*** Before Everything {
     Q
 }
 
-** After Everything {
+*** After Everything {
     R
 }
 `, "file.txt");
 
             tree.parseIn(`
-** Before Everything {
+*** Before Everything {
     S
 }
 
-** After Everything {
+*** After Everything {
     T
 }
 
-** After Every Branch {
+*** After Every Branch {
     U
 }
 
-** After Every Step {
+*** After Every Step {
     V
 }
 
-** Before Every Branch {
+*** Before Every Branch {
     W
 }
 
-** Before Every Step {
+*** Before Every Step {
     X
 }
 `, "packages.txt", true);

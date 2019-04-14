@@ -2,7 +2,7 @@
 //  Hooks
 // ***************************************
 
-** Before Everything {
+*** Before Everything {
     let chai = imp('chai');
     let chaiSubset = imp('chai-subset');
     let chaiSubsetInOrder = imp('chai-subset-in-order');

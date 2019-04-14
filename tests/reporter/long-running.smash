@@ -34,7 +34,7 @@ Long running test -
                             await runInstance.runner.wait(6000 * Math.random());
                         }
 
-** Before Everything {
+*** Before Everything {
     runInstance.runner.wait = (n) => {
         return new Promise((res, rej) => {
             setTimeout(() => {

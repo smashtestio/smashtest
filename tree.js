@@ -106,6 +106,9 @@ class Tree {
         if(matches[4]) {
             step.isFunctionDeclaration = true;
             if(matches[4].trim() == '**') {
+                step.isPrivateFunctionDeclaration = true;
+            }
+            else if(matches[4].trim() == '***') {
                 step.isHook = true;
             }
         }
@@ -132,10 +135,10 @@ class Tree {
             utils.error("Spaces must separate identifiers from each other and from the step", filename, lineNumber);
         }
 
-        // * Function Declaration
+        // Function Declaration
         if(step.isFunctionDeclaration) {
             if(step.text.match(Constants.STRING_LITERAL)) {
-                utils.error("A * Function declaration cannot have 'strings', \"strings\", or [strings] inside of it", filename, lineNumber);
+                utils.error("A function declaration cannot have 'strings', \"strings\", or [strings] inside of it", filename, lineNumber);
             }
 
             // Validate that all vars in a function declaration are {{local}}
@@ -145,7 +148,7 @@ class Tree {
                     let match = matches[i];
                     let name = utils.stripBrackets(match);
                     if(!match.startsWith('{{')) {
-                        utils.error("All variables in a * Function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
+                        utils.error("All variables in a function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
                     }
                 }
             }
@@ -184,7 +187,7 @@ class Tree {
                 step.isTextualStep = true;
 
                 if(step.isFunctionDeclaration) {
-                    utils.error("A * Function declaration cannot be a textual step (-) as well", filename, lineNumber);
+                    utils.error("A function declaration cannot be a textual step (-) as well", filename, lineNumber);
                 }
             }
             if(step.identifiers.includes('$')) {
@@ -207,7 +210,7 @@ class Tree {
             let stepText = step.text.trim().replace(/\s+/g, ' ');
             let index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index == -1) {
-                utils.error("Invalid ** Hook name", filename, lineNumber);
+                utils.error("Invalid hook name", filename, lineNumber);
             }
             else {
                 if(!step.hasCodeBlock()) {
@@ -452,7 +455,7 @@ class Tree {
 
                     // Validate that a step block member is not a function declaration
                     if(potentialStepBlock.steps[k].isFunctionDeclaration) {
-                        utils.error("You cannot have a * Function declaration within a step block", filename, potentialStepBlock.steps[k].lineNumber);
+                        utils.error("You cannot have a function declaration within a step block", filename, potentialStepBlock.steps[k].lineNumber);
                     }
 
                     // Validate that a step block member is not a code block
@@ -576,6 +579,10 @@ class Tree {
             for(let i = 0; i < siblings.length; i++) {
                 let sibling = siblings[i];
                 if(sibling.isFunctionDeclaration && functionCall.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
+                    if(sibling.isPrivateFunctionDeclaration && stepsAbove[index].branchIndents > functionCall.branchIndents) {
+                        continue; // ignore private functions that are inaccessible
+                    }
+
                     return sibling;
                 }
             }
@@ -683,7 +690,9 @@ class Tree {
 
         // If this step isn't the root and isn't a step block, place it at the end of stepsAbove, so we can use it with findFunctionDeclaration()
         if(step.indents != -1 && !(step instanceof StepBlock)) {
-            stepsAbove.push(step.cloneForBranch());
+            let stepAbove = step.cloneForBranch();
+            stepAbove.branchIndents = branchIndents;
+            stepsAbove.push(stepAbove);
         }
 
         // Enforce noDebug
@@ -868,14 +877,14 @@ class Tree {
                 }
                 else if(canStepText == "before everything") {
                     if(child.indents != 0) {
-                        utils.error("A '** Before Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
+                        utils.error("A '*** Before Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
                     }
 
                     this.beforeEverything.unshift(clonedHookStep); // inserted this way so that packaged hooks get executed first
                 }
                 else if(canStepText == "after everything") {
                     if(child.indents != 0) {
-                        utils.error("An '** After Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
+                        utils.error("An '*** After Everything' function must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
                     }
 
                     this.afterEverything.push(clonedHookStep); // inserted this way so that packaged hooks get executed last

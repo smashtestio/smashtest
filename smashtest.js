@@ -582,7 +582,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
 
                                 default:
                                     if(input.startsWith('*')) {
-                                        utils.error("Cannot define a * Function Declaration or ** Hook here");
+                                        utils.error("Cannot define a function declaration or hook here");
                                     }
 
                                     let t = new Tree();

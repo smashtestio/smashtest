@@ -2,7 +2,7 @@
 //  Hooks
 // ***************************************
 
-** After Everything {
+*** After Everything {
     // TODO: kill all Selenium browsers, if they exist
 
 
@@ -53,7 +53,7 @@
     //  Hooks
     // ***************************************
 
-    ** After Every Step {
+    *** After Every Step {
         // Take screenshot upon failure
 
         /*
