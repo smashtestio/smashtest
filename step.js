@@ -180,11 +180,13 @@ class Step {
     /**
      * Merges functionDeclarationInTree into this Step (identifier booleans are OR'ed in from functionDeclarationInTree into this)
      * If this.functionDeclarationInTree has a code block, it is copied into this
-     * this.functionDeclarationText is set to the function declaration's text
      * This step must be a function call
      * @param {Step} functionDeclarationInTree - The function declaration that corresponds to this step
      */
     mergeInFunctionDeclaration(functionDeclarationInTree) {
+        this.functionDeclarationInTree = functionDeclarationInTree;
+        this.functionDeclarationText = functionDeclarationInTree.text;
+
         let isToDo = this.isToDo || functionDeclarationInTree.isToDo;
         isToDo && (this.isToDo = isToDo);
 
@@ -221,8 +223,6 @@ class Step {
         if(functionDeclarationInTree.hasCodeBlock()) {
             this.codeBlock = functionDeclarationInTree.codeBlock;
         }
-
-        this.functionDeclarationText = functionDeclarationInTree.text;
     }
 
     /**

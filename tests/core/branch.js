@@ -1,5 +1,6 @@
 const chai = require('chai');
 const chaiSubset = require('chai-subset');
+const chaiSubsetInOrder = require('chai-subset-in-order');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
@@ -8,6 +9,7 @@ const Step = require('../../step.js');
 const Branch = require('../../branch.js');
 
 chai.use(chaiSubset);
+chai.use(chaiSubsetInOrder);
 
 describe("Branch", function() {
     describe("mergeToEnd()", function() {
@@ -35,7 +37,7 @@ describe("Branch", function() {
             branch2.groups = [ "2", "3" ];
             branch2.isOnly = true;
 
-            branch1.mergeToEnd(branch2);
+            branch1 = branch1.mergeToEnd(branch2);
 
             expect(branch1.steps.length).to.equal(3);
             expect(branch2.steps.length).to.equal(2);
@@ -94,7 +96,7 @@ describe("Branch", function() {
             branch1.afterEveryStep = [ stepG ];
             branch2.afterEveryStep = [ stepE, stepF ];
 
-            branch1.mergeToEnd(branch2);
+            branch1 = branch1.mergeToEnd(branch2);
 
             expect(branch1.steps.length).to.equal(3);
             expect(branch2.steps.length).to.equal(2);

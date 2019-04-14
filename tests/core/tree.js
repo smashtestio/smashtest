@@ -3437,8 +3437,10 @@ My function
     Step one -
 `);
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My function",
@@ -3464,8 +3466,10 @@ My function
     Step one -
 `);
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My function",
@@ -3491,8 +3495,10 @@ My function
 My function
 `);
 
-            let stepsAbove = [ tree.root.children[1].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[1].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My function",
@@ -3519,11 +3525,12 @@ Some parent step -
     Step one -
 `);
 
-            let stepsAbove = [
-                tree.root.children[0].cloneForBranch(),
-                tree.root.children[0].children[0].cloneForBranch()
+            let branchAbove = new Branch();
+            branchAbove.steps = [
+                tree.root.children[0].cloneForBranch()
             ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let functionCall = tree.root.children[0].children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My function",
@@ -3552,11 +3559,12 @@ Step block step 2 -
     Step one -
 `);
 
-            let stepsAbove = [
-                tree.root.children[0].steps[0].cloneForBranch(),
-                tree.root.children[0].children[0].cloneForBranch()
+            let branchAbove = new Branch();
+            branchAbove.steps = [
+                tree.root.children[0].steps[0].cloneForBranch()
             ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let functionCall = tree.root.children[0].children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My function",
@@ -3583,11 +3591,12 @@ Some parent step -
     Step one -
 `);
 
-            let stepsAbove = [
-                tree.root.children[0].cloneForBranch(),
-                tree.root.children[0].children[0].cloneForBranch()
+            let branchAbove = new Branch();
+            branchAbove.steps = [
+                tree.root.children[0].cloneForBranch()
             ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let functionCall = tree.root.children[0].children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My  function",
@@ -3622,11 +3631,12 @@ Some parent step -
     The wrong one -
 `);
 
-            let stepsAbove = [
-                tree.root.children[0].cloneForBranch(),
-                tree.root.children[0].children[0].cloneForBranch()
+            let branchAbove = new Branch();
+            branchAbove.steps = [
+                tree.root.children[0].cloneForBranch()
             ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let functionCall = tree.root.children[0].children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My function",
@@ -3655,8 +3665,10 @@ My function
     Second -
 `);
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My function",
@@ -3685,8 +3697,10 @@ My big function
     Second -
 `);
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My big function",
@@ -3715,8 +3729,10 @@ My big function
     Second -
 `);
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "My big *",
@@ -3746,8 +3762,10 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 * Something else
 `);
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "One {{var1}} two {{var2}}   three   {{var3}}",
@@ -3777,8 +3795,10 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 * Something else
 `);
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "One {{var1}} two {{var2}}   three   {{var3}}",
@@ -3809,8 +3829,10 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 * Something else
 `);
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "One {{var1}} two {{var2}}   three   {{var3}}",
@@ -3831,8 +3853,10 @@ My function
 * my function
 `, "file.txt");
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
-            let functionDeclaration = tree.findFunctionDeclaration(stepsAbove);
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
             expect(functionDeclaration).to.containSubset({
                 text: "my function",
@@ -3852,9 +3876,11 @@ Function that doesn't exist
 * Something else
 `, "file.txt");
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
             assert.throws(() => {
-                tree.findFunctionDeclaration(stepsAbove);
+                tree.findFunctionDeclaration(functionCall, branchAbove);
             }, "The function 'Function that doesn't exist' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
         });
 
@@ -3867,9 +3893,11 @@ Other scope -
     * My function
 `, "file.txt");
 
-            let stepsAbove = [ tree.root.children[0].cloneForBranch() ];
+            let branchAbove = new Branch();
+            branchAbove.steps = [];
+            let functionCall = tree.root.children[0].cloneForBranch();
             assert.throws(() => {
-                tree.findFunctionDeclaration(stepsAbove);
+                tree.findFunctionDeclaration(functionCall, branchAbove);
             }, "The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
 
             tree = new Tree();
@@ -3881,12 +3909,12 @@ Other scope -
     * My function
 `, "file.txt");
 
-            stepsAbove = [
-                tree.root.children[0].cloneForBranch(),
-                tree.root.children[0].children[0].cloneForBranch()
+            branchAbove.steps = [
+                tree.root.children[0].cloneForBranch()
             ];
+            functionCall = tree.root.children[0].children[0].cloneForBranch();
             assert.throws(() => {
-                tree.findFunctionDeclaration(stepsAbove);
+                tree.findFunctionDeclaration(functionCall, branchAbove);
             }, "The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:3]");
         });
     });
@@ -8548,7 +8576,7 @@ G -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "A hook declaration cannot have children [file.txt:3]");
+            }, "A hook cannot have children [file.txt:3]");
         });
 
         it("rejects a *** After Every Branch hook that has children", function() {
@@ -8566,7 +8594,7 @@ G -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "A hook declaration cannot have children [file.txt:3]");
+            }, "A hook cannot have children [file.txt:3]");
         });
 
         it("handles multiple *** Before Every Branch and *** After Every Branch hooks that are siblings", function() {
@@ -9372,7 +9400,7 @@ G -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "A hook declaration cannot have children [file.txt:3]");
+            }, "A hook cannot have children [file.txt:3]");
         });
 
         it("rejects a *** After Every Step hook that has children", function() {
@@ -9390,7 +9418,7 @@ G -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "A hook declaration cannot have children [file.txt:3]");
+            }, "A hook cannot have children [file.txt:3]");
         });
 
         it("handles multiple *** Before Every Step and *** After Every Step hooks that are siblings", function() {
@@ -9786,7 +9814,7 @@ A -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "A '*** Before Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
+            }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
         it("rejects the *** After Everything hook when not at 0 indents", function() {
@@ -9800,7 +9828,7 @@ A -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "An '*** After Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
+            }, "An After Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
         it("rejects a *** Before Everything hook that has children", function() {
@@ -9815,7 +9843,7 @@ A -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "A hook declaration cannot have children [file.txt:2]");
+            }, "A hook cannot have children [file.txt:2]");
         });
 
         it("rejects a *** After Everything hook that has children", function() {
@@ -9830,7 +9858,7 @@ A -
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "A hook declaration cannot have children [file.txt:2]");
+            }, "A hook cannot have children [file.txt:2]");
         });
 
         it("connects branches via nonParallelId when + is set", function() {
@@ -9998,6 +10026,365 @@ A
             }, "Maximum call stack size exceeded");
         });
 
+        it("throws an exception if noDebug is set but a $ is present in a branch", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    $ B -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("throws an exception if noDebug is set but a ~ is present in a branch", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    ~ B -
+`, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root, undefined, undefined, true);
+            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
+        });
+
+        it("marks as packaged hooks that are packaged", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+
+*** Before Everything {
+    K
+}
+`, "file1.txt", false);
+
+            tree.parseIn(`
+*** Before Everything {
+    B
+}
+
+*** After Everything {
+    C
+}
+
+*** After Every Branch {
+    D
+}
+
+*** After Every Step {
+    E
+}
+
+*** Before Every Branch {
+    F
+}
+
+*** Before Every Step {
+    G
+}
+`, "file2.txt", true);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(tree.beforeEverything).to.have.lengthOf(2);
+            expect(tree.afterEverything).to.have.lengthOf(1);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "A" } ],
+                    beforeEveryBranch: [
+                        { text: "Before Every Branch", codeBlock: "\n    F\n", isPackaged: true }
+                    ],
+                    afterEveryBranch: [
+                        { text: "After Every Branch", codeBlock: "\n    D\n", isPackaged: true }
+                    ],
+                    beforeEveryStep: [
+                        { text: "Before Every Step", codeBlock: "\n    G\n", isPackaged: true }
+                    ],
+                    afterEveryStep: [
+                        { text: "After Every Step", codeBlock: "\n    E\n", isPackaged: true }
+                    ]
+                }
+            ]);
+
+            expect(tree.beforeEverything).to.containSubsetInOrder([
+                { text: "Before Everything", codeBlock: "\n    B\n", isPackaged: true },
+                { text: "Before Everything", codeBlock: "\n    K\n", isPackaged: undefined }
+            ]);
+
+            expect(tree.afterEverything).to.containSubsetInOrder([
+                { text: "After Everything", codeBlock: "\n    C\n", isPackaged: true }
+            ]);
+        });
+
+        it("doesn't allow a function to call itself", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    F
+            `, "file.txt");
+
+            assert.throws(() => {
+                tree.branchify(tree.root);
+            }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:5]");
+        });
+
+        it("doesn't allow a function to call itself and finds a function with the same name beyond", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    F
+
+* F
+    A -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F", lineNumber: 2 }, { text: "F", lineNumber: 5 }, { text: "A", lineNumber: 8 } ]
+                }
+            ]);
+        });
+
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, more complex example", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Start browser
+    Nav to page
+
+* Start browser
+    Starting browser -
+
+    * Nav to page
+        Specific nav to page -
+            Nav to page
+
+* Nav to page
+    Generic nav to page -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(6);
+
+            expect(branches[0].steps[0].text).to.equal("Start browser");
+            expect(branches[0].steps[1].text).to.equal("Starting browser");
+            expect(branches[0].steps[2].text).to.equal("Nav to page");
+            expect(branches[0].steps[3].text).to.equal("Specific nav to page");
+            expect(branches[0].steps[4].text).to.equal("Nav to page");
+            expect(branches[0].steps[5].text).to.equal("Generic nav to page");
+        });
+
+        it("doesn't allow a function to call itself, with a private function, and finds a function with the same name beyond", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Start browser
+
+* Start browser
+    Starting browser -
+        Nav to page
+
+    ** Nav to page
+        Specific nav to page -
+            Nav to page
+
+* Nav to page
+    Generic nav to page -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(6);
+
+            expect(branches[0].steps[0].text).to.equal("Start browser");
+            expect(branches[0].steps[1].text).to.equal("Starting browser");
+            expect(branches[0].steps[2].text).to.equal("Nav to page");
+            expect(branches[0].steps[3].text).to.equal("Specific nav to page");
+            expect(branches[0].steps[4].text).to.equal("Nav to page");
+            expect(branches[0].steps[5].text).to.equal("Generic nav to page");
+        });
+
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, slightly more complex example", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+* On special cart page
+    On cart page
+        Validate special cart stuff -
+
+        * Clear cart
+            Specific stuff -
+                Clear cart
+
+* On cart page
+    * Clear cart
+        Generic stuff -
+
+On special cart page
+    Clear cart
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(7);
+
+            expect(branches[0].steps[0].text).to.equal("On special cart page");
+            expect(branches[0].steps[1].text).to.equal("On cart page");
+            expect(branches[0].steps[2].text).to.equal("Validate special cart stuff");
+            expect(branches[0].steps[3].text).to.equal("Clear cart");
+            expect(branches[0].steps[4].text).to.equal("Specific stuff");
+            expect(branches[0].steps[5].text).to.equal("Clear cart");
+            expect(branches[0].steps[6].text).to.equal("Generic stuff");
+        });
+
+        it("allows access to a function declared within a function", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+    H
+
+* F
+    * G
+        * H
+            One -
+
+    G
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches[0].steps[0].text).to.equal("F");
+            expect(branches[0].steps[1].text).to.equal("G");
+            expect(branches[0].steps[2].text).to.equal("H");
+            expect(branches[0].steps[3].text).to.equal("One");
+
+            tree = new Tree();
+            tree.parseIn(`
+* F
+    * G
+        * H
+            One -
+
+    G
+
+F
+    H
+            `, "file.txt");
+
+            branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches[0].steps[0].text).to.equal("F");
+            expect(branches[0].steps[1].text).to.equal("G");
+            expect(branches[0].steps[2].text).to.equal("H");
+            expect(branches[0].steps[3].text).to.equal("One");
+        });
+
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+A
+    F
+        F
+            F
+
+* A
+    * F
+        * F
+            * F
+                Specific -
+                    F
+
+* F
+    Generic -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(7);
+
+            expect(branches[0].steps[0].text).to.equal("A");
+            expect(branches[0].steps[1].text).to.equal("F");
+            expect(branches[0].steps[2].text).to.equal("F");
+            expect(branches[0].steps[3].text).to.equal("F");
+            expect(branches[0].steps[4].text).to.equal("Specific");
+            expect(branches[0].steps[5].text).to.equal("F");
+            expect(branches[0].steps[6].text).to.equal("Generic");
+        });
+
+        it("calls a private function it has access to", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    Private
+
+    ** Private
+        A -
+`, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(3);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" }, { text: "Private" }, { text: "A" } ]
+                }
+            ]);
+        });
+
+        it("doesn't allow a function to call a private function it doesn't have access to", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+Start browser
+    Nav to page
+
+* Start browser
+    Starting browser -
+
+    ** Nav to page
+        Specific nav to page -
+
+* Nav to page
+    Generic nav to page -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches[0].steps[0].text).to.equal("Start browser");
+            expect(branches[0].steps[1].text).to.equal("Starting browser");
+            expect(branches[0].steps[2].text).to.equal("Nav to page");
+            expect(branches[0].steps[3].text).to.equal("Generic nav to page");
+        });
+    });
+
+    describe("removeUnwantedBranches()", function() {
         it("only keeps a branches under a $", function() {
             let tree = new Tree();
             tree.parseIn(`
@@ -11564,30 +11951,6 @@ A -
             });
         });
 
-        it("throws an exception if noDebug is set but a $ is present in a branch", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    $ B -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.branchify(tree.root, undefined, undefined, true);
-            }, "A $ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
-        it("throws an exception if noDebug is set but a ~ is present in a branch", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    ~ B -
-`, "file.txt");
-
-            assert.throws(() => {
-                tree.branchify(tree.root, undefined, undefined, true);
-            }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
-        });
-
         it("handles multiple restrictions", function() {
             // Try them all here, all on one big tree (group, frequency, $, ~)
             let tree = new Tree();
@@ -11625,339 +11988,6 @@ G -
                     frequency: 'high'
                 }
             ]);
-        });
-
-        it("marks as packaged hooks that are packaged", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-
-*** Before Everything {
-    K
-}
-`, "file1.txt", false);
-
-            tree.parseIn(`
-*** Before Everything {
-    B
-}
-
-*** After Everything {
-    C
-}
-
-*** After Every Branch {
-    D
-}
-
-*** After Every Step {
-    E
-}
-
-*** Before Every Branch {
-    F
-}
-
-*** Before Every Step {
-    G
-}
-`, "file2.txt", true);
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(tree.beforeEverything).to.have.lengthOf(2);
-            expect(tree.afterEverything).to.have.lengthOf(1);
-
-            expect(branches).to.containSubsetInOrder([
-                {
-                    steps: [ { text: "A" } ],
-                    beforeEveryBranch: [
-                        { text: "Before Every Branch", codeBlock: "\n    F\n", isPackaged: true }
-                    ],
-                    afterEveryBranch: [
-                        { text: "After Every Branch", codeBlock: "\n    D\n", isPackaged: true }
-                    ],
-                    beforeEveryStep: [
-                        { text: "Before Every Step", codeBlock: "\n    G\n", isPackaged: true }
-                    ],
-                    afterEveryStep: [
-                        { text: "After Every Step", codeBlock: "\n    E\n", isPackaged: true }
-                    ]
-                }
-            ]);
-
-            expect(tree.beforeEverything).to.containSubsetInOrder([
-                { text: "Before Everything", codeBlock: "\n    B\n", isPackaged: true },
-                { text: "Before Everything", codeBlock: "\n    K\n", isPackaged: undefined }
-            ]);
-
-            expect(tree.afterEverything).to.containSubsetInOrder([
-                { text: "After Everything", codeBlock: "\n    C\n", isPackaged: true }
-            ]);
-        });
-
-        it("doesn't allow a function to call itself", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-F
-
-* F
-    F
-            `, "file.txt");
-
-            assert.throws(() => {
-                tree.branchify(tree.root);
-            }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:5]");
-        });
-
-        it("doesn't allow a function to call itself and finds a function with the same name beyond", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-F
-
-* F
-    F
-
-* F
-    A -
-            `, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(3);
-
-            expect(branches).to.containSubsetInOrder([
-                {
-                    steps: [ { text: "F", lineNumber: 2 }, { text: "F", lineNumber: 5 }, { text: "A", lineNumber: 8 } ]
-                }
-            ]);
-        });
-
-        it("doesn't allow a function to call itself and finds a function with the same name beyond, more complex example", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-Start browser
-    Nav to page
-
-* Start browser
-    Starting browser -
-
-    * Nav to page
-        Specific nav to page -
-            Nav to page
-
-* Nav to page
-    Generic nav to page -
-            `, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(6);
-
-            expect(branches[0].steps[0].text).to.equal("Start browser");
-            expect(branches[0].steps[1].text).to.equal("Starting browser");
-            expect(branches[0].steps[2].text).to.equal("Nav to page");
-            expect(branches[0].steps[3].text).to.equal("Specific nav to page");
-            expect(branches[0].steps[4].text).to.equal("Nav to page");
-            expect(branches[0].steps[5].text).to.equal("Generic nav to page");
-        });
-
-        it("doesn't allow a function to call itself, with a private function, and finds a function with the same name beyond", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-Start browser
-
-* Start browser
-    Starting browser -
-        Nav to page
-
-    ** Nav to page
-        Specific nav to page -
-            Nav to page
-
-* Nav to page
-    Generic nav to page -
-            `, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(6);
-
-            expect(branches[0].steps[0].text).to.equal("Start browser");
-            expect(branches[0].steps[1].text).to.equal("Starting browser");
-            expect(branches[0].steps[2].text).to.equal("Nav to page");
-            expect(branches[0].steps[3].text).to.equal("Specific nav to page");
-            expect(branches[0].steps[4].text).to.equal("Nav to page");
-            expect(branches[0].steps[5].text).to.equal("Generic nav to page");
-        });
-
-        it("doesn't allow a function to call itself and finds a function with the same name beyond, slightly more complex example", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-* On special cart page
-    On cart page
-        Validate special cart stuff -
-
-        * Clear cart
-            Specific stuff -
-                Clear cart
-
-* On cart page
-    * Clear cart
-        Generic stuff -
-
-On special cart page
-    Clear cart
-            `, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(7);
-
-            expect(branches[0].steps[0].text).to.equal("On special cart page");
-            expect(branches[0].steps[1].text).to.equal("On cart page");
-            expect(branches[0].steps[2].text).to.equal("Validate special cart stuff");
-            expect(branches[0].steps[3].text).to.equal("Clear cart");
-            expect(branches[0].steps[4].text).to.equal("Specific stuff");
-            expect(branches[0].steps[5].text).to.equal("Clear cart");
-            expect(branches[0].steps[6].text).to.equal("Generic stuff");
-        });
-
-        it("allows access to a function declared within a function", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-F
-    H
-
-* F
-    * G
-        * H
-            One -
-
-    G
-            `, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(4);
-
-            expect(branches[0].steps[0].text).to.equal("F");
-            expect(branches[0].steps[1].text).to.equal("G");
-            expect(branches[0].steps[2].text).to.equal("H");
-            expect(branches[0].steps[3].text).to.equal("One");
-
-            tree = new Tree();
-            tree.parseIn(`
-* F
-    * G
-        * H
-            One -
-
-    G
-
-F
-    H
-            `, "file.txt");
-
-            branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(4);
-
-            expect(branches[0].steps[0].text).to.equal("F");
-            expect(branches[0].steps[1].text).to.equal("G");
-            expect(branches[0].steps[2].text).to.equal("H");
-            expect(branches[0].steps[3].text).to.equal("One");
-        });
-
-        it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-A
-    F
-        F
-            F
-
-* A
-    * F
-        * F
-            * F
-                Specific -
-                    F
-
-* F
-    Generic -
-            `, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(7);
-
-            expect(branches[0].steps[0].text).to.equal("A");
-            expect(branches[0].steps[1].text).to.equal("F");
-            expect(branches[0].steps[2].text).to.equal("F");
-            expect(branches[0].steps[3].text).to.equal("F");
-            expect(branches[0].steps[4].text).to.equal("Specific");
-            expect(branches[0].steps[5].text).to.equal("F");
-            expect(branches[0].steps[6].text).to.equal("Generic");
-        });
-
-        it("calls a private function it has access to", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-F
-
-* F
-    Private
-
-    ** Private
-        A -
-`, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(3);
-
-            expect(branches).to.containSubsetInOrder([
-                {
-                    steps: [ { text: "F" }, { text: "Private" }, { text: "A" } ]
-                }
-            ]);
-        });
-
-        it("doesn't allow a function to call a private function it doesn't have access to", function() {
-            let tree = new Tree();
-            tree.parseIn(`
-Start browser
-    Nav to page
-
-* Start browser
-    Starting browser -
-
-    ** Nav to page
-        Specific nav to page -
-
-* Nav to page
-    Generic nav to page -
-            `, "file.txt");
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(1);
-            expect(branches[0].steps).to.have.lengthOf(4);
-
-            expect(branches[0].steps[0].text).to.equal("Start browser");
-            expect(branches[0].steps[1].text).to.equal("Starting browser");
-            expect(branches[0].steps[2].text).to.equal("Nav to page");
-            expect(branches[0].steps[3].text).to.equal("Generic nav to page");
         });
     });
 
@@ -12038,7 +12068,7 @@ A -
 
             assert.throws(() => {
                 tree.generateBranches();
-            }, "A '*** Before Everything' function must not be indented (it must be at 0 indents) [file.txt:3]");
+            }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
         it("throws an exception when there's an infinite loop among function calls", function() {

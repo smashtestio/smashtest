@@ -6,6 +6,7 @@ const assert = chai.assert;
 const util = require('util');
 const Tree = require('../../tree.js');
 const Runner = require('../../runner.js');
+const utils = require('../../utils.js');
 
 chai.use(chaiSubset);
 chai.use(chaiAsPromised);

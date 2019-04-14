@@ -493,24 +493,24 @@ class RunInstance {
      * @throws {Error} Any errors that may occur during a branchify() of the given step
      */
     async injectStep(step) {
-        // Fill stepsAbove to be all the Steps above the current step
-        let stepsAbove = [];
+        // Fill branchAbove to be all the steps above the current step
+        let branchAbove = new Branch();
         if(this.currBranch) {
             if(this.currStep) {
-                stepsAbove = this.currBranch.steps.slice(0, this.currBranch.steps.indexOf(this.currStep) + 1);
+                branchAbove.steps = this.currBranch.steps.slice(0, this.currBranch.steps.indexOf(this.currStep) + 1);
             }
             else if(this.currBranch.isComplete()) {
-                stepsAbove = this.currBranch.steps;
+                branchAbove.steps = this.currBranch.steps;
             }
         }
         else {
             // Create a fake, empty step
             let tempStep = new Step();
             tempStep.parent = this.tree.root;
-            stepsAbove = [ tempStep.cloneForBranch() ];
+            branchAbove.steps = [ tempStep.cloneForBranch() ];
         }
 
-        let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, undefined, stepsAbove); // branchify so that if step is an already-defined function call, it will work
+        let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, undefined, branchAbove); // branchify so that if step is an already-defined function call, it will work
         let stepsToRun = branchesToRun[0];
 
         for(let i = 0; i < stepsToRun.steps.length; i++) {
@@ -823,6 +823,8 @@ class RunInstance {
                         if(s.hasCodeBlock()) {
                             // {varname}=Function (w/ code block)
                             value = this.evalCodeBlock(s.codeBlock, s.text, s.lineNumber, s, true);
+
+                            // Note: {varname}=Function without code block, where another {varname}= is further below, had its varBeingSet removed already
                         }
                         else {
                             // {varname}='string'

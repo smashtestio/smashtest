@@ -7,8 +7,12 @@ const utils = require('./utils.js');
  * Represents a Branch from the test tree
  */
 class Branch {
-    constructor() {
+    constructor(steps) {
         this.steps = [];                    // array of Step that are part of this Branch
+
+        if(steps) {
+            steps.forEach(s => this.push(s));
+        }
 
         /*
         OPTIONAL
@@ -44,63 +48,55 @@ class Branch {
     }
 
     /**
-     * Attaches the steps and hooks of the given Branch to the end of this Branch
+     * @return {Branch} A new branch consisting of this branch with the steps and hooks of the given branch attached to the end
      * Copies over the other members, if they exist in branch
      */
     mergeToEnd(branch) {
-        this.steps = this.steps.concat(branch.steps);
+        let newBranch = this.clone();
+        branch = branch.clone();
 
-        branch.nonParallelId && (this.nonParallelId = branch.nonParallelId);
-        branch.frequency && (this.frequency = branch.frequency);
+        newBranch.steps = newBranch.steps.concat(branch.steps);
+
+        branch.nonParallelId && (newBranch.nonParallelId = branch.nonParallelId);
+        branch.frequency && (newBranch.frequency = branch.frequency);
 
         if(branch.groups) {
-            if(typeof this.groups == 'undefined') {
-                this.groups = [];
+            if(typeof newBranch.groups == 'undefined') {
+                newBranch.groups = [];
             }
 
             branch.groups.forEach(group => {
-                this.groups.push(group);
+                newBranch.groups.push(group);
             });
         }
 
-        branch.isOnly && (this.isOnly = branch.isOnly);
-        branch.isDebug && (this.isDebug = branch.isDebug);
+        branch.isOnly && (newBranch.isOnly = branch.isOnly);
+        branch.isDebug && (newBranch.isDebug = branch.isDebug);
 
-        // Attach branch.beforeEveryBranch to the beginning of this.beforeEveryBranch (so that packages comes first)
-        if(branch.beforeEveryBranch) {
-            if(!this.beforeEveryBranch) {
-                this.beforeEveryBranch = [];
+        copyHooks("beforeEveryBranch", true); // Copy branch.beforeEveryBranch to the beginning of newBranch.beforeEveryBranch (so that packages comes first)
+        copyHooks("afterEveryBranch", false); // Copy branch.afterEveryBranch to the end of newBranch.afterEveryBranch (so that packages comes last)
+        copyHooks("beforeEveryStep", true); // Copy branch.beforeEveryStep to the beginning of newBranch.beforeEveryStep (so that packages comes first)
+        copyHooks("afterEveryStep", false); // Copy branch.afterEveryStep to the end of newBranch.afterEveryStep (so that packages comes last)
+
+        /**
+         * Copies the given hook type from branch to newBranch
+         */
+        function copyHooks(name, toBeginning) {
+            if(branch[name]) {
+                if(!newBranch[name]) {
+                    newBranch[name] = [];
+                }
+
+                if(toBeginning) {
+                    newBranch[name] = branch[name].concat(newBranch[name]);
+                }
+                else {
+                    newBranch[name] = newBranch[name].concat(branch[name]);
+                }
             }
-
-            this.beforeEveryBranch = branch.beforeEveryBranch.concat(this.beforeEveryBranch);
         }
 
-        // Attach branch.afterEveryBranch to the end of this.afterEveryBranch (so that packages comes last)
-        if(branch.afterEveryBranch) {
-            if(!this.afterEveryBranch) {
-                this.afterEveryBranch = [];
-            }
-
-            this.afterEveryBranch = this.afterEveryBranch.concat(branch.afterEveryBranch);
-        }
-
-        // Attach branch.beforeEveryStep to the beginning of this.beforeEveryStep (so that packages comes first)
-        if(branch.beforeEveryStep) {
-            if(!this.beforeEveryStep) {
-                this.beforeEveryStep = [];
-            }
-
-            this.beforeEveryStep = branch.beforeEveryStep.concat(this.beforeEveryStep);
-        }
-
-        // Attach branch.afterEveryStep to the end of this.afterEveryStep (so that packages comes last)
-        if(branch.afterEveryStep) {
-            if(!this.afterEveryStep) {
-                this.afterEveryStep = [];
-            }
-
-            this.afterEveryStep = this.afterEveryStep.concat(branch.afterEveryStep);
-        }
+        return newBranch;
     }
 
     /**
