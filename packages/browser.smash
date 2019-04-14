@@ -53,8 +53,14 @@
     //  Hooks
     // ***************************************
 
+    *** Before Every Step {
+        // Take screenshot
+
+        
+    }
+
     *** After Every Step {
-        // Take screenshot upon failure
+        // Take screenshot
 
         /*
             After Every Step sets step.htmlReport to the report html for this step.
@@ -151,24 +157,20 @@
         // including local storage
     }
 
-    * Click Back button {
+    * Go Back {
 
     }
 
-    * Click Forward button {
+    * Go Forward {
 
     }
 
-    * Click Refresh button {
+    * Refresh {
 
     }
 
-    * Press enter inside of {{element}} {
-
-    }
-
-    * Enter {{text}} into {{element}} {
-        // sendkeys, you can also use unicode codes for special keys like arrows (represented as "<enter>", etc.)
+    * Type {{text}} into {{element}} {
+        // sendkeys, you can also use unicode codes for special keys like arrows (represented as "[enter]", etc.)
     }
 
     * Set {{element}} to {{value}} {
