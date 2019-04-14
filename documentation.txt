@@ -35,14 +35,14 @@ Running tests
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
     - Command line options
-        - -repl or -r
-        - -maxInstances=5
+        - --repl or -r
+        - --maxInstances=5
             - 5 if omitted
-        - -noDebug
-        - -debug=[HASH] (or -d)
+        - --noDebug
+        - --debug=[HASH] or -d
             - Only run that branch as debugged. Ignore $'s, ~'s, groups, and frequency
-        - -noReport
-        - -reportDomain=http://domain:port
+        - --noReport
+        - --reportDomain=http://domain:port
             - This is where the apis will be exposed for reports to get live updates
             - Port indicates what port smashtest should run on
                 - If omitted, an open port will be chosen, starting with port 9000
@@ -50,9 +50,9 @@ Running tests
                 - If omitted, localhost will be chosen
                 - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
             - https currently doesn't work - if you use it it acts like http
-        - -noReportServer
-        - -screenshots=false (default is true)
-        - -skipPassed or -s
+        - --noReportServer
+        - --screenshots=false (default is true)
+        - --skipPassed or -s
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.
                 - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
                 - Doesn't run branches that have since been removed from the tree
@@ -65,13 +65,14 @@ Running tests
                 - -s/-skipPassed with no filename
                     - Uses latest report from <current dir>/reports that didn't have a ~ (~ reports have "debug" at the end of their filenames)
                     - If one isn't found, uses report.html in the current directory
-        - -groups=value or "val1 val2 val3"
-        - -group=value (you can do many of these - great for group names with spaces)
-        - -minFrequency=med
+        - --groups=value or "val1 val2 val3"
+        - --group=value (you can do many of these - great for group names with spaces)
+        - --minFrequency=med
             - med if omitted
-        - -g:varname=value or "value" (global var)
-        - -p:varname=value or "value" (persistent var)
-        - -help/-?
+        - --g:varname=value or "value" (global var)
+        - --p:varname=value or "value" (persistent var)
+        - --version/-v
+        - --help/-?
     - Config file, config.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
 
