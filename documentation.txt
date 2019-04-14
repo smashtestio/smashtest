@@ -206,6 +206,21 @@ Functions
         - Setting context pattern, e.g., Open browser X will establish Click, etc. as browser-oriented functions. But a future call
             to something like Open phone (whose function declaration has its own declarations for Click, etc.) sets the "context" to the phone,
             sending further child steps to the phone's functions
+        - Inheritance pattern
+            * On special cart page
+                On cart page
+                    Validate special cart stuff // this has to come last
+
+                    * Clear cart // function that overrides a generic cart function
+                        Specific stuff
+                            Clear cart // call to that generic cart function
+
+            * On cart page
+                * Clear cart
+                    Generic stuff
+
+            On special cart page
+                Clear cart // specific stuff, then generic stuff
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
 
