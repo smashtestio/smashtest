@@ -14,7 +14,7 @@ const Reporter = require('./reporter.js');
 const yellowChalk = chalk.hex("#ffb347");
 
 console.log("");
-console.log(yellowChalk.bold("SmashTEST 0.1.1 BETA"));
+console.log(yellowChalk.bold("SmashTEST 0.1.0 BETA"));
 console.log("");
 
 let filenames = [];
@@ -147,6 +147,10 @@ function processFlag(name, value) {
             runner.persistent[varName] = value;
             break;
 
+        case "version":
+        case "v":
+            process.exit();
+
         case "help":
         case "?":
             console.log(`Usage: smashtest [test files] [options]
@@ -166,6 +170,7 @@ Options:
 --minFrequency=<high/med/low>  Only run branches at or above this frequency
 --g:<name>="<value>"           Set the global variable with the given name to the given value, before each branch
 --p:<name>="<value>"           Set the persistent variable with the given name to the given value
+--version or -v                Output the version of SmashTEST
 --help or -?                   Open this help prompt
             `);
             process.exit();
