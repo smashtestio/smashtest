@@ -7008,6 +7008,43 @@ My function
             expect(stepsRan.steps[1].isFailed).to.be.undefined;
         });
 
+        it("step can be a function call for a function that was defined in context at the time of the pause", async function() {
+            let tree = new Tree();
+            tree.parseIn(`
+B
+    ~ A -
+
+* B
+    * My function
+        {var1}='foo'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            let t = new Tree();
+            t.parseIn(`
+My function
+`);
+
+            let stepsRan = await runInstance.injectStep(t.root.children[0]);
+
+            expect(runInstance.getGlobal("var1")).to.equal("foo");
+
+            expect(stepsRan.steps).to.have.lengthOf(2);
+
+            expect(stepsRan.steps[0].text).to.equal("My function");
+            expect(stepsRan.steps[0].isPassed).to.be.true;
+            expect(stepsRan.steps[0].isFailed).to.be.undefined;
+
+            expect(stepsRan.steps[1].text).to.equal("{var1}='foo'");
+            expect(stepsRan.steps[1].isPassed).to.be.true;
+            expect(stepsRan.steps[1].isFailed).to.be.undefined;
+        });
+
         it("step can be a function call for a function that was defined at the time of the pause, and if we're currently beyond the last step", async function() {
             let tree = new Tree();
             tree.parseIn(`

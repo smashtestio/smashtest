@@ -10010,6 +10010,8 @@ G -
         });
 
         it("throws an exception when there's an infinite loop among function calls", function() {
+            this.timeout(10000);
+
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -12072,6 +12074,8 @@ A -
         });
 
         it("throws an exception when there's an infinite loop among function calls", function() {
+            this.timeout(10000);
+
             let tree = new Tree();
             tree.parseIn(`
 A
