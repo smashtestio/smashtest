@@ -67,7 +67,7 @@
     // ***************************************
 
     * Desktop
-        Maximize window
+        Set dimensions to width='1920' height='1080'
 
     * Tablet
         Tablet Portrait

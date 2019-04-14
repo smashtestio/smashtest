@@ -662,6 +662,8 @@ class Tree {
      * @throws {Error} If a function declaration cannot be found, or if a hook has children (which is not allowed)
      */
     branchify(step, groups, minFrequency, noDebug, debugHash, stepsAbove, branchIndents, isFunctionCall, isSequential) {
+        // TODO: break this function down into multiple smaller functions (e.g., branchifyStepBlock(), branchifyFunctionCall(), filterBranchesForDebug(), etc.)
+
         // ***************************************
         // 1) Initialize vars
         // ***************************************
