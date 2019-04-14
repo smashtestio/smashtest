@@ -24,6 +24,8 @@ class RunInstance {
 
         this.localStack = [];                           // Array of objects, where each object stores local vars
         this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
+
+        this.stepsRan = new Branch();                   // record of all steps ran by this RunInstance
     }
 
     /**
@@ -138,6 +140,8 @@ class RunInstance {
         }
 
         step.timeStarted = new Date();
+
+        this.stepsRan.steps.push(step);
 
         // Reset state
         delete step.isPassed;
@@ -493,21 +497,12 @@ class RunInstance {
      * @throws {Error} Any errors that may occur during a branchify() of the given step
      */
     async injectStep(step) {
-        // Fill branchAbove to be all the steps above the current step
-        let branchAbove = new Branch();
-        if(this.currBranch) {
-            if(this.currStep) {
-                branchAbove.steps = this.currBranch.steps.slice(0, this.currBranch.steps.indexOf(this.currStep) + 1);
-            }
-            else if(this.currBranch.isComplete()) {
-                branchAbove.steps = this.currBranch.steps;
-            }
-        }
-        else {
+        let branchAbove = this.stepsRan;
+        if(!branchAbove || branchAbove.steps.length == 0) {
             // Create a fake, empty step
             let tempStep = new Step();
             tempStep.parent = this.tree.root;
-            branchAbove.steps = [ tempStep.cloneForBranch() ];
+            branchAbove = new Branch([ tempStep.cloneForBranch() ]);
         }
 
         let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, undefined, branchAbove); // branchify so that if step is an already-defined function call, it will work

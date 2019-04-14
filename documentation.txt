@@ -246,6 +246,11 @@ Variables
             - To clone a var, use {var}='{var2}'
             - {var1}='str1', {var2}='str2', etc.
                 - When setting multiple vars in a single line, use commas to separate them. Strings only. No functions.
+            - Right now, only ' and " can be escaped with a backslash inside a string literal
+                - To set a string to something more complex, use
+                    {var} = Func {
+                        return "\n\t";
+                    }
         - {var} = Function with a code block
             - Code Function returns a string (actually any kind of js value will work)
             - Could be {var} = Text { code block that returns something }
