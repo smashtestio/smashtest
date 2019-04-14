@@ -11795,6 +11795,87 @@ Start browser
             expect(branches[0].steps[5].text).to.equal("Generic nav to page");
         });
 
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, slightly more complex example", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+* On special cart page
+    On cart page
+        Validate special cart stuff -
+
+        * Clear cart
+            Specific stuff -
+                Clear cart
+
+* On cart page
+    * Clear cart
+        Generic stuff -
+
+On special cart page
+    Clear cart
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(7);
+
+            expect(branches[0].steps[0].text).to.equal("On special cart page");
+            expect(branches[0].steps[1].text).to.equal("On cart page");
+            expect(branches[0].steps[2].text).to.equal("Validate special cart stuff");
+            expect(branches[0].steps[3].text).to.equal("Clear cart");
+            expect(branches[0].steps[4].text).to.equal("Specific stuff");
+            expect(branches[0].steps[5].text).to.equal("Clear cart");
+            expect(branches[0].steps[6].text).to.equal("Generic stuff");
+        });
+
+        it("allows access to a function declared within a function", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+    H
+
+* F
+    * G
+        * H
+            One -
+
+    G
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches[0].steps[0].text).to.equal("F");
+            expect(branches[0].steps[1].text).to.equal("G");
+            expect(branches[0].steps[2].text).to.equal("H");
+            expect(branches[0].steps[3].text).to.equal("One");
+
+            tree = new Tree();
+            tree.parseIn(`
+* F
+    * G
+        * H
+            One -
+
+    G
+
+F
+    H
+            `, "file.txt");
+
+            branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches[0].steps[0].text).to.equal("F");
+            expect(branches[0].steps[1].text).to.equal("G");
+            expect(branches[0].steps[2].text).to.equal("H");
+            expect(branches[0].steps[3].text).to.equal("One");
+        });
+
         it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", function() {
             let tree = new Tree();
             tree.parseIn(`
