@@ -5,6 +5,32 @@ class Browser {
     constructor(runInstance) {
         this.driver = null;
         this.runInstance = runInstance;
+
+        this.register();
+    }
+
+    /**
+     * Registers this browser in the persistent array browsers
+     * Used to kill all open browsers if the runner is stopped
+     */
+    register() {
+        let browsers = this.runInstance.p("browsers");
+        if(!browsers) {
+            browsers = this.runInstance.p("browsers", []);
+        }
+
+        browsers.push(this);
+        this.runInstance.p("browsers", browsers);
+    }
+
+    /**
+     * Kills all open browsers
+     */
+    static killAllBrowsers(runner) {
+        let browsers = runner.p("browsers");
+        if(browsers) {
+            browsers.forEach(browser => browser.driver.quit());
+        }
     }
 
     /**

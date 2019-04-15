@@ -11,7 +11,7 @@ class ElementFinder {
         this.REGEX = /(?<!(\\\\)*\\)\[\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*\]/g;
 
         // Same as ELEMENTFINDER, only matches the whole line
-        this.REGEX_WHOLE = new RegExp("^\\s*" + this.REGEX.source + "\\s*$"),
+        this.REGEX_WHOLE = new RegExp("^\\s*" + this.REGEX.source + "\\s*$");
     }
 
     /**

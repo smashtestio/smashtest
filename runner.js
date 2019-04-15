@@ -227,6 +227,29 @@ class Runner {
         return obj;
     }
 
+    /**
+     * @return Value of the given persistent variable (can be undefined)
+     */
+    getPersistent(varname) {
+        return this.persistent[utils.canonicalize(varname)];
+    }
+
+    /**
+     * Sets the given persistent variable to the given value
+     */
+    setPersistent(varname, value) {
+        this.persistent[utils.canonicalize(varname)] = value;
+        this.persistent[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
+        return value;
+    }
+
+    /**
+     * Set/Get a persistent variable
+     */
+    p(varname, value) {
+        return (typeof value != 'undefined' ? this.setPersistent(varname, value) : this.getPersistent(varname));
+    }
+
     // ***************************************
     // PRIVATE FUNCTIONS
     // Only use these internally
