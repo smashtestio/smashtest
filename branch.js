@@ -82,8 +82,8 @@ class Branch {
          * Copies the given hook type from branch to newBranch
          */
         function copyHooks(name, toBeginning) {
-            if(branch[name]) {
-                if(!newBranch[name]) {
+            if(branch.hasOwnProperty(name)) {
+                if(!newBranch.hasOwnProperty(name)) {
                     newBranch[name] = [];
                 }
 
@@ -142,13 +142,13 @@ class Branch {
             });
         }
 
-        cloneHookArray("beforeEveryBranch", this);
-        cloneHookArray("afterEveryBranch", this);
-        cloneHookArray("beforeEveryStep", this);
-        cloneHookArray("afterEveryStep", this);
+        cloneHooks("beforeEveryBranch", this);
+        cloneHooks("afterEveryBranch", this);
+        cloneHooks("beforeEveryStep", this);
+        cloneHooks("afterEveryStep", this);
 
-        function cloneHookArray(name, self) {
-            if(self[name]) {
+        function cloneHooks(name, self) {
+            if(self.hasOwnProperty(name)) {
                 clone[name] = [];
                 self[name].forEach(step => {
                     clone[name].push(step.cloneForBranch(noRefs));

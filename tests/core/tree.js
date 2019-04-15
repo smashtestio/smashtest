@@ -2014,15 +2014,26 @@ C`
             }, "You cannot have a function declaration within a step block [file.txt:2]");
         });
 
-        it("rejects a step block containing a code block", function() {
+        it("accepts a step block containing a code block as its last member", function() {
             let tree = new Tree();
-            assert.throws(() => {
-                tree.parseIn(
+            tree.parseIn(
 `A
-B {
+B
+C {
 }`
-                , "file.txt");
-            }, "You cannot have a code block within a step block [file.txt:2]");
+            , "file.txt");
+
+            expect(tree).to.containSubset({
+                root: {
+                    children: [
+                        {
+                            steps: [
+                                { text: 'A' }, { text: 'B' }, { text: 'C' }
+                            ]
+                        }
+                    ]
+                }
+            });
         });
 
         it("rejects a step block with children that doesn't end in an empty line", function() {
@@ -8306,6 +8317,33 @@ F
                 },
                 {
                     steps: [ { text: "F" }, { text: "B" } ],
+                    afterEveryBranch: [
+                        { text: "After Every Branch", level: 0, codeBlock: "\n        C\n" }
+                    ]
+                }
+            ]);
+        });
+
+        it("branchifies the *** After Every Branch hook when it's inside an empty function declaration", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+F
+
+* F
+    *** After Every Branch {
+        C
+    }
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(1);
+            expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
+
+            expect(branches).to.containSubsetInOrder([
+                {
+                    steps: [ { text: "F" } ],
                     afterEveryBranch: [
                         { text: "After Every Branch", level: 0, codeBlock: "\n        C\n" }
                     ]

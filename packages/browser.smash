@@ -4,7 +4,7 @@
 
 *** After Everything {
     if(typeof Browser != 'undefined') {
-        Browser.killAllBrowsers(runInstance.runner);
+        await Browser.killAllBrowsers(runInstance.runner);
     }
 }
 
@@ -38,14 +38,18 @@
 
 * Use browser {{description}} {
     let Browser = i('./packages/js/browser.js', 'Browser');
-    let browser = g("browser", new Browser(runInstance));
+    let browser = g('browser', new Browser(runInstance));
     await browser.open(description);
-    g("$", browser.element);
+    g('$', browser.element);
 }
 
     // ***************************************
     //  Hooks
     // ***************************************
+
+    *** After Every Branch {
+        await browser.close();
+    }
 
     *** Before Every Step {
         // Take screenshot

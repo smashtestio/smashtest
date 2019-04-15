@@ -26,10 +26,10 @@ class Browser {
     /**
      * Kills all open browsers
      */
-    static killAllBrowsers(runner) {
+    static async killAllBrowsers(runner) {
         let browsers = runner.p("browsers");
         if(browsers) {
-            browsers.forEach(browser => browser.driver.quit());
+            browsers.forEach(async (browser) => await browser.driver.quit());
         }
     }
 
@@ -54,6 +54,17 @@ class Browser {
         let platform = matches[5];
 
         this.driver = new Builder().forBrowser(name, version, platform).build();
+    }
+
+    async close() {
+        await this.driver.quit();
+
+        let browsers = this.runInstance.p("browsers");
+        for(let i = 0; i < browsers.length; i++) {
+            if(browsers[i] === this) {
+                browsers.splice(i, 1);
+            }
+        }
     }
 
     /**

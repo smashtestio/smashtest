@@ -457,11 +457,6 @@ class Tree {
                     if(potentialStepBlock.steps[k].isFunctionDeclaration) {
                         utils.error(`You cannot have a function declaration within a step block`, filename, potentialStepBlock.steps[k].lineNumber);
                     }
-
-                    // Validate that a step block member is not a code block
-                    if(potentialStepBlock.steps[k].hasCodeBlock()) {
-                        utils.error(`You cannot have a code block within a step block`, filename, potentialStepBlock.steps[k].lineNumber);
-                    }
                 }
 
                 // Have the StepBlock object we created replace its corresponding Steps
@@ -845,7 +840,7 @@ class Tree {
         }
 
         // ***************************************
-        // 3) List the children of this step, including children that are hook declarations
+        // 3) List the children of this step, including children that are hooks
         // ***************************************
 
         let children = step.children;
@@ -857,13 +852,28 @@ class Tree {
             }
         }
 
-        // Check if a child is a hook function declaration
+        // Check if a child is a hook
         let beforeEveryBranch = [];
         let afterEveryBranch = [];
         let beforeEveryStep = [];
         let afterEveryStep = [];
-        children.forEach(child => {
-            if(child.isFunctionDeclaration && child.isHook) {
+
+        // ignore function declarations (they're handled by their corresponding function call, in the code below)
+        if(!step.isFunctionDeclaration) {
+            children.forEach(child => {
+                setHooks(child, this);
+            });
+        }
+
+        // If step is a function call, look to the hooks of the function declaration as well
+        if(step.isFunctionCall) {
+            step.functionDeclarationInTree.children.forEach(child => {
+                setHooks(child, this);
+            });
+        }
+
+        function setHooks(child, self) {
+            if(child.isHook) {
                 let clonedHookStep = child.cloneAsFunctionCall();
                 clonedHookStep.level = 0;
 
@@ -889,17 +899,17 @@ class Tree {
                         utils.error(`A Before Everything hook must not be indented (it must be at 0 indents)`, child.filename, child.lineNumber);
                     }
 
-                    this.beforeEverything.unshift(clonedHookStep); // inserted this way so that packaged hooks get executed first
+                    self.beforeEverything.unshift(clonedHookStep); // inserted this way so that packaged hooks get executed first
                 }
                 else if(canStepText == "after everything") {
                     if(child.indents != 0) {
                         utils.error(`An After Everything hook must not be indented (it must be at 0 indents)`, child.filename, child.lineNumber);
                     }
 
-                    this.afterEverything.push(clonedHookStep); // inserted this way so that packaged hooks get executed last
+                    self.afterEverything.push(clonedHookStep); // inserted this way so that packaged hooks get executed last
                 }
             }
-        });
+        }
 
         // ***************************************
         // 4) Fill branchesBelow by cross joining branchesFromThisStep with the branches that come from this step's children
