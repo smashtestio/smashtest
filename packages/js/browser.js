@@ -36,9 +36,10 @@ class Browser {
     /**
      * Opens the browser
      * @param {String} description - <browser name> <optional version> <optional platform>
+     * @param {String} [serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      * <browser name> = 'chrome', 'firefox', 'safari', 'internet explorer', or 'MicrosoftEdge'
      */
-    async open(description) {
+    async open(description, serverUrl) {
         if(!description || description == '[functions]') {
             return;
         }
@@ -53,7 +54,17 @@ class Browser {
         let version = matches[3];
         let platform = matches[5];
 
-        this.driver = new Builder().forBrowser(name, version, platform).build();
+        if(serverUrl) {
+            this.driver = new Builder()
+                .forBrowser(name, version, platform)
+                .usingServer(serverUrl)
+                .build();
+        }
+        else {
+            this.driver = new Builder()
+                .forBrowser(name, version, platform)
+                .build();
+        }
     }
 
     async close() {

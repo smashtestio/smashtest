@@ -26,12 +26,13 @@ class Tree {
         this.timeStarted = {};               // Date object (time) of when this tree started being executed
         this.timeEnded = {};                 // Date object (time) of when this tree ended execution
 
-        this.passed = 0;                     // total number of passed branches in this tree
+        this.passed = 0;                     // total number of passed branches in this tree (excluding the ones that passed last time)
         this.failed = 0;                     // total number of failed branches in this tree
         this.skipped = 0;                    // total number of skipped branches in this tree
         this.complete = 0;                   // total number of complete branches in this tree (passed, failed, or skipped)
         this.totalToRun = 0;                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a -skipPassed)
         this.totalInReport = 0;              // total number of branches in this tree
+        this.totalPassedInReport = 0;        // total number of passed branches in this tree (including the ones that passed last time)
 
         this.totalStepsComplete = 0;         // total number of complete steps in this tree (out of the steps that will be in the next run)
         this.totalSteps = = 0;               // total number of steps in this tree that will be in the next run
@@ -1433,7 +1434,7 @@ class Tree {
                 continue;
             }
 
-            if(passedOnly && !branch.isPassed) {
+            if(passedOnly && !branch.isPassed && !branch.passedLastTime) {
                 continue;
             }
 
@@ -1696,6 +1697,7 @@ class Tree {
         this.complete = 0;
         this.totalToRun = this.getBranchCount(true, false);
         this.totalInReport = this.getBranchCount(false, false);
+        this.totalPassedInReport = this.getBranchCount(false, true, true, false, false);
 
         // Step counts
         this.totalStepsComplete = 0;
@@ -1713,6 +1715,7 @@ class Tree {
         this.complete = this.getBranchCount(true, true);
         this.totalToRun = this.getBranchCount(true, false);
         this.totalInReport = this.getBranchCount(false, false);
+        this.totalPassedInReport = this.getBranchCount(false, true, true, false, false);
 
         // Update step counts
         this.totalStepsComplete = this.getStepCount(true, true, false);

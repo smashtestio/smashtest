@@ -14415,6 +14415,7 @@ B -
             expect(tree.complete).to.equal(0);
             expect(tree.totalToRun).to.equal(4);
             expect(tree.totalInReport).to.equal(4);
+            expect(tree.totalPassedInReport).to.equal(0);
 
             expect(tree.totalStepsComplete).to.equal(0);
             expect(tree.totalSteps).to.equal(8);
@@ -14442,17 +14443,20 @@ B -
             tree.branches[1].isFailed = true;
             tree.branches[1].steps[0].isFailed = true;
 
+            tree.branches[2].passedLastTime = true;
+
             tree.updateCounts();
 
             expect(tree.passed).to.equal(1);
             expect(tree.failed).to.equal(1);
             expect(tree.skipped).to.equal(0);
             expect(tree.complete).to.equal(2);
-            expect(tree.totalToRun).to.equal(4);
+            expect(tree.totalToRun).to.equal(3);
             expect(tree.totalInReport).to.equal(4);
+            expect(tree.totalPassedInReport).to.equal(2);
 
             expect(tree.totalStepsComplete).to.equal(4);
-            expect(tree.totalSteps).to.equal(8);
+            expect(tree.totalSteps).to.equal(6);
         });
     });
 });
