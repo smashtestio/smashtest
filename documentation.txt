@@ -15,6 +15,9 @@ Setup
     - Installing SmashPANEL Lite too
         - What it does and why it's recommended
 
+Example file
+    - One big example file with each type of step, etc. and // comments explaining stuff
+
 Steps
     - Textual steps, packaged steps, functions
     - Each "branch" is a separate test. We call tests "branches".

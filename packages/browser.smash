@@ -42,7 +42,7 @@
 
 * Use browser {{description}} {
     let Browser = imp('./packages/js/browser.js', 'Browser');
-    let browser = setGlobal("browser", new Browser());
+    let browser = setGlobal("browser", new Browser(runInstance));
     await browser.open(description);
 }
 

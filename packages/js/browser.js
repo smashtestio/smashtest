@@ -1,8 +1,9 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
 class Browser {
-    constructor() {
+    constructor(runInstance) {
         this.driver = null;
+        this.runInstance = runInstance;
     }
 
     /**
@@ -25,12 +26,7 @@ class Browser {
         let version = matches[3];
         let platform = matches[5];
 
-        this.driver = new Builder()
-            .forBrowser(name, version, platform)
-            .build();
-
-
-        // TODO: Log the version
+        this.driver = new Builder().forBrowser(name, version, platform).build();
     }
 
     async get(url) {

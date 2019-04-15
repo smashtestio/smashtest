@@ -596,6 +596,13 @@ class RunInstance {
     }
 
     /**
+     * Logs the given text
+     */
+    log(text) {
+        this.appendToLog(text, this.currStep || this.currBranch);
+    }
+
+    /**
      * Imports (via require()) the given package, sets persistent var varName to the imported object and returns the imported object
      * If a persistent var with that name already exists, this function only returns the value of that var
      * If varName is omitted, it is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
