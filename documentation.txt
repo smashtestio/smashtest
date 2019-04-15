@@ -310,8 +310,8 @@ Code blocks
         - setLocal(), setGlobal(), setPersistent()
         - getStepText() - great for when matching first part only
         - log(string)
-        - imp(packageName, varName) - sets persistent var varName and returns the object (if varName omitted, generates it by camel casing packageName, e.g., one-two-three --> oneTwoThree)
-            - Usage: let chai = imp('chai');
+        - i(packageName, varName) - sets persistent var varName and returns the object (if varName omitted, generates it by camel casing packageName, e.g., one-two-three --> oneTwoThree)
+            - Usage: let chai = i('chai');
         - runInstance object (quick summary)
             - runInstance.currStep
             - runInstance.currBranch
@@ -320,7 +320,7 @@ Code blocks
         - throw new Error("error msg")
     - JS file pattern
         - Discuss putting complex code into its own js file, and doing this in a code block: {
-            let yf = imp('./yourfile.js', 'yf');
+            let yf = i('./yourfile.js', 'yf');
             yf.something();
         }
             - Helps a lot with stack traces. Code blocks are recommended for short snippets of code, 1-5 lines long.

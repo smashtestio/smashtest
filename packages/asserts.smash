@@ -3,9 +3,9 @@
 // ***************************************
 
 *** Before Everything {
-    let chai = imp('chai');
-    let chaiSubset = imp('chai-subset');
-    let chaiSubsetInOrder = imp('chai-subset-in-order');
+    let chai = i('chai');
+    let chaiSubset = i('chai-subset');
+    let chaiSubsetInOrder = i('chai-subset-in-order');
 
     chai.use(chaiSubset);
     chai.use(chaiSubsetInOrder);
@@ -13,8 +13,8 @@
     let expect = chai.expect;
     let assert = chai.assert;
 
-    setPersistent("expect", expect);
-    setPersistent("assert", assert);
+    p("expect", expect);
+    p("assert", assert);
 }
 
 // ***************************************

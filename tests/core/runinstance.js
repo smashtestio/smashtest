@@ -5340,21 +5340,21 @@ A -
             let runInstance = new RunInstance(runner);
 
             await expect(runInstance.evalCodeBlock(`
-                let chai = imp('chai');
+                let chai = i('chai');
                 chai.expect(2+3).to.equal(2);
             `)).to.be.rejectedWith("expected 5 to equal 2");
 
             await expect(runInstance.evalCodeBlock(`
-                imp('chai');
-                imp('chai-as-promised');
+                i('chai');
+                i('chai-as-promised');
 
                 getPersistent('chai').expect(!!getPersistent('chaiAsPromised')).to.be.true;
                 getPersistent('chai').expect(2+3).to.equal(2);
             `)).to.be.rejectedWith("expected 5 to equal 2");
 
             await expect(runInstance.evalCodeBlock(`
-                imp('chai', 'chai');
-                imp('chai-as-promised', 'chaiAsPromised');
+                i('chai', 'chai');
+                i('chai-as-promised', 'chaiAsPromised');
 
                 getPersistent('chai').expect(!!getPersistent('chaiAsPromised')).to.be.true;
                 getPersistent('chai').expect(2+3).to.equal(2);

@@ -41,9 +41,10 @@
 // Note: functions under Use browser are indented because they're only available after a Open browser
 
 * Use browser {{description}} {
-    let Browser = imp('./packages/js/browser.js', 'Browser');
-    let browser = setGlobal("browser", new Browser(runInstance));
+    let Browser = i('./packages/js/browser.js', 'Browser');
+    let browser = g("browser", new Browser(runInstance));
     await browser.open(description);
+    g("$", browser.element);
 }
 
     // ***************************************

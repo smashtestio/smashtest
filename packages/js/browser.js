@@ -36,5 +36,11 @@ class Browser {
 
 
     }
+
+    async element(finder) {
+
+
+        
+    }
 }
 module.exports = Browser;

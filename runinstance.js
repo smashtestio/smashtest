@@ -628,7 +628,7 @@ class RunInstance {
      * If a persistent var with that name already exists, this function only returns the value of that var
      * If varName is omitted, it is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
      */
-    imp(packageName, varName) {
+    i(packageName, varName) {
         varName = varName || packageName.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
         if(!this.getPersistent(varName)) {
             this.setPersistent(varName, require(packageName));
@@ -697,8 +697,8 @@ class RunInstance {
             return runInstance.getStepText();
         }
 
-        function imp(packageName, varName) {
-            return runInstance.imp(packageName, varName);
+        function i(packageName, varName) {
+            return runInstance.i(packageName, varName);
         }
 
         // Generate code
