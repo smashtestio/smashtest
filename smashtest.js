@@ -290,7 +290,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
             if(arg.startsWith("-")) {
                 let matches = arg.match(/\-\-?([^\=]+)(\=(.*))?/);
                 if(!matches) {
-                    utils.error("Invalid argument: " + arg);
+                    utils.error(`Invalid argument: ${arg}`);
                 }
 
                 runner.flags.push(arg);
@@ -490,7 +490,7 @@ readFiles(["config.json"], {encoding: 'utf8'})
                             prevStep = runner.getLastStep();
 
                             if(nextStep) {
-                                console.log("Next step: [ " + chalk.gray(nextStep.line.trim()) + " ]");
+                                console.log(`Next step: [ ${chalk.gray(nextStep.line.trim())} ]`);
                                 console.log(chalk.gray("enter = run next, p = run previous, s = skip, r = resume, x = exit, or enter step to run it"));
                             }
                             else if(prevStep) {

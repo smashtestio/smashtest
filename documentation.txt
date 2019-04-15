@@ -11,6 +11,7 @@ Setup
         - npm
         - Use even-numbered version of nodejs
         (?) - Install webdriverjs and/or selenium separately? See webdriverjs installation guide and try to install it as a dependency
+        - https://github.com/SeleniumHQ/selenium/tree/master/javascript/node/selenium-webdriver
     - Installing SmashPANEL Lite too
         - What it does and why it's recommended
 
@@ -448,6 +449,7 @@ Selective test running
     - Frequency
         - Choosing which frequencies to run from {frequency}='high/med/low', or from command line
             - You can choose to run tests from a frequency, and above
+            - Recommendations = high = most important tests (BVT), med = normal tests, low = all long-term tests (e.g., security tests)
         - The value of {frequency} at the leaf is what controls the frequency of that branch
         - Branches are also run in order of frequency, from high to low, where no frequency is med
         - Recommended to sort the children of a step by their frequency

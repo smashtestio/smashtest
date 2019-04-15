@@ -160,7 +160,7 @@ class Reporter {
      */
     async mergeInLastReport(filename) {
         this.lastReportPath = process.cwd() + "/" + filename;
-        console.log("Including passed branches from: " + chalk.gray(this.lastReportPath));
+        console.log(`Including passed branches from: ${chalk.gray(this.lastReportPath)}`);
         console.log("");
 
         let fileBuffers = null;

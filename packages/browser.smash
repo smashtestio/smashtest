@@ -28,14 +28,11 @@
 * Open IE
     Use browser 'ie'
 
-* Open browser
-    Use browser 'any'
-
 * Open browser {{description}}
     Use browser {{description}}
 
 * Use browser functions
-    Use browser 'functions only'
+    Use browser '[functions]'
 
 // ***************************************
 //  Browser-dependent functions
@@ -56,7 +53,7 @@
     *** Before Every Step {
         // Take screenshot
 
-        
+
     }
 
     *** After Every Step {

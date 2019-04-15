@@ -57,14 +57,14 @@ class Tree {
         let whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
         if(spacesAtFront[1] != whitespaceAtFront[1]) {
-            utils.error("Spaces are the only type of whitespace allowed at the beginning of a step", filename, lineNumber);
+            utils.error(`Spaces are the only type of whitespace allowed at the beginning of a step`, filename, lineNumber);
         }
         else {
             let numSpaces = spacesAtFront[1].length;
             let numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
             if(numIndents - Math.floor(numIndents) != 0) {
-                utils.error("The number of spaces at the beginning of a step must be a multiple of " + Constants.SPACES_PER_INDENT + ". You have " + numSpaces + " space(s).", filename, lineNumber);
+                utils.error(`The number of spaces at the beginning of a step must be a multiple of ${Constants.SPACES_PER_INDENT}. You have ${numSpaces} space(s).`, filename, lineNumber);
             }
             else {
                 return numIndents;
@@ -98,7 +98,7 @@ class Tree {
 
         let matches = line.match(Constants.LINE_WHOLE);
         if(!matches) {
-            utils.error("This step is not written correctly", filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
+            utils.error(`This step is not written correctly`, filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
         }
 
         // Parsed parts of the line
@@ -129,16 +129,16 @@ class Tree {
 
         // Validation against prohibited step texts
         if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-            utils.error("Invalid step name", filename, lineNumber);
+            utils.error(`Invalid step name`, filename, lineNumber);
         }
         if(step.text.match(Constants.IDENTIFIER_START_OR_END)) {
-            utils.error("Spaces must separate identifiers from each other and from the step", filename, lineNumber);
+            utils.error(`Spaces must separate identifiers from each other and from the step`, filename, lineNumber);
         }
 
         // Function Declaration
         if(step.isFunctionDeclaration) {
             if(step.text.match(Constants.STRING_LITERAL)) {
-                utils.error("A function declaration cannot have 'strings', \"strings\", or [strings] inside of it", filename, lineNumber);
+                utils.error(`A function declaration cannot have 'strings', "strings", or [strings] inside of it`, filename, lineNumber);
             }
 
             // Validate that all vars in a function declaration are {{local}}
@@ -148,7 +148,7 @@ class Tree {
                     let match = matches[i];
                     let name = utils.stripBrackets(match);
                     if(!match.startsWith('{{')) {
-                        utils.error("All variables in a function declaration must be {{local}} and {" + name + "} is not", filename, lineNumber);
+                        utils.error(`All variables in a function declaration must be {{local}} and {${name}} is not`, filename, lineNumber);
                     }
                 }
             }
@@ -156,7 +156,7 @@ class Tree {
         else { // not a function declaration
             // Validate that a non-function declaration isn't using a hook step name
             if(Constants.HOOK_NAMES.indexOf(utils.canonicalize(step.text)) != -1) {
-                utils.error("You cannot have a function call with that name. That's reserved for hook function declarations.", filename, lineNumber);
+                utils.error(`You cannot have a function call with that name. That's reserved for hook function declarations.`, filename, lineNumber);
             }
         }
 
@@ -187,7 +187,7 @@ class Tree {
                 step.isTextualStep = true;
 
                 if(step.isFunctionDeclaration) {
-                    utils.error("A function declaration cannot be a textual step (-) as well", filename, lineNumber);
+                    utils.error(`A function declaration cannot be a textual step (-) as well`, filename, lineNumber);
                 }
             }
             if(step.identifiers.includes('$')) {
@@ -210,14 +210,14 @@ class Tree {
             let stepText = step.text.trim().replace(/\s+/g, ' ');
             let index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index == -1) {
-                utils.error("Invalid hook name", filename, lineNumber);
+                utils.error(`Invalid hook name`, filename, lineNumber);
             }
             else {
                 if(!step.hasCodeBlock()) {
-                    utils.error("A hook must have a code block", filename, lineNumber);
+                    utils.error(`A hook must have a code block`, filename, lineNumber);
                 }
                 if(step.identifiers && step.identifiers.length > 0) {
-                    utils.error("A hook cannot have any identifiers (" + step.identifiers[0] + ")", filename, lineNumber);
+                    utils.error(`A hook cannot have any identifiers (${step.identifiers[0]})`, filename, lineNumber);
                 }
             }
         }
@@ -227,7 +227,7 @@ class Tree {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
 
             if(step.isFunctionDeclaration) {
-                utils.error("A step setting {variables} cannot start with a *", filename, lineNumber);
+                utils.error(`A step setting {variables} cannot start with a *`, filename, lineNumber);
             }
 
             // Parse vars from text into step.varsBeingSet
@@ -236,7 +236,7 @@ class Tree {
             while(textCopy.trim() != "") {
                 matches = textCopy.match(Constants.VARS_SET_WHOLE);
                 if(!matches) {
-                    utils.error("A part of this line doesn't properly set a variable", filename, lineNumber); // NOTE: probably unreachable
+                    utils.error(`A part of this line doesn't properly set a variable`, filename, lineNumber); // NOTE: probably unreachable
                 }
 
                 let varBeingSet = {
@@ -247,27 +247,27 @@ class Tree {
 
                 // Generate variable name validations
                 if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                    utils.error("A {variable name} cannot be just numbers", filename, lineNumber);
+                    utils.error(`A {variable name} cannot be just numbers`, filename, lineNumber);
                 }
 
                 // Validations for special variables
                 if(varBeingSet.name.toLowerCase() == 'frequency') {
                     if(varBeingSet.name != 'frequency') {
-                        utils.error("The {frequency} variable name is special and must be all lowercase", filename, lineNumber);
+                        utils.error(`The {frequency} variable name is special and must be all lowercase`, filename, lineNumber);
                     }
                     if(varBeingSet.isLocal) {
-                        utils.error("The {frequency} variable is special and cannot be {{frequency}}", filename, lineNumber);
+                        utils.error(`The {frequency} variable is special and cannot be {{frequency}}`, filename, lineNumber);
                     }
                     if(!utils.hasQuotes(varBeingSet.value) || ['high','med','low'].indexOf(utils.stripQuotes(varBeingSet.value)) == -1) {
-                        utils.error("The {frequency} variable is special and can only be set to 'high', 'med', or 'low'", filename, lineNumber);
+                        utils.error(`The {frequency} variable is special and can only be set to 'high', 'med', or 'low'`, filename, lineNumber);
                     }
                 }
                 else if(varBeingSet.name.toLowerCase() == 'group') {
                     if(varBeingSet.name != 'group') {
-                        utils.error("The {group} variable name is special and must be all lowercase", filename, lineNumber);
+                        utils.error(`The {group} variable name is special and must be all lowercase`, filename, lineNumber);
                     }
                     if(varBeingSet.isLocal) {
-                        utils.error("The {group} variable is special and cannot be {{group}}", filename, lineNumber);
+                        utils.error(`The {group} variable is special and cannot be {{group}}`, filename, lineNumber);
                     }
                 }
 
@@ -283,7 +283,7 @@ class Tree {
                 // If there are multiple vars being set, each value must be a string literal
                 for(let i = 0; i < step.varsBeingSet.length; i++) {
                     if(!step.varsBeingSet[i].value.match(Constants.STRING_LITERAL_WHOLE)) {
-                        utils.error("When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', \"strings\", or [strings]", filename, lineNumber);
+                        utils.error(`When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
                     }
                 }
             }
@@ -300,10 +300,10 @@ class Tree {
 
                     // Validations
                     if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                        utils.error("{vars} can only be set to 'strings', \"strings\", or [strings]", filename, lineNumber);
+                        utils.error(`{vars} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
                     }
                     if(step.isTextualStep) {
-                        utils.error("A textual step (ending in -) cannot also start with a {variable} assignment", filename, lineNumber);
+                        utils.error(`A textual step (ending in -) cannot also start with a {variable} assignment`, filename, lineNumber);
                     }
                 }
             }
@@ -345,7 +345,7 @@ class Tree {
             }
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
-                if(line.match(new RegExp("^[ ]{" + (lastStepCreated.indents * Constants.SPACES_PER_INDENT) + "}\\}\\s*(\\/\\/.*?)?\\s*$"))) { // code block is ending
+                if(line.match(new RegExp(`^[ ]{${lastStepCreated.indents * Constants.SPACES_PER_INDENT}}\\}\\s*(\\/\\/.*?)?\\s*$`))) { // code block is ending
                     lastStepCreated.codeBlock += "\n";
                     currentlyInsideCodeBlockFromLineNum = -1;
                 }
@@ -364,11 +364,11 @@ class Tree {
                 step.indents = this.numIndents(line, filename, lineNumber);
 
                 if(!lastNonEmptyStep && step.indents != 0) {
-                    utils.error("The first step must have 0 indents", filename, lineNumber);
+                    utils.error(`The first step must have 0 indents`, filename, lineNumber);
                 }
 
                 if(i - 1 >= 0 && step.text != '' && lines[i - 1].codeBlockEnd && step.indents == lines[i - 1].indents) {
-                    utils.error("You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one.", filename, lineNumber);
+                    utils.error(`You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one.`, filename, lineNumber);
                 }
 
                 // If this is the start of a new code block
@@ -387,23 +387,23 @@ class Tree {
 
         // If we're still inside a code block, and EOF was reached, complain that a code block is not closed
         if(currentlyInsideCodeBlockFromLineNum != -1) {
-            utils.error("An unclosed code block was found", filename, currentlyInsideCodeBlockFromLineNum);
+            utils.error(`An unclosed code block was found`, filename, currentlyInsideCodeBlockFromLineNum);
         }
 
         // Validations for .. steps
         for(let i = 0; i < lines.length; i++) {
             if(lines[i].text == '..') {
                 if(i > 0 && lines[i-1].text != '' && lines[i-1].indents == lines[i].indents) {
-                    utils.error("You cannot have a .. line at the same indent level as the adjacent line above", filename, lines[i].lineNumber);
+                    utils.error(`You cannot have a .. line at the same indent level as the adjacent line above`, filename, lines[i].lineNumber);
                 }
                 if((i + 1 < lines.length && lines[i+1].text == '') || (i + 1 == lines.length)) {
-                    utils.error("You cannot have a .. line without anything directly below", filename, lines[i].lineNumber);
+                    utils.error(`You cannot have a .. line without anything directly below`, filename, lines[i].lineNumber);
                 }
                 if(i + 1 < lines.length && lines[i+1].indents != lines[i].indents) {
-                    utils.error("A .. line must be followed by a line at the same indent level", filename, lines[i].lineNumber);
+                    utils.error(`A .. line must be followed by a line at the same indent level`, filename, lines[i].lineNumber);
                 }
                 if(i + 1 < lines.length && lines[i+1].text == '..') {
-                    utils.error("You cannot have two .. lines in a row", filename, lines[i].lineNumber);
+                    utils.error(`You cannot have two .. lines in a row`, filename, lines[i].lineNumber);
                 }
             }
         }
@@ -444,7 +444,7 @@ class Tree {
                 // We've found a step block, which goes from lines index i to j
 
                 if(j < lines.length && lines[j].text != '' && lines[j].text != '..' && lines[j].indents == potentialStepBlock.steps[0].indents + 1) {
-                    utils.error("There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line.", filename, lines[j].lineNumber - 1);
+                    utils.error(`There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line.`, filename, lines[j].lineNumber - 1);
                 }
 
                 potentialStepBlock.filename = filename;
@@ -455,12 +455,12 @@ class Tree {
 
                     // Validate that a step block member is not a function declaration
                     if(potentialStepBlock.steps[k].isFunctionDeclaration) {
-                        utils.error("You cannot have a function declaration within a step block", filename, potentialStepBlock.steps[k].lineNumber);
+                        utils.error(`You cannot have a function declaration within a step block`, filename, potentialStepBlock.steps[k].lineNumber);
                     }
 
                     // Validate that a step block member is not a code block
                     if(potentialStepBlock.steps[k].hasCodeBlock()) {
-                        utils.error("You cannot have a code block within a step block", filename, potentialStepBlock.steps[k].lineNumber);
+                        utils.error(`You cannot have a code block within a step block`, filename, potentialStepBlock.steps[k].lineNumber);
                     }
                 }
 
@@ -481,7 +481,7 @@ class Tree {
             else if(lines[i].text == '..') {
                 // Validate that .. steps have a StepBlock directly below
                 if(i + 1 < lines.length && !(lines[i+1] instanceof StepBlock)) {
-                    utils.error("A .. line must be followed by a step block", filename, lines[i].lineNumber);
+                    utils.error(`A .. line must be followed by a step block`, filename, lines[i].lineNumber);
                 }
                 else {
                     lines.splice(i, 1);
@@ -524,13 +524,13 @@ class Tree {
                 prevStepObj.children.push(currStepObj);
             }
             else if(indentsAdvanced > 1) {
-                utils.error("You cannot have a step that has 2 or more indents beyond the previous step", filename, currStepObj.lineNumber);
+                utils.error(`You cannot have a step that has 2 or more indents beyond the previous step`, filename, currStepObj.lineNumber);
             }
             else { // indentsAdvanced < 0, and current step is a child of an ancestor of the previous step
                 let parent = prevStepObj.parent;
                 for(let j = indentsAdvanced; j < 0; j++) {
                     if(parent.parent == null) {
-                        utils.error("Invalid number of indents", filename, currStepObj.lineNumber); // NOTE: probably unreachable
+                        utils.error(`Invalid number of indents`, filename, currStepObj.lineNumber); // NOTE: probably unreachable
                     }
 
                     parent = parent.parent;
@@ -596,7 +596,7 @@ class Tree {
                 for(let i = 0; i < siblings.length; i++) {
                     let sibling = siblings[i];
                     if(sibling.isFunctionDeclaration && functionCall.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
-                        if(sibling.isPrivateFunctionDeclaration && branchAbove.steps[index].branchIndents > functionCall.branchIndents) {
+                        if(sibling.isPrivateFunctionDeclaration && branchAbove.steps[index].level > functionCall.level) {
                             continue; // ignore private functions that are inaccessible
                         }
 
@@ -608,7 +608,7 @@ class Tree {
             }
         }
 
-        utils.error("The function '" + functionCall.getFunctionCallText() + "' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?", functionCall.filename, functionCall.lineNumber);
+        utils.error(`The function '${functionCall.getFunctionCallText()}' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?`, functionCall.filename, functionCall.lineNumber);
     }
 
     /**
@@ -639,14 +639,14 @@ class Tree {
 
         if(step.functionDeclarationInTree.hasCodeBlock()) {
             if(step.functionDeclarationInTree.children.length > 0) {
-                utils.error("The function called at " + step.filename + ":" + step.lineNumber + " has a code block in its declaration (at " + step.functionDeclarationInTree.filename + ":" + step.functionDeclarationInTree.lineNumber + ") but that code block must not have any child steps", step.filename, step.lineNumber);
+                utils.error(`The function called at ${step.filename}:${step.lineNumber} has a code block in its declaration (at ${step.functionDeclarationInTree.filename}:${step.functionDeclarationInTree.lineNumber}) but that code block must not have any child steps`, step.filename, step.lineNumber);
             }
 
             return false;
         }
         else {
             if(step.functionDeclarationInTree.children.length == 0) {
-                utils.error("You cannot use an empty function", step.filename, step.lineNumber);
+                utils.error(`You cannot use an empty function`, step.filename, step.lineNumber);
             }
 
             step.functionDeclarationInTree.children.forEach(child => {
@@ -664,11 +664,11 @@ class Tree {
 
             function validateChild(child) {
                 if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal) {
-                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must have all steps in its declaration be in format {x}='string' or {x} = Function (but " + child.filename + ":" + child.lineNumber + " is not)", step.filename, step.lineNumber);
+                    utils.error(`The function called at ${step.filename}:${step.lineNumber} must have all steps in its declaration be in format {x}='string' or {x}=Function (but ${child.filename}:${child.lineNumber} is not)`, step.filename, step.lineNumber);
                 }
 
                 if(child.children.length > 0) {
-                    utils.error("The function called at " + step.filename + ":" + step.lineNumber + " must not have any steps in its declaration that have children of their own (but " + child.filename + ":" + child.lineNumber + " does)", step.filename, step.lineNumber);
+                    utils.error(`The function called at ${step.filename}:${step.lineNumber} must not have any steps in its declaration that have children of their own (but ${child.filename}:${child.lineNumber} does)`, step.filename, step.lineNumber);
                 }
             }
         }
@@ -682,13 +682,13 @@ class Tree {
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in the tree at or below the given step
      * @param {String} [debugHash] - If set, run the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
      * @param {Branch} [branchAbove] - branch that comes above this step, with function calls, etc. already expanded (used to help find function declarations), empty branch if omitted
-     * @param {Number} [branchIndents] - Number of indents to give step if the branch is being printed out (i.e., the steps under a function are to be indented one unit to the right of the function call step), 0 if omitted
-     * @param {Boolean} [isFunctionCall] - If true, this branchify() call is to a function declaration step, in response to a function call step
-     * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier)
-     * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchesAbove). Sorted by ideal execution order (but without regard to {frequency}). Returns null for function declarations encountered while recursively walking the tree.
-     * @throws {Error} If a function declaration cannot be found, or if a hook has children (which is not allowed)
+     * @param {Number} [level] - Number of levels of function calls this step is under, 0 if omitted
+     * @param {Boolean} [isFunctionCall] - If true, step is a function declaration, and this branchify() call is in response to encountering a function call step
+     * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier on a step)
+     * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchAbove). Returns null if step is a function declaration but isFunctionCall wasn't set (i.e., an unexpected function declaration).
+     * @throws {Error} If an error occurred
      */
-    branchify(step, groups, minFrequency, noDebug, debugHash, branchAbove, branchIndents, isFunctionCall, isSequential) {
+    branchify(step, groups, minFrequency, noDebug, debugHash, branchAbove, level, isFunctionCall, isSequential) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -697,8 +697,8 @@ class Tree {
             branchAbove = new Branch();
         }
 
-        if(typeof branchIndents == 'undefined') {
-            branchIndents = 0;
+        if(typeof level == 'undefined') {
+            level = 0;
         }
 
         if(!step.isFunctionDeclaration) {
@@ -710,10 +710,10 @@ class Tree {
         // Enforce noDebug
         if(noDebug) {
             if(step.isDebug) {
-                utils.error("A ~ was found, but the noDebug flag is set", step.filename, step.lineNumber);
+                utils.error(`A ~ was found, but the noDebug flag is set`, step.filename, step.lineNumber);
             }
             else if(step.isOnly) {
-                utils.error("A $ was found, but the noDebug flag is set", step.filename, step.lineNumber);
+                utils.error(`A $ was found, but the noDebug flag is set`, step.filename, step.lineNumber);
             }
         }
 
@@ -735,7 +735,7 @@ class Tree {
         else if(step.isFunctionCall) {
             let clonedStep = step.cloneForBranch();
 
-            clonedStep.branchIndents = branchIndents; // needed to findFunctionDeclaration() below
+            clonedStep.level = level; // needed to findFunctionDeclaration() below
             clonedStep.functionDeclarationInTree = this.findFunctionDeclaration(clonedStep, branchAbove);
             clonedStep.mergeInFunctionDeclaration(clonedStep.functionDeclarationInTree); // merge top step in function declaration into this function call
             step.functionDeclarationInTree = clonedStep.functionDeclarationInTree;
@@ -749,7 +749,7 @@ class Tree {
                 isReplaceVarsInChildren = this.validateVarSettingFunction(clonedStep);
             }
 
-            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(new Branch([clonedStep])), branchIndents + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(new Branch([clonedStep])), level + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
 
             if(branchesFromThisStep.length == 0) {
                 // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
@@ -765,7 +765,7 @@ class Tree {
                             let originalName = s.varsBeingSet[0].name;
                             let newName = clonedStep.varsBeingSet[0].name;
 
-                            s.text = s.text.replace(new RegExp("(\\{\\s*)" + originalName + "(\\s*\\})"), "$1" + newName + "$2");
+                            s.text = s.text.replace(new RegExp(`(\\{\\s*)${originalName}(\\s*\\})`), `$1${newName}$2`);
                             s.varsBeingSet[0].name = newName;
 
                             if(s.isFunctionCall) {
@@ -791,7 +791,7 @@ class Tree {
             // Branches from each step block member are cross joined sequentially to each other
             let branchesInThisStepBlock = [];
             step.steps.forEach(stepInBlock => {
-                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(new Branch([step.cloneForBranch()])), branchIndents); // there's no isSequential in branchify() because isSequential does not extend into function calls
+                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(new Branch([step.cloneForBranch()])), level); // there's no isSequential in branchify() because isSequential does not extend into function calls
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
                 }
@@ -822,7 +822,7 @@ class Tree {
             // Generic step cloning into branchesFromThisStep
             let branch = new Branch();
             let clonedStep = step.cloneForBranch();
-            clonedStep.branchIndents = branchIndents;
+            clonedStep.level = level;
 
             branch.push(clonedStep);
 
@@ -865,10 +865,10 @@ class Tree {
         children.forEach(child => {
             if(child.isFunctionDeclaration && child.isHook) {
                 let clonedHookStep = child.cloneAsFunctionCall();
-                clonedHookStep.branchIndents = 0;
+                clonedHookStep.level = 0;
 
                 if(child.children.length > 0) {
-                    utils.error("A hook cannot have children", child.filename, child.lineNumber);
+                    utils.error(`A hook cannot have children`, child.filename, child.lineNumber);
                 }
 
                 let canStepText = utils.canonicalize(child.text);
@@ -886,14 +886,14 @@ class Tree {
                 }
                 else if(canStepText == "before everything") {
                     if(child.indents != 0) {
-                        utils.error("A Before Everything hook must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
+                        utils.error(`A Before Everything hook must not be indented (it must be at 0 indents)`, child.filename, child.lineNumber);
                     }
 
                     this.beforeEverything.unshift(clonedHookStep); // inserted this way so that packaged hooks get executed first
                 }
                 else if(canStepText == "after everything") {
                     if(child.indents != 0) {
-                        utils.error("An After Everything hook must not be indented (it must be at 0 indents)", child.filename, child.lineNumber);
+                        utils.error(`An After Everything hook must not be indented (it must be at 0 indents)`, child.filename, child.lineNumber);
                     }
 
                     this.afterEverything.push(clonedHookStep); // inserted this way so that packaged hooks get executed last
@@ -919,7 +919,7 @@ class Tree {
                 if(child instanceof StepBlock && !child.isSequential) {
                     // If this child is a non-sequential step block, just call branchify() directly on each member step
                     child.steps.forEach(step => {
-                        let branchesFromChild = self.branchify(step, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(branchFromThisStep), branchIndents, false, isSequential);
+                        let branchesFromChild = self.branchify(step, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(branchFromThisStep), level, false, isSequential);
                         if(branchesFromChild && branchesFromChild.length > 0) {
                             branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                         }
@@ -928,7 +928,7 @@ class Tree {
                 }
                 else {
                     // If this child is a step, call branchify() on it normally
-                    let branchesFromChild = self.branchify(child, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(branchFromThisStep), branchIndents, false, isSequential);
+                    let branchesFromChild = self.branchify(child, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(branchFromThisStep), level, false, isSequential);
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -1102,7 +1102,7 @@ class Tree {
                 function removeBranch() {
                     if(branch.isDebug) {
                         let debugStep = findIdentifierDepth(branch, '~').step;
-                        utils.error("This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.", debugStep.filename, debugStep.lineNumber);
+                        utils.error(`This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.`, debugStep.filename, debugStep.lineNumber);
                     }
                     else {
                         branches.splice(i, 1); // remove this branch
@@ -1127,7 +1127,7 @@ class Tree {
                 else {
                     if(branch.isDebug) {
                         let debugStep = findIdentifierDepth(branch, '~').step;
-                        utils.error("This step contains a ~, but is not above the frequency allowed to run (" + minFrequency + "). Either set its frequency higher or remove the ~.", debugStep.filename, debugStep.lineNumber);
+                        utils.error(`This step contains a ~, but is not above the frequency allowed to run (${minFrequency}). Either set its frequency higher or remove the ~.`, debugStep.filename, debugStep.lineNumber);
                     }
                     else {
                         branches.splice(i, 1); // remove this branch
@@ -1234,7 +1234,7 @@ class Tree {
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
                 if(this.latestBranchifiedStep) {
-                    utils.error("Infinite loop detected", this.latestBranchifiedStep.filename, this.latestBranchifiedStep.lineNumber);
+                    utils.error(`Infinite loop detected`, this.latestBranchifiedStep.filename, this.latestBranchifiedStep.lineNumber);
                 }
                 else {
                     throw new Error("Infinite loop detected"); // very rare situation (as this.latestBranchifiedStep is almost always set)
@@ -1293,7 +1293,7 @@ class Tree {
             }
 
             if(!found) {
-                utils.error("Couldn't find the branch with the given hash");
+                utils.error(`Couldn't find the branch with the given hash`);
             }
         }
     }

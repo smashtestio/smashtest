@@ -384,15 +384,15 @@ describe("Branch", function() {
         it("outputs the right text", function() {
             let stepA = new Step();
             stepA.text = "A";
-            stepA.branchIndents = 0;
+            stepA.level = 0;
 
             let stepB = new Step();
             stepB.text = "B";
-            stepB.branchIndents = 1;
+            stepB.level = 1;
 
             let stepC = new Step();
             stepC.text = "C";
-            stepC.branchIndents = 2;
+            stepC.level = 2;
             stepC.isPackaged = true;
 
             let branch = new Branch;

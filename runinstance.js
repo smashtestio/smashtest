@@ -136,7 +136,7 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            console.log("Start:     " + chalk.gray(step.line.trim()) + "     " + (step.filename ? chalk.gray(`[${step.filename}:${step.lineNumber}]`) : ``));
+            console.log(`Start:     ${chalk.gray(step.line.trim())}     ${step.filename ? chalk.gray(`[${step.filename}:${step.lineNumber}]`) : ``}`);
         }
 
         step.timeStarted = new Date();
@@ -175,21 +175,21 @@ class RunInstance {
             if(prevStep) {
                 let prevStepWasACodeBlockFunc = prevStep.isFunctionCall && prevStep.hasCodeBlock();
 
-                // Check change of step.branchIndents between this step and the previous one, push/pop this.localStack accordingly
-                if(step.branchIndents > prevStep.branchIndents) { // NOTE: when step.branchIndents > prevStep.branchIndents, step.branchIndents is always prevStep.branchIndents + 1
+                // Check change of step.level between this step and the previous one, push/pop this.localStack accordingly
+                if(step.level > prevStep.level) { // NOTE: when step.level > prevStep.level, step.level is always prevStep.level + 1
                     if(!prevStepWasACodeBlockFunc) { // if previous step was a code block function, the push was already done
                         // Push existing local let context to stack, create fresh local let context
                         this.pushLocalStack();
                     }
                 }
-                else if(step.branchIndents < prevStep.branchIndents) {
-                    // Pop one local let context for every branchIndents decrement
-                    let diff = prevStep.branchIndents - step.branchIndents;
+                else if(step.level < prevStep.level) {
+                    // Pop one local let context for every level decrement
+                    let diff = prevStep.level - step.level;
                     for(let i = 0; i < diff; i++) {
                         this.popLocalStack();
                     }
                 }
-                else { // step.branchIndents == prevStep.branchIndents
+                else { // step.level == prevStep.level
                     if(prevStepWasACodeBlockFunc) {
                         this.popLocalStack(); // on this step we're stepping out of the code block in the previous step
                     }
@@ -719,7 +719,7 @@ class RunInstance {
         function loadIntoJsVars(header, arr, getter) {
             for(let varname in arr) {
                 if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
-                    header += "var " + varname + " = " + getter + "('" + varname + "');";
+                    header += `var ${varname} = ${getter}('${varname}');`;
                 }
             }
 
@@ -756,7 +756,7 @@ class RunInstance {
                 }
 
                 if(['string', 'boolean', 'number'].indexOf(typeof value) == -1) {
-                    utils.error("The variable " + match + " must be set to a string");
+                    utils.error(`The variable ${match} must be set to a string`);
                 }
 
                 text = text.replace(match, value);
@@ -790,10 +790,10 @@ class RunInstance {
 
         let variableFull = "";
         if(isLocal) {
-            variableFull = "{{" + varname + "}}";
+            variableFull = `{{${varname}}}`;
         }
         else {
-            variableFull = "{" + varname + "}";
+            variableFull = `{${varname}}`;
         }
 
         // Go down the branch looking for {varname}= or {{varname}}=
@@ -806,7 +806,7 @@ class RunInstance {
         let index = branch.steps.indexOf(step);
         for(let i = index; i < branch.steps.length; i++) {
             let s = branch.steps[i];
-            if(isLocal && s.branchIndents < step.branchIndents) {
+            if(isLocal && s.level < step.level) {
                 break; // you cannot look outside a function's scope for a local var
             }
 
@@ -831,7 +831,7 @@ class RunInstance {
                             value = this.replaceVars(value, step, branch); // recursive call, start at original step passed in
                         }
 
-                        this.appendToLog("The value of variable " + variableFull + " is being set by a later step at " + s.filename + ":" + s.lineNumber, step || branch);
+                        this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${s.filename}:${s.lineNumber}`, step || branch);
                         return value;
                     }
                 }
@@ -839,7 +839,7 @@ class RunInstance {
         }
 
         // Not found
-        utils.error("The variable " + variableFull + " is never set, but is needed for this step");
+        utils.error(`The variable ${variableFull} is never set, but is needed for this step`);
     }
 
     /**

@@ -4007,7 +4007,7 @@ Other scope -
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x} = Function (but file.txt:7 is not) [file.txt:2]");
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x}=Function (but file.txt:7 is not) [file.txt:2]");
 
             tree = new Tree();
             tree.parseIn(`
@@ -4024,7 +4024,7 @@ Other scope -
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
-            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x} = Function (but file.txt:6 is not) [file.txt:2]");
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x}=Function (but file.txt:6 is not) [file.txt:2]");
         });
 
         it("rejects function that has a code block, but also has children", function() {
@@ -4095,19 +4095,19 @@ A -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             parent: undefined,
                             children: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             parent: undefined,
                             children: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             parent: undefined,
                             children: undefined
                         }
@@ -4146,34 +4146,34 @@ H -
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "B", branchIndents: 0 },
-                        { text: "C", branchIndents: 0 }
+                        { text: "A", level: 0 },
+                        { text: "B", level: 0 },
+                        { text: "C", level: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "B", branchIndents: 0 },
-                        { text: "D", branchIndents: 0 }
+                        { text: "A", level: 0 },
+                        { text: "B", level: 0 },
+                        { text: "D", level: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "E", branchIndents: 0 }
+                        { text: "A", level: 0 },
+                        { text: "E", level: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "F", branchIndents: 0 },
-                        { text: "G", branchIndents: 0 }
+                        { text: "A", level: 0 },
+                        { text: "F", level: 0 },
+                        { text: "G", level: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "H", branchIndents: 0 }
+                        { text: "H", level: 0 }
                     ]
                 }
             ]);
@@ -4208,35 +4208,35 @@ H -
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "B", branchIndents: 0 },
-                        { text: "C", branchIndents: 0 }
+                        { text: "A", level: 0 },
+                        { text: "B", level: 0 },
+                        { text: "C", level: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "B", branchIndents: 0 },
-                        { text: "D", branchIndents: 0 }
+                        { text: "A", level: 0 },
+                        { text: "B", level: 0 },
+                        { text: "D", level: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "E", branchIndents: 0 },
-                        { text: "G", branchIndents: 0 }
+                        { text: "A", level: 0 },
+                        { text: "E", level: 0 },
+                        { text: "G", level: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0 },
-                        { text: "F", branchIndents: 0 },
-                        { text: "G", branchIndents: 0 }
+                        { text: "A", level: 0 },
+                        { text: "F", level: 0 },
+                        { text: "G", level: 0 }
                     ]
                 },
                 {
                     steps: [
-                        { text: "H", branchIndents: 0 }
+                        { text: "H", level: 0 }
                     ]
                 }
             ]);
@@ -4262,7 +4262,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4298,7 +4298,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4313,7 +4313,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
@@ -4347,7 +4347,7 @@ F -
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: { text: "F" }
                         }
                     ]
@@ -4379,7 +4379,7 @@ F -
                             isDebug: true,
                             isNonParallel: true,
                             isExpectedFail: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 isFunctionCall: true,
@@ -4405,7 +4405,7 @@ F -
                             isDebug: undefined,
                             isNonParallel: undefined,
                             isExpectedFail: undefined,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
@@ -4443,7 +4443,7 @@ F -
                             isDebug: true,
                             isNonParallel: true,
                             isExpectedFail: true,
-                            branchIndents: 0,
+                            level: 0,
                             codeBlock: '\n    code block 1\n    code block 2\n',
                             originalStepInTree: {
                                 text: "F",
@@ -4493,7 +4493,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4508,7 +4508,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
@@ -4520,7 +4520,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "B",
                                 parent: { text: "A" },
@@ -4535,7 +4535,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4550,7 +4550,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "C",
                                 parent: { text: "F" },
@@ -4643,7 +4643,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4657,7 +4657,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
@@ -4669,7 +4669,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "B",
                                 parent: { text: "A" },
@@ -4731,7 +4731,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4745,7 +4745,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
@@ -4757,7 +4757,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "B",
                                 parent: { text: "A" },
@@ -4769,7 +4769,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "C",
                                 parent: { text: "F" },
@@ -4781,7 +4781,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "D",
                                 parent: { text: "C" },
@@ -4819,7 +4819,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4833,7 +4833,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
@@ -4845,7 +4845,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "B",
                                 parent: { text: "A" },
@@ -4857,7 +4857,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "C",
                                 parent: { text: "F" },
@@ -4869,7 +4869,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "D",
                                 parent: { text: "C" },
@@ -4884,7 +4884,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4898,7 +4898,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "E",
                                 parent: { text: "F" },
@@ -4910,7 +4910,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "C",
                                 parent: { text: "F" },
@@ -4922,7 +4922,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "D",
                                 parent: { text: "C" },
@@ -4963,7 +4963,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -4977,7 +4977,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
@@ -4989,7 +4989,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "B",
                                 parent: { text: "A" },
@@ -5001,7 +5001,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "C",
                                 parent: { text: "F" },
@@ -5013,7 +5013,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "D",
                                 parent: { text: "C" },
@@ -5028,7 +5028,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -5042,7 +5042,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "A",
                                 parent: { text: "F" },
@@ -5054,7 +5054,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "B",
                                 parent: { text: "A" },
@@ -5066,7 +5066,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "G",
                                 parent: { text: "F" },
@@ -5081,7 +5081,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -5095,7 +5095,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "E",
                                 parent: { text: "F" },
@@ -5107,7 +5107,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "C",
                                 parent: { text: "F" },
@@ -5119,7 +5119,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "D",
                                 parent: { text: "C" },
@@ -5134,7 +5134,7 @@ F
                             text: "F",
                             isFunctionCall: true,
                             isFunctionDeclaration: undefined,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "F",
                                 parent: { indents: -1 },
@@ -5148,7 +5148,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 1,
+                            level: 1,
                             originalStepInTree: {
                                 text: "E",
                                 parent: { text: "F" },
@@ -5160,7 +5160,7 @@ F
                             isFunctionCall: undefined,
                             isFunctionDeclaration: undefined,
                             isTextualStep: true,
-                            branchIndents: 0,
+                            level: 0,
                             originalStepInTree: {
                                 text: "G",
                                 parent: { text: "F" },
@@ -5207,23 +5207,23 @@ FC
                     steps: [
                         {
                             text: "FA",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "A",
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "FB",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "B1",
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "D",
-                            branchIndents: 0
+                            level: 0
                         },
                     ]
                 },
@@ -5231,23 +5231,23 @@ FC
                     steps: [
                         {
                             text: "FA",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "A",
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "FB",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "B2",
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "D",
-                            branchIndents: 0
+                            level: 0
                         },
                     ]
                 },
@@ -5255,19 +5255,19 @@ FC
                     steps: [
                         {
                             text: "FC",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "FA",
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "A",
-                            branchIndents: 2
+                            level: 2
                         },
                         {
                             text: "C",
-                            branchIndents: 1
+                            level: 1
                         }
                     ]
                 }
@@ -5302,7 +5302,7 @@ FA
                     steps: [
                         {
                             text: "FA",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5310,15 +5310,15 @@ FA
                     steps: [
                         {
                             text: "FA",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "FB",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "B",
-                            branchIndents: 1
+                            level: 1
                         }
                     ]
                 }
@@ -5354,12 +5354,12 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}='1'",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         }
                     ]
                 },
@@ -5368,12 +5368,12 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}='2'",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         }
                     ]
                 },
@@ -5382,12 +5382,12 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}=''",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         }
                     ]
                 },
@@ -5396,12 +5396,12 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}=\"3\"",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         }
                     ]
                 },
@@ -5410,12 +5410,12 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}='4'",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         }
                     ]
                 }
@@ -5452,17 +5452,17 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}='1'",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "G",
                             isFunctionCall: undefined,
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5471,17 +5471,17 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}='2'",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "G",
                             isFunctionCall: undefined,
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5490,17 +5490,17 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}=''",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "G",
                             isFunctionCall: undefined,
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5509,17 +5509,17 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}=\"3\"",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "G",
                             isFunctionCall: undefined,
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5528,17 +5528,17 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "{var}='4'",
                             isFunctionCall: undefined,
-                            branchIndents: 1
+                            level: 1
                         },
                         {
                             text: "G",
                             isFunctionCall: undefined,
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 }
@@ -5565,7 +5565,7 @@ FA
                         {
                             text: "{var} = F",
                             isFunctionCall: true,
-                            branchIndents: 0,
+                            level: 0,
                             codeBlock: '\n    code block\n'
                         }
                     ]
@@ -5784,7 +5784,7 @@ S - ..
 
             assert.throws(() => {
                 tree.branchify(tree.root);
-            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x} = Function (but file.txt:6 is not) [file.txt:2]");
+            }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x}=Function (but file.txt:6 is not) [file.txt:2]");
         });
 
         it("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", function() {
@@ -5808,15 +5808,15 @@ A
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "B",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "C",
-                            branchIndents: 1
+                            level: 1
                         }
                     ]
                 }
@@ -5840,7 +5840,7 @@ C -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5848,7 +5848,7 @@ C -
                     steps: [
                         {
                             text: "B",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5856,7 +5856,7 @@ C -
                     steps: [
                         {
                             text: "C",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 }
@@ -5890,11 +5890,11 @@ C -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "D",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5902,15 +5902,15 @@ C -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "E",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "F",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5918,11 +5918,11 @@ C -
                     steps: [
                         {
                             text: "B",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "D",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5930,15 +5930,15 @@ C -
                     steps: [
                         {
                             text: "B",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "E",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "F",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5946,11 +5946,11 @@ C -
                     steps: [
                         {
                             text: "C",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "D",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -5958,15 +5958,15 @@ C -
                     steps: [
                         {
                             text: "C",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "E",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "F",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 }
@@ -5997,15 +5997,15 @@ B -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "C",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "E",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -6013,15 +6013,15 @@ B -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "D",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "E",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -6029,15 +6029,15 @@ B -
                     steps: [
                         {
                             text: "B",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "C",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "E",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 },
@@ -6045,15 +6045,15 @@ B -
                     steps: [
                         {
                             text: "B",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "D",
-                            branchIndents: 0
+                            level: 0
                         },
                         {
                             text: "E",
-                            branchIndents: 0
+                            level: 0
                         }
                     ]
                 }
@@ -6075,7 +6075,7 @@ A - ..
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         }
                     ]
@@ -6101,22 +6101,22 @@ A - ..
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6152,27 +6152,27 @@ F ..
                     steps: [
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "C",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         }
                     ]
@@ -6223,67 +6223,67 @@ F ..
                     steps: [
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "C",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6317,42 +6317,42 @@ F ..
                     steps: [
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6385,37 +6385,37 @@ F ..
                     steps: [
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6471,82 +6471,82 @@ F ..
                     steps: [
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 2,
+                            level: 2,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 2,
+                            level: 2,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6572,22 +6572,22 @@ S .. -
                     steps: [
                         {
                             text: "S",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6625,37 +6625,37 @@ S .. -
                     steps: [
                         {
                             text: "S",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6714,77 +6714,77 @@ S .. -
                     steps: [
                         {
                             text: "S",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6822,37 +6822,37 @@ S .. -
                     steps: [
                         {
                             text: "S",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6897,57 +6897,57 @@ S .. -
                     steps: [
                         {
                             text: "S",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -6975,32 +6975,32 @@ S .. -
                     steps: [
                         {
                             text: "S",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7028,17 +7028,17 @@ A - ..
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         }
                     ]
@@ -7064,17 +7064,17 @@ C -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7104,12 +7104,12 @@ D -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7118,12 +7118,12 @@ D -
                     steps: [
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7152,27 +7152,27 @@ C -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7203,27 +7203,27 @@ C -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7232,22 +7232,22 @@ C -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7280,32 +7280,32 @@ C
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         }
                     ]
@@ -7335,27 +7335,27 @@ B -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: true
                         },
                         {
                             text: "C",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7386,22 +7386,22 @@ B -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "F",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         }
                     ]
@@ -7465,32 +7465,32 @@ C
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         }
                     ]
@@ -7499,32 +7499,32 @@ C
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "G",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "H",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "K",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         }
                     ]
@@ -7533,27 +7533,27 @@ C
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "J",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "I",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         }
                     ]
@@ -7562,27 +7562,27 @@ C
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "J",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "K",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         }
                     ]
@@ -7730,136 +7730,136 @@ C
             expect(branches).to.containSubsetInOrder([
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "L", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "G", level: 1, isSequential: undefined },
+                        { text: "H", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "I", level: 1, isSequential: undefined },
+                        { text: "L", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "N", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "G", level: 1, isSequential: undefined },
+                        { text: "H", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "I", level: 1, isSequential: undefined },
+                        { text: "M", level: 0, isSequential: undefined },
+                        { text: "N", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "O", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "G", level: 1, isSequential: undefined },
+                        { text: "H", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "I", level: 1, isSequential: undefined },
+                        { text: "M", level: 0, isSequential: undefined },
+                        { text: "O", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "L", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "G", level: 1, isSequential: undefined },
+                        { text: "H", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "K", level: 1, isSequential: undefined },
+                        { text: "L", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "N", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "G", level: 1, isSequential: undefined },
+                        { text: "H", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "K", level: 1, isSequential: undefined },
+                        { text: "M", level: 0, isSequential: undefined },
+                        { text: "N", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "G", branchIndents: 1, isSequential: undefined },
-                        { text: "H", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "O", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "G", level: 1, isSequential: undefined },
+                        { text: "H", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "K", level: 1, isSequential: undefined },
+                        { text: "M", level: 0, isSequential: undefined },
+                        { text: "O", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "L", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "J", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "I", level: 1, isSequential: undefined },
+                        { text: "L", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "N", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "J", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "I", level: 1, isSequential: undefined },
+                        { text: "M", level: 0, isSequential: undefined },
+                        { text: "N", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "I", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "O", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "J", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "I", level: 1, isSequential: undefined },
+                        { text: "M", level: 0, isSequential: undefined },
+                        { text: "O", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "L", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "J", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "K", level: 1, isSequential: undefined },
+                        { text: "L", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "N", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "J", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "K", level: 1, isSequential: undefined },
+                        { text: "M", level: 0, isSequential: undefined },
+                        { text: "N", level: 0, isSequential: undefined }
                     ]
                 },
                 {
                     steps: [
-                        { text: "A", branchIndents: 0, isSequential: undefined },
-                        { text: "J", branchIndents: 1, isSequential: undefined },
-                        { text: "B", branchIndents: 0, isSequential: undefined },
-                        { text: "C", branchIndents: 0, isSequential: undefined },
-                        { text: "K", branchIndents: 1, isSequential: undefined },
-                        { text: "M", branchIndents: 0, isSequential: undefined },
-                        { text: "O", branchIndents: 0, isSequential: undefined }
+                        { text: "A", level: 0, isSequential: undefined },
+                        { text: "J", level: 1, isSequential: undefined },
+                        { text: "B", level: 0, isSequential: undefined },
+                        { text: "C", level: 0, isSequential: undefined },
+                        { text: "K", level: 1, isSequential: undefined },
+                        { text: "M", level: 0, isSequential: undefined },
+                        { text: "O", level: 0, isSequential: undefined }
                     ]
                 }
             ]);
@@ -7885,22 +7885,22 @@ B -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7946,27 +7946,27 @@ B -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "E",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -7975,27 +7975,27 @@ B -
                     steps: [
                         {
                             text: "A",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "B",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "C",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         },
                         {
                             text: "F",
-                            branchIndents: 1,
+                            level: 1,
                             isSequential: undefined
                         },
                         {
                             text: "D",
-                            branchIndents: 0,
+                            level: 0,
                             isSequential: undefined
                         }
                     ]
@@ -8040,7 +8040,7 @@ E -
                 {
                     steps: [ { text: "A" }, { text: "C" } ],
                     beforeEveryBranch: [
-                        { text: "Before Every Branch", branchIndents: 0, codeBlock: "\n            D\n" }
+                        { text: "Before Every Branch", level: 0, codeBlock: "\n            D\n" }
                     ],
                     afterEveryBranch: undefined,
                     beforeEveryStep: undefined,
@@ -8094,7 +8094,7 @@ E -
                     steps: [ { text: "A" }, { text: "C" } ],
                     beforeEveryBranch: undefined,
                     afterEveryBranch: [
-                        { text: "After Every Branch", branchIndents: 0, codeBlock: "\n            D\n" }
+                        { text: "After Every Branch", level: 0, codeBlock: "\n            D\n" }
                     ],
                     beforeEveryStep: undefined,
                     afterEveryStep: undefined
@@ -8127,7 +8127,7 @@ A -
                 {
                     steps: [ { text: "A" } ],
                     beforeEveryBranch: [
-                        { text: "Before Every Branch", branchIndents: 0, codeBlock: "\n" }
+                        { text: "Before Every Branch", level: 0, codeBlock: "\n" }
                     ],
                 }
             ]);
@@ -8151,7 +8151,7 @@ A -
                 {
                     steps: [ { text: "A" } ],
                     afterEveryBranch: [
-                        { text: "After Every Branch", branchIndents: 0, codeBlock: "\n" }
+                        { text: "After Every Branch", level: 0, codeBlock: "\n" }
                     ],
                 }
             ]);
@@ -8183,13 +8183,13 @@ C -
                 {
                     steps: [ { text: "A" } ],
                     beforeEveryBranch: [
-                        { text: "Before Every Branch", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "Before Every Branch", level: 0, codeBlock: "\n    B\n" }
                     ]
                 },
                 {
                     steps: [ { text: "C" } ],
                     beforeEveryBranch: [
-                        { text: "Before Every Branch", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "Before Every Branch", level: 0, codeBlock: "\n    B\n" }
                     ]
                 }
             ]);
@@ -8221,13 +8221,13 @@ C -
                 {
                     steps: [ { text: "A" } ],
                     afterEveryBranch: [
-                        { text: "After  Every branch", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "After  Every branch", level: 0, codeBlock: "\n    B\n" }
                     ]
                 },
                 {
                     steps: [ { text: "C" } ],
                     afterEveryBranch: [
-                        { text: "After  Every branch", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "After  Every branch", level: 0, codeBlock: "\n    B\n" }
                     ]
                 }
             ]);
@@ -8261,13 +8261,13 @@ F
                 {
                     steps: [ { text: "F" }, { text: "A" } ],
                     beforeEveryBranch: [
-                        { text: "Before Every Branch", branchIndents: 0, codeBlock: "\n        C\n" }
+                        { text: "Before Every Branch", level: 0, codeBlock: "\n        C\n" }
                     ]
                 },
                 {
                     steps: [ { text: "F" }, { text: "B" } ],
                     beforeEveryBranch: [
-                        { text: "Before Every Branch", branchIndents: 0, codeBlock: "\n        C\n" }
+                        { text: "Before Every Branch", level: 0, codeBlock: "\n        C\n" }
                     ]
                 }
             ]);
@@ -8301,13 +8301,13 @@ F
                 {
                     steps: [ { text: "F" }, { text: "A" } ],
                     afterEveryBranch: [
-                        { text: "After Every Branch", branchIndents: 0, codeBlock: "\n        C\n" }
+                        { text: "After Every Branch", level: 0, codeBlock: "\n        C\n" }
                     ]
                 },
                 {
                     steps: [ { text: "F" }, { text: "B" } ],
                     afterEveryBranch: [
-                        { text: "After Every Branch", branchIndents: 0, codeBlock: "\n        C\n" }
+                        { text: "After Every Branch", level: 0, codeBlock: "\n        C\n" }
                     ]
                 }
             ]);
@@ -8866,7 +8866,7 @@ E -
                     beforeEveryBranch: undefined,
                     afterEveryBranch: undefined,
                     beforeEveryStep: [
-                        { text: "Before Every Step", branchIndents: 0, codeBlock: "\n            D\n" }
+                        { text: "Before Every Step", level: 0, codeBlock: "\n            D\n" }
                     ],
                     afterEveryStep: undefined
                 },
@@ -8920,7 +8920,7 @@ E -
                     afterEveryBranch: undefined,
                     beforeEveryStep: undefined,
                     afterEveryStep: [
-                        { text: "After Every Step", branchIndents: 0, codeBlock: "\n            D\n" }
+                        { text: "After Every Step", level: 0, codeBlock: "\n            D\n" }
                     ]
                 },
                 {
@@ -8951,7 +8951,7 @@ A -
                 {
                     steps: [ { text: "A" } ],
                     beforeEveryStep: [
-                        { text: "Before Every Step", branchIndents: 0, codeBlock: "\n" }
+                        { text: "Before Every Step", level: 0, codeBlock: "\n" }
                     ],
                 }
             ]);
@@ -8975,7 +8975,7 @@ A -
                 {
                     steps: [ { text: "A" } ],
                     afterEveryStep: [
-                        { text: "After Every Step", branchIndents: 0, codeBlock: "\n" }
+                        { text: "After Every Step", level: 0, codeBlock: "\n" }
                     ],
                 }
             ]);
@@ -9007,13 +9007,13 @@ C -
                 {
                     steps: [ { text: "A" } ],
                     beforeEveryStep: [
-                        { text: "Before Every Step", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "Before Every Step", level: 0, codeBlock: "\n    B\n" }
                     ]
                 },
                 {
                     steps: [ { text: "C" } ],
                     beforeEveryStep: [
-                        { text: "Before Every Step", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "Before Every Step", level: 0, codeBlock: "\n    B\n" }
                     ]
                 }
             ]);
@@ -9045,13 +9045,13 @@ C -
                 {
                     steps: [ { text: "A" } ],
                     afterEveryStep: [
-                        { text: "After Every Step", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "After Every Step", level: 0, codeBlock: "\n    B\n" }
                     ]
                 },
                 {
                     steps: [ { text: "C" } ],
                     afterEveryStep: [
-                        { text: "After Every Step", branchIndents: 0, codeBlock: "\n    B\n" }
+                        { text: "After Every Step", level: 0, codeBlock: "\n    B\n" }
                     ]
                 }
             ]);
@@ -9085,13 +9085,13 @@ F
                 {
                     steps: [ { text: "F" }, { text: "A" } ],
                     beforeEveryStep: [
-                        { text: "Before Every Step", branchIndents: 0, codeBlock: "\n        C\n" }
+                        { text: "Before Every Step", level: 0, codeBlock: "\n        C\n" }
                     ]
                 },
                 {
                     steps: [ { text: "F" }, { text: "B" } ],
                     beforeEveryStep: [
-                        { text: "Before Every Step", branchIndents: 0, codeBlock: "\n        C\n" }
+                        { text: "Before Every Step", level: 0, codeBlock: "\n        C\n" }
                     ]
                 }
             ]);
@@ -9125,13 +9125,13 @@ F
                 {
                     steps: [ { text: "F" }, { text: "A" } ],
                     afterEveryStep: [
-                        { text: "After Every Step", branchIndents: 0, codeBlock: "\n        C\n" }
+                        { text: "After Every Step", level: 0, codeBlock: "\n        C\n" }
                     ]
                 },
                 {
                     steps: [ { text: "F" }, { text: "B" } ],
                     afterEveryStep: [
-                        { text: "After Every Step", branchIndents: 0, codeBlock: "\n        C\n" }
+                        { text: "After Every Step", level: 0, codeBlock: "\n        C\n" }
                     ]
                 }
             ]);
@@ -9674,7 +9674,7 @@ A -
             ]);
 
             expect(tree.beforeEverything).to.containSubsetInOrder([
-                { text: "Before Everything", branchIndents: 0, codeBlock: "\n    B\n" }
+                { text: "Before Everything", level: 0, codeBlock: "\n    B\n" }
             ]);
         });
 
@@ -9701,7 +9701,7 @@ A -
             ]);
 
             expect(tree.afterEverything).to.containSubsetInOrder([
-                { text: "After Everything", branchIndents: 0, codeBlock: "\n    B\n" }
+                { text: "After Everything", level: 0, codeBlock: "\n    B\n" }
             ]);
         });
 
@@ -9717,7 +9717,7 @@ A -
             expect(branches).to.have.lengthOf(0);
 
             expect(tree.beforeEverything).to.containSubsetInOrder([
-                { text: "Before Everything", branchIndents: 0, codeBlock: "\n" }
+                { text: "Before Everything", level: 0, codeBlock: "\n" }
             ]);
         });
 
@@ -9733,7 +9733,7 @@ A -
             expect(branches).to.have.lengthOf(0);
 
             expect(tree.afterEverything).to.containSubsetInOrder([
-                { text: "After Everything", branchIndents: 0, codeBlock: "\n" }
+                { text: "After Everything", level: 0, codeBlock: "\n" }
             ]);
         });
 
@@ -9766,8 +9766,8 @@ A -
             ]);
 
             expect(tree.beforeEverything).to.containSubsetInOrder([
-                { text: "Before Everything", branchIndents: 0, codeBlock: "\n    C\n" },
-                { text: "Before Everything", branchIndents: 0, codeBlock: "\n    B\n" }
+                { text: "Before Everything", level: 0, codeBlock: "\n    C\n" },
+                { text: "Before Everything", level: 0, codeBlock: "\n    B\n" }
             ]);
         });
 
@@ -9798,8 +9798,8 @@ A -
             ]);
 
             expect(tree.afterEverything).to.containSubsetInOrder([
-                { text: "After Everything", branchIndents: 0, codeBlock: "\n    B\n" },
-                { text: "After Everything", branchIndents: 0, codeBlock: "\n    C\n" }
+                { text: "After Everything", level: 0, codeBlock: "\n    B\n" },
+                { text: "After Everything", level: 0, codeBlock: "\n    C\n" }
             ]);
         });
 

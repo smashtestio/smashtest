@@ -16,7 +16,7 @@
 
         <style>
             body {
-                background-color: black;
+                background-color: rgb(30,30,30);
                 color: white;
                 font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
                 margin: 0;
@@ -54,7 +54,7 @@
             .preview-pane {
                 right: 0;
                 padding: 10px 14px;
-                background-color: rgb(40,40,40);
+                background-color: rgb(45,45,45);
             }
 
             .tree-header {
@@ -89,11 +89,11 @@
             }
 
             .branch.active {
-                background-color: rgb(40,40,40);
+                background-color: rgb(45,45,45);
             }
 
             .branch.hover {
-                background-color: rgb(40,40,40);
+                background-color: rgb(45,45,45);
                 /*background-color: rgb(70,70,70);*/
             }
 
@@ -167,11 +167,11 @@
             }
 
             .line.active {
-                background-color: rgb(40,40,40);
+                background-color: rgb(45,45,45);
             }
 
             .line:hover {
-                background-color: rgb(40,40,40);
+                background-color: rgb(45,45,45);
                 /*background-color: rgb(70,70,70);*/
             }
 
@@ -419,7 +419,7 @@
             };
 
             function wrapTippyContent(content) {
-                return "<span class='tooltip-text'>" + content + "</span>";
+                return `<span class='tooltip-text'>${content}</span>`;
             }
 
             function attachPreviewPaneTooltips() {
@@ -623,7 +623,7 @@
                 let elapsedText = "";
                 let elapsed = props.data.tree.elapsed;
                 if(typeof elapsed != undefined && elapsed != -1) {
-                    elapsedText = "(" + formatElapsed(elapsed) + ")";
+                    elapsedText = `(${formatElapsed(elapsed)})`;
                 }
 
                 let anyFailed = false;
@@ -728,7 +728,7 @@
 
                 render() {
                     let percentageText = (Math.floor(this.props.decimal * 100)) + "%";
-                    let filledBarClass = "filled-bar " + (this.props.paused ? "paused" : "");
+                    let filledBarClass = `filled-bar ${this.props.paused ? "paused" : ""}`;
                     return (
                         <div className="progress-bar tree-header-item">
                             <div className={filledBarClass} style={ {width: percentageText} } ref={(elem) => {this.filledBar = elem} }>
@@ -1024,7 +1024,7 @@
                             {error}
                         </span>
                     );
-                    lineElem = this.surroundByVerticalLineContainers(lineElem, this.props.step.branchIndents);
+                    lineElem = this.surroundByVerticalLineContainers(lineElem, this.props.step.level);
 
                     let lineClassName = "line ";
                     if(this.props.previewedItem === this) {
@@ -1128,10 +1128,10 @@
                 let elapsedText = "";
                 let elapsed = previewedItem.elapsed;
                 if(typeof elapsed != "undefined" && elapsed != -1) {
-                    elapsedText = "(" + formatElapsed(elapsed) + ")";
+                    elapsedText = `(${formatElapsed(elapsed)})`;
                 }
 
-                let className = "pane preview-pane " + (isBranch ? "branch-preview" : "step-preview");
+                let className = `pane preview-pane ${isBranch ? "branch-preview" : "step-preview"}`;
 
                 let previewedItemText = "";
                 if(isBranch) {
@@ -1171,7 +1171,7 @@
                         <div className="msg updates-paused">
                             {
                                 props.live ?
-                                "Live updates are paused. Unselect this " + (isBranch ? "branch" : "step") + " to resume live updates." :
+                                `Live updates are paused. Unselect this ${isBranch ? "branch" : "step"} to resume live updates.` :
                                 ""
                             }
                         </div>
