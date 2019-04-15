@@ -94,6 +94,9 @@
     var screenshot = document.querySelector(".screenshot.active");
     var toggle = document.querySelector(".screenshot-toggle");
 
+    var beforeUrl = "samplescreenshot1.png";
+    var afterUrl = "samplescreenshot2.png";
+
     screenshot.onclick = function() {
         modal.style.display = "block";
         modal.scrollTop = 0;
@@ -106,13 +109,28 @@
 
     toggle.onclick = function() {
         if(toggle.classList.contains("active")) {
-            screenshot.src = "samplescreenshot2.png";
-            toggle.classList.remove("active");
+            setAfter();
         }
         else {
-            screenshot.src = "samplescreenshot1.png";
-            toggle.classList.add("active");
+            setBefore();
         }
+    }
 
+    window.onUpArrowDown = function() {
+        setBefore();
+    }
+
+    window.onUpArrowUp = function() {
+        setAfter();
+    }
+
+    function setBefore() {
+        screenshot.src = beforeUrl;
+        toggle.classList.add("active");
+    }
+
+    function setAfter() {
+        screenshot.src = afterUrl;
+        toggle.classList.remove("active");
     }
 </script>

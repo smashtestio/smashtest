@@ -225,6 +225,13 @@
                 font-size: 12px;
             }
 
+            .tooltip-text.keystrokes {
+                text-align: left;
+                padding: 5px;
+                white-space: pre;
+                line-height: 1.7;
+            }
+
             .tree-header-item {
                 margin-bottom: 5px;
             }
@@ -383,6 +390,7 @@
             .preview-pane .commandline-hint {
                 margin-left: 20px;
                 font-size: 12px;
+                cursor: pointer;
             }
 
             .step-report {
@@ -405,6 +413,56 @@
                 font-size: 13px;
                 margin-left: 20px;
             }
+
+            #notification {
+                visibility: hidden;
+                position: fixed;
+                text-align: center;
+                top: 30px;
+                left: 0;
+                right: 0;
+                z-index: 4;
+            }
+
+            #notification .notification-text {
+                min-width: 250px;
+                background-color: #333;
+                color: #fff;
+                border-radius: 2px;
+                padding: 16px;
+                font-size: 17px;
+                border-radius: 5px;
+            }
+
+            #notification .notification-text .copied-text {
+                color: rgb(180,180,180);
+            }
+
+            #notification.show {
+                visibility: visible;
+                -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+                animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            }
+
+            @-webkit-keyframes fadein {
+                from {top: 0; opacity: 0;}
+                to {top: 30px; opacity: 1;}
+            }
+
+            @keyframes fadein {
+                from {top: 0; opacity: 0;}
+                to {top: 30px; opacity: 1;}
+            }
+
+            @-webkit-keyframes fadeout {
+                from {top: 30px; opacity: 1;}
+                to {top: 0; opacity: 0;}
+            }
+
+            @keyframes fadeout {
+                from {top: 30px; opacity: 1;}
+                to {top: 0; opacity: 0;}
+            }
         </style>
     </head>
     <body>
@@ -426,12 +484,27 @@
                 return `<span class='tooltip-text'>${content}</span>`;
             }
 
+            function wrapTippyContentForKeystrokes(content) {
+                return `<div class='tooltip-text keystrokes'>${content.trim()}</div>`;
+            }
+
             function attachPreviewPaneTooltips() {
                 tippyOptions.content = wrapTippyContent("This step passed, but was<br>expected to fail (#)");
                 tippy(".preview-pane .pill.unexpected", tippyOptions);
 
                 tippyOptions.content = wrapTippyContent("This step failed,<br>as was expected (#)");
                 tippy(".preview-pane .pill.expected", tippyOptions);
+
+                tippyOptions.content = wrapTippyContentForKeystrokes(`
+left  = previous step
+right = next step
+up    = toggle before/after
+h     = copy hash
+c     = copy debug command 'smashtest filename -d=hash'
+                `);
+                let tippyOptionsKeystrokes = Object.assign({}, tippyOptions);
+                Object.assign(tippyOptionsKeystrokes, { followCursor: false, placement: "bottom", maxWidth: 1000 } );
+                tippy(".preview-pane .commandline-hint", tippyOptionsKeystrokes);
             }
 
             function attachTreePaneTooltips() {
@@ -466,6 +539,7 @@
                 constructor() {
                     super();
 
+                    // State
                     this.state = {
                         tree: null,
                         runner: null,
@@ -476,6 +550,9 @@
                     };
                     this.preState = null;
                     this.slowPoll = false;
+
+                    // App's DOM element
+                    this.me = null;
 
                     // Parse in tree
                     let treeContent = document.querySelector("meta[name=tree]").getAttribute("content");
@@ -497,10 +574,16 @@
                     // Parse in domain
                     this.state.domain = document.querySelector("meta[name=domain]").getAttribute("content");
 
+                    // Bindings
                     this.setUpdateLoop = this.setUpdateLoop.bind(this);
                     this.updateData = this.updateData.bind(this);
                     this.updateState = this.updateState.bind(this);
                     this.setPreview = this.setPreview.bind(this);
+                    this.handleKeyDown = this.handleKeyDown.bind(this);
+                    this.handleKeyUp = this.handleKeyUp.bind(this);
+                    this.isModifierActive = this.isModifierActive.bind(this);
+                    this.showNotification = this.showNotification.bind(this);
+                    this.copyToClipboard = this.copyToClipboard.bind(this);
                 }
 
                 componentDidMount() {
@@ -512,6 +595,8 @@
                             live: false
                         });
                     }
+
+                    this.me.focus(); // focus on myself, so I can start getting keyboard commands
                 }
 
                 setUpdateLoop() {
@@ -599,9 +684,121 @@
                     });
                 }
 
+                handleKeyDown(event) {
+                    if(this.isModifierActive(event)) {
+                        return;
+                    }
+
+                    let charCode = event.keyCode || event.which;
+                    let charStr = String.fromCharCode(charCode);
+
+                    if(charCode == '37') { // left arrow
+                        let [lines, activeIndex] = getActiveIndex();
+                        let prevIndex = activeIndex - 1;
+                        if(activeIndex != -1 && prevIndex >= 0) {
+                            lines[prevIndex].click();
+                        }
+                    }
+                    else if(charCode == '39') { // right arrow
+                        let [lines, activeIndex] = getActiveIndex();
+                        let nextIndex = activeIndex + 1;
+                        if(activeIndex != -1 && nextIndex < lines.length) {
+                            lines[nextIndex].click();
+                        }
+                    }
+                    else if(charCode == '38') { // up arrow
+                        if(window.onUpArrowDown) {
+                            window.onUpArrowDown();
+                        }
+                    }
+                    else if(charStr == 'H') {
+                        if(this.state.previewedItem) {
+                            let hash = this.state.previewedItem.props.branch.hash;
+                            this.copyToClipboard(hash);
+                            this.showNotification(`Copied <span class="copied-text">${hash}</span> to clipboard`);
+                        }
+                    }
+                    else if(charStr == 'C') {
+                        if(this.state.previewedItem) {
+                            let hash = this.state.previewedItem.props.branch.hash;
+                            let matches = window.location.href.match(/\/([^\/]+)$/);
+                            if(matches) {
+                                let filename = matches[1];
+                                let command = `smashtest ${filename} -d=${hash}`
+                                this.copyToClipboard(command);
+                                this.showNotification(`Copied  <span class="copied-text">${command}</span> to clipboard`);
+                            }
+                        }
+                    }
+
+                    function getActiveIndex() {
+                        let lines = document.querySelectorAll(".line");
+                        for(let i = 0; i < lines.length; i++) {
+                            let line = lines[i];
+                            if(line.classList.contains("active")) {
+                                return [lines, i];
+                            }
+                        }
+
+                        return [lines, -1];
+                    }
+                }
+
+                handleKeyUp(event) {
+                    if(this.isModifierActive(event)) {
+                        return;
+                    }
+
+                    let charCode = event.keyCode || event.which;
+
+                    if(charCode == '38') { // up arrow
+                        if(window.onUpArrowUp) {
+                            window.onUpArrowUp();
+                        }
+                    }
+                }
+
+                isModifierActive(event) {
+                    return event.getModifierState("Shift") ||
+                        event.getModifierState("Alt") ||
+                        event.getModifierState("Control") ||
+                        event.getModifierState("Meta") ||
+                        event.getModifierState("Fn") ||
+                        event.getModifierState("OS");
+                }
+
+                showNotification(msg) {
+                    const NOTIFICATION_TIMEOUT = 3000; // ms
+                    let notification = document.getElementById("notification");
+                    let notificationText = notification.querySelector(".notification-text");
+                    notificationText.innerHTML = msg;
+                    notification.classList.add("show");
+                    this.me.focus();
+                    setTimeout(() => notification.classList.remove("show"), NOTIFICATION_TIMEOUT);
+                }
+
+                copyToClipboard(text) {
+                    if(document.queryCommandSupported && document.queryCommandSupported("copy")) {
+                        let textarea = document.createElement("textarea");
+                        textarea.textContent = text;
+                        textarea.style.position = "fixed";
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        try {
+                            return document.execCommand("copy");
+                        }
+                        catch (e) {
+                        }
+                        finally {
+                            document.body.removeChild(textarea);
+                        }
+                    }
+                }
+
                 render() {
                     return (
-                        <div className="main">
+                        <div className="main" tabIndex="0" onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp} ref={elem => this.me = elem}>
+                            <div id="notification"><span className="notification-text"></span></div>
                             <TreePane data={this.state} setPreview={this.setPreview}/>
                             <PreviewPane previewedItem={this.state.previewedItem} live={this.state.live}/>
                         </div>
@@ -1169,7 +1366,7 @@
                             {
                                 isBranch ?
                                 "" :
-                                <span>Branch {props.previewedItem.props.branch.hash} <span className="commandline-hint">(to run use smashtest -d=[hash])</span></span>
+                                <span>Branch {props.previewedItem.props.branch.hash} <span className="commandline-hint">Hover here for keystrokes</span></span>
                             }
                         </div>
                         <div className="msg updates-paused">
