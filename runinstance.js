@@ -585,6 +585,27 @@ class RunInstance {
     }
 
     /**
+     * Set/Get a persistent variable
+     */
+    p(varname, value) {
+        return (typeof value != 'undefined' ? this.setPersistent(varname, value) : this.getPersistent(varname));
+    }
+
+    /**
+     * Set/Get a global variable
+     */
+    g(varname, value) {
+        return (typeof value != 'undefined' ? this.setGlobal(varname, value) : this.getGlobal(varname));
+    }
+
+    /**
+     * Set/Get a local variable
+     */
+    l(varname, value) {
+        return (typeof value != 'undefined' ? this.setLocal(varname, value) : this.getLocal(varname));
+    }
+
+    /**
      * @return Text of the current step, or null if there's no current step
      */
     getStepText() {
@@ -658,6 +679,18 @@ class RunInstance {
 
         function setLocal(varname, value) {
             return runInstance.setLocal(varname, value);
+        }
+
+        function p(varname, value) {
+            return runInstance.p(varname, value);
+        }
+
+        function g(varname, value) {
+            return runInstance.g(varname, value);
+        }
+
+        function l(varname, value) {
+            return runInstance.l(varname, value);
         }
 
         function getStepText() {

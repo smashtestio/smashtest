@@ -2327,18 +2327,18 @@ My 'foo' Function 'bar' other text
             let tree = new Tree();
             tree.parseIn(`
 Text {
-    runInstance.one = getPersistent("one");
-    runInstance.two = getGlobal("two");
-    runInstance.three = getLocal("three");
+    runInstance.one = p("one");
+    runInstance.two = g("two");
+    runInstance.three = l("three");
 }
 `, "file.txt");
 
             let runner = new Runner();
             runner.init(tree);
             let runInstance = new RunInstance(runner);
-            runInstance.setPersistent("one", "first");
-            runInstance.setGlobal("two", "second");
-            runInstance.setLocal("three", "third");
+            runInstance.p("one", "first");
+            runInstance.g("two", "second");
+            runInstance.l("three", "third");
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -2354,9 +2354,9 @@ Text {
             let tree = new Tree();
             tree.parseIn(`
 Text {
-    setPersistent("one", "first");
-    setGlobal("two", "second");
-    setLocal("three", "third");
+    p("one", "first");
+    g("two", "second");
+    l("three", "third");
 }
 `, "file.txt");
 
@@ -2366,9 +2366,9 @@ Text {
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(runInstance.getPersistent("one")).to.equal("first");
-            expect(runInstance.getGlobal("two")).to.equal("second");
-            expect(runInstance.getLocal("three")).to.equal("third");
+            expect(runInstance.p("one")).to.equal("first");
+            expect(runInstance.g("two")).to.equal("second");
+            expect(runInstance.l("three")).to.equal("third");
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -2667,9 +2667,9 @@ My 'foobar' function
 {{var1}}='foo'
     Text {
         runInstance.one = var1;
-        runInstance.two = getLocal("var1");
-        runInstance.three = getGlobal("var1");
-        runInstance.four = getPersistent("var1");
+        runInstance.two = l("var1");
+        runInstance.three = g("var1");
+        runInstance.four = p("var1");
     }
 `, "file.txt");
 

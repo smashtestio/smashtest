@@ -267,7 +267,7 @@ Variables
         - {vars} that will be defined later in the branch
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
         - You cannot set a lookahead {var} = Function, where the Function returns async
-        - You cannot set a lookahead var inside a function's code block (via var=something or setGlobal()/setLocal()). Must be {var}='value'.
+        - You cannot set a lookahead var inside a function's code block (via var=something or g()/l()). Must be {var}='value'.
     - Variables are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
         - Case sensitive as js vars and in persistent/global/local though (use the case that was used when declared - though leading and trailing whitespace is ignored too)
     - Pitfalls
@@ -293,18 +293,19 @@ Code blocks
     - Only lines after the { line and before the } count as part of the code block
     - Variables
         - Get
-            - {{var1}} is var1 or getLocal("var1")
-            - {var2} is var2 or getGlobal("var2")
-            - persistent vars persist from branch to branch, for the life of the whole test run and are only accessible via getPersistent("var3")
+            - {{var1}} is var1 or l("var1") or getLocal("var1")
+            - {var2} is var2 or g("var2") or getGlobal("var2")
+            - persistent vars persist from branch to branch, for the life of the whole test run and are only accessible via p("var3") or getPersistent("var3")
             - More on js vars
                 - When persistent, global, and local vars share the same name, the js var will be set according to this precedence: local, global, persistent
                 - Vars whose names have anything but [A-Za-z0-9\-\_\.] won't be converted to js vars
                 - Vars whose names are a reserved js keyword won't be converted to js vars
         - Set
-            - {{var1}} is setLocal("var1", "value") (NOTE: you can't set var1=value as this will not persist past the end of the code block)
-            - {var2} is setGlobal("var2", "value")
-            - persistent vars: setPersistent("var3", "value")
+            - {{var1}} is l("var1", "value") or setLocal("var1", "value") (NOTE: you can't set var1=value as this will not persist past the end of the code block)
+            - {var2} is g("var2", "value") or setGlobal("var2", "value")
+            - persistent vars: p("var3", "value") or setPersistent("var3", "value")
     - JS functions and variables available
+        - l(), g(), p()
         - getLocal(), getGlobal(), getPersistent()
         - setLocal(), setGlobal(), setPersistent()
         - getStepText() - great for when matching first part only
@@ -325,7 +326,7 @@ Code blocks
             - Helps a lot with stack traces. Code blocks are recommended for short snippets of code, 1-5 lines long.
     - Pitfalls
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
-        - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., setLocal(), setGlobal(), setPersistent()) instead.
+        - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., l(), g(), p()) instead.
 
 Sequential execution (..)
     - .. at the end of a step
