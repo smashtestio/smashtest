@@ -153,7 +153,11 @@ function processFlag(name, value) {
 
         case "help":
         case "?":
-            console.log(`Usage: smashtest [test files] [options]
+            console.log(`Usage: smashtest [files] [options]
+
+Files:
+One or more test files to run
+If omitted, all .smash files in the current directory are used
 
 Options:
 --repl or -r                   Open the REPL (drive SmashTEST from command line)
