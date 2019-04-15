@@ -1,34 +1,32 @@
-exports.ElementFinders = {
-    ElementFinder: class ElementFinder {
-        constructor() {
-            this.ordinal = "";      // the ordinal portion, e.g., 1st from [1st 'Login' box next to 'Welcome']
-            this.text = "";         // the text portion, e.g., Login from [1st 'Login' box next to 'Welcome']
-            this.variable = "";     // the variable portion, e.g., box from [1st 'Login' box next to 'Welcome']
-            this.selector = "";     // the variable portion replaced with the corresponding global var's value (which should contain the selector)
-            this.nextTo = "";       // the next to portion, e.g., Welcome from [1st 'Login' box next to 'Welcome']
-        }
-    },
+class ElementFinder {
+    constructor() {
+        this.ordinal = "";      // the ordinal portion, e.g., 1st from [1st 'Login' box next to 'Welcome']
+        this.text = "";         // the text portion, e.g., Login from [1st 'Login' box next to 'Welcome']
+        this.variable = "";     // the variable portion, e.g., box from [1st 'Login' box next to 'Welcome']
+        this.selector = "";     // the variable portion replaced with the corresponding global var's value (which should contain the selector)
+        this.nextTo = "";       // the next to portion, e.g., Welcome from [1st 'Login' box next to 'Welcome']
 
-    // Matches an [ElementFinder] in this format:
-    // [ OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT') ]
-    REGEX: /(?<!(\\\\)*\\)\[\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*\]/g,
+        // Matches an [ElementFinder] in this format:
+        // [ OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT') ]
+        this.REGEX = /(?<!(\\\\)*\\)\[\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*\]/g;
 
-    // Same as ELEMENTFINDER, only matches the whole line
-    REGEX_WHOLE = new RegExp("^\\s*" + this.REGEX.source + "\\s*$"),
+        // Same as ELEMENTFINDER, only matches the whole line
+        this.REGEX_WHOLE = new RegExp("^\\s*" + this.REGEX.source + "\\s*$"),
+    }
 
     /**
      * @return {String} str but with leading/trailing whitespace and quotes removed
      */
-    stripQuotes: function(str) {
+    stripQuotes(str) {
         return str.trim().replace(/^'|^"|'$|"$/g, '');
-    },
+    }
 
     /**
      * Parses text inside brackets into an ElementFinder
      * @param {String} text - The text to parse, with the brackets ([])
      * @return {ElementFinder} The ElementFinder, or null if this is not a valid ElementFinder
      */
-    parseElementFinder: function(name) {
+    static parseElementFinder(name) {
         let matches = name.match(this.REGEX_WHOLE);
         if(matches) {
             let ordinal = (matches[3] || '');
@@ -43,7 +41,7 @@ exports.ElementFinders = {
                 return null; // NOTE: probably unreachable because a "next to" by itself won't get matched by the regex
             }
 
-            let ef = new this.ElementFinder();
+            let ef = new ElementFinder();
 
             if(ordinal) {
                 ef.ordinal = parseInt(ordinal);
@@ -65,4 +63,5 @@ exports.ElementFinders = {
             return null;
         }
     }
-};
+}
+module.exports = ElementFinder;

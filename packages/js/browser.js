@@ -1,4 +1,5 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
+const ElementFinder = require('./elementfinder.js')
 
 class Browser {
     constructor(runInstance) {
@@ -29,18 +30,30 @@ class Browser {
         this.driver = new Builder().forBrowser(name, version, platform).build();
     }
 
-    async get(url) {
+    /**
+     * Navigates the browser to the given url
+     * @param {String} url - The absolute or relative url to navigate to. If relative, uses the browser's current domain.
+     */
+    async nav(url) {
+        // TODO: absolute vs. relative url (for relative, use browser's current domain)
+
+
+
+
         await this.driver.get(url);
-
-
-
-
     }
 
+    /**
+     * @return {Element} The element matching the given finder
+     */
     async element(finder) {
 
 
-        
+
+
+
+
+
     }
 }
 module.exports = Browser;
