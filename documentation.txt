@@ -178,7 +178,6 @@ Functions
             - All function inputs are either {vars}, {{vars}}, 'strings', "strings", or [strings]
             - {{vars}} in a function declaration must all be {{local}}, not {global}
         - Finds closest matching function declaration in the tree (always looking top to bottom among siblings), otherwise looks to packaged functions
-            - Function declaration that ends in * matches any function call that starts with that declaration (extra text at end is ok)
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
             - Show example
     - Declaring
@@ -200,6 +199,17 @@ Functions
             * Navigate to {{url}}
                 Security checks
                     Navigate to {{url}} // call to the generic one
+    - Function declaration that ends in * matches any function call that starts with that declaration (extra text at end is ok)
+        - If you call F * from inside * F *, it will use the function call text that originally matched * F *
+            For example:
+                * Security test each verify
+                    * Verify *
+                        Do security test
+                            Verify *
+
+                Security test each verify
+                    Verify 'link' is visible // this will expand to Do security test, followed by Verify 'link' is visible
+
     - Examples (maybe distribute these among the sections above)
         - Using functions to encapsulate common steps
         - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)

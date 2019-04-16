@@ -557,6 +557,19 @@ class Tree {
         branchAbove = branchAbove.clone();
         branchAbove.steps.push(functionCall);
 
+        // If the functionCall is F *, find out what * was substituted for in branchAbove and use that to replace the *
+        if(functionCall.text.trim().endsWith('*')) {
+            for(let i = branchAbove.steps.length - 2; i >= 0; i--) {
+                let stepAbove = branchAbove.steps[i];
+
+                if(stepAbove.originalStepInTree.functionDeclarationInTree && functionCall.isFunctionMatch(stepAbove.originalStepInTree.functionDeclarationInTree)) {
+                    functionCall = functionCall.cloneForBranch();
+                    functionCall.text = stepAbove.text;
+                    break;
+                }
+            }
+        }
+
         // Go all the way up the tree and find cases where F is being called from within * F (recursion not allowed)
         // Add * F to a list of untouchables
         let untouchables = [];

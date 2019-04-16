@@ -4,7 +4,7 @@ const Constants = require('./constants.js');
 /**
  * @return {String} str but without leading whitespace and quotes ' or ", returns str if there are no quotes
  */
-exports.stripQuotes = function(str) {
+exports.stripQuotes = (str) => {
     if(exports.hasQuotes(str)) {
         return str.trim().replace(/^'|^"|'$|"$|^\[|\]$/g, '');
     }
@@ -16,14 +16,14 @@ exports.stripQuotes = function(str) {
 /**
  * @return {String} str but without {{, }}, {, or }, and then trimmed
  */
-exports.stripBrackets = function(str) {
+exports.stripBrackets = (str) => {
     return str.replace(/^\{\{|\}\}$|^\{|\}$/g, '').trim();
 }
 
 /**
  * @return {Boolean} true if str is in 'quotes' or "quotes", false otherwise
  */
-exports.hasQuotes = function(str) {
+exports.hasQuotes = (str) => {
     return str.trim().match(Constants.STRING_LITERAL_WHOLE) != null;
 }
 
@@ -31,7 +31,7 @@ exports.hasQuotes = function(str) {
  * Throws an Error with the given message, filename, and line number
  * @throws {Error}
  */
-exports.error = function(msg, filename, lineNumber) {
+exports.error = (msg, filename, lineNumber) => {
     if(filename || lineNumber) {
         throw new Error(`${msg} [${filename}:${lineNumber}]`);
     }
@@ -43,14 +43,14 @@ exports.error = function(msg, filename, lineNumber) {
 /**
  * Logs the given object to console
  */
-exports.log = function(obj) {
+exports.log = (obj) => {
     console.log(util.inspect(obj, {depth: null}));
 }
 
 /**
  * @return {String} str, but with html-sensitive chars escaped to html entities
  */
-exports.escapeHtml = function(str) {
+exports.escapeHtml = (str) => {
     return str
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -62,7 +62,7 @@ exports.escapeHtml = function(str) {
 /**
  * @return {String} str, but with html entities unescaped to their actual chars
  */
-exports.unescapeHtml = function(str) {
+exports.unescapeHtml = (str) => {
     return str
         .replace(/&#039;/g, "'")
         .replace(/&quot;/g, "\"")
@@ -74,7 +74,7 @@ exports.unescapeHtml = function(str) {
 /**
  * @return {String} str, but with \\, \', \", \[, and \] unescaped to \, ', ", [, and ] respectively
  */
-exports.unescape = function(str) {
+exports.unescape = (str) => {
     return str
         .replace(/\\\\/g, '\\') // replace \\ with \
         .replace(/\\\'/g, '\'') // replace \' with '
@@ -87,7 +87,7 @@ exports.unescape = function(str) {
  * Prints an array of branches to console
  * @param {Array} Array of Branch to print out
  */
-exports.printBranches = function(branches) {
+exports.printBranches = (branches) => {
     for(let i = 0; i < branches.length; i++) {
         console.log(branches[i].output("Branch " + i));
     }
@@ -96,7 +96,7 @@ exports.printBranches = function(branches) {
 /**
  * @return {String} A random string of characters
  */
-exports.randomId = function() {
+exports.randomId = () => {
     let id = '';
     for(let i = 0; i < 4; i++) {
         id += Math.random().toString(36).substr(2, 34);
@@ -107,13 +107,13 @@ exports.randomId = function() {
 /**
  * @return {String} text, but in a canonical format (trimmed, all lowercase, and all whitespace replaced with a single space)
  */
-exports.canonicalize = function(text) {
+exports.canonicalize = (text) => {
     return text.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 /**
  * @return {String} text, but in a canonical format (trimmed, and all whitespace replaced with a single space)
  */
-exports.keepCaseCanonicalize = function(text) {
+exports.keepCaseCanonicalize = (text) => {
     return text.trim().replace(/\s+/g, ' ');
 }

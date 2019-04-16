@@ -10422,6 +10422,57 @@ Start browser
             expect(branches[0].steps[2].text).to.equal("Nav to page");
             expect(branches[0].steps[3].text).to.equal("Generic nav to page");
         });
+
+        it("handles a function declaration that ends in a *", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My big function
+
+* My big *
+    A -
+
+* My big something
+    B -
+
+* My big function
+    C -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(2);
+
+            expect(branches[0].steps[0].text).to.equal("My big function");
+            expect(branches[0].steps[1].text).to.equal("A");
+        });
+
+        it("handles a function declaration and function call that ends in a *", function() {
+            let tree = new Tree();
+            tree.parseIn(`
+My big function
+
+* My big *
+    A -
+        My big *
+
+* My big something
+    B -
+
+* My big function
+    C -
+            `, "file.txt");
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(1);
+            expect(branches[0].steps).to.have.lengthOf(4);
+
+            expect(branches[0].steps[0].text).to.equal("My big function");
+            expect(branches[0].steps[1].text).to.equal("A");
+            expect(branches[0].steps[2].text).to.equal("My big *");
+            expect(branches[0].steps[3].text).to.equal("C");
+        });
     });
 
     describe("removeUnwantedBranches()", function() {
