@@ -258,6 +258,7 @@ Variables
             - Steps below where {var} is declared will have access to {var}, which includes inside function calls
             - If {var} is declared inside a function, it will be accessible in the caller after the function call step
             - Accessible within Every Branch/Step hooks, for hooks that apply to branches where the var was declared
+            - Recommended to give global vars long, descriptive, specific names so they're easier to read/understand and to avoid unintentional collisions
         - {{var}} is local (internal to the function)
             - Goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
             - A local var is accessible inside the code block of a non-function-call step ( Text {code block} )

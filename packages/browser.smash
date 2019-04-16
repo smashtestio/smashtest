@@ -244,7 +244,7 @@
     }
 
     * Wait {{n}} seconds {
-        // webdriver has a function for this
+        return new Promise(res => setTimeout(res, n * 1000));
     }
 
     // ***************************************
