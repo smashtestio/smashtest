@@ -12229,7 +12229,7 @@ H -
             expect(tree.branches[0].steps).to.have.lengthOf(3);
             expect(tree.branches).to.containSubsetInOrder([
                 {
-                    steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isDebugAfter: true }  ]
+                    steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isAfterDebug: true }  ]
                 }
             ]);
         });

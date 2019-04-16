@@ -1138,8 +1138,8 @@ My 'foo' Function 'bar'
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
 
             expect(tree.branches[0].steps[0].log).to.eql([
-                {text: "Function parameter {{one}} is \"foo\""},
-                {text: "Function parameter {{two}} is \"bar\""}
+                {text: "Function parameter {{one}} is 'foo'"},
+                {text: "Function parameter {{two}} is 'bar'"}
             ]);
         });
 
@@ -1169,9 +1169,9 @@ My 'foo' Function 'bar'
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
 
             expect(tree.branches[0].steps[0].log).to.eql([
-                {text: "Function parameter {{first}} is \"foo\""},
-                {text: "Function parameter {{second}} is \"bar\""},
-                {text: "Function parameter {{third}} is \"blah\""}
+                {text: "Function parameter {{first}} is 'foo'"},
+                {text: "Function parameter {{second}} is 'bar'"},
+                {text: "Function parameter {{third}} is 'blah'"}
             ]);
         });
 
@@ -2039,7 +2039,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
 
             expect(tree.branches[0].steps[0].log).to.eql([
-                {text: "Setting {{var1}} to \"foobar\""},
+                {text: "Setting {{var1}} to 'foobar'"},
             ]);
         });
 
@@ -2136,7 +2136,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
 
-            expect(tree.branches[0].steps[1].log[1]).to.eql( {text: "Setting {var2} to \"foobar blah bleh [something]\""} );
+            expect(tree.branches[0].steps[1].log[1]).to.eql( {text: "Setting {var2} to 'foobar blah bleh [something]'"} );
         });
 
         it("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async () => {

@@ -311,12 +311,11 @@ async function runServer() {
                     utils.error(`Invalid argument: ${arg}`);
                 }
 
-                runner.flags.push(arg);
-
                 let name = matches[1];
                 let value = matches[3];
 
                 processFlag(name, value);
+                runner.flags[name] = value;
             }
             else {
                 filenames.push(arg);

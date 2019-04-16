@@ -12,7 +12,7 @@ class Runner {
         this.tree = null;                // The tree to run (just parsed in)
         this.reporter = null;            // The Reporter to use
 
-        this.flags = [];                 // Array of strings, the flags passed in through the command line (e.g., ['-maxInstances=7', '-noDebug', '-groups="one two"] )
+        this.flags = {};                 // Flags passed in through the command line (e.g., -maxInstances=7 -noDebug -groups="one two" --> {maxInstances: '7', noDebug: '', groups: 'one two'})
 
         this.groups = undefined;         // Only run branches that are a part of one of these groups, no restrictions if this is undefined
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
