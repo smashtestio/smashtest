@@ -11,17 +11,19 @@ const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
 
+// ***************************************
+//  Globals
+// ***************************************
+
+let tree = new Tree();
+let runner = new Runner();
+let reporter = new Reporter(tree, runner);
+
 const yellowChalk = chalk.hex("#ffb347");
 
 console.log("");
 console.log(yellowChalk.bold("SmashTEST 0.1.0 BETA"));
 console.log("");
-
-let filenames = [];
-
-let tree = new Tree();
-let runner = new Runner();
-let reporter = new Reporter(tree, runner);
 
 // ***************************************
 //  Exit and cleanup
@@ -194,7 +196,7 @@ function onError(e) {
 }
 
 /**
- * Returns "es" if count == 1
+ * Returns "es" if count isn't 1
  */
 function plural(count) {
     if(count == 1) {
@@ -261,12 +263,13 @@ async function runServer() {
     });
 }
 
-// ***************************************
-//  Parse inputs and run
-// ***************************************
-
 (async() => {
     try {
+        // ***************************************
+        //  Parse inputs
+        // ***************************************
+
+        let filenames = [];
         let fileBuffers = null;
 
         // Open config file, if there is one
@@ -282,7 +285,6 @@ async function runServer() {
             }
             catch(e) {
                 utils.error("Syntax error in config.json");
-                return;
             }
 
             for(name in config) {
@@ -351,6 +353,10 @@ async function runServer() {
             tree.parseIn(fileBuffers[i], filenames[i], i >= originalFilenamesLength);
         }
 
+        // ***************************************
+        //  Init the runner, build the tree
+        // ***************************************
+
         runner.init(tree, reporter);
 
         if(tree.branches.length == 0 && !runner.repl) {
@@ -388,6 +394,10 @@ async function runServer() {
 
         let elapsed = 0;
         tree.initCounts();
+
+        // ***************************************
+        //  Output initial counts and other messages
+        // ***************************************
 
         /**
          * Outputs a message upon the completion of a run

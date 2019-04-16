@@ -249,6 +249,7 @@ Variables
         - {{var}} is local (internal to the function)
             - Goes out of scope at the end of the function and is not accessible within function calls inside the function declaration
             - A local var is accessible inside the code block of a non-function-call step ( Text {code block} )
+            - Use local whenever possible, to prevent collisions
         - Persistent vars also exist, but are only accessible in code blocks. They persist from branch to branch, for the lifetime of the whole run.
             You shouldn't normally have to use these in your day-to-day testing. Only for advanced, internal stuff.
     - Where to use them (they are replaced with their value)
@@ -279,6 +280,58 @@ Variables
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
         - You cannot set a lookahead {var} = Function, where the Function returns async
         - You cannot set a lookahead var inside a function's code block (via var=something or g()/l()). Must be {var}='value'.
+        - Examples
+            Enter {{text}} into [ 'Login' box ]
+
+                {{text}}='Valid username 1'
+                {{text}}='Valid username 2'
+                {{text}}='Valid username 3'
+
+                    Verify success message
+
+                {{text}}='User that doesn't exist in db'
+                {{text}}='Username that's too long'
+                {{text}}='Username with invalid chars'
+                {{text}}=''
+
+                    Verify error message
+
+            Select {{adults}} and {{children}} from reservations panel
+
+                {{adults}}='[none]'
+                {{adults}}='0'
+
+                    {{children}}='[none]'
+                    {{children}}='0'
+                    {{children}}='1'
+                    {{children}}='8'
+
+                        Verify error
+
+                {{adults}}='1'
+                {{adults}}='8'
+
+                    {{children}}='[none]'
+                    {{children}}='0'
+                    {{children}}='1'
+                    {{children}}='8'
+
+                        Verify {{something}}
+
+            Select {{adults}} and {{children}} from reservations panel
+                Table
+                    Verify {{something}}
+
+                * Table
+
+                    {{adults}}='0'
+                    {{adults}}='1'
+                    {{adults}}='8'
+
+                        {{children}}='0'
+                        {{children}}='1'
+                        {{children}}='8'
+
     - Variables are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
         - Case sensitive as js vars and in persistent/global/local though (use the case that was used when declared - though leading and trailing whitespace is ignored too)
     - Pitfalls
