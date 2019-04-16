@@ -46,50 +46,64 @@ class Browser {
      * @param {String} [platform] - The platform (e.g., linux|mac|windows)
      * @param {Number} [width] - The initial browser width, in pixels
      * @param {Number} [height] - The initial browser height, in pixels
+     * @param {Boolean} [isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging
      * @param {String} [serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      */
-    async open(name, version, platform, width, height, serverUrl) {
-        if(width) {
-            //TODO: see if {browser width} is defined below
-            // if they're not defined, simply don't set dimensions
-
-
-
-
-
+    async open(name, version, platform, width, height, isHeadless, serverUrl) {
+        if(!width) {
+            // See if {browser width} is defined below
+            try {
+                width = parseInt(this.runInstance.findVarValue("browser width", false, this.runInstance.currStep, this.runInstance.currBranch));
+            }
+            catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
         }
 
-        if(height) {
-            //TODO: see if {browser height} is defined below
-            // if they're not defined, simply don't set dimensions
-
-
-
-
-
+        if(!height) {
+            // See if {browser height} is defined below
+            try {
+                height = parseInt(this.runInstance.findVarValue("browser height", false, this.runInstance.currStep, this.runInstance.currBranch));
+            }
+            catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
         }
 
-        // TODO: set this
-        let isHeadless = true;
-
-
+        if(typeof isHeadless == 'undefined') {
+            // Set isHeadless to true, unless we're debugging
+            isHeadless = !this.runInstance.tree.isDebug;
+        }
 
         // Set options for each browser type
         let options = {
             chrome: new chrome.Options(),
             firefox: new firefox.Options()
+
+            // TODO: add other browsers
+
+
+
+
         };
 
         if(isHeadless) {
-            Object.keys(options).forEach(name => {
-                options[name] = options.headless();
-            });
+            options.chrome.headless();
+
+            // TODO: add other browsers
+
+
+
+
+
+
         }
 
         if(width && height) {
-            Object.keys(options).forEach(name => {
-                options[name] = options.windowSize({width, height});
-            });
+            options.chrome.windowSize({width, height});
+
+            // TODO: add other browsers
+
+
+
+
+
         }
 
         let builder = new Builder()
@@ -97,13 +111,21 @@ class Browser {
             .setChromeOptions(options.chrome)
             .setFirefoxOptions(options.firefox);
 
-
-            // TODO: set options for all possible browsers
-
+            // TODO: add other browsers
 
 
 
 
+
+        // If serverUrl isn't set, look to the -seleniumServer flag
+        if(!serverUrl) {
+            // TODO
+
+
+
+
+
+        }
 
         if(serverUrl) {
             builder = builder.usingServer(serverUrl);

@@ -12,23 +12,35 @@
 //  Open browsers
 // ***************************************
 
-* Open Chrome
-    Use browser 'chrome'
+* Open Chrome {
+    g('browser name', 'chrome');
+}
+    Use browser
 
-* Open Firefox
-    Use browser 'firefox'
+* Open Firefox {
+    g('browser name', 'firefox');
+}
+    Use browser
 
-* Open Safari
-    Use browser 'safari'
+* Open Safari {
+    g('browser name', 'safari');
+}
+    Use browser
 
-* Open IE
-    Use browser 'internet explorer'
+* Open IE {
+    g('browser name', 'internet explorer');
+}
+    Use browser
 
-* Open Edge
-    Use browser 'MicrosoftEdge'
+* Open Edge {
+    g('browser name', 'MicrosoftEdge');
+}
+    Use browser
 
-* Use browser functions
-    Use browser '[functions]'
+* Use browser {{name}} {
+    g('browser name', name);
+}
+    Use browser
 
 // ***************************************
 //  Browser-dependent functions
@@ -36,11 +48,12 @@
 
 // Note: functions under Use browser are indented because they're only available after a Use browser call
 
-* Use browser {{name}} {
+* Use browser {
     let Browser = i('./packages/js/browser.js', 'Browser');
     let browser = g('browser', new Browser(runInstance));
 
-    if(name && name != '[functions]') {
+    let name = g('browser name');
+    if(name) {
         await browser.open(name);
     }
 
@@ -81,19 +94,19 @@
         Tablet Portrait
 
     * Tablet Portrait
-        Set dimensions to width='768' height='1024'
+        {browser width}='768', {browser height}='1024'
 
     * Tablet Landscape
-        Set dimensions to width='1024' height='768'
+        {browser width}='1024', {browser height}='768'
 
     * Mobile
         Mobile Portrait
 
     * Mobile Portrait
-        Set dimensions to width='375' height='667'
+        {browser width}='375', {browser height}='667'
 
     * Mobile Landscape
-        Set dimensions to width='667' height='375'
+        {browser width}='667', {browser height}='375'
 
     * Set dimensions to width={{x}} height={{y}} {
 

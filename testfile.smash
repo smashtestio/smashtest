@@ -2,9 +2,8 @@ Browser test -
 
     Open Chrome
 
-        My function '{A} and {{B}}'
-            {A} = "Bob"
-                {{B}} = "sucks"
-                    {C} = "{A} {{B}}"
+        Mobile
 
-        * My function {{text}}
+            One {
+                return new Promise(res => setTimeout(res, 2000));
+            }

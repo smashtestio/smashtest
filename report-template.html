@@ -343,7 +343,7 @@
             }
 
             .logs {
-                padding: 5px 0 20px 30px;
+                padding: 5px 0 20px 20px;
                 color: rgb(110,110,110);
                 font-size: 12px;
             }
@@ -727,13 +727,11 @@ c     = copy debug command 'smashtest filename -d=hash'
                     else if(charStr == 'C') {
                         if(this.state.previewedItem) {
                             let hash = this.state.previewedItem.props.branch.hash;
-                            let matches = window.location.href.match(/\/([^\/]+)$/);
-                            if(matches) {
-                                let filename = matches[1];
-                                let command = `smashtest ${filename} -d=${hash}`
-                                this.copyToClipboard(command);
-                                this.showNotification(`Copied  <span class="copied-text">${command}</span> to clipboard`);
-                            }
+                            //let filename = this.state.previewedItem.props.branch.steps[0].filename;
+                            //let command = `smashtest ${filename} -d=${hash}`;
+                            let command = `smashtest -d=${hash}`;
+                            this.copyToClipboard(command);
+                            this.showNotification(`Copied  <span class="copied-text">${command}</span> to clipboard`);
                         }
                     }
 

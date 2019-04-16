@@ -1308,7 +1308,7 @@ class Tree {
 
                     let lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
                     lastStep.isDebug = true;
-                    lastStep.isDebugAfter = true;
+                    lastStep.isAfterDebug = true;
                     this.isDebug = true;
 
                     found = true;
