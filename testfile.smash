@@ -1,7 +1,9 @@
 Browser test -
 
-    Open Chrome
+    $ Open Chrome
+    Open Firefox
 
         Mobile
+        Desktop
 
             Wait '2' seconds

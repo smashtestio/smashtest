@@ -49,8 +49,8 @@
 // Note: functions under Use browser are indented because they're only available after a Use browser call
 
 * Use browser {
-    let Browser = i('./packages/js/browser.js', 'Browser');
-    let browser = g('browser', new Browser(runInstance));
+    var Browser = i('./packages/js/browser.js', 'Browser');
+    var browser = g('browser', new Browser(runInstance));
 
     let name = g('browser name');
     if(name) {
