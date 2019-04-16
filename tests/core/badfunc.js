@@ -1,4 +1,4 @@
-exports.badFunc = function() {
+exports.badFunc = () => {
     let a = "a";
     let b = "b";
     c; // will throw an exception

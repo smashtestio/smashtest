@@ -11,9 +11,9 @@ const Branch = require('../../branch.js');
 chai.use(chaiSubset);
 chai.use(chaiSubsetInOrder);
 
-describe("Branch", function() {
-    describe("mergeToEnd()", function() {
-        it("merges one branch to the end of another branch", function() {
+describe("Branch", () => {
+    describe("mergeToEnd()", () => {
+        it("merges one branch to the end of another branch", () => {
             let stepA = new Step();
             stepA.text = "A";
 
@@ -56,7 +56,7 @@ describe("Branch", function() {
             });
         });
 
-        it("merges hook arrays", function() {
+        it("merges hook arrays", () => {
             let stepA = new Step();
             stepA.text = "A";
 
@@ -135,8 +135,8 @@ describe("Branch", function() {
         });
     });
 
-    describe("clone()", function() {
-        it("clones an empty branch", function() {
+    describe("clone()", () => {
+        it("clones an empty branch", () => {
             let branch = new Branch();
             let clonedBranch = branch.clone();
 
@@ -166,7 +166,7 @@ describe("Branch", function() {
             expect(branch.steps).to.have.lengthOf(0);
         });
 
-        it("clones a branch with steps", function() {
+        it("clones a branch with steps", () => {
             let stepA = new Step();
             stepA.text = "A";
 
@@ -235,7 +235,7 @@ describe("Branch", function() {
             expect(branch.steps).to.have.lengthOf(2);
         });
 
-        it("clones a branch with all member vars set", function() {
+        it("clones a branch with all member vars set", () => {
             let stepA = new Step();
             stepA.text = "A";
 
@@ -380,8 +380,8 @@ describe("Branch", function() {
         });
     });
 
-    describe("output()", function() {
-        it("outputs the right text", function() {
+    describe("output()", () => {
+        it("outputs the right text", () => {
             let stepA = new Step();
             stepA.text = "A";
             stepA.level = 0;
@@ -406,8 +406,8 @@ describe("Branch", function() {
         });
     });
 
-    describe("equals()", function() {
-        it("finds two empty branches to be equal", function() {
+    describe("equals()", () => {
+        it("finds two empty branches to be equal", () => {
             let branch1 = new Branch();
             let branch2 = new Branch();
 
@@ -415,7 +415,7 @@ describe("Branch", function() {
             expect(branch1.equals(branch2, 1)).to.equal(true);
         });
 
-        it("finds two equal branches to be equal", function() {
+        it("finds two equal branches to be equal", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
             stepA1.identifiers = [ '-' ];
@@ -452,7 +452,7 @@ describe("Branch", function() {
             expect(branch1.equals(branch2, 1)).to.equal(true);
         });
 
-        it("finds two differently-sized branches to be not equal", function() {
+        it("finds two differently-sized branches to be not equal", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
             stepA1.identifiers = [ '-' ];
@@ -484,7 +484,7 @@ describe("Branch", function() {
             expect(branch1.equals(branch2, 4)).to.equal(false);
         });
 
-        it("finds two differently-sized branches to be equal if the first N steps are the same", function() {
+        it("finds two differently-sized branches to be equal if the first N steps are the same", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
             stepA1.identifiers = [ '-' ];
@@ -515,7 +515,7 @@ describe("Branch", function() {
             expect(branch1.equals(branch2, 2)).to.equal(true);
         });
 
-        it("finds two branches with different steps to be not equal", function() {
+        it("finds two branches with different steps to be not equal", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
             stepA1.identifiers = [ '-' ];
@@ -550,7 +550,7 @@ describe("Branch", function() {
             expect(branch1.equals(branch2, 2)).to.equal(false);
         });
 
-        it("finds two branches with different steps to be equal if the first N steps are the same", function() {
+        it("finds two branches with different steps to be equal if the first N steps are the same", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
             stepA1.identifiers = [ '-' ];
@@ -584,7 +584,7 @@ describe("Branch", function() {
             expect(branch1.equals(branch2, 1)).to.equal(true);
         });
 
-        it("finds two branches with the same steps but different code blocks to not be equal", function() {
+        it("finds two branches with the same steps but different code blocks to not be equal", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
             stepA1.codeBlock = "foo";
@@ -617,7 +617,7 @@ describe("Branch", function() {
             expect(branch1.equals(branch2)).to.equal(false);
         });
 
-        it("finds two branches with the same steps and the same code blocks to be equal", function() {
+        it("finds two branches with the same steps and the same code blocks to be equal", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
             stepA1.codeBlock = "foo";
@@ -636,8 +636,8 @@ describe("Branch", function() {
         });
     });
 
-    describe("getHash()", function() {
-        it("generates the hash for the branch", function() {
+    describe("getHash()", () => {
+        it("generates the hash for the branch", () => {
             let stepA = new Step();
             stepA.text = "A";
 
@@ -658,8 +658,8 @@ describe("Branch", function() {
         });
     });
 
-    describe("finishOffBranch()", function() {
-        it("marks a branch passed when all steps passed as expected", function() {
+    describe("finishOffBranch()", () => {
+        it("marks a branch passed when all steps passed as expected", () => {
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
@@ -692,7 +692,7 @@ describe("Branch", function() {
             });
         });
 
-        it("marks a branch passed when all steps passed or failed as expected", function() {
+        it("marks a branch passed when all steps passed or failed as expected", () => {
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
@@ -725,7 +725,7 @@ describe("Branch", function() {
             });
         });
 
-        it("marks a branch failed when one of the steps failed not as expected", function() {
+        it("marks a branch failed when one of the steps failed not as expected", () => {
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
@@ -758,7 +758,7 @@ describe("Branch", function() {
             });
         });
 
-        it("marks a branch failed when one of the steps passed not as expected", function() {
+        it("marks a branch failed when one of the steps passed not as expected", () => {
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;

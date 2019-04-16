@@ -12,18 +12,18 @@ const Step = require('../../step.js');
 chai.use(chaiSubset);
 chai.use(chaiSubsetInOrder);
 
-describe("Tree", function() {
-    describe("numIndents()", function() {
+describe("Tree", () => {
+    describe("numIndents()", () => {
         let tree = new Tree();
 
-        it("counts spaces properly", function() {
+        it("counts spaces properly", () => {
             assert.equal(tree.numIndents('m ', 'file.txt', 10), 0);
             assert.equal(tree.numIndents('blah', 'file.txt', 10), 0);
             assert.equal(tree.numIndents('    blah blah', 'file.txt', 10), 1);
             assert.equal(tree.numIndents('        blah  \t ', 'file.txt', 10), 2);
         });
 
-        it("throws an exception for non-whitespace at the beginning of a step", function() {
+        it("throws an exception for non-whitespace at the beginning of a step", () => {
             assert.throws(() => {
                 tree.numIndents('\tblah', 'file.txt', 10);
             }, "Spaces are the only type of whitespace allowed at the beginning of a step [file.txt:10]");
@@ -33,7 +33,7 @@ describe("Tree", function() {
             }, "Spaces are the only type of whitespace allowed at the beginning of a step [file.txt:10]");
         });
 
-        it("throws an exception for a number of spaces not a multiple of 4", function() {
+        it("throws an exception for a number of spaces not a multiple of 4", () => {
             assert.throws(() => {
                 tree.numIndents(' blah', 'file.txt', 10);
             }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space(s). [file.txt:10]");
@@ -51,7 +51,7 @@ describe("Tree", function() {
             }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 5 space(s). [file.txt:10]");
         });
 
-        it("returns 0 for an empty string or all-whitespace string", function() {
+        it("returns 0 for an empty string or all-whitespace string", () => {
             assert.equal(tree.numIndents('', 'file.txt', 10), 0);
             assert.equal(tree.numIndents(' ', 'file.txt', 10), 0);
             assert.equal(tree.numIndents('  ', 'file.txt', 10), 0);
@@ -60,7 +60,7 @@ describe("Tree", function() {
             assert.equal(tree.numIndents('    \t   ', 'file.txt', 10), 0);
         });
 
-        it("returns 0 for a string that's entirely a comment", function() {
+        it("returns 0 for a string that's entirely a comment", () => {
             assert.equal(tree.numIndents('//', 'file.txt', 10), 0);
             assert.equal(tree.numIndents('// blah', 'file.txt', 10), 0);
             assert.equal(tree.numIndents('//blah', 'file.txt', 10), 0);
@@ -73,10 +73,10 @@ describe("Tree", function() {
         });
     });
 
-    describe("parseLine()", function() {
+    describe("parseLine()", () => {
         let tree = new Tree();
 
-        it("parses a line with a string", function() {
+        it("parses a line with a string", () => {
             let step = tree.parseLine(`Click "Big Red Button"`, "file.txt", 10);
             assert.equal(step.filename, 'file.txt');
             assert.equal(step.lineNumber, 10);
@@ -100,7 +100,7 @@ describe("Tree", function() {
             assert.equal(step.varsList, undefined);
         });
 
-        it("parses a line with multiple strings and whitespace", function() {
+        it("parses a line with multiple strings and whitespace", () => {
             let step = tree.parseLine(`    Click "B\"ig" 'Re\'d' "Button ['he' re]" `, "file.txt", 10);
             assert.equal(step.line, `    Click "B\"ig" 'Re\'d' "Button ['he' re]" `);
             assert.equal(step.text, `Click "B\"ig" 'Re\'d' "Button ['he' re]"`);
@@ -108,7 +108,7 @@ describe("Tree", function() {
             assert.equal(step.codeBlock, undefined);
         });
 
-        it("throws an error if a step only has numbers, periods, or commas", function() {
+        it("throws an error if a step only has numbers, periods, or commas", () => {
             assert.throws(() => {
                 tree.parseLine(`324798`, "file.txt", 10);
             }, "Invalid step name [file.txt:10]");
@@ -122,7 +122,7 @@ describe("Tree", function() {
             }, "Invalid step name [file.txt:10]");
         });
 
-        it("throws an error if a step starts with an identifier followed by no space", function() {
+        it("throws an error if a step starts with an identifier followed by no space", () => {
             assert.throws(() => {
                 tree.parseLine(`$Hello world`, "file.txt", 10);
             }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
@@ -144,7 +144,7 @@ describe("Tree", function() {
             }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
         });
 
-        it("throws an error if a step ends with an identifier with no space before it", function() {
+        it("throws an error if a step ends with an identifier with no space before it", () => {
             assert.throws(() => {
                 tree.parseLine(`Hello world$`, "file.txt", 10);
             }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
@@ -166,7 +166,7 @@ describe("Tree", function() {
             }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
         });
 
-        it("throws an error if a step has the name of a hook", function() {
+        it("throws an error if a step has the name of a hook", () => {
             assert.throws(() => {
                 tree.parseLine(`Before Every Branch`, "file.txt", 10);
             }, "You cannot have a function call with that name. That's reserved for hook function declarations. [file.txt:10]");
@@ -192,7 +192,7 @@ describe("Tree", function() {
             }, "You cannot have a function call with that name. That's reserved for hook function declarations. [file.txt:10]");
         });
 
-        it("throws an error if a hook name is invalid", function() {
+        it("throws an error if a hook name is invalid", () => {
             assert.throws(() => {
                 tree.parseLine(`*** Before`, "file.txt", 10);
             }, "Invalid hook name [file.txt:10]");
@@ -202,7 +202,7 @@ describe("Tree", function() {
             }, "Invalid hook name [file.txt:10]");
         });
 
-        it("does not throw an error if a hook has the right casing and has a code block, regardless of whitespace", function() {
+        it("does not throw an error if a hook has the right casing and has a code block, regardless of whitespace", () => {
             assert.doesNotThrow(() => {
                 tree.parseLine(`* Before  Every   Branch {`, "file.txt", 10);
             });
@@ -228,7 +228,7 @@ describe("Tree", function() {
             });
         });
 
-        it("throws an error if a hook doesn't start a code block", function() {
+        it("throws an error if a hook doesn't start a code block", () => {
             assert.throws(() => {
                 tree.parseLine(`*** Before  Every   Branch`, "file.txt", 10);
             }, "A hook must have a code block [file.txt:10]");
@@ -254,7 +254,7 @@ describe("Tree", function() {
             }, "A hook must have a code block [file.txt:10]");
         });
 
-        it("parses a line with a {variable}", function() {
+        it("parses a line with a {variable}", () => {
             let step = tree.parseLine(`Click {Big Red Button}`, "file.txt", 10);
             assert.equal(step.line, `Click {Big Red Button}`);
             assert.equal(step.text, `Click {Big Red Button}`);
@@ -263,7 +263,7 @@ describe("Tree", function() {
             assert.equal(step.varsBeingSet, undefined);
         });
 
-        it("parses a line with a {{local variable}}", function() {
+        it("parses a line with a {{local variable}}", () => {
             let step = tree.parseLine(`Click {{Big Red Button}}`, "file.txt", 10);
             assert.equal(step.line, `Click {{Big Red Button}}`);
             assert.equal(step.text, `Click {{Big Red Button}}`);
@@ -272,7 +272,7 @@ describe("Tree", function() {
             assert.equal(step.varsBeingSet, undefined);
         });
 
-        it("parses a line with multiple variables and whitespace", function() {
+        it("parses a line with multiple variables and whitespace", () => {
             let step = tree.parseLine(`    Click {{Big}} {Red} 'dazzling' {{Button}} `, "file.txt", 10);
             assert.equal(step.line, `    Click {{Big}} {Red} 'dazzling' {{Button}} `);
             assert.equal(step.text, `Click {{Big}} {Red} 'dazzling' {{Button}}`);
@@ -281,25 +281,25 @@ describe("Tree", function() {
             assert.equal(step.varsBeingSet, undefined);
         });
 
-        it("parses a comment", function() {
+        it("parses a comment", () => {
             let step = tree.parseLine(`Click {Big Red Button} // comment here`, "file.txt", 10);
             assert.equal(step.text, `Click {Big Red Button}`);
             assert.equal(step.comment, '// comment here');
         });
 
-        it("doesn't parse a comment inside single-quotes", function() {
+        it("doesn't parse a comment inside single-quotes", () => {
             let step = tree.parseLine(`Click 'some // ugly \' \\\' comment'  // comment here `, "file.txt", 10);
             assert.equal(step.text, `Click 'some // ugly \' \\\' comment'`);
             assert.equal(step.comment, '// comment here ');
         });
 
-        it("doesn't parse a comment inside double-quotes", function() {
+        it("doesn't parse a comment inside double-quotes", () => {
             let step = tree.parseLine(`Click "some // ugly comment" and "//othercomment \" \\\\"" // comment here `, "file.txt", 10);
             assert.equal(step.text, `Click "some // ugly comment" and "//othercomment \" \\\\""`);
             assert.equal(step.comment, '// comment here ');
         });
 
-        it("parses a line that only consists of a comment", function() {
+        it("parses a line that only consists of a comment", () => {
             let step = tree.parseLine(`// comment here`, "file.txt", 10);
             assert.equal(step.text, ``);
             assert.equal(step.comment, '// comment here');
@@ -309,7 +309,7 @@ describe("Tree", function() {
             assert.equal(step.comment, '// comment here');
         });
 
-        it("parses a function declaration", function() {
+        it("parses a function declaration", () => {
             let step = tree.parseLine(`    * My Function here`, "file.txt", 10);
             assert.equal(step.text, `My Function here`);
             assert.equal(step.isFunctionDeclaration, true);
@@ -321,7 +321,7 @@ describe("Tree", function() {
             assert.equal(step.isFunctionCall, undefined);
         });
 
-        it("throws an error if a function declaration has 'strings'", function() {
+        it("throws an error if a function declaration has 'strings'", () => {
             assert.throws(() => {
                 tree.parseLine(`* Something 'quote' something else`, "file.txt", 10);
             }, "A function declaration cannot have 'strings', \"strings\", or [strings] inside of it [file.txt:10]");
@@ -335,14 +335,14 @@ describe("Tree", function() {
             }, "A function declaration cannot have 'strings', \"strings\", or [strings] inside of it [file.txt:10]");
         });
 
-        it("parses a function call", function() {
+        it("parses a function call", () => {
             let step = tree.parseLine(`    My Function call `, "file.txt", 10);
             assert.equal(step.text, `My Function call`);
             assert.equal(step.isFunctionDeclaration, undefined);
             assert.equal(step.isFunctionCall, true);
         });
 
-        it("throws an error if a textual step is also a function declaration", function() {
+        it("throws an error if a textual step is also a function declaration", () => {
             assert.throws(() => {
                 tree.parseLine(`* Something - +`, "file.txt", 10);
             }, "A function declaration cannot be a textual step (-) as well [file.txt:10]");
@@ -352,32 +352,32 @@ describe("Tree", function() {
             }, "A function declaration cannot be a textual step (-) as well [file.txt:10]");
         });
 
-        it("parses a function declaration with a code block", function() {
+        it("parses a function declaration with a code block", () => {
             let step = tree.parseLine(`* Click {{var}} + { `, "file.txt", 10);
             assert.equal(step.text, `Click {{var}}`);
             assert.equal(step.codeBlock, ' ');
         });
 
-        it("parses a textual step with a code block", function() {
+        it("parses a textual step with a code block", () => {
             let step = tree.parseLine(`Some text + - { `, "file.txt", 10);
             assert.equal(step.text, `Some text`);
             assert.equal(step.codeBlock, ' ');
         });
 
-        it("parses an approved function call with a code block", function() {
+        it("parses an approved function call with a code block", () => {
             let step = tree.parseLine(`Execute  In Browser  + { `, "file.txt", 10);
             assert.equal(step.text, `Execute  In Browser`);
             assert.equal(step.codeBlock, ' ');
         });
 
-        it("parses a code block followed by a comment", function() {
+        it("parses a code block followed by a comment", () => {
             let step = tree.parseLine(`Something here + { // comment here`, "file.txt", 10);
             assert.equal(step.text, `Something here`);
             assert.equal(step.codeBlock, ' // comment here');
             assert.equal(step.comment, undefined);
         });
 
-        it("parses the to-do identifier (-T)", function() {
+        it("parses the to-do identifier (-T)", () => {
             let step = tree.parseLine(`Click {button} -T`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isToDo, true);
@@ -394,7 +394,7 @@ describe("Tree", function() {
             assert.equal(step.isTextualStep, true);
         });
 
-        it("parses the manual identifier (-M)", function() {
+        it("parses the manual identifier (-M)", () => {
             let step = tree.parseLine(`Click {button} -M`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isManual, true);
@@ -406,7 +406,7 @@ describe("Tree", function() {
             assert.equal(step.isTextualStep, true);
         });
 
-        it("parses the textual step identifier (-)", function() {
+        it("parses the textual step identifier (-)", () => {
             let step = tree.parseLine(`Click {button} -`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isTextualStep, true);
@@ -421,7 +421,7 @@ describe("Tree", function() {
             assert.equal(step.isTextualStep, true);
         });
 
-        it("parses the debug identifier (~)", function() {
+        it("parses the debug identifier (~)", () => {
             let step = tree.parseLine(`~ Click {button}`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isDebug, true);
@@ -459,7 +459,7 @@ describe("Tree", function() {
             assert.equal(step.isAfterDebug, true);
         });
 
-        it("parses the only identifier ($)", function() {
+        it("parses the only identifier ($)", () => {
             let step = tree.parseLine(`$ Click {button}`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isOnly, true);
@@ -469,7 +469,7 @@ describe("Tree", function() {
             assert.equal(step.isOnly, true);
         });
 
-        it("parses the non-parallel identifier (+)", function() {
+        it("parses the non-parallel identifier (+)", () => {
             let step = tree.parseLine(`Click {button} +`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isNonParallel, true);
@@ -479,7 +479,7 @@ describe("Tree", function() {
             assert.equal(step.isNonParallel, true);
         });
 
-        it("parses the sequential identifier (..)", function() {
+        it("parses the sequential identifier (..)", () => {
             let step = tree.parseLine(`Click {button} ..`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isSequential, true);
@@ -489,7 +489,7 @@ describe("Tree", function() {
             assert.equal(step.isSequential, true);
         });
 
-        it("parses the expected fail identifier (#)", function() {
+        it("parses the expected fail identifier (#)", () => {
             let step = tree.parseLine(`Click {button} #`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isExpectedFail, true);
@@ -499,13 +499,13 @@ describe("Tree", function() {
             assert.equal(step.isExpectedFail, true);
         });
 
-        it("rejects a hook with an identifier", function() {
+        it("rejects a hook with an identifier", () => {
             assert.throws(() => {
                 tree.parseLine(`$ *** After Every Branch + {`, "file.txt", 10);
             }, "A hook cannot have any identifiers ($) [file.txt:10]");
         });
 
-        it("rejects a hook with a ~", function() {
+        it("rejects a hook with a ~", () => {
             assert.throws(() => {
                 tree.parseLine(`~ *** Before Every Step {`, "file.txt", 10);
             }, "A hook cannot have any identifiers (~) [file.txt:10]");
@@ -515,7 +515,7 @@ describe("Tree", function() {
             }, "A hook cannot have any identifiers (~) [file.txt:10]");
         });
 
-        it("parses {var} = Function", function() {
+        it("parses {var} = Function", () => {
             let step = tree.parseLine(`{var} = Click 'something' {blah}`, "file.txt", 10);
             assert.equal(step.text, `{var} = Click 'something' {blah}`);
             assert.equal(step.isFunctionCall, true);
@@ -527,7 +527,7 @@ describe("Tree", function() {
             assert.deepEqual(step.varsBeingSet, [ {name: "var with spaces", value: "Click 'something' {{blah}}", isLocal: false} ]);
         });
 
-        it("parses {var} = Code Block Function {", function() {
+        it("parses {var} = Code Block Function {", () => {
             let step = tree.parseLine(`{var} = Code Block Function {`, "file.txt", 10);
             assert.equal(step.text, `{var} = Code Block Function`);
             assert.equal(step.isFunctionCall, undefined);
@@ -535,13 +535,13 @@ describe("Tree", function() {
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "Code Block Function", isLocal: false} ]);
         });
 
-        it("rejects {var} = Textual Function -", function() {
+        it("rejects {var} = Textual Function -", () => {
             assert.throws(() => {
                 tree.parseLine(`{var} = Textual Function -`, "file.txt", 10);
             }, "A textual step (ending in -) cannot also start with a {variable} assignment [file.txt:10]");
         });
 
-        it("rejects {var} = only numbers, periods, or commas", function() {
+        it("rejects {var} = only numbers, periods, or commas", () => {
             assert.throws(() => {
                 tree.parseLine(`{var} =324798`, "file.txt", 10);
             }, "{vars} can only be set to 'strings', \"strings\", or [strings] [file.txt:10]");
@@ -555,7 +555,7 @@ describe("Tree", function() {
             }, "{vars} can only be set to 'strings', \"strings\", or [strings] [file.txt:10]");
         });
 
-        it("parses {var} = 'string'", function() {
+        it("parses {var} = 'string'", () => {
             step = tree.parseLine(`{var} = 'foo'`, "file.txt", 10);
             assert.equal(step.text, `{var} = 'foo'`);
             assert.equal(step.isFunctionCall, undefined);
@@ -572,7 +572,7 @@ describe("Tree", function() {
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "[foo]", isLocal: false} ]);
         });
 
-        it("parses {{var}} = Function", function() {
+        it("parses {{var}} = Function", () => {
             let step = tree.parseLine(`{{var}} = Click 'something' [here] { blah }`, "file.txt", 10);
             assert.equal(step.text, `{{var}} = Click 'something' [here] { blah }`);
             assert.equal(step.isFunctionCall, true);
@@ -588,7 +588,7 @@ describe("Tree", function() {
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: `Click 'something \\\\ \'' "something2 \"" [\\'he\\' re] {blah} {{blah2}}`, isLocal: true} ]);
         });
 
-        it("parses {{var}} = 'string'", function() {
+        it("parses {{var}} = 'string'", () => {
             step = tree.parseLine(`{{var}} = 'foo \\\''`, "file.txt", 10);
             assert.equal(step.text, `{{var}} = 'foo \\\''`);
             assert.equal(step.isFunctionCall, undefined);
@@ -605,7 +605,7 @@ describe("Tree", function() {
             assert.deepEqual(step.varsBeingSet, [ {name: "var", value: "[foo 'bar'\\\[\\\]]", isLocal: true} ]);
         });
 
-        it("parses multiple {var} = 'string literal', separated by commas", function() {
+        it("parses multiple {var} = 'string literal', separated by commas", () => {
             let step = tree.parseLine(`{var1} = 'one', {{var2}}='two 2', {var 3}= "three 3",{var4}=[four "4"] +`, "file.txt", 10);
             assert.equal(step.text, `{var1} = 'one', {{var2}}='two 2', {var 3}= "three 3",{var4}=[four "4"]`);
             assert.equal(step.isFunctionCall, undefined);
@@ -617,13 +617,13 @@ describe("Tree", function() {
             ]);
         });
 
-        it("doesn't recognize {vars} with backslashes in their names", function() {
+        it("doesn't recognize {vars} with backslashes in their names", () => {
             let step = tree.parseLine(`{var\\} = Click 'something \\{blah\\}' {foo}`, "file.txt", 10);
             assert.equal(step.text, `{var\\} = Click 'something \\{blah\\}' {foo}`);
             assert.equal(step.varsBeingSet, undefined);
         });
 
-        it("rejects {vars} with only numbers in their names", function() {
+        it("rejects {vars} with only numbers in their names", () => {
             assert.throws(() => {
                 tree.parseLine(`{23} = 'str'`, "file.txt", 10);
             }, "A {variable name} cannot be just numbers [file.txt:10]");
@@ -637,19 +637,19 @@ describe("Tree", function() {
             }, "A {variable name} cannot be just numbers [file.txt:10]");
         });
 
-        it("rejects {Frequency}", function() {
+        it("rejects {Frequency}", () => {
             assert.throws(() => {
                 tree.parseLine(`{Frequency} = 'high'`, "file.txt", 10);
             }, "The {frequency} variable name is special and must be all lowercase [file.txt:10]");
         });
 
-        it("rejects {{frequency}}", function() {
+        it("rejects {{frequency}}", () => {
             assert.throws(() => {
                 tree.parseLine(`{{frequency}} = 'high'`, "file.txt", 10);
             }, "The {frequency} variable is special and cannot be {{frequency}} [file.txt:10]");
         });
 
-        it("rejects {frequency} not set to high/med/low", function() {
+        it("rejects {frequency} not set to high/med/low", () => {
             assert.throws(() => {
                 tree.parseLine(`{frequency} = 'blah'`, "file.txt", 10);
             }, "The {frequency} variable is special and can only be set to 'high', 'med', or 'low' [file.txt:10]");
@@ -659,7 +659,7 @@ describe("Tree", function() {
             }, "The {frequency} variable is special and can only be set to 'high', 'med', or 'low' [file.txt:10]");
         });
 
-        it("parses valid {frequency}", function() {
+        it("parses valid {frequency}", () => {
             assert.doesNotThrow(() => {
                 tree.parseLine(`{frequency} = 'high'`, "file.txt", 10);
             });
@@ -677,19 +677,19 @@ describe("Tree", function() {
             });
         });
 
-        it("rejects {Group}", function() {
+        it("rejects {Group}", () => {
             assert.throws(() => {
                 tree.parseLine(`{Group} = 'foobar'`, "file.txt", 10);
             }, "The {group} variable name is special and must be all lowercase [file.txt:10]");
         });
 
-        it("rejects {{group}}", function() {
+        it("rejects {{group}}", () => {
             assert.throws(() => {
                 tree.parseLine(`{{group}} = 'foobar'`, "file.txt", 10);
             }, "The {group} variable is special and cannot be {{group}} [file.txt:10]");
         });
 
-        it("parses valid {group}", function() {
+        it("parses valid {group}", () => {
             assert.doesNotThrow(() => {
                 tree.parseLine(`{group} = 'foobar'`, "file.txt", 10);
             });
@@ -699,7 +699,7 @@ describe("Tree", function() {
             });
         });
 
-        it("doesn't throw an error when a [bracketed string contains {vars}]", function() {
+        it("doesn't throw an error when a [bracketed string contains {vars}]", () => {
             assert.doesNotThrow(() => {
                 tree.parseLine(`Something [next to '{var}']`, "file.txt", 10);
             });
@@ -713,7 +713,7 @@ describe("Tree", function() {
             });
         });
 
-        it("throws an error when multiple {vars} are set in a line, and one of them is not a 'string literal'", function() {
+        it("throws an error when multiple {vars} are set in a line, and one of them is not a 'string literal'", () => {
             assert.throws(() => {
                 tree.parseLine(`{var1} = 'one', {{var2}}=Some step here, {var 3}= "three 3" +`, "file.txt", 10);
             }, "When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', \"strings\", or [strings] [file.txt:10]");
@@ -723,19 +723,19 @@ describe("Tree", function() {
             }, "When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', \"strings\", or [strings] [file.txt:10]");
         });
 
-        it("throws an error when a function declaration contains {non-local variables}", function() {
+        it("throws an error when a function declaration contains {non-local variables}", () => {
             assert.throws(() => {
                 tree.parseLine(`* Function {one} and {{two}}`, "file.txt", 10);
             }, "All variables in a function declaration must be {{local}} and {one} is not [file.txt:10]");
         });
 
-        it("throws an error when a step sets a variable and is a function declaration", function() {
+        it("throws an error when a step sets a variable and is a function declaration", () => {
             assert.throws(() => {
                 tree.parseLine(`* {{var1}}= Some function`, "file.txt", 10);
             }, "A step setting {variables} cannot start with a \* [file.txt:10]");
         });
 
-        it("returns text set to empty string for empty or all-whitespace lines", function() {
+        it("returns text set to empty string for empty or all-whitespace lines", () => {
             let step = tree.parseLine(``, "file.txt", 10);
             assert.equal(step.text, '');
 
@@ -743,7 +743,7 @@ describe("Tree", function() {
             assert.equal(step.text, '');
         });
 
-        it("returns text set to '..' when the whole line is a sequential identifier (..)", function() {
+        it("returns text set to '..' when the whole line is a sequential identifier (..)", () => {
             let step = tree.parseLine(`..`, "file.txt", 10);
             assert.equal(step.text, '..');
 
@@ -752,8 +752,8 @@ describe("Tree", function() {
         });
     });
 
-    describe("parseIn()", function() {
-        it("parses empty input", function() {
+    describe("parseIn()", () => {
+        it("parses empty input", () => {
             let tree = new Tree();
             tree.parseIn(``, "file.txt");
 
@@ -766,7 +766,7 @@ describe("Tree", function() {
             });
         });
 
-        it("parses all-whitespace input", function() {
+        it("parses all-whitespace input", () => {
             let tree = new Tree();
             tree.parseIn(`
                 `, "file.txt");
@@ -780,7 +780,7 @@ describe("Tree", function() {
             });
         });
 
-        it("parses a normal tree", function() {
+        it("parses a normal tree", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -899,7 +899,7 @@ L`
             });
         });
 
-        it("parses a normal tree with one or more empty lines in the middle", function() {
+        it("parses a normal tree with one or more empty lines in the middle", () => {
             let tree = new Tree();
             tree.parseIn(
 `
@@ -1025,7 +1025,7 @@ L
             });
         });
 
-        it("handles multiple parses into the same tree", function() {
+        it("handles multiple parses into the same tree", () => {
             let tree = new Tree();
 
             tree.parseIn(
@@ -1170,7 +1170,7 @@ H
             });
         });
 
-        it("ignores lines that are fully comments", function() {
+        it("ignores lines that are fully comments", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1273,7 +1273,7 @@ H
             });
         });
 
-        it("sets isPackaged", function() {
+        it("sets isPackaged", () => {
             let tree = new Tree();
 
             tree.parseIn(
@@ -1334,7 +1334,7 @@ H
             });
         });
 
-        it("rejects a first step that is not at indent 0", function() {
+        it("rejects a first step that is not at indent 0", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -1352,7 +1352,7 @@ H
             }, "The first step must have 0 indents [file.txt:2]");
         });
 
-        it("rejects a step that is 2 or more indents ahead of the step above", function() {
+        it("rejects a step that is 2 or more indents ahead of the step above", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -1363,7 +1363,7 @@ H
             }, "You cannot have a step that has 2 or more indents beyond the previous step [file.txt:2]");
         });
 
-        it("parses a step block at the very top", function() {
+        it("parses a step block at the very top", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1424,7 +1424,7 @@ C
             });
         });
 
-        it("parses a step block at the very top, with empty lines above and below", function() {
+        it("parses a step block at the very top, with empty lines above and below", () => {
             let tree = new Tree();
             tree.parseIn(
 `
@@ -1486,7 +1486,7 @@ C
             });
         });
 
-        it("parses a step block in the middle, with empty lines above and below", function() {
+        it("parses a step block in the middle, with empty lines above and below", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1557,7 +1557,7 @@ C
             });
         });
 
-        it("parses a step block in the middle, with only an empty line below", function() {
+        it("parses a step block in the middle, with only an empty line below", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1627,7 +1627,7 @@ C
             });
         });
 
-        it("parses a step block at the very bottom", function() {
+        it("parses a step block at the very bottom", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1687,7 +1687,7 @@ C
             });
         });
 
-        it("parses a step block at the bottom, with an empty line below", function() {
+        it("parses a step block at the bottom, with an empty line below", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1748,7 +1748,7 @@ C
             });
         });
 
-        it("parses a step block with an indented line directly above", function() {
+        it("parses a step block with an indented line directly above", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1806,7 +1806,7 @@ D`
             });
         });
 
-        it("parses a step block with an indented line above", function() {
+        it("parses a step block with an indented line above", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1865,7 +1865,7 @@ D`
             });
         });
 
-        it("recognizes an empty line as the end of a step block", function() {
+        it("recognizes an empty line as the end of a step block", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -1915,7 +1915,7 @@ C`
             });
         });
 
-        it("parses multiple nested step blocks", function() {
+        it("parses multiple nested step blocks", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2003,7 +2003,7 @@ C
             });
         });
 
-        it("rejects a step block containing a function declaration", function() {
+        it("rejects a step block containing a function declaration", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -2014,7 +2014,7 @@ C`
             }, "You cannot have a function declaration within a step block [file.txt:2]");
         });
 
-        it("accepts a step block containing a code block as its last member", function() {
+        it("accepts a step block containing a code block as its last member", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2036,7 +2036,7 @@ C {
             });
         });
 
-        it("rejects a step block with children that doesn't end in an empty line", function() {
+        it("rejects a step block with children that doesn't end in an empty line", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -2048,7 +2048,7 @@ B
             }, "There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line. [file.txt:2]");
         });
 
-        it("doesn't reject a step block that's directly followed by a line indented left of the step block", function() {
+        it("doesn't reject a step block that's directly followed by a line indented left of the step block", () => {
             let tree = new Tree();
             assert.doesNotThrow(() => {
                 tree.parseIn(
@@ -2061,7 +2061,7 @@ D
             });
         });
 
-        it("doesn't reject a step block if it doesn't have children and doesn't end in an empty line", function() {
+        it("doesn't reject a step block if it doesn't have children and doesn't end in an empty line", () => {
             let tree = new Tree();
             assert.doesNotThrow(() => {
                 tree.parseIn(
@@ -2071,7 +2071,7 @@ B`
             });
         });
 
-        it("parses a .. step block with an empty line above it", function() {
+        it("parses a .. step block with an empty line above it", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2134,7 +2134,7 @@ B`
             });
         });
 
-        it("parses a .. step block with no empty line above it", function() {
+        it("parses a .. step block with no empty line above it", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2196,7 +2196,7 @@ B`
             });
         });
 
-        it("parses a .. step block on the first line", function() {
+        it("parses a .. step block on the first line", () => {
             let tree = new Tree();
             tree.parseIn(
 `..
@@ -2249,7 +2249,7 @@ C
             });
         });
 
-        it("parses empty lines followed by a .. step block", function() {
+        it("parses empty lines followed by a .. step block", () => {
             let tree = new Tree();
             tree.parseIn(
 `
@@ -2304,7 +2304,7 @@ C
             });
         });
 
-        it("rejects a step block containing a .. line in the middle", function() {
+        it("rejects a step block containing a .. line in the middle", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -2318,7 +2318,7 @@ D
             }, "You cannot have a .. line at the same indent level as the adjacent line above [file.txt:3]");
         });
 
-        it("rejects a step block containing a .. line at the end", function() {
+        it("rejects a step block containing a .. line at the end", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -2344,7 +2344,7 @@ B
             }, "You cannot have a .. line without anything directly below [file.txt:1]");
         });
 
-        it("rejects a .. line by itself", function() {
+        it("rejects a .. line by itself", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -2359,7 +2359,7 @@ C
             }, "You cannot have a .. line without anything directly below [file.txt:4]");
         });
 
-        it("rejects a .. line that's immediately followed by indented children", function() {
+        it("rejects a .. line that's immediately followed by indented children", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -2371,7 +2371,7 @@ C
             }, "A .. line must be followed by a line at the same indent level [file.txt:1]");
         });
 
-        it("rejects a .. line followed by an invalid step block", function() {
+        it("rejects a .. line followed by an invalid step block", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -2397,7 +2397,7 @@ E
             }, "A .. line must be followed by a step block [file.txt:3]");
         });
 
-        it("rejects two .. lines in a row", function() {
+        it("rejects two .. lines in a row", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -2408,7 +2408,7 @@ E
             }, "You cannot have two .. lines in a row [file.txt:1]");
         });
 
-        it("parses a step block, followed by an indented .. step block", function() {
+        it("parses a step block, followed by an indented .. step block", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2480,7 +2480,7 @@ B
             });
         });
 
-        it("parses a step block, followed by an empty line, followed by an indented .. step block", function() {
+        it("parses a step block, followed by an empty line, followed by an indented .. step block", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2553,7 +2553,7 @@ B
             });
         });
 
-        it("parses a .. step block, followed by an indented .. step block", function() {
+        it("parses a .. step block, followed by an indented .. step block", () => {
             let tree = new Tree();
             tree.parseIn(
 `..
@@ -2626,7 +2626,7 @@ B
             });
         });
 
-        it("parses a .. step block, followed by an empty line, followed by an indented .. step block", function() {
+        it("parses a .. step block, followed by an empty line, followed by an indented .. step block", () => {
             let tree = new Tree();
             tree.parseIn(
 `..
@@ -2700,7 +2700,7 @@ B
             });
         });
 
-        it("parses three levels of step blocks", function() {
+        it("parses three levels of step blocks", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2800,7 +2800,7 @@ B
             });
         });
 
-        it("parses step blocks immediately preceded by a parent, with no empty line in between", function() {
+        it("parses step blocks immediately preceded by a parent, with no empty line in between", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2852,7 +2852,7 @@ B
             });
         });
 
-        it("parses a step block immediately followed by a line that's less indented than the step block", function() {
+        it("parses a step block immediately followed by a line that's less indented than the step block", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2913,7 +2913,7 @@ D
             });
         });
 
-        it("parses a code block", function() {
+        it("parses a code block", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -2970,7 +2970,7 @@ C
             });
         });
 
-        it("parses an empty code block", function() {
+        it("parses an empty code block", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -3025,7 +3025,7 @@ C
             });
         });
 
-        it("parses a code block with siblings", function() {
+        it("parses a code block with siblings", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -3073,7 +3073,7 @@ C
             });
         });
 
-        it("parses a code block with siblings, not separated by an empty line", function() {
+        it("parses a code block with siblings, not separated by an empty line", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -3120,7 +3120,7 @@ C
             });
         });
 
-        it("parses a code block with children", function() {
+        it("parses a code block with children", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -3169,7 +3169,7 @@ C
             });
         });
 
-        it("parses a code block with children, not separated by an empty line", function() {
+        it("parses a code block with children, not separated by an empty line", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -3217,7 +3217,7 @@ C
             });
         });
 
-        it("parses a code block with step blocks as children", function() {
+        it("parses a code block with step blocks as children", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -3283,7 +3283,7 @@ C
             });
         });
 
-        it("parses a code block with a code block as a child", function() {
+        it("parses a code block with a code block as a child", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -3334,7 +3334,7 @@ C
             });
         });
 
-        it("parses a code block with a code block as a child, not separated by an empty line", function() {
+        it("parses a code block with a code block as a child, not separated by an empty line", () => {
             let tree = new Tree();
             tree.parseIn(
 `A
@@ -3383,7 +3383,7 @@ C
             });
         });
 
-        it("rejects a code block that isn't closed", function() {
+        it("rejects a code block that isn't closed", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -3402,7 +3402,7 @@ C
             }, "An unclosed code block was found [file.txt:1]");
         });
 
-        it("rejects a code block with a closing } at the wrong indentation", function() {
+        it("rejects a code block with a closing } at the wrong indentation", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -3425,7 +3425,7 @@ C
             }, "An unclosed code block was found [file.txt:2]");
         });
 
-        it("rejects a step that is directly adjacent to a code block above", function() {
+        it("rejects a step that is directly adjacent to a code block above", () => {
             let tree = new Tree();
             assert.throws(() => {
                 tree.parseIn(
@@ -3438,8 +3438,8 @@ B -
         });
     });
 
-    describe("findFunctionDeclaration()", function() {
-        it("finds the right function when its declaration is a sibling of the function call and is below the function call", function() {
+    describe("findFunctionDeclaration()", () => {
+        it("finds the right function when its declaration is a sibling of the function call and is below the function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3468,7 +3468,7 @@ My function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right function when the declaration is private", function() {
+        it("finds the right function when the declaration is private", () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3498,7 +3498,7 @@ My function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right function when its declaration is a sibling of the function call and is above the function call", function() {
+        it("finds the right function when its declaration is a sibling of the function call and is above the function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 * My function
@@ -3526,7 +3526,7 @@ My function
             expect(functionDeclaration === tree.root.children[0]).to.equal(true);
         });
 
-        it("finds the right function when its declaration is a sibling of a descendant", function() {
+        it("finds the right function when its declaration is a sibling of a descendant", () => {
             let tree = new Tree();
             tree.parseIn(`
 Some parent step -
@@ -3558,7 +3558,7 @@ Some parent step -
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right function even if a step block has to be traversed", function() {
+        it("finds the right function even if a step block has to be traversed", () => {
             let tree = new Tree();
             tree.parseIn(`
 Step block step 1 -
@@ -3592,7 +3592,7 @@ Step block step 2 -
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right function even if declaration has different amounts of whitespace between words", function() {
+        it("finds the right function even if declaration has different amounts of whitespace between words", () => {
             let tree = new Tree();
             tree.parseIn(`
 Some parent step -
@@ -3624,7 +3624,7 @@ Some parent step -
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right function when multiple functions with the same name exist", function() {
+        it("finds the right function when multiple functions with the same name exist", () => {
             let tree = new Tree();
             tree.parseIn(`
 Some parent step -
@@ -3664,7 +3664,7 @@ Some parent step -
             expect(functionDeclaration === tree.root.children[0].children[1]).to.equal(true);
         });
 
-        it("finds the first function declaration when multiple sibling function declarations have the same name", function() {
+        it("finds the first function declaration when multiple sibling function declarations have the same name", () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3696,7 +3696,7 @@ My function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the first function declaration when multiple sibling function declarations match the same name", function() {
+        it("finds the first function declaration when multiple sibling function declarations match the same name", () => {
             let tree = new Tree();
             tree.parseIn(`
 My big function
@@ -3728,7 +3728,7 @@ My big function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the first function declaration, that ends in a *, when multiple sibling function declarations match the same name", function() {
+        it("finds the first function declaration, that ends in a *, when multiple sibling function declarations match the same name", () => {
             let tree = new Tree();
             tree.parseIn(`
 My big function
@@ -3760,7 +3760,7 @@ My big function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right function when a function call contains strings and variables", function() {
+        it("finds the right function when a function call contains strings and variables", () => {
             let tree = new Tree();
             tree.parseIn(`
 One {varA}   two   {{varB}} three [1st 'text' EF]
@@ -3793,7 +3793,7 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
             expect(functionDeclaration === tree.root.children[2]).to.equal(true);
         });
 
-        it("finds the right function when a {var} = Func call contains strings and variables", function() {
+        it("finds the right function when a {var} = Func call contains strings and variables", () => {
             let tree = new Tree();
             tree.parseIn(`
 {varC} = One {varA}   two   {{varB}} three [1st 'text' EF]
@@ -3826,7 +3826,7 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
             expect(functionDeclaration === tree.root.children[2]).to.equal(true);
         });
 
-        it("finds the right function on a {var} = Func code block that returns a value", function() {
+        it("finds the right function on a {var} = Func code block that returns a value", () => {
             let tree = new Tree();
             tree.parseIn(`
 {varC} = One {varA}   two   {{varB}} three [1st 'text' EF]
@@ -3856,7 +3856,7 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
             expect(functionDeclaration === tree.root.children[2]).to.equal(true);
         });
 
-        it("finds the right function when the function call and function declaration match case insensitively", function() {
+        it("finds the right function when the function call and function declaration match case insensitively", () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3879,7 +3879,7 @@ My function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
-        it("rejects function calls that cannot be found", function() {
+        it("rejects function calls that cannot be found", () => {
             let tree = new Tree();
             tree.parseIn(`
 Function that doesn't exist
@@ -3895,7 +3895,7 @@ Function that doesn't exist
             }, "The function 'Function that doesn't exist' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
         });
 
-        it("rejects function calls to functions that were declared in a different scope", function() {
+        it("rejects function calls to functions that were declared in a different scope", () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3930,8 +3930,8 @@ Other scope -
         });
     });
 
-    describe("validateVarSettingFunction()", function() {
-        it("accepts function that has muliple branches in {x}='value' format", function() {
+    describe("validateVarSetting() =>", () => {
+        it("accepts function that has muliple branches in {x}='value' format", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -3949,7 +3949,7 @@ Other scope -
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
-        it("accepts function that has muliple branches in {x}='value' or {x} = Function format and some are step blocks", function() {
+        it("accepts function that has muliple branches in {x}='value' or {x} = Function format and some are step blocks", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -3970,7 +3970,7 @@ Other scope -
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
-        it("accepts function that has a code block", function() {
+        it("accepts function that has a code block", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -3985,7 +3985,7 @@ Other scope -
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(false);
         });
 
-        it("rejects an empty function", function() {
+        it("rejects an empty function", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -4000,7 +4000,7 @@ Other scope -
             }, "You cannot use an empty function [file.txt:2]");
         });
 
-        it("rejects function that doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
+        it("rejects function that doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -4038,7 +4038,7 @@ Other scope -
             }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x}=Function (but file.txt:6 is not) [file.txt:2]");
         });
 
-        it("rejects function that has a code block, but also has children", function() {
+        it("rejects function that has a code block, but also has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -4057,7 +4057,7 @@ Other scope -
             }, "The function called at file.txt:2 has a code block in its declaration (at file.txt:4) but that code block must not have any child steps [file.txt:2]");
         });
 
-        it("rejects function that is in {x}='value' format, but also has children", function() {
+        it("rejects function that is in {x}='value' format, but also has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -4080,8 +4080,8 @@ Other scope -
         });
     });
 
-    describe("branchify()", function() {
-        it("handles an empty tree", function() {
+    describe("branchify()", () => {
+        it("handles an empty tree", () => {
             let tree = new Tree();
             tree.parseIn(``);
 
@@ -4089,7 +4089,7 @@ Other scope -
             expect(branches).to.have.lengthOf(0);
         });
 
-        it("branchifies a textual-step-only tree with one branch", function() {
+        it("branchifies a textual-step-only tree with one branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4127,7 +4127,7 @@ A -
             ]);
         });
 
-        it("branchifies a textual-step-only tree with multiple branches", function() {
+        it("branchifies a textual-step-only tree with multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4190,7 +4190,7 @@ H -
             ]);
         });
 
-        it("branchifies a textual-step-only tree with multiple branches and containing step blocks", function() {
+        it("branchifies a textual-step-only tree with multiple branches and containing step blocks", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4253,7 +4253,7 @@ H -
             ]);
         });
 
-        it("branchifies a function call with no children, whose function declaration has no children", function() {
+        it("branchifies a function call with no children, whose function declaration has no children", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -4288,7 +4288,7 @@ F
             ]);
         });
 
-        it("branchifies a function call with no children, whose function declaration has one branch", function() {
+        it("branchifies a function call with no children, whose function declaration has one branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -4336,7 +4336,7 @@ F
             ]);
         });
 
-        it("doesn't expand a textual step that has the same text as a function declaration", function() {
+        it("doesn't expand a textual step that has the same text as a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 F -
@@ -4366,7 +4366,7 @@ F -
             ]);
         });
 
-        it("properly merges identifiers between function call and function declaration", function() {
+        it("properly merges identifiers between function call and function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ F
@@ -4428,7 +4428,7 @@ F -
             ]);
         });
 
-        it("properly merges identifiers and a code block between function call and function declaration", function() {
+        it("properly merges identifiers and a code block between function call and function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ F
@@ -4480,7 +4480,7 @@ F -
             ]);
         });
 
-        it("branchifies a function call with no children, whose function declaration has multiple branches", function() {
+        it("branchifies a function call with no children, whose function declaration has multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -4573,7 +4573,7 @@ F
             ]);
         });
 
-        it("handles a function declaration as an only child", function() {
+        it("handles a function declaration as an only child", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4593,7 +4593,7 @@ A -
             ]);
         });
 
-        it("handles a function declaration as an only child to a step block", function() {
+        it("handles a function declaration as an only child to a step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4619,7 +4619,7 @@ B -
             ]);
         });
 
-        it("rejects a function call to a child function declaration", function() {
+        it("rejects a function call to a child function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -4632,7 +4632,7 @@ F
             }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
         });
 
-        it("branchifies a function call with children, whose function declaration has no children", function() {
+        it("branchifies a function call with children, whose function declaration has no children", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -4692,7 +4692,7 @@ F
             ]);
         });
 
-        it("branchifies a function call where both the function declaration above, and the function call above, have child function declarations of the same name", function() {
+        it("branchifies a function call where both the function declaration above, and the function call above, have child function declarations of the same name", () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -4718,7 +4718,7 @@ A
             ]);
         });
 
-        it("branchifies a function call with children, whose function declaration has one branch", function() {
+        it("branchifies a function call with children, whose function declaration has one branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -4804,7 +4804,7 @@ F
             ]);
         });
 
-        it("branchifies a function call with children, whose function declaration has multiple branches", function() {
+        it("branchifies a function call with children, whose function declaration has multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -4945,7 +4945,7 @@ F
             ]);
         });
 
-        it("branchifies a function call with multiple branches within a function call with multiple branches", function() {
+        it("branchifies a function call with multiple branches within a function call with multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -5183,7 +5183,7 @@ F
             ]);
         });
 
-        it("branchifies multiple function calls in the tree", function() {
+        it("branchifies multiple function calls in the tree", () => {
             let tree = new Tree();
             tree.parseIn(`
 * FC
@@ -5285,7 +5285,7 @@ FC
             ]);
         });
 
-        it("branchifies a function call declared within a function call", function() {
+        it("branchifies a function call declared within a function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 * FA
@@ -5336,7 +5336,7 @@ FA
             ]);
         });
 
-        it("branchifies {var} = F where F has muliple branches in {x}='value' format", function() {
+        it("branchifies {var} = F where F has muliple branches in {x}='value' format", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -5433,7 +5433,7 @@ FA
             ]);
         });
 
-        it("branchifies {var} = F where it has children and F has muliple branches in {x}='value' format", function() {
+        it("branchifies {var} = F where it has children and F has muliple branches in {x}='value' format", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -5556,7 +5556,7 @@ FA
             ]);
         });
 
-        it("branchifies {var} = F where F has a code block", function() {
+        it("branchifies {var} = F where F has a code block", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -5584,7 +5584,7 @@ FA
             ]);
         });
 
-        it("branchifies {var} = F ..", function() {
+        it("branchifies {var} = F ..", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F ..
@@ -5613,7 +5613,7 @@ FA
             expect(branches[0].steps[8].text).to.equal("A");
         });
 
-        it("branchifies {var} = F under a .. step", function() {
+        it("branchifies {var} = F under a .. step", () => {
             let tree = new Tree();
             tree.parseIn(`
 S - ..
@@ -5645,7 +5645,7 @@ S - ..
             expect(branches[0].steps[9].text).to.equal("A");
         });
 
-        it("branchifies {var} = F .. that has more {var} = F inside of it", function() {
+        it("branchifies {var} = F .. that has more {var} = F inside of it", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F ..
@@ -5694,7 +5694,7 @@ S - ..
             expect(branches[0].steps[16].text).to.equal("{var2}='0'");
         });
 
-        it("branchifies {var} = F that has more {var} = F inside of it", function() {
+        it("branchifies {var} = F that has more {var} = F inside of it", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -5747,7 +5747,7 @@ S - ..
             expect(branches[4].steps[2].text).to.equal("{var2}='0'");
         });
 
-        it("rejects {var} = F if F has a code block, but also has children", function() {
+        it("rejects {var} = F if F has a code block, but also has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -5763,7 +5763,7 @@ S - ..
             }, "The function called at file.txt:2 has a code block in its declaration (at file.txt:4) but that code block must not have any child steps [file.txt:2]");
         });
 
-        it("rejects {var} = F if F is in {x}='value' format, but some of those steps have children", function() {
+        it("rejects {var} = F if F is in {x}='value' format, but some of those steps have children", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -5782,7 +5782,7 @@ S - ..
             }, "The function called at file.txt:2 must not have any steps in its declaration that have children of their own (but file.txt:7 does) [file.txt:2]");
         });
 
-        it("rejects {var} = F if F doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", function() {
+        it("rejects {var} = F if F doesn't have a code block, isn't a code block function, and isn't a branched function in {x}='value' format", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = F
@@ -5798,7 +5798,7 @@ S - ..
             }, "The function called at file.txt:2 must have all steps in its declaration be in format {x}='string' or {x}=Function (but file.txt:6 is not) [file.txt:2]");
         });
 
-        it("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", function() {
+        it("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", () => {
             let tree = new Tree();
             tree.parseIn(`
 * A
@@ -5834,7 +5834,7 @@ A
             ]);
         });
 
-        it("branchifies a step block with no children", function() {
+        it("branchifies a step block with no children", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5874,7 +5874,7 @@ C -
             ]);
         });
 
-        it("branchifies a step block with children", function() {
+        it("branchifies a step block with children", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5984,7 +5984,7 @@ C -
             ]);
         });
 
-        it("branchifies two levels of step blocks", function() {
+        it("branchifies two levels of step blocks", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -6071,7 +6071,7 @@ B -
             ]);
         });
 
-        it("branchifies a .. step with no children", function() {
+        it("branchifies a .. step with no children", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -6094,7 +6094,7 @@ A - ..
             ]);
         });
 
-        it("branchifies a .. step with children", function() {
+        it("branchifies a .. step with children", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -6135,7 +6135,7 @@ A - ..
             ]);
         });
 
-        it("branchifies a .. step that is a function call and has no children", function() {
+        it("branchifies a .. step that is a function call and has no children", () => {
             let tree = new Tree();
             tree.parseIn(`
 F ..
@@ -6191,7 +6191,7 @@ F ..
             ]);
         });
 
-        it("branchifies a .. step that is a function call and has children", function() {
+        it("branchifies a .. step that is a function call and has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 F ..
@@ -6302,7 +6302,7 @@ F ..
             ]);
         });
 
-        it("branchifies a .. step that is a function call, has children, and whose function declaration starts with a ..", function() {
+        it("branchifies a .. step that is a function call, has children, and whose function declaration starts with a ..", () => {
             let tree = new Tree();
             tree.parseIn(`
 F ..
@@ -6371,7 +6371,7 @@ F ..
             ]);
         });
 
-        it("branchifies a .. step that is a function call, has children, and where the function declaration has multiple branches", function() {
+        it("branchifies a .. step that is a function call, has children, and where the function declaration has multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 F ..
@@ -6434,7 +6434,7 @@ F ..
             ]);
         });
 
-        it("branchifies a .. step that is a function call, has children, where the function declaration has a function call", function() {
+        it("branchifies a .. step that is a function call, has children, where the function declaration has a function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 F ..
@@ -6565,7 +6565,7 @@ F ..
             ]);
         });
 
-        it("branchifies a .. step that has a step block as a child", function() {
+        it("branchifies a .. step that has a step block as a child", () => {
             let tree = new Tree();
             tree.parseIn(`
 S .. -
@@ -6606,7 +6606,7 @@ S .. -
             ]);
         });
 
-        it("branchifies a .. step that has a step block as a child, and a single step as its child", function() {
+        it("branchifies a .. step that has a step block as a child, and a single step as its child", () => {
             let tree = new Tree();
             tree.parseIn(`
 S .. -
@@ -6674,7 +6674,7 @@ S .. -
             ]);
         });
 
-        it("branchifies a .. step that has a step block as a child and the step block has function calls as a members", function() {
+        it("branchifies a .. step that has a step block as a child and the step block has function calls as a members", () => {
             let tree = new Tree();
             tree.parseIn(`
 S .. -
@@ -6803,7 +6803,7 @@ S .. -
             ]);
         });
 
-        it("branchifies a .. step that has a step block as a child, and another step block as its child", function() {
+        it("branchifies a .. step that has a step block as a child, and another step block as its child", () => {
             let tree = new Tree();
             tree.parseIn(`
 S .. -
@@ -6871,7 +6871,7 @@ S .. -
             ]);
         });
 
-        it("branchifies a .. step that has a step block as a child, and another step block as its child, and another step as its child", function() {
+        it("branchifies a .. step that has a step block as a child, and another step block as its child, and another step as its child", () => {
             let tree = new Tree();
             tree.parseIn(`
 S .. -
@@ -6966,7 +6966,7 @@ S .. -
             ]);
         });
 
-        it("branchifies a .. step that has other .. steps as children", function() {
+        it("branchifies a .. step that has other .. steps as children", () => {
             let tree = new Tree();
             tree.parseIn(`
 S .. -
@@ -7019,7 +7019,7 @@ S .. -
             ]);
         });
 
-        it("branchifies a function declaration under a .. step", function() {
+        it("branchifies a function declaration under a .. step", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -7057,7 +7057,7 @@ A - ..
             ]);
         });
 
-        it("branchifies a .. step block with no children", function() {
+        it("branchifies a .. step block with no children", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7093,7 +7093,7 @@ C -
             ]);
         });
 
-        it("branchifies a two .. step blocks with no children", function() {
+        it("branchifies a two .. step blocks with no children", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7142,7 +7142,7 @@ D -
             ]);
         });
 
-        it("branchifies a .. step block with a single branch of children", function() {
+        it("branchifies a .. step block with a single branch of children", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7191,7 +7191,7 @@ C -
             ]);
         });
 
-        it("branchifies a .. step block with multiple branches of children", function() {
+        it("branchifies a .. step block with multiple branches of children", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7266,7 +7266,7 @@ C -
             ]);
         });
 
-        it("branchifies a .. step block that contains function calls, where each function call has a single branch", function() {
+        it("branchifies a .. step block that contains function calls, where each function call has a single branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7324,7 +7324,7 @@ C
             ]);
         });
 
-        it("branchifies a .. step block that contains a function call, whose function declaration starts with a ..", function() {
+        it("branchifies a .. step block that contains a function call, whose function declaration starts with a ..", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7374,7 +7374,7 @@ B -
             ]);
         });
 
-        it("branchifies a function declaration under a .. step block", function() {
+        it("branchifies a function declaration under a .. step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7420,7 +7420,7 @@ B -
             ]);
         });
 
-        it("branchifies a .. step block that contains function calls, where each function declaration has multiple branches", function() {
+        it("branchifies a .. step block that contains function calls, where each function declaration has multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7601,7 +7601,7 @@ C
             ]);
         });
 
-        it("branchifies a .. step block that contains function calls and multiple branches of children, where each function declaration has multiple branches", function() {
+        it("branchifies a .. step block that contains function calls and multiple branches of children, where each function declaration has multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7876,7 +7876,7 @@ C
             ]);
         });
 
-        it("branchifies a .. step that contains a .. step block", function() {
+        it("branchifies a .. step that contains a .. step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -7919,7 +7919,7 @@ B -
             ]);
         });
 
-        it("branchifies a .. step that contains a .. step block that contains a function call, whose function declaration has multiple branches", function() {
+        it("branchifies a .. step that contains a .. step block that contains a function call, whose function declaration has multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -8014,7 +8014,7 @@ B -
             ]);
         });
 
-        it("branchifies the *** Before Every Branch hook", function() {
+        it("branchifies the *** Before Every Branch hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8067,7 +8067,7 @@ E -
             ]);
         });
 
-        it("branchifies the *** After Every Branch hook", function() {
+        it("branchifies the *** After Every Branch hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8120,7 +8120,7 @@ E -
             ]);
         });
 
-        it("branchifies an empty *** Before Every Branch hook", function() {
+        it("branchifies an empty *** Before Every Branch hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8144,7 +8144,7 @@ A -
             ]);
         });
 
-        it("branchifies an empty *** After Every Branch hook", function() {
+        it("branchifies an empty *** After Every Branch hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8168,7 +8168,7 @@ A -
             ]);
         });
 
-        it("branchifies the *** Before Every Branch hook under the root", function() {
+        it("branchifies the *** Before Every Branch hook under the root", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8206,7 +8206,7 @@ C -
             ]);
         });
 
-        it("branchifies the *** After Every Branch hook under the root", function() {
+        it("branchifies the *** After Every Branch hook under the root", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8244,7 +8244,7 @@ C -
             ]);
         });
 
-        it("branchifies the *** Before Every Branch hook when it's inside a function declaration", function() {
+        it("branchifies the *** Before Every Branch hook when it's inside a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -8284,7 +8284,7 @@ F
             ]);
         });
 
-        it("branchifies the *** After Every Branch hook when it's inside a function declaration", function() {
+        it("branchifies the *** After Every Branch hook when it's inside a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -8324,7 +8324,7 @@ F
             ]);
         });
 
-        it("branchifies the *** After Every Branch hook when it's inside an empty function declaration", function() {
+        it("branchifies the *** After Every Branch hook when it's inside an empty function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -8351,7 +8351,7 @@ F
             ]);
         });
 
-        it("branchifies the *** Before Every Branch hook under a step block", function() {
+        it("branchifies the *** Before Every Branch hook under a step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8397,7 +8397,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** After Every Branch hook under a step block", function() {
+        it("branchifies the *** After Every Branch hook under a step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8443,7 +8443,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** Before Every Branch hook under a .. step", function() {
+        it("branchifies the *** Before Every Branch hook under a .. step", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -8482,7 +8482,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** After Every Branch hook under a .. step", function() {
+        it("branchifies the *** After Every Branch hook under a .. step", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -8521,7 +8521,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** Before Every Branch hook under a .. step block", function() {
+        it("branchifies the *** Before Every Branch hook under a .. step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8560,7 +8560,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** After Every Branch hook under a .. step block", function() {
+        it("branchifies the *** After Every Branch hook under a .. step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8599,7 +8599,7 @@ G -
             ]);
         });
 
-        it("rejects a *** Before Every Branch hook that has children", function() {
+        it("rejects a *** Before Every Branch hook that has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8617,7 +8617,7 @@ G -
             }, "A hook cannot have children [file.txt:3]");
         });
 
-        it("rejects a *** After Every Branch hook that has children", function() {
+        it("rejects a *** After Every Branch hook that has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8635,7 +8635,7 @@ G -
             }, "A hook cannot have children [file.txt:3]");
         });
 
-        it("handles multiple *** Before Every Branch and *** After Every Branch hooks that are siblings", function() {
+        it("handles multiple *** Before Every Branch and *** After Every Branch hooks that are siblings", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8712,7 +8712,7 @@ E -
             ]);
         });
 
-        it("branchifies many *** Before Every Branch and *** After Every Branch hooks in the tree", function() {
+        it("branchifies many *** Before Every Branch and *** After Every Branch hooks in the tree", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8865,7 +8865,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** Before Every Step hook", function() {
+        it("branchifies the *** Before Every Step hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8918,7 +8918,7 @@ E -
             ]);
         });
 
-        it("branchifies the *** After Every Step hook", function() {
+        it("branchifies the *** After Every Step hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8971,7 +8971,7 @@ E -
             ]);
         });
 
-        it("branchifies an empty *** Before Every Step hook", function() {
+        it("branchifies an empty *** Before Every Step hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -8995,7 +8995,7 @@ A -
             ]);
         });
 
-        it("branchifies an empty *** After Every Step hook", function() {
+        it("branchifies an empty *** After Every Step hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9019,7 +9019,7 @@ A -
             ]);
         });
 
-        it("branchifies the *** Before Every Step hook under the root", function() {
+        it("branchifies the *** Before Every Step hook under the root", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9057,7 +9057,7 @@ C -
             ]);
         });
 
-        it("branchifies the *** After Every Step hook under the root", function() {
+        it("branchifies the *** After Every Step hook under the root", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9095,7 +9095,7 @@ C -
             ]);
         });
 
-        it("branchifies the *** Before Every Step hook when it's inside a function declaration", function() {
+        it("branchifies the *** Before Every Step hook when it's inside a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -9135,7 +9135,7 @@ F
             ]);
         });
 
-        it("branchifies the *** After Every Step hook when it's inside a function declaration", function() {
+        it("branchifies the *** After Every Step hook when it's inside a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -9175,7 +9175,7 @@ F
             ]);
         });
 
-        it("branchifies the *** Before Every Step hook under a step block", function() {
+        it("branchifies the *** Before Every Step hook under a step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9221,7 +9221,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** After Every Step hook under a step block", function() {
+        it("branchifies the *** After Every Step hook under a step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9267,7 +9267,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** Before Every Step hook under a .. step", function() {
+        it("branchifies the *** Before Every Step hook under a .. step", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -9306,7 +9306,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** After Every Step hook under a .. step", function() {
+        it("branchifies the *** After Every Step hook under a .. step", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - ..
@@ -9345,7 +9345,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** Before Every Step hook under a .. step block", function() {
+        it("branchifies the *** Before Every Step hook under a .. step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9384,7 +9384,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** After Every Step hook under a .. step block", function() {
+        it("branchifies the *** After Every Step hook under a .. step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9423,7 +9423,7 @@ G -
             ]);
         });
 
-        it("rejects a *** Before Every Step hook that has children", function() {
+        it("rejects a *** Before Every Step hook that has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9441,7 +9441,7 @@ G -
             }, "A hook cannot have children [file.txt:3]");
         });
 
-        it("rejects a *** After Every Step hook that has children", function() {
+        it("rejects a *** After Every Step hook that has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9459,7 +9459,7 @@ G -
             }, "A hook cannot have children [file.txt:3]");
         });
 
-        it("handles multiple *** Before Every Step and *** After Every Step hooks that are siblings", function() {
+        it("handles multiple *** Before Every Step and *** After Every Step hooks that are siblings", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9536,7 +9536,7 @@ E -
             ]);
         });
 
-        it("branchifies many *** Before Every Step and *** After Every Step hooks in the tree", function() {
+        it("branchifies many *** Before Every Step and *** After Every Step hooks in the tree", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9689,7 +9689,7 @@ G -
             ]);
         });
 
-        it("branchifies the *** Before Everything hook", function() {
+        it("branchifies the *** Before Everything hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9716,7 +9716,7 @@ A -
             ]);
         });
 
-        it("branchifies the *** After Everything hook", function() {
+        it("branchifies the *** After Everything hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9743,7 +9743,7 @@ A -
             ]);
         });
 
-        it("branchifies an empty *** Before Everything hook", function() {
+        it("branchifies an empty *** Before Everything hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 *** Before Everything {
@@ -9759,7 +9759,7 @@ A -
             ]);
         });
 
-        it("branchifies an empty *** After Everything hook", function() {
+        it("branchifies an empty *** After Everything hook", () => {
             let tree = new Tree();
             tree.parseIn(`
 *** After Everything {
@@ -9775,7 +9775,7 @@ A -
             ]);
         });
 
-        it("handles multiple *** Before Everything hooks that are siblings, and orders the last in tree to be first in tree.beforeEverything", function() {
+        it("handles multiple *** Before Everything hooks that are siblings, and orders the last in tree to be first in tree.beforeEverything", () => {
             let tree = new Tree();
             tree.parseIn(`
 *** Before Everything {
@@ -9809,7 +9809,7 @@ A -
             ]);
         });
 
-        it("handles multiple *** After Everything hooks that are siblings, and orders the last in tree to be last in tree.afterEverything", function() {
+        it("handles multiple *** After Everything hooks that are siblings, and orders the last in tree to be last in tree.afterEverything", () => {
             let tree = new Tree();
             tree.parseIn(`
 *** After Everything {
@@ -9841,7 +9841,7 @@ A -
             ]);
         });
 
-        it("rejects the *** Before Everything hook when not at 0 indents", function() {
+        it("rejects the *** Before Everything hook when not at 0 indents", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9855,7 +9855,7 @@ A -
             }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
-        it("rejects the *** After Everything hook when not at 0 indents", function() {
+        it("rejects the *** After Everything hook when not at 0 indents", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9869,7 +9869,7 @@ A -
             }, "An After Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
-        it("rejects a *** Before Everything hook that has children", function() {
+        it("rejects a *** Before Everything hook that has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 *** Before Everything {
@@ -9884,7 +9884,7 @@ A -
             }, "A hook cannot have children [file.txt:2]");
         });
 
-        it("rejects a *** After Everything hook that has children", function() {
+        it("rejects a *** After Everything hook that has children", () => {
             let tree = new Tree();
             tree.parseIn(`
 *** After Everything {
@@ -9899,7 +9899,7 @@ A -
             }, "A hook cannot have children [file.txt:2]");
         });
 
-        it("connects branches via nonParallelId when + is set", function() {
+        it("connects branches via nonParallelId when + is set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9948,7 +9948,7 @@ G -
             ]);
         });
 
-        it("handles two steps with +, one a descendant of the other", function() {
+        it("handles two steps with +, one a descendant of the other", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -9997,7 +9997,7 @@ G -
             ]);
         });
 
-        it("handles two sibling steps with +", function() {
+        it("handles two sibling steps with +", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10047,7 +10047,7 @@ G -
             ]);
         });
 
-        it("throws an exception when there's an infinite loop among function calls", function() {
+        it("throws an exception when there's an infinite loop among function calls", function() { // function() needed for this.timeout() to work
             this.timeout(10000);
 
             let tree = new Tree();
@@ -10066,7 +10066,7 @@ A
             }, "Maximum call stack size exceeded");
         });
 
-        it("throws an exception if noDebug is set but a $ is present in a branch", function() {
+        it("throws an exception if noDebug is set but a $ is present in a branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10078,7 +10078,7 @@ A -
             }, "A $ was found, but the noDebug flag is set [file.txt:3]");
         });
 
-        it("throws an exception if noDebug is set but a ~ is present in a branch", function() {
+        it("throws an exception if noDebug is set but a ~ is present in a branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10090,7 +10090,7 @@ A -
             }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
         });
 
-        it("marks as packaged hooks that are packaged", function() {
+        it("marks as packaged hooks that are packaged", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10160,7 +10160,7 @@ A -
             ]);
         });
 
-        it("doesn't allow a function to call itself", function() {
+        it("doesn't allow a function to call itself", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -10174,7 +10174,7 @@ F
             }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:5]");
         });
 
-        it("doesn't allow a function to call itself and finds a function with the same name beyond", function() {
+        it("doesn't allow a function to call itself and finds a function with the same name beyond", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -10198,7 +10198,7 @@ F
             ]);
         });
 
-        it("doesn't allow a function to call itself and finds a function with the same name beyond, more complex example", function() {
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, more complex example", () => {
             let tree = new Tree();
             tree.parseIn(`
 Start browser
@@ -10228,7 +10228,7 @@ Start browser
             expect(branches[0].steps[5].text).to.equal("Generic nav to page");
         });
 
-        it("doesn't allow a function to call itself, with a private function, and finds a function with the same name beyond", function() {
+        it("doesn't allow a function to call itself, with a private function, and finds a function with the same name beyond", () => {
             let tree = new Tree();
             tree.parseIn(`
 Start browser
@@ -10258,7 +10258,7 @@ Start browser
             expect(branches[0].steps[5].text).to.equal("Generic nav to page");
         });
 
-        it("doesn't allow a function to call itself and finds a function with the same name beyond, slightly more complex example", function() {
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, slightly more complex example", () => {
             let tree = new Tree();
             tree.parseIn(`
 * On special cart page
@@ -10291,7 +10291,7 @@ On special cart page
             expect(branches[0].steps[6].text).to.equal("Generic stuff");
         });
 
-        it("allows access to a function declared within a function", function() {
+        it("allows access to a function declared within a function", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -10339,7 +10339,7 @@ F
             expect(branches[0].steps[3].text).to.equal("One");
         });
 
-        it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", function() {
+        it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -10372,7 +10372,7 @@ A
             expect(branches[0].steps[6].text).to.equal("Generic");
         });
 
-        it("calls a private function it has access to", function() {
+        it("calls a private function it has access to", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -10396,7 +10396,7 @@ F
             ]);
         });
 
-        it("doesn't allow a function to call a private function it doesn't have access to", function() {
+        it("doesn't allow a function to call a private function it doesn't have access to", () => {
             let tree = new Tree();
             tree.parseIn(`
 Start browser
@@ -10423,7 +10423,7 @@ Start browser
             expect(branches[0].steps[3].text).to.equal("Generic nav to page");
         });
 
-        it("handles a function declaration that ends in a *", function() {
+        it("handles a function declaration that ends in a *", () => {
             let tree = new Tree();
             tree.parseIn(`
 My big function
@@ -10447,7 +10447,7 @@ My big function
             expect(branches[0].steps[1].text).to.equal("A");
         });
 
-        it("handles a function declaration and function call that ends in a *", function() {
+        it("handles a function declaration and function call that ends in a *", () => {
             let tree = new Tree();
             tree.parseIn(`
 My big function
@@ -10474,7 +10474,7 @@ My big function
             expect(branches[0].steps[3].text).to.equal("C");
         });
 
-        it("handles a function declaration and function call that ends in a *, with variables", function() {
+        it("handles a function declaration and function call that ends in a *, with variables", () => {
             let tree = new Tree();
             tree.parseIn(`
 My big 'foobar' function
@@ -10502,8 +10502,8 @@ My big 'foobar' function
         });
     });
 
-    describe("removeUnwantedBranches()", function() {
-        it("only keeps a branches under a $", function() {
+    describe("removeUnwantedBranches()", () => {
+        it("only keeps a branches under a $", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10539,7 +10539,7 @@ G -
             ]);
         });
 
-        it("only keeps branches that intersect under multiple $'s", function() {
+        it("only keeps branches that intersect under multiple $'s", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10570,7 +10570,7 @@ G -
             ]);
         });
 
-        it("keeps multiple branches that are under non-intersecting $'s", function() {
+        it("keeps multiple branches that are under non-intersecting $'s", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10619,7 +10619,7 @@ J -
             ]);
         });
 
-        it("handles $ when it's attached to a step block member", function() {
+        it("handles $ when it's attached to a step block member", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -10701,7 +10701,7 @@ $ M -
             ]);
         });
 
-        it("handles $ when it's inside a function declaration", function() {
+        it("handles $ when it's inside a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -10735,7 +10735,7 @@ F
             ]);
         });
 
-        it("handles multiple $'s inside and outside a function declaration", function() {
+        it("handles multiple $'s inside and outside a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 J -
@@ -10766,7 +10766,7 @@ $ K -
             ]);
         });
 
-        it("handles multiple $'s inside a function declaration and on a function call", function() {
+        it("handles multiple $'s inside a function declaration and on a function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 J -
@@ -10797,7 +10797,7 @@ K -
             ]);
         });
 
-        it("handles multiple $'s on a function declaration and on a function call", function() {
+        it("handles multiple $'s on a function declaration and on a function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 J -
@@ -10826,7 +10826,7 @@ $ * F
             ]);
         });
 
-        it("handles multiple $'s on a function declaration and above the function call", function() {
+        it("handles multiple $'s on a function declaration and above the function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 J -
@@ -10855,7 +10855,7 @@ $ * F
             ]);
         });
 
-        it("handles multiple $'s inside a function declaration and below the function call", function() {
+        it("handles multiple $'s inside a function declaration and below the function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 J -
@@ -10888,7 +10888,7 @@ K -
             ]);
         });
 
-        it("handles $ when it's inside a .. step", function() {
+        it("handles $ when it's inside a .. step", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A .. -
@@ -10924,7 +10924,7 @@ $ G .. -
             ]);
         });
 
-        it("handles $ when it's attached to a .. step block member", function() {
+        it("handles $ when it's attached to a .. step block member", () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -10957,7 +10957,7 @@ C -
             ]);
         });
 
-        it("isolates a branch with a single ~ before the step", function() {
+        it("isolates a branch with a single ~ before the step", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10983,7 +10983,7 @@ F -
             ]);
         });
 
-        it("isolates a branch with a single ~ after the step", function() {
+        it("isolates a branch with a single ~ after the step", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11009,7 +11009,7 @@ F -
             ]);
         });
 
-        it("isolates a branch with ~ on multiple steps", function() {
+        it("isolates a branch with ~ on multiple steps", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11040,7 +11040,7 @@ J -
             ]);
         });
 
-        it("isolates a branch with ~ on multiple steps, before and after the step", function() {
+        it("isolates a branch with ~ on multiple steps, before and after the step", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11071,7 +11071,7 @@ J -
             ]);
         });
 
-        it("isolates a branch with ~ on multiple steps, where one of the ~'s is inside a function declaration", function() {
+        it("isolates a branch with ~ on multiple steps, where one of the ~'s is inside a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11097,7 +11097,7 @@ B -
             ]);
         });
 
-        it("isolates a branch with ~ on multiple steps, where one of the ~'s is on a function declaration", function() {
+        it("isolates a branch with ~ on multiple steps, where one of the ~'s is on a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11123,7 +11123,7 @@ A -
             ]);
         });
 
-        it("isolates a branch with ~ on multiple steps, where one of the ~'s is on a function declaration and function call", function() {
+        it("isolates a branch with ~ on multiple steps, where one of the ~'s is on a function declaration and function call", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11149,7 +11149,7 @@ B -
             ]);
         });
 
-        it("isolates the first branch when ~ is on multiple branches", function() {
+        it("isolates the first branch when ~ is on multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11180,7 +11180,7 @@ J -
             ]);
         });
 
-        it("isolates the first branch when ~ is on a function declaration that's called on multiple branches", function() {
+        it("isolates the first branch when ~ is on a function declaration that's called on multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11206,7 +11206,7 @@ B -
             ]);
         });
 
-        it("isolates the first branch when ~ is inside a function declaration that's called on multiple branches", function() {
+        it("isolates the first branch when ~ is inside a function declaration that's called on multiple branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11232,7 +11232,7 @@ B -
             ]);
         });
 
-        it("isolates the first branch when ~ is on multiple branches via a step block", function() {
+        it("isolates the first branch when ~ is on multiple branches via a step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11256,7 +11256,7 @@ C -
             ]);
         });
 
-        it("isolates the first branch when ~ is on multiple branches via multiple function calls", function() {
+        it("isolates the first branch when ~ is on multiple branches via multiple function calls", () => {
             let tree = new Tree();
             tree.parseIn(`
 * F
@@ -11282,7 +11282,7 @@ B -
             ]);
         });
 
-        it("isolates the first branch when a ~ step has multiple branches underneath it", function() {
+        it("isolates the first branch when a ~ step has multiple branches underneath it", () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A -
@@ -11327,7 +11327,7 @@ B -
             ]);
         });
 
-        it("handles ~ when it's attached to a step block member", function() {
+        it("handles ~ when it's attached to a step block member", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11360,7 +11360,7 @@ J -
             ]);
         });
 
-        it("handles ~ when it's inside a function declaration", function() {
+        it("handles ~ when it's inside a function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 * F
@@ -11389,7 +11389,7 @@ F
             ]);
         });
 
-        it("handles using multiple $'s and a ~ to isolate a single branch to debug", function() {
+        it("handles using multiple $'s and a ~ to isolate a single branch to debug", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11451,7 +11451,7 @@ I -
             ]);
         });
 
-        it("sets the frequency of a branch when the {frequency} variable is set on a leaf", function() {
+        it("sets the frequency of a branch when the {frequency} variable is set on a leaf", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11479,7 +11479,7 @@ D -
             ]);
         });
 
-        it("sets the frequency of multiple branches when the {frequency} variable is set", function() {
+        it("sets the frequency of multiple branches when the {frequency} variable is set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11518,7 +11518,7 @@ E -
             ]);
         });
 
-        it("sets the frequency of multiple branches when the {frequency} variable is set on a step block", function() {
+        it("sets the frequency of multiple branches when the {frequency} variable is set on a step block", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11560,7 +11560,7 @@ G -
             ]);
         });
 
-        it("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", function() {
+        it("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11580,7 +11580,7 @@ A -
             ]);
         });
 
-        it("keeps all branches when frequency is set to 'low'", function() {
+        it("keeps all branches when frequency is set to 'low'", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11627,7 +11627,7 @@ A -
             ]);
         });
 
-        it("keeps all branches when frequency is not set", function() {
+        it("keeps all branches when frequency is not set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11674,7 +11674,7 @@ A -
             ]);
         });
 
-        it("keeps branches at or above 'med' frequency", function() {
+        it("keeps branches at or above 'med' frequency", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11717,7 +11717,7 @@ A -
             ]);
         });
 
-        it("keeps branches at 'high' frequency", function() {
+        it("keeps branches at 'high' frequency", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11752,7 +11752,7 @@ A -
             ]);
         });
 
-        it("throws exception if a ~ exists, but is cut off due to a frequency restriction", function() {
+        it("throws exception if a ~ exists, but is cut off due to a frequency restriction", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11771,24 +11771,24 @@ A -
     G -
 `, "file.txt");
 
-            assert.throws(function() {
+            assert.throws(() => {
                 tree.branchify(tree.root, undefined, "high");
             }, "This step contains a ~, but is not above the frequency allowed to run (high). Either set its frequency higher or remove the ~. [file.txt:7]");
 
-            assert.doesNotThrow(function() {
+            assert.doesNotThrow(() => {
                 tree.branchify(tree.root, undefined, "med");
             });
 
-            assert.doesNotThrow(function() {
+            assert.doesNotThrow(() => {
                 tree.branchify(tree.root, undefined, "low");
             });
 
-            assert.doesNotThrow(function() {
+            assert.doesNotThrow(() => {
                 tree.branchify(tree.root, undefined, undefined);
             });
         });
 
-        it("sets the groups for a branch", function() {
+        it("sets the groups for a branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11837,7 +11837,7 @@ G -
             ]);
         });
 
-        it("sets multiple groups for a branch", function() {
+        it("sets multiple groups for a branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11890,7 +11890,7 @@ G -
             ]);
         });
 
-        it("keeps all branches when no groups are set", function() {
+        it("keeps all branches when no groups are set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11943,7 +11943,7 @@ G -
             ]);
         });
 
-        it("only keeps branches that are part of a group being run", function() {
+        it("only keeps branches that are part of a group being run", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -11981,7 +11981,7 @@ G -
             ]);
         });
 
-        it("only keeps branches that are part of a group being run, and multiple groups are being run", function() {
+        it("only keeps branches that are part of a group being run, and multiple groups are being run", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12037,7 +12037,7 @@ G -
             ]);
         });
 
-        it("throws exception if a ~ exists, but is cut off due to a groups restriction", function() {
+        it("throws exception if a ~ exists, but is cut off due to a groups restriction", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12056,20 +12056,20 @@ A -
     G -
 `, "file.txt");
 
-            assert.throws(function() {
+            assert.throws(() => {
                 tree.branchify(tree.root, ["one"]);
             }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:7]");
 
-            assert.throws(function() {
+            assert.throws(() => {
                 tree.branchify(tree.root, ["one", "three", "four"]);
             }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:7]");
 
-            assert.doesNotThrow(function() {
+            assert.doesNotThrow(() => {
                 tree.branchify(tree.root, ["two"]);
             });
         });
 
-        it("handles multiple restrictions", function() {
+        it("handles multiple restrictions", () => {
             // Try them all here, all on one big tree (group, frequency, $, ~)
             let tree = new Tree();
             tree.parseIn(`
@@ -12109,8 +12109,8 @@ G -
         });
     });
 
-    describe("generateBranches()", function() {
-        it("sorts branches by {frequency}", function() {
+    describe("generateBranches()", () => {
+        it("sorts branches by {frequency}", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12145,7 +12145,7 @@ D -
             ]);
         });
 
-        it("marks as skipped branches that start with -M or -T", function() {
+        it("marks as skipped branches that start with -M or -T", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12176,7 +12176,7 @@ D -
             ]);
         });
 
-        it("handles an error from branchify()", function() {
+        it("handles an error from branchify()", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12189,7 +12189,7 @@ A -
             }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
-        it("throws an exception when there's an infinite loop among function calls", function() {
+        it("throws an exception when there's an infinite loop among function calls", function() { // function() needed for this.timeout() to work
             this.timeout(10000);
 
             let tree = new Tree();
@@ -12208,7 +12208,7 @@ A
             }, /Infinite loop detected \[file\.txt:(5|8)\]/);
         });
 
-        it("can isolate a branch by hash", function() {
+        it("can isolate a branch by hash", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12234,7 +12234,7 @@ H -
             ]);
         });
 
-        it("throws an exception when it can't find a branch with a given hash", function() {
+        it("throws an exception when it can't find a branch with a given hash", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12255,7 +12255,7 @@ D -
         // Unlike the infinite loop which causes an immediate stack size exception, this probably blows out memory before stack size (and there is no exception thrown)
         // This many branches are unlikely in normal usage, though
         /*
-        it.skip("throws an exception when there are too many branches", function() {
+        it.skip("throws an exception when there are too many branches", () => {
             let tree = new Tree();
             // This is 10^10 branches, or 10,000,000,000 branches
             tree.parseIn(`
@@ -12378,8 +12378,8 @@ K-1 -
         */
     });
 
-    describe("serialize()", function() {
-        it("outputs json for an empty tree", function() {
+    describe("serialize()", () => {
+        it("outputs json for an empty tree", () => {
             let tree = new Tree();
 
             tree.generateBranches();
@@ -12396,7 +12396,7 @@ K-1 -
             });
         });
 
-        it("outputs json for all branches", function() {
+        it("outputs json for all branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12427,7 +12427,7 @@ A -
             });
         });
 
-        it("outputs json for all branches and hooks", function() {
+        it("outputs json for all branches and hooks", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12506,8 +12506,8 @@ A -
         });
     });
 
-    describe("mergeBranchesFromPrevRun()", function() {
-        it("merges empty previous branches into empty current branches", function() {
+    describe("mergeBranchesFromPrevRun()", () => {
+        it("merges empty previous branches into empty current branches", () => {
             let prevTree = new Tree();
             let currTree = new Tree();
 
@@ -12522,7 +12522,7 @@ A -
             expect(currTree.branches).to.containSubsetInOrder([]);
         });
 
-        it("handles a merge", function() {
+        it("handles a merge", () => {
             /*
              * If a branch...
              *     1) Exists in both previous and current
@@ -12657,8 +12657,8 @@ A -
         });
     });
 
-    describe("getBranchCount()", function() {
-        it("returns total number of branches", function() {
+    describe("getBranchCount()", () => {
+        it("returns total number of branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -12682,7 +12682,7 @@ F -
             expect(tree.getBranchCount(false, false)).to.equal(4);
         });
 
-        it("returns total number of runnable branches", function() {
+        it("returns total number of runnable branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -12708,7 +12708,7 @@ F -
             expect(tree.getBranchCount(true, false)).to.equal(3);
         });
 
-        it("returns total number of complete branches", function() {
+        it("returns total number of complete branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -12748,7 +12748,7 @@ F -
             expect(tree.getBranchCount(false, true)).to.equal(2);
         });
 
-        it("returns total number of passed branches", function() {
+        it("returns total number of passed branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12769,7 +12769,7 @@ E -
             expect(tree.getBranchCount(false, false, true)).to.equal(3);
         });
 
-        it("returns total number of failed branches", function() {
+        it("returns total number of failed branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12790,7 +12790,7 @@ E -
             expect(tree.getBranchCount(false, false, false, true)).to.equal(1);
         });
 
-        it("returns total number of skipped branches", function() {
+        it("returns total number of skipped branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12811,7 +12811,7 @@ E -
             expect(tree.getBranchCount(false, false, false, false, true)).to.equal(1);
         });
 
-        it("does not count inside hooks", function() {
+        it("does not count inside hooks", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -12886,8 +12886,8 @@ F -
         });
     });
 
-    describe("getStepCount()", function() {
-        it("returns total number of steps", function() {
+    describe("getStepCount()", () => {
+        it("returns total number of steps", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -12911,7 +12911,7 @@ F -
             expect(tree.getStepCount()).to.equal(13);
         });
 
-        it("returns total number of runnable steps", function() {
+        it("returns total number of runnable steps", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -12940,7 +12940,7 @@ F -
             expect(tree.getStepCount(true)).to.equal(6);
         });
 
-        it("returns total number of complete steps", function() {
+        it("returns total number of complete steps", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -12969,7 +12969,7 @@ F -
             expect(tree.getStepCount(true, true)).to.equal(2);
         });
 
-        it("returns total number of complete steps when there are skipped branches", function() {
+        it("returns total number of complete steps when there are skipped branches", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -12989,7 +12989,7 @@ A -
             expect(tree.getStepCount(true, true)).to.equal(4);
         });
 
-        it("does not count inside hooks", function() {
+        it("does not count inside hooks", () => {
             let tree = new Tree();
             tree.parseIn(`
 $ A -
@@ -13068,7 +13068,7 @@ F -
             expect(tree.getStepCount(true, true)).to.equal(2);
         });
 
-        it("returns total number of unexpected steps", function() {
+        it("returns total number of unexpected steps", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -13095,8 +13095,8 @@ A -
         });
     });
 
-    describe("nextBranch()", function() {
-        it("returns the next branch", function() {
+    describe("nextBranch()", () => {
+        it("returns the next branch", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - +
@@ -13159,7 +13159,7 @@ G -
             expect(tree.nextBranch()).to.equal(null);
         });
 
-        it("finds a branch not yet taken, skipping over those with a running branch with the same nonParallelId", function() {
+        it("finds a branch not yet taken, skipping over those with a running branch with the same nonParallelId", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - +
@@ -13184,7 +13184,7 @@ G -
             });
         });
 
-        it("returns null when no branches are available", function() {
+        it("returns null when no branches are available", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - +
@@ -13212,7 +13212,7 @@ A - +
             expect(tree.nextBranch()).to.equal(null);
         });
 
-        it("returns null on an empty tree", function() {
+        it("returns null on an empty tree", () => {
             tree = new Tree();
             tree.generateBranches();
 
@@ -13220,8 +13220,8 @@ A - +
         });
     });
 
-    describe("findSimilarBranches()", function() {
-        it("handles empty branches", function() {
+    describe("findSimilarBranches()", () => {
+        it("handles empty branches", () => {
             let tree = new Tree();
 
             let branch1 = new Branch();
@@ -13238,7 +13238,7 @@ A - +
             ]);
         });
 
-        it("finds similar branches", function() {
+        it("finds similar branches", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13320,8 +13320,8 @@ A - +
         });
     });
 
-    describe("markStep()", function() {
-        it("marks a step passed", function() {
+    describe("markStep()", () => {
+        it("marks a step passed", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13355,7 +13355,7 @@ A - +
             });
         });
 
-        it("marks a branch passed when the last step is passed", function() {
+        it("marks a branch passed when the last step is passed", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13395,7 +13395,7 @@ A - +
             });
         });
 
-        it("marks a branch failed when the last step is passed", function() {
+        it("marks a branch failed when the last step is passed", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13435,7 +13435,7 @@ A - +
             });
         });
 
-        it("marks a step failed and sets its error", function() {
+        it("marks a step failed and sets its error", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13471,7 +13471,7 @@ A - +
             expect(stepA.error.message).to.equal("foobar");
         });
 
-        it("marks a branch failed when the last step is failed", function() {
+        it("marks a branch failed when the last step is failed", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13513,7 +13513,7 @@ A - +
             expect(stepD.error.message).to.equal("foobar");
         });
 
-        it("marks a branch failed before we reach the last step", function() {
+        it("marks a branch failed before we reach the last step", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13553,7 +13553,7 @@ A - +
             expect(stepC.error.message).to.equal("foobar");
         });
 
-        it("skips repeat branches", function() {
+        it("skips repeat branches", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13615,7 +13615,7 @@ A - +
             expect(branch4.log).to.equal(undefined);
         });
 
-        it("doesn't skip a repeat branch if it's currently running", function() {
+        it("doesn't skip a repeat branch if it's currently running", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13677,7 +13677,7 @@ A - +
             expect(branch4.log).to.equal(undefined);
         });
 
-        it("doesn't skip a repeat branch if it already ran", function() {
+        it("doesn't skip a repeat branch if it already ran", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13740,8 +13740,8 @@ A - +
         });
     });
 
-    describe("markStepSkipped()", function() {
-        it("marks a step skipped", function() {
+    describe("markStepSkipped()", () => {
+        it("marks a step skipped", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13775,7 +13775,7 @@ A - +
             });
         });
 
-        it("marks a branch passed when the last step is skipped", function() {
+        it("marks a branch passed when the last step is skipped", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13814,7 +13814,7 @@ A - +
             });
         });
 
-        it("handles no branch passed in", function() {
+        it("handles no branch passed in", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13854,8 +13854,8 @@ A - +
         });
     });
 
-    describe("nextStep()", function() {
-        it("returns null if the branch failed or skipped", function() {
+    describe("nextStep()", () => {
+        it("returns null if the branch failed or skipped", () => {
             let tree = new Tree();
             let branch = new Branch();
             tree.branches = [ branch ];
@@ -13870,7 +13870,7 @@ A - +
             expect(tree.nextStep(branch, false, false)).to.equal(null);
         });
 
-        it("returns the first step if nothing is running yet, without advancing", function() {
+        it("returns the first step if nothing is running yet, without advancing", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13896,7 +13896,7 @@ A - +
             });
         });
 
-        it("returns the next step if one is currently running, without advancing", function() {
+        it("returns the next step if one is currently running, without advancing", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13928,7 +13928,7 @@ A - +
             });
         });
 
-        it("returns null if the last step is currently running, without advancing", function() {
+        it("returns null if the last step is currently running, without advancing", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13957,7 +13957,7 @@ A - +
             });
         });
 
-        it("returns the first step if nothing is running yet, with advancing", function() {
+        it("returns the first step if nothing is running yet, with advancing", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -13983,7 +13983,7 @@ A - +
             });
         });
 
-        it("returns the next step if one is currently running, with advancing", function() {
+        it("returns the next step if one is currently running, with advancing", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14015,7 +14015,7 @@ A - +
             });
         });
 
-        it("returns null if the last step is currently running, with advancing", function() {
+        it("returns null if the last step is currently running, with advancing", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14044,7 +14044,7 @@ A - +
             });
         });
 
-        it("ends the branch if the next step is an -M", function() {
+        it("ends the branch if the next step is an -M", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14096,7 +14096,7 @@ A - +
             expect(branch4.isSkipped).to.equal(undefined);
         });
 
-        it("ends the branch if the next step is a -T", function() {
+        it("ends the branch if the next step is a -T", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14148,7 +14148,7 @@ A - +
             expect(branch4.isSkipped).to.equal(undefined);
         });
 
-        it("skips repeat branches and end this branch if next step is an -M", function() {
+        it("skips repeat branches and end this branch if next step is an -M", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14211,7 +14211,7 @@ A - +
             expect(branch4.log).to.equal(undefined);
         });
 
-        it("skips repeat branches and end this branch if next step is a -T", function() {
+        it("skips repeat branches and end this branch if next step is a -T", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14274,7 +14274,7 @@ A - +
             expect(branch4.log).to.equal(undefined);
         });
 
-        it("doesn't skips repeat branches if the next step isn't an -M or -T", function() {
+        it("doesn't skips repeat branches if the next step isn't an -M or -T", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14321,7 +14321,7 @@ A - +
             expect(branch4.isSkipped).to.equal(undefined);
         });
 
-        it("doesn't skip a repeat branch if it's currently running", function() {
+        it("doesn't skip a repeat branch if it's currently running", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14379,7 +14379,7 @@ A - +
             expect(branch4.log).to.equal(undefined);
         });
 
-        it("doesn't skip a repeat branch if it already ran", function() {
+        it("doesn't skip a repeat branch if it already ran", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14437,7 +14437,7 @@ A - +
             expect(branch4.log).to.equal(undefined);
         });
 
-        it("clears isRunning on all steps in the branch if the branch completed already", function() {
+        it("clears isRunning on all steps in the branch if the branch completed already", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14472,8 +14472,8 @@ A - +
         });
     });
 
-    describe("initCounts()", function() {
-        it("initializes counts", function() {
+    describe("initCounts()", () => {
+        it("initializes counts", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -14500,8 +14500,8 @@ B -
         });
     });
 
-    describe("updateCounts()", function() {
-        it("updates counts", function() {
+    describe("updateCounts()", () => {
+        it("updates counts", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -

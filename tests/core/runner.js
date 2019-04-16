@@ -11,16 +11,16 @@ const utils = require('../../utils.js');
 chai.use(chaiSubset);
 chai.use(chaiAsPromised);
 
-describe("Runner", function() {
-    describe("run()", function() {
-        it("runs an empty tree", async function() {
+describe("Runner", () => {
+    describe("run()", () => {
+        it("runs an empty tree", async () => {
             let tree = new Tree();
             let runner = new Runner();
             runner.init(tree);
             await runner.run();
         });
 
-        it("can spawn a single run instance that completes", async function() {
+        it("can spawn a single run instance that completes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -41,7 +41,7 @@ A -
             expect(isComplete).to.be.true;
         });
 
-        it("can spawn a single run instance that pauses and resumes", async function() {
+        it("can spawn a single run instance that pauses and resumes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -74,7 +74,7 @@ A {
             expect(isComplete).to.be.true;
         });
 
-        it("can spawn a multiple run instances, all of which complete", async function() {
+        it("can spawn a multiple run instances, all of which complete", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -103,7 +103,7 @@ F {
             expect(runner.ranStepF).to.be.true;
         });
 
-        it("runs multiple run instances in parallel", async function() {
+        it("runs multiple run instances in parallel", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Branch 1 -
@@ -142,7 +142,7 @@ Branch 6 -
             expect(tree.elapsed).to.be.below(35);
         });
 
-        it("runs multiple run instances in parallel where maxInstances limits the number of simultaneous run instances", async function() {
+        it("runs multiple run instances in parallel where maxInstances limits the number of simultaneous run instances", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Branch 1 -
@@ -181,7 +181,7 @@ Branch 6 -
             expect(tree.elapsed).to.be.below(85);
         });
 
-        it("runs multiple run instances in parallel where maxInstances is 1", async function() {
+        it("runs multiple run instances in parallel where maxInstances is 1", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Branch 1 -
@@ -211,7 +211,7 @@ Branch 3 -
             expect(tree.elapsed).to.be.below(85);
         });
 
-        it("can spawn a multiple run instances, but due to +'es only some of them actually run'", async function() {
+        it("can spawn a multiple run instances, but due to +'es only some of them actually run'", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Branch Group 1 - +
@@ -265,7 +265,7 @@ Branch Group 2 - +
             expect(runner.numArr).to.eql([ '1', '4', '2', '5', '3', '6' ]);
         });
 
-        it("runs multiple run instances for multiple branches, where one branch fails and one branch passes", async function() {
+        it("runs multiple run instances for multiple branches, where one branch fails and one branch passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Passing branch -
@@ -287,7 +287,7 @@ Failing branch -
             expect(tree.branches[1].steps[1].error.message).to.equal("The variable {var2} is never set, but is needed for this step");
         });
 
-        it("pauses before a ~ step is executed, doesn't pause on the same step when resumed", async function() {
+        it("pauses before a ~ step is executed, doesn't pause on the same step when resumed", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -320,7 +320,7 @@ A {
             expect(isComplete).to.be.true;
         });
 
-        it("pauses after an unexpected fail occurs on a step that's inside a branch with ~ anywhere", async function() {
+        it("pauses after an unexpected fail occurs on a step that's inside a branch with ~ anywhere", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -368,7 +368,7 @@ A {
             expect(isComplete).to.be.true;
         });
 
-        it("runs all Before Everything and After Everything steps", async function() {
+        it("runs all Before Everything and After Everything steps", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -413,7 +413,7 @@ C
             expect(runner.count).to.equal(180);
         });
 
-        it("runs all After Everything steps but not the Before Everything steps on resume", async function() {
+        it("runs all After Everything steps but not the Before Everything steps on resume", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -461,7 +461,7 @@ C
             expect(runner.count).to.equal(160);
         });
 
-        it("stores errors from Before Everything steps and stops execution", async function() {
+        it("stores errors from Before Everything steps and stops execution", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -504,7 +504,7 @@ A
             expect(tree.beforeEverything[0].error.lineNumber).to.equal(14);
         });
 
-        it("stores errors from After Everything steps", async function() {
+        it("stores errors from After Everything steps", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -547,7 +547,7 @@ A
             expect(tree.afterEverything[0].error.lineNumber).to.equal(18);
         });
 
-        it("when a stop occurs while in a Before Everything hook, stops executing Before Everything hooks and executes all After Everything hooks", async function() {
+        it("when a stop occurs while in a Before Everything hook, stops executing Before Everything hooks and executes all After Everything hooks", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -586,7 +586,7 @@ A
             expect(runner.ranAfterEverything2).to.be.true;
         });
 
-        it("when a stop occurs while in an After Everything hook, finishes executing the rest of the After Everything hooks", async function() {
+        it("when a stop occurs while in an After Everything hook, finishes executing the rest of the After Everything hooks", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -625,7 +625,7 @@ A
             expect(runner.ranAfterEverything2).to.be.true;
         });
 
-        it("when a stop occurs while executing branches, stops executing branches and executes all After Everything hooks", async function() {
+        it("when a stop occurs while executing branches, stops executing branches and executes all After Everything hooks", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A
@@ -664,7 +664,7 @@ A
             expect(runner.ranAfterEverything2).to.be.true;
         });
 
-        it("sets tree.elapsed to how long it took the tree to execute", async function() {
+        it("sets tree.elapsed to how long it took the tree to execute", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Wait 20 ms {
@@ -684,7 +684,7 @@ Wait 20 ms {
             expect(tree.elapsed).to.be.below(35);
         });
 
-        it("sets tree.elapsed to how long it took the tree to execute when a stop ocurred", async function() {
+        it("sets tree.elapsed to how long it took the tree to execute when a stop ocurred", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Wait 20 ms {
@@ -716,7 +716,7 @@ Wait 20 ms {
             expect(tree.elapsed).to.be.below(35);
         });
 
-        it("sets tree.elapsed to -1 when a pause and resume occurred", async function() {
+        it("sets tree.elapsed to -1 when a pause and resume occurred", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -733,7 +733,7 @@ A -
             expect(tree.elapsed).to.equal(-1);
         });
 
-        it("throws an error if the Runner was already stopped before", async function() {
+        it("throws an error if the Runner was already stopped before", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -751,7 +751,7 @@ A -
         });
     });
 
-    describe("stop()", function() {
+    describe("stop()", () => {
         it("stops all running run instances, time elapsed for the Tree is properly measured", function(done) {
             let tree = new Tree();
             tree.parseIn(`
@@ -839,8 +839,8 @@ Branch 3 -
         });
     });
 
-    describe("runOneStep()", function() {
-        it("runs the next step, then pauses again", async function() {
+    describe("runOneStep()", () => {
+        it("runs the next step, then pauses again", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -896,7 +896,7 @@ A {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("the Runner is able to resume after pausing and running one step", async function() {
+        it("the Runner is able to resume after pausing and running one step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -941,7 +941,7 @@ A {
             expect(runner.afterEverythingRan).to.be.true;
         });
 
-        it("the Runner is able to resume after pausing, running one step, and ending up beyond the last step", async function() {
+        it("the Runner is able to resume after pausing, running one step, and ending up beyond the last step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -995,7 +995,7 @@ A {
             expect(runner.afterEverythingRan).to.be.true;
         });
 
-        it("throws error if not paused", async function() {
+        it("throws error if not paused", async () => {
             let tree = new Tree();
             let runner = new Runner();
             runner.init(tree);
@@ -1003,8 +1003,8 @@ A {
         });
     });
 
-    describe("skipOneStep()", function() {
-        it("skips the next step, then pauses again", async function() {
+    describe("skipOneStep()", () => {
+        it("skips the next step, then pauses again", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -1063,7 +1063,7 @@ A {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("the Runner is able to resume after pausing and skipping steps", async function() {
+        it("the Runner is able to resume after pausing and skipping steps", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -1109,7 +1109,7 @@ A {
             expect(runner.afterEverythingRan).to.be.true;
         });
 
-        it("the Runner is able to resume after pausing, skipping steps, and ending up beyond the last step", async function() {
+        it("the Runner is able to resume after pausing, skipping steps, and ending up beyond the last step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -1165,7 +1165,7 @@ A {
             expect(runner.afterEverythingRan).to.be.true;
         });
 
-        it("throws error if not paused", async function() {
+        it("throws error if not paused", async () => {
             let tree = new Tree();
             let runner = new Runner();
             runner.init(tree);
@@ -1173,15 +1173,15 @@ A {
         });
     });
 
-    describe("injectStep()", function() {
-        it("throws error if not paused", async function() {
+    describe("injectStep()", () => {
+        it("throws error if not paused", async () => {
             let tree = new Tree();
             let runner = new Runner();
             runner.init(tree);
             await expect(runner.injectStep({})).to.be.rejectedWith("Must be paused to run a step");
         });
 
-        it("injects a step and runs it, then pauses again", async function() {
+        it("injects a step and runs it, then pauses again", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -1223,8 +1223,8 @@ Step to Inject {
         });
     });
 
-    describe("serialize()", function() {
-        it("serializes a Runner to JSON", async function() {
+    describe("serialize()", () => {
+        it("serializes a Runner to JSON", async () => {
             let tree = new Tree();
             let runner = new Runner();
             runner.init(tree);

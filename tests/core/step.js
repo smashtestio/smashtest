@@ -8,10 +8,10 @@ const StepBlock = require('../../stepblock.js');
 
 chai.use(chaiSubset);
 
-describe("Step", function() {
+describe("Step", () => {
     let root = null;
 
-    beforeEach(function() {
+    beforeEach(() => {
         /*
         A
             B
@@ -81,8 +81,8 @@ describe("Step", function() {
         root.children = [ A, EF ];
     });
 
-    describe("cloneForBranch()", function() {
-        it("can properly clone, chlidren are removed from the clone, and the original and cloned objects are distinct", function() {
+    describe("cloneForBranch()", () => {
+        it("can properly clone, chlidren are removed from the clone, and the original and cloned objects are distinct", () => {
             let C = root.children[0].children[1];
             let clonedC = C.cloneForBranch();
 
@@ -133,7 +133,7 @@ describe("Step", function() {
             });
         });
 
-        it("can properly clone with no refernces to outside objects", function() {
+        it("can properly clone with no refernces to outside objects", () => {
             let C = root.children[0].children[1];
             let clonedC = C.cloneForBranch(true);
 
@@ -179,7 +179,7 @@ describe("Step", function() {
             });
         });
 
-        it("can properly clone a step within a step block", function() {
+        it("can properly clone a step within a step block", () => {
             let E = root.children[1].steps[0];
             let clonedE = E.cloneForBranch();
 
@@ -214,7 +214,7 @@ describe("Step", function() {
             });
         });
 
-        it("can properly double-clone a step", function() {
+        it("can properly double-clone a step", () => {
             let C = root.children[0].children[1];
             let clonedC1 = C.cloneForBranch();
             let clonedC2 = clonedC1.cloneForBranch();
@@ -285,8 +285,8 @@ describe("Step", function() {
         });
     });
 
-    describe("getLeaves()", function() {
-        it("returns all leaves", function() {
+    describe("getLeaves()", () => {
+        it("returns all leaves", () => {
             let leaves = root.getLeaves();
             root.rootMark = true;
 
@@ -324,7 +324,7 @@ describe("Step", function() {
             ]);
         });
 
-        it("returns an array with itself when called on a leaf", function() {
+        it("returns an array with itself when called on a leaf", () => {
             let D = root.children[0].children[1].children[0];
             let leaves = D.getLeaves();
 
@@ -341,38 +341,38 @@ describe("Step", function() {
         });
     });
 
-    describe("isFunctionMatch()", function() {
+    describe("isFunctionMatch()", () => {
         let functionDeclaration = new Step();
         let functionCall = new Step();
 
         functionDeclaration.isFunctionDeclaration = true;
         functionCall.isFunctionCall = true;
 
-        it("matches a function call and function declaration with the same text", function() {
+        it("matches a function call and function declaration with the same text", () => {
             functionDeclaration.text = "Step name here";
             functionCall.text = "Step name here";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("doesn't match a function call and function declaration with different text", function() {
+        it("doesn't match a function call and function declaration with different text", () => {
             functionDeclaration.text = "Step name here";
             functionCall.text = "Different name here";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("matches a function call and function declaration with the same text but differing amounts of whitespace", function() {
+        it("matches a function call and function declaration with the same text but differing amounts of whitespace", () => {
             functionDeclaration.text = "Step name here";
             functionCall.text = "  Step  name here ";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with a single quote", function() {
+        it("matches a function call and function declaration with a single quote", () => {
             functionDeclaration.text = "I don't know";
             functionCall.text = "I don't know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with an escaped single quote", function() {
+        it("matches a function call and function declaration with an escaped single quote", () => {
             functionDeclaration.text = "I don\\'t know";
             functionCall.text = "I don\\'t know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -386,7 +386,7 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with multiple escaped single quotes", function() {
+        it("matches a function call and function declaration with multiple escaped single quotes", () => {
             functionDeclaration.text = "I don\\'t k\\'now";
             functionCall.text = "I don\\'t k\\'now";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -400,7 +400,7 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with an escaped single quote preceded with a backslash", function() {
+        it("matches a function call and function declaration with an escaped single quote preceded with a backslash", () => {
             functionDeclaration.text = "I don\\\\'t know";
             functionCall.text = "I don\\\\'t know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -410,13 +410,13 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with a double quote", function() {
+        it("matches a function call and function declaration with a double quote", () => {
             functionDeclaration.text = "I don\"t know";
             functionCall.text = "I don\"t know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with an escaped double quote", function() {
+        it("matches a function call and function declaration with an escaped double quote", () => {
             functionDeclaration.text = "I don\\\"t know";
             functionCall.text = "I don\\\"t know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -430,7 +430,7 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with multiple escaped double quotes", function() {
+        it("matches a function call and function declaration with multiple escaped double quotes", () => {
             functionDeclaration.text = "I don\\\"t k\\\"now";
             functionCall.text = "I don\\\"t k\\\"now";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -444,13 +444,13 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with an escaped double quote preceded with a backslash", function() {
+        it("matches a function call and function declaration with an escaped double quote preceded with a backslash", () => {
             functionDeclaration.text = "I don\\\\\"t know";
             functionCall.text = "I don\\\\\"t know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with multiple escaped brackets", function() {
+        it("matches a function call and function declaration with multiple escaped brackets", () => {
             functionDeclaration.text = "I [do not know";
             functionCall.text = "I \\[do not know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -464,7 +464,7 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with multiple escaped brackets", function() {
+        it("matches a function call and function declaration with multiple escaped brackets", () => {
             functionDeclaration.text = "I [do not] know";
             functionCall.text = "I \\[do not\\] know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -474,13 +474,13 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration with an escaped bracket preceded with a backslash", function() {
+        it("matches a function call and function declaration with an escaped bracket preceded with a backslash", () => {
             functionDeclaration.text = "I \\\\[do not know";
             functionCall.text = "I \\\\[do not know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function call and function declaration if they match case insensitively", function() {
+        it("matches a function call and function declaration if they match case insensitively", () => {
             functionDeclaration.text = "Step name here";
             functionCall.text = "step name here";
             functionCall.filename = "filename.txt";
@@ -488,13 +488,13 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [strings]", function() {
+        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [strings]", () => {
             functionDeclaration.text = "Step {{var1}} and {{var2}} {{var3}} also {{var4}}, {{var5}}";
             functionCall.text = "Step {{varA}} and  {varB} 'string C' also \"stringD\", [4th 'Login' button]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", [strings], and escaped single and double quotes", function() {
+        it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", [strings], and escaped single and double quotes", () => {
             functionDeclaration.text = "Step {{var1}} a\\'nd {{var2}} {{var3}} \\'al\\\"so {{var4}}, {{var5}}";
             functionCall.text = "Step {{varA}} a\\'nd  {varB} 'string C' \\'al\\\"so \"stringD\", [4th 'Login' button]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -504,43 +504,43 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("doesn't match a function declaration with {{vars}} and a function call with extra text at the end", function() {
+        it("doesn't match a function declaration with {{vars}} and a function call with extra text at the end", () => {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step 'one' two three";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("doesn't match a function declaration with {{vars}} and a function call with extra {vars} at the end", function() {
+        it("doesn't match a function declaration with {{vars}} and a function call with extra {vars} at the end", () => {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step {varA} {varB}";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("doesn't match a function declaration with {{vars}} and a function call with extra 'strings' at the end", function() {
+        it("doesn't match a function declaration with {{vars}} and a function call with extra 'strings' at the end", () => {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step 'stringA' 'stringB'";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("doesn't match a function declaration with {{vars}} and a function call with extra [string] at the end", function() {
+        it("doesn't match a function declaration with {{vars}} and a function call with extra [string] at the end", () => {
             functionDeclaration.text = "Step {{var1}}";
             functionCall.text = "Step {varA} ['element' finderB]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("doesn't match a function declaration with a function call with extra text at the end", function() {
+        it("doesn't match a function declaration with a function call with extra text at the end", () => {
             functionDeclaration.text = "Step one two";
             functionCall.text = "Step   one  two   three  ";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("doesn't match a function declaration with extra text at the end with a function call", function() {
+        it("doesn't match a function declaration with extra text at the end with a function call", () => {
             functionDeclaration.text = "Step   one  two   three  ";
             functionCall.text = "Step one two";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("matches a function declaration that ends in * with a function call with extra text at the end", function() {
+        it("matches a function declaration that ends in * with a function call with extra text at the end", () => {
             functionDeclaration.text = "Step one two *";
             functionCall.text = "Step   one  two   three  ";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
@@ -550,46 +550,46 @@ describe("Step", function() {
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("doesn't match a function declaration that ends in * with extra text at the end with a function call", function() {
+        it("doesn't match a function declaration that ends in * with extra text at the end with a function call", () => {
             functionDeclaration.text = "Step   one  two   three  * ";
             functionCall.text = "Step one two";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
-        it("matches a function declaration that ends in * and a function call with extra text at the end", function() {
+        it("matches a function declaration that ends in * and a function call with extra text at the end", () => {
             functionDeclaration.text = "Step {{var1}} *";
             functionCall.text = "Step 'one' two three";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function declaration that ends in * and a function call with extra {vars} at the end", function() {
+        it("matches a function declaration that ends in * and a function call with extra {vars} at the end", () => {
             functionDeclaration.text = "Step {{var1}} * ";
             functionCall.text = "Step {varA} {varB}";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function declaration that ends in * and a function call with extra 'strings' at the end", function() {
+        it("matches a function declaration that ends in * and a function call with extra 'strings' at the end", () => {
             functionDeclaration.text = "Step {{var1}} * ";
             functionCall.text = "Step 'stringA' 'stringB'";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
-        it("matches a function declaration that ends in * and a function call with extra [string] at the end", function() {
+        it("matches a function declaration that ends in * and a function call with extra [string] at the end", () => {
             functionDeclaration.text = "Step {{var1}} *";
             functionCall.text = "Step {varA} ['element' finderB]";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
     });
 
-    describe("getFunctionCallText()", function() {
-        it("returns function call text for a function call", function() {
+    describe("getFunctionCallText()", () => {
+        it("returns function call text for a function call", () => {
             let step = new Step();
             step.isFunctionCall = true;
             step.text = "Function call";
             expect(step.getFunctionCallText()).to.equal("Function call");
         });
 
-        it("returns function call text for a function call in form {var} = F", function() {
+        it("returns function call text for a function call in form {var} = F", () => {
             let step = new Step();
             step.isFunctionCall = true;
             step.text = "{var} = Function call";
@@ -597,15 +597,15 @@ describe("Step", function() {
             expect(step.getFunctionCallText()).to.equal("Function call");
         });
 
-        it("returns null for a non-function call", function() {
+        it("returns null for a non-function call", () => {
             let step = new Step();
             step.isFunctionCall = false;
             expect(step.getFunctionCallText()).to.equal(null);
         });
     });
 
-    describe("mergeInFunctionDeclaration()", function() {
-        it("merges in function declaration", function() {
+    describe("mergeInFunctionDeclaration()", () => {
+        it("merges in function declaration", () => {
             let step = new Step();
             step.isToDo = true;
 
@@ -623,7 +623,7 @@ describe("Step", function() {
             expect(step.functionDeclarationText).to.equal("T");
         });
 
-        it("merges in function declaration with all identifiers set to false", function() {
+        it("merges in function declaration with all identifiers set to false", () => {
             let step = new Step();
 
             let functionDeclarationInTree = new Step();
@@ -650,7 +650,7 @@ describe("Step", function() {
             expect(step.functionDeclarationText).to.equal("T");
         });
 
-        it("merges in function declaration with all identifiers missing", function() {
+        it("merges in function declaration with all identifiers missing", () => {
             let step = new Step();
 
             let functionDeclarationInTree = new Step();
@@ -668,7 +668,7 @@ describe("Step", function() {
             expect(step.functionDeclarationText).to.equal(undefined);
         });
 
-        it("merges in code block", function() {
+        it("merges in code block", () => {
             let step = new Step();
 
             let functionDeclarationInTree = new Step();
@@ -680,8 +680,8 @@ describe("Step", function() {
         });
     });
 
-    describe("cloneAsFunctionCall()", function() {
-        it("clones a function declaration step into a function call step", function() {
+    describe("cloneAsFunctionCall()", () => {
+        it("clones a function declaration step into a function call step", () => {
             let functionDeclarationInTree = new Step();
             functionDeclarationInTree.isFunctionDeclaration = true;
             functionDeclarationInTree.text = "My function";

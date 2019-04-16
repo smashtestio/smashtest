@@ -13,9 +13,9 @@ const RunInstance = require('../../runinstance.js');
 chai.use(chaiSubset);
 chai.use(chaiAsPromised);
 
-describe("RunInstance", function() {
-    describe("run()", function() {
-        it("runs a branch it pulls from the tree", async function() {
+describe("RunInstance", () => {
+    describe("run()", () => {
+        it("runs a branch it pulls from the tree", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -37,7 +37,7 @@ A -
             expect(runInstance.ranStepC).to.be.true;
         });
 
-        it("runs multiple branches it pulls from the tree", async function() {
+        it("runs multiple branches it pulls from the tree", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -71,7 +71,7 @@ A -
             expect(runInstance.ranStepE).to.be.true;
         });
 
-        it("handles a step that fails but doesn't end the branch", async function() {
+        it("handles a step that fails but doesn't end the branch", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -100,7 +100,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.true;
         });
 
-        it("handles a step that fails and ends the branch", async function() {
+        it("handles a step that fails and ends the branch", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -127,7 +127,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.true;
         });
 
-        it("handles a ~ step that pauses execution before the step", async function() {
+        it("handles a ~ step that pauses execution before the step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -162,7 +162,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.undefined;
         });
 
-        it("handles a ~ step that pauses execution after the step", async function() {
+        it("handles a ~ step that pauses execution after the step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -197,7 +197,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.undefined;
         });
 
-        it("handles a failed step that pauses execution via pauseOnFail", async function() {
+        it("handles a failed step that pauses execution via pauseOnFail", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -232,7 +232,7 @@ A -
 
         });
 
-        it("handles a resume from a previous pause, where the current step never ran", async function() {
+        it("handles a resume from a previous pause, where the current step never ran", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -273,7 +273,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.undefined;
         });
 
-        it("handles a resume from a previous pause, where the current step completed", async function() {
+        it("handles a resume from a previous pause, where the current step completed", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -312,7 +312,7 @@ A -
             expect(runInstance.ranStepD).to.be.true;
         });
 
-        it("handles a resume from a previous pause, where the current step has ~ before and after itself", async function() {
+        it("handles a resume from a previous pause, where the current step has ~ before and after itself", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -351,7 +351,7 @@ A -
             expect(runInstance.ranStepD).to.be.true;
         });
 
-        it("handles a resume from a previous pause, where the current step never ran and is the last step", async function() {
+        it("handles a resume from a previous pause, where the current step never ran and is the last step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A  {
@@ -400,7 +400,7 @@ A  {
             expect(runInstance.beforeEveryBranchRan).to.be.true;
         });
 
-        it("handles a resume from a previous pause, where the current step completed and is the last step", async function() {
+        it("handles a resume from a previous pause, where the current step completed and is the last step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -448,7 +448,7 @@ A {
             expect(runInstance.beforeEveryBranchRan).to.be.true;
         });
 
-        it("handles a resume from a previous pause, where the current step completed in error, and is the last step", async function() {
+        it("handles a resume from a previous pause, where the current step completed in error, and is the last step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -501,7 +501,7 @@ A {
             expect(runInstance.beforeEveryBranchRan).to.be.true;
         });
 
-        it("handles one branch that fails and one that passes", async function() {
+        it("handles one branch that fails and one that passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -526,7 +526,7 @@ A -
             expect(tree.branches[1].isFailed).to.be.undefined;
         });
 
-        it("handles a stop during a step", async function() {
+        it("handles a stop during a step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Wait 10ms, cause a stop, then wait 10 ms more {
@@ -566,7 +566,7 @@ Second branch -
             expect(runInstance.ranStepB).to.be.undefined;
         });
 
-        it("runs a Before Every Branch hook", async function() {
+        it("runs a Before Every Branch hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -601,7 +601,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.undefined;
         });
 
-        it("runs an After Every Branch hook", async function() {
+        it("runs an After Every Branch hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -636,7 +636,7 @@ A -
             expect(tree.branches[0].isFailed).to.be.undefined;
         });
 
-        it("runs multiple Before Every Branch and After Every Branch hooks, with multiple branches", async function() {
+        it("runs multiple Before Every Branch and After Every Branch hooks, with multiple branches", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -673,7 +673,7 @@ A -
             expect(runInstance.count).to.equal(208);
         });
 
-        it("runs After Every Branch hooks even if a branch fails", async function() {
+        it("runs After Every Branch hooks even if a branch fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -703,7 +703,7 @@ A -
             expect(runInstance.count).to.equal(10);
         });
 
-        it("handles an error inside a Before Every Branch hook", async function() {
+        it("handles an error inside a Before Every Branch hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -749,7 +749,7 @@ A -
             expect(runInstance.afterCount).to.equal(2); // remaining After Every Branch hooks are still run
         });
 
-        it("handles an error inside an After Every Branch hook", async function() {
+        it("handles an error inside an After Every Branch hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -801,7 +801,7 @@ A -
             expect(runInstance.beforeCount).to.equal(2);
         });
 
-        it("handles a stop during a Before Every Branch hook execution", async function() {
+        it("handles a stop during a Before Every Branch hook execution", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -839,7 +839,7 @@ B {
             expect(runInstance.beforeCount).to.equal(1);
         });
 
-        it("handles a stop during an After Every Branch hook execution", async function() {
+        it("handles a stop during an After Every Branch hook execution", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -874,7 +874,7 @@ B {
             expect(runInstance.afterCount).to.be.equal(1);
         });
 
-        it("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", async function() {
+        it("a {var} and {{var}} declared in a branch is accessible in an After Every Branch hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -897,7 +897,7 @@ B {
             expect(runInstance.var2).to.equal("bar");
         });
 
-        it("clears local and global variables between different branches", async function() {
+        it("clears local and global variables between different branches", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First branch -
@@ -922,7 +922,7 @@ Second branch -
             expect(runInstance.var2).to.be.undefined;
         });
 
-        it("sets branch.elapsed to how long it took the branch to execute", async function() {
+        it("sets branch.elapsed to how long it took the branch to execute", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Wait 20ms {
@@ -945,7 +945,7 @@ Wait 20ms {
             expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
         });
 
-        it("sets branch.elapsed to how long it took the branch to execute when a stop ocurred", async function() {
+        it("sets branch.elapsed to how long it took the branch to execute when a stop ocurred", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Wait '20' ms
@@ -976,7 +976,7 @@ Wait '20' ms
             expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
         });
 
-        it("sets branch.elapsed to -1 when a pause and when a resume occurred", async function() {
+        it("sets branch.elapsed to -1 when a pause and when a resume occurred", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First step -
@@ -1004,7 +1004,7 @@ First step -
             expect(tree.branches[0].timeStarted instanceof Date).to.equal(true);
         });
 
-        it("throws an error when trying to start a previously stopped RunInstance", async function() {
+        it("throws an error when trying to start a previously stopped RunInstance", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Cause a stop {
@@ -1020,7 +1020,7 @@ Cause a stop {
             await expect(runInstance.run()).to.be.rejectedWith("Cannot run a stopped runner");
         });
 
-        it("resets global vars to their inits from the Runner", async function() {
+        it("resets global vars to their inits from the Runner", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Run one at a time - +
@@ -1055,8 +1055,8 @@ Run one at a time - +
         });
     });
 
-    describe("runStep()", function() {
-        it("executes a textual step", async function() {
+    describe("runStep()", () => {
+        it("executes a textual step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -1072,7 +1072,7 @@ A -
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a step with a code block", async function() {
+        it("executes a step with a code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A - {
@@ -1092,7 +1092,7 @@ A - {
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with no {{variables}} in its function declaration", async function() {
+        it("executes a function call with no {{variables}} in its function declaration", async () => {
             let tree = new Tree();
             tree.parseIn(`
 F
@@ -1114,7 +1114,7 @@ F
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in 'strings'", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in 'strings'", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'foo' Function 'bar'
@@ -1143,7 +1143,7 @@ My 'foo' Function 'bar'
             ]);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async () => {
             let tree = new Tree();
             tree.parseIn(`
 "foo" My "bar"  Function 'blah'
@@ -1175,7 +1175,7 @@ My 'foo' Function 'bar'
             ]);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in {variables}", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in {variables}", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My {A} Function { b }
@@ -1201,7 +1201,7 @@ My {A} Function { b }
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in {variables} set to js objects", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in {variables} set to js objects", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Set vars {
@@ -1226,7 +1226,7 @@ Set vars {
             expect(tree.branches[0].steps[1].log[0]).to.eql( {text: "Function parameter {{X}} is [object Object]"} );
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My {{A}} Function {{ b }} { a B  c }
@@ -1255,7 +1255,7 @@ My {{A}} Function {{ b }} { a B  c }
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My '{A} and { b }' Function '{B}'
@@ -1281,7 +1281,7 @@ My '{A} and { b }' Function '{B}'
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My "{A} and { b }" Function "{B}"
@@ -1307,7 +1307,7 @@ My "{A} and { b }" Function "{B}"
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in [strings]", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in [strings]", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My [4th 'Login' button next to 'something'] Function [ big link ]
@@ -1331,7 +1331,7 @@ My [4th 'Login' button next to 'something'] Function [ big link ]
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in [strings containing {variables}]", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in [strings containing {variables}]", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
@@ -1360,7 +1360,7 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", [strings], {variables}, {{variables}}, including strings with variables inside", async function() {
+        it("executes a function call with {{variables}} in its function declaration, passing in 'strings', \"strings\", [strings], {variables}, {{variables}}, including strings with variables inside", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\\"66\\\"" [{{seventh}} seven 'th']
@@ -1398,7 +1398,7 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with {{variables}} in its function declaration, that has no code block, passing in 'strings', \"strings\", [strings], {variables}, {{variables}}, including strings with variables inside", async function() {
+        it("executes a function call with {{variables}} in its function declaration, that has no code block, passing in 'strings', \"strings\", [strings], {variables}, {{variables}}, including strings with variables inside", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\\"66\\\"" [{{seventh}} seven 'th']
@@ -1512,7 +1512,7 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async function() {
+        it("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My {var} Function
@@ -1535,7 +1535,7 @@ My {var} Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", async function() {
+        it("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My {var} Function
@@ -1560,7 +1560,7 @@ My {var} Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", async function() {
+        it("executes a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My {var} Function
@@ -1585,7 +1585,7 @@ My {var} Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes function call that ends in a *, with variables", async function() {
+        it("executes function call that ends in a *, with variables", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My big 'foobar' function
@@ -1621,7 +1621,7 @@ My big 'foobar' function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("fails step if a function call has a {variable} passed in and it is never set", async function() {
+        it("fails step if a function call has a {variable} passed in and it is never set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My {var} Function
@@ -1644,7 +1644,7 @@ My {var} Function
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async function() {
+        it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'so called {var}' Function
@@ -1667,7 +1667,7 @@ My 'so called {var}' Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async function() {
+        it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'so called {var}' Function
@@ -1692,7 +1692,7 @@ My 'so called {var}' Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("fails step if a function call has a 'string' containing a let passed in and that let is only set in a later step, which is an asynchronous code block", async function() {
+        it("fails step if a function call has a 'string' containing a let passed in and that let is only set in a later step, which is an asynchronous code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'so called {var}' Function
@@ -1718,7 +1718,7 @@ My 'so called {var}' Function
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("fails step if a function call has a 'string' containing a let that is never set", async function() {
+        it("fails step if a function call has a 'string' containing a let that is never set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'so called {var}' Function
@@ -1741,7 +1741,7 @@ My 'so called {var}' Function
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("executes a function call where the function has no steps inside of it", async function() {
+        it("executes a function call where the function has no steps inside of it", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My Function
@@ -1759,7 +1759,7 @@ My Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("allows {{variables}} passed in through a function call to be accessed by steps inside the function", async function() {
+        it("allows {{variables}} passed in through a function call to be accessed by steps inside the function", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My {var} Function
@@ -1786,7 +1786,7 @@ My {var} Function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("allows {{variables}} passed in through a function call to be accessed by the function's code block", async function() {
+        it("allows {{variables}} passed in through a function call to be accessed by the function's code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My {var} Function
@@ -1809,7 +1809,7 @@ My {var} Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("allows {{variables}} to be accessed through a non-function-call code block", async function() {
+        it("allows {{variables}} to be accessed through a non-function-call code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}} = 'foobar'
@@ -1833,7 +1833,7 @@ My {var} Function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("ignores {{variables}} inside the text of a textual step", async function() {
+        it("ignores {{variables}} inside the text of a textual step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A textual step {{var1}} -
@@ -1857,7 +1857,7 @@ A textual step {{var1}} -
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", async function() {
+        it("ignores {{variables}} inside the text of a textual step with a code block, but those {{variables}} are still accessible inside the code block nonetheless", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}} = 'foobar'
@@ -1881,7 +1881,7 @@ A textual step {{var1}} -
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", async function() {
+        it("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'string with {var}' Function
@@ -1904,7 +1904,7 @@ My 'string with {var}' Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async function() {
+        it("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'string with {var}' Function
@@ -1927,7 +1927,7 @@ My 'string with {var}' Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a function call with nothing in its body", async function() {
+        it("executes a function call with nothing in its body", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'foobar' Function
@@ -1948,7 +1948,7 @@ My 'foobar' Function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("handles a function declaration where multiple {{variables}} have the same name", async function() {
+        it("handles a function declaration where multiple {{variables}} have the same name", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'foo' Function 'bar'
@@ -1972,7 +1972,7 @@ My 'foo' Function 'bar'
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it('matches a function declaration that ends with * and a function call with extra text at the end, and the step text is accessible via getStepText()', async function() {
+        it('matches a function declaration that ends with * and a function call with extra text at the end, and the step text is accessible via getStepText()', async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'foo' Function 'bar' other text
@@ -1999,7 +1999,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {var} = 'string' step", async function() {
+        it("executes a {var} = 'string' step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = 'foobar'
@@ -2019,7 +2019,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {{var}} = 'string' step", async function() {
+        it("executes a {{var}} = 'string' step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}} = 'foobar'
@@ -2043,7 +2043,7 @@ My 'foo' Function 'bar' other text
             ]);
         });
 
-        it("executes a {var} = \"string\" step", async function() {
+        it("executes a {var} = \"string\" step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = "foobar"
@@ -2063,7 +2063,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {var} = [string] step", async function() {
+        it("executes a {var} = [string] step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = [foobar]
@@ -2083,7 +2083,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {var} = '{other var}' step", async function() {
+        it("executes a {var} = '{other var}' step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -2110,7 +2110,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("executes a {var1} = '{var2} {{var2}} [something]' step", async function() {
+        it("executes a {var1} = '{var2} {{var2}} [something]' step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -2139,7 +2139,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[1].log[1]).to.eql( {text: "Setting {var2} to \"foobar blah bleh [something]\""} );
         });
 
-        it("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async function() {
+        it("executes a {var1} = [ 'string {var2}' {{var3}} ] step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ..
@@ -2166,7 +2166,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("executes a {var1} = 'string1', {{var2}} = 'string2', {{var3}} = [string3] etc. step", async function() {
+        it("executes a {var1} = 'string1', {{var2}} = 'string2', {{var3}} = [string3] etc. step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = 'one', {{var2}} = "two", {{ var 3 }}=[three]
@@ -2186,7 +2186,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {var} = Text { code block } step", async function() {
+        it("executes a {var} = Text { code block } step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = Text {
@@ -2206,7 +2206,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {var} = Function step, where the function declaration has a code block that returns a value", async function() {
+        it("executes a {var} = Function step, where the function declaration has a code block that returns a value", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = My function
@@ -2228,7 +2228,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {var} = Function step, where the function declaration has a code block that returns a value asynchonously", async function() {
+        it("executes a {var} = Function step, where the function declaration has a code block that returns a value asynchonously", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var} = Set that var! {
@@ -2259,7 +2259,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
+        it("executes a {var} = Function step, where the function declaration has {{variables}} and has a code block that returns a value", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = My "foobar" function
@@ -2281,7 +2281,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {var} = Function with {vars passed in} step, where the function declaration has {{variables}} and has a code block that returns a value", async function() {
+        it("executes a {var} = Function with {vars passed in} step, where the function declaration has {{variables}} and has a code block that returns a value", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = My {var2} function
@@ -2304,7 +2304,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a {var} = Function step, where the function declaration is in {x}='value' format", async function() {
+        it("executes a {var} = Function step, where the function declaration is in {x}='value' format", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = My function
@@ -2328,7 +2328,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("executes a {var} = Function step, where the function declaration is in {x}='value' and {x}=Func format", async function() {
+        it("executes a {var} = Function step, where the function declaration is in {x}='value' and {x}=Func format", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1} = My function
@@ -2359,7 +2359,7 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("allows a code block to get local, global, and persistent variables via getter functions", async function() {
+        it("allows a code block to get local, global, and persistent variables via getter functions", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Text {
@@ -2386,7 +2386,7 @@ Text {
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("allows a code block to set local, global, and persistent variables via setter functions", async function() {
+        it("allows a code block to set local, global, and persistent variables via setter functions", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Text {
@@ -2410,7 +2410,7 @@ Text {
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", async function() {
+        it("makes a passed-in {{variable}} accessible as a plain js variable inside a code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'foo' "bar" function
@@ -2439,7 +2439,7 @@ My 'foo' "bar" function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
+        it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'foobar' function
@@ -2462,7 +2462,7 @@ My 'foobar' function
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
+        it("does not make a passed-in {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My 'foobar' function
@@ -2485,7 +2485,7 @@ My 'foobar' function
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("makes a {variable} accessible as a plain js variable inside a code block", async function() {
+        it("makes a {variable} accessible as a plain js variable inside a code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {one}='foobar'
@@ -2516,7 +2516,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("does not make a {{variable}} accessible as a plain js variable inside a function's code block", async function() {
+        it("does not make a {{variable}} accessible as a plain js variable inside a function's code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{one}}='foobar'
@@ -2542,7 +2542,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("makes a {{variable}} accessible as a plain js variable inside a non-function code block", async function() {
+        it("makes a {{variable}} accessible as a plain js variable inside a non-function code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{one}}='foobar'
@@ -2573,7 +2573,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("sets the plain js variable inside a code block to a passed-in {{variable}} when an existing {{variable}} of the same name is defined", async function() {
+        it("sets the plain js variable inside a code block to a passed-in {{variable}} when an existing {{variable}} of the same name is defined", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{one}}='foo'
@@ -2613,7 +2613,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async function() {
+        it("does not make a {{variable}} accessible as a plain js variable inside a code block if it has non-whitelisted chars in its name", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{one%}}='foobar'
@@ -2639,7 +2639,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async function() {
+        it("does not make a {{variable}} accessible as a plain js variable inside a code block if its name is blacklisted", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{for}}='foobar'
@@ -2665,7 +2665,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("when a {{var}} and {var} of the same name both exist and both get passed into a code block, the js variable is set to the local version", async function() {
+        it("when a {{var}} and {var} of the same name both exist and both get passed into a code block, the js variable is set to the local version", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2697,7 +2697,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("when a {{var}} and a persistent let of the same name both exist, the js variable for let is set to the local version", async function() {
+        it("when a {{var}} and a persistent let of the same name both exist, the js variable for let is set to the local version", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2727,7 +2727,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("when a {var} and a persistent let of the same name both exist, the js variable for let is set to the global version", async function() {
+        it("when a {var} and a persistent let of the same name both exist, the js variable for let is set to the global version", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -2757,7 +2757,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("a {{var}} is accessible in a later step", async function() {
+        it("a {{var}} is accessible in a later step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2778,7 +2778,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("a {{var}} is accessible in a later step, with a function call without code block in between", async function() {
+        it("a {{var}} is accessible in a later step, with a function call without code block in between", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2808,7 +2808,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it("a {{var}} is accessible in a later step, with a function call with code block in between", async function() {
+        it("a {{var}} is accessible in a later step, with a function call with code block in between", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2837,7 +2837,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("a {{var}} is accessible in a later step, with a non-function code block in between", async function() {
+        it("a {{var}} is accessible in a later step, with a non-function code block in between", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2866,7 +2866,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("does not make a {{var}} declared outside a function call accessible to steps inside the function call", async function() {
+        it("does not make a {{var}} declared outside a function call accessible to steps inside the function call", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2896,7 +2896,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it("does not make a {{var}} declared outside a function call accessible inside the function call's code block", async function() {
+        it("does not make a {{var}} declared outside a function call accessible inside the function call's code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2921,7 +2921,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("makes a {{var}} declared outside a function call accessible after the function call, where the function has steps inside it", async function() {
+        it("makes a {{var}} declared outside a function call accessible after the function call, where the function has steps inside it", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2954,7 +2954,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it("makes a {{var}} declared outside a function call accessible after the function call, where the function has a code block only", async function() {
+        it("makes a {{var}} declared outside a function call accessible after the function call, where the function has a code block only", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -2986,7 +2986,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("makes a {{var}} declared outside a function call accessible after the function call, where the function has a code block and has steps inside it", async function() {
+        it("makes a {{var}} declared outside a function call accessible after the function call, where the function has a code block and has steps inside it", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -3024,7 +3024,7 @@ My 'foobar' function
             expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it("does not make a {{var}} declared inside a function accessible outside of it", async function() {
+        it("does not make a {{var}} declared inside a function accessible outside of it", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3051,7 +3051,7 @@ My function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("clears {{local vars}} and reinstates previous {{local vars}} when exiting multiple levels of function calls", async function() {
+        it("clears {{local vars}} and reinstates previous {{local vars}} when exiting multiple levels of function calls", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -3231,7 +3231,7 @@ My function
             expect(tree.branches[0].steps[23].error).to.equal(undefined);
         });
 
-        it("a {var} is accessible in a later step", async function() {
+        it("a {var} is accessible in a later step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -3252,7 +3252,7 @@ My function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("a {var} is accessible in a later step, with a function call without code block in between", async function() {
+        it("a {var} is accessible in a later step, with a function call without code block in between", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -3282,7 +3282,7 @@ My function
             expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it("a {var} is accessible in a later step, with a function call with code block in between", async function() {
+        it("a {var} is accessible in a later step, with a function call with code block in between", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -3312,7 +3312,7 @@ My function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("a {var} is accessible in a later step, with a non-function code block in between", async function() {
+        it("a {var} is accessible in a later step, with a non-function code block in between", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -3341,7 +3341,7 @@ My function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("a {var} is accessible inside a function call's code block", async function() {
+        it("a {var} is accessible inside a function call's code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -3368,7 +3368,7 @@ My function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("a {var} is accessible to steps inside a function call", async function() {
+        it("a {var} is accessible to steps inside a function call", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -3397,7 +3397,7 @@ My function
             expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it("a {var} is accessible to code blocks of steps inside a function call", async function() {
+        it("a {var} is accessible to code blocks of steps inside a function call", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -3434,7 +3434,7 @@ My function
             expect(tree.branches[0].steps[3].error).to.equal(undefined);
         });
 
-        it("a {var} declared inside a function call is accessible in steps after the function call", async function() {
+        it("a {var} declared inside a function call is accessible in steps after the function call", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3461,7 +3461,7 @@ My function
             expect(tree.branches[0].steps[2].error).to.equal(undefined);
         });
 
-        it("a {var} declared in a branch is accessible in an After Every Step hook", async function() {
+        it("a {var} declared in a branch is accessible in an After Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -3486,7 +3486,7 @@ My function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async function() {
+        it("a {{var}} declared in a branch is accessible in an After Every Step hook, so long as it didn't go out of scope", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {{var1}}='foo'
@@ -3511,7 +3511,7 @@ My function
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("executes a step that logs", async function() {
+        it("executes a step that logs", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3547,7 +3547,7 @@ My function
             expect(tree.branches[0].steps[1].error).to.equal(undefined);
         });
 
-        it("sets the error's filename and lineNumber correctly when an error occurs inside a code block", async function() {
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Something {
@@ -3571,7 +3571,7 @@ Something {
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("sets the error's filename and lineNumber correctly when an error occurs inside a function used inside a code block", async function() {
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a function used inside a code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Something {
@@ -3586,7 +3586,7 @@ Something {
             runner.init(tree);
             let runInstance = new RunInstance(runner);
 
-            runInstance.badFunc = function() {
+            runInstance.badFunc = () => {
                 let a = "a";
                 let b = "b";
                 c;
@@ -3605,11 +3605,11 @@ Something {
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("sets the error's filename and lineNumber correctly when an error occurs inside a function from one code block that's used inside another code block", async function() {
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a function from one code block that's used inside another code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First {
-    runInstance.badFunc = function() {
+    runInstance.badFunc = () => {
         let a = "a";
         let b = "b";
         c;
@@ -3642,7 +3642,7 @@ First {
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("sets the error's filename and lineNumber correctly when an error occurs inside a js function implemented inside a code block", async function() {
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a js function implemented inside a code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Something {
@@ -3673,7 +3673,7 @@ Something {
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("sets the error's filename and lineNumber to the function call when an error occurs inside a packaged code block", async function() {
+        it("sets the error's filename and lineNumber to the function call when an error occurs inside a packaged code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Packaged function
@@ -3703,7 +3703,7 @@ tree.parseIn(`
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("sets the error's filename and lineNumber correctly when an error occurs inside a required function", async function() {
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a required function", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Something {
@@ -3730,7 +3730,7 @@ Something {
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("marks a step as expectedly failed when it expectedly fails", async function() {
+        it("marks a step as expectedly failed when it expectedly fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function #
@@ -3764,7 +3764,7 @@ My function #
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("marks a step as unexpectedly failed when it unexpectedly fails", async function() {
+        it("marks a step as unexpectedly failed when it unexpectedly fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3799,7 +3799,7 @@ My function
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("marks a step as expectedly passed when it expectedly passes", async function() {
+        it("marks a step as expectedly passed when it expectedly passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3831,7 +3831,7 @@ My function
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("marks a step as unexpectedly passed when it unexpectedly passes", async function() {
+        it("marks a step as unexpectedly passed when it unexpectedly passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function #
@@ -3865,7 +3865,7 @@ My function #
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("handles bad syntax in a code block step", async function() {
+        it("handles bad syntax in a code block step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -3905,7 +3905,7 @@ A -
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async function() {
+        it("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3942,7 +3942,7 @@ My function
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async function() {
+        it("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3979,7 +3979,7 @@ My function
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("doesn't finish off the branch if a step has an expected error and pauseOnFail is set", async function() {
+        it("doesn't finish off the branch if a step has an expected error and pauseOnFail is set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function #
@@ -4016,7 +4016,7 @@ My function #
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("doesn't finish off the branch if a step has an unexpected pass and pauseOnFail is set", async function() {
+        it("doesn't finish off the branch if a step has an unexpected pass and pauseOnFail is set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function #
@@ -4050,7 +4050,7 @@ My function #
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("pauses when a ~ step is encountered before the step", async function() {
+        it("pauses when a ~ step is encountered before the step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4071,7 +4071,7 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("pauses when a ~ step is encountered after the step", async function() {
+        it("pauses when a ~ step is encountered after the step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4092,7 +4092,7 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when the ~ is before the step", async function() {
+        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when the ~ is before the step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4119,7 +4119,7 @@ A -
             expect(runInstance.getGlobal("var1")).to.equal("foo");
         });
 
-        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when the ~ is after the step", async function() {
+        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when the ~ is after the step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4146,7 +4146,7 @@ A -
             expect(runInstance.getGlobal("var1")).to.equal("foo");
         });
 
-        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when ~ is before and after the step", async function() {
+        it("when resuming from a pause on a ~, doesn't pause on the same ~ again, when ~ is before and after the step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4173,7 +4173,7 @@ A -
             expect(runInstance.getGlobal("var1")).to.equal("foo");
         });
 
-        it("pauses when pauseOnFail is set and a step unexpectedly fails", async function() {
+        it("pauses when pauseOnFail is set and a step unexpectedly fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4197,7 +4197,7 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("pauses when pauseOnFail is set and a step expectedly fails", async function() {
+        it("pauses when pauseOnFail is set and a step expectedly fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4221,7 +4221,7 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("pauses when pauseOnFail is set and a step unexpectedly passes", async function() {
+        it("pauses when pauseOnFail is set and a step unexpectedly passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4243,7 +4243,7 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("doesn't pause when pauseOnFail is set and a step expectedly passes", async function() {
+        it("doesn't pause when pauseOnFail is set and a step expectedly passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4265,7 +4265,7 @@ A -
             expect(runInstance.isPaused).to.equal(false);
         });
 
-        it("doesn't pause when pauseOnFail is not set and a step unexpectedly fails", async function() {
+        it("doesn't pause when pauseOnFail is not set and a step unexpectedly fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4288,7 +4288,7 @@ A -
             expect(runInstance.isPaused).to.equal(false);
         });
 
-        it("doesn't pause when pauseOnFail is not set and a step unexpectedly passes", async function() {
+        it("doesn't pause when pauseOnFail is not set and a step unexpectedly passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4309,7 +4309,7 @@ A -
             expect(runInstance.isPaused).to.equal(false);
         });
 
-        it("runs a Before Every Step hook", async function() {
+        it("runs a Before Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4327,7 +4327,7 @@ A -
             expect(runInstance.one).to.equal("foo");
         });
 
-        it("runs multiple Before Every Step and After Every Step hooks", async function() {
+        it("runs multiple Before Every Step and After Every Step hooks", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -4371,7 +4371,7 @@ A {
             expect(runInstance.two).to.equal("twoEIGHTsix");
         });
 
-        it("handles an error inside a Before Every Step hook", async function() {
+        it("handles an error inside a Before Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4406,7 +4406,7 @@ A -
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("a # doesn't apply to an error inside a Before Every Step hook", async function() {
+        it("a # doesn't apply to an error inside a Before Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A # -
@@ -4440,7 +4440,7 @@ A # -
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("handles an error inside an After Every Step hook", async function() {
+        it("handles an error inside an After Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4475,7 +4475,7 @@ A -
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("a # doesn't apply to an error inside an After Every Step hook", async function() {
+        it("a # doesn't apply to an error inside an After Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A - #
@@ -4509,7 +4509,7 @@ A - #
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("stops running Before Every Step hooks when an error occurs inside a Before Every Step hook, doesn't run actual step, but runs all After Every Step hooks and doesn't override the existing error", async function() {
+        it("stops running Before Every Step hooks when an error occurs inside a Before Every Step hook, doesn't run actual step, but runs all After Every Step hooks and doesn't override the existing error", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -4550,7 +4550,7 @@ A {
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(11);
         });
 
-        it("pauses when an error occurs inside a Before Every Step hook and pauseOnFail is set", async function() {
+        it("pauses when an error occurs inside a Before Every Step hook and pauseOnFail is set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4572,7 +4572,7 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("pauses when an error occurs inside an After Every Step hook and pauseOnFail is set", async function() {
+        it("pauses when an error occurs inside an After Every Step hook and pauseOnFail is set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4594,7 +4594,7 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("pauses when an error occurs inside a Before Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", async function() {
+        it("pauses when an error occurs inside a Before Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4620,7 +4620,7 @@ A -
             expect(runInstance.afterEveryBranchRan).to.equal(undefined);
         });
 
-        it("pauses when an error occurs inside an After Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", async function() {
+        it("pauses when an error occurs inside an After Every Step hook, pauseOnFail is set, and we we're at the last step of the branch", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4646,7 +4646,7 @@ A -
             expect(runInstance.afterEveryBranchRan).to.equal(undefined);
         });
 
-        it("sets step.elapsed to how long it took step to execute", async function() {
+        it("sets step.elapsed to how long it took step to execute", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Wait 20ms {
@@ -4669,7 +4669,7 @@ Wait 20ms {
             expect(tree.branches[0].steps[0].timeStarted instanceof Date).to.equal(true);
         });
 
-        it("exits after running After Every Step hooks if an error occurs during a step", async function() {
+        it("exits after running After Every Step hooks if an error occurs during a step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First step {
@@ -4712,7 +4712,7 @@ First step {
             expect(runInstance.afterEveryStep2Ran).to.equal(true);
         });
 
-        it("exits after running After Every Step hooks if an error occurs during a Before Every Step hook", async function() {
+        it("exits after running After Every Step hooks if an error occurs during a Before Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First step {
@@ -4755,7 +4755,7 @@ First step {
             expect(runInstance.afterEveryStep2Ran).to.equal(true);
         });
 
-        it("exits after running After Every Step hooks if an error occurs during an After Every Step hook", async function() {
+        it("exits after running After Every Step hooks if an error occurs during an After Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First step {
@@ -4798,7 +4798,7 @@ First step {
             expect(runInstance.afterEveryStep2Ran).to.equal(true);
         });
 
-        it("exits immediately if a stop occurs during a step", async function() {
+        it("exits immediately if a stop occurs during a step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First step {
@@ -4849,7 +4849,7 @@ First step {
             expect(runInstance.afterEveryStep2Ran).to.equal(undefined);
         });
 
-        it("exits immediately if a stop occurs during a Before Every Step hook", async function() {
+        it("exits immediately if a stop occurs during a Before Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First step {
@@ -4900,7 +4900,7 @@ First step {
             expect(runInstance.afterEveryStep2Ran).to.equal(undefined);
         });
 
-        it("exits immediately if a stop occurs during an After Every Step hook", async function() {
+        it("exits immediately if a stop occurs during an After Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
 First step {
@@ -4951,7 +4951,7 @@ First step {
             expect(runInstance.afterEveryStep2Ran).to.equal(undefined);
         });
 
-        it("a persistent variable set in one RunInstance is accessible in another RunInstance", async function() {
+        it("a persistent variable set in one RunInstance is accessible in another RunInstance", async () => {
             let tree = new Tree();
 
             let runner = new Runner();
@@ -4965,8 +4965,8 @@ First step {
         });
     });
 
-    describe("runHookStep()", function() {
-        it("runs a passing hook step", async function() {
+    describe("runHookStep()", () => {
+        it("runs a passing hook step", async () => {
             let step = new Step();
             step.codeBlock = ``;
 
@@ -4979,7 +4979,7 @@ First step {
             expect(retVal).to.equal(true);
         });
 
-        it("runs a failing hook step with only a stepToGetError", async function() {
+        it("runs a failing hook step with only a stepToGetError", async () => {
             let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
@@ -5003,7 +5003,7 @@ First step {
             expect(stepToGetError.error.lineNumber).to.equal(11);
         });
 
-        it("runs a failing hook step with only a branchToGetError", async function() {
+        it("runs a failing hook step with only a branchToGetError", async () => {
             let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
@@ -5025,7 +5025,7 @@ First step {
             expect(branchToGetError.error.lineNumber).to.equal(11);
         });
 
-        it("runs a failing hook step with only a branchToGetError, but branchToGetError already has an error set", async function() {
+        it("runs a failing hook step with only a branchToGetError, but branchToGetError already has an error set", async () => {
             let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
@@ -5046,7 +5046,7 @@ First step {
             expect(branchToGetError.error.message).to.equal("existing error");
         });
 
-        it("runs a failing hook step with both a stepToGetError and a branchToGetError", async function() {
+        it("runs a failing hook step with both a stepToGetError and a branchToGetError", async () => {
             let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
@@ -5077,7 +5077,7 @@ First step {
             expect(branchToGetError.error).to.equal(undefined);
         });
 
-        it("runs a failing hook step with no stepToGetError and no branchToGetError", async function() {
+        it("runs a failing hook step with no stepToGetError and no branchToGetError", async () => {
             let step = new Step();
             step.filename = "file1.txt";
             step.lineNumber = 10;
@@ -5095,8 +5095,8 @@ First step {
         });
     });
 
-    describe("replaceVars()", function() {
-        it("replaces {vars} and {{vars}} with their values", function() {
+    describe("replaceVars()", () => {
+        it("replaces {vars} and {{vars}} with their values", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5114,7 +5114,7 @@ A -
             expect(runInstance.replaceVars("{var0} {var1} - {{var2}}{var 3}-{{var 4}}  {{var5}} {var6}", tree.branches[0].steps[0], tree.branches[0])).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
         });
 
-        it("handles a branch of null", function() {
+        it("handles a branch of null", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='value1'
@@ -5128,7 +5128,7 @@ A -
             expect(runInstance.replaceVars("{var1} {var1}", tree.branches[0].steps[0], null)).to.equal("value1 value1");
         });
 
-        it("doesn't affect a string that doesn't contain variables", function() {
+        it("doesn't affect a string that doesn't contain variables", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5141,7 +5141,7 @@ A -
             expect(runInstance.replaceVars("foo bar", tree.branches[0].steps[0], tree.branches[0])).to.equal("foo bar");
         });
 
-        it("throws an error when vars reference each other in an infinite loop", function() {
+        it("throws an error when vars reference each other in an infinite loop", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5174,29 +5174,29 @@ A -
         });
     });
 
-    describe("evalCodeBlock()", function() {
-        it("evals a code and returns a value asynchonously", async function() {
+    describe("evalCodeBlock()", () => {
+        it("evals a code and returns a value asynchonously", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             await expect(runInstance.evalCodeBlock("return 5;")).to.eventually.equal(5);
         });
 
-        it("evals a code and returns a value synchronously", function() {
+        it("evals a code and returns a value synchronously", () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.evalCodeBlock("return 5;", null, 0, null, true)).to.equal(5);
         });
 
-        it("returns undefined when executing code that has no return value synchronously", function() {
+        it("returns undefined when executing code that has no return value synchronously", () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
             expect(runInstance.evalCodeBlock("5;", null, 0, null, true)).to.equal(undefined);
         });
 
-        it("makes the persistent, global, and local objects available", async function() {
+        it("makes the persistent, global, and local objects available", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent("a", "A");
@@ -5214,7 +5214,7 @@ A -
             expect(runInstance.getLocal("c")).to.equal("CC");
         });
 
-        it("makes persistent, global, and local variables available as js variables", async function() {
+        it("makes persistent, global, and local variables available as js variables", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent('a', "A");
@@ -5226,7 +5226,7 @@ A -
             await expect(runInstance.evalCodeBlock("return c;")).to.eventually.equal("C");
         });
 
-        it("makes a local variable accessible as a js variable if both a local and global variable share the same name", async function() {
+        it("makes a local variable accessible as a js variable if both a local and global variable share the same name", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setGlobal('b', "B");
@@ -5235,7 +5235,7 @@ A -
             await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
 
-        it("makes a global variable accessible as a js variable if both a global and persistent variable share the same name", async function() {
+        it("makes a global variable accessible as a js variable if both a global and persistent variable share the same name", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent('b', "B");
@@ -5244,7 +5244,7 @@ A -
             await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
 
-        it("makes a local variable accessible as a js variable if both a local and persistent variable share the same name", async function() {
+        it("makes a local variable accessible as a js variable if both a local and persistent variable share the same name", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent('b', "B");
@@ -5253,7 +5253,7 @@ A -
             await expect(runInstance.evalCodeBlock("return b;")).to.eventually.equal("C");
         });
 
-        it("does not make a variable available as js variable if its name contains non-whitelisted characters", async function() {
+        it("does not make a variable available as js variable if its name contains non-whitelisted characters", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent(" one two ", "A");
@@ -5264,7 +5264,7 @@ A -
             await expect(runInstance.evalCodeBlock("return seven;")).to.eventually.equal("D");
         });
 
-        it("does not make a variable available as js variable if its name is blacklisted", async function() {
+        it("does not make a variable available as js variable if its name is blacklisted", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             runInstance.setPersistent(" for ", "A");
@@ -5275,7 +5275,7 @@ A -
             await expect(runInstance.evalCodeBlock("return seven;")).to.eventually.equal("D");
         });
 
-        it("allows for logging inside the code", async function() {
+        it("allows for logging inside the code", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
@@ -5287,7 +5287,7 @@ A -
             ]);
         });
 
-        it("handles an error inside the code, with a function name and line number", async function() {
+        it("handles an error inside the code, with a function name and line number", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
@@ -5308,7 +5308,7 @@ A -
             expect(errorThrown).to.be.true;
         });
 
-        it("handles an error inside the code, with a function name and no line number", async function() {
+        it("handles an error inside the code, with a function name and no line number", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
@@ -5329,7 +5329,7 @@ A -
             expect(errorThrown).to.be.true;
         });
 
-        it("handles an error inside the code, with a function name with all invalid chars", async function() {
+        it("handles an error inside the code, with a function name with all invalid chars", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
@@ -5350,7 +5350,7 @@ A -
             expect(errorThrown).to.be.true;
         });
 
-        it("handles an error inside the code, with no function name", async function() {
+        it("handles an error inside the code, with no function name", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
@@ -5371,7 +5371,7 @@ A -
             expect(errorThrown).to.be.true;
         });
 
-        it("can import packages", async function() {
+        it("can import packages", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
@@ -5398,8 +5398,8 @@ A -
         });
     });
 
-    describe("findVarValue()", function() {
-        it("returns the value of a local variable that's already set", function() {
+    describe("findVarValue()", () => {
+        it("returns the value of a local variable that's already set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5413,7 +5413,7 @@ A -
             expect(runInstance.findVarValue("var0", true, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
         });
 
-        it("returns the value of a global variable that's already set", function() {
+        it("returns the value of a global variable that's already set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5427,7 +5427,7 @@ A -
             expect(runInstance.findVarValue("var0", false, tree.branches[0].steps[0], tree.branches[0])).to.equal("value0");
         });
 
-        it("returns the value of a variable that's set on the same line, and with a branch of null", function() {
+        it("returns the value of a variable that's set on the same line, and with a branch of null", () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='value1'
@@ -5440,7 +5440,7 @@ A -
             expect(runInstance.findVarValue("var1", false, tree.branches[0].steps[0], null)).to.equal("value1");
         });
 
-        it("returns the value of a variable that's not set yet and whose eventual value is a plain string", function() {
+        it("returns the value of a variable that's not set yet and whose eventual value is a plain string", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5457,7 +5457,7 @@ A -
             ]);
         });
 
-        it("throws an error if a local variable is not yet set but is set outside the scope of the current function", function() {
+        it("throws an error if a local variable is not yet set but is set outside the scope of the current function", () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -5476,7 +5476,7 @@ My function
             }, "The variable {{var1}} is never set, but is needed for this step");
         });
 
-        it("returns the value of a variable given the same variable name in a different case", function() {
+        it("returns the value of a variable given the same variable name in a different case", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5493,7 +5493,7 @@ A -
             ]);
         });
 
-        it("returns the value of a variable given the same variable name but with varying amounts of whitespace", function() {
+        it("returns the value of a variable given the same variable name but with varying amounts of whitespace", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5525,7 +5525,7 @@ A -
             ]);
         });
 
-        it("returns the value of a variable that's not set yet and whose eventual value contains more variables", function() {
+        it("returns the value of a variable that's not set yet and whose eventual value contains more variables", () => {
             // If the original step is A, and its vars are defined in B, then's B's vars are defined 1) before A, 2) between A and B, and 3) after B
             let tree = new Tree();
             tree.parseIn(`
@@ -5552,7 +5552,7 @@ A -
             ]);
         });
 
-        it("returns the value of a variable that's not set yet and whose eventual value is generated from a sync code block function", function() {
+        it("returns the value of a variable that's not set yet and whose eventual value is generated from a sync code block function", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5583,7 +5583,7 @@ A -
             ]);
         });
 
-        it("throws an error if the variable's value is never set", function() {
+        it("throws an error if the variable's value is never set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5599,7 +5599,7 @@ A -
             }, "The variable {var2} is never set, but is needed for this step");
         });
 
-        it("throws an error if the variable's value contains more variables, but one of those variables is never set", function() {
+        it("throws an error if the variable's value contains more variables, but one of those variables is never set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5621,8 +5621,8 @@ A -
         });
     });
 
-    describe("appendToLog()", function() {
-        it("logs a string to a step, where no other logs exist", function() {
+    describe("appendToLog()", () => {
+        it("logs a string to a step, where no other logs exist", () => {
             let step = new Step();
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
@@ -5634,7 +5634,7 @@ A -
             ]);
         });
 
-        it("logs a string to a step, where other logs exist", function() {
+        it("logs a string to a step, where other logs exist", () => {
             let step = new Step();
             let branch = new Branch();
             let runner = new Runner(new Tree());
@@ -5650,7 +5650,7 @@ A -
             ]);
         });
 
-        it("logs a string to a branch, where no other logs exist and where there is no step", function() {
+        it("logs a string to a branch, where no other logs exist and where there is no step", () => {
             let branch = new Branch();
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
@@ -5662,7 +5662,7 @@ A -
             ]);
         });
 
-        it("logs a string to a branch, where other logs exist and where there is no step", function() {
+        it("logs a string to a branch, where other logs exist and where there is no step", () => {
             let branch = new Branch();
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
@@ -5678,7 +5678,7 @@ A -
             ]);
         });
 
-        it("fails silently when there is no step or branch", function() {
+        it("fails silently when there is no step or branch", () => {
             let step = new Step();
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
@@ -5689,8 +5689,8 @@ A -
         });
     });
 
-    describe("stop()", function() {
-        it("stops the RunInstance, time elapsed for the branches are properly measured, and no more steps are running", function() {
+    describe("stop()", () => {
+        it("stops the RunInstance, time elapsed for the branches are properly measured, and no more steps are running", () => {
             let tree = new Tree();
             tree.parseIn(`
 Wait 20ms {
@@ -5750,7 +5750,7 @@ Second branch -
             });
         });
 
-        it("doesn't log or error to branches or steps once a stop is made", function() {
+        it("doesn't log or error to branches or steps once a stop is made", () => {
             let tree = new Tree();
             tree.parseIn(`
 Big step {
@@ -5787,8 +5787,8 @@ Big step {
         });
     });
 
-    describe("runOneStep()", async function() {
-        it("runs the step currently paused on if it's not completed yet and then pauses again", async function() {
+    describe("runOneStep()", async () => {
+        it("runs the step currently paused on if it's not completed yet and then pauses again", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A {
@@ -5871,7 +5871,7 @@ Big step {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("doesn't run the step currently paused on if it's completed already, runs the step after that, then pauses again", async function() {
+        it("doesn't run the step currently paused on if it's completed already, runs the step after that, then pauses again", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -5947,7 +5947,7 @@ A {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("works when currently paused on the last step, which has not completed yet", async function() {
+        it("works when currently paused on the last step, which has not completed yet", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A  {
@@ -6008,7 +6008,7 @@ A  {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("works when currently paused on the last step, which has completed already", async function() {
+        it("works when currently paused on the last step, which has completed already", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6063,8 +6063,8 @@ A {
         });
     });
 
-    describe("runLastStep()", function() {
-        it("fails gracefully when the branch hasn't started yet", async function() {
+    describe("runLastStep()", () => {
+        it("fails gracefully when the branch hasn't started yet", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A {
@@ -6109,7 +6109,7 @@ A {
             expect(runInstance.beforeEveryBranchRan).to.be.undefined;
         });
 
-        it("fails gracefully when currently on the first step", async function() {
+        it("fails gracefully when currently on the first step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A {
@@ -6156,7 +6156,7 @@ A {
             expect(runInstance.beforeEveryBranchRan).to.be.true;
         });
 
-        it("runs the last step when currently in the middle of the branch, paused by a ~", async function() {
+        it("runs the last step when currently in the middle of the branch, paused by a ~", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6213,7 +6213,7 @@ A {
             expect(runInstance.beforeEveryBranchRan).to.be.true;
         });
 
-        it("runs the last step when currently in the middle of the branch, paused by an error", async function() {
+        it("runs the last step when currently in the middle of the branch, paused by an error", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6271,7 +6271,7 @@ A {
             expect(runInstance.beforeEveryBranchRan).to.be.true;
         });
 
-        it("runs the last step when currently beyond the last step", async function() {
+        it("runs the last step when currently beyond the last step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6330,7 +6330,7 @@ A {
 
         });
 
-        it("fails silently when the branch completed already", async function() {
+        it("fails silently when the branch completed already", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6379,8 +6379,8 @@ A {
         });
     });
 
-    describe("skipOneStep()", function() {
-        it("skips the step currently paused on if it's not completed yet then pauses again", async function() {
+    describe("skipOneStep()", () => {
+        it("skips the step currently paused on if it's not completed yet then pauses again", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A {
@@ -6493,7 +6493,7 @@ A {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("skips the step currently paused on if it's completed already, skips the step after than, runs the step after that, then pauses again", async function() {
+        it("skips the step currently paused on if it's completed already, skips the step after than, runs the step after that, then pauses again", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6593,7 +6593,7 @@ A {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("works when currently paused on the second-to-last step, which has not completed yet", async function() {
+        it("works when currently paused on the second-to-last step, which has not completed yet", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A  {
@@ -6689,7 +6689,7 @@ A  {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("works when currently paused on the last step, which has not completed yet", async function() {
+        it("works when currently paused on the last step, which has not completed yet", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A  {
@@ -6768,7 +6768,7 @@ A  {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("works when currently paused on the second-to-last step, which has completed already", async function() {
+        it("works when currently paused on the second-to-last step, which has completed already", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6850,7 +6850,7 @@ A {
             expect(isBranchComplete).to.be.true;
         });
 
-        it("works when currently paused on the last step, which has completed already", async function() {
+        it("works when currently paused on the last step, which has completed already", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6917,8 +6917,8 @@ A {
         });
     });
 
-    describe("injectStep()", function() {
-        it("runs a step, then pauses again", async function() {
+    describe("injectStep()", () => {
+        it("runs a step, then pauses again", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -6961,7 +6961,7 @@ Step to Inject {
             expect(runInstance.ranInjectedStep).to.be.true;
         });
 
-        it("works when there is no current step or branch", async function() {
+        it("works when there is no current step or branch", async () => {
             let runner = new Runner(new Tree());
             runner.tree = new Tree();
             let runInstance = new RunInstance(runner);
@@ -6977,7 +6977,7 @@ Step to Inject {
             expect(runInstance.ranInjectedStep).to.be.true;
         });
 
-        it("step has access to {{vars}} and {vars} that were defined at the time of the pause", async function() {
+        it("step has access to {{vars}} and {vars} that were defined at the time of the pause", async () => {
             let tree = new Tree();
             tree.parseIn(`
 {var1}='foo'
@@ -7009,7 +7009,7 @@ Step to Inject {
             expect(runInstance.var4).to.equal("bar");
         });
 
-        it("step can be a function call for a function that was defined at the time of the pause", async function() {
+        it("step can be a function call for a function that was defined at the time of the pause", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A -
@@ -7044,7 +7044,7 @@ My function
             expect(stepsRan.steps[1].isFailed).to.be.undefined;
         });
 
-        it("step can be a function call for a function that was defined in context at the time of the pause", async function() {
+        it("step can be a function call for a function that was defined in context at the time of the pause", async () => {
             let tree = new Tree();
             tree.parseIn(`
 B
@@ -7081,7 +7081,7 @@ My function
             expect(stepsRan.steps[1].isFailed).to.be.undefined;
         });
 
-        it("can call a function that exposes another function in context, which can subsequently be called", async function() {
+        it("can call a function that exposes another function in context, which can subsequently be called", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A -
@@ -7123,7 +7123,7 @@ My function
             expect(stepsRan.steps[1].isFailed).to.be.undefined;
         });
 
-        it("step can be a function call for a function that was defined at the time of the pause, and if we're currently beyond the last step", async function() {
+        it("step can be a function call for a function that was defined at the time of the pause, and if we're currently beyond the last step", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A -
@@ -7159,7 +7159,7 @@ My function
             expect(stepsRan.steps[1].isFailed).to.be.undefined;
         });
 
-        it("step can be a function call that's in the tree, but if there is no current branch", async function() {
+        it("step can be a function call that's in the tree, but if there is no current branch", async () => {
             let tree = new Tree();
             tree.parseIn(`
 * My function
@@ -7190,7 +7190,7 @@ My function
             expect(stepsRan.steps[1].isFailed).to.be.undefined;
         });
 
-        it("attaches an error to the step returned if it fails", async function() {
+        it("attaches an error to the step returned if it fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A -
@@ -7227,7 +7227,7 @@ My function
             expect(runInstance.currBranch.error).to.equal(undefined);
         });
 
-        it("throws an error for a function call that cannot be found", async function() {
+        it("throws an error for a function call that cannot be found", async () => {
             let tree = new Tree();
             tree.parseIn(`
 ~ A -
@@ -7247,7 +7247,7 @@ Some unknown function
             await expect(runInstance.injectStep(t.root.children[0])).to.be.rejectedWith("The function 'Some unknown function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
         });
 
-        it("the RunInstance can flawlessly resume from a pause, after an injected step has run", async function() {
+        it("the RunInstance can flawlessly resume from a pause, after an injected step has run", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -7308,7 +7308,7 @@ Step to Inject {
             expect(runInstance.afterEveryBranchRan).to.be.true;
         });
 
-        it("the RunInstance can flawlessly run single steps, after an injected step has run", async function() {
+        it("the RunInstance can flawlessly run single steps, after an injected step has run", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {
@@ -7387,7 +7387,7 @@ Step to Inject {
             expect(runInstance.afterEveryBranchRan).to.be.true;
         });
 
-        it("the RunInstance can flawlessly skip steps, after an injected step has run", async function() {
+        it("the RunInstance can flawlessly skip steps, after an injected step has run", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {

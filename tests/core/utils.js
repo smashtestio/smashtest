@@ -7,9 +7,9 @@ const utils = require('../../utils.js');
 
 chai.use(chaiSubset);
 
-describe("Utils", function() {
-    describe("stripQuotes()", function() {
-        it("strips quotes", function() {
+describe("Utils", () => {
+    describe("stripQuotes()", () => {
+        it("strips quotes", () => {
             expect(utils.stripQuotes(`"foobar"`)).to.equal(`foobar`);
             expect(utils.stripQuotes(`  "foobar"  `)).to.equal(`foobar`);
             expect(utils.stripQuotes(`'foobar'`)).to.equal(`foobar`);
@@ -18,14 +18,14 @@ describe("Utils", function() {
             expect(utils.stripQuotes(`  [foobar]  `)).to.equal(`foobar`);
         });
 
-        it("doesn't touch non-quotes", function() {
+        it("doesn't touch non-quotes", () => {
             expect(utils.stripQuotes(`foobar`)).to.equal(`foobar`);
             expect(utils.stripQuotes(`  foobar  `)).to.equal(`  foobar  `);
         });
     });
 
-    describe("hasQuotes()", function() {
-        it("determines if a string has quotes", function() {
+    describe("hasQuotes()", () => {
+        it("determines if a string has quotes", () => {
             expect(utils.hasQuotes(`"foobar"`)).to.equal(true);
             expect(utils.hasQuotes(`  "foobar"  `)).to.equal(true);
             expect(utils.hasQuotes(`'foobar'`)).to.equal(true);
@@ -36,8 +36,8 @@ describe("Utils", function() {
         });
     });
 
-    describe("canonicalize()", function() {
-        it("generates canonical text", function() {
+    describe("canonicalize()", () => {
+        it("generates canonical text", () => {
             expect(utils.canonicalize(" After   EVERY Branch  ")).to.equal("after every branch");
         });
     });
