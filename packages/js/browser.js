@@ -1,4 +1,6 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
+const firefox = require('selenium-webdriver/firefox');
 const ElementFinder = require('./elementfinder.js')
 
 class Browser {
@@ -29,46 +31,88 @@ class Browser {
     static async killAllBrowsers(runner) {
         let browsers = runner.p("browsers");
         if(browsers) {
-            browsers.forEach(async (browser) => await browser.driver.quit());
+            browsers.forEach(async (browser) => await browser.close());
         }
     }
 
     /**
      * Opens the browser
-     * @param {String} description - <browser name> <optional version> <optional platform>
+     * See https://w3c.github.io/webdriver/#capabilities
+     * @param {String} [name] - The name of the browser (e.g., chrome|firefox|safari|internet explorer|MicrosoftEdge)
+     * @param {String} [version] - The version of the browser
+     * @param {String} [platform] - The platform (e.g., linux|mac|windows)
+     * @param {Number} [width] - The initial browser width, in pixels
+     * @param {Number} [height] - The initial browser height, in pixels
      * @param {String} [serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
-     * <browser name> = 'chrome', 'firefox', 'safari', 'internet explorer', or 'MicrosoftEdge'
      */
-    async open(description, serverUrl) {
-        if(!description || description == '[functions]') {
-            return;
+    async open(name, version, platform, width, height, serverUrl) {
+        if(width) {
+            //TODO: see if {browser width} is defined below
+            // if they're not defined, simply don't set dimensions
+
+
+
+
+
         }
 
-        const DESCRIPTION_REGEX = /(chrome|firefox|safari|internet explorer|MicrosoftEdge)(\s+([0-9\.]+))?(\s+(.*))?/;
-        let matches = description.match(DESCRIPTION_REGEX);
-        if(!matches) {
-            throw new Error("Invalid browser description");
+        if(height) {
+            //TODO: see if {browser height} is defined below
+            // if they're not defined, simply don't set dimensions
+
+
+
+
+
         }
 
-        let name = matches[1];
-        let version = matches[3];
-        let platform = matches[5];
+        // TODO: set this
+        let isHeadless = false;
+
+
+
+
+        let options = {
+            chrome: new chrome.Options(),
+            firefox: new firefox.Options()
+        };
+
+        if(isHeadless) {
+            Object.keys(options).forEach(name => {
+                options[name] = options.headless();
+            });
+        }
+
+        if(width && height) {
+            Object.keys(options).forEach(name => {
+                options[name] = options.windowSize({width, height});
+            });
+        }
+
+        let builder = new Builder()
+            .forBrowser(name, version, platform)
+            .setChromeOptions(options.chrome)
+            .setFirefoxOptions(options.firefox);
+
+
+            // TODO: set options for all possible browsers
+
+
+
+
+
 
         if(serverUrl) {
-            this.driver = new Builder()
-                .forBrowser(name, version, platform)
-                .usingServer(serverUrl)
-                .build();
+            builder = builder.usingServer(serverUrl);
         }
-        else {
-            this.driver = new Builder()
-                .forBrowser(name, version, platform)
-                .build();
-        }
+
+        this.driver = builder.build();
     }
 
     async close() {
-        await this.driver.quit();
+        if(this.driver) {
+            await this.driver.quit();
+        }
 
         let browsers = this.runInstance.p("browsers");
         for(let i = 0; i < browsers.length; i++) {

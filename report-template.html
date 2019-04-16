@@ -329,6 +329,12 @@
 
             .tree-errors .stacktrace {
                 overflow-x: auto;
+                margin-right: 10px;
+            }
+
+            .branch-error .stacktrace {
+                overflow-x: auto;
+                margin-right: 20px;
             }
 
             .preview-pane .stacktrace {
@@ -1122,7 +1128,9 @@ c     = copy debug command 'smashtest filename -d=hash'
                             >
                             </div>
                             <div className="branch-contents">
-                                {error}
+                                <div className="branch-error">
+                                    {error}
+                                </div>
                                 <div className="steps">
                                     {lines}
                                 </div>

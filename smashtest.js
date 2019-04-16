@@ -69,93 +69,94 @@ async function exit(forcedStop, exitCode) {
  * Validates and sets the given flag within runner
  */
 function processFlag(name, value) {
-    let varName = null;
-    matches = name.match(/^(g|p)\:(.*)$/);
-    if(matches) {
-        name = matches[1];
-        varName = matches[2];
-    }
+    try {
+        let varName = null;
+        matches = name.match(/^(g|p)\:(.*)$/);
+        if(matches) {
+            name = matches[1];
+            varName = matches[2];
+        }
 
-    switch(name.toLowerCase()) {
-        case "nodebug":
-            runner.noDebug = true;
-            break;
+        switch(name.toLowerCase()) {
+            case "nodebug":
+                runner.noDebug = true;
+                break;
 
-        case "debug":
-        case "d":
-            runner.debugHash = value;
-            break;
+            case "debug":
+            case "d":
+                runner.debugHash = value;
+                break;
 
-        case "noreport":
-            runner.noReport = true;
-            break;
+            case "noreport":
+                runner.noReport = true;
+                break;
 
-        case "noreportserver":
-            runner.noReportServer = true;
-            break;
+            case "noreportserver":
+                runner.noReportServer = true;
+                break;
 
-        case "reportdomain":
-            if(!value.match(/^https?/)) { // add an http:// if one is missing
-                value = "http://" + value;
-            }
-            if(!value.match(/^https?\:\/\/[^\/ ]+(\:[0-9]+)?$/)) {
-                utils.error("Invalid reportDomain");
-            }
-            runner.reportDomain = value;
-            break;
+            case "reportdomain":
+                if(!value.match(/^https?/)) { // add an http:// if one is missing
+                    value = "http://" + value;
+                }
+                if(!value.match(/^https?\:\/\/[^\/ ]+(\:[0-9]+)?$/)) {
+                    utils.error("Invalid reportDomain");
+                }
+                runner.reportDomain = value;
+                break;
 
-        case "groups":
-            runner.groups = value.split(/\s+/);
-            break;
+            case "groups":
+                runner.groups = value.split(/\s+/);
+                break;
 
-        case "group":
-            if(!runner.groups) {
-                runner.groups = [];
-            }
-            runner.groups.push(group);
-            break;
+            case "group":
+                if(!runner.groups) {
+                    runner.groups = [];
+                }
+                runner.groups.push(group);
+                break;
 
-        case "minfrequency":
-            if(['high', 'med', 'low'].indexOf(value) == -1) {
-                utils.error("Invalid minFrequency argument. Must be either high, med, or low.");
-            }
-            runner.minFrequency = value;
-            break;
+            case "minfrequency":
+                if(['high', 'med', 'low'].indexOf(value) == -1) {
+                    utils.error("Invalid minFrequency argument. Must be either high, med, or low.");
+                }
+                runner.minFrequency = value;
+                break;
 
-        case "maxinstances":
-            runner.maxInstances = value;
-            break;
+            case "maxinstances":
+                runner.maxInstances = value;
+                break;
 
-        case "skippassed":
-        case "s":
-            if(value) {
-                runner.skipPassed = value;
-            }
-            else {
-                runner.skipPassed = true;
-            }
-            break;
+            case "skippassed":
+            case "s":
+                if(value) {
+                    runner.skipPassed = value;
+                }
+                else {
+                    runner.skipPassed = true;
+                }
+                break;
 
-        case "r":
-        case "repl":
-            runner.repl = true;
-            break;
+            case "r":
+            case "repl":
+                runner.repl = true;
+                break;
 
-        case "g":
-            runner.globalInit[varName] = value;
-            break;
+            case "g":
+                runner.globalInit[varName] = value;
+                break;
 
-        case "p":
-            runner.persistent[varName] = value;
-            break;
+            case "p":
+                runner.persistent[varName] = value;
+                break;
 
-        case "version":
-        case "v":
-            process.exit();
+            case "version":
+            case "v":
+                process.exit();
 
-        case "help":
-        case "?":
-            console.log(`Usage: smashtest [files] [options]
+            case "help":
+            case "?":
+                console.log(`Usage: smashtest [files] [options]
 
 Files:
 One or more test files to run
@@ -179,10 +180,14 @@ Options:
 --version or -v                Output the version of SmashTEST
 --help or -?                   Open this help prompt
             `);
-            process.exit();
+                process.exit();
 
-        default:
-            break;
+            default:
+                break;
+        }
+    }
+    catch(e) {
+        onError(e);
     }
 }
 
@@ -211,56 +216,61 @@ function plural(count) {
  * Runs HTTP server
  */
 async function runServer() {
-    if(runner.noReportServer) {
-        return;
+    try {
+        if(runner.noReportServer) {
+            return;
+        }
+
+        // Set port and fill reportDomain
+        let port = null;
+        if(runner.reportDomain) {
+            let matches = runner.reportDomain.match(/\:([0-9]+)/);
+            if(matches && matches[1]) { // reportDomain has a domain and port
+                port = parseInt(matches[1]);
+            }
+            else { // reportDomain only has a domain
+                port = await getPort({port: getPort.makeRange(9000,9999)}); // avoid 8000's, since that's where localhost apps tend to be run
+                runner.reportDomain += ":" + port;
+            }
+        }
+        else { // reportDomain has nothing
+            port = await getPort({port: getPort.makeRange(9000,9999)});
+            runner.reportDomain = "http://localhost:" + port;
+        }
+
+        reporter.domain = runner.reportDomain;
+
+        const server = express();
+
+        server.use(function(req, res, next) {
+            let isLocalHost = runner.reportDomain.match(/^https?\:\/\/(localhost|127\.0\.0\.1)/);
+            res.header("Access-Control-Allow-Origin", isLocalHost ? null : runner.reportDomain);
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            next();
+        });
+
+        server.get('/', (req, res) => {
+            if(reporter.reportPath) {
+                res.sendFile(reporter.reportPath);
+            }
+        });
+
+        server.get('/state', (req, res) => {
+            if(req.query.file && (reporter.reportPath == req.query.file || req.query.file.startsWith(runner.reportDomain))) { // only send back data for the report that's currently running (or the report server)
+                res.json(reporter.generateStateObj());
+            }
+            else {
+                res.status(400).json({error: "Invalid file param"});
+            }
+        });
+
+        server.listen(port, () => {
+            //console.log(`Running on port ${port}`);
+        });
     }
-
-    // Set port and fill reportDomain
-    let port = null;
-    if(runner.reportDomain) {
-        let matches = runner.reportDomain.match(/\:([0-9]+)/);
-        if(matches && matches[1]) { // reportDomain has a domain and port
-            port = parseInt(matches[1]);
-        }
-        else { // reportDomain only has a domain
-            port = await getPort({port: getPort.makeRange(9000,9999)}); // avoid 8000's, since that's where localhost apps tend to be run
-            runner.reportDomain += ":" + port;
-        }
+    catch(e) {
+        onError(e);
     }
-    else { // reportDomain has nothing
-        port = await getPort({port: getPort.makeRange(9000,9999)});
-        runner.reportDomain = "http://localhost:" + port;
-    }
-
-    reporter.domain = runner.reportDomain;
-
-    const server = express();
-
-    server.use(function(req, res, next) {
-        let isLocalHost = runner.reportDomain.match(/^https?\:\/\/(localhost|127\.0\.0\.1)/);
-        res.header("Access-Control-Allow-Origin", isLocalHost ? null : runner.reportDomain);
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        next();
-    });
-
-    server.get('/', (req, res) => {
-        if(reporter.reportPath) {
-            res.sendFile(reporter.reportPath);
-        }
-    });
-
-    server.get('/state', (req, res) => {
-        if(req.query.file && (reporter.reportPath == req.query.file || req.query.file.startsWith(runner.reportDomain))) { // only send back data for the report that's currently running (or the report server)
-            res.json(reporter.generateStateObj());
-        }
-        else {
-            res.status(400).json({error: "Invalid file param"});
-        }
-    });
-
-    server.listen(port, () => {
-        //console.log(`Running on port ${port}`);
-    });
 }
 
 (async() => {

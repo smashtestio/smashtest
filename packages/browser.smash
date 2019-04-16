@@ -22,10 +22,10 @@
     Use browser 'safari'
 
 * Open IE
-    Use browser 'ie'
+    Use browser 'internet explorer'
 
-* Open browser {{description}}
-    Use browser {{description}}
+* Open Edge
+    Use browser 'MicrosoftEdge'
 
 * Use browser functions
     Use browser '[functions]'
@@ -34,12 +34,16 @@
 //  Browser-dependent functions
 // ***************************************
 
-// Note: functions under Use browser are indented because they're only available after a Open browser
+// Note: functions under Use browser are indented because they're only available after a Use browser call
 
-* Use browser {{description}} {
+* Use browser {{name}} {
     let Browser = i('./packages/js/browser.js', 'Browser');
     let browser = g('browser', new Browser(runInstance));
-    await browser.open(description);
+
+    if(name && name != '[functions]') {
+        await browser.open(name);
+    }
+
     g('$', browser.element);
 }
 
@@ -71,7 +75,7 @@
     // ***************************************
 
     * Desktop
-        Set dimensions to width='1920' height='1080'
+        {browser width}='1920', {browser height}='1080'
 
     * Tablet
         Tablet Portrait

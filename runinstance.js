@@ -367,12 +367,11 @@ class RunInstance {
      * @param {Step} step - The hook step to run
      * @param {Step} [stepToGetError] - The Step that will get the error and marked failed, if a failure happens here
      * @param {Branch} [branchToGetError] - The Branch that will get the error and marked failed, if a failure happens here. If stepToGetError is also set, only stepToGetError will get the error obj, but branchToGetError will still be failed
-     * @param {Boolean} [isSync] - If true, runs this step synchronously
      * @return {Boolean} True if the run was a success, false if there was a failure
      */
-    async runHookStep(step, stepToGetError, branchToGetError, isSync) {
+    async runHookStep(step, stepToGetError, branchToGetError) {
         try {
-            await this.evalCodeBlock(step.codeBlock, step.text, step.lineNumber, stepToGetError || branchToGetError, isSync);
+            await this.evalCodeBlock(step.codeBlock, step.text, step.lineNumber, stepToGetError || branchToGetError);
         }
         catch(e) {
             this.fillErrorFromStep(e, step, true);
