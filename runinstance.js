@@ -621,12 +621,23 @@ class RunInstance {
     }
 
     /**
+     * i(varName, packageName) or i(packageName)
      * Imports (via require()) the given package, sets persistent var varName to the imported object and returns the imported object
      * If a persistent var with that name already exists, this function only returns the value of that var
-     * If varName is omitted, it is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
+     * If only a package name is included, the var name is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
      */
-    i(packageName, varName) {
-        varName = varName || packageName.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
+    i(name1, name2) {
+        let packageName = null;
+        let varName = null;
+        if(typeof name2 == 'undefined') {
+            packageName = name1;
+            varName = packageName.replace(/-([a-z])/g, m => m.toUpperCase()).replace(/-/g, ''); // camelCasing
+        }
+        else {
+            packageName = name2;
+            varName = name1;
+        }
+
         if(!this.getPersistent(varName)) {
             this.setPersistent(varName, require(packageName));
         }
@@ -694,8 +705,8 @@ class RunInstance {
             return runInstance.getStepText();
         }
 
-        function i(packageName, varName) {
-            return runInstance.i(packageName, varName);
+        function i(name1, name2) {
+            return runInstance.i(name1, name2);
         }
 
         // Generate code

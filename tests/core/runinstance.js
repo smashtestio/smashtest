@@ -5390,7 +5390,7 @@ A -
 
             await expect(runInstance.evalCodeBlock(`
                 i('chai', 'chai');
-                i('chai-as-promised', 'chaiAsPromised');
+                i('chaiAsPromised', 'chai-as-promised');
 
                 getPersistent('chai').expect(!!getPersistent('chaiAsPromised')).to.be.true;
                 getPersistent('chai').expect(2+3).to.equal(2);

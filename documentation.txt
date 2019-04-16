@@ -387,7 +387,8 @@ Code blocks
         - setLocal(), setGlobal(), setPersistent()
         - getStepText() - great for when matching first part only
         - log(string)
-        - i(packageName, varName) - sets persistent var varName and returns the object (if varName omitted, generates it by camel casing packageName, e.g., one-two-three --> oneTwoThree)
+        - i(varName, packageName) or i(packageName) - sets persistent var varName and returns the object
+            - If only packageName passed in, generates it by camel casing packageName, e.g., one-two-three --> oneTwoThree
             - Usage: let chai = i('chai');
         - runInstance object (quick summary)
             - runInstance.currStep
@@ -397,11 +398,14 @@ Code blocks
         - throw new Error("error msg")
     - JS file pattern
         - Discuss putting complex code into its own js file, and doing this in a code block: {
-            let yf = i('./yourfile.js', 'yf');
+            let yf = i('yf', './yourfile.js');
             yf.something();
         }
             - Helps a lot with stack traces. Code blocks are recommended for short snippets of code, 1-5 lines long.
     - Pitfalls
+        - Since local, global, and persistent vars are auto-declared before each code block, if you want to declare a variable that might already be persistent/global/local,
+            or if you're unsure, use var instead of let. Using let might give you an "already declared" error.
+        - Don't have multiple local, global, or persistent variables that are spelled the same, only different casing. Variable names are stored case-insensitively.
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., l(), g(), p()) instead.
 

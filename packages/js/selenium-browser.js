@@ -3,7 +3,7 @@ const chrome = require('selenium-webdriver/chrome');
 const firefox = require('selenium-webdriver/firefox');
 const ElementFinder = require('./elementfinder.js')
 
-class Browser {
+class SeleniumBrowser {
     constructor(runInstance) {
         this.driver = null;
         this.runInstance = runInstance;
@@ -194,4 +194,4 @@ class Browser {
 
     }
 }
-module.exports = Browser;
+module.exports = SeleniumBrowser;

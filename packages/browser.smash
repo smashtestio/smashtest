@@ -49,9 +49,9 @@
 // Note: functions under Use browser are indented because they're only available after a Use browser call
 
 * Use browser {
-    var Browser = i('./packages/js/browser.js', 'Browser');
-    var browser = g('browser', new Browser(runInstance));
-
+    var SeleniumBrowser = i('SeleniumBrowser', './packages/js/selenium-browser.js');
+    
+    let browser = g('browser', new SeleniumBrowser(runInstance));
     let name = g('browser name');
     if(name) {
         await browser.open(name);
