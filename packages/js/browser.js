@@ -31,7 +31,10 @@ class Browser {
     static async killAllBrowsers(runner) {
         let browsers = runner.p("browsers");
         if(browsers) {
-            browsers.forEach(async (browser) => await browser.close());
+            for(let i = 0; i < browsers.length; i++) {
+                let browser = browsers[i];
+                await browser.driver && browser.driver.quit();
+            }
         }
     }
 
@@ -67,11 +70,11 @@ class Browser {
         }
 
         // TODO: set this
-        let isHeadless = false;
+        let isHeadless = true;
 
 
 
-
+        // Set options for each browser type
         let options = {
             chrome: new chrome.Options(),
             firefox: new firefox.Options()

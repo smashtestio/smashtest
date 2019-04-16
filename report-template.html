@@ -609,7 +609,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                     // Start update loop
                     const UPDATE_FREQUENCY = 500; // in ms
                     const UPDATE_FREQUENCY_SLOW = 5000; // in ms
-                    setTimeout(async() => {
+                    setTimeout(() => {
                         this.updateData().finally(this.setUpdateLoop);
                     }, this.slowPoll ? UPDATE_FREQUENCY_SLOW : UPDATE_FREQUENCY);
                 }
