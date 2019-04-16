@@ -50,6 +50,19 @@ class Browser {
      * @param {String} [serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      */
     async open(name, version, platform, width, height, isHeadless, serverUrl) {
+        let options = {
+            chrome: new chrome.Options(),
+            firefox: new firefox.Options()
+
+            // TODO: add other browsers
+
+
+
+
+        };
+
+        // Dimensions
+
         if(!width) {
             // See if {browser width} is defined below
             try {
@@ -66,22 +79,37 @@ class Browser {
             catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
         }
 
-        if(typeof isHeadless == 'undefined') {
-            // Set isHeadless to true, unless we're debugging
-            isHeadless = !this.runInstance.tree.isDebug;
-        }
-
-        // Set options for each browser type
-        let options = {
-            chrome: new chrome.Options(),
-            firefox: new firefox.Options()
+        if(width && height) {
+            options.chrome.windowSize({width, height});
 
             // TODO: add other browsers
 
 
 
 
-        };
+
+        }
+
+        // Headless
+
+        if(typeof isHeadless == 'undefined') {
+            // Set isHeadless to true, unless we're debugging
+            isHeadless = !this.runInstance.tree.isDebug;
+
+            // Override if --headless flag is set
+            if(this.runInstance.runner.flags.hasOwnProperty("headless")) {
+                let headlessFlag = this.runInstance.runner.flags.headless;
+                if(headlessFlag === "true" || headlessFlag === "" || headlessFlag === undefined) {
+                    isHeadless = true;
+                }
+                else if(headlessFlag === "false") {
+                    isHeadless = false;
+                }
+                else {
+                    throw new Error("Invalid --headless flag value. Must be true or false.");
+                }
+            }
+        }
 
         if(isHeadless) {
             options.chrome.headless();
@@ -95,10 +123,11 @@ class Browser {
 
         }
 
-        if(width && height) {
-            options.chrome.windowSize({width, height});
+        // Server URL
 
-            // TODO: add other browsers
+        if(!serverUrl) {
+            // If serverUrl isn't set, look to the -seleniumServer flag
+            // TODO
 
 
 
@@ -117,15 +146,7 @@ class Browser {
 
 
 
-        // If serverUrl isn't set, look to the -seleniumServer flag
-        if(!serverUrl) {
-            // TODO
 
-
-
-
-
-        }
 
         if(serverUrl) {
             builder = builder.usingServer(serverUrl);
