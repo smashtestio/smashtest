@@ -8,14 +8,8 @@ class SeleniumBrowser {
         this.driver = null;
         this.runInstance = runInstance;
 
-        this.register();
-    }
-
-    /**
-     * Registers this browser in the persistent array browsers
-     * Used to kill all open browsers if the runner is stopped
-     */
-    register() {
+        // Register this browser in the persistent array browsers
+        // Used to kill all open browsers if the runner is stopped
         let browsers = this.runInstance.p("browsers");
         if(!browsers) {
             browsers = this.runInstance.p("browsers", []);
@@ -176,7 +170,9 @@ class SeleniumBrowser {
      * @param {String} url - The absolute or relative url to navigate to. If relative, uses the browser's current domain.
      */
     async nav(url) {
-        // TODO: absolute vs. relative url (for relative, use browser's current domain)
+        // TODO:
+        // absolute vs. relative url (for relative, use browser's current domain)
+        // for no http(s)://, use http://
 
 
 
