@@ -61,7 +61,7 @@ class SeleniumBrowser {
         if(!params.width) {
             // See if {browser width} is defined below
             try {
-                params.width = parseInt(this.runInstance.findVarValue("browser width", false, this.runInstance.currStep, this.runInstance.currBranch));
+                params.width = parseInt(this.runInstance.findVarValue("browser width", false, true));
             }
             catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
         }
@@ -69,7 +69,7 @@ class SeleniumBrowser {
         if(!params.height) {
             // See if {browser height} is defined below
             try {
-                params.height = parseInt(this.runInstance.findVarValue("browser height", false, this.runInstance.currStep, this.runInstance.currBranch));
+                params.height = parseInt(this.runInstance.findVarValue("browser height", false, true));
             }
             catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
         }
@@ -89,7 +89,7 @@ class SeleniumBrowser {
 
         if(!params.deviceEmulation) {
             try {
-                params.deviceEmulation = this.runInstance.findVarValue("device to emulate", false, this.runInstance.currStep, this.runInstance.currBranch);
+                params.deviceEmulation = this.runInstance.findVarValue("device to emulate *", false, true);
             }
             catch(e) {} // it's ok if the variable isn't found
         }

@@ -284,7 +284,7 @@ Failing branch -
 
             expect(tree.branches[1].isFailed).to.be.true;
             expect(tree.branches[1].steps[1].isFailed).to.be.true;
-            expect(tree.branches[1].steps[1].error.message).to.equal("The variable {var2} is never set, but is needed for this step");
+            expect(tree.branches[1].steps[1].error.message).to.equal("The variable {var2} wasn't set, but is needed for this step. If it's set later in the branch, try using {var2 *}.");
         });
 
         it("pauses before a ~ step is executed, doesn't pause on the same step when resumed", async () => {

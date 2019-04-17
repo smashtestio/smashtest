@@ -222,13 +222,13 @@ class RunInstance {
 
                                 if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
                                     value = utils.stripQuotes(value);
-                                    value = this.replaceVars(value, step, branch); // replace vars with their values
+                                    value = this.replaceVars(value); // replace vars with their values
                                     value = utils.unescape(value);
                                 }
                                 else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
                                     let isLocal = value.startsWith('{{');
                                     value = utils.stripBrackets(value);
-                                    value = this.findVarValue(value, isLocal, step, branch);
+                                    value = this.findVarValue(value, isLocal);
                                 }
 
                                 this.setLocalPassedIn(varname, value);
@@ -244,7 +244,7 @@ class RunInstance {
                     for(let i = 0; i < step.varsBeingSet.length; i++) {
                         let varBeingSet = step.varsBeingSet[i];
                         let value = utils.stripQuotes(varBeingSet.value);
-                        value = this.replaceVars(value, step, branch);
+                        value = this.replaceVars(value);
                         this.setVarBeingSet(varBeingSet, value);
 
                         if(varBeingSet.isLocal) {
@@ -782,12 +782,11 @@ class RunInstance {
 
     /**
      * @param {String} text - The text whose vars the replace
-     * @param {Step} step - We're finiding the value of variables at this step
-     * @param {Branch} [branch] - The branch containing step, if any
+     * @param {Boolean} [lookAnywhere] - If true, you can look down the branch for the value of variables even if their names don't end in *
      * @return {String} text, with vars replaced with their values
      * @throws {Error} If there's a variable inside text that's never set
      */
-    replaceVars(text, step, branch) {
+    replaceVars(text, lookAnywhere) {
         let matches = text.match(Constants.VAR);
         if(matches) {
             for(let i = 0; i < matches.length; i++) {
@@ -797,7 +796,7 @@ class RunInstance {
                 let value = null;
 
                 try {
-                    value = this.findVarValue(name, isLocal, step, branch);
+                    value = this.findVarValue(name, isLocal, lookAnywhere);
                 }
                 catch(e) {
                     if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
@@ -822,77 +821,92 @@ class RunInstance {
     /**
      * @param {String} varname - The name of the variable, without braces (case insensitive)
      * @param {Boolean} isLocal - True of the variable is local, false if it's global
-     * @param {Step} step - We're finiding the value of the variable at this step
-     * @param {Branch} [branch] - The branch containing step, if any
+     * @param {Boolean} [lookAnywhere] - If true, first check if the variable is set and if not, look down the branch
      * @return {String} Value of the given variable at the given step and branch
      * @throws {Error} If the variable is never set
      */
-    findVarValue(varname, isLocal, step, branch) {
-        // If let is already set, return it immediately
-        let value = null;
-        if(isLocal) {
-            value = this.getLocal(varname);
-        }
-        else {
-            value = this.getGlobal(varname);
-        }
-
-        if(value) {
-            return value;
-        }
-
+    findVarValue(varname, isLocal, lookAnywhere) {
         let variableFull = "";
+        let variableFullStar = "";
         if(isLocal) {
             variableFull = `{{${varname}}}`;
+            variableFullStar = `{{${varname} *}}`;
         }
         else {
             variableFull = `{${varname}}`;
+            variableFullStar = `{${varname} *}`;
         }
 
-        // Go down the branch looking for {varname}= or {{varname}}=
+        let endsInStar = varname.trim().endsWith('*');
+        varname = varname.replace(/\*\s*$/, ''); // strip the * off the end
 
-        if(!branch) {
-            branch = new Branch(); // temp branch that's going to be a container for the step
-            branch.steps.push(step);
-        }
-
-        let index = branch.steps.indexOf(step);
-        for(let i = index; i < branch.steps.length; i++) {
-            let s = branch.steps[i];
-            if(isLocal && s.level < step.level) {
-                break; // you cannot look outside a function's scope for a local var
+        if(!endsInStar || lookAnywhere) {
+            // Return the value of the var immediately
+            let value = null;
+            if(isLocal) {
+                value = this.getLocal(varname);
+            }
+            else {
+                value = this.getGlobal(varname);
             }
 
-            if(s.varsBeingSet) {
-                for(let j = 0; j < s.varsBeingSet.length; j++) {
-                    let varBeingSet = s.varsBeingSet[j];
-                    if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
-                        let value = null;
-                        if(s.hasCodeBlock()) {
-                            // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlock(s.codeBlock, s.text, s.lineNumber, s, true);
+            if(typeof value != 'undefined') {
+                return value;
+            }
+            else if(!lookAnywhere) { // if it's a lookAnywhere, give it another chance in the next if statement below
+                // Not found
+                utils.error(`The variable ${variableFull} wasn't set, but is needed for this step. If it's set later in the branch, try using ${variableFullStar}.`);
+            }
+        }
 
-                            // Note: {varname}=Function without code block, where another {varname}= is further below, had its varBeingSet removed already
-                        }
-                        else {
-                            // {varname}='string'
-                            value = utils.stripQuotes(varBeingSet.value);
-                            value = utils.unescape(value);
-                        }
+        if(endsInStar || lookAnywhere) { // this is a look-down variable
+            // Go down the branch looking for {varname}= or {{varname}}=
+            let branch = this.currBranch;
+            let step = this.currStep;
 
-                        if(['string', 'boolean', 'number'].indexOf(typeof value) != -1) { // only if value is a string, boolean, or number
-                            value = this.replaceVars(value, step, branch); // recursive call, start at original step passed in
-                        }
+            if(!branch) {
+                branch = new Branch(); // temp branch that's going to be a container for the step
+                branch.steps.push(step);
+            }
 
-                        this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${s.filename}:${s.lineNumber}`, step || branch);
-                        return value;
+            let index = branch.steps.indexOf(step);
+            for(let i = index; i < branch.steps.length; i++) {
+                let s = branch.steps[i];
+                if(isLocal && s.level < step.level) {
+                    break; // you cannot look outside a function's scope for a local var
+                }
+
+                if(s.varsBeingSet) {
+                    for(let j = 0; j < s.varsBeingSet.length; j++) {
+                        let varBeingSet = s.varsBeingSet[j];
+                        if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
+                            let value = null;
+                            if(s.hasCodeBlock()) {
+                                // {varname}=Function (w/ code block)
+                                value = this.evalCodeBlock(s.codeBlock, s.text, s.lineNumber, s, true);
+
+                                // Note: {varname}=Function without code block, where another {varname}= is further below, had its varBeingSet removed already
+                            }
+                            else {
+                                // {varname}='string'
+                                value = utils.stripQuotes(varBeingSet.value);
+                                value = utils.unescape(value);
+                            }
+
+                            if(['string', 'boolean', 'number'].indexOf(typeof value) != -1) { // only if value is a string, boolean, or number
+                                value = this.replaceVars(value, true); // recursive call, start at original step passed in
+                            }
+
+                            this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${s.filename}:${s.lineNumber}`, step || branch);
+                            return value;
+                        }
                     }
                 }
             }
-        }
 
-        // Not found
-        utils.error(`The variable ${variableFull} is never set, but is needed for this step`);
+            // Not found
+            utils.error(`The variable ${variableFull} is never set, but is needed for this step`);
+        }
     }
 
     /**
