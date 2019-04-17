@@ -50,7 +50,7 @@
 
 * Use browser {
     var SeleniumBrowser = i('SeleniumBrowser', './packages/js/selenium-browser.js');
-    
+
     let browser = g('browser', new SeleniumBrowser(runInstance));
     let name = g('browser name');
     if(name) {
@@ -58,6 +58,7 @@
     }
 
     g('$', browser.element);
+    g('$$', browser.elements);
 }
 
     // ***************************************
@@ -69,18 +70,24 @@
     }
 
     *** Before Every Step {
-        // Take screenshot
+        // Take screenshot, set runInstance.currStep.htmlReport
+
+
+
+
 
 
     }
 
     *** After Every Step {
-        // Take screenshot
+        // Take screenshot, set runInstance.currStep.htmlReport (which already exists - just add to it)
 
-        /*
-            After Every Step sets step.htmlReport to the report html for this step.
-            This is the logging and screenshots that go under the step's name in the report.
-        */
+
+
+
+
+
+
     }
 
     // ***************************************
@@ -110,9 +117,18 @@
 
     * Set dimensions to width={{x}} height={{y}} {
 
+
+
+
+
     }
 
     * Maximize window {
+
+
+
+
+
 
     }
 
@@ -126,57 +142,117 @@
 
     * Click {{element}} {
         // element is selector string or ElementFinder
+
+
+
+
+
     }
 
     * Double click {{element}} {
+
+
+
+
 
     }
 
     * Hover over {{element}} {
 
+
+
+
+
     }
 
     * Touch {{element}} {
+
+
+
+
 
     }
 
     * Scroll to {{element}} {
 
+
+
+
+
     }
 
     * Get cookie {{name}} {
+
+
+
+
 
     }
 
     * Set cookie {{name}} to {{value}} {
         // value can include expiration, etc.
+
+
+
+
     }
 
     * Delete cookie {{name}} {
+
+
+
+
 
     }
 
     * Delete all cookies {
 
+
+
+
+
+
     }
 
     * Clear local storage {
+
+
+
+
 
     }
 
     * Clear cache and cookies {
         // including local storage
+
+
+
+
+
     }
 
     * Go Back {
+
+
+
+
 
     }
 
     * Go Forward {
 
+
+
+
+
     }
 
     * Refresh {
+
+
+
+
+
 
     }
 
@@ -187,60 +263,135 @@
             - This allows you to Enter, Select, etc. a variable, that can sometimes be set to [nothing] to signify ignoring this form field
             - Make sure you can escape using \[nothing\]. Same thing with keys like [enter].
         */
+
+
+
+
+
+
+
     }
 
     * Set {{element}} to {{value}} {
         // can be textbox, dropdown, etc. (anything with a value)
         // support [nothing]
+
+
+
+
+
     }
 
     * Check {{element}} {
         // checkboxes or radio
+
+
+
+
+
+
     }
 
     * Uncheck {{element}} {
         // checkboxes or radio
+
+
+
+
+
     }
 
     * Select {{value}} from {{element}} {
         // dropdown, where value is exact text, or nearest text with a warning logged (via log())
         // support [nothing]
+
+
+
+
+
     }
 
     * Current url {
         // return current absolute url
+
+
+
+
+
     }
 
     * Window title {
         // returns window title
+
+
+
+
+
     }
 
     * Value of {{element}} {
         // returns value of element
+
+
+
+
+
     }
 
     * New tab {
+
+
+
+
+
+
 
     }
 
     * Switch to tab with title {{text}} {
         // window title contains given text
+
+
+
+
+
     }
 
     * Switch to tab with url {{url}} {
         // search for full url, then do partial matches
+
+
+
+
+
+
     }
 
     * Switch to the {{nth}} tab {
         // nth in an actual ordinal (strip out the number from this string)
+
+
+
+
+
     }
 
     * Switch to iframe {{element}} {
         // element is a selector or ElementFinder of an iframe
+
+
+
+
+
     }
 
     * Switch to original iframe {
         // parentFrame aka defaultContent
+
+
+
+
+
     }
 
     * Wait {{n}} seconds {
@@ -258,9 +409,19 @@
     * Verify at page {{page}} {
         // page is page title or url (absolute or relative)
         // do a partial match
+
+
+
+
+
     }
 
     * Verify cookie {{name}} contains {{value}} {
+
+
+
+
+
 
     }
 
@@ -268,6 +429,12 @@
         // Verify {{element}} contains {{elementOrText}} sets a pointer the element that was matched
         // This validates that the given element or text comes after that element in the DOM
         // Makes it much easier to verify a whole page in a particular order
+
+
+
+
+
+
     }
 
     * Verify {{element}} * {
@@ -347,17 +514,51 @@
                 Click {it}
         */
 
+
+
+
+
+
+
+
     }
 
     // ***************************************
     //  Wait until
     // ***************************************
 
-    * Wait until {{element}} * {
+    // Same as for Verify, with optional (for up to N (secs|sec|s)|up to N (secs|sec|s)) at the end
+
+    * Wait until at page {{page}} * {
+
+
+
+
 
     }
 
-    // Same as for Verify, with optional (for up to N (secs|sec|s)|up to N (secs|sec|s)) at the end
+    * Wait until cookie {{name}} contains {{value}} * {
+
+
+
+
+    }
+
+    * Wait until {{elementOrText}} comes next * {
+
+
+
+
+    }
+
+    * Wait until {{element}} * {
+
+
+
+
+
+
+    }
 
     // ***************************************
     //  Misc
