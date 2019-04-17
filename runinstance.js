@@ -282,6 +282,10 @@ class RunInstance {
                 }
             }
             catch(e) {
+                if(e.fatal) { // if fatal is set, the error will bubble all the way up to the console and end execution
+                    throw e;
+                }
+
                 if(!this.isStopped) { // if this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
                     error = e;
                     this.fillErrorFromStep(error, step, inCodeBlock);

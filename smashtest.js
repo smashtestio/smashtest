@@ -61,6 +61,13 @@ async function exit(forcedStop, exitCode) {
     }
 }
 
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('');
+    console.log('');
+    console.log(reason);
+    console.log('');
+});
+
 // ***************************************
 //  Helper Functions
 // ***************************************
@@ -182,6 +189,7 @@ Options:
 --p:<name>="<value>"           Set the persistent variable with the given name to the given value
 --repl or -r                   Open the REPL (drive SmashTEST from command line)
 --reportDomain=<url>           Domain and port where report server should run (http://domain:port format)
+--seleniumServer=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
 --screenshots=false            Do not output screenshots
 --skipPassed or -s             Do not run branches that passed last time. Just carry them over
                                    into new report.
@@ -202,7 +210,12 @@ Options:
  * Handles a generic error inside of a catch block
  */
 function onError(e) {
-    console.log(e);
+    if(e.fatal) { // extra spacing needed for fatal errors coming out of runner
+        console.log("");
+        console.log("");
+    }
+
+    console.log(e.stack);
     console.log("");
     process.exit();
 }

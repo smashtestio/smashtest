@@ -127,12 +127,9 @@ class SeleniumBrowser {
 
         if(!serverUrl) {
             // If serverUrl isn't set, look to the -seleniumServer flag
-            // TODO
-
-
-
-
-
+            if(this.runInstance.runner.flags.seleniumServer) {
+                serverUrl = this.runInstance.runner.flags.seleniumServer;
+            }
         }
 
         let builder = new Builder()
@@ -152,7 +149,13 @@ class SeleniumBrowser {
             builder = builder.usingServer(serverUrl);
         }
 
-        this.driver = builder.build();
+        try {
+            this.driver = await builder.build();
+        }
+        catch(e) {
+            e.fatal = true;
+            throw e;
+        }
     }
 
     async close() {
