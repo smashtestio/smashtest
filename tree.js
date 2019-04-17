@@ -251,6 +251,11 @@ class Tree {
                     utils.error(`A {variable name} cannot be just numbers`, filename, lineNumber);
                 }
 
+                // Variable names cannot end in a * (that's reserved for lookahead vars)
+                if(varBeingSet.name.match(/\*\s*$/)) {
+                    utils.error(`A variable name to the left of an = cannot end in a *`, filename, lineNumber);
+                }
+
                 // Validations for special variables
                 if(varBeingSet.name.toLowerCase() == 'frequency') {
                     if(varBeingSet.name != 'frequency') {

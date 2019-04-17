@@ -637,6 +637,16 @@ describe("Tree", () => {
             }, "A {variable name} cannot be just numbers [file.txt:10]");
         });
 
+        it("rejects {vars *} to the left of an = sign", () => {
+            assert.throws(() => {
+                tree.parseLine(`{foobar *} = 'str'`, "file.txt", 10);
+            }, "A variable name to the left of an = cannot end in a * [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`{{ foobar  *  }} = 'str'`, "file.txt", 10);
+            }, "A variable name to the left of an = cannot end in a * [file.txt:10]");
+        });
+
         it("rejects {Frequency}", () => {
             assert.throws(() => {
                 tree.parseLine(`{Frequency} = 'high'`, "file.txt", 10);
