@@ -443,11 +443,13 @@
 
     }
 
-    * Verify {{element}} * {
+    * Verify that *
+        Verify that * // Call "Verify that" to avoid hitting the generic Verify function declaration below
+
+    * Verify * {
 
         /*
             Verify
-            (<empty>|that)
             (
                <empty>
                |at most N|at least N|more than N|less than N|exactly N|
@@ -557,7 +559,7 @@
 
     }
 
-    * Wait until {{element}} * {
+    * Wait until * {
 
 
 
