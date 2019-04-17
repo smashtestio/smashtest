@@ -35,15 +35,17 @@ class SeleniumBrowser {
     /**
      * Opens the browser
      * See https://w3c.github.io/webdriver/#capabilities
-     * @param {String} [name] - The name of the browser (e.g., chrome|firefox|safari|internet explorer|MicrosoftEdge)
-     * @param {String} [version] - The version of the browser
-     * @param {String} [platform] - The platform (e.g., linux|mac|windows)
-     * @param {Number} [width] - The initial browser width, in pixels
-     * @param {Number} [height] - The initial browser height, in pixels
-     * @param {Boolean} [isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging
-     * @param {String} [serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
+     * @param {Object} params - Object containing parameters for this browser
+     * @param {String} params.name - The name of the browser (e.g., chrome|firefox|safari|internet explorer|MicrosoftEdge)
+     * @param {String} [params.version] - The version of the browser
+     * @param {String} [params.platform] - The platform (e.g., linux|mac|windows)
+     * @param {Number} [params.width] - The initial browser width, in pixels
+     * @param {Number} [params.height] - The initial browser height, in pixels
+     * @param {String} [params.deviceEmulation] - What mobile device to emulate, if any (only works with Chrome)
+     * @param {Boolean} [params.isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging
+     * @param {String} [params.serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      */
-    async open(name, version, platform, width, height, isHeadless, serverUrl) {
+    async open(params) {
         let options = {
             chrome: new chrome.Options(),
             firefox: new firefox.Options()
@@ -52,29 +54,28 @@ class SeleniumBrowser {
 
 
 
-
         };
 
         // Dimensions
 
-        if(!width) {
+        if(!params.width) {
             // See if {browser width} is defined below
             try {
-                width = parseInt(this.runInstance.findVarValue("browser width", false, this.runInstance.currStep, this.runInstance.currBranch));
+                params.width = parseInt(this.runInstance.findVarValue("browser width", false, this.runInstance.currStep, this.runInstance.currBranch));
             }
             catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
         }
 
-        if(!height) {
+        if(!params.height) {
             // See if {browser height} is defined below
             try {
-                height = parseInt(this.runInstance.findVarValue("browser height", false, this.runInstance.currStep, this.runInstance.currBranch));
+                params.height = parseInt(this.runInstance.findVarValue("browser height", false, this.runInstance.currStep, this.runInstance.currBranch));
             }
             catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
         }
 
-        if(width && height) {
-            options.chrome.windowSize({width, height});
+        if(params.width && params.height) {
+            options.chrome.windowSize({width: params.width, height: params.height});
 
             // TODO: add other browsers
 
@@ -84,20 +85,33 @@ class SeleniumBrowser {
 
         }
 
+        // Mobile device emulation (Chrome)
+
+        if(!params.deviceEmulation) {
+            try {
+                params.deviceEmulation = this.runInstance.findVarValue("device to emulate", false, this.runInstance.currStep, this.runInstance.currBranch);
+            }
+            catch(e) {} // it's ok if the variable isn't found
+        }
+
+        if(params.deviceEmulation) {
+            options.chrome.setMobileEmulation({deviceName: params.deviceEmulation});
+        }
+
         // Headless
 
-        if(typeof isHeadless == 'undefined') {
+        if(typeof params.isHeadless == 'undefined') {
             // Set isHeadless to true, unless we're debugging
-            isHeadless = !this.runInstance.tree.isDebug;
+            params.isHeadless = !this.runInstance.tree.isDebug;
 
             // Override if --headless flag is set
             if(this.runInstance.runner.flags.hasOwnProperty("headless")) {
                 let headlessFlag = this.runInstance.runner.flags.headless;
                 if(headlessFlag === "true" || headlessFlag === "" || headlessFlag === undefined) {
-                    isHeadless = true;
+                    params.isHeadless = true;
                 }
                 else if(headlessFlag === "false") {
-                    isHeadless = false;
+                    params.isHeadless = false;
                 }
                 else {
                     throw new Error("Invalid --headless flag value. Must be true or false.");
@@ -105,7 +119,7 @@ class SeleniumBrowser {
             }
         }
 
-        if(isHeadless) {
+        if(params.isHeadless) {
             options.chrome.headless();
 
             // TODO: add other browsers
@@ -119,15 +133,15 @@ class SeleniumBrowser {
 
         // Server URL
 
-        if(!serverUrl) {
+        if(!params.serverUrl) {
             // If serverUrl isn't set, look to the -seleniumServer flag
             if(this.runInstance.runner.flags.seleniumServer) {
-                serverUrl = this.runInstance.runner.flags.seleniumServer;
+                params.serverUrl = this.runInstance.runner.flags.seleniumServer;
             }
         }
 
         let builder = new Builder()
-            .forBrowser(name, version, platform)
+            .forBrowser(params.name, params.version, params.platform)
             .setChromeOptions(options.chrome)
             .setFirefoxOptions(options.firefox);
 
@@ -139,8 +153,8 @@ class SeleniumBrowser {
 
 
 
-        if(serverUrl) {
-            builder = builder.usingServer(serverUrl);
+        if(params.serverUrl) {
+            builder = builder.usingServer(params.serverUrl);
         }
 
         try {

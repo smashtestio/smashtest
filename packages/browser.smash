@@ -54,7 +54,7 @@
     let browser = g('browser', new SeleniumBrowser(runInstance));
     let name = g('browser name');
     if(name) {
-        await browser.open(name);
+        await browser.open({name: name});
     }
 
     g('$', browser.element);
@@ -114,6 +114,12 @@
 
     * Mobile Landscape
         {browser width}='667', {browser height}='375'
+
+    * iPhone 6/7/8
+        {device to emulate}='iPhone 6/7/8', {browser width}='375', {browser height}='667'
+
+    * iPad
+        {device to emulate}='iPad', {browser width}='768', {browser height}='1024'
 
     * Set dimensions to width={{x}} height={{y}} {
 
