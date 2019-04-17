@@ -5165,112 +5165,6 @@ First step {
         });
     });
 
-    describe("replaceVars()", () => {
-        it("replaces {vars} and {{vars}} with their values", () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    {var1}='value1'
-        {{var2}} = 'value2'
-            {var 3}= "value 3", {{var5}} ='value5',{var6}=[value6]
-                {{ var 4 }}=" value 4 "
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-            runInstance.currBranch = tree.branches[0];
-            runInstance.currStep = tree.branches[0].steps[0];
-            runInstance.setGlobal("var0", "value0");
-
-            expect(runInstance.replaceVars("{var0} {var1*} - {{var2*}}{var 3*}-{{var 4*}}  {{var5*}} {var6*}")).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
-        });
-
-        it("handles a branch of null", () => {
-            let tree = new Tree();
-            tree.parseIn(`
-{var1}='value1'
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-            runInstance.currBranch = null;
-            runInstance.currStep = tree.branches[0].steps[0];
-            runInstance.setGlobal("var0", "value0");
-
-            expect(runInstance.replaceVars("{var0} {var1*}")).to.equal("value0 value1");
-        });
-
-        it("doesn't affect a string that doesn't contain variables", () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-            runInstance.currBranch = tree.branches[0];
-            runInstance.currStep = tree.branches[0].steps[0];
-
-            expect(runInstance.replaceVars("foo bar")).to.equal("foo bar");
-        });
-
-        it("throws an error when vars reference each other in an infinite loop", () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    {var1}='{var1}'
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-            runInstance.currBranch = tree.branches[0];
-            runInstance.currStep = tree.branches[0].steps[0];
-
-            assert.throws(() => {
-                runInstance.replaceVars("{var1*}");
-            }, "Infinite loop detected amongst variable references");
-
-            tree = new Tree();
-            tree.parseIn(`
-A -
-    {var1}='{var2*} {var3*}'
-        {var2}='foo'
-            {var3}='bar{var1}'
-`, "file.txt");
-
-            runner = new Runner();
-            runner.init(tree);
-            runInstance = new RunInstance(runner);
-            runInstance.currBranch = tree.branches[0];
-            runInstance.currStep = tree.branches[0].steps[0];
-
-            assert.throws(() => {
-                expect(runInstance.replaceVars("{var1*}"));
-            }, "Infinite loop detected amongst variable references");
-        });
-
-        it("replaces vars by looking above and below when lookAnywhere is set to true", () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    {var1}='value1'
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-            runInstance.currBranch = tree.branches[0];
-            runInstance.currStep = tree.branches[0].steps[0];
-            runInstance.setGlobal("var0", "value0");
-
-            expect(runInstance.replaceVars("{var0} {var1}", true)).to.equal("value0 value1");
-        });
-    });
-
     describe("evalCodeBlock()", () => {
         it("evals a code and returns a value asynchonously", async () => {
             let runner = new Runner(new Tree());
@@ -5492,6 +5386,134 @@ A -
                 getPersistent('chai').expect(!!getPersistent('chaiAsPromised')).to.be.true;
                 getPersistent('chai').expect(2+3).to.equal(2);
             `)).to.be.rejectedWith("expected 5 to equal 2");
+        });
+    });
+
+    describe("replaceVars()", () => {
+        it("replaces {vars} and {{vars}} with their values", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='value1'
+        {{var2}} = 'value2'
+            {var 3}= "value 3", {{var5}} ='value5',{var6}=[value6]
+                {{ var 4 }}=" value 4 "
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+            runInstance.setGlobal("var0", "value0");
+
+            expect(runInstance.replaceVars("{var0} {var1*} - {{var2*}}{var 3*}-{{var 4*}}  {{var5*}} {var6*}")).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
+        });
+
+        it("handles a branch of null", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1}='value1'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.currBranch = null;
+            runInstance.currStep = tree.branches[0].steps[0];
+            runInstance.setGlobal("var0", "value0");
+
+            expect(runInstance.replaceVars("{var0} {var1*}")).to.equal("value0 value1");
+        });
+
+        it("doesn't affect a string that doesn't contain variables", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+
+            expect(runInstance.replaceVars("foo bar")).to.equal("foo bar");
+        });
+
+        it("throws an error when vars reference each other in an infinite loop", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='{var1}'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+
+            assert.throws(() => {
+                runInstance.replaceVars("{var1*}");
+            }, "Infinite loop detected amongst variable references");
+
+            tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='{var2*} {var3*}'
+        {var2}='foo'
+            {var3}='bar{var1}'
+`, "file.txt");
+
+            runner = new Runner();
+            runner.init(tree);
+            runInstance = new RunInstance(runner);
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+
+            assert.throws(() => {
+                expect(runInstance.replaceVars("{var1*}"));
+            }, "Infinite loop detected amongst variable references");
+        });
+
+        it("replaces vars by looking above and below when lookAnywhere is set to true", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='value1'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+            runInstance.setGlobal("var0", "value0");
+
+            expect(runInstance.replaceVars("{var0} {var1}", true)).to.equal("value0 value1");
+        });
+
+        it("throws an error when a var isn't set above or below and when lookAnywhere is set to true", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='value1'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+
+            assert.throws(() => {
+                runInstance.replaceVars("{var2}", true);
+            }, "The variable {var2} is never set, but is needed for this step");
+
+            assert.throws(() => {
+                runInstance.replaceVars("{var2 *}", true);
+            }, "The variable {var2 *} is never set, but is needed for this step");
         });
     });
 
@@ -5733,6 +5755,24 @@ A -
             }, "The variable {var2} wasn't set, but is needed for this step");
         });
 
+        it("throws an error if the variable's value is set ahead, but the variable is not a lookahead", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}="value1"
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+
+            assert.throws(() => {
+                runInstance.findVarValue("var1", false);
+            }, "The variable {var1} wasn't set, but is needed for this step");
+        });
+
         it("throws an error if the lookahead variable's value is never set", () => {
             let tree = new Tree();
             tree.parseIn(`
@@ -5767,6 +5807,40 @@ A -
             assert.throws(() => {
                 runInstance.findVarValue("var1", false);
             }, "The variable {var1} wasn't set, but is needed for this step");
+        });
+
+        it("uses the existing value if * isn't used", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}="bar"
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.g('var1', 'foo');
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+
+            expect(runInstance.findVarValue("var1", false)).to.equal("foo");
+        });
+
+        it("uses the value ahead if * is used", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}="bar"
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.g('var1', 'foo');
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+
+            expect(runInstance.findVarValue("var1 *", false)).to.equal("bar");
         });
 
         it("throws an error if the variable's value contains more variables, but one of those variables is never set", () => {
@@ -5808,6 +5882,28 @@ A -
 
             expect(runInstance.findVarValue("var0", false, true)).to.equal("value0");
             expect(runInstance.findVarValue("var1", false, true)).to.equal("value1");
+        });
+
+        it("throws an error when a var isn't set above or below and when lookAnywhere is set to true", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    {var1}='value1'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+            runInstance.currBranch = tree.branches[0];
+            runInstance.currStep = tree.branches[0].steps[0];
+
+            assert.throws(() => {
+                runInstance.findVarValue("var2", false, true);
+            }, "The variable {var2} is never set, but is needed for this step");
+
+            assert.throws(() => {
+                runInstance.findVarValue("var2 *", false, true);
+            }, "The variable {var2 *} is never set, but is needed for this step");
         });
     });
 

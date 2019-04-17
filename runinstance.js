@@ -782,7 +782,7 @@ class RunInstance {
 
     /**
      * @param {String} text - The text whose vars the replace
-     * @param {Boolean} [lookAnywhere] - If true, you can look down the branch for the value of variables even if their names don't end in *
+     * @param {Boolean} [lookAnywhere] - If true, first checks if a var is already set, and if not, looks down the branch to the first place that var is set. Ignores the presence or absence of * in the variable name.
      * @return {String} text, with vars replaced with their values
      * @throws {Error} If there's a variable inside text that's never set
      */
@@ -821,7 +821,7 @@ class RunInstance {
     /**
      * @param {String} varname - The name of the variable, without braces (case insensitive)
      * @param {Boolean} isLocal - True of the variable is local, false if it's global
-     * @param {Boolean} [lookAnywhere] - If true, first check if the variable is set and if not, look down the branch
+     * @param {Boolean} [lookAnywhere] - If true, first checks if a var is already set, and if not, looks down the branch to the first place that var is set. Ignores the presence or absence of * in the variable name.
      * @return {String} Value of the given variable at the given step and branch
      * @throws {Error} If the variable is never set
      */
