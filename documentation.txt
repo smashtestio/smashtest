@@ -378,6 +378,9 @@ Code blocks
                 - When persistent, global, and local vars share the same name, the js var will be set according to this precedence: local, global, persistent
                 - Vars whose names have anything but [A-Za-z0-9\-\_\.] won't be converted to js vars
                 - Vars whose names are a reserved js keyword won't be converted to js vars
+                - Vars are set for both the original case of a variable and all lowercase
+                - Be mindful of these things when using vars and when setting new vars using let.
+                    - When in doubt, use l()/g()/p() to get/set and use var instead of let to prevent the double-declaration error
         - Set
             - {{var1}} is l("var1", "value") or setLocal("var1", "value") (NOTE: you can't set var1=value as this will not persist past the end of the code block)
             - {var2} is g("var2", "value") or setGlobal("var2", "value")

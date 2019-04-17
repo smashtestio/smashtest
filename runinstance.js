@@ -128,6 +128,7 @@ class RunInstance {
      * @param {Branch} branch - The branch that contains the step to execute
      * @param {Boolean} [overrideDebug] - If true, ignores step.isDebug (prevents getting stuck on a ~ step)
      * @return {Promise} Promise that gets resolved when the step finishes execution
+     * @throws {Error} If an error is thrown inside the step and error.fatal is set to true
      */
     async runStep(step, branch, overrideDebug) {
         if(step.isBeforeDebug && !overrideDebug) {
