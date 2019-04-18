@@ -1,7 +1,10 @@
 const chai = require('chai');
+const chaiString = require('chai-string');
 const expect = chai.expect;
 const assert = chai.assert;
 const Comparer = require('../../comparer.js');
+
+chai.use(chaiString);
 
 describe.only("Comparer", () => {
     describe("comparison()", () => {
@@ -97,29 +100,25 @@ describe.only("Comparer", () => {
             it("actual={}, expected=undefined", () => {
                 let obj = Comparer.comparison({}, undefined);
                 expect(Comparer.print(obj)).to.equal(`{  -->  not undefined
-}
-`);
+}`);
             });
 
             it("actual={}, expected=null", () => {
                 let obj = Comparer.comparison({}, null);
                 expect(Comparer.print(obj)).to.equal(`{  -->  not null
-}
-`);
+}`);
             });
 
             it("actual=[], expected=undefined", () => {
                 let obj = Comparer.comparison([], undefined);
                 expect(Comparer.print(obj)).to.equal(`[  -->  not undefined
-]
-`);
+]`);
             });
 
             it("actual=[], expected=null", () => {
                 let obj = Comparer.comparison([], null);
                 expect(Comparer.print(obj)).to.equal(`[  -->  not null
-]
-`);
+]`);
             });
 
             it("actual=simple object, expected=same simple object", () => {
@@ -129,8 +128,7 @@ describe.only("Comparer", () => {
     two: "2",
     three: 3,
     four: "4"
-}
-`);
+}`);
             });
 
             it("actual=simple object, expected=same simple object but with a subset of keys", () => {
@@ -140,8 +138,7 @@ describe.only("Comparer", () => {
     two: "2",
     three: 3,
     four: "4"
-}
-`);
+}`);
             });
 
             it("actual=simple object, expected={}", () => {
@@ -151,8 +148,7 @@ describe.only("Comparer", () => {
     two: "2",
     three: 3,
     four: "4"
-}
-`);
+}`);
             });
 
             it("actual=simple object, expected=different simple object", () => {
@@ -162,8 +158,7 @@ describe.only("Comparer", () => {
     two: "2",  -->  not "5"
     three: 3,  -->  not null
     four: "4"
-}
-`);
+}`);
             });
 
             it("actual=simple array, expected=same simple array", () => {
@@ -175,8 +170,7 @@ describe.only("Comparer", () => {
     null,
     false,
     undefined
-]
-`);
+]`);
             });
 
             it("actual=simple array, expected=same simple array but in a different order", () => {
@@ -188,8 +182,7 @@ describe.only("Comparer", () => {
     null,  -->  not undefined
     false,  -->  not 3
     undefined  -->  not false
-]
-`);
+]`);
             });
 
             it("actual=simple array, expected=different simple array", () => {
@@ -201,8 +194,7 @@ describe.only("Comparer", () => {
     null,  -->  not expected
     false,  -->  not expected
     undefined  -->  not expected
-]
-`);
+]`);
             });
 
             it("actual=object containing objects/arrays/primitives, expected=same object", () => {
@@ -349,145 +341,592 @@ describe.only("Comparer", () => {
             ]
         ]
     ]
-}
-`);
+}`);
             });
 
-            it.skip("actual=object containing objects/arrays/primitives, expected=same object but with a subset of keys", () => {
+            it("actual=object containing objects/arrays/primitives, expected=same object but with a subset of keys", () => {
+                let obj = Comparer.comparison({
+                    one: 1,
+                    two: "2",
+                    three: null,
+                    four: undefined,
+                    "five six": "\"56\"",
+                    seven: "",
+                    eight: false,
+                    nine: {
+                        ten: 10,
+                        eleven: "11",
+                        twenty: {
+                            twentyone: 21,
+                            "22": "22"
+                        },
+                        twentythree: [
+                            23,
+                            24
+                        ],
+                        twentyfive: [],
+                        twentysix: {}
+                    },
+                    twelve: [
+                        1,
+                        "2",
+                        3,
+                        true,
+                        null,
+                        false,
+                        undefined,
+                        {},
+                        {
+                            thirteen: 13,
+                            fourteen: 14,
+                            fifteen: [
+                                16
+                            ]
+                        },
+                        [],
+                        [
+                            17,
+                            18,
+                            [ 19 ]
+                        ]
+                    ]
+                }, {
+                    one: 1,
+                    three: null,
+                    four: undefined,
+                    "five six": "\"56\"",
+                    seven: "",
+                    nine: {
+                        ten: 10,
+                        twenty: {
+                            twentyone: 21,
+                            "22": "22"
+                        },
+                        twentythree: [
+                            23,
+                            24
+                        ],
+                        twentysix: {}
+                    },
+                    twelve: [
+                        1,
+                        "2",
+                        3,
+                        true,
+                        null,
+                        false,
+                        undefined,
+                        {},
+                        {
+                            thirteen: 13,
+                            fifteen: [
+                                16
+                            ]
+                        },
+                        [],
+                        [
+                            17,
+                            18,
+                            [ 19 ]
+                        ]
+                    ]
+                });
 
+                expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: null,
+    four: undefined,
+    "five six": "\\\"56\\\"",
+    seven: "",
+    eight: false,
+    nine: {
+        ten: 10,
+        eleven: "11",
+        twenty: {
+            22: "22",
+            twentyone: 21
+        },
+        twentythree: [
+            23,
+            24
+        ],
+        twentyfive: [
+        ],
+        twentysix: {
+        }
+    },
+    twelve: [
+        1,
+        "2",
+        3,
+        true,
+        null,
+        false,
+        undefined,
+        {
+        },
+        {
+            thirteen: 13,
+            fourteen: 14,
+            fifteen: [
+                16
+            ]
+        },
+        [
+        ],
+        [
+            17,
+            18,
+            [
+                19
+            ]
+        ]
+    ]
+}`);
             });
 
-            it.skip("actual=object containing objects/arrays/primitives, expected={}", () => {
+            it("actual=object containing objects/arrays/primitives, expected={}", () => {
+                let obj = Comparer.comparison({
+                    one: 1,
+                    two: "2",
+                    three: null,
+                    four: undefined,
+                    "five six": "\"56\"",
+                    seven: "",
+                    eight: false,
+                    nine: {
+                        ten: 10,
+                        eleven: "11",
+                        twenty: {
+                            twentyone: 21,
+                            "22": "22"
+                        },
+                        twentythree: [
+                            23,
+                            24
+                        ],
+                        twentyfive: [],
+                        twentysix: {}
+                    },
+                    twelve: [
+                        1,
+                        "2",
+                        3,
+                        true,
+                        null,
+                        false,
+                        undefined,
+                        {},
+                        {
+                            thirteen: 13,
+                            fourteen: 14,
+                            fifteen: [
+                                16
+                            ]
+                        },
+                        [],
+                        [
+                            17,
+                            18,
+                            [ 19 ]
+                        ]
+                    ]
+                }, {});
 
+                expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: null,
+    four: undefined,
+    "five six": "\\\"56\\\"",
+    seven: "",
+    eight: false,
+    nine: {
+        ten: 10,
+        eleven: "11",
+        twenty: {
+            22: "22",
+            twentyone: 21
+        },
+        twentythree: [
+            23,
+            24
+        ],
+        twentyfive: [
+        ],
+        twentysix: {
+        }
+    },
+    twelve: [
+        1,
+        "2",
+        3,
+        true,
+        null,
+        false,
+        undefined,
+        {
+        },
+        {
+            thirteen: 13,
+            fourteen: 14,
+            fifteen: [
+                16
+            ]
+        },
+        [
+        ],
+        [
+            17,
+            18,
+            [
+                19
+            ]
+        ]
+    ]
+}`);
             });
 
-            it.skip("actual=object containing objects/arrays/primitives, expected=different object", () => {
+            it("actual=object containing objects/arrays/primitives, expected=different object", () => {
+                let obj = Comparer.comparison({
+                    one: 1,
+                    three: null,
+                    four: undefined,
+                    "five six": "\"56\"",
+                    seven: "",
+                    eight: false,
+                    nine: {
+                        ten: 10,
+                        eleven: "11",
+                        twenty: {
+                            "22": "22"
+                        },
+                        twentythree: [
+                            24
+                        ],
+                        twentyfive: [],
+                        twentysix: {}
+                    },
+                    twelve: [
+                        1,
+                        "2",
+                        3,
+                        true,
+                        null,
+                        false,
+                        undefined,
+                        {
+                            thirteen: 13,
+                            fifteen: [
+                                16
+                            ]
+                        },
+                        [],
+                        [
+                            17,
+                            []
+                        ]
+                    ]
+                }, {
+                    one: 1,
+                    two: "2",
+                    three: null,
+                    four: undefined,
+                    "five six": "\"56\"",
+                    seven: "",
+                    eight: false,
+                    nine: {
+                        ten: 10,
+                        eleven: "11",
+                        twenty: {
+                            twentyone: 21,
+                            "22": "22"
+                        },
+                        twentythree: [
+                            23,
+                            24
+                        ],
+                        twentyfive: [],
+                        twentysix: {}
+                    },
+                    twelve: [
+                        1,
+                        "2",
+                        3,
+                        true,
+                        null,
+                        false,
+                        undefined,
+                        {},
+                        {
+                            thirteen: 13,
+                            fourteen: 14,
+                            fifteen: [
+                                16
+                            ]
+                        },
+                        [],
+                        [
+                            17,
+                            18,
+                            [ 19 ]
+                        ]
+                    ]
+                });
 
+                expect(Comparer.print(obj)).to.equal(`{  -->  missing key 'two'
+    one: 1,
+    three: null,
+    four: undefined,
+    "five six": "\\\"56\\\"",
+    seven: "",
+    eight: false,
+    nine: {
+        ten: 10,
+        eleven: "11",
+        twenty: {  -->  missing key 'twentyone'
+            22: "22"
+        },
+        twentythree: [
+            24,  -->  not 23
+            undefined  -->  not 24
+        ],
+        twentyfive: [
+        ],
+        twentysix: {
+        }
+    },
+    twelve: [
+        1,
+        "2",
+        3,
+        true,
+        null,
+        false,
+        undefined,
+        {
+            thirteen: 13,
+            fifteen: [
+                16
+            ]
+        },
+        [  -->  missing key 'thirteen', missing key 'fourteen', missing key 'fifteen'
+        ],
+        [
+            17,  -->  not expected
+            [  -->  not expected
+            ]
+        ],
+        undefined  -->  not an array
+    ]
+}`);
             });
         });
 
         context("comparison with special expected objects", () => {
             context("$typeof", () => {
-                it.skip("expected=correct $typeof", () => {
-
+                it("expected=$typeof but not a string", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison("foobar6", { $typeof: 6 });
+                    }, `typeof has to be a string: 6`);
                 });
 
-                it.skip("expected=incorrect $typeof", () => {
-
+                it("expected=correct $typeof", () => {
+                    let obj = Comparer.comparison(6, { $typeof: "number" });
+                    expect(Comparer.print(obj)).to.equal(`6`);
                 });
 
-                it.skip("actual=array, expected=$typeof array", () => {
-
+                it("expected=incorrect $typeof", () => {
+                    let obj = Comparer.comparison(6, { $typeof: "string" });
+                    expect(Comparer.print(obj)).to.equal(`6  -->  not $typeof string`);
                 });
 
-                it.skip("actual=non-array, expected=$typeof array", () => {
+                it("actual=array, expected=$typeof array", () => {
+                    let obj = Comparer.comparison([ 6 ], { $typeof: "array" });
+                    expect(Comparer.print(obj)).to.equal(`[
+    6
+]`);
+                });
 
+                it("actual=non-array, expected=$typeof array", () => {
+                    let obj = Comparer.comparison({}, { $typeof: "array" });
+                    expect(Comparer.print(obj)).to.equal(`{  -->  not $typeof array
+}`);
                 });
             });
 
             context("$regex", () => {
-                it.skip("actual=non-string, expected=$regex", () => {
-
+                it("expected=$regex but not a regex or string", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison("foobar6", { $regex: 6 });
+                    }, `$regex has to be a /regex/ or "regex": 6`);
                 });
 
-                it.skip("expected=correct $regex in /regex/ form", () => {
+                it("actual=non-string, expected=$regex", () => {
+                    let obj = Comparer.comparison(6, { $regex: /6/ });
+                    expect(Comparer.print(obj)).to.equal(`6  -->  isn't a string so can't match $regex /6/`);
 
+                    obj = Comparer.comparison(6, { $regex: "6" });
+                    expect(Comparer.print(obj)).to.equal(`6  -->  isn't a string so can't match $regex /6/`);
                 });
 
-                it.skip("expected=incorrect $regex in /regex/ form", () => {
-
+                it("expected=correct $regex in /regex/ form", () => {
+                    let obj = Comparer.comparison("foobar", { $regex: /foo[a-z]+/ });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"`);
                 });
 
-                it.skip("expected=correct $regex in string form", () => {
-
+                it("expected=incorrect $regex in /regex/ form", () => {
+                    let obj = Comparer.comparison("foobar", { $regex: /foo\\z[a-z]+/ });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"  -->  doesn't match $regex /foo\\\\z[a-z]+/`);
                 });
 
-                it.skip("expected=incorrect $regex in string form", () => {
+                it("expected=correct $regex in string form", () => {
+                    let obj = Comparer.comparison("foobar", { $regex: "foo[a-z]+" });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"`);
+                });
 
+                it("expected=incorrect $regex in string form", () => {
+                    let obj = Comparer.comparison("foobar", { $regex: "foo\\\\z[a-z]+" });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"  -->  doesn't match $regex /foo\\\\z[a-z]+/`);
                 });
             });
 
             context("$contains", () => {
-                it.skip("actual=non-string, expected=$contains", () => {
-
+                it("expected=$contains but not a string", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison("foobar6", { $contains: 6 });
+                    }, `$contains has to be a string: 6`);
                 });
 
-                it.skip("expected=correct $contains", () => {
-
+                it("actual=non-string, expected=$contains", () => {
+                    let obj = Comparer.comparison(6, { $contains: "oo" });
+                    expect(Comparer.print(obj)).to.equal(`6  -->  isn't a string so can't $contains "oo"`);
                 });
 
-                it.skip("expected=incorrect $contains", () => {
+                it("expected=correct $contains", () => {
+                    let obj = Comparer.comparison("foobar", { $contains: "oo" });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"`);
+                });
 
+                it("expected=incorrect $contains", () => {
+                    let obj = Comparer.comparison("foobar", { $contains: "hoo" });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"  -->  doesn't $contains "hoo"`);
                 });
             });
 
             context("$max", () => {
-                it.skip("actual=non-number, expected=$max", () => {
-
+                it("expected=$max but not a number", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison(8, { $max: "10" });
+                    }, `$max has to be a number: "10"`);
                 });
 
-                it.skip("expected=correct $max", () => {
-
+                it("actual=non-number, expected=$max", () => {
+                    let obj = Comparer.comparison("8", { $max: 10 });
+                    expect(Comparer.print(obj)).to.equal(`"8"  -->  isn't a number so can't have a $max of 10`);
                 });
 
-                it.skip("expected=incorrect $max", () => {
+                it("expected=correct $max", () => {
+                    let obj = Comparer.comparison(8, { $max: 10 });
+                    expect(Comparer.print(obj)).to.equal(`8`);
 
+                    obj = Comparer.comparison(8, { $max: 8 });
+                    expect(Comparer.print(obj)).to.equal(`8`);
+                });
+
+                it("expected=incorrect $max", () => {
+                    let obj = Comparer.comparison(8, { $max: 7 });
+                    expect(Comparer.print(obj)).to.equal(`8  -->  is greater than the $max of 7`);
                 });
             });
 
             context("$min", () => {
-                it.skip("actual=non-number, expected=$min", () => {
-
+                it("expected=$min but not a number", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison(8, { $min: "2" });
+                    }, `$min has to be a number: "2"`);
                 });
 
-                it.skip("expected=correct $min", () => {
-
+                it("actual=non-number, expected=$min", () => {
+                    let obj = Comparer.comparison("8", { $min: 2 });
+                    expect(Comparer.print(obj)).to.equal(`"8"  -->  isn't a number so can't have a $min of 2`);
                 });
 
-                it.skip("expected=incorrect $min", () => {
+                it("expected=correct $min", () => {
+                    let obj = Comparer.comparison(8, { $min: 2 });
+                    expect(Comparer.print(obj)).to.equal(`8`);
 
+                    obj = Comparer.comparison(8, { $min: 8 });
+                    expect(Comparer.print(obj)).to.equal(`8`);
+                });
+
+                it("expected=incorrect $min", () => {
+                    let obj = Comparer.comparison(8, { $min: 10 });
+                    expect(Comparer.print(obj)).to.equal(`8  -->  is less than the $min of 10`);
                 });
             });
 
             context("$code", () => {
-                it.skip("actual=non-function or string, expected=$code", () => {
-
+                it("expected=$code but not function or string", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison("foobar", { $code: null });
+                    }, `code has to be a function or string: null`);
                 });
 
-                it.skip("expected=$code function that returns true", () => {
-                    // use actual var passed in
+                it("expected=$code function that returns true", () => {
+                    let obj = Comparer.comparison("Foobar", { $code: (actual) => { return actual.toLowerCase() == "foobar"; } });
+                    expect(Comparer.print(obj)).to.equal(`"Foobar"`);
                 });
 
-                it.skip("expected=$code function that returns false", () => {
-                    // use actual var passed in
+                it("expected=$code function that returns false", () => {
+                    let obj = Comparer.comparison("Foobar", { $code: (actual) => { return actual.toLowerCase() == "hoo"; } });
+                    expect(Comparer.print(obj)).to
+                        .startsWith(`"Foobar"  -->  failed the $code '(actual) => { return actual`)
+                        .endsWith(`...`);
                 });
 
-                it.skip("expected=$code function that throws an exception", () => {
-                    // use actual var passed in
+                it("expected=$code function that throws an exception", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison("Foobar", { $code: (actual) => { throw new Error("oops"); } });
+                    }, "oops");
                 });
 
-                it.skip("expected=$code string that returns true", () => {
-                    // use actual var passed in
+                it("expected=$code string that returns true", () => {
+                    let obj = Comparer.comparison("Foobar", { $code: 'return actual.toLowerCase() == "foobar"' });
+                    expect(Comparer.print(obj)).to.equal(`"Foobar"`);
                 });
 
-                it.skip("expected=$code string that returns false", () => {
-                    // use actual var passed in
+                it("expected=$code string that returns false", () => {
+                    let obj = Comparer.comparison("Foobar", { $code: 'return actual.toLowerCase() == "hoo";' });
+                    expect(Comparer.print(obj)).to
+                        .startsWith(`"Foobar"  -->  failed the $code 'return actual.toLowerCase()`)
+                        .endsWith(`...`);
                 });
 
-                it.skip("expected=$code string that throws an exception", () => {
-                    // use actual var passed in
+                it("expected=$code string that throws an exception", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison("Foobar", { $code: 'throw new Error("oops");' });
+                    }, "oops");
                 });
 
-                it.skip("expected=$code string that evaluates true", () => {
-                    // use actual var passed in
+                it("expected=$code string that evaluates true", () => {
+                    let obj = Comparer.comparison("Foobar", { $code: 'actual.toLowerCase() == "foobar"' });
+                    expect(Comparer.print(obj)).to.equal(`"Foobar"`);
                 });
 
-                it.skip("expected=$code string that evaluates false", () => {
-                    // use actual var passed in
+                it("expected=$code string that evaluates false", () => {
+                    let obj = Comparer.comparison("Foobar", { $code: 'actual.toLowerCase() == "hoo"' });
+                    expect(Comparer.print(obj)).to
+                        .equal(`"Foobar"  -->  failed the $code 'actual.toLowerCase() == "hoo"'`);
                 });
             });
 
             context("$length", () => {
+                it.skip("expected=$length but not a number", () => {
+
+                });
+
                 it.skip("actual=non-object, expected=$length", () => {
 
                 });
@@ -506,6 +945,10 @@ describe.only("Comparer", () => {
             });
 
             context("$maxLength", () => {
+                it.skip("expected=$maxLength but not a number", () => {
+
+                });
+
                 it.skip("actual=non-object, expected=$maxLength", () => {
 
                 });
@@ -524,6 +967,10 @@ describe.only("Comparer", () => {
             });
 
             context("$minLength", () => {
+                it.skip("expected=$minLength but not a number", () => {
+
+                });
+
                 it.skip("actual=non-object, expected=$minLength", () => {
 
                 });

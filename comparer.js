@@ -108,7 +108,7 @@ class Comparer {
                     // Validate actual matches expected
                     if(expected.$typeof.toLowerCase() == 'array') {
                         if(!(actual instanceof Array)) {
-                            errors.push(`not an array`);
+                            errors.push(`not $typeof array`);
                         }
                     }
                     else if(typeof actual != expected.$typeof) {
@@ -147,15 +147,15 @@ class Comparer {
                 if(expected.hasOwnProperty("$contains")) {
                     // Validate expected
                     if(typeof expected.$contains != 'string') {
-                        throw new Error(`$contains has to be a string: ${expected.$contains}`);
+                        throw new Error(`$contains has to be a string: ${JSON.stringify(expected.$contains)}`);
                     }
 
                     // Validate actual matches expected
                     if(typeof actual != 'string') {
-                        errors.push(`isn't a string so can't $contains '${expected.$contains}'`);
+                        errors.push(`isn't a string so can't $contains "${expected.$contains}"`);
                     }
                     else if(!actual.includes(expected.$contains)) {
-                        errors.push(`doesn't $contains '${expected.$contains}'`);
+                        errors.push(`doesn't $contains "${expected.$contains}"`);
                     }
 
                     actualExpectedToBePlainObject = false;
@@ -165,7 +165,7 @@ class Comparer {
                 if(expected.hasOwnProperty("$max")) {
                     // Validate expected
                     if(typeof expected.$max != 'number') {
-                        throw new Error(`$max has to be a number: ${expected.$max}`);
+                        throw new Error(`$max has to be a number: ${JSON.stringify(expected.$max)}`);
                     }
 
                     // Validate actual matches expected
@@ -183,7 +183,7 @@ class Comparer {
                 if(expected.hasOwnProperty("$min")) {
                     // Validate expected
                     if(typeof expected.$min != 'number') {
-                        throw new Error(`$min has to be a number: ${expected.$min}`);
+                        throw new Error(`$min has to be a number: ${JSON.stringify(expected.$min)}`);
                     }
 
                     // Validate actual matches expected
@@ -210,7 +210,7 @@ class Comparer {
                             success = eval(expected.$code);
                         }
                         catch(e) {
-                            if(e.message == "SyntaxError: Illegal return statement") {
+                            if(e.message == "Illegal return statement") {
                                 // The code has a return, so enclose it in a function and try again
                                 success = eval(`(()=>{${expected.$code}})()`);
                             }
@@ -441,22 +441,22 @@ class Comparer {
         let ret = '';
 
         let errors = [];
-        if(typeof value == 'object' && value.$comparerNode) {
+        if(typeof value == 'object' && value !== null && value.$comparerNode) {
             errors = value.errors;
             value = value.value;
         }
 
         if(typeof value == 'object') {
             if(value === null) { // remember, typeof null is "object"
-                ret += 'null' + (commaAtEnd ? ',' : '') + outputErrors();
+                ret += 'null' + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
             }
             else if(value instanceof Array) {
                 ret += '[' + outputErrors() + '\n';
                 for(let i = 0; i < value.length; i++) {
-                    ret += nextSpaces + this.print(value[i], indents + 1, i < value.length - 1) + '\n';
+                    ret += nextSpaces + this.print(value[i], indents + 1, i < value.length - 1);
                 }
 
-                ret += spaces + ']\n';
+                ret += spaces + ']' + (commaAtEnd ? ',' : '') + '\n';
             }
             else { // plain object
                 ret += '{' + outputErrors() + '\n';
@@ -465,7 +465,7 @@ class Comparer {
                     let key = keys[i];
                     if(value.hasOwnProperty(key)) {
                         let hasWeirdChars = key.match(/[^A-Za-z0-9]/); // put quotes around the key if there are non-standard chars in it
-                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], indents + 1, i < keys.length - 1) + '\n';
+                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], indents + 1, i < keys.length - 1);
                     }
                 }
 
@@ -473,10 +473,15 @@ class Comparer {
             }
         }
         else { // primitive
-            ret = JSON.stringify(value) + (commaAtEnd ? ',' : '') + outputErrors();
+            ret = JSON.stringify(value) + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
         }
 
-        return ret;
+        if(indents == 0) {
+            return ret.trim();
+        }
+        else {
+            return ret;
+        }
 
         function outputIndents(num) {
             const SPACES_PER_INDENT = 4;
@@ -496,7 +501,8 @@ class Comparer {
 
             let ret = '  -->  ';
             for(let error of errors) {
-                ret += error.replace(/\n/g, ' ').slice(0, MAX_ERROR_LEN) + ', ';
+                let overLength = error.length > MAX_ERROR_LEN;
+                ret += error.replace(/\n/g, ' ').slice(0, MAX_ERROR_LEN) + (overLength ? '...' : '') + ', ';
             }
 
             // Slice off last ', '
