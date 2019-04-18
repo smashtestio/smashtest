@@ -10,41 +10,18 @@ class Comparer {
      * Replaces every node with { errors, original value } (see return value)
      * @param {Anything} value - The value to check
      * @param {Anything} criteria - Criteria for the value to match (could be a primitive, object, array, etc. to match exactly or an object/array that specifies constraints)
-     * @param {Boolean} [isSubsetDeep] - If true, $subset applies to criteria and all of its children
      * @return {Object} - { errors: array of errors related to comparion, value: original value of obj }
      */
-    static comparison(value, criteria, isSubsetDeep) {
+    static comparison(value, criteria) {
         let errors = [];
 
         if(typeof criteria == 'object') {
             if(criteria instanceof Array) {
                 let valueExpectedToBePlainArray = true;
 
-                // [ '$and', A, B, ... ]
-                if(criteria.indexOf('$and') == 0) {
+                // [ '$subset', A, B, ... ] (note that $subset and $anyOrder can exist in the same array)
+                if(criteria.indexOf('$subset') != -1) {
 
-
-
-
-                    valueExpectedToBePlainArray = false;
-                }
-
-                // [ '$or', A, B, ... ]
-                if(criteria.indexOf('$or') == 0) {
-
-
-
-
-                    valueExpectedToBePlainArray = false;
-                }
-
-                // [ '$subset', A, B, ... ] (note that $subset, $subsetDeep, and $anyOrder can exist in the same array)
-                if(criteria.indexOf('$subset') != -1 || criteria.indexOf('$subsetDeep') != -1 || isSubsetDeep) {
-                    if(criteria.indexOf('$subsetDeep') != -1) {
-                        isSubsetDeep = true;
-                    }
-
-                    let criteriaText = isSubsetDeep ? '$subsetDeep' : '$subset';
 
 
 
@@ -58,8 +35,12 @@ class Comparer {
                     valueExpectedToBePlainArray = false;
                 }
 
-                // [ '$anyOrder', A, B, ... ] (note that $subset, $subsetDeep, and $anyOrder can exist in the same array)
+                // [ '$anyOrder', A, B, ... ] (note that $subset and $anyOrder can exist in the same array)
                 if(criteria.indexOf('$anyOrder') != -1) {
+
+
+
+
 
 
 
@@ -73,6 +54,12 @@ class Comparer {
 
 
 
+
+
+
+
+
+
                     valueExpectedToBePlainArray = false;
                 }
 
@@ -82,11 +69,11 @@ class Comparer {
                         errors.push(`not an array`);
                     }
                     else if(criteria.length != value.length) {
-                        errors.push(`doesn't have the same length as criteria array`);
+                        errors.push(`expected length of ${criteria.length}`);
                     }
                     else {
                         for(let i = 0; i < criteria.length - 1; i++) {
-                            value[i] = this.comparison(value[i], criteria[i], isSubsetDeep);
+                            value[i] = this.comparison(value[i], criteria[i]);
                         }
                     }
                 }
@@ -104,7 +91,7 @@ class Comparer {
                     // Validate value matches criteria
                     if(criteria.$typeof.toLowerCase() == 'array') {
                         if(!(value instanceof Array)) {
-                            errors.push(`is not an Array`);
+                            errors.push(`not an array`);
                         }
                     }
                     else if(typeof value != criteria.$typeof) {
@@ -227,16 +214,6 @@ class Comparer {
                     valueExpectedToBePlainObject = false;
                 }
 
-                // { $not: <primitive/object/array/criteria object> }
-                if(criteria.$not) {
-                    let ret = this.comparison(value, criteria.$not, isSubsetDeep);
-                    if(ret.errors.length == 0) {
-                        errors.push(`shouldn'tve matched $not of ${criteria.$not.toString().replace(/\n/, ' ')}`);
-                    }
-
-                    valueExpectedToBePlainObject = false;
-                }
-
                 // { $length: <number> }
                 if(criteria.$length) {
                     // Validate criteria
@@ -251,14 +228,11 @@ class Comparer {
                     else {
                         if(value.hasOwnProperty('length')) {
                             if(value.length != criteria.$length) {
-                                errors.push(`doesn't have the expected $length of ${criteria.$length}`);
+                                errors.push(`doesn't have a $length of ${criteria.$length}`);
                             }
                         }
-                        else { // value is a plain js object
-                            let keys = Object.keys(value);
-                            if(keys.length != criteria.$length) {
-                                errors.push(`doesn't have the expected $length of keys ${criteria.$length}`);
-                            }
+                        else {
+                            errors.push(`doesn't have a length property so can't have a $length of ${criteria.$length}`);
                         }
                     }
 
@@ -282,11 +256,8 @@ class Comparer {
                                 errors.push(`is longer than the $maxLength of ${criteria.$maxLength}`);
                             }
                         }
-                        else { // value is a plain js object
-                            let keys = Object.keys(value);
-                            if(keys.length > criteria.$maxLength) {
-                                errors.push(`has more keys than the $maxLength of ${criteria.$maxLength}`);
-                            }
+                        else {
+                            errors.push(`doesn't have a length property so can't have a $maxLength of ${criteria.$maxLength}`);
                         }
                     }
 
@@ -309,70 +280,16 @@ class Comparer {
                                 errors.push(`is shorter than the $minLength of ${criteria.$minLength}`);
                             }
                         }
-                        else { // value is a plain js object that doesn't have a length property
-                            let keys = Object.keys(value);
-                            if(keys.length < criteria.$minLength) {
-                                errors.push(`has fewer keys than the $minLength of ${criteria.$minLength}`);
-                            }
+                        else {
+                            errors.push(`doesn't have a length property so can't have a $minLength of ${criteria.$minLength}`);
                         }
                     }
 
                     valueExpectedToBePlainObject = false;
                 }
 
-                // { $subset: true }
-                if(criteria.$subset || criteria.$subsetDeep || isSubsetDeep) {
-                    if(criteria.$subsetDeep) {
-                        isSubsetDeep = true;
-                    }
-
-                    let criteriaText = isSubsetDeep ? '$subsetDeep' : '$subset';
-
-                    if(typeof value != 'object') {
-                        errors.push(`isn't an object so can't match ${criteriaText} ${criteria.$subset}`);
-                    }
-                    else {
-                        // Make sure every non-$ key in criteria matches every key in value
-                        for(let key in criteria) {
-                            if(criteria.hasOwnProperty(key)) {
-                                if(!key.startsWith('$')) {
-                                    if(!value.hasOwnProperty(key)) {
-                                        errors.push(`doesn't have key '${key}' needed to match ${criteriaText}`);
-                                    }
-                                    else {
-                                        value[key] = this.comparison(value[key], criteria[key], isSubsetDeep);
-                                    }
-                                }
-                                else if(key.startsWith("$regex ")) {
-                                    let ret = this.regexKeyComparison(value, criteria, key, isSubsetDeep);
-                                    errors = errors.concat(ret.errors);
-                                }
-                            }
-                        }
-                    }
-
-                    valueExpectedToBePlainObject = false;
-                }
-
-                // { $every: <primitive/object/array/criteria object> }
-                if(criteria.$every) {
-                    // Value must be an object and every item inside must match the criteria
-                    if(typeof value != 'object') {
-                        errors.push(`not an object as required by $every`);
-                    }
-                    else {
-                        for(let key in value) {
-                            if(value.hasOwnProperty(key)) {
-                                value[key] = this.comparison(value[key], criteria.$every, isSubsetDeep);
-                            }
-                        }
-                    }
-
-                    valueExpectedToBePlainObject = false;
-                }
-
-                // criteria is a plain object that needs to match the value object key for key
-                if(valueExpectedToBePlainObject) {
+                // { $exact: true }
+                if(criteria.$exact) {
                     if(typeof value != 'object') {
                         errors.push(`not an object`);
                     }
@@ -381,34 +298,45 @@ class Comparer {
                         let valueKeys = Object.keys(value);
                         let criteriaKeys = Object.keys(criteria);
 
-                        if(valueKeys.length != criteriaKeys.length) {
-                            errors.push(`doesn't have the same number of keys as criteria`);
-                        }
-                        else {
-                            // Make sure every key in criteria exists in value
-                            for(let key in criteria) {
-                                if(criteria.hasOwnProperty(key)) {
-                                    if(key.startsWith("$regex ")) {
-                                        let ret = this.regexKeyComparison(value, criteria, key, isSubsetDeep);
-                                        errors = errors.concat(ret.errors);
-                                    }
-                                    else {
-                                        if(!value.hasOwnProperty(key)) {
-                                            errors.push(`doesn't have key '${key}'`);
-                                        }
-                                        else {
-                                            value[key] = this.comparison(value[key], criteria[key], isSubsetDeep);
-                                        }
-                                    }
+                        // Make sure every key in criteria exists in value
+                        for(let key in criteria) {
+                            if(criteria.hasOwnProperty(key) && !key.startsWith('$')) {
+                                if(!value.hasOwnProperty(key)) {
+                                    errors.push(`doesn't have key '${key}'`);
+                                }
+                                else {
+                                    value[key] = this.comparison(value[key], criteria[key]);
                                 }
                             }
+                        }
 
-                            // Make sure every key in value exists in criteria
-                            for(let key in value) {
-                                if(value.hasOwnProperty(key)) {
-                                    if(!criteria.hasOwnProperty(key)) {
-                                        value[key] = { errors: [ `this key not expected to exist` ], value: value[key] };
-                                    }
+                        // Make sure every key in value exists in criteria
+                        for(let key in value) {
+                            if(value.hasOwnProperty(key)) {
+                                if(!criteria.hasOwnProperty(key)) {
+                                    value[key] = { errors: [ `this key isn't in $exact object` ], value: value[key] };
+                                }
+                            }
+                        }
+                    }
+
+                    valueExpectedToBePlainObject = false;
+                }
+
+                // criteria is a plain object that needs to be a subset of the value object
+                if(valueExpectedToBePlainObject) {
+                    if(typeof value != 'object') {
+                        errors.push(`not an object`);
+                    }
+                    else {
+                        // Make sure every non-$ key in criteria matches every key in value
+                        for(let key in criteria) {
+                            if(criteria.hasOwnProperty(key)) {
+                                if(!value.hasOwnProperty(key)) {
+                                    errors.push(`doesn't have key '${key}'`);
+                                }
+                                else {
+                                    value[key] = this.comparison(value[key], criteria[key]);
                                 }
                             }
                         }
@@ -420,38 +348,6 @@ class Comparer {
             if(value !== criteria) {
                 errors.push(`doesn't equal ${criteria}`);
             }
-        }
-
-        return { errors: errors, value: value };
-    }
-
-    /**
-     * Like comparison(), but only compares objects value and criteria at the given criteria key, which is in "$regex ..." format
-     * Every key in value that matches the regex must have a value that matches criteria[key]
-     * @param {Object} value - The object to check
-     * @param {Object} criteria - The criteria against which to check value (but only at the given key)
-     * @param {String} key - The key at which to do the comparison, in $regex... format
-     * @param {Boolean} [isSubsetDeep] - Same as for comparison()
-     * @return {Object} Same kind of object as comparison()
-     */
-    static regexKeyComparison(value, criteria, key, isSubsetDeep) {
-        let errors = [];
-
-        let regex = key.replace(/^\$regex /, '');
-        regex = new RegExp(regex);
-
-        // Try to find a key in value that matches the regex
-        let found = false;
-        for(let valueKey in value) {
-            if(valueKey.match(regex) && value.hasOwnProperty(valueKey)) {
-                // Found a match
-                value[valueKey] = this.comparison(value[valueKey], criteria[key], isSubsetDeep);
-                found = true;
-            }
-        }
-
-        if(!found) {
-            errors.push(`Couldn't find a key matching $regex /${regex.source}/`);
         }
 
         return { errors: errors, value: value };
