@@ -10,70 +10,83 @@ class Comparer {
      * Replaces every node with { errors, original value } (see return value)
      * @param {Anything} value - The value to check
      * @param {Anything} criteria - Criteria for the value to match (could be a primitive, object, array, etc. to match exactly or an object/array that specifies constraints)
-     * @return {Object} - { errors: array of errors related to comparion, value: original value of obj }
+     * @return {Object} - { errors: array of errors related to comparion, value: original value of obj, $comparerNode: true }
      */
     static comparison(value, criteria) {
         let errors = [];
 
         if(typeof criteria == 'object') {
             if(criteria instanceof Array) {
-                let valueExpectedToBePlainArray = true;
-
-                // [ '$subset', A, B, ... ] (note that $subset and $anyOrder can exist in the same array)
-                if(criteria.indexOf('$subset') != -1) {
-
-
-
-
-
-
-
-
-
-
-
-                    valueExpectedToBePlainArray = false;
+                if(!(value instanceof Array)) {
+                    errors.push(`not an array`);
                 }
+                else {
+                    // [ '$every', A ]
+                    if(criteria.indexOf('$every') == 0) {
+                        // Validate criteria
+                        if(criteria.length != 2) {
+                            throw new Error(`$every array has to have exactly 2 items: ${criteria}`);
+                        }
 
-                // [ '$anyOrder', A, B, ... ] (note that $subset and $anyOrder can exist in the same array)
-                if(criteria.indexOf('$anyOrder') != -1) {
-
-
-
-
-
-
-
-
-                    valueExpectedToBePlainArray = false;
-                }
-
-                // [ '$every', A ]
-                if(criteria.indexOf('$every') == 0) {
-
-
-
-
-
-
-
-
-
-
-                    valueExpectedToBePlainArray = false;
-                }
-
-                // criteria is a plain array that needs to match the value array index for index
-                if(valueExpectedToBePlainArray) {
-                    if(!(value instanceof Array)) {
-                        errors.push(`not an array`);
-                    }
-                    else if(criteria.length != value.length) {
-                        errors.push(`expected length of ${criteria.length}`);
+                        // Validate value matches criteria
+                        for(let i = 0; i < value.length; i++) {
+                            value[i] = this.comparison(value[i], criteria[1]);
+                        }
                     }
                     else {
-                        for(let i = 0; i < criteria.length - 1; i++) {
-                            value[i] = this.comparison(value[i], criteria[i]);
+                        let subset = false;
+                        let anyOrder = false;
+
+                        // [ '$subset', A, B, ... ]
+                        if(criteria.indexOf('$subset') != -1) {
+                            subset = true;
+                        }
+
+                        // [ '$anyOrder', A, B, ... ]
+                        if(criteria.indexOf('$anyOrder') != -1) {
+                            anyOrder = true;
+                        }
+
+                        // Make sure the criteria and value arrays match
+                        for(let criteriaIndex = 0, valueIndex = 0; criteriaIndex < criteria.length; criteriaIndex++) {
+                            let criteriaItem = criteria[criteriaIndex];
+                            if(['$subset', '$anyOrder'].indexOf(criteriaItem) == -1) {
+                                // Does criteriaItem have an equivalent in value?
+                                if(anyOrder) {
+                                    // can be anywhere
+                                    let valueClone = clonedeep(value);
+                                    let found = false;
+                                    for(let i = 0; i < valueClone.length; i++) {
+                                        let valueItem = valueClone[i];
+                                        let comparisonResult = this.comparison(valueItem, criteriaItem);
+                                        if(!this.hasErrors(comparisonResult)) {
+                                            // we have a match
+                                            found = true;
+                                            value[i] = comparisonResult;
+                                            break;
+                                        }
+                                    }
+
+                                    if(!found) {
+                                        errors.push(`couldn't find ${criteriaItem} here`);
+                                    }
+                                }
+                                else {
+                                    // has to be at the same index
+                                    value[valueIndex] = this.comparison(value[valueIndex], criteria[criteriaIndex]);
+                                }
+
+                                valueIndex++;
+                            }
+                        }
+
+                        if(!subset) {
+                            // Make sure we don't have any items in value that haven't been visited
+                            for(let i = 0; i < value.length; i++) {
+                                if(!value[i].hasOwnProperty('$comparerNode')) {
+                                    value[i] = { errors: [ `this item wasn't expected` ], value: value[i], $comparerNode: true };
+                                }
+                            }
                         }
                     }
                 }
@@ -314,7 +327,7 @@ class Comparer {
                         for(let key in value) {
                             if(value.hasOwnProperty(key)) {
                                 if(!criteria.hasOwnProperty(key)) {
-                                    value[key] = { errors: [ `this key isn't in $exact object` ], value: value[key] };
+                                    value[key] = { errors: [ `this key isn't in $exact object` ], value: value[key], $comparerNode: true };
                                 }
                             }
                         }
@@ -346,11 +359,11 @@ class Comparer {
         }
         else { // criteria is a primitive
             if(value !== criteria) {
-                errors.push(`doesn't equal ${criteria}`);
+                errors.push(`doesn't equal ${JSON.stringify(criteria)}`);
             }
         }
 
-        return { errors: errors, value: value };
+        return { errors: errors, value: value, $comparerNode: true };
     }
 
     /**
