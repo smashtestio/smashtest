@@ -5,32 +5,32 @@ class Comparer {
     }
 
     /**
-     * Tries to match the given value against the given criteria
-     * Calls itself recursively on every object, array, and primitive inside of value
-     * Replaces every object, array, and primitive inside of value with a special object. See return value for format.
-     * @param {Anything} value - The value to check
-     * @param {Anything} criteria - Criteria for the value to match (could be a primitive, object, or array to match exactly or an object/array that specifies constraints)
-     * @return {Object} { errors: array of strings describing errors related to comparison, value: original value at this position, $comparerNode: true }
+     * Compares the actual value against the expected value
+     * Calls itself recursively on every object, array, and primitive inside of actual
+     * Replaces every object, array, and primitive inside of actual with a special $comparerNode object. See return value for format.
+     * @param {Anything} actual - The value to check (could be a plain object, array, or primitive)
+     * @param {Anything} expected - Criteria for actual to match (could be a primitive, object, or array to match exactly or an object/array that specifies constraints)
+     * @return {Object} { errors: array of strings describing errors related to comparison, value: original actual value at this position, $comparerNode: true }
      */
-    static comparison(value, criteria) {
+    static comparison(actual, expected) {
         let errors = [];
 
-        if(typeof criteria == 'object') {
-            if(criteria instanceof Array) {
-                if(!(value instanceof Array)) {
+        if(typeof expected == 'object') {
+            if(expected instanceof Array) {
+                if(!(actual instanceof Array)) {
                     errors.push(`not an array`);
                 }
                 else {
                     // [ '$every', A ]
-                    if(criteria.indexOf('$every') == 0) {
-                        // Validate criteria
-                        if(criteria.length != 2) {
-                            throw new Error(`$every array has to have exactly 2 items: ${JSON.stringify(criteria)}`);
+                    if(expected.indexOf('$every') == 0) {
+                        // Validate expected
+                        if(expected.length != 2) {
+                            throw new Error(`an $every array must have exactly 2 items: ${JSON.stringify(expected)}`);
                         }
 
-                        // Validate value matches criteria
-                        for(let i = 0; i < value.length; i++) {
-                            value[i] = this.comparison(value[i], criteria[1]);
+                        // Validate actual matches expected
+                        for(let i = 0; i < actual.length; i++) {
+                            actual[i] = this.comparison(actual[i], expected[1]);
                         }
                     }
                     else {
@@ -38,176 +38,176 @@ class Comparer {
                         let anyOrder = false;
 
                         // [ '$subset', A, B, ... ]
-                        if(criteria.indexOf('$subset') != -1) {
+                        if(expected.indexOf('$subset') != -1) {
                             subset = true;
                         }
 
                         // [ '$anyOrder', A, B, ... ]
-                        if(criteria.indexOf('$anyOrder') != -1) {
+                        if(expected.indexOf('$anyOrder') != -1) {
                             anyOrder = true;
                         }
 
-                        // Make sure every criteria item has a corresponding value item
-                        for(let criteriaIndex = 0, valueIndex = 0; criteriaIndex < criteria.length; criteriaIndex++) {
-                            let criteriaItem = criteria[criteriaIndex];
-                            if(['$subset', '$anyOrder'].indexOf(criteriaItem) == -1) {
+                        // Make sure every expected item has a corresponding actual item
+                        for(let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
+                            let expectedItem = expected[expectedIndex];
+                            if(['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
                                 if(anyOrder) {
-                                    // corresponding value item can be anywhere
-                                    let valueClone = clonedeep(value);
+                                    // corresponding actual item can be anywhere
+                                    let actualClone = clonedeep(actual);
                                     let found = false;
-                                    for(let i = 0; i < valueClone.length; i++) {
-                                        let valueItem = valueClone[i];
-                                        let comparisonResult = this.comparison(valueItem, criteriaItem);
+                                    for(let i = 0; i < actualClone.length; i++) {
+                                        let actualItem = actualClone[i];
+                                        let comparisonResult = this.comparison(actualItem, expectedItem);
                                         if(!this.hasErrors(comparisonResult)) {
                                             // we have a match
                                             found = true;
-                                            value[i] = comparisonResult;
+                                            actual[i] = comparisonResult;
                                             break;
                                         }
                                     }
 
                                     if(!found) {
-                                        errors.push(`couldn't find ${JSON.stringify(criteriaItem)} here`);
+                                        errors.push(`couldn't find ${JSON.stringify(expectedItem)} here`);
                                     }
                                 }
                                 else {
-                                    // corresponding value item has to be at the same index
-                                    value[valueIndex] = this.comparison(value[valueIndex], criteria[criteriaIndex]);
+                                    // corresponding actual item has to be at the same index
+                                    actual[actualIndex] = this.comparison(actual[actualIndex], expected[expectedIndex]);
                                 }
 
-                                valueIndex++;
+                                actualIndex++;
                             }
                         }
 
                         if(!subset) {
-                            // Make sure we don't have any items in value that haven't been visited
-                            for(let i = 0; i < value.length; i++) {
-                                if(!value[i].hasOwnProperty('$comparerNode')) {
-                                    value[i] = { errors: [ `this item wasn't expected` ], value: value[i], $comparerNode: true };
+                            // Make sure we don't have any items in actual that haven't been visited
+                            for(let i = 0; i < actual.length; i++) {
+                                if(!actual[i].hasOwnProperty('$comparerNode')) {
+                                    actual[i] = { errors: [ `this item wasn't expected` ], value: actual[i], $comparerNode: true };
                                 }
                             }
                         }
                     }
                 }
             }
-            else { // criteria is a plain object
-                let valueExpectedToBePlainObject = true;
+            else { // expected is a plain object
+                let actualExpectedToBePlainObject = true;
 
                 // { $typeof: "type" }
-                if(criteria.$typeof) {
-                    // Validate criteria
-                    if(typeof criteria.$typeof != 'string') {
-                        throw new Error(`$typeof has to be a string: ${criteria.$typeof}`);
+                if(expected.$typeof) {
+                    // Validate expected
+                    if(typeof expected.$typeof != 'string') {
+                        throw new Error(`$typeof has to be a string: ${expected.$typeof}`);
                     }
 
-                    // Validate value matches criteria
-                    if(criteria.$typeof.toLowerCase() == 'array') {
-                        if(!(value instanceof Array)) {
+                    // Validate actual matches expected
+                    if(expected.$typeof.toLowerCase() == 'array') {
+                        if(!(actual instanceof Array)) {
                             errors.push(`not an array`);
                         }
                     }
-                    else if(typeof value != criteria.$typeof) {
-                        errors.push(`doesn't have $typeof ${criteria.$typeof}`);
+                    else if(typeof actual != expected.$typeof) {
+                        errors.push(`doesn't have $typeof ${expected.$typeof}`);
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $regex: /regex/ } or { $regex: "regex" }
-                if(criteria.$regex) {
-                    // Validate criteria
+                if(expected.$regex) {
+                    // Validate expected
                     let regex = null;
-                    if(typeof criteria.$regex == 'string') {
-                        regex = new RegExp(criteria.$regex);
+                    if(typeof expected.$regex == 'string') {
+                        regex = new RegExp(expected.$regex);
                     }
-                    else if(criteria.$regex instanceof RegExp) {
-                        regex = criteria.$regex;
+                    else if(expected.$regex instanceof RegExp) {
+                        regex = expected.$regex;
                     }
                     else {
-                        throw new Error(`$regex has to be a /regex/ or "regex": ${criteria.$regex}`);
+                        throw new Error(`$regex has to be a /regex/ or "regex": ${expected.$regex}`);
                     }
 
-                    // Validate value matches criteria
-                    if(typeof value != 'string') {
+                    // Validate actual matches expected
+                    if(typeof actual != 'string') {
                         errors.push(`isn't a string so can't match $regex /${regex.source}/`);
                     }
-                    else if(!value.match(regex)) {
+                    else if(!actual.match(regex)) {
                         errors.push(`doesn't match $regex /${regex.source}/`);
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $contains: "string" }
-                if(criteria.$contains) {
-                    // Validate criteria
-                    if(typeof criteria.$contains != 'string') {
-                        throw new Error(`$contains has to be a string: ${criteria.$contains}`);
+                if(expected.$contains) {
+                    // Validate expected
+                    if(typeof expected.$contains != 'string') {
+                        throw new Error(`$contains has to be a string: ${expected.$contains}`);
                     }
 
-                    // Validate value matches criteria
-                    if(typeof value != 'string') {
-                        errors.push(`isn't a string so can't $contains '${criteria.$contains}'`);
+                    // Validate actual matches expected
+                    if(typeof actual != 'string') {
+                        errors.push(`isn't a string so can't $contains '${expected.$contains}'`);
                     }
-                    else if(!value.includes(criteria.$contains)) {
-                        errors.push(`doesn't $contains '${criteria.$contains}'`);
+                    else if(!actual.includes(expected.$contains)) {
+                        errors.push(`doesn't $contains '${expected.$contains}'`);
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $max: <number> }
-                if(criteria.$max) {
-                    // Validate criteria
-                    if(typeof criteria.$max != 'number') {
-                        throw new Error(`$max has to be a number: ${criteria.$max}`);
+                if(expected.$max) {
+                    // Validate expected
+                    if(typeof expected.$max != 'number') {
+                        throw new Error(`$max has to be a number: ${expected.$max}`);
                     }
 
-                    // Validate value matches criteria
-                    if(typeof value != 'number') {
-                        errors.push(`isn't a number so can't have a $max of ${criteria.$max}`);
+                    // Validate actual matches expected
+                    if(typeof actual != 'number') {
+                        errors.push(`isn't a number so can't have a $max of ${expected.$max}`);
                     }
-                    else if(value > criteria.$max) {
-                        errors.push(`is greater than the $max of ${criteria.$max}`);
+                    else if(actual > expected.$max) {
+                        errors.push(`is greater than the $max of ${expected.$max}`);
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $min: <number> }
-                if(criteria.$min) {
-                    // Validate criteria
-                    if(typeof criteria.$min != 'number') {
-                        throw new Error(`$min has to be a number: ${criteria.$min}`);
+                if(expected.$min) {
+                    // Validate expected
+                    if(typeof expected.$min != 'number') {
+                        throw new Error(`$min has to be a number: ${expected.$min}`);
                     }
 
-                    // Validate value matches criteria
-                    if(typeof value != 'number') {
-                        errors.push(`isn't a number so can't have a $min of ${criteria.$min}`);
+                    // Validate actual matches expected
+                    if(typeof actual != 'number') {
+                        errors.push(`isn't a number so can't have a $min of ${expected.$min}`);
                     }
-                    else if(value < criteria.$min) {
-                        errors.push(`is less than the $min of ${criteria.$min}`);
+                    else if(actual < expected.$min) {
+                        errors.push(`is less than the $min of ${expected.$min}`);
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
-                // { $code: (value)=>{ return true/false; } } or { $code: "...true/false" } or { $code: "...return true/false" }
-                if(criteria.$code) {
+                // { $code: (actual)=>{ return true/false; } } or { $code: "...true/false" } or { $code: "...return true/false" }
+                if(expected.$code) {
                     let success = true;
 
-                    // Validate criteria
-                    if(typeof criteria.$code == 'function') {
-                        success = criteria.$code(value);
+                    // Validate expected
+                    if(typeof expected.$code == 'function') {
+                        success = expected.$code(actual);
                     }
-                    else if(typeof criteria.$code == 'string') {
+                    else if(typeof expected.$code == 'string') {
                         try {
-                            success = eval(criteria.$code);
+                            success = eval(expected.$code);
                         }
                         catch(e) {
                             if(e.message == "SyntaxError: Illegal return statement") {
                                 // The code has a return, so enclose it in a function and try again
-                                success = eval(`(()=>{${criteria.$code}})()`);
+                                success = eval(`(()=>{${expected.$code}})()`);
                             }
                             else {
                                 throw e;
@@ -215,136 +215,136 @@ class Comparer {
                         }
                     }
                     else {
-                        throw new Error(`$code has to be a function or string: ${criteria.$code}`);
+                        throw new Error(`$code has to be a function or string: ${expected.$code}`);
                     }
 
-                    // Validate value matches criteria
+                    // Validate actual matches expected
                     if(!success) {
-                        errors.push(`failed the $code '${criteria.$code.toString()}'`);
+                        errors.push(`failed the $code '${expected.$code.toString()}'`);
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $length: <number> }
-                if(criteria.$length) {
-                    // Validate criteria
-                    if(typeof criteria.$length != 'number') {
-                        throw new Error(`$length has to be a number: ${criteria.$length}`);
+                if(expected.$length) {
+                    // Validate expected
+                    if(typeof expected.$length != 'number') {
+                        throw new Error(`$length has to be a number: ${expected.$length}`);
                     }
 
-                    // Validate value matches criteria
-                    if(typeof value != 'object') {
-                        errors.push(`isn't an object or array so can't have a $length of ${criteria.$length}`);
+                    // Validate actual matches expected
+                    if(typeof actual != 'object') {
+                        errors.push(`isn't an object or array so can't have a $length of ${expected.$length}`);
                     }
                     else {
-                        if(value.hasOwnProperty('length')) {
-                            if(value.length != criteria.$length) {
-                                errors.push(`doesn't have a $length of ${criteria.$length}`);
+                        if(actual.hasOwnProperty('length')) {
+                            if(actual.length != expected.$length) {
+                                errors.push(`doesn't have a $length of ${expected.$length}`);
                             }
                         }
                         else {
-                            errors.push(`doesn't have a length property so can't have a $length of ${criteria.$length}`);
+                            errors.push(`doesn't have a length property so can't have a $length of ${expected.$length}`);
                         }
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $maxLength: <number> }
-                if(criteria.$maxLength) {
-                    // Validate criteria
-                    if(typeof criteria.$maxLength != 'number') {
-                        throw new Error(`$maxLength has to be a number: ${criteria.$maxLength}`);
+                if(expected.$maxLength) {
+                    // Validate expected
+                    if(typeof expected.$maxLength != 'number') {
+                        throw new Error(`$maxLength has to be a number: ${expected.$maxLength}`);
                     }
 
-                    // Validate value matches criteria
-                    if(typeof value != 'object') {
-                        errors.push(`isn't an object or array so can't have a $maxLength of ${criteria.$maxLength}`);
+                    // Validate actual matches expected
+                    if(typeof actual != 'object') {
+                        errors.push(`isn't an object or array so can't have a $maxLength of ${expected.$maxLength}`);
                     }
                     else {
-                        if(value.hasOwnProperty('length')) {
-                            if(value.length > criteria.$maxLength) {
-                                errors.push(`is longer than the $maxLength of ${criteria.$maxLength}`);
+                        if(actual.hasOwnProperty('length')) {
+                            if(actual.length > expected.$maxLength) {
+                                errors.push(`is longer than the $maxLength of ${expected.$maxLength}`);
                             }
                         }
                         else {
-                            errors.push(`doesn't have a length property so can't have a $maxLength of ${criteria.$maxLength}`);
+                            errors.push(`doesn't have a length property so can't have a $maxLength of ${expected.$maxLength}`);
                         }
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $minLength: <number> }
-                if(criteria.$minLength) {
-                    // Validate criteria
-                    if(typeof criteria.$minLength != 'number') {
-                        throw new Error(`$minLength has to be a number: ${criteria.$minLength}`);
+                if(expected.$minLength) {
+                    // Validate expected
+                    if(typeof expected.$minLength != 'number') {
+                        throw new Error(`$minLength has to be a number: ${expected.$minLength}`);
                     }
 
-                    if(typeof value != 'object') {
-                        errors.push(`isn't an object or array so can't have a $minLength of ${criteria.$minLength}`);
+                    if(typeof actual != 'object') {
+                        errors.push(`isn't an object or array so can't have a $minLength of ${expected.$minLength}`);
                     }
                     else {
-                        if(value.hasOwnProperty('length')) {
-                            if(value.length < criteria.$minLength) {
-                                errors.push(`is shorter than the $minLength of ${criteria.$minLength}`);
+                        if(actual.hasOwnProperty('length')) {
+                            if(actual.length < expected.$minLength) {
+                                errors.push(`is shorter than the $minLength of ${expected.$minLength}`);
                             }
                         }
                         else {
-                            errors.push(`doesn't have a length property so can't have a $minLength of ${criteria.$minLength}`);
+                            errors.push(`doesn't have a length property so can't have a $minLength of ${expected.$minLength}`);
                         }
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $exact: true }
-                if(criteria.$exact) {
-                    if(typeof value != 'object') {
+                if(expected.$exact) {
+                    if(typeof actual != 'object') {
                         errors.push(`not an object as needed for $exact`);
                     }
                     else {
-                        // Make sure every key in criteria exists in value
-                        for(let key in criteria) {
-                            if(criteria.hasOwnProperty(key) && !key.startsWith('$')) {
-                                if(!value.hasOwnProperty(key)) {
+                        // Make sure every key in expected exists in actual
+                        for(let key in expected) {
+                            if(expected.hasOwnProperty(key) && !key.startsWith('$')) {
+                                if(!actual.hasOwnProperty(key)) {
                                     errors.push(`doesn't have key '${key}'`);
                                 }
                                 else {
-                                    value[key] = this.comparison(value[key], criteria[key]);
+                                    actual[key] = this.comparison(actual[key], expected[key]);
                                 }
                             }
                         }
 
-                        // Make sure every key in value exists in criteria
-                        for(let key in value) {
-                            if(value.hasOwnProperty(key)) {
-                                if(!criteria.hasOwnProperty(key)) {
-                                    value[key] = { errors: [ `this key isn't in $exact object` ], value: value[key], $comparerNode: true };
+                        // Make sure every key in actual exists in expected
+                        for(let key in actual) {
+                            if(actual.hasOwnProperty(key)) {
+                                if(!expected.hasOwnProperty(key)) {
+                                    actual[key] = { errors: [ `this key isn't in $exact object` ], value: actual[key], $comparerNode: true };
                                 }
                             }
                         }
                     }
 
-                    valueExpectedToBePlainObject = false;
+                    actualExpectedToBePlainObject = false;
                 }
 
-                // criteria is a plain object that needs to be a subset of the value object
-                if(valueExpectedToBePlainObject) {
-                    if(typeof value != 'object') {
+                // expected is a plain object that needs to be a subset of the actual object
+                if(actualExpectedToBePlainObject) {
+                    if(typeof actual != 'object') {
                         errors.push(`not an object`);
                     }
                     else {
-                        // Make sure every non-$ key in criteria matches every key in value
-                        for(let key in criteria) {
-                            if(criteria.hasOwnProperty(key)) {
-                                if(!value.hasOwnProperty(key)) {
+                        // Make sure every key in expected matches every key in actual
+                        for(let key in expected) {
+                            if(expected.hasOwnProperty(key)) {
+                                if(!actual.hasOwnProperty(key)) {
                                     errors.push(`doesn't have key '${key}'`);
                                 }
                                 else {
-                                    value[key] = this.comparison(value[key], criteria[key]);
+                                    actual[key] = this.comparison(actual[key], expected[key]);
                                 }
                             }
                         }
@@ -352,66 +352,68 @@ class Comparer {
                 }
             }
         }
-        else { // criteria is a primitive (also handles functions and other constructs whose typeof isn't object)
-            if(value !== criteria) {
-                errors.push(`doesn't equal ${JSON.stringify(criteria)}`);
+        else { // expected is a primitive (also handles functions and other constructs whose typeof isn't object)
+            if(actual !== expected) {
+                errors.push(`doesn't equal ${JSON.stringify(expected)}`);
             }
         }
 
-        return { errors: errors, value: value, $comparerNode: true };
+        return { errors: errors, value: actual, $comparerNode: true };
     }
 
     /**
-     * Tries to match the given object against the given criteria
-     * @param {Object} obj - The object or array to check. Must not have circular references.
-     * @param {Object} criteria - The object specifying criteria for obj to match
-     * @throws {Error} If obj doesn't match criteria
+     * Compares the actual object against the expected object
+     * @param {Object} actualObj - The object to check. Must not have circular references. Could be an array.
+     * @param {Object} expectedObj - The object specifying criteria for actualObj to match
+     * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static matchObj(obj, criteria) {
-        let objClone = clonedeep(obj);
-        let ret = this.comparison(objClone, criteria);
-        if(this.hasErrors(ret)) {
-            throw new Error(print(ret));
+    static compareObj(actualObj, expectedObj) {
+        actualObj = clonedeep(actualObj);
+        let comp = this.comparison(actualObj, expectedObj);
+        if(this.hasErrors(comp)) {
+            throw new Error(print(comp));
         }
     }
 
     /**
-     * Same as matchObj(), but takes in json instead of an object
+     * Same as compareObj(), but takes in json instead of an object
      */
-    static matchJson(json, criteria) {
-        let obj = JSON.parse(json);
-        this.matchObj(obj, criteria);
+    static compareJson(actualJson, expectedObj) {
+        let actualObj = JSON.parse(actualJson);
+        this.matchObj(actualObj, expectedObj);
     }
 
     /**
-     * @param {Object} obj - An object that came out of comparison()
-     * @return {Boolean} True if obj has errors in it, false otherwise
+     * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or $comparerNode object)
+     * @return {Boolean} True if value has errors in it, false otherwise
      */
-    static hasErrors(obj) {
-        if(obj.errors.length > 0) {
-            return true;
-        }
-        else {
-            if(typeof obj.value == 'object') {
-                if(obj.value instanceof Array) {
-                    for(let item of obj.value) {
-                        if(this.hasErrors(item)) {
-                            return true;
-                        }
-                    }
-                }
-                else { // plain object
-                    for(let key in obj.value) {
-                        if(obj.value.hasOwnProperty(key)) {
-                            if(this.hasErrors(obj.value[key])) {
+    static hasErrors(value) {
+        if(value.$comparerNode) {
+            if(value.errors.length > 0) {
+                return true;
+            }
+            else {
+                if(typeof value.value == 'object') {
+                    if(value.value instanceof Array) {
+                        for(let item of value.value) {
+                            if(this.hasErrors(item)) {
                                 return true;
                             }
                         }
                     }
+                    else { // plain object
+                        for(let key in value.value) {
+                            if(value.value.hasOwnProperty(key)) {
+                                if(this.hasErrors(value.value[key])) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-            else { // primitive
-                return false;
+                else { // primitive
+                    return false;
+                }
             }
         }
 
@@ -419,11 +421,11 @@ class Comparer {
     }
 
     /**
-     * @param {Object} obj - An object that came out of comparison()
-     * @param {Number} [indents] - The number of indents at this obj, 0 if omitted
-     * @return {String} The pretty-printed version of obj, including errors
+     * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or $comparerNode object)
+     * @param {Number} [indents] - The number of indents at this value, 0 if omitted
+     * @return {String} The pretty-printed version of value, including errors
      */
-    static print(obj, indents) {
+    static print(value, indents) {
         if(!indents) {
             indents = 0;
         }
@@ -432,27 +434,33 @@ class Comparer {
         let nextSpaces = outputIndents(indents + 1);
         let ret = '';
 
-        if(typeof obj.value == 'object') {
-            if(obj.value instanceof Array) {
-                ret += '[' + outputErrors(obj.errors) + '\n';
-                for(let item of obj.value) {
+        let errors = [];
+        if(typeof value == 'object' && value.$comparerNode) {
+            value = value.value;
+            errors = value.errors;
+        }
+
+        if(typeof value == 'object') {
+            if(value instanceof Array) {
+                ret += '[' + outputErrors(errors) + '\n';
+                for(let item of value) {
                     ret += nextSpaces + this.print(item, indents + 1) + ',\n';
                 }
 
                 // Slice off last ',\n'
-                if(obj.value.length > 0) {
+                if(value.length > 0) {
                     ret = ret.slice(0, -2);
                 }
 
                 ret += spaces + ']\n';
             }
             else { // plain object
-                ret += '{' + outputErrors(obj.errors) + '\n';
+                ret += '{' + outputErrors(errors) + '\n';
                 let outputted = false;
-                for(let key in obj.value) {
-                    if(obj.value.hasOwnProperty(key)) {
+                for(let key in value) {
+                    if(value.hasOwnProperty(key)) {
                         let hasWeirdChars = key.match(/[^A-Za-z0-9]/); // put quotes around the key if there are non-standard chars in it
-                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(obj.value[key], indents + 1) + ',\n';
+                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], indents + 1) + ',\n';
                         outputted = true;
                     }
                 }
@@ -466,7 +474,7 @@ class Comparer {
             }
         }
         else { // primitive
-            ret = JSON.stringify(obj) + outputErrors(obj.errors);;
+            ret = JSON.stringify(value) + outputErrors(errors);;
         }
 
         return ret;
