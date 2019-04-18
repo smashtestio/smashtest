@@ -4,7 +4,7 @@ const assert = chai.assert;
 const matchobj = require('./matchobj.js');
 
 describe("matchobj", () => {
-    describe("matchObjComponent()", () => {
+    describe("comparison()", () => {
         it.skip("TEXT", () => {
 
         });
@@ -17,6 +17,12 @@ describe("matchobj", () => {
     });
 
     describe("matchJson()", () => {
+        it.skip("TEXT", () => {
+
+        });
+    });
+
+    describe("print()", () => {
         it.skip("TEXT", () => {
 
         });
