@@ -411,7 +411,10 @@ exports.regexKeyComparison(value, criteria, key) {
  */
 exports.matchObj = (obj, criteria) => {
     let objClone = clonedeep(obj);
-    return exports.comparison(objClone, criteria);
+    let ret = exports.comparison(objClone, criteria);
+    if(exports.hasErrors(ret)) {
+        throw new Error(print(ret));
+    }
 }
 
 /**
@@ -423,7 +426,42 @@ exports.matchJson = (json, criteria) => {
 }
 
 /**
- * @param {Object} obj - An object that came out of matchObj() or matchJson()
+ * @param {Object} obj - An object that came out of comparison()
+ * @return {Boolean} True if obj has errors in it, false otherwise
+ */
+exports.hasErrors = (obj) => {
+    if(obj.errors.length > 0) {
+        return true;
+    }
+    else {
+        if(typeof obj.value == 'object') {
+            if(obj.value instanceof Array) {
+                for(let item of obj.value) {
+                    if(exports.hasErrors(item)) {
+                        return true;
+                    }
+                }
+            }
+            else { // plain object
+                for(let key in obj.value) {
+                    if(obj.value.hasOwnProperty(key)) {
+                        if(exports.hasErrors(obj.value[key])) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        else { // primitive
+            return false;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @param {Object} obj - An object that came out of comparison()
  * @param {Number} [indents] - The number of indents at this obj, 0 if omitted
  * @return {String} The pretty-printed version of obj
  */

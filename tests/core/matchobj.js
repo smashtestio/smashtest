@@ -22,6 +22,12 @@ describe("matchobj", () => {
         });
     });
 
+    describe("hasErrors()", () => {
+        it.skip("TEXT", () => {
+
+        });
+    });
+
     describe("print()", () => {
         it.skip("TEXT", () => {
 
