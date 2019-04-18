@@ -6,11 +6,11 @@ class Comparer {
 
     /**
      * Tries to match the given value against the given criteria
-     * Calls itself recursively on every object and array inside of value
-     * Replaces every node with { errors, original value } (see return value)
+     * Calls itself recursively on every object, array, and primitive inside of value
+     * Replaces every object, array, and primitive inside of value with a special object. See return value for format.
      * @param {Anything} value - The value to check
-     * @param {Anything} criteria - Criteria for the value to match (could be a primitive, object, array, etc. to match exactly or an object/array that specifies constraints)
-     * @return {Object} - { errors: array of errors related to comparion, value: original value of obj, $comparerNode: true }
+     * @param {Anything} criteria - Criteria for the value to match (could be a primitive, object, or array to match exactly or an object/array that specifies constraints)
+     * @return {Object} { errors: array of strings describing errors related to comparison, value: original value at this position, $comparerNode: true }
      */
     static comparison(value, criteria) {
         let errors = [];
@@ -25,7 +25,7 @@ class Comparer {
                     if(criteria.indexOf('$every') == 0) {
                         // Validate criteria
                         if(criteria.length != 2) {
-                            throw new Error(`$every array has to have exactly 2 items: ${criteria}`);
+                            throw new Error(`$every array has to have exactly 2 items: ${JSON.stringify(criteria)}`);
                         }
 
                         // Validate value matches criteria
@@ -47,13 +47,12 @@ class Comparer {
                             anyOrder = true;
                         }
 
-                        // Make sure the criteria and value arrays match
+                        // Make sure every criteria item has a corresponding value item
                         for(let criteriaIndex = 0, valueIndex = 0; criteriaIndex < criteria.length; criteriaIndex++) {
                             let criteriaItem = criteria[criteriaIndex];
                             if(['$subset', '$anyOrder'].indexOf(criteriaItem) == -1) {
-                                // Does criteriaItem have an equivalent in value?
                                 if(anyOrder) {
-                                    // can be anywhere
+                                    // corresponding value item can be anywhere
                                     let valueClone = clonedeep(value);
                                     let found = false;
                                     for(let i = 0; i < valueClone.length; i++) {
@@ -68,11 +67,11 @@ class Comparer {
                                     }
 
                                     if(!found) {
-                                        errors.push(`couldn't find ${criteriaItem} here`);
+                                        errors.push(`couldn't find ${JSON.stringify(criteriaItem)} here`);
                                     }
                                 }
                                 else {
-                                    // has to be at the same index
+                                    // corresponding value item has to be at the same index
                                     value[valueIndex] = this.comparison(value[valueIndex], criteria[criteriaIndex]);
                                 }
 
@@ -125,14 +124,14 @@ class Comparer {
                         regex = criteria.$regex;
                     }
                     else {
-                        throw new Error(`$regex has to be a /regex/ or string: ${criteria.$regex}`);
+                        throw new Error(`$regex has to be a /regex/ or "regex": ${criteria.$regex}`);
                     }
 
                     // Validate value matches criteria
                     if(typeof value != 'string') {
                         errors.push(`isn't a string so can't match $regex /${regex.source}/`);
                     }
-                    else if(!value.match(criteria.$regex)) {
+                    else if(!value.match(regex)) {
                         errors.push(`doesn't match $regex /${regex.source}/`);
                     }
 
@@ -150,7 +149,7 @@ class Comparer {
                     if(typeof value != 'string') {
                         errors.push(`isn't a string so can't $contains '${criteria.$contains}'`);
                     }
-                    else if(!value.contains(criteria.$contains)) {
+                    else if(!value.includes(criteria.$contains)) {
                         errors.push(`doesn't $contains '${criteria.$contains}'`);
                     }
 
@@ -166,7 +165,7 @@ class Comparer {
 
                     // Validate value matches criteria
                     if(typeof value != 'number') {
-                        errors.push(`isn't a number so can't be at a $max of ${criteria.$max}`);
+                        errors.push(`isn't a number so can't have a $max of ${criteria.$max}`);
                     }
                     else if(value > criteria.$max) {
                         errors.push(`is greater than the $max of ${criteria.$max}`);
@@ -184,7 +183,7 @@ class Comparer {
 
                     // Validate value matches criteria
                     if(typeof value != 'number') {
-                        errors.push(`isn't a number so can't be at a $min of ${criteria.$min}`);
+                        errors.push(`isn't a number so can't have a $min of ${criteria.$min}`);
                     }
                     else if(value < criteria.$min) {
                         errors.push(`is less than the $min of ${criteria.$min}`);
@@ -221,7 +220,7 @@ class Comparer {
 
                     // Validate value matches criteria
                     if(!success) {
-                        errors.push(`failed the $code '${criteria.$code}'`);
+                        errors.push(`failed the $code '${criteria.$code.toString()}'`);
                     }
 
                     valueExpectedToBePlainObject = false;
@@ -304,13 +303,9 @@ class Comparer {
                 // { $exact: true }
                 if(criteria.$exact) {
                     if(typeof value != 'object') {
-                        errors.push(`not an object`);
+                        errors.push(`not an object as needed for $exact`);
                     }
                     else {
-                        // Compare value and criteria, key by key
-                        let valueKeys = Object.keys(value);
-                        let criteriaKeys = Object.keys(criteria);
-
                         // Make sure every key in criteria exists in value
                         for(let key in criteria) {
                             if(criteria.hasOwnProperty(key) && !key.startsWith('$')) {
@@ -357,7 +352,7 @@ class Comparer {
                 }
             }
         }
-        else { // criteria is a primitive
+        else { // criteria is a primitive (also handles functions and other constructs whose typeof isn't object)
             if(value !== criteria) {
                 errors.push(`doesn't equal ${JSON.stringify(criteria)}`);
             }
@@ -369,7 +364,7 @@ class Comparer {
     /**
      * Tries to match the given object against the given criteria
      * @param {Object} obj - The object or array to check. Must not have circular references.
-     * @param {Object} criteria - The object or array specifying criteria for obj to match
+     * @param {Object} criteria - The object specifying criteria for obj to match
      * @throws {Error} If obj doesn't match criteria
      */
     static matchObj(obj, criteria) {
@@ -426,7 +421,7 @@ class Comparer {
     /**
      * @param {Object} obj - An object that came out of comparison()
      * @param {Number} [indents] - The number of indents at this obj, 0 if omitted
-     * @return {String} The pretty-printed version of obj
+     * @return {String} The pretty-printed version of obj, including errors
      */
     static print(obj, indents) {
         if(!indents) {
@@ -440,14 +435,12 @@ class Comparer {
         if(typeof obj.value == 'object') {
             if(obj.value instanceof Array) {
                 ret += '[' + outputErrors(obj.errors) + '\n';
-                let outputted = false;
                 for(let item of obj.value) {
                     ret += nextSpaces + this.print(item, indents + 1) + ',\n';
-                    outputted = true;
                 }
 
                 // Slice off last ',\n'
-                if(outputted) {
+                if(obj.value.length > 0) {
                     ret = ret.slice(0, -2);
                 }
 
@@ -459,7 +452,7 @@ class Comparer {
                 for(let key in obj.value) {
                     if(obj.value.hasOwnProperty(key)) {
                         let hasWeirdChars = key.match(/[^A-Za-z0-9]/); // put quotes around the key if there are non-standard chars in it
-                        ret += nextSpaces + (hasWeirdChars && '"') + key + (hasWeirdChars && '"') + ': ' + this.print(obj.value[key], indents + 1) + ',\n';
+                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(obj.value[key], indents + 1) + ',\n';
                         outputted = true;
                     }
                 }
@@ -473,7 +466,7 @@ class Comparer {
             }
         }
         else { // primitive
-            ret = spaces + JSON.stringify(obj) + outputErrors(obj.errors);;
+            ret = JSON.stringify(obj) + outputErrors(obj.errors);;
         }
 
         return ret;
@@ -488,13 +481,15 @@ class Comparer {
         }
 
         function outputErrors(errors) {
+            const MAX_ERROR_LEN = 50;
+
             let ret = '';
             if(errors.length > 0) {
                 ret = '   --> ';
             }
 
             for(let error of errors) {
-                ret += error.slice(0, 50) + ', ';
+                ret += error.replace(/\n/g, ' ').slice(0, MAX_ERROR_LEN) + ', ';
             }
 
             // Slice off last ', '
