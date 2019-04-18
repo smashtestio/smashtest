@@ -516,7 +516,8 @@ class Comparer {
                 let outputted = false;
                 for(let key in obj.value) {
                     if(obj.value.hasOwnProperty(key)) {
-                        ret += nextSpaces + key + ': ' + this.print(obj.value[key], indents + 1) + ',\n';
+                        let hasWeirdChars = key.match(/[^A-Za-z0-9]/); // put quotes around the key if there are non-standard chars in it
+                        ret += nextSpaces + (hasWeirdChars && '"') + key + (hasWeirdChars && '"') + ': ' + this.print(obj.value[key], indents + 1) + ',\n';
                         outputted = true;
                     }
                 }
