@@ -102,7 +102,12 @@ class Comparer {
                     }
 
                     // Validate value matches criteria
-                    if(typeof value != criteria.$typeof) {
+                    if(criteria.$typeof.toLowerCase() == 'array') {
+                        if(!(value instanceof Array)) {
+                            errors.push(`is not an Array`);
+                        }
+                    }
+                    else if(typeof value != criteria.$typeof) {
                         errors.push(`doesn't have $typeof ${criteria.$typeof}`);
                     }
 
