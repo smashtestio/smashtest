@@ -1,113 +1,208 @@
 const chai = require('chai');
 const expect = chai.expect;
 const assert = chai.assert;
-const matchobj = require('./comparer.js');
+const Comparer = require('../../comparer.js');
 
-describe("Comparer", () => {
+describe.only("Comparer", () => {
     describe("comparison()", () => {
         context("plain comparison", () => {
-            it.skip("actual=string, expected=same string", () => {
-
+            it("actual=string, expected=same string", () => {
+                let obj = Comparer.comparison("foobar", "foobar");
+                expect(Comparer.print(obj)).to.equal(`"foobar"`);
             });
 
-            it.skip("actual=string, expected=different string", () => {
-
+            it("actual=string, expected=different string", () => {
+                let obj = Comparer.comparison("foobar", "foobar2");
+                expect(Comparer.print(obj)).to.equal(`"foobar"  -->  not "foobar2"`);
             });
 
-            it.skip("actual=string, expected=0", () => {
-
+            it("actual=string, expected=0", () => {
+                let obj = Comparer.comparison("foobar", 0);
+                expect(Comparer.print(obj)).to.equal(`"foobar"  -->  not 0`);
             });
 
-            it.skip("actual=string, expected=number", () => {
-
+            it("actual=string, expected=number", () => {
+                let obj = Comparer.comparison("foobar", 7);
+                expect(Comparer.print(obj)).to.equal(`"foobar"  -->  not 7`);
             });
 
-            it.skip("actual=string, expected=null", () => {
-
+            it("actual=string, expected=null", () => {
+                let obj = Comparer.comparison("foobar", null);
+                expect(Comparer.print(obj)).to.equal(`"foobar"  -->  not null`);
             });
 
-            it.skip("actual=string, expected=undefined", () => {
-
+            it("actual=string, expected=undefined", () => {
+                let obj = Comparer.comparison("foobar", undefined);
+                expect(Comparer.print(obj)).to.equal(`"foobar"  -->  not undefined`);
             });
 
-            it.skip("actual=string, expected=object", () => {
-
+            it("actual=string, expected=object", () => {
+                let obj = Comparer.comparison("foobar", { text: "foobar"} );
+                expect(Comparer.print(obj)).to.equal(`"foobar"  -->  not an object`);
             });
 
-            it.skip("actual=string, expected=array", () => {
-
+            it("actual=string, expected=array", () => {
+                let obj = Comparer.comparison("foobar", [ "foobar" ] );
+                expect(Comparer.print(obj)).to.equal(`"foobar"  -->  not an array`);
             });
 
-            it.skip("actual=number, expected=same number", () => {
-
+            it("actual=number, expected=same number", () => {
+                let obj = Comparer.comparison(7, 7);
+                expect(Comparer.print(obj)).to.equal(`7`);
             });
 
-            it.skip("actual=number, expected=different number", () => {
-
+            it("actual=number, expected=different number", () => {
+                let obj = Comparer.comparison(7, 8);
+                expect(Comparer.print(obj)).to.equal(`7  -->  not 8`);
             });
 
-            it.skip("actual=boolean, expected=same boolean", () => {
+            it("actual=boolean, expected=same boolean", () => {
+                let obj = Comparer.comparison(true, true);
+                expect(Comparer.print(obj)).to.equal(`true`);
 
+                obj = Comparer.comparison(false, false);
+                expect(Comparer.print(obj)).to.equal(`false`);
             });
 
-            it.skip("actual=boolean, expected=different boolean", () => {
-
+            it("actual=boolean, expected=different boolean", () => {
+                let obj = Comparer.comparison(true, false);
+                expect(Comparer.print(obj)).to.equal(`true  -->  not false`);
             });
 
-            it.skip("actual=null, expected=null", () => {
-
+            it("actual=null, expected=null", () => {
+                let obj = Comparer.comparison(null, null);
+                expect(Comparer.print(obj)).to.equal(`null`);
             });
 
-            it.skip("actual=undefined, expected=undefined", () => {
-
+            it("actual=null, expected=not null", () => {
+                let obj = Comparer.comparison(null, 8);
+                expect(Comparer.print(obj)).to.equal(`null  -->  not 8`);
             });
 
-            it.skip("actual=0, expected=null", () => {
-
+            it("actual=undefined, expected=undefined", () => {
+                let obj = Comparer.comparison(undefined, undefined);
+                expect(Comparer.print(obj)).to.equal(`undefined`);
             });
 
-            it.skip("actual=null, expected=undefined", () => {
-
+            it("actual=0, expected=null", () => {
+                let obj = Comparer.comparison(0, null);
+                expect(Comparer.print(obj)).to.equal(`0  -->  not null`);
             });
 
-            it.skip("actual={}, expected=undefined", () => {
-
+            it("actual=null, expected=undefined", () => {
+                let obj = Comparer.comparison(null, undefined);
+                expect(Comparer.print(obj)).to.equal(`null  -->  not undefined`);
             });
 
-            it.skip("actual={}, expected=null", () => {
-
+            it("actual={}, expected=undefined", () => {
+                let obj = Comparer.comparison({}, undefined);
+                expect(Comparer.print(obj)).to.equal(`{  -->  not undefined
+}
+`);
             });
 
-            it.skip("actual=[], expected=undefined", () => {
-
+            it("actual={}, expected=null", () => {
+                let obj = Comparer.comparison({}, null);
+                expect(Comparer.print(obj)).to.equal(`{  -->  not null
+}
+`);
             });
 
-            it.skip("actual=[], expected=null", () => {
-
+            it("actual=[], expected=undefined", () => {
+                let obj = Comparer.comparison([], undefined);
+                expect(Comparer.print(obj)).to.equal(`[  -->  not undefined
+]
+`);
             });
 
-            it.skip("actual=simple object, expected=same simple object", () => {
-
+            it("actual=[], expected=null", () => {
+                let obj = Comparer.comparison([], null);
+                expect(Comparer.print(obj)).to.equal(`[  -->  not null
+]
+`);
             });
 
-            it.skip("actual=simple object, expected=same simple object but with a subset of keys", () => {
-
+            it("actual=simple object, expected=same simple object", () => {
+                let obj = Comparer.comparison({ one: 1, two: "2", three: 3, four: "4" }, { one: 1, two: "2", three: 3, four: "4" });
+                expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: 3,
+    four: "4"
+}
+`);
             });
 
-            it.skip("actual=simple object, expected={}", () => {
-
+            it("actual=simple object, expected=same simple object but with a subset of keys", () => {
+                let obj = Comparer.comparison({ one: 1, two: "2", three: 3, four: "4" }, { one: 1, two: "2" });
+                expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: 3,
+    four: "4"
+}
+`);
             });
 
-            it.skip("actual=simple object, expected=different simple object", () => {
-
+            it("actual=simple object, expected={}", () => {
+                let obj = Comparer.comparison({ one: 1, two: "2", three: 3, four: "4" }, {});
+                expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: 3,
+    four: "4"
+}
+`);
             });
 
-            it.skip("actual=simple array, expected=same simple array", () => {
-
+            it("actual=simple object, expected=different simple object", () => {
+                let obj = Comparer.comparison({ one: 1, two: "2", three: 3, four: "4" }, { one: 1, two: "5", three: null, five: "5", six: 6 });
+                expect(Comparer.print(obj)).to.equal(`{  -->  missing key 'five', missing key 'six'
+    one: 1,
+    two: "2",  -->  not "5"
+    three: 3,  -->  not null
+    four: "4"
+}
+`);
             });
 
-            it.skip("actual=simple array, expected=different simple array", () => {
+            it("actual=simple array, expected=same simple array", () => {
+                let obj = Comparer.comparison([ 1, "2", 3, null, false, undefined ], [ 1, "2", 3, null, false, undefined ]);
+                expect(Comparer.print(obj)).to.equal(`[
+    1,
+    "2",
+    3,
+    null,
+    false,
+    undefined
+]
+`);
+            });
 
+            it("actual=simple array, expected=same simple array but in a different order", () => {
+                let obj = Comparer.comparison([ 1, "2", 3, null, false, undefined ], [ null, 1, "2", undefined, 3, false ]);
+                expect(Comparer.print(obj)).to.equal(`[
+    1,  -->  not null
+    "2",  -->  not 1
+    3,  -->  not "2"
+    null,  -->  not undefined
+    false,  -->  not 3
+    undefined  -->  not false
+]
+`);
+            });
+
+            it("actual=simple array, expected=different simple array", () => {
+                let obj = Comparer.comparison([ 1, "2", 3, null, false, undefined ], [ 7, 8, 9 ]);
+                expect(Comparer.print(obj)).to.equal(`[
+    1,  -->  not 7
+    "2",  -->  not 8
+    3,  -->  not 9
+    null,  -->  not expected
+    false,  -->  not expected
+    undefined  -->  not expected
+]
+`);
             });
 
             it.skip("actual=object containing objects/arrays/primitives, expected=same object", () => {

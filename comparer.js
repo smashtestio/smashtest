@@ -16,7 +16,12 @@ class Comparer {
         let errors = [];
 
         if(typeof expected == 'object') {
-            if(expected instanceof Array) {
+            if(expected === null) { // remember, typeof null is "object"
+                if(actual !== null) {
+                    errors.push(`not null`);
+                }
+            }
+            else if(expected instanceof Array) {
                 if(!(actual instanceof Array)) {
                     errors.push(`not an array`);
                 }
@@ -82,8 +87,8 @@ class Comparer {
                         if(!subset) {
                             // Make sure we don't have any items in actual that haven't been visited
                             for(let i = 0; i < actual.length; i++) {
-                                if(!actual[i].hasOwnProperty('$comparerNode')) {
-                                    actual[i] = { errors: [ `this item wasn't expected` ], value: actual[i], $comparerNode: true };
+                                if(typeof actual[i] != 'object' || !actual[i] || !actual[i].hasOwnProperty('$comparerNode')) {
+                                    actual[i] = { errors: [ `not expected` ], value: actual[i], $comparerNode: true };
                                 }
                             }
                         }
@@ -94,7 +99,7 @@ class Comparer {
                 let actualExpectedToBePlainObject = true;
 
                 // { $typeof: "type" }
-                if(expected.$typeof) {
+                if(expected.hasOwnProperty("$typeof")) {
                     // Validate expected
                     if(typeof expected.$typeof != 'string') {
                         throw new Error(`$typeof has to be a string: ${expected.$typeof}`);
@@ -107,14 +112,14 @@ class Comparer {
                         }
                     }
                     else if(typeof actual != expected.$typeof) {
-                        errors.push(`doesn't have $typeof ${expected.$typeof}`);
+                        errors.push(`not $typeof ${expected.$typeof}`);
                     }
 
                     actualExpectedToBePlainObject = false;
                 }
 
                 // { $regex: /regex/ } or { $regex: "regex" }
-                if(expected.$regex) {
+                if(expected.hasOwnProperty("$regex")) {
                     // Validate expected
                     let regex = null;
                     if(typeof expected.$regex == 'string') {
@@ -139,7 +144,7 @@ class Comparer {
                 }
 
                 // { $contains: "string" }
-                if(expected.$contains) {
+                if(expected.hasOwnProperty("$contains")) {
                     // Validate expected
                     if(typeof expected.$contains != 'string') {
                         throw new Error(`$contains has to be a string: ${expected.$contains}`);
@@ -157,7 +162,7 @@ class Comparer {
                 }
 
                 // { $max: <number> }
-                if(expected.$max) {
+                if(expected.hasOwnProperty("$max")) {
                     // Validate expected
                     if(typeof expected.$max != 'number') {
                         throw new Error(`$max has to be a number: ${expected.$max}`);
@@ -175,7 +180,7 @@ class Comparer {
                 }
 
                 // { $min: <number> }
-                if(expected.$min) {
+                if(expected.hasOwnProperty("$min")) {
                     // Validate expected
                     if(typeof expected.$min != 'number') {
                         throw new Error(`$min has to be a number: ${expected.$min}`);
@@ -193,7 +198,7 @@ class Comparer {
                 }
 
                 // { $code: (actual)=>{ return true/false; } } or { $code: "...true/false" } or { $code: "...return true/false" }
-                if(expected.$code) {
+                if(expected.hasOwnProperty("$code")) {
                     let success = true;
 
                     // Validate expected
@@ -227,7 +232,7 @@ class Comparer {
                 }
 
                 // { $length: <number> }
-                if(expected.$length) {
+                if(expected.hasOwnProperty("$length")) {
                     // Validate expected
                     if(typeof expected.$length != 'number') {
                         throw new Error(`$length has to be a number: ${expected.$length}`);
@@ -252,7 +257,7 @@ class Comparer {
                 }
 
                 // { $maxLength: <number> }
-                if(expected.$maxLength) {
+                if(expected.hasOwnProperty("$maxLength")) {
                     // Validate expected
                     if(typeof expected.$maxLength != 'number') {
                         throw new Error(`$maxLength has to be a number: ${expected.$maxLength}`);
@@ -277,7 +282,7 @@ class Comparer {
                 }
 
                 // { $minLength: <number> }
-                if(expected.$minLength) {
+                if(expected.hasOwnProperty("$minLength")) {
                     // Validate expected
                     if(typeof expected.$minLength != 'number') {
                         throw new Error(`$minLength has to be a number: ${expected.$minLength}`);
@@ -301,7 +306,7 @@ class Comparer {
                 }
 
                 // { $exact: true }
-                if(expected.$exact) {
+                if(expected.hasOwnProperty("$exact")) {
                     if(typeof actual != 'object') {
                         errors.push(`not an object as needed for $exact`);
                     }
@@ -310,7 +315,7 @@ class Comparer {
                         for(let key in expected) {
                             if(expected.hasOwnProperty(key) && !key.startsWith('$')) {
                                 if(!actual.hasOwnProperty(key)) {
-                                    errors.push(`doesn't have key '${key}'`);
+                                    errors.push(`missing key '${key}'`);
                                 }
                                 else {
                                     actual[key] = this.comparison(actual[key], expected[key]);
@@ -341,7 +346,7 @@ class Comparer {
                         for(let key in expected) {
                             if(expected.hasOwnProperty(key)) {
                                 if(!actual.hasOwnProperty(key)) {
-                                    errors.push(`doesn't have key '${key}'`);
+                                    errors.push(`missing key '${key}'`);
                                 }
                                 else {
                                     actual[key] = this.comparison(actual[key], expected[key]);
@@ -352,9 +357,9 @@ class Comparer {
                 }
             }
         }
-        else { // expected is a primitive (also handles functions and other constructs whose typeof isn't object)
+        else { // expected is a primitive (also handles functions, undefineds, and other constructs whose typeof isn't object)
             if(actual !== expected) {
-                errors.push(`doesn't equal ${JSON.stringify(expected)}`);
+                errors.push(`not ${JSON.stringify(expected)}`);
             }
         }
 
@@ -423,9 +428,10 @@ class Comparer {
     /**
      * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or $comparerNode object)
      * @param {Number} [indents] - The number of indents at this value, 0 if omitted
+     * @param {Boolean} [commaAtEnd] - If true, put a comma at the end of the printed value
      * @return {String} The pretty-printed version of value, including errors
      */
-    static print(value, indents) {
+    static print(value, indents, commaAtEnd) {
         if(!indents) {
             indents = 0;
         }
@@ -436,45 +442,38 @@ class Comparer {
 
         let errors = [];
         if(typeof value == 'object' && value.$comparerNode) {
-            value = value.value;
             errors = value.errors;
+            value = value.value;
         }
 
         if(typeof value == 'object') {
-            if(value instanceof Array) {
-                ret += '[' + outputErrors(errors) + '\n';
-                for(let item of value) {
-                    ret += nextSpaces + this.print(item, indents + 1) + ',\n';
-                }
-
-                // Slice off last ',\n'
-                if(value.length > 0) {
-                    ret = ret.slice(0, -2);
+            if(value === null) { // remember, typeof null is "object"
+                ret += 'null' + (commaAtEnd ? ',' : '') + outputErrors();
+            }
+            else if(value instanceof Array) {
+                ret += '[' + outputErrors() + '\n';
+                for(let i = 0; i < value.length; i++) {
+                    ret += nextSpaces + this.print(value[i], indents + 1, i < value.length - 1) + '\n';
                 }
 
                 ret += spaces + ']\n';
             }
             else { // plain object
-                ret += '{' + outputErrors(errors) + '\n';
-                let outputted = false;
-                for(let key in value) {
+                ret += '{' + outputErrors() + '\n';
+                let keys = Object.keys(value);
+                for(let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
                     if(value.hasOwnProperty(key)) {
                         let hasWeirdChars = key.match(/[^A-Za-z0-9]/); // put quotes around the key if there are non-standard chars in it
-                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], indents + 1) + ',\n';
-                        outputted = true;
+                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], indents + 1, i < keys.length - 1) + '\n';
                     }
                 }
 
-                // Slice off last ',\n'
-                if(outputted) {
-                    ret = ret.slice(0, -2);
-                }
-
-                ret += spaces + '}\n';
+                ret += spaces + '}' + (commaAtEnd ? ',' : '') + '\n';
             }
         }
         else { // primitive
-            ret = JSON.stringify(value) + outputErrors(errors);;
+            ret = JSON.stringify(value) + (commaAtEnd ? ',' : '') + outputErrors();
         }
 
         return ret;
@@ -488,14 +487,14 @@ class Comparer {
             return spaces;
         }
 
-        function outputErrors(errors) {
-            const MAX_ERROR_LEN = 50;
-
-            let ret = '';
-            if(errors.length > 0) {
-                ret = '   --> ';
+        function outputErrors() {
+            if(!errors || errors.length == 0) {
+                return '';
             }
 
+            const MAX_ERROR_LEN = 50;
+
+            let ret = '  -->  ';
             for(let error of errors) {
                 ret += error.replace(/\n/g, ' ').slice(0, MAX_ERROR_LEN) + ', ';
             }
