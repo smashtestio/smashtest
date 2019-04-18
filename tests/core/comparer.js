@@ -1,9 +1,9 @@
 const chai = require('chai');
 const expect = chai.expect;
 const assert = chai.assert;
-const matchobj = require('./matchobj.js');
+const matchobj = require('./comparer.js');
 
-describe("matchobj", () => {
+describe("Comparer", () => {
     describe("comparison()", () => {
         it.skip("TEXT", () => {
 
