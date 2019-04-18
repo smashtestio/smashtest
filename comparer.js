@@ -232,6 +232,34 @@ class Comparer {
                     valueExpectedToBePlainObject = false;
                 }
 
+                // { $length: <number> }
+                if(criteria.$length) {
+                    // Validate criteria
+                    if(typeof criteria.$length != 'number') {
+                        throw new Error(`$length has to be a number: ${criteria.$length}`);
+                    }
+
+                    // Validate value matches criteria
+                    if(typeof value != 'object') {
+                        errors.push(`isn't an object or array so can't have a $length of ${criteria.$length}`);
+                    }
+                    else {
+                        if(value.hasOwnProperty('length')) {
+                            if(value.length != criteria.$length) {
+                                errors.push(`doesn't have the expected $length of ${criteria.$length}`);
+                            }
+                        }
+                        else { // value is a plain js object
+                            let keys = Object.keys(value);
+                            if(keys.length != criteria.$length) {
+                                errors.push(`doesn't have the expected $length of keys ${criteria.$length}`);
+                            }
+                        }
+                    }
+
+                    valueExpectedToBePlainObject = false;
+                }
+
                 // { $maxLength: <number> }
                 if(criteria.$maxLength) {
                     // Validate criteria
@@ -244,7 +272,7 @@ class Comparer {
                         errors.push(`isn't an object or array so can't have a $maxLength of ${criteria.$maxLength}`);
                     }
                     else {
-                        if(value instanceof Array) {
+                        if(value.hasOwnProperty('length')) {
                             if(value.length > criteria.$maxLength) {
                                 errors.push(`is longer than the $maxLength of ${criteria.$maxLength}`);
                             }
@@ -271,12 +299,12 @@ class Comparer {
                         errors.push(`isn't an object or array so can't have a $minLength of ${criteria.$minLength}`);
                     }
                     else {
-                        if(value instanceof Array) {
+                        if(value.hasOwnProperty('length')) {
                             if(value.length < criteria.$minLength) {
                                 errors.push(`is shorter than the $minLength of ${criteria.$minLength}`);
                             }
                         }
-                        else { // value is a plain js object
+                        else { // value is a plain js object that doesn't have a length property
                             let keys = Object.keys(value);
                             if(keys.length < criteria.$minLength) {
                                 errors.push(`has fewer keys than the $minLength of ${criteria.$minLength}`);
