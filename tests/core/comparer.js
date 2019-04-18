@@ -205,8 +205,152 @@ describe.only("Comparer", () => {
 `);
             });
 
-            it.skip("actual=object containing objects/arrays/primitives, expected=same object", () => {
+            it("actual=object containing objects/arrays/primitives, expected=same object", () => {
+                let obj = Comparer.comparison({
+                    one: 1,
+                    two: "2",
+                    three: null,
+                    four: undefined,
+                    "five six": "\"56\"",
+                    seven: "",
+                    eight: false,
+                    nine: {
+                        ten: 10,
+                        eleven: "11",
+                        twenty: {
+                            twentyone: 21,
+                            "22": "22"
+                        },
+                        twentythree: [
+                            23,
+                            24
+                        ],
+                        twentyfive: [],
+                        twentysix: {}
+                    },
+                    twelve: [
+                        1,
+                        "2",
+                        3,
+                        true,
+                        null,
+                        false,
+                        undefined,
+                        {},
+                        {
+                            thirteen: 13,
+                            fourteen: 14,
+                            fifteen: [
+                                16
+                            ]
+                        },
+                        [],
+                        [
+                            17,
+                            18,
+                            [ 19 ]
+                        ]
+                    ]
+                }, {
+                    one: 1,
+                    two: "2",
+                    three: null,
+                    four: undefined,
+                    "five six": "\"56\"",
+                    seven: "",
+                    eight: false,
+                    nine: {
+                        ten: 10,
+                        eleven: "11",
+                        twenty: {
+                            twentyone: 21,
+                            "22": "22"
+                        },
+                        twentythree: [
+                            23,
+                            24
+                        ],
+                        twentyfive: [],
+                        twentysix: {}
+                    },
+                    twelve: [
+                        1,
+                        "2",
+                        3,
+                        true,
+                        null,
+                        false,
+                        undefined,
+                        {},
+                        {
+                            thirteen: 13,
+                            fourteen: 14,
+                            fifteen: [
+                                16
+                            ]
+                        },
+                        [],
+                        [
+                            17,
+                            18,
+                            [ 19 ]
+                        ]
+                    ]
+                });
 
+                expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: null,
+    four: undefined,
+    "five six": "\\\"56\\\"",
+    seven: "",
+    eight: false,
+    nine: {
+        ten: 10,
+        eleven: "11",
+        twenty: {
+            22: "22",
+            twentyone: 21
+        },
+        twentythree: [
+            23,
+            24
+        ],
+        twentyfive: [
+        ],
+        twentysix: {
+        }
+    },
+    twelve: [
+        1,
+        "2",
+        3,
+        true,
+        null,
+        false,
+        undefined,
+        {
+        },
+        {
+            thirteen: 13,
+            fourteen: 14,
+            fifteen: [
+                16
+            ]
+        },
+        [
+        ],
+        [
+            17,
+            18,
+            [
+                19
+            ]
+        ]
+    ]
+}
+`);
             });
 
             it.skip("actual=object containing objects/arrays/primitives, expected=same object but with a subset of keys", () => {
