@@ -5,9 +5,11 @@ const matchobj = require('./comparer.js');
 
 describe("Comparer", () => {
     describe("comparison()", () => {
-        it.skip("TEXT", () => {
+        it.skip("", () => {
 
         });
+
+
     });
 
     describe("matchObj()", () => {
