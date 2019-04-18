@@ -9,38 +9,63 @@
 }
 
 // ***************************************
+//  Viewports
+// ***************************************
+
+* Desktop
+    {browser width}='1920', {browser height}='1080' ?
+
+* Tablet
+    Tablet Portrait ?
+
+* Tablet Portrait
+    {browser width}='768', {browser height}='1024' ?
+
+* Tablet Landscape
+    {browser width}='1024', {browser height}='768' ?
+
+* Mobile
+    Mobile Portrait ?
+
+* Mobile Portrait
+    {browser width}='375', {browser height}='667' ?
+
+* Mobile Landscape
+    {browser width}='667', {browser height}='375' ?
+
+* iPhone 6/7/8
+    {device to emulate}='iPhone 6/7/8', {browser width}='375', {browser height}='667' ?
+
+* iPad
+    {device to emulate}='iPad', {browser width}='768', {browser height}='1024' ?
+
+// ***************************************
 //  Open browsers
 // ***************************************
 
-* Open Chrome {
-    g('browser name', 'chrome');
-}
-    Use browser
+* Open Chrome
+    {browser name}='chrome' ?
+        Use browser ?
 
-* Open Firefox {
-    g('browser name', 'firefox');
-}
-    Use browser
+* Open Firefox
+    {browser name} = 'firefox' ?
+        Use browser ?
 
-* Open Safari {
-    g('browser name', 'safari');
-}
-    Use browser
+* Open Safari
+    {browser name} = 'safari' ?
+        Use browser ?
 
-* Open IE {
-    g('browser name', 'internet explorer');
-}
-    Use browser
+* Open IE
+    {browser name} = 'internet explorer' ?
+        Use browser ?
 
-* Open Edge {
-    g('browser name', 'MicrosoftEdge');
-}
-    Use browser
+* Open Edge
+    {browser name} = 'MicrosoftEdge' ?
+        Use browser ?
 
-* Use browser {{name}} {
-    g('browser name', name);
-}
-    Use browser
+* Use browser {{name}}
+    {browser name} = '{{name}}' ?
+        Use browser ?
 
 // ***************************************
 //  Browser-dependent functions
@@ -91,35 +116,8 @@
     }
 
     // ***************************************
-    //  Viewports
+    //  Window
     // ***************************************
-
-    * Desktop
-        {browser width}='1920', {browser height}='1080'
-
-    * Tablet
-        Tablet Portrait
-
-    * Tablet Portrait
-        {browser width}='768', {browser height}='1024'
-
-    * Tablet Landscape
-        {browser width}='1024', {browser height}='768'
-
-    * Mobile
-        Mobile Portrait
-
-    * Mobile Portrait
-        {browser width}='375', {browser height}='667'
-
-    * Mobile Landscape
-        {browser width}='667', {browser height}='375'
-
-    * iPhone 6/7/8
-        {device to emulate}='iPhone 6/7/8', {browser width}='375', {browser height}='667'
-
-    * iPad
-        {device to emulate}='iPad', {browser width}='768', {browser height}='1024'
 
     * Set dimensions to width={{x}} height={{y}} {
 

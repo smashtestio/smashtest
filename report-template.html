@@ -1097,7 +1097,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                         );
                     }
 
-                    let lines = this.props.branch.steps.map((step, index) =>
+                    let lines = this.props.branch.steps.filter(step => !step.isHidden).map((step, index) =>
                             <Line
                                 step={step}
                                 branch={this.props.branch}

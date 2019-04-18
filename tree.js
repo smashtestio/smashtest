@@ -203,6 +203,9 @@ class Tree {
             if(step.identifiers.includes('#')) {
                 step.isExpectedFail = true;
             }
+            if(step.identifiers.includes('?')) {
+                step.isHidden = true;
+            }
         }
 
         // Validate hook steps

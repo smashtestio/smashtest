@@ -42,6 +42,7 @@ class Step {
         this.isNonParallel = false;           // true if this step has the non-parallel identifier (+)
         this.isSequential = false;            // true if this step has the sequential identifier (..)
         this.isExpectedFail = false;          // true if this step has the expected fail indentifier (#)
+        this.isHidden = false;                // true if this step should be hidden in the report (?)
 
         this.isHook = false;                  // true if this step is a hook
         this.isPackaged = false;              // true if this step is from a package file
@@ -214,11 +215,13 @@ class Step {
         let isExpectedFail = this.isExpectedFail || functionDeclarationInTree.isExpectedFail;
         isExpectedFail && (this.isExpectedFail = isExpectedFail);
 
-        let isPackaged = this.isPackaged || functionDeclarationInTree.isPackaged;
-        isPackaged && (this.isPackaged = isPackaged);
+        // we don't need to copy over isHidden
 
         let isHook = this.isHook || functionDeclarationInTree.isHook;
         isHook && (this.isHook = isHook);
+
+        let isPackaged = this.isPackaged || functionDeclarationInTree.isPackaged;
+        isPackaged && (this.isPackaged = isPackaged);
 
         if(functionDeclarationInTree.hasCodeBlock()) {
             this.codeBlock = functionDeclarationInTree.codeBlock;

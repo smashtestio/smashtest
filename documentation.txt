@@ -490,6 +490,10 @@ Manual tests (-M)
     - Treated as textual step, but you can ask to generate manual checklist from command line
     - Only one branch going through this step will be run, the rest will be skipped as repeats
 
+Hidden steps (?)
+    - Only hidden in report and only if they're unexpected
+    - Good for internal stuff
+
 Only ($)
     - $ = Only run branches under this step, but no debugging.
         - Show example. Comes at the beginning or end of the step, including before a function declaration's *.

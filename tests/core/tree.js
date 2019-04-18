@@ -499,6 +499,16 @@ describe("Tree", () => {
             assert.equal(step.isExpectedFail, true);
         });
 
+        it("parses the hidden identifier (?)", () => {
+            let step = tree.parseLine(`Click {button} ?`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isHidden, true);
+
+            step = tree.parseLine(`Click {button} -T ? + // comment`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isHidden, true);
+        });
+
         it("rejects a hook with an identifier", () => {
             assert.throws(() => {
                 tree.parseLine(`$ *** After Every Branch + {`, "file.txt", 10);
