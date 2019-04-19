@@ -12,9 +12,10 @@ class Comparer {
      * Replaces every object, array, and primitive inside of actual with a special $comparerNode object. See return value for format.
      * @param {Anything} actual - The value to check (could be a plain object, array, or primitive)
      * @param {Anything} expected - Criteria for actual to match (could be a primitive, object, or array to match exactly or an object/array that specifies constraints)
+     * @param {Boolean} [subsetMatching] - If true, all objects and arrays are matched by subset (not just objects, as is the default)
      * @return {Object} { errors: array of strings describing errors related to comparison, value: original actual value at this position, $comparerNode: true }
      */
-    static comparison(actual, expected) {
+    static comparison(actual, expected, subsetMatching) {
         let errors = [];
 
         if(typeof expected == 'object') {
@@ -37,7 +38,7 @@ class Comparer {
 
                         // Validate actual matches expected
                         for(let i = 0; i < actual.length; i++) {
-                            actual[i] = this.comparison(actual[i], expected[1]);
+                            actual[i] = this.comparison(actual[i], expected[1], subsetMatching);
                         }
                     }
                     else {
@@ -45,7 +46,7 @@ class Comparer {
                         let anyOrder = false;
 
                         // [ '$subset', A, B, ... ]
-                        if(expected.indexOf('$subset') != -1) {
+                        if(expected.indexOf('$subset') != -1 || subsetMatching) {
                             subset = true;
                         }
 
@@ -58,13 +59,13 @@ class Comparer {
                         for(let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
                             let expectedItem = expected[expectedIndex];
                             if(['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
-                                if(anyOrder) {
+                                if(anyOrder || subset) {
                                     // corresponding actual item can be anywhere
                                     let actualClone = clonedeep(actual);
                                     let found = false;
                                     for(let i = 0; i < actualClone.length; i++) {
                                         let actualItem = actualClone[i];
-                                        let comparisonResult = this.comparison(actualItem, expectedItem);
+                                        let comparisonResult = this.comparison(actualItem, expectedItem, true);
                                         if(!this.hasErrors(comparisonResult)) {
                                             // we have a match
                                             found = true;
@@ -74,12 +75,12 @@ class Comparer {
                                     }
 
                                     if(!found) {
-                                        errors.push(`couldn't find ${JSON.stringify(expectedItem)} here`);
+                                        errors.push( { blockError: true, text: `couldn't find`, obj: expectedItem } );
                                     }
                                 }
                                 else {
                                     // corresponding actual item has to be at the same index
-                                    actual[actualIndex] = this.comparison(actual[actualIndex], expected[expectedIndex]);
+                                    actual[actualIndex] = this.comparison(actual[actualIndex], expected[expectedIndex], subsetMatching);
                                 }
 
                                 actualIndex++;
@@ -227,7 +228,7 @@ class Comparer {
 
                     // Validate actual matches expected
                     if(!success) {
-                        errors.push(`failed the $code '${expected.$code.toString()}'`);
+                        errors.push(`failed the $code '${expected.$code.toString().replace(/\n/g, ' ')}'`);
                     }
 
                     actualExpectedToBePlainObject = false;
@@ -320,7 +321,7 @@ class Comparer {
                                     errors.push(`missing key '${key}'`);
                                 }
                                 else {
-                                    actual[key] = this.comparison(actual[key], expected[key]);
+                                    actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
                                 }
                             }
                         }
@@ -347,11 +348,11 @@ class Comparer {
                         // Make sure every key in expected matches every key in actual
                         for(let key in expected) {
                             if(expected.hasOwnProperty(key)) {
-                                if(!actual.hasOwnProperty(key)) {
+                                if(!actual || !actual.hasOwnProperty(key)) {
                                     errors.push(`missing key '${key}'`);
                                 }
                                 else {
-                                    actual[key] = this.comparison(actual[key], expected[key]);
+                                    actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
                                 }
                             }
                         }
@@ -434,6 +435,7 @@ class Comparer {
         let spaces = outputIndents(indents);
         let nextSpaces = outputIndents(indents + 1);
         let ret = '';
+        let self = this;
 
         let errors = [];
         if(typeof value == 'object' && value !== null && value.$comparerNode) {
@@ -451,6 +453,8 @@ class Comparer {
                     ret += nextSpaces + this.print(value[i], indents + 1, i < value.length - 1);
                 }
 
+                ret += outputBlockErrors();
+
                 ret += spaces + ']' + (commaAtEnd ? ',' : '') + '\n';
             }
             else { // plain object
@@ -463,6 +467,8 @@ class Comparer {
                         ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], indents + 1, i < keys.length - 1);
                     }
                 }
+
+                ret += outputBlockErrors();
 
                 ret += spaces + '}' + (commaAtEnd ? ',' : '') + '\n';
             }
@@ -488,20 +494,46 @@ class Comparer {
         }
 
         function outputErrors() {
-            if(!errors || errors.length == 0) {
+            if(!errors) {
                 return '';
             }
 
-            //const MAX_ERROR_LEN = 50;
+            let filteredErrors = errors.filter(error => !error.blockError);
+
+            if(filteredErrors.length == 0) {
+                return '';
+            }
 
             let ret = '  -->  ';
             for(let error of errors) {
-                //let overLength = error.length > MAX_ERROR_LEN;
-                ret += error.replace(/\n/g, ' ') /*.slice(0, MAX_ERROR_LEN) + (overLength ? '...' : '')*/ + ', ';
+                ret += error.replace(/\n/g, ' ') + ', ';
             }
 
             // Slice off last ', '
             ret = ret.slice(0, -2);
+
+            return ret;
+        }
+
+        function outputBlockErrors() {
+            if(!errors) {
+                return '';
+            }
+
+            let filteredErrors = errors.filter(error => error.blockError);
+
+            if(filteredErrors.length == 0) {
+                return '';
+            }
+
+            let ret = '\n';
+            for(let error of errors) {
+                ret += nextSpaces + '--> ';
+                ret += error.text + ' ' + self.print(error.obj, indents + 1) + '\n';
+            }
+
+            // Slice off last '\n'
+            ret = ret.slice(0, -1);
 
             return ret;
         }
