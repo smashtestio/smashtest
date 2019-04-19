@@ -1,10 +1,7 @@
 const chai = require('chai');
-const chaiString = require('chai-string');
 const expect = chai.expect;
 const assert = chai.assert;
 const Comparer = require('../../comparer.js');
-
-chai.use(chaiString);
 
 describe.only("Comparer", () => {
     describe("comparison()", () => {
@@ -881,9 +878,7 @@ describe.only("Comparer", () => {
 
                 it("expected=$code function that returns false", () => {
                     let obj = Comparer.comparison("Foobar", { $code: (actual) => { return actual.toLowerCase() == "hoo"; } });
-                    expect(Comparer.print(obj)).to
-                        .startsWith(`"Foobar"  -->  failed the $code '(actual) => { return actual`)
-                        .endsWith(`...`);
+                    expect(Comparer.print(obj)).to.equal(`"Foobar"  -->  failed the $code '(actual) => { return actual.toLowerCase() == "hoo"; }'`);
                 });
 
                 it("expected=$code function that throws an exception", () => {
@@ -899,9 +894,7 @@ describe.only("Comparer", () => {
 
                 it("expected=$code string that returns false", () => {
                     let obj = Comparer.comparison("Foobar", { $code: 'return actual.toLowerCase() == "hoo";' });
-                    expect(Comparer.print(obj)).to
-                        .startsWith(`"Foobar"  -->  failed the $code 'return actual.toLowerCase()`)
-                        .endsWith(`...`);
+                    expect(Comparer.print(obj)).to.equal(`"Foobar"  -->  failed the $code 'return actual.toLowerCase() == "hoo";'`);
                 });
 
                 it("expected=$code string that throws an exception", () => {
@@ -917,79 +910,133 @@ describe.only("Comparer", () => {
 
                 it("expected=$code string that evaluates false", () => {
                     let obj = Comparer.comparison("Foobar", { $code: 'actual.toLowerCase() == "hoo"' });
-                    expect(Comparer.print(obj)).to
-                        .equal(`"Foobar"  -->  failed the $code 'actual.toLowerCase() == "hoo"'`);
+                    expect(Comparer.print(obj)).to.equal(`"Foobar"  -->  failed the $code 'actual.toLowerCase() == "hoo"'`);
                 });
             });
 
             context("$length", () => {
-                it.skip("expected=$length but not a number", () => {
-
+                it("expected=$length but not a number", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison([], { $length: "2" });
+                    }, `$length has to be a number: "2"`);
                 });
 
-                it.skip("actual=non-object, expected=$length", () => {
-
+                it("actual=non-object, expected=$length", () => {
+                    let obj = Comparer.comparison("8", { $length: 2 });
+                    expect(Comparer.print(obj)).to.equal(`"8"  -->  isn't an object or array so can't have a $length of 2`);
                 });
 
-                it.skip("actual=object with no length property, expected=$length", () => {
-
+                it("actual=object with no length property, expected=$length", () => {
+                    let obj = Comparer.comparison({}, { $length: 2 });
+                    expect(Comparer.print(obj)).to.equal(`{  -->  doesn't have a length property so can't have a $length of 2
+}`);
                 });
 
-                it.skip("expected=correct $length", () => {
-
+                it("expected=correct $length", () => {
+                    let obj = Comparer.comparison([1, 2], { $length: 2 });
+                    expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2
+]`);
                 });
 
-                it.skip("expected=incorrect $length", () => {
-
+                it("expected=incorrect $length", () => {
+                    let obj = Comparer.comparison([1, 2], { $length: 3 });
+                    expect(Comparer.print(obj)).to.equal(`[  -->  doesn't have a $length of 3
+    1,
+    2
+]`);
                 });
             });
 
             context("$maxLength", () => {
-                it.skip("expected=$maxLength but not a number", () => {
-
+                it("expected=$maxLength but not a number", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison([], { $maxLength: "2" });
+                    }, `$maxLength has to be a number: "2"`);
                 });
 
-                it.skip("actual=non-object, expected=$maxLength", () => {
-
+                it("actual=non-object, expected=$maxLength", () => {
+                    let obj = Comparer.comparison("8", { $maxLength: 2 });
+                    expect(Comparer.print(obj)).to.equal(`"8"  -->  isn't an object or array so can't have a $maxLength of 2`);
                 });
 
-                it.skip("actual=object with no length property, expected=$maxLength", () => {
-
+                it("actual=object with no length property, expected=$maxLength", () => {
+                    let obj = Comparer.comparison({}, { $maxLength: 2 });
+                    expect(Comparer.print(obj)).to.equal(`{  -->  doesn't have a length property so can't have a $maxLength of 2
+}`);
                 });
 
-                it.skip("expected=correct $maxLength", () => {
+                it("expected=correct $maxLength", () => {
+                    let obj = Comparer.comparison([1, 2], { $maxLength: 2 });
+                    expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2
+]`);
 
+                    obj = Comparer.comparison([1, 2], { $maxLength: 3 });
+                    expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2
+]`);
                 });
 
-                it.skip("expected=incorrect $maxLength", () => {
-
+                it("expected=incorrect $maxLength", () => {
+                    let obj = Comparer.comparison([1, 2], { $maxLength: 1 });
+                    expect(Comparer.print(obj)).to.equal(`[  -->  is longer than the $maxLength of 1
+    1,
+    2
+]`);
                 });
             });
 
             context("$minLength", () => {
-                it.skip("expected=$minLength but not a number", () => {
-
+                it("expected=$minLength but not a number", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison([], { $minLength: "2" });
+                    }, `$minLength has to be a number: "2"`);
                 });
 
-                it.skip("actual=non-object, expected=$minLength", () => {
-
+                it("actual=non-object, expected=$minLength", () => {
+                    let obj = Comparer.comparison("8", { $minLength: 2 });
+                    expect(Comparer.print(obj)).to.equal(`"8"  -->  isn't an object or array so can't have a $minLength of 2`);
                 });
 
-                it.skip("actual=object with no length property, expected=$minLength", () => {
-
+                it("actual=object with no length property, expected=$minLength", () => {
+                    let obj = Comparer.comparison({}, { $minLength: 2 });
+                    expect(Comparer.print(obj)).to.equal(`{  -->  doesn't have a length property so can't have a $minLength of 2
+}`);
                 });
 
-                it.skip("expected=correct $minLength", () => {
+                it("expected=correct $minLength", () => {
+                    let obj = Comparer.comparison([1, 2], { $minLength: 2 });
+                    expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2
+]`);
 
+                    obj = Comparer.comparison([1, 2], { $minLength: 1 });
+                    expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2
+]`);
                 });
 
-                it.skip("expected=incorrect $minLength", () => {
-
+                it("expected=incorrect $minLength", () => {
+                    let obj = Comparer.comparison([1, 2], { $minLength: 3 });
+                    expect(Comparer.print(obj)).to.equal(`[  -->  is shorter than the $minLength of 3
+    1,
+    2
+]`);
                 });
             });
 
             context("$subset", () => {
                 it.skip("actual=non-array, expected=$subset", () => {
+
+                });
+
+                it.skip("actual=array of primitives, expected=$subset with same exact array of primitives", () => {
 
                 });
 
@@ -1012,6 +1059,10 @@ describe.only("Comparer", () => {
 
             context("$anyOrder", () => {
                 it.skip("actual=non-array, expected=$anyOrder", () => {
+
+                });
+
+                it.skip("actual=array of primitives, expected=$anyOrder with array of primitives in the same order", () => {
 
                 });
 
@@ -1086,7 +1137,7 @@ describe.only("Comparer", () => {
 
             context("multiple constraints in one special expected object", () => {
                 it.skip("expected=multiple contrains that are correct", () => {
-
+                    // make sure you to $subset and $anyOrder together
                 });
 
                 it.skip("expected=multiple contrains where one is incorrect", () => {
@@ -1097,86 +1148,253 @@ describe.only("Comparer", () => {
     });
 
     describe("compareObj()", () => {
-        it.skip("takes in an object and doesn't edit it", () => {
+        it("doesn't throw an exception if there's no error and doesn't edit the objects sent in", () => {
+            let actual = { one: "foobar" };
+            let expected = { one: "foobar" };
 
+            Comparer.compareObj(actual, expected);
+
+            expect(actual).to.eql( { one: "foobar" } );
+            expect(expected).to.eql( { one: "foobar" } );
         });
-    });
 
-    describe("compareJson()", () => {
-        it.skip("takes in json and doesn't edit it", () => {
+        it("throws an exception on error and doesn't edit the objects sent in", () => {
+            let actual = { one: "foobar" };
+            let expected = { one: "foobar2" };
+            assert.throws(() => {
+                Comparer.compareObj(actual, expected);
+            }, `{
+    one: "foobar"  -->  not "foobar2"
+}`);
 
-        });
-
-        it.skip("handles malformed json", () => {
-
+            expect(actual).to.eql( { one: "foobar" } );
+            expect(expected).to.eql( { one: "foobar2" } );
         });
     });
 
     describe("hasErrors()", () => {
-        it.skip("returns false on a primitive", () => {
-
+        it("returns false on a primitive", () => {
+            let failed = Comparer.hasErrors(5);
+            expect(failed).to.be.false;
         });
 
-        it.skip("returns false on a simple object", () => {
-
+        it("returns false on a simple object", () => {
+            let failed = Comparer.hasErrors({one: 1});
+            expect(failed).to.be.false;
         });
 
-        it.skip("returns false on a simple array", () => {
-
+        it("returns false on a simple array", () => {
+            let failed = Comparer.hasErrors([1, 2]);
+            expect(failed).to.be.false;
         });
 
-        it.skip("returns true when there are errors in a complex object", () => {
-            // sometimes have $comparerNode in place of a value, sometimes don't
+        it("returns true when there are errors in an object inside a complex object", () => {
+            let failed = Comparer.hasErrors({
+                $comparerNode: true,
+                errors: [],
+                value: {
+                    one: 1,
+                    two: [
+                        22,
+                        undefined,
+                        {
+                            $comparerNode: true,
+                            errors: [],
+                            value: 33
+                        }
+                    ],
+                    three: {
+                        $comparerNode: true,
+                        errors: [ "oops" ],
+                        value: 3
+                    },
+                    four: null
+                }
+            });
+            expect(failed).to.be.true;
         });
 
-        it.skip("returns false when there are no errors in a complex object", () => {
-            // sometimes have $comparerNode in place of a value, sometimes don't
+        it("returns true when there are errors in an array inside a complex object", () => {
+            failed = Comparer.hasErrors({
+                $comparerNode: true,
+                errors: [],
+                value: {
+                    one: 1,
+                    two: [
+                        22,
+                        undefined,
+                        {
+                            $comparerNode: true,
+                            errors: [ "oops" ],
+                            value: 33
+                        }
+                    ],
+                    three: {
+                        $comparerNode: true,
+                        errors: [],
+                        value: 3
+                    },
+                    four: null
+                }
+            });
+            expect(failed).to.be.true;
+        });
+
+        it("returns false when there are no errors in a complex object", () => {
+            failed = Comparer.hasErrors({
+                $comparerNode: true,
+                errors: [],
+                value: {
+                    one: 1,
+                    two: [
+                        22,
+                        undefined,
+                        {
+                            $comparerNode: true,
+                            errors: [],
+                            value: 33
+                        }
+                    ],
+                    three: {
+                        $comparerNode: true,
+                        errors: [],
+                        value: 3
+                    },
+                    four: null
+                }
+            });
+            expect(failed).to.be.false;
         });
     });
 
     describe("print()", () => {
-        it.skip("prints a null", () => {
-
+        it("prints a null", () => {
+            let printed = Comparer.print(null);
+            expect(printed).to.equal(`null`);
         });
 
-        it.skip("prints an undefined", () => {
-
+        it("prints an undefined", () => {
+            let printed = Comparer.print(undefined);
+            expect(printed).to.equal(`undefined`);
         });
 
-        it.skip("prints a string", () => {
-
+        it("prints an empty string", () => {
+            let printed = Comparer.print("");
+            expect(printed).to.equal(`""`);
         });
 
-        it.skip("prints a number", () => {
-
+        it("prints a string", () => {
+            let printed = Comparer.print("foobar");
+            expect(printed).to.equal(`"foobar"`);
         });
 
-        it.skip("prints a boolean", () => {
-
+        it("prints a number", () => {
+            let printed = Comparer.print(6);
+            expect(printed).to.equal(`6`);
         });
 
-        it.skip("prints an empty object", () => {
-
+        it("prints a boolean", () => {
+            let printed = Comparer.print(false);
+            expect(printed).to.equal(`false`);
         });
 
-        it.skip("prints an empty array", () => {
-
+        it("prints an empty object", () => {
+            let printed = Comparer.print({});
+            expect(printed).to.equal(`{
+}`);
         });
 
-        it.skip("prints a simple object", () => {
-
+        it("prints an empty array", () => {
+            let printed = Comparer.print([]);
+            expect(printed).to.equal(`[
+]`);
         });
 
-        it.skip("prints a simple array", () => {
-
+        it("prints a simple object", () => {
+            let printed = Comparer.print( { one: 1, two: "2", "three 3": 3 } );
+            expect(printed).to.equal(`{
+    one: 1,
+    two: "2",
+    "three 3": 3
+}`);
         });
 
-        it.skip("prints a complex object containing objects/arrays/primitives and that contains errors", () => {
-            // sometimes have $comparerNode in place of a value, sometimes don't
+        it("prints a simple array", () => {
+            let printed = Comparer.print( [ 1, "2" ] );
+            expect(printed).to.equal(`[
+    1,
+    "2"
+]`);
         });
 
-        it.skip("prints a complex object containing objects/arrays/primitives and that doesn't contain errors", () => {
-            // sometimes have $comparerNode in place of a value, sometimes don't
+        it("prints a complex object containing objects/arrays/primitives and that contains errors", () => {
+            let printed = Comparer.print({
+                $comparerNode: true,
+                errors: [],
+                value: {
+                    one: 1,
+                    two: [
+                        22,
+                        undefined,
+                        {
+                            $comparerNode: true,
+                            errors: [ "oops1" ],
+                            value: 33
+                        }
+                    ],
+                    three: {
+                        $comparerNode: true,
+                        errors: [ "oops2", "oops3" ],
+                        value: 3
+                    },
+                    four: null
+                }
+            });
+            expect(printed).to.equal(`{
+    one: 1,
+    two: [
+        22,
+        undefined,
+        33  -->  oops1
+    ],
+    three: 3,  -->  oops2, oops3
+    four: null
+}`);
+        });
+
+        it("prints a complex object containing objects/arrays/primitives and that doesn't contain errors", () => {
+            let printed = Comparer.print({
+                $comparerNode: true,
+                errors: [],
+                value: {
+                    one: 1,
+                    two: [
+                        22,
+                        undefined,
+                        {
+                            $comparerNode: true,
+                            errors: [],
+                            value: 33
+                        }
+                    ],
+                    three: {
+                        $comparerNode: true,
+                        errors: [],
+                        value: 3
+                    },
+                    four: null
+                }
+            });
+            expect(printed).to.equal(`{
+    one: 1,
+    two: [
+        22,
+        undefined,
+        33
+    ],
+    three: 3,
+    four: null
+}`);
         });
     });
 });

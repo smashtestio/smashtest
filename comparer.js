@@ -1,5 +1,7 @@
 const clonedeep = require('lodash/clonedeep');
 
+const RESERVED_KEYWORDS = ['$typeof', '$regex', '$contains', '$max', '$min', '$code', '$length', '$maxLength', '$minLength', '$subset', '$anyOrder', '$exact', '$every'];
+
 class Comparer {
     constructor() {
     }
@@ -235,7 +237,7 @@ class Comparer {
                 if(expected.hasOwnProperty("$length")) {
                     // Validate expected
                     if(typeof expected.$length != 'number') {
-                        throw new Error(`$length has to be a number: ${expected.$length}`);
+                        throw new Error(`$length has to be a number: ${JSON.stringify(expected.$length)}`);
                     }
 
                     // Validate actual matches expected
@@ -260,7 +262,7 @@ class Comparer {
                 if(expected.hasOwnProperty("$maxLength")) {
                     // Validate expected
                     if(typeof expected.$maxLength != 'number') {
-                        throw new Error(`$maxLength has to be a number: ${expected.$maxLength}`);
+                        throw new Error(`$maxLength has to be a number: ${JSON.stringify(expected.$maxLength)}`);
                     }
 
                     // Validate actual matches expected
@@ -285,7 +287,7 @@ class Comparer {
                 if(expected.hasOwnProperty("$minLength")) {
                     // Validate expected
                     if(typeof expected.$minLength != 'number') {
-                        throw new Error(`$minLength has to be a number: ${expected.$minLength}`);
+                        throw new Error(`$minLength has to be a number: ${JSON.stringify(expected.$minLength)}`);
                     }
 
                     if(typeof actual != 'object') {
@@ -313,7 +315,7 @@ class Comparer {
                     else {
                         // Make sure every key in expected exists in actual
                         for(let key in expected) {
-                            if(expected.hasOwnProperty(key) && !key.startsWith('$')) {
+                            if(expected.hasOwnProperty(key) && RESERVED_KEYWORDS.indexOf(key) == -1) {
                                 if(!actual.hasOwnProperty(key)) {
                                     errors.push(`missing key '${key}'`);
                                 }
@@ -376,16 +378,8 @@ class Comparer {
         actualObj = clonedeep(actualObj);
         let comp = this.comparison(actualObj, expectedObj);
         if(this.hasErrors(comp)) {
-            throw new Error(print(comp));
+            throw new Error(this.print(comp));
         }
-    }
-
-    /**
-     * Same as compareObj(), but takes in json instead of an object
-     */
-    static compareJson(actualJson, expectedObj) {
-        let actualObj = JSON.parse(actualJson);
-        this.matchObj(actualObj, expectedObj);
     }
 
     /**
@@ -393,31 +387,32 @@ class Comparer {
      * @return {Boolean} True if value has errors in it, false otherwise
      */
     static hasErrors(value) {
-        if(value.$comparerNode) {
+        if(typeof value == 'object' && value && value.$comparerNode) {
             if(value.errors.length > 0) {
                 return true;
             }
-            else {
-                if(typeof value.value == 'object') {
-                    if(value.value instanceof Array) {
-                        for(let item of value.value) {
-                            if(this.hasErrors(item)) {
-                                return true;
-                            }
-                        }
-                    }
-                    else { // plain object
-                        for(let key in value.value) {
-                            if(value.value.hasOwnProperty(key)) {
-                                if(this.hasErrors(value.value[key])) {
-                                    return true;
-                                }
-                            }
-                        }
+
+            value = value.value;
+        }
+
+        if(typeof value == 'object') {
+            if(value === null) {
+                return false;
+            }
+            else if(value instanceof Array) {
+                for(let item of value) {
+                    if(this.hasErrors(item)) {
+                        return true;
                     }
                 }
-                else { // primitive
-                    return false;
+            }
+            else { // plain object
+                for(let key in value) {
+                    if(value.hasOwnProperty(key)) {
+                        if(this.hasErrors(value[key])) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -497,12 +492,12 @@ class Comparer {
                 return '';
             }
 
-            const MAX_ERROR_LEN = 50;
+            //const MAX_ERROR_LEN = 50;
 
             let ret = '  -->  ';
             for(let error of errors) {
-                let overLength = error.length > MAX_ERROR_LEN;
-                ret += error.replace(/\n/g, ' ').slice(0, MAX_ERROR_LEN) + (overLength ? '...' : '') + ', ';
+                //let overLength = error.length > MAX_ERROR_LEN;
+                ret += error.replace(/\n/g, ' ') /*.slice(0, MAX_ERROR_LEN) + (overLength ? '...' : '')*/ + ', ';
             }
 
             // Slice off last ', '
