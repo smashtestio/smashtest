@@ -574,40 +574,63 @@ Testing APIs
             - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
             - swapi.co for sample data
     - Comparer (built-in library for validating json)
-        - Replaces a value (you can put multiple of these into the same {})
+        - Comparer.expect(actualObj).to.match(expectedObj)
+            - Throws error if matching fails, containing whole json object prettified, with a ---> + explanation next to each line that didn't match
+        - Defaults
+            - Expected arrays without $-identifiers are exact match by default
+                - E.g., expected [ A, B, C ] means actual must be [ A, B, C ] exactly
+            - Expected objects without $-identifiers are subset matching by default
+                - E.g., expected { one: 1 } will match { one: 1, two: 2 } but not { one: 3 } or { two: 2 }
+        - Special matching objects in expectedObj (correspond to values in actualObj)
             - $typeof
-                - { $typeof: "type" } instead of value
-                - You can use "array"
+                - { $typeof: "type" }
+                - Makes sure corresponding value in actualObj is of this type (uses js's typeof)
+                    - Exception: you can use "array" to match arrays
             - $regex
-                - { $regex: /regex/ } instead of string value
+                - { $regex: /regex/ }
+                - { $regex: "regex" }
+                - Makes sure corresponding value in actualObj is a string that matches this regex
             - $contains
-                - { $contains: "string" } instead of string value
-            - $max and min
+                - { $contains: "string" }
+                - Makes sure corresponding value in actualObj is a string that contains this string
+            - $max
                 - { $max: A }
-                - { $min: B }
-                - A and B can be any type
+                - Makes sure corresponding value in actualObj is a number that isn't greater than this number
+            - $min
+                - { $min: A }
+                - Makes sure corresponding value in actualObj is a number that isn't less than this number
             - $code
                 - { $code: (actual) => { return actual.toLowerCase() == 'something'; } }
                 - { $code: "return actual.toLowerCase() == 'something'"}
                 - { $code: "actual.toLowerCase() == 'something'"}
-            - $length, $minLength, and $maxLength
-                - { $length: A, $maxLength: B, $minLength: C }
-                - Works with any value that has value.length set (otherwise it's a mismatch)
-        - Appended to front of an object or array
+                - Makes sure corresponding value in actualObj causes this code to evaluate to true or return true
+            - $length
+                - { $length: A }
+                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length is A
+            - $maxLength
+                - { $maxLength: A }
+                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length isn't greater than A
+            - $minLength
+                - { $minLength: A }
+                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length isn't less than A
             - $subset
                 - [ "$subset", A, B, C ]
-                - Arrays are exact match by default. If "$subset" it set, it will be a subset match.
-                - Array items can be in any order, just like with $anyOrder
+                - Makes sure corresponding value in actualObj is an array that contains A, B, and C in any order (and it could have more items)
             - $anyOrder
                 - [ "$anyOrder", A, B, C ]
-                - You can have $subset and $anyOrder in the same array
+                - Makes sure corresponding value in actualObj is an array that contains A, B, and C (and nothing else) in any order
+                - You can use $subset and $anyOrder together such as [ "$subset", "$anyOrder", A, B, C ] to match an array containing A, B, and C (and potentially more items) in any order
             - $exact
                 - { $exact: true, a: A, b: B }
-                - Objects are subset matching by default. If $exact is set, it must match exactly.
+                - Makes sure corresponding value in actualObj is an object that matches exactly (every expected key exists and has the expected value, and no other keys exist)
+                - E.g., { $exact: true, one: 1 } will match { one: 1 } but not { one: 1, two: 2 } or { one: 3 } or { two: 2 }
             - $every
                 - [ "$every", A ]
-                - Every item in the array matches A
-        - Throws error if there's a mismatch, containing whole json object prettified, with a ---> this is why this failed for each line that fails
+                - Makes sure corresponding value in actualObj is an array where every item matches A
+                - An $every array must only have two items - "$every" and A
+                - E.g., [ "$every", A ] would match [ A, A, A ], and [ "$every", { $contains: "foo" } ] would match [ "foobar", "barfoo", "foo" ]
+            - You can have multiple criteria in the same object
+                - E.g., { $typeof: "string", $length: 10, $regex: /[A-Z]+/ } or [ "$subset", "$anyOrder", A, B, C ]
 
 Stubbing out APIs
     - Examples
