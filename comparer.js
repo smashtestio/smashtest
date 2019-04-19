@@ -65,6 +65,10 @@ class Comparer {
                                     let found = false;
                                     for(let i = 0; i < actualClone.length; i++) {
                                         let actualItem = actualClone[i];
+                                        if(typeof actualItem == 'object' && actualItem !== null && actualItem.$comparerNode) {
+                                            continue; // this item has been claimed already
+                                        }
+
                                         let comparisonResult = this.comparison(actualItem, expectedItem, true);
                                         if(!this.hasErrors(comparisonResult)) {
                                             // we have a match
@@ -90,7 +94,7 @@ class Comparer {
                         if(!subset) {
                             // Make sure we don't have any items in actual that haven't been visited
                             for(let i = 0; i < actual.length; i++) {
-                                if(typeof actual[i] != 'object' || !actual[i] || !actual[i].hasOwnProperty('$comparerNode')) {
+                                if(typeof actual[i] != 'object' || actual[i] === null || !actual[i].$comparerNode) {
                                     actual[i] = { errors: [ `not expected` ], value: actual[i], $comparerNode: true };
                                 }
                             }
@@ -388,7 +392,7 @@ class Comparer {
      * @return {Boolean} True if value has errors in it, false otherwise
      */
     static hasErrors(value) {
-        if(typeof value == 'object' && value && value.$comparerNode) {
+        if(typeof value == 'object' && value !== null && value.$comparerNode) {
             if(value.errors.length > 0) {
                 return true;
             }
@@ -463,7 +467,7 @@ class Comparer {
                 for(let i = 0; i < keys.length; i++) {
                     let key = keys[i];
                     if(value.hasOwnProperty(key)) {
-                        let hasWeirdChars = key.match(/[^A-Za-z0-9]/); // put quotes around the key if there are non-standard chars in it
+                        let hasWeirdChars = key.match(/[^A-Za-z0-9\$]/); // put quotes around the key if there are non-standard chars in it
                         ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], indents + 1, i < keys.length - 1);
                     }
                 }
@@ -484,6 +488,9 @@ class Comparer {
             return ret;
         }
 
+        /**
+         * @return {String} A string with the given number of indents, in spaces
+         */
         function outputIndents(num) {
             const SPACES_PER_INDENT = 4;
             let spaces = '';
@@ -493,11 +500,10 @@ class Comparer {
             return spaces;
         }
 
+        /**
+         * @return {String} Stringified normal errors, generated from the errors array
+         */
         function outputErrors() {
-            if(!errors) {
-                return '';
-            }
-
             let filteredErrors = errors.filter(error => !error.blockError);
 
             if(filteredErrors.length == 0) {
@@ -515,11 +521,10 @@ class Comparer {
             return ret;
         }
 
+        /**
+         * @return {String} Stringified block errors, generated from the errors array
+         */
         function outputBlockErrors() {
-            if(!errors) {
-                return '';
-            }
-
             let filteredErrors = errors.filter(error => error.blockError);
 
             if(filteredErrors.length == 0) {
