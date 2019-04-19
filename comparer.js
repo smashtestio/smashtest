@@ -8,15 +8,22 @@ class Comparer {
 
     /**
      * Compares the actual object against the expected object
+     * Usage: expect(actualObj).to.match(expectedObj)
      * @param {Object} actualObj - The object to check. Must not have circular references. Could be an array.
      * @param {Object} expectedObj - The object specifying criteria for actualObj to match
      * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static compareObj(actualObj, expectedObj) {
-        actualObj = clonedeep(actualObj);
-        let comp = this.comparison(actualObj, expectedObj);
-        if(this.hasErrors(comp)) {
-            throw new Error(this.print(comp));
+    static expect(actualObj) {
+        return {
+            to: {
+                match: (expectedObj) => {
+                    actualObj = clonedeep(actualObj);
+                    let comp = this.comparison(actualObj, expectedObj);
+                    if(this.hasErrors(comp)) {
+                        throw new Error(this.print(comp));
+                    }
+                }
+            }
         }
     }
 

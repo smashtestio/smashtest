@@ -5,12 +5,12 @@ const utils = require('../../utils.js');
 const Comparer = require('../../comparer.js');
 
 describe("Comparer", () => {
-    describe("compareObj()", () => {
+    describe("expect()", () => {
         it("doesn't throw an exception if there's no error and doesn't edit the objects sent in", () => {
             let actual = { one: "foobar" };
             let expected = { one: "foobar" };
 
-            Comparer.compareObj(actual, expected);
+            Comparer.expect(actual).to.match(expected);
 
             expect(actual).to.eql( { one: "foobar" } );
             expect(expected).to.eql( { one: "foobar" } );
@@ -20,7 +20,7 @@ describe("Comparer", () => {
             let actual = { one: "foobar" };
             let expected = { one: "foobar2" };
             assert.throws(() => {
-                Comparer.compareObj(actual, expected);
+                Comparer.expect(actual).to.match(expected);
             }, `{
     one: "foobar"  -->  not "foobar2"
 }`);
