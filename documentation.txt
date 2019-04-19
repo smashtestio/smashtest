@@ -231,9 +231,28 @@ Functions
                 (Also useful for "Select option X", and doing it via keyboard and mouse, or a combination of both -
                     great for accessibility testing)
         - On Page X pattern, with verifications and setting global vars to selectors in a .. step block
-        - Setting context pattern, e.g., Open browser X will establish Click, etc. as browser-oriented functions. But a future call
-            to something like Open phone (whose function declaration has its own declarations for Click, etc.) sets the "context" to the phone,
-            sending further child steps to the phone's functions
+        - Setting context pattern
+            - Open browser X will establish Click, etc. as browser-oriented functions. But a future call
+                to something like Open phone (whose function declaration has its own declarations for Click, etc.) sets the
+                "context" to the phone, sending further child steps to the phone's functions
+            - Viewport-based function implementations
+                * Mobile
+                    Mobile // calls original
+
+                    * Logout
+                        // steps to logout
+
+                * Desktop
+                    Desktop
+
+                    * Logout
+                        // different steps to logout
+
+                Test 1 -
+                    Mobile
+                        Logout // calls the mobile logout
+                    Desktop
+                        Logout // calls the desktop logout
         - Inheritance pattern
             * On special cart page
                 On cart page

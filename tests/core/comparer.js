@@ -5,6 +5,31 @@ const utils = require('../../utils.js');
 const Comparer = require('../../comparer.js');
 
 describe.only("Comparer", () => {
+    describe("compareObj()", () => {
+        it("doesn't throw an exception if there's no error and doesn't edit the objects sent in", () => {
+            let actual = { one: "foobar" };
+            let expected = { one: "foobar" };
+
+            Comparer.compareObj(actual, expected);
+
+            expect(actual).to.eql( { one: "foobar" } );
+            expect(expected).to.eql( { one: "foobar" } );
+        });
+
+        it("throws an exception on error and doesn't edit the objects sent in", () => {
+            let actual = { one: "foobar" };
+            let expected = { one: "foobar2" };
+            assert.throws(() => {
+                Comparer.compareObj(actual, expected);
+            }, `{
+    one: "foobar"  -->  not "foobar2"
+}`);
+
+            expect(actual).to.eql( { one: "foobar" } );
+            expect(expected).to.eql( { one: "foobar2" } );
+        });
+    });
+
     describe("comparison()", () => {
         context("plain comparison", () => {
             it("actual=string, expected=same string", () => {
@@ -151,11 +176,17 @@ describe.only("Comparer", () => {
 
             it("actual=simple object, expected=different simple object", () => {
                 let obj = Comparer.comparison({ one: 1, two: "2", three: 3, four: "4" }, { one: 1, two: "5", three: null, five: "5", six: 6 });
-                expect(Comparer.print(obj)).to.equal(`{  -->  missing key 'five', missing key 'six'
+                expect(Comparer.print(obj)).to.equal(`{
     one: 1,
     two: "2",  -->  not "5"
     three: 3,  -->  not null
     four: "4"
+
+    --> missing
+    five: "5"
+
+    --> missing
+    six: 6
 }`);
             });
 
@@ -638,7 +669,9 @@ describe.only("Comparer", () => {
                         ten: 10,
                         eleven: "11",
                         twenty: {
-                            twentyone: 21,
+                            twentyone: {
+                                "21": 21
+                            },
                             "22": "22"
                         },
                         twentythree: [
@@ -673,7 +706,7 @@ describe.only("Comparer", () => {
                     ]
                 });
 
-                expect(Comparer.print(obj)).to.equal(`{  -->  missing key 'two'
+                expect(Comparer.print(obj)).to.equal(`{
     one: 1,
     three: null,
     four: undefined,
@@ -683,8 +716,13 @@ describe.only("Comparer", () => {
     nine: {
         ten: 10,
         eleven: "11",
-        twenty: {  -->  missing key 'twentyone'
+        twenty: {
             22: "22"
+
+            --> missing
+            twentyone: {
+                21: 21
+            }
         },
         twentythree: [
             24,  -->  not 23
@@ -709,7 +747,18 @@ describe.only("Comparer", () => {
                 16
             ]
         },
-        [  -->  missing key 'thirteen', missing key 'fourteen', missing key 'fifteen'
+        [
+
+            --> missing
+            thirteen: 13
+
+            --> missing
+            fourteen: 14
+
+            --> missing
+            fifteen: [
+                16
+            ]
         ],
         [
             17,  -->  not expected
@@ -718,6 +767,9 @@ describe.only("Comparer", () => {
         ],
         undefined  -->  not an array
     ]
+
+    --> missing
+    two: "2"
 }`);
             });
         });
@@ -924,8 +976,8 @@ describe.only("Comparer", () => {
                 });
 
                 it("actual=non-object, expected=$length", () => {
-                    let obj = Comparer.comparison("8", { $length: 2 });
-                    expect(Comparer.print(obj)).to.equal(`"8"  -->  isn't an object or array so can't have a $length of 2`);
+                    let obj = Comparer.comparison(8, { $length: 2 });
+                    expect(Comparer.print(obj)).to.equal(`8  -->  isn't an object, array, or string so can't have a $length of 2`);
                 });
 
                 it("actual=object with no length property, expected=$length", () => {
@@ -959,8 +1011,8 @@ describe.only("Comparer", () => {
                 });
 
                 it("actual=non-object, expected=$maxLength", () => {
-                    let obj = Comparer.comparison("8", { $maxLength: 2 });
-                    expect(Comparer.print(obj)).to.equal(`"8"  -->  isn't an object or array so can't have a $maxLength of 2`);
+                    let obj = Comparer.comparison(8, { $maxLength: 2 });
+                    expect(Comparer.print(obj)).to.equal(`8  -->  isn't an object, array, or string so can't have a $maxLength of 2`);
                 });
 
                 it("actual=object with no length property, expected=$maxLength", () => {
@@ -1000,8 +1052,8 @@ describe.only("Comparer", () => {
                 });
 
                 it("actual=non-object, expected=$minLength", () => {
-                    let obj = Comparer.comparison("8", { $minLength: 2 });
-                    expect(Comparer.print(obj)).to.equal(`"8"  -->  isn't an object or array so can't have a $minLength of 2`);
+                    let obj = Comparer.comparison(8, { $minLength: 2 });
+                    expect(Comparer.print(obj)).to.equal(`8  -->  isn't an object, array, or string so can't have a $minLength of 2`);
                 });
 
                 it("actual=object with no length property, expected=$minLength", () => {
@@ -1067,7 +1119,8 @@ describe.only("Comparer", () => {
     undefined,
     null
 
-    --> couldn't find 3
+    --> missing
+    3
 ]`);
                 });
 
@@ -1251,7 +1304,8 @@ describe.only("Comparer", () => {
         ]
     ]
 
-    --> couldn't find [
+    --> missing
+    [
         8,
         {
             eleven: 11,
@@ -1262,7 +1316,8 @@ describe.only("Comparer", () => {
         ]
     ]
 
-    --> couldn't find {
+    --> missing
+    {
         one: 11,
         three: [
             3,
@@ -1310,7 +1365,8 @@ describe.only("Comparer", () => {
     undefined,
     null
 
-    --> couldn't find 4
+    --> missing
+    4
 ]`);
                 });
 
@@ -1464,7 +1520,6 @@ describe.only("Comparer", () => {
                             8,
                             "9",
                             {
-                                ten: 10,
                                 eleven: 11
                             },
                             [
@@ -1494,7 +1549,6 @@ describe.only("Comparer", () => {
                         ],
                         undefined,
                         {
-                            one: 11,
                             two: 22,
                             three: [
                                 3,
@@ -1504,7 +1558,8 @@ describe.only("Comparer", () => {
                                 six: 6,
                                 seven: "7"
                             }
-                        }
+                        },
+                        999
                     ]);
 
                     expect(Comparer.print(obj)).to.equal(`[
@@ -1530,6 +1585,19 @@ describe.only("Comparer", () => {
     {
         sixteen: 16
     },
+    [  -->  not expected
+        8,
+        "9",
+        {
+            eleven: 11
+        },
+        [
+            12,
+            13
+        ]
+    ]
+
+    --> missing
     [
         8,
         "9",
@@ -1542,96 +1610,383 @@ describe.only("Comparer", () => {
             13
         ]
     ]
+
+    --> missing
+    999
 ]`);
                 });
             });
 
             context("$exact", () => {
-                it.skip("actual=non-object, expected=$exact", () => {
-
+                it("actual=non-object, expected=$exact", () => {
+                    let obj = Comparer.comparison(6, { $exact: true, one: 1 });
+                    expect(Comparer.print(obj)).to.equal(`6  -->  not an object as needed for $exact`);
                 });
 
-                it.skip("actual=simple object, expected=$exact with same simple object", () => {
-
+                it("actual=simple object, expected=$exact with same simple object", () => {
+                    let obj = Comparer.comparison( { one: 1, two: "2", three: null, four: undefined }, { $exact: true, one: 1, two: "2", three: null, four: undefined } );
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: null,
+    four: undefined
+}`);
                 });
 
-                it.skip("actual=simple object, expected=$exact with same simple object but with subset of keys", () => {
-                    // should fail
+                it("actual=simple object, expected=$exact with same simple object but with subset of keys", () => {
+                    let obj = Comparer.comparison( { one: 1, two: "2", three: null, four: undefined }, { $exact: true, one: 1, three: null } );
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",  -->  this key isn't in $exact object
+    three: null,
+    four: undefined  -->  this key isn't in $exact object
+}`);
                 });
 
-                it.skip("actual=simple object, expected=$exact with different simple object", () => {
+                it("actual=simple object, expected=$exact with different simple object", () => {
+                    let obj = Comparer.comparison( { one: 1, two: "2", three: null, four: undefined }, { $exact: true, one: 1, three: null, five: 5 } );
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",  -->  this key isn't in $exact object
+    three: null,
+    four: undefined  -->  this key isn't in $exact object
 
+    --> missing
+    five: 5
+}`);
                 });
 
-                it.skip("actual=object containing objects/arrays/primitives, expected=$exact with same object", () => {
-
+                it("actual=object containing objects/arrays/primitives, expected=$exact with same object", () => {
+                    let obj = Comparer.comparison({
+                        one: 1,
+                        two: "2",
+                        three: [
+                            3,
+                            4
+                        ],
+                        five: {
+                            six: 6,
+                            seven: "7"
+                        },
+                        eight: null,
+                        nine: undefined,
+                        ten: true,
+                        eleven: 0
+                    }, {
+                        $exact: true,
+                        one: 1,
+                        two: "2",
+                        three: [
+                            3,
+                            4
+                        ],
+                        five: {
+                            six: 6,
+                            seven: "7"
+                        },
+                        eight: null,
+                        nine: undefined,
+                        ten: true,
+                        eleven: 0
+                    });
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: [
+        3,
+        4
+    ],
+    five: {
+        six: 6,
+        seven: "7"
+    },
+    eight: null,
+    nine: undefined,
+    ten: true,
+    eleven: 0
+}`);
                 });
 
-                it.skip("actual=object containing objects/arrays/primitives, expected=$exact with same object but with subset of keys", () => {
-                    // should fail
+                it("actual=object containing objects/arrays/primitives, expected=$exact with same object but with subset of keys", () => {
+                    let obj = Comparer.comparison({
+                        one: 1,
+                        two: "2",
+                        three: [
+                            3,
+                            4
+                        ],
+                        five: {
+                            six: 6,
+                            seven: "7"
+                        },
+                        eight: null,
+                        nine: undefined,
+                        ten: true,
+                        eleven: 0
+                    }, {
+                        $exact: true,
+                        one: 1,
+                        two: "2",
+                        three: [
+                            3,
+                            4
+                        ],
+                        five: {
+                            six: 6,
+                            seven: "7"
+                        },
+                        eight: null,
+                        ten: true,
+                        eleven: 0
+                    });
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: [
+        3,
+        4
+    ],
+    five: {
+        six: 6,
+        seven: "7"
+    },
+    eight: null,
+    nine: undefined,  -->  this key isn't in $exact object
+    ten: true,
+    eleven: 0
+}`);
                 });
 
-                it.skip("actual=object containing objects/arrays/primitives, expected=$exact with different object", () => {
+                it("actual=object containing objects/arrays/primitives, expected=$exact with different object", () => {
+                    let obj = Comparer.comparison({
+                        one: 1,
+                        two: "2",
+                        three: [
+                            3,
+                            4
+                        ],
+                        five: {
+                            six: 6,
+                            seven: "7"
+                        },
+                        nine: undefined,
+                        ten: true,
+                        eleven: 0
+                    }, {
+                        $exact: true,
+                        one: 1,
+                        two: "2",
+                        three: [
+                            3,
+                            4
+                        ],
+                        five: {
+                            six: 6,
+                            seven: "7"
+                        },
+                        eight: null,
+                        ten: true,
+                        eleven: 0,
+                        twelve: 12
+                    });
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: [
+        3,
+        4
+    ],
+    five: {
+        six: 6,
+        seven: "7"
+    },
+    nine: undefined,  -->  this key isn't in $exact object
+    ten: true,
+    eleven: 0
 
+    --> missing
+    eight: null
+
+    --> missing
+    twelve: 12
+}`);
                 });
             });
 
             context("$every", () => {
-                it.skip("actual=non-array, expected=$every", () => {
-
+                it("actual=non-array, expected=$every", () => {
+                    let obj = Comparer.comparison(6, [ '$every', 1 ] );
+                    expect(Comparer.print(obj)).to.equal(`6  -->  not an array`);
                 });
 
-                it.skip("actual=array of primitives, expected=correct $every", () => {
-
+                it("expected=$every but with more than 2 items in the array", () => {
+                    assert.throws(() => {
+                        let obj = Comparer.comparison( [ 1 ], [ '$every', 1, 2 ] );
+                    }, `an $every array must have exactly 2 items: ["$every",1,2]`);
                 });
 
-                it.skip("actual=array of primitives, expected=incorrect $every", () => {
+                it("actual=array of primitives, expected=correct $every", () => {
+                    let obj = Comparer.comparison( [ 3, 3, 3 ] , [ '$every', 3 ] );
+                    expect(Comparer.print(obj)).to.equal(`[
+    3,
+    3,
+    3
+]`);
 
+                    obj = Comparer.comparison( [ 1, "2", false, null, undefined ], [ '$every', { $code: "actual != 'foo'" } ] );
+                    expect(Comparer.print(obj)).to.equal(`[
+    1,
+    "2",
+    false,
+    null,
+    undefined
+]`);
                 });
 
-                it.skip("actual=array of objects/arrays/primitives, expected=correct $every", () => {
-
+                it("actual=array of primitives, expected=incorrect $every", () => {
+                    let obj = Comparer.comparison( [ 3, 4, 3 ] , [ '$every', 3 ] );
+                    expect(Comparer.print(obj)).to.equal(`[
+    3,
+    4,  -->  not 3
+    3
+]`);
                 });
 
-                it.skip("actual=array of objects/arrays/primitives, expected=incorrect $every", () => {
+                it("actual=array of objects/arrays/primitives, expected=correct $every", () => {
+                    let obj = Comparer.comparison( [ { one: 1, two: [ 3, 4 ] }, { one: 1, two: [ 3, 4 ] } ] , [ '$every', { one: 1, two: [ 3, 4 ] } ] );
+                    expect(Comparer.print(obj)).to.equal(`[
+    {
+        one: 1,
+        two: [
+            3,
+            4
+        ]
+    },
+    {
+        one: 1,
+        two: [
+            3,
+            4
+        ]
+    }
+]`);
+                });
 
+                it("actual=array of objects/arrays/primitives, expected=incorrect $every", () => {
+                    let obj = Comparer.comparison( [ { one: 1, two: [ 3, 4 ] }, { one: 1, two: [ 2, 4 ] } ] , [ '$every', { one: 1, two: [ 3, 4 ] } ] );
+                    expect(Comparer.print(obj)).to.equal(`[
+    {
+        one: 1,
+        two: [
+            3,
+            4
+        ]
+    },
+    {
+        one: 1,
+        two: [
+            2,  -->  not 3
+            4
+        ]
+    }
+]`);
                 });
             });
 
-            context("multiple constraints in one special expected object", () => {
-                it.skip("expected=multiple contrains that are correct", () => {
-                    // make sure you to $subset and $anyOrder together
-                });
+            context("multiple constraints in the expected object", () => {
+                it("expected=multiple constraints that are correct", () => {
+                    let obj = Comparer.comparison('foobar', {
+                        $typeof: 'string',
+                        $regex: /foo.*/,
+                        $contains: 'bar',
+                        $code: 'actual.toUpperCase() == "FOOBAR"',
+                        $length: 6,
+                        $minLength: 3,
+                        $maxLength: 10
+                    });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"`);
 
-                it.skip("expected=multiple contrains where one is incorrect", () => {
+                    obj = Comparer.comparison(5, {
+                        $typeof: 'number',
+                        $max: 10,
+                        $min: 2
+                    });
+                    expect(Comparer.print(obj)).to.equal(`5`);
 
-                });
-            });
-        });
-    });
-
-    describe("compareObj()", () => {
-        it("doesn't throw an exception if there's no error and doesn't edit the objects sent in", () => {
-            let actual = { one: "foobar" };
-            let expected = { one: "foobar" };
-
-            Comparer.compareObj(actual, expected);
-
-            expect(actual).to.eql( { one: "foobar" } );
-            expect(expected).to.eql( { one: "foobar" } );
-        });
-
-        it("throws an exception on error and doesn't edit the objects sent in", () => {
-            let actual = { one: "foobar" };
-            let expected = { one: "foobar2" };
-            assert.throws(() => {
-                Comparer.compareObj(actual, expected);
-            }, `{
-    one: "foobar"  -->  not "foobar2"
+                    obj = Comparer.comparison({ one: "78" }, {
+                        $exact: true,
+                        one: {
+                            $regex: "[0-9]+"
+                        }
+                    });
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: "78"
 }`);
 
-            expect(actual).to.eql( { one: "foobar" } );
-            expect(expected).to.eql( { one: "foobar2" } );
+                    obj = Comparer.comparison( [ 'ABC', 'DEF' ], [ '$every', { $regex: '[A-Z]+' } ]);
+                    expect(Comparer.print(obj)).to.equal(`[
+    "ABC",
+    "DEF"
+]`);
+
+                    obj = Comparer.comparison( [ 1, 2, 3, 4, 5 ], [ '$subset', '$anyOrder', 5, 2, 3 ]);
+                    expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2,
+    3,
+    4,
+    5
+]`);
+                });
+
+                it("expected=multiple contrains where one is incorrect", () => {
+                    let obj = Comparer.comparison('foobar', {
+                        $typeof: 'string',
+                        $regex: /foo.*/,
+                        $contains: 'cat',
+                        $code: 'actual.toUpperCase() == "FOOBAR"',
+                        $length: 7,
+                        $minLength: 3,
+                        $maxLength: 10
+                    });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"  -->  doesn't $contains "cat", doesn't have a $length of 7`);
+
+                    obj = Comparer.comparison(5, {
+                        $typeof: 'string',
+                        $max: 4,
+                        $min: 2
+                    });
+                    expect(Comparer.print(obj)).to.equal(`5  -->  not $typeof string, is greater than the $max of 4`);
+
+                    obj = Comparer.comparison({ one: "78" }, {
+                        $exact: true,
+                        one: {
+                            $regex: "[0-2]+"
+                        }
+                    });
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: "78"  -->  doesn't match $regex /[0-2]+/
+}`);
+
+                    obj = Comparer.comparison( [ 'ABC', 'DEF' ], [ '$every', { $regex: '[0-9]+' } ]);
+                    expect(Comparer.print(obj)).to.equal(`[
+    "ABC",  -->  doesn't match $regex /[0-9]+/
+    "DEF"  -->  doesn't match $regex /[0-9]+/
+]`);
+
+                    obj = Comparer.comparison( [ 1, 2, 3, 4, 5 ], [ '$subset', '$anyOrder', 5, 9, 3 ]);
+                    expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2,
+    3,
+    4,
+    5
+
+    --> missing
+    9
+]`);
+                });
+            });
         });
     });
 
@@ -1825,7 +2180,7 @@ describe.only("Comparer", () => {
                     two: {
                         $comparerNode: true,
                         errors: [
-                            { blockError: true, text: "oops", obj: { sorry: true } }
+                            { blockError: true, text: "oops", key: "K", obj: { sorry: true } }
                         ],
                         value: [
                             22,
@@ -1852,7 +2207,8 @@ describe.only("Comparer", () => {
         undefined,
         33  -->  oops1
 
-        --> oops {
+        --> oops
+        K: {
             sorry: true
         }
     ],

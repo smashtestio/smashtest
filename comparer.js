@@ -7,6 +7,20 @@ class Comparer {
     }
 
     /**
+     * Compares the actual object against the expected object
+     * @param {Object} actualObj - The object to check. Must not have circular references. Could be an array.
+     * @param {Object} expectedObj - The object specifying criteria for actualObj to match
+     * @throws {Error} If actualObj doesn't match expectedObj
+     */
+    static compareObj(actualObj, expectedObj) {
+        actualObj = clonedeep(actualObj);
+        let comp = this.comparison(actualObj, expectedObj);
+        if(this.hasErrors(comp)) {
+            throw new Error(this.print(comp));
+        }
+    }
+
+    /**
      * Compares the actual value against the expected value
      * Calls itself recursively on every object, array, and primitive inside of actual
      * Replaces every object, array, and primitive inside of actual with a special $comparerNode object. See return value for format.
@@ -79,7 +93,7 @@ class Comparer {
                                     }
 
                                     if(!found) {
-                                        errors.push( { blockError: true, text: `couldn't find`, obj: expectedItem } );
+                                        errors.push( { blockError: true, text: `missing`, obj: expectedItem } );
                                     }
                                 }
                                 else {
@@ -246,8 +260,8 @@ class Comparer {
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'object') {
-                        errors.push(`isn't an object or array so can't have a $length of ${expected.$length}`);
+                    if(typeof actual != 'object' && typeof actual != 'string') {
+                        errors.push(`isn't an object, array, or string so can't have a $length of ${expected.$length}`);
                     }
                     else {
                         if(actual.hasOwnProperty('length')) {
@@ -271,8 +285,8 @@ class Comparer {
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'object') {
-                        errors.push(`isn't an object or array so can't have a $maxLength of ${expected.$maxLength}`);
+                    if(typeof actual != 'object' && typeof actual != 'string') {
+                        errors.push(`isn't an object, array, or string so can't have a $maxLength of ${expected.$maxLength}`);
                     }
                     else {
                         if(actual.hasOwnProperty('length')) {
@@ -295,8 +309,9 @@ class Comparer {
                         throw new Error(`$minLength has to be a number: ${JSON.stringify(expected.$minLength)}`);
                     }
 
-                    if(typeof actual != 'object') {
-                        errors.push(`isn't an object or array so can't have a $minLength of ${expected.$minLength}`);
+                    // Validate actual matches expected
+                    if(typeof actual != 'object' && typeof actual != 'string') {
+                        errors.push(`isn't an object, array, or string so can't have a $minLength of ${expected.$minLength}`);
                     }
                     else {
                         if(actual.hasOwnProperty('length')) {
@@ -322,7 +337,7 @@ class Comparer {
                         for(let key in expected) {
                             if(expected.hasOwnProperty(key) && RESERVED_KEYWORDS.indexOf(key) == -1) {
                                 if(!actual.hasOwnProperty(key)) {
-                                    errors.push(`missing key '${key}'`);
+                                    errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
                                 }
                                 else {
                                     actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
@@ -353,7 +368,7 @@ class Comparer {
                         for(let key in expected) {
                             if(expected.hasOwnProperty(key)) {
                                 if(!actual || !actual.hasOwnProperty(key)) {
-                                    errors.push(`missing key '${key}'`);
+                                    errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
                                 }
                                 else {
                                     actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
@@ -371,20 +386,6 @@ class Comparer {
         }
 
         return { errors: errors, value: actual, $comparerNode: true };
-    }
-
-    /**
-     * Compares the actual object against the expected object
-     * @param {Object} actualObj - The object to check. Must not have circular references. Could be an array.
-     * @param {Object} expectedObj - The object specifying criteria for actualObj to match
-     * @throws {Error} If actualObj doesn't match expectedObj
-     */
-    static compareObj(actualObj, expectedObj) {
-        actualObj = clonedeep(actualObj);
-        let comp = this.comparison(actualObj, expectedObj);
-        if(this.hasErrors(comp)) {
-            throw new Error(this.print(comp));
-        }
     }
 
     /**
@@ -533,8 +534,8 @@ class Comparer {
 
             let ret = '\n';
             for(let error of errors) {
-                ret += nextSpaces + '--> ';
-                ret += error.text + ' ' + self.print(error.obj, indents + 1) + '\n';
+                ret += nextSpaces + '--> ' + error.text + '\n';
+                ret += nextSpaces + (error.key ? error.key + ': ' : '') + self.print(error.obj, indents + 1) + '\n';
             }
 
             // Slice off last '\n'
