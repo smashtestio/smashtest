@@ -573,6 +573,41 @@ Testing APIs
         - fetch + chai subsets?
             - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
             - swapi.co for sample data
+    - Comparer (built-in library for validating json)
+        - Replaces a value (you can put multiple of these into the same {})
+            - $typeof
+                - { $typeof: "type" } instead of value
+                - You can use "array"
+            - $regex
+                - { $regex: /regex/ } instead of string value
+            - $contains
+                - { $contains: "string" } instead of string value
+            - $max and min
+                - { $max: A }
+                - { $min: B }
+                - A and B can be any type
+            - $code
+                - { $code: (actual) => { return actual.toLowerCase() == 'something'; } }
+                - { $code: "return actual.toLowerCase() == 'something'"}
+                - { $code: "actual.toLowerCase() == 'something'"}
+            - $length, $minLength, and $maxLength
+                - { $length: A, $maxLength: B, $minLength: C }
+                - Works with any value that has value.length set (otherwise it's a mismatch)
+        - Appended to front of an object or array
+            - $subset
+                - [ "$subset", A, B, C ]
+                - Arrays are exact match by default. If "$subset" it set, it will be a subset match.
+                - Array items can be in any order, just like with $anyOrder
+            - $anyOrder
+                - [ "$anyOrder", A, B, C ]
+                - You can have $subset and $anyOrder in the same array
+            - $exact
+                - { $exact: true, a: A, b: B }
+                - Objects are subset matching by default. If $exact is set, it must match exactly.
+            - $every
+                - [ "$every", A ]
+                - Every item in the array matches A
+        - Throws error if there's a mismatch, containing whole json object prettified, with a ---> this is why this failed for each line that fails
 
 Stubbing out APIs
     - Examples

@@ -3773,7 +3773,34 @@ tree.parseIn(`
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("sets the error's filename and lineNumber correctly when an error occurs inside a required function", async () => {
+        // NOTE: This test skipped because it fails when running nyc code coverage
+        // The test right after this one is almost identical but nyc-friendly
+        it.skip("sets the error's filename and lineNumber correctly when an error occurs inside a required function", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Something {
+    let BF = require(process.cwd().replace(/smashtest.*/, 'smashtest/tests/core/badfunc.js')); // using process.cwd() because the relative path varies depending on if you run the tests with mocha vs. nyc
+    BF.badFunc();
+}
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
+            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
+
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at Object\.exports\.badFunc[^\n]+badfunc\.js:4:5\)/)).to.equal(true);
+            expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:4:8\)/)).to.equal(true);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+        });
+
+        it("sets the error's filename and lineNumber correctly when an error occurs inside a required function (code coverage tool friendly)", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Something {
