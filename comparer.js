@@ -50,82 +50,66 @@ class Comparer {
                     errors.push(`not an array`);
                 }
                 else {
-                    // [ '$every', A ]
-                    if(expected.indexOf('$every') == 0) {
-                        // Validate expected
-                        if(expected.length != 2) {
-                            throw new Error(`an $every array must have exactly 2 items: ${JSON.stringify(expected)}`);
-                        }
+                    let subset = false;
+                    let anyOrder = false;
 
-                        // Validate actual matches expected
-                        for(let i = 0; i < actual.length; i++) {
-                            actual[i] = this.comparison(actual[i], expected[1], subsetMatching);
+                    // [ '$subset', A, B, ... ]
+                    if(expected.indexOf('$subset') != -1 || subsetMatching) {
+                        subset = true;
+                    }
+
+                    // [ '$anyOrder', A, B, ... ]
+                    if(expected.indexOf('$anyOrder') != -1) {
+                        anyOrder = true;
+                    }
+
+                    // Make sure every expected item has a corresponding actual item
+                    for(let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
+                        let expectedItem = expected[expectedIndex];
+                        if(['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
+                            if(anyOrder || subset) {
+                                // corresponding actual item can be anywhere
+                                let actualClone = clonedeep(actual);
+                                let found = false;
+                                for(let i = 0; i < actualClone.length; i++) {
+                                    let actualItem = actualClone[i];
+                                    if(this.isComparerNode(actualItem)) {
+                                        continue; // this item has been claimed already
+                                    }
+
+                                    let comparisonResult = this.comparison(actualItem, expectedItem, true);
+                                    if(!this.hasErrors(comparisonResult)) {
+                                        // we have a match
+                                        found = true;
+                                        actual[i] = comparisonResult;
+                                        break;
+                                    }
+                                }
+
+                                if(!found) {
+                                    errors.push( { blockError: true, text: `missing`, obj: expectedItem } );
+                                }
+                            }
+                            else {
+                                // corresponding actual item has to be at the same index
+                                actual[actualIndex] = this.comparison(actual[actualIndex], expected[expectedIndex], subsetMatching);
+                            }
+
+                            actualIndex++;
                         }
                     }
-                    else {
-                        let subset = false;
-                        let anyOrder = false;
 
-                        // [ '$subset', A, B, ... ]
-                        if(expected.indexOf('$subset') != -1 || subsetMatching) {
-                            subset = true;
-                        }
-
-                        // [ '$anyOrder', A, B, ... ]
-                        if(expected.indexOf('$anyOrder') != -1) {
-                            anyOrder = true;
-                        }
-
-                        // Make sure every expected item has a corresponding actual item
-                        for(let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
-                            let expectedItem = expected[expectedIndex];
-                            if(['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
-                                if(anyOrder || subset) {
-                                    // corresponding actual item can be anywhere
-                                    let actualClone = clonedeep(actual);
-                                    let found = false;
-                                    for(let i = 0; i < actualClone.length; i++) {
-                                        let actualItem = actualClone[i];
-                                        if(typeof actualItem == 'object' && actualItem !== null && actualItem.$comparerNode) {
-                                            continue; // this item has been claimed already
-                                        }
-
-                                        let comparisonResult = this.comparison(actualItem, expectedItem, true);
-                                        if(!this.hasErrors(comparisonResult)) {
-                                            // we have a match
-                                            found = true;
-                                            actual[i] = comparisonResult;
-                                            break;
-                                        }
-                                    }
-
-                                    if(!found) {
-                                        errors.push( { blockError: true, text: `missing`, obj: expectedItem } );
-                                    }
-                                }
-                                else {
-                                    // corresponding actual item has to be at the same index
-                                    actual[actualIndex] = this.comparison(actual[actualIndex], expected[expectedIndex], subsetMatching);
-                                }
-
-                                actualIndex++;
-                            }
-                        }
-
-                        if(!subset) {
-                            // Make sure we don't have any items in actual that haven't been visited
-                            for(let i = 0; i < actual.length; i++) {
-                                if(typeof actual[i] != 'object' || actual[i] === null || !actual[i].$comparerNode) {
-                                    actual[i] = { errors: [ `not expected` ], value: actual[i], $comparerNode: true };
-                                }
+                    if(!subset) {
+                        // Make sure we don't have any items in actual that haven't been visited
+                        for(let i = 0; i < actual.length; i++) {
+                            if(!this.isComparerNode(actual[i])) {
+                                actual[i] = { errors: [ `not expected` ], value: actual[i], $comparerNode: true };
                             }
                         }
                     }
                 }
             }
             else { // expected is a plain object
-                let actualExpectedToBePlainObject = true;
-
                 // { $typeof: "type" }
                 if(expected.hasOwnProperty("$typeof")) {
                     // Validate expected
@@ -142,8 +126,6 @@ class Comparer {
                     else if(typeof actual != expected.$typeof) {
                         errors.push(`not $typeof ${expected.$typeof}`);
                     }
-
-                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $regex: /regex/ } or { $regex: "regex" }
@@ -167,8 +149,6 @@ class Comparer {
                     else if(!actual.match(regex)) {
                         errors.push(`doesn't match $regex /${regex.source}/`);
                     }
-
-                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $contains: "string" }
@@ -185,8 +165,6 @@ class Comparer {
                     else if(!actual.includes(expected.$contains)) {
                         errors.push(`doesn't $contains "${expected.$contains}"`);
                     }
-
-                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $max: <number> }
@@ -203,8 +181,6 @@ class Comparer {
                     else if(actual > expected.$max) {
                         errors.push(`is greater than the $max of ${expected.$max}`);
                     }
-
-                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $min: <number> }
@@ -221,8 +197,6 @@ class Comparer {
                     else if(actual < expected.$min) {
                         errors.push(`is less than the $min of ${expected.$min}`);
                     }
-
-                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $code: (actual)=>{ return true/false; } } or { $code: "...true/false" } or { $code: "...return true/false" }
@@ -255,8 +229,6 @@ class Comparer {
                     if(!success) {
                         errors.push(`failed the $code '${expected.$code.toString().replace(/\n/g, ' ')}'`);
                     }
-
-                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $length: <number> }
@@ -280,8 +252,6 @@ class Comparer {
                             errors.push(`doesn't have a length property so can't have a $length of ${expected.$length}`);
                         }
                     }
-
-                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $maxLength: <number> }
@@ -305,8 +275,6 @@ class Comparer {
                             errors.push(`doesn't have a length property so can't have a $maxLength of ${expected.$maxLength}`);
                         }
                     }
-
-                    actualExpectedToBePlainObject = false;
                 }
 
                 // { $minLength: <number> }
@@ -330,55 +298,54 @@ class Comparer {
                             errors.push(`doesn't have a length property so can't have a $minLength of ${expected.$minLength}`);
                         }
                     }
+                }
 
-                    actualExpectedToBePlainObject = false;
+                // { $every: <value> }
+                if(expected.hasOwnProperty("$every")) {
+                    // Validate actual matches expected
+                    if(typeof actual != 'object' || !(actual instanceof Array)) {
+                        errors.push(`not an array as needed for $every`);
+                    }
+                    else if(actual.length == 0) {
+                        errors.push(`empty array cannot match $every`);
+                    }
+                    else {
+                        for(let i = 0; i < actual.length; i++) {
+                            actual[i] = this.comparison(actual[i], expected.$every, subsetMatching);
+                        }
+                    }
                 }
 
                 // { $exact: true }
+                let exact = false;
                 if(expected.hasOwnProperty("$exact")) {
-                    if(typeof actual != 'object') {
-                        errors.push(`not an object as needed for $exact`);
-                    }
-                    else {
-                        // Make sure every key in expected exists in actual
-                        for(let key in expected) {
-                            if(expected.hasOwnProperty(key) && RESERVED_KEYWORDS.indexOf(key) == -1) {
-                                if(!actual.hasOwnProperty(key)) {
-                                    errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
-                                }
-                                else {
-                                    actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
-                                }
-                            }
-                        }
-
-                        // Make sure every key in actual exists in expected
-                        for(let key in actual) {
-                            if(actual.hasOwnProperty(key)) {
-                                if(!expected.hasOwnProperty(key)) {
-                                    actual[key] = { errors: [ `this key isn't in $exact object` ], value: actual[key], $comparerNode: true };
-                                }
-                            }
-                        }
-                    }
-
-                    actualExpectedToBePlainObject = false;
+                    exact = true;
                 }
 
-                // expected is a plain object that needs to be a subset of the actual object
-                if(actualExpectedToBePlainObject) {
+                // If there are non-$ keys in expected, then expected is a plain object that needs to be a subset of the actual object
+                let expectedKeys = Object.keys(expected).filter(key => RESERVED_KEYWORDS.indexOf(key) == -1);
+                if(exact || expectedKeys.length > 0) {
                     if(typeof actual != 'object') {
                         errors.push(`not an object`);
                     }
                     else {
                         // Make sure every key in expected matches every key in actual
-                        for(let key in expected) {
-                            if(expected.hasOwnProperty(key)) {
-                                if(!actual || !actual.hasOwnProperty(key)) {
-                                    errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
-                                }
-                                else {
-                                    actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
+                        for(let key of expectedKeys) {
+                            if(!actual || !actual.hasOwnProperty(key)) {
+                                errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
+                            }
+                            else if(!this.isComparerNode(actual[key])) { // skip over keys in actual already "visited"
+                                actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
+                            }
+                        }
+
+                        if(exact) {
+                            // Make sure every key in actual exists in expected
+                            for(let key in actual) {
+                                if(actual.hasOwnProperty(key)) {
+                                    if(!expected.hasOwnProperty(key)) {
+                                        actual[key] = { errors: [ `this key isn't in $exact object` ], value: actual[key], $comparerNode: true };
+                                    }
                                 }
                             }
                         }
@@ -400,7 +367,7 @@ class Comparer {
      * @return {Boolean} True if value has errors in it, false otherwise
      */
     static hasErrors(value) {
-        if(typeof value == 'object' && value !== null && value.$comparerNode) {
+        if(this.isComparerNode(value)) {
             if(value.errors.length > 0) {
                 return true;
             }
@@ -434,6 +401,13 @@ class Comparer {
     }
 
     /**
+     * @return {Boolean} True if the given value is an object with $comparerNode set, false otherwise
+     */
+    static isComparerNode(value) {
+        return typeof value == 'object' && value !== null && value.$comparerNode;
+    }
+
+    /**
      * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or $comparerNode object)
      * @param {Number} [indents] - The number of indents at this value, 0 if omitted
      * @param {Boolean} [commaAtEnd] - If true, put a comma at the end of the printed value
@@ -450,7 +424,7 @@ class Comparer {
         let self = this;
 
         let errors = [];
-        if(typeof value == 'object' && value !== null && value.$comparerNode) {
+        if(this.isComparerNode(value)) {
             errors = value.errors;
             value = value.value;
         }

@@ -613,6 +613,14 @@ Testing APIs
             - $minLength
                 - { $minLength: A }
                 - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length isn't less than A
+            - $exact
+                - { $exact: true, a: A, b: B }
+                - Makes sure corresponding value in actualObj is an object that matches exactly (every expected key exists and has the expected value, and no other keys exist)
+                - E.g., { $exact: true, one: 1 } will match { one: 1 } but not { one: 1, two: 2 } or { one: 3 } or { two: 2 }
+            - $every
+                - { $every: A }
+                - Makes sure corresponding value in actualObj is an array where every item matches A
+                - E.g., { $every: A } would match [ A, A, A ], and { $every, { $contains: "foo" } } would match [ "foobar", "barfoo", "foo" ]
             - $subset
                 - [ "$subset", A, B, C ]
                 - Makes sure corresponding value in actualObj is an array that contains A, B, and C in any order (and it could have more items)
@@ -620,15 +628,6 @@ Testing APIs
                 - [ "$anyOrder", A, B, C ]
                 - Makes sure corresponding value in actualObj is an array that contains A, B, and C (and nothing else) in any order
                 - You can use $subset and $anyOrder together such as [ "$subset", "$anyOrder", A, B, C ] to match an array containing A, B, and C (and potentially more items) in any order
-            - $exact
-                - { $exact: true, a: A, b: B }
-                - Makes sure corresponding value in actualObj is an object that matches exactly (every expected key exists and has the expected value, and no other keys exist)
-                - E.g., { $exact: true, one: 1 } will match { one: 1 } but not { one: 1, two: 2 } or { one: 3 } or { two: 2 }
-            - $every
-                - [ "$every", A ]
-                - Makes sure corresponding value in actualObj is an array where every item matches A
-                - An $every array must only have two items - "$every" and A
-                - E.g., [ "$every", A ] would match [ A, A, A ], and [ "$every", { $contains: "foo" } ] would match [ "foobar", "barfoo", "foo" ]
             - You can have multiple criteria in the same object
                 - E.g., { $typeof: "string", $length: 10, $regex: /[A-Z]+/ } or [ "$subset", "$anyOrder", A, B, C ]
 
