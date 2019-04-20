@@ -308,13 +308,13 @@ Variables
                 - No children
             - Separate branches will be created, each setting {var} to each 'value' encountered to the right of {x}
             - You can name {x} whatever you want, but the convention is {x}
-    - Lookahead
-        - {var*} will look for the value of the variable when it's set later in the branch
+    - Lookahead (:)
+        - {var:} will look for the value of the variable when it's set later in the branch
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
         - You cannot set a lookahead var inside a function's code block (via var=something or g()/l()). Must be {var}='value'.
-        - If you have a {var*} and {var}=Function with code block, the code block must be sync
+        - If you have a {var:} and {var}=Function with code block, the code block must be sync
         - Examples
-            Enter {{text*}} into [ 'Login' box ]
+            Enter {{text:}} into [ 'Login' box ]
 
                 {{text}}='Valid username 1'
                 {{text}}='Valid username 2'
@@ -329,7 +329,7 @@ Variables
 
                     Verify error message
 
-            Select {{adults *}} and {{children *}} from reservations panel
+            Select {{adults:}} and {{children:}} from reservations panel
 
                 {{adults}}='[none]'
                 {{adults}}='0'
@@ -351,7 +351,7 @@ Variables
 
                         Verify {{something}}
 
-            Select {{adults *}} and {{children *}} from reservations panel
+            Select {{adults:}} and {{children:}} from reservations panel
                 Table
                     Verify {{something}}
 

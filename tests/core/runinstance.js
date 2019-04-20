@@ -1515,7 +1515,7 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
         it("executes a function call where {variables} are passed in and are only set in a later step, which is in format {var}='string'", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My {var*} Function
+My {var:} Function
     {var} = 'foobar'
 
 * My {{one}} Function {
@@ -1540,7 +1540,7 @@ My {var*} Function
         it("executes a function call where {variables} are passed in and are only set in a later step, which is a synchronous code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My {var*} Function
+My {var:} Function
     {var} = Set that var! {
         return 'foobar';
     }
@@ -1567,7 +1567,7 @@ My {var*} Function
         it("executes a function call has a {variable} passed in and it is only set in a later step, which is an asynchronous code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My {var*} Function
+My {var:} Function
     {var} = Set that var! {
         return new Promise((resolve, reject) => {});
     }
@@ -1653,7 +1653,7 @@ My {var} Function
         it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is in format {var}='string'", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My 'so called {var*}' Function
+My 'so called {var:}' Function
     {var} = 'foobar'
 
 * My {{one}} Function {
@@ -1678,7 +1678,7 @@ My 'so called {var*}' Function
         it("executes a function call where 'strings' containing vars are passed in and those vars are only set in a later step, which is a synchronous code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My 'so called {var *}' Function
+My 'so called {var :}' Function
     {var} = Set that var! {
         return 'foobar';
     }
@@ -1705,7 +1705,7 @@ My 'so called {var *}' Function
         it("fails step if a function call has a 'string' containing a let passed in and that let is only set in a later step, which is an asynchronous code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My 'so called {var *}' Function
+My 'so called {var :}' Function
     {var} = Set that var! {
         return new Promise((resolve, reject) => { resolve('foobar'); });
     }
@@ -1723,7 +1723,7 @@ My 'so called {var *}' Function
             runInstance.currStep = tree.branches[0].steps[0];
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var *} must be set to a string");
+            expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var :} must be set to a string");
             expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
 
@@ -1774,7 +1774,7 @@ My Function
         it("allows {{variables}} passed in through a function call to be accessed by steps inside the function", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My {var*} Function
+My {var:} Function
     {var} = 'foobar'
 
 * My {{one}} Function
@@ -1805,7 +1805,7 @@ My {var*} Function
         it("allows {{variables}} passed in through a function call to be accessed by the function's code block", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My {var*} Function
+My {var:} Function
     {var} = 'foobar'
 
 * My {{one}} Function {
@@ -1902,7 +1902,7 @@ A textual step {{var1}} -
         it("executes a function call where 'string with {var}' is passed in, with another step being {var}='string with apos \' '", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My 'string with {var*}' Function
+My 'string with {var:}' Function
     {var} = 'string with apos \\\' '
 
 * My {{one}} Function {
@@ -1927,7 +1927,7 @@ My 'string with {var*}' Function
         it("executes a function call where 'string with {var}' is passed in, with another step being {var}=\"string with apos ' \"", async () => {
             let tree = new Tree();
             tree.parseIn(`
-My 'string with {var *}' Function
+My 'string with {var :}' Function
     {var} = "string with apos ' "
 
 * My {{one}} Function {
@@ -2110,7 +2110,7 @@ My 'foo' Function 'bar' other text
             tree.parseIn(`
 ..
 {var1} = 'foobar'
-{var2} = '{var1} blah {var3*}'
+{var2} = '{var1} blah {var3:}'
 {var3} = "bleh"
 `, "file.txt");
 
@@ -2143,7 +2143,7 @@ My 'foo' Function 'bar' other text
             tree.parseIn(`
 ..
 {var1} = 'foobar'
-{var2} = '{var1} blah {{ var2 * }} [something]'
+{var2} = '{var1} blah {{ var2 : }} [something]'
 {{var2}} = "bleh"
 `, "file.txt");
 
@@ -2178,7 +2178,7 @@ My 'foo' Function 'bar' other text
             tree.parseIn(`
 ..
 { var1 } = 'foobar'
-{var2} = [ 'string {  var1  }' {{var2*}} ]
+{var2} = [ 'string {  var1  }' {{var2:}} ]
 {{var2}} = "bleh"
 `, "file.txt");
 
@@ -2325,7 +2325,7 @@ My 'foo' Function 'bar' other text
         it("executes a {var} = Function with {vars passed in} step, where the function declaration has {{variables}} and has a code block that returns a value", async () => {
             let tree = new Tree();
             tree.parseIn(`
-{var1} = My {var2*} function
+{var1} = My {var2:} function
     {var2}='foobar'
 
 * My {{one}} function {
@@ -2927,7 +2927,7 @@ My 'foobar' function
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[2].error.message).to.equal("The variable {{var1}} wasn't set, but is needed for this step. If it's set later in the branch, try using {{var1 *}}.");
+            expect(tree.branches[0].steps[2].error.message).to.equal("The variable {{var1}} wasn't set, but is needed for this step. If it's set later in the branch, try using {{var1:}}.");
             expect(tree.branches[0].steps[2].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[2].error.lineNumber).to.equal(6);
 
@@ -2943,7 +2943,7 @@ My function
     {{var1}}='bar'
 
 * My function
-    {var2}='{{var1*}}'
+    {var2}='{{var1:}}'
 `, "file.txt");
 
             let runner = new Runner();
@@ -2958,7 +2958,7 @@ My function
             runInstance.currStep = tree.branches[0].steps[1];
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[1].error.message).to.equal("The variable {{var1*}} is never set, but is needed for this step");
+            expect(tree.branches[0].steps[1].error.message).to.equal("The variable {{var1:}} is never set, but is needed for this step");
             expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[1].error.lineNumber).to.equal(6);
 
@@ -3112,7 +3112,7 @@ My function
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
             await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
 
-            expect(tree.branches[0].steps[2].error.message).to.equal("The variable {{var1}} wasn't set, but is needed for this step. If it's set later in the branch, try using {{var1 *}}.");
+            expect(tree.branches[0].steps[2].error.message).to.equal("The variable {{var1}} wasn't set, but is needed for this step. If it's set later in the branch, try using {{var1:}}.");
             expect(tree.branches[0].steps[2].error.filename).to.equal("file.txt");
             expect(tree.branches[0].steps[2].error.lineNumber).to.equal(3);
 
@@ -5434,7 +5434,7 @@ A -
             runInstance.currStep = tree.branches[0].steps[0];
             runInstance.setGlobal("var0", "value0");
 
-            expect(runInstance.replaceVars("{var0} {var1*} - {{var2*}}{var 3*}-{{var 4*}}  {{var5*}} {var6*}")).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
+            expect(runInstance.replaceVars("{var0} {var1:} - {{var2:}}{var 3:}-{{var 4:}}  {{var5:}} {var6:}")).to.equal("value0 value1 - value2value 3- value 4   value5 value6");
         });
 
         it("handles a branch of null", () => {
@@ -5450,7 +5450,7 @@ A -
             runInstance.currStep = tree.branches[0].steps[0];
             runInstance.setGlobal("var0", "value0");
 
-            expect(runInstance.replaceVars("{var0} {var1*}")).to.equal("value0 value1");
+            expect(runInstance.replaceVars("{var0} {var1:}")).to.equal("value0 value1");
         });
 
         it("doesn't affect a string that doesn't contain variables", () => {
@@ -5482,13 +5482,13 @@ A -
             runInstance.currStep = tree.branches[0].steps[0];
 
             assert.throws(() => {
-                runInstance.replaceVars("{var1*}");
+                runInstance.replaceVars("{var1:}");
             }, "Infinite loop detected amongst variable references");
 
             tree = new Tree();
             tree.parseIn(`
 A -
-    {var1}='{var2*} {var3*}'
+    {var1}='{var2:} {var3:}'
         {var2}='foo'
             {var3}='bar{var1}'
 `, "file.txt");
@@ -5500,7 +5500,7 @@ A -
             runInstance.currStep = tree.branches[0].steps[0];
 
             assert.throws(() => {
-                expect(runInstance.replaceVars("{var1*}"));
+                expect(runInstance.replaceVars("{var1:}"));
             }, "Infinite loop detected amongst variable references");
         });
 
@@ -5539,8 +5539,8 @@ A -
             }, "The variable {var2} is never set, but is needed for this step");
 
             assert.throws(() => {
-                runInstance.replaceVars("{var2 *}", true);
-            }, "The variable {var2 *} is never set, but is needed for this step");
+                runInstance.replaceVars("{var2 :}", true);
+            }, "The variable {var2 :} is never set, but is needed for this step");
         });
     });
 
@@ -5589,13 +5589,13 @@ A -
             runInstance.currBranch = null;
             runInstance.currStep = tree.branches[0].steps[0];
 
-            expect(runInstance.findVarValue("var1*", false)).to.equal("value1");
+            expect(runInstance.findVarValue("var1:", false)).to.equal("value1");
         });
 
         it("can find variables defined later on the same line", () => {
             let tree = new Tree();
             tree.parseIn(`
-{var1}='foo {var2*}', {var2}='bar'
+{var1}='foo {var2:}', {var2}='bar'
 `, "file.txt");
 
             let runner = new Runner();
@@ -5604,7 +5604,7 @@ A -
             runInstance.currBranch = null;
             runInstance.currStep = tree.branches[0].steps[0];
 
-            expect(runInstance.findVarValue("var1*", false)).to.equal("foo bar");
+            expect(runInstance.findVarValue("var1:", false)).to.equal("foo bar");
         });
 
         it("returns the value of a variable that's not set yet and whose eventual value is a plain string", () => {
@@ -5620,9 +5620,9 @@ A -
             runInstance.currBranch = tree.branches[0];
             runInstance.currStep = tree.branches[0].steps[0];
 
-            expect(runInstance.findVarValue("var1*", false)).to.equal("value1");
+            expect(runInstance.findVarValue("var1:", false)).to.equal("value1");
             expect(tree.branches[0].steps[0].log).to.eql([
-                {text: "The value of variable {var1*} is being set by a later step at file.txt:3"}
+                {text: "The value of variable {var1:} is being set by a later step at file.txt:3"}
             ]);
         });
 
@@ -5643,8 +5643,8 @@ My function
             runInstance.currStep = tree.branches[0].steps[1];
 
             assert.throws(() => {
-                runInstance.findVarValue("var1*", true);
-            }, "The variable {{var1*}} is never set, but is needed for this step");
+                runInstance.findVarValue("var1:", true);
+            }, "The variable {{var1:}} is never set, but is needed for this step");
         });
 
         it("returns the value of a variable given the same variable name in a different case", () => {
@@ -5660,9 +5660,9 @@ A -
             runInstance.currBranch = tree.branches[0];
             runInstance.currStep = tree.branches[0].steps[0];
 
-            expect(runInstance.findVarValue("var ONE*", false)).to.equal("value1");
+            expect(runInstance.findVarValue("var ONE:", false)).to.equal("value1");
             expect(tree.branches[0].steps[0].log).to.eql([
-                {text: "The value of variable {var ONE*} is being set by a later step at file.txt:3"}
+                {text: "The value of variable {var ONE:} is being set by a later step at file.txt:3"}
             ]);
         });
 
@@ -5679,9 +5679,9 @@ A -
             runInstance.currBranch = tree.branches[0];
             runInstance.currStep = tree.branches[0].steps[0];
 
-            expect(runInstance.findVarValue("var one*", false)).to.equal("value1");
+            expect(runInstance.findVarValue("var one:", false)).to.equal("value1");
             expect(tree.branches[0].steps[0].log).to.eql([
-                { text: "The value of variable {var one*} is being set by a later step at file.txt:3" }
+                { text: "The value of variable {var one:} is being set by a later step at file.txt:3" }
             ]);
 
             tree = new Tree();
@@ -5696,9 +5696,9 @@ A -
             runInstance.currBranch = tree.branches[0];
             runInstance.currStep = tree.branches[0].steps[0];
 
-            expect(runInstance.findVarValue("    var     ONE     * ", false)).to.equal("value1");
+            expect(runInstance.findVarValue("    var     ONE     : ", false)).to.equal("value1");
             expect(tree.branches[0].steps[0].log).to.eql([
-                { text: "The value of variable {    var     ONE     * } is being set by a later step at file.txt:3" }
+                { text: "The value of variable {    var     ONE     : } is being set by a later step at file.txt:3" }
             ]);
         });
 
@@ -5708,8 +5708,8 @@ A -
             tree.parseIn(`
 A -
     {{var2}} = 'value2'
-        {var1}='{{var2}} {var 3 *} . {var0} {{var5*}}'
-            {var 3}= "-{{var 4  *}}-", {{var5}}='value5'
+        {var1}='{{var2}} {var 3 :} . {var0} {{var5:}}'
+            {var 3}= "-{{var 4  :}}-", {{var5}}='value5'
                 B -
                     {{ var 4 }}=[ value 4 ]
 `, "file.txt");
@@ -5721,13 +5721,13 @@ A -
             runInstance.currStep = tree.branches[0].steps[0];
             runInstance.setGlobal("var0", "value0");
 
-            expect(runInstance.findVarValue("var1 *", false)).to.equal("value2 - value 4 - . value0 value5");
+            expect(runInstance.findVarValue("var1 :", false)).to.equal("value2 - value 4 - . value0 value5");
             expect(tree.branches[0].steps[0].log).to.eql([
                 { text: "The value of variable {{var2}} is being set by a later step at file.txt:3" },
-                { text: "The value of variable {{var 4  *}} is being set by a later step at file.txt:7" },
-                { text: "The value of variable {var 3 *} is being set by a later step at file.txt:5" },
-                { text: "The value of variable {{var5*}} is being set by a later step at file.txt:5" },
-                { text: "The value of variable {var1 *} is being set by a later step at file.txt:4" }
+                { text: "The value of variable {{var 4  :}} is being set by a later step at file.txt:7" },
+                { text: "The value of variable {var 3 :} is being set by a later step at file.txt:5" },
+                { text: "The value of variable {{var5:}} is being set by a later step at file.txt:5" },
+                { text: "The value of variable {var1 :} is being set by a later step at file.txt:4" }
             ]);
         });
 
@@ -5752,15 +5752,15 @@ A -
             runInstance.currBranch = tree.branches[0];
             runInstance.currStep = tree.branches[0].steps[0];
 
-            expect(runInstance.findVarValue("var1 *", false)).to.equal("foobar");
+            expect(runInstance.findVarValue("var1 :", false)).to.equal("foobar");
             expect(tree.branches[0].steps[0].log).to.eql([
-                { text: "The value of variable {var1 *} is being set by a later step at file.txt:3" }
+                { text: "The value of variable {var1 :} is being set by a later step at file.txt:3" }
             ]);
 
-            expect(runInstance.findVarValue("var2*", false)).to.equal("blah");
+            expect(runInstance.findVarValue("var2:", false)).to.equal("blah");
             expect(tree.branches[0].steps[0].log).to.eql([
-                { text: "The value of variable {var1 *} is being set by a later step at file.txt:3" },
-                { text: "The value of variable {var2*} is being set by a later step at file.txt:7" }
+                { text: "The value of variable {var1 :} is being set by a later step at file.txt:3" },
+                { text: "The value of variable {var2:} is being set by a later step at file.txt:7" }
             ]);
         });
 
@@ -5814,8 +5814,8 @@ A -
             runInstance.currStep = tree.branches[0].steps[0];
 
             assert.throws(() => {
-                runInstance.findVarValue("var2*", false);
-            }, "The variable {var2*} is never set, but is needed for this step");
+                runInstance.findVarValue("var2:", false);
+            }, "The variable {var2:} is never set, but is needed for this step");
         });
 
         it("throws an error if the lookahead variable's value is set, but the * isn't used", () => {
@@ -5836,7 +5836,7 @@ A -
             }, "The variable {var1} wasn't set, but is needed for this step");
         });
 
-        it("uses the existing value if * isn't used", () => {
+        it("uses the existing value if : isn't used", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5853,7 +5853,7 @@ A -
             expect(runInstance.findVarValue("var1", false)).to.equal("foo");
         });
 
-        it("uses the value ahead if * is used", () => {
+        it("uses the value ahead if : is used", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -5867,14 +5867,14 @@ A -
             runInstance.currBranch = tree.branches[0];
             runInstance.currStep = tree.branches[0].steps[0];
 
-            expect(runInstance.findVarValue("var1 *", false)).to.equal("bar");
+            expect(runInstance.findVarValue("var1:", false)).to.equal("bar");
         });
 
         it("throws an error if the variable's value contains more variables, but one of those variables is never set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    {var1}="-{{var2*}}-"
+    {var1}="-{{var2:}}-"
         {{var3}}="-{var4}-"
 `, "file.txt");
 
@@ -5885,11 +5885,11 @@ A -
             runInstance.currStep = tree.branches[0].steps[0];
 
             assert.throws(() => {
-                runInstance.findVarValue("var1 *", false);
-            }, "The variable {{var2*}} is never set, but is needed for this step");
+                runInstance.findVarValue("var1:", false);
+            }, "The variable {{var2:}} is never set, but is needed for this step");
 
             assert.throws(() => {
-                runInstance.findVarValue("var3 *", true);
+                runInstance.findVarValue("var3:", true);
             }, "The variable {var4} is never set, but is needed for this step");
         });
 
@@ -5929,8 +5929,8 @@ A -
             }, "The variable {var2} is never set, but is needed for this step");
 
             assert.throws(() => {
-                runInstance.findVarValue("var2 *", false, true);
-            }, "The variable {var2 *} is never set, but is needed for this step");
+                runInstance.findVarValue("var2 :", false, true);
+            }, "The variable {var2 :} is never set, but is needed for this step");
         });
     });
 

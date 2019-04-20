@@ -782,7 +782,7 @@ class RunInstance {
 
     /**
      * @param {String} text - The text whose vars the replace
-     * @param {Boolean} [lookAnywhere] - If true, first checks if a var is already set, and if not, looks down the branch to the first place that var is set. Ignores the presence or absence of * in the variable name.
+     * @param {Boolean} [lookAnywhere] - If true, first checks if a var is already set, and if not, looks down the branch to the first place that var is set. Ignores the presence or absence of : in the variable name.
      * @return {String} text, with vars replaced with their values
      * @throws {Error} If there's a variable inside text that's never set
      */
@@ -821,24 +821,24 @@ class RunInstance {
     /**
      * @param {String} varname - The name of the variable, without braces (case insensitive)
      * @param {Boolean} isLocal - True of the variable is local, false if it's global
-     * @param {Boolean} [lookAnywhere] - If true, first checks if a var is already set, and if not, looks down the branch to the first place that var is set. Ignores the presence or absence of * in the variable name.
+     * @param {Boolean} [lookAnywhere] - If true, first checks if a var is already set, and if not, looks down the branch to the first place that var is set. Ignores the presence or absence of : in the variable name.
      * @return {String} Value of the given variable at the given step and branch
      * @throws {Error} If the variable is never set
      */
     findVarValue(varname, isLocal, lookAnywhere) {
         let variableFull = "";
-        let variableFullStar = "";
+        let variableFullLookahead = "";
         if(isLocal) {
             variableFull = `{{${varname}}}`;
-            variableFullStar = `{{${varname} *}}`;
+            variableFullLookahead = `{{${varname}:}}`;
         }
         else {
             variableFull = `{${varname}}`;
-            variableFullStar = `{${varname} *}`;
+            variableFullLookahead = `{${varname}:}`;
         }
 
-        let endsInStar = varname.trim().endsWith('*');
-        varname = varname.replace(/\*\s*$/, ''); // strip the * off the end
+        let endsInStar = varname.trim().endsWith(':');
+        varname = varname.replace(/\:\s*$/, ''); // strip the : off the end
 
         if(!endsInStar || lookAnywhere) {
             // Return the value of the var immediately
@@ -855,7 +855,7 @@ class RunInstance {
             }
             else if(!lookAnywhere) { // if it's a lookAnywhere, give it another chance in the next if statement below
                 // Not found
-                utils.error(`The variable ${variableFull} wasn't set, but is needed for this step. If it's set later in the branch, try using ${variableFullStar}.`);
+                utils.error(`The variable ${variableFull} wasn't set, but is needed for this step. If it's set later in the branch, try using ${variableFullLookahead}.`);
             }
         }
 
