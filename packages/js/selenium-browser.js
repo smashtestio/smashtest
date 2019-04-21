@@ -1,7 +1,10 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const firefox = require('selenium-webdriver/firefox');
-const ElementFinder = require('./elementfinder.js')
+const safari = require('selenium-webdriver/safari');
+const ie = require('selenium-webdriver/ie');
+const edge = require('selenium-webdriver/edge');
+const ElementFinder = require('./elementfinder.js');
 
 class SeleniumBrowser {
     constructor(runInstance) {
@@ -35,8 +38,8 @@ class SeleniumBrowser {
     /**
      * Opens the browser
      * See https://w3c.github.io/webdriver/#capabilities
-     * @param {Object} params - Object containing parameters for this browser
-     * @param {String} params.name - The name of the browser (e.g., chrome|firefox|safari|internet explorer|MicrosoftEdge)
+     * @param {Object} [params] - Object containing parameters for this browser
+     * @param {String} [params.name] - The name of the browser (e.g., chrome|firefox|safari|internet explorer|MicrosoftEdge)
      * @param {String} [params.version] - The version of the browser
      * @param {String} [params.platform] - The platform (e.g., linux|mac|windows)
      * @param {Number} [params.width] - The initial browser width, in pixels
@@ -46,15 +49,44 @@ class SeleniumBrowser {
      * @param {String} [params.serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      */
     async open(params) {
+        if(!params) {
+            params = {};
+        }
+
         let options = {
             chrome: new chrome.Options(),
-            firefox: new firefox.Options()
-
-            // TODO: add other browsers
-
-
-
+            firefox: new firefox.Options(),
+            safari: new safari.Options(),
+            ie: new ie.Options(),
+            edge: new edge.Options()
         };
+
+        // Browser name
+        if(!params.name) {
+
+
+
+
+
+        }
+
+        // Browser version
+        if(!params.version) {
+
+
+
+
+
+        }
+
+        // Browser plaform
+        if(!params.platform) {
+
+
+
+
+
+        }
 
         // Dimensions
 
@@ -76,8 +108,9 @@ class SeleniumBrowser {
 
         if(params.width && params.height) {
             options.chrome.windowSize({width: params.width, height: params.height});
+            options.firefox.windowSize({width: params.width, height: params.height});
 
-            // TODO: add other browsers
+            // TODO: set window size later for safari, ie, and edge
 
 
 
@@ -85,7 +118,7 @@ class SeleniumBrowser {
 
         }
 
-        // Mobile device emulation (Chrome)
+        // Mobile device emulation (Chrome only)
 
         if(!params.deviceEmulation) {
             try {
@@ -121,8 +154,9 @@ class SeleniumBrowser {
 
         if(params.isHeadless) {
             options.chrome.headless();
+            options.firefox.headless();
 
-            // TODO: add other browsers
+            // TODO: what to do about safari, ie, and edge?
 
 
 
@@ -143,15 +177,10 @@ class SeleniumBrowser {
         let builder = new Builder()
             .forBrowser(params.name, params.version, params.platform)
             .setChromeOptions(options.chrome)
-            .setFirefoxOptions(options.firefox);
-
-            // TODO: add other browsers
-
-
-
-
-
-
+            .setFirefoxOptions(options.firefox)
+            .setSafariOptions(options.safari)
+            .setIeOptions(options.ie)
+            .setEdgeOptions(options.edge);
 
         if(params.serverUrl) {
             builder = builder.usingServer(params.serverUrl);

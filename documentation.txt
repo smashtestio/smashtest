@@ -12,8 +12,9 @@ Setup
         - Use even-numbered version of nodejs
         (?) - Install webdriverjs and/or selenium separately? See webdriverjs installation guide and try to install it as a dependency
         - https://github.com/SeleniumHQ/selenium/tree/master/javascript/node/selenium-webdriver
-    - Installing SmashPANEL Lite too
-        - What it does and why it's recommended
+        - https://www.npmjs.com/package/selenium-webdriver
+        - http://www.webdriverjs.com/example-program-for-webdriverjs/
+    - Installing SmashTEST Chrome Extension
 
 Example file
     - One big example file with each type of step, etc. and // comments explaining stuff

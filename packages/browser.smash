@@ -46,7 +46,7 @@
     let SeleniumBrowser = i('SeleniumBrowser', './packages/js/selenium-browser.js');
     let browser = g('browser', new SeleniumBrowser(runInstance));
     let name = g('browser name');
-    
+
     if(name) {
         await browser.open({name: name});
     }
@@ -426,6 +426,8 @@
 
 
     }
+
+    // TODO: Alert-related functions
 
     * Wait {{n}} seconds {
         return new Promise(res => setTimeout(res, n * 1000));

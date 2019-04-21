@@ -2,8 +2,9 @@ Browser test -
 
     $ Open Chrome
     Open Firefox
+    Open Safari
 
         Mobile
         Desktop
 
-            Wait '2' seconds
+            Wait '5' seconds
