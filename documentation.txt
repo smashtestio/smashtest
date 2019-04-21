@@ -399,7 +399,7 @@ Code blocks
                 - Vars whose names are a reserved js keyword won't be converted to js vars
                 - Vars are set for both the original case of a variable and all lowercase
                 - Be mindful of these things when using vars and when setting new vars using let.
-                    - When in doubt, use l()/g()/p() to get/set and use var instead of let to prevent the double-declaration error
+                    - When in doubt, use l()/g()/p() to get/set
         - Set
             - {{var1}} is l("var1", "value") or setLocal("var1", "value") (NOTE: you can't set var1=value as this will not persist past the end of the code block)
             - {var2} is g("var2", "value") or setGlobal("var2", "value")
@@ -426,8 +426,6 @@ Code blocks
         }
             - Helps a lot with stack traces. Code blocks are recommended for short snippets of code, 1-5 lines long.
     - Pitfalls
-        - Since local, global, and persistent vars are auto-declared before each code block, if you want to declare a variable that might already be persistent/global/local,
-            or if you're unsure, use var instead of let. Using let might give you an "already declared" error.
         - Don't have multiple local, global, or persistent variables that are spelled the same, only different casing. Variable names are stored case-insensitively.
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., l(), g(), p()) instead.
