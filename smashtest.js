@@ -165,35 +165,35 @@ function processFlag(name, value) {
             case "?":
                 console.log(`Usage: smashtest [files] [options]
 
-Files:
+Files
 
-One or more test files to run
-If omitted, all .smash files in the current directory are used
+  One or more test files to run. Can be in glob format (with *'s).
+  If omitted, all .smash files in the current directory are used.
 
-Options:
+Options
 
---debug=<hash> or -d           Run the branch associated with the hash in debug mode
---group="<group name>"         Same as -groups, but only one group. Multiple -group's ok.
+  --debug=<hash> or -d           Run the branch associated with the hash in debug mode
+  --group="<group name>"         Same as -groups, but only one group. Multiple -group's ok.
                                    Useful for group names with spaces.
---groups="<group1> <group2>"   Only run branches that are part of one of these groups
---g:<name>="<value>"           Set the global variable with the given name to the given value,
+  --groups="<group1> <group2>"   Only run branches that are part of one of these groups
+  --g:<name>="<value>"           Set the global variable with the given name to the given value,
                                    before each branch
---headless=<true/false>        Overrides default headless behavior (headless unless debugging),
+  --headless=<true/false>        Overrides default headless behavior (headless unless debugging),
                                    true if true/false omitted
---help or -?                   Open this help prompt
---maxInstances=<N>             Do not run more than N branches simultaneously
---minFrequency=<high/med/low>  Only run branches at or above this frequency
---noDebug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
---noReport                     Do not output a report
---noReportServer               Do not run a server during run for live report updates
---p:<name>="<value>"           Set the persistent variable with the given name to the given value
---repl or -r                   Open the REPL (drive SmashTEST from command line)
---reportDomain=<url>           Domain and port where report server should run (http://domain:port format)
---seleniumServer=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
---screenshots=false            Do not output screenshots
---skipPassed or -s             Do not run branches that passed last time. Just carry them over
+  --help or -?                   Open this help prompt
+  --maxInstances=<N>             Do not run more than N branches simultaneously
+  --minFrequency=<high/med/low>  Only run branches at or above this frequency
+  --noDebug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
+  --noReport                     Do not output a report
+  --noReportServer               Do not run a server during run for live report updates
+  --p:<name>="<value>"           Set the persistent variable with the given name to the given value
+  --repl or -r                   Open the REPL (drive SmashTEST from command line)
+  --reportDomain=<url>           Domain and port where report server should run (http://domain:port format)
+  --seleniumServer=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
+  --screenshots=false            Do not output screenshots
+  --skipPassed or -s             Do not run branches that passed last time. Just carry them over
                                    into new report.
---version or -v                Output the version of SmashTEST
+  --version or -v                Output the version of SmashTEST
 `);
                 process.exit();
 
