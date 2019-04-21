@@ -499,12 +499,16 @@ describe("Tree", () => {
             assert.equal(step.isExpectedFail, true);
         });
 
-        it("parses the hidden identifier (?)", () => {
-            let step = tree.parseLine(`Click {button} ?`, "file.txt", 10);
+        it("parses the hidden identifier (.?)", () => {
+            let step = tree.parseLine(`Click {button} .?`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isHidden, true);
 
-            step = tree.parseLine(`Click {button} -T ? + // comment`, "file.txt", 10);
+            step = tree.parseLine(`.? Click {button}`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isHidden, true);
+
+            step = tree.parseLine(`Click {button} -T .? + // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isHidden, true);
         });

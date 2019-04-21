@@ -203,7 +203,7 @@ class Tree {
             if(step.identifiers.includes('#')) {
                 step.isExpectedFail = true;
             }
-            if(step.identifiers.includes('?')) {
+            if(step.identifiers.includes('.?')) {
                 step.isHidden = true;
             }
         }
