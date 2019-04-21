@@ -9,157 +9,32 @@
 }
 
 // ***************************************
-//  Viewports
-// ***************************************
-
-* Desktop
-    {browser width}='1920', {browser height}='1080' ?
-
-* Tablet
-    Tablet Portrait ?
-
-* Tablet Portrait
-    {browser width}='768', {browser height}='1024' ?
-
-* Tablet Landscape
-    {browser width}='1024', {browser height}='768' ?
-
-* Mobile
-    Mobile Portrait ?
-
-* Mobile Portrait
-    {browser width}='375', {browser height}='667' ?
-
-* Mobile Landscape
-    {browser width}='667', {browser height}='375' ?
-
-// ***************************************
-//  Devices
-// ***************************************
-
-* BlackBerry Z30
-    {device to emulate}='BlackBerry Z30', {browser width}='', {browser height}='' ?
-
-* Blackberry PlayBook
-    {device to emulate}='Blackberry PlayBook', {browser width}='', {browser height}='' ?
-
-* Galaxy Note 3
-    {device to emulate}='Galaxy Note 3', {browser width}='', {browser height}='' ?
-
-* Galaxy Note II
-    {device to emulate}='Galaxy Note II', {browser width}='', {browser height}='' ?
-
-* Galaxy S III
-    {device to emulate}='Galaxy S III', {browser width}='', {browser height}='' ?
-
-* Galaxy S5
-    {device to emulate}='Galaxy S5', {browser width}='', {browser height}='' ?
-
-* Kindle Fire HDX
-    {device to emulate}='Kindle Fire HDX', {browser width}='', {browser height}='' ?
-
-* LG Optimus L70
-    {device to emulate}='LG Optimus L70', {browser width}='', {browser height}='' ?
-
-* Laptop with HiDPI screen
-    {device to emulate}='Laptop with HiDPI screen', {browser width}='', {browser height}='' ?
-
-* Laptop with MDPI screen
-    {device to emulate}='Laptop with MDPI screen', {browser width}='', {browser height}='' ?
-
-* Laptop with touch
-    {device to emulate}='Laptop with touch', {browser width}='', {browser height}='' ?
-
-* Microsoft Lumia 550
-    {device to emulate}='Microsoft Lumia 550', {browser width}='', {browser height}='' ?
-
-* Microsoft Lumia 950
-    {device to emulate}='Microsoft Lumia 950', {browser width}='', {browser height}='' ?
-
-* Nexus 4
-    {device to emulate}='Nexus 4', {browser width}='', {browser height}='' ?
-
-* Nexus 5
-    {device to emulate}='Nexus 5', {browser width}='', {browser height}='' ?
-
-* Nexus 5X
-    {device to emulate}='Nexus 5X', {browser width}='', {browser height}='' ?
-
-* Nexus 6
-    {device to emulate}='Nexus 6', {browser width}='', {browser height}='' ?
-
-* Nexus 6P
-    {device to emulate}='Nexus 6P', {browser width}='', {browser height}='' ?
-
-* Nexus 7
-    {device to emulate}='Nexus 7', {browser width}='', {browser height}='' ?
-
-* Nexus 10
-    {device to emulate}='Nexus 10', {browser width}='', {browser height}='' ?
-
-* Nokia Lumia 520
-    {device to emulate}='Nokia Lumia 520', {browser width}='', {browser height}='' ?
-
-* Nokia N9
-    {device to emulate}='Nokia N9', {browser width}='', {browser height}='' ?
-
-* Pixel 2
-    {device to emulate}='Pixel 2', {browser width}='', {browser height}='' ?
-
-* Pixel 2 XL
-    {device to emulate}='Pixel 2 XL', {browser width}='', {browser height}='' ?
-
-* iPhone 4
-    {device to emulate}='iPhone 4', {browser width}='', {browser height}='' ?
-
-* iPhone 5/SE
-    {device to emulate}='iPhone 5/SE', {browser width}='', {browser height}='' ?
-
-* iPhone 6/7/8
-    {device to emulate}='iPhone 6/7/8', {browser width}='375', {browser height}='667' ?
-
-* iPhone 6/7/8 Plus
-    {device to emulate}='iPhone 6/7/8 Plus', {browser width}='', {browser height}='' ?
-
-* iPhone X
-    {device to emulate}='iPhone X', {browser width}='', {browser height}='' ?
-
-* iPad
-    {device to emulate}='iPad', {browser width}='768', {browser height}='1024' ?
-
-* iPad Mini
-    {device to emulate}='iPad Mini', {browser width}='', {browser height}='' ?
-
-* iPad Pro
-    {device to emulate}='iPad Pro', {browser width}='', {browser height}='' ?
-
-// ***************************************
 //  Open browsers
 // ***************************************
 
 * Open Chrome
-    {browser name}='chrome' ?
-        Use browser ?
+    {browser name}='chrome' .?
+        Use browser .?
 
 * Open Firefox
-    {browser name} = 'firefox' ?
-        Use browser ?
+    {browser name} = 'firefox' .?
+        Use browser .?
 
 * Open Safari
-    {browser name} = 'safari' ?
-        Use browser ?
+    {browser name} = 'safari' .?
+        Use browser .?
 
 * Open IE
-    {browser name} = 'internet explorer' ?
-        Use browser ?
+    {browser name} = 'internet explorer' .?
+        Use browser .?
 
 * Open Edge
-    {browser name} = 'MicrosoftEdge' ?
-        Use browser ?
+    {browser name} = 'MicrosoftEdge' .?
+        Use browser .?
 
 * Use browser {{name}}
-    {browser name} = '{{name}}' ?
-        Use browser ?
+    {browser name} = '{{name}}' .?
+        Use browser .?
 
 // ***************************************
 //  Browser-dependent functions

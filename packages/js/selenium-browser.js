@@ -89,7 +89,7 @@ class SeleniumBrowser {
 
         if(!params.deviceEmulation) {
             try {
-                params.deviceEmulation = this.runInstance.findVarValue("device to emulate *", false, true);
+                params.deviceEmulation = this.runInstance.findVarValue("device", false, true);
             }
             catch(e) {} // it's ok if the variable isn't found
         }

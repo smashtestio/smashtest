@@ -509,7 +509,7 @@ Manual tests (-M)
     - Treated as textual step, but you can ask to generate manual checklist from command line
     - Only one branch going through this step will be run, the rest will be skipped as repeats
 
-Hidden steps (?)
+Hidden steps (.?)
     - Only hidden in report and only if they're unexpected
     - Good for internal stuff
 
@@ -630,6 +630,7 @@ Testing APIs
                 - You can use $subset and $anyOrder together such as [ "$subset", "$anyOrder", A, B, C ] to match an array containing A, B, and C (and potentially more items) in any order
             - You can have multiple criteria in the same object
                 - E.g., { $typeof: "string", $length: 10, $regex: /[A-Z]+/ } or [ "$subset", "$anyOrder", A, B, C ]
+            - When expected is an object, you can include both keys to match and $-keys in expected
 
 Stubbing out APIs
     - Examples
