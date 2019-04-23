@@ -85,7 +85,9 @@ exports.unescape = (str) => {
         .replace(/\\r/g, '\r') // replace \r with carriage return
         .replace(/\\t/g, '\t') // replace \r with tab
         .replace(/\\b/g, '\b') // replace \b with backspace char
-        .replace(/\\f/g, '\f'); // replace \b with formfeed char
+        .replace(/\\f/g, '\f') // replace \b with formfeed char
+        .replace(/\\v/g, '\v') // replace \v with vertical tab
+        .replace(/\\0/g, '\0'); // replace \0 with null char
 }
 
 /**

@@ -304,6 +304,11 @@ Variables
                 - No children
             - Separate branches will be created, each setting {var} to each 'value' encountered to the right of {x}
             - You can name {x} whatever you want, but the convention is {x}
+        - Right now, \0, \x, \u, and \c sequences cannot be escaped in a string literal
+            - To use on in a string, do
+                {var} = Func {
+                    return "\u2665 \cJ";
+                }
     - Lookahead (:)
         - {var:} will look for the value of the variable when it's set later in the branch
         - Allows you to refactor common steps higher up into the tree. Provide an example with different {usernames}.
