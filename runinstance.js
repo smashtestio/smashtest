@@ -222,7 +222,6 @@ class RunInstance {
 
                                 if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
                                     value = utils.stripQuotes(value);
-                                    value = utils.unescape(value);
                                     value = this.replaceVars(value); // replace vars with their values
                                 }
                                 else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
@@ -244,7 +243,6 @@ class RunInstance {
                     for(let i = 0; i < step.varsBeingSet.length; i++) {
                         let varBeingSet = step.varsBeingSet[i];
                         let value = utils.stripQuotes(varBeingSet.value);
-                        value = utils.unescape(value);
                         value = this.replaceVars(value);
                         this.setVarBeingSet(varBeingSet, value);
 
@@ -782,12 +780,13 @@ class RunInstance {
     }
 
     /**
-     * @param {String} text - The text whose vars the replace
+     * @param {String} text - The text whose vars the replace, escaped (i.e., has backslash-n but not the newline char)
      * @param {Boolean} [lookAnywhere] - If true, first checks if a var is already set, and if not, looks down the branch to the first place that var is set. Ignores the presence or absence of : in the variable name.
-     * @return {String} text, with vars replaced with their values
+     * @return {String} text, with vars replaced with their values, with special chars unescaped (i.e., will have a newline char where a backslash-n once was)
      * @throws {Error} If there's a variable inside text that's never set
      */
     replaceVars(text, lookAnywhere) {
+        text = utils.unescape(text);
         let matches = text.match(Constants.VAR);
         if(matches) {
             for(let i = 0; i < matches.length; i++) {
@@ -891,7 +890,6 @@ class RunInstance {
                             else {
                                 // {varname}='string'
                                 value = utils.stripQuotes(varBeingSet.value);
-                                value = utils.unescape(value);
                             }
 
                             if(['string', 'boolean', 'number'].indexOf(typeof value) != -1) { // only if value is a string, boolean, or number
