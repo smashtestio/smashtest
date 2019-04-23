@@ -41,7 +41,7 @@ Function here
     {global var}='something'
         {{local var}}="something else here", {{local var2}} = "something {var inside string}"
             {var} = [ 1st 'Login' box near 'title' ]
-                {escaping} = outside 'single\'\\\'quote' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
+                {escaping} = outside 'single\'\\\'quote\n' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
 
 * Other function {
     // code block
