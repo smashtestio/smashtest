@@ -2044,7 +2044,7 @@ My 'foo' Function 'bar' other text
         it("executes a {var} = 'string' step where the string has escaped special chars", async () => {
             let tree = new Tree();
             tree.parseIn(`
-{var1} = 'escaped single quote: \\' escaped backslash: \\\\ newline: \\n'
+{var1} = 'escaped single quote: \\' escaped backslash: \\\\ newline: \\n backslash-n: \\\\n'
     {var2} = '\\n\\0{var1}\\\\\\b'
 `, "file.txt");
 
@@ -2053,10 +2053,10 @@ My 'foo' Function 'bar' other text
             let runInstance = new RunInstance(runner);
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            expect(runInstance.g("var1")).to.equal("escaped single quote: ' escaped backslash: \\ newline: \n");
+            expect(runInstance.g("var1")).to.equal("escaped single quote: ' escaped backslash: \\ newline: \n backslash-n: \\n");
 
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
-            expect(runInstance.g("var2")).to.equal("\n\0escaped single quote: ' escaped backslash: \\ newline: \n\\\b");
+            expect(runInstance.g("var2")).to.equal("\n\0escaped single quote: ' escaped backslash: \\ newline: \n backslash-n: \\n\\\b");
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);

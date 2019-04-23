@@ -222,8 +222,8 @@ class RunInstance {
 
                                 if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
                                     value = utils.stripQuotes(value);
-                                    value = this.replaceVars(value); // replace vars with their values
                                     value = utils.unescape(value);
+                                    value = this.replaceVars(value); // replace vars with their values
                                 }
                                 else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
                                     let isLocal = value.startsWith('{{');

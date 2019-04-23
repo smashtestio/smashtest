@@ -404,10 +404,6 @@ describe("Step", () => {
             functionDeclaration.text = "I don\\\\'t know";
             functionCall.text = "I don\\\\'t know";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
-
-            functionDeclaration.text = "I don\\\\'t know";
-            functionCall.text = "I don\\\'t know";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with a double quote", () => {

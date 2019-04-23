@@ -72,29 +72,46 @@ exports.unescapeHtml = (str) => {
 }
 
 /**
- * @return {String} str, but with \\ unescaped to \, \" unescaped to ", etc.
- */
-exports.unescape = (str) => {
-    return str
-        .replace(/\\\\/g, '\\') // replace \\ with \
-        .replace(/\\\'/g, '\'') // replace \' with '
-        .replace(/\\\"/g, '\"') // replace \" with "
-        .replace(/\\\[/g, '[') // replace \[ with [
-        .replace(/\\\]/g, ']') // replace \] with [
-        .replace(/\\n/g, '\n') // replace \n with newline
-        .replace(/\\r/g, '\r') // replace \r with carriage return
-        .replace(/\\t/g, '\t') // replace \r with tab
-        .replace(/\\b/g, '\b') // replace \b with backspace char
-        .replace(/\\f/g, '\f') // replace \b with formfeed char
-        .replace(/\\v/g, '\v') // replace \v with vertical tab
-        .replace(/\\0/g, '\0'); // replace \0 with null char
-}
-
-/**
  * @return {String} str, but with \ escaped to \\, " escaped to \", etc.
  */
 exports.escape = (str) => {
     return exports.stripQuotes(JSON.stringify(str));
+}
+
+/**
+ * @return {String} str, but with \\ unescaped to \, \" unescaped to ", etc.
+ */
+exports.unescape = (str) => {
+    return str.replace(/\\[\\"'\[\]nrtbfv0]/g, (match, offset) => {
+        switch(match) {
+            case '\\\\':
+                return '\\';
+            case '\\"':
+                return '"';
+            case '\\\'':
+                return '\'';
+            case '\\[':
+                return '[';
+            case '\\]':
+                return ']';
+            case '\\n':
+                return '\n';
+            case '\\r':
+                return '\r';
+            case '\\t':
+                return '\t';
+            case '\\b':
+                return '\b';
+            case '\\f':
+                return '\f';
+            case '\\v':
+                return '\v';
+            case '\\0':
+                return '\0';
+            default:
+                return match;
+        }
+    });
 }
 
 /**
