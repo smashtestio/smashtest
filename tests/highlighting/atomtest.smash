@@ -1,6 +1,6 @@
 Function here
     Function here   // comment here
-        Textual step -
+        Textual step 'non // comment string' -
             // comment on its own line
 
             Manual step -M
@@ -55,4 +55,32 @@ Function here
     }, 1000);
 
     return new Object();
+}
+
+*** Before every branch {
+    throw new Error("oops");
+}
+
+*** AFTER every Branch {
+    throw new Error("oops");
+}
+
+*** Before  every  step {
+    throw new Error("oops");
+}
+
+    *** After every step {
+        throw new Error("oops");
+    }
+
+*** Before Everything  {
+    throw new Error("oops");
+}
+
+*** After Everything {
+    throw new Error("oops");
+}
+
+*** Invalid hook name {
+    throw new Error("oops");
 }

@@ -50,7 +50,7 @@ describe("Utils", () => {
 
     describe("escape()", () => {
         it("escapes special chars", () => {
-            expect(utils.escape("\\\n\r\t\\n\\r\\t")).to.equal("\\\\\\n\\r\\t\\\\n\\\\r\\\\t");
+            expect(utils.escape("\\\n\r\t\\n\\r\\t/")).to.equal("\\\\\\n\\r\\t\\\\n\\\\r\\\\t/");
         });
 
         it("escapes empty string", () => {
@@ -64,7 +64,7 @@ describe("Utils", () => {
 
     describe("unescape()", () => {
         it("unescapes special chars", () => {
-            expect(utils.unescape("\\\\\\n\\r\\t\\0\\\\n\\\\r\\\\t")).to.equal("\\\n\r\t\0\\n\\r\\t");
+            expect(utils.unescape("\\\\\\n\\r\\t\\0\\\\n\\\\r\\\\t\\/")).to.equal("\\\n\r\t\0\\n\\r\\t/");
         });
 
         it("unescapes empty string", () => {

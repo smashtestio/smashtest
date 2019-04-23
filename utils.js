@@ -82,7 +82,7 @@ exports.escape = (str) => {
  * @return {String} str, but with \\ unescaped to \, \" unescaped to ", etc.
  */
 exports.unescape = (str) => {
-    return str.replace(/\\[\\"'\[\]nrtbfv0]/g, (match, offset) => {
+    return str.replace(/\\(.)/g, (match, p1, offset) => {
         switch(match) {
             case '\\\\':
                 return '\\';
@@ -109,7 +109,7 @@ exports.unescape = (str) => {
             case '\\0':
                 return '\0';
             default:
-                return match;
+                return p1;
         }
     });
 }
