@@ -659,7 +659,7 @@ Hooks (***)
         - only valid at 0 indents
         - applies to all branches from all files you put in your glob
         - Examples
-            - setInterval() that runs in the background and checks for a popup, then closes it
+            - setInterval() that runs in the background and checks for a popup (check more often than a step's normal timeout), then closes it
             - require() in a library (figure out how to do this)
     - *** After Everything
         - after all branches end, execute this

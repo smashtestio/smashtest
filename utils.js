@@ -72,7 +72,7 @@ exports.unescapeHtml = (str) => {
 }
 
 /**
- * @return {String} str, but with \\, \', \", \[, and \] unescaped to \, ', ", [, and ] respectively
+ * @return {String} str, but with \\ unescaped to \, \" unescaped to ", etc.
  */
 exports.unescape = (str) => {
     return str
@@ -80,7 +80,19 @@ exports.unescape = (str) => {
         .replace(/\\\'/g, '\'') // replace \' with '
         .replace(/\\\"/g, '\"') // replace \" with "
         .replace(/\\\[/g, '[') // replace \[ with [
-        .replace(/\\\]/g, ']'); // replace \] with [
+        .replace(/\\\]/g, ']') // replace \] with [
+        .replace(/\\n/g, '\n') // replace \n with newline
+        .replace(/\\r/g, '\r') // replace \r with carriage return
+        .replace(/\\t/g, '\t') // replace \r with tab
+        .replace(/\\b/g, '\b') // replace \b with backspace char
+        .replace(/\\f/g, '\f'); // replace \b with formfeed char
+}
+
+/**
+ * @return {String} str, but with \ escaped to \\, " escaped to \", etc.
+ */
+exports.escape = (str) => {
+    return exports.stripQuotes(JSON.stringify(str));
 }
 
 /**

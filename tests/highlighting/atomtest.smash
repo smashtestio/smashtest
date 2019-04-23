@@ -1,0 +1,54 @@
+Function here
+    Function here   // comment here
+        Textual step -
+
+            Manual step -M
+
+            To-Do step -T
+                Stuff under the to-do step
+
+            Step block one -
+            Step block two -
+            Step block three -
+
+                Under step block -
+
+            ..
+            Sequential step block one -
+            Sequential step block two -
+            Sequential step block three -
+
+                Under step block -
+
+            Sequential step ..
+
+                Sequential one -
+                    Sequential two -
+
+                Sequential three -
+
+            $ IsOnly step -
+                Debug step ~
+                    ~ Debug step
+
+            -T -M - + .. # ~ $ .? All identifiers?. -T -M - + .. # ~ $ .?
+
+            Code block {
+                throw new Error("oops");
+            }
+
+* Function here
+    {global var}='something'
+        {{local var}}="something else here", {{local var2}} = "something {var inside string}"
+            {var} = [ 1st 'Login' box near 'title' ]
+                {escaping} = outside 'single\'\\\'quote' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
+
+* Other function {
+    // code block
+    let x = 5 + 5;
+    setTimeout(() => {
+        console.log("something");
+    }, 1000);
+
+    return new Object();
+}

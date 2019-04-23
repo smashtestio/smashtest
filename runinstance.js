@@ -244,6 +244,7 @@ class RunInstance {
                     for(let i = 0; i < step.varsBeingSet.length; i++) {
                         let varBeingSet = step.varsBeingSet[i];
                         let value = utils.stripQuotes(varBeingSet.value);
+                        value = utils.unescape(value);
                         value = this.replaceVars(value);
                         this.setVarBeingSet(varBeingSet, value);
 
@@ -1090,7 +1091,7 @@ class RunInstance {
      */
     getLogValue(value) {
         if(typeof value == 'string') {
-            return `'${value}'`;
+            return `'${utils.escape(value)}'`;
         }
         else {
             return value;

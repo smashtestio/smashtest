@@ -1146,7 +1146,7 @@ My 'foo' Function 'bar'
         it("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async () => {
             let tree = new Tree();
             tree.parseIn(`
-"foo" My "bar"  Function 'blah'
+"foo" My "bar"  Function 'blah\\n'
 
 * {{first}} My {{second}} Function {{third}} {
     runInstance.first = first;
@@ -1163,7 +1163,7 @@ My 'foo' Function 'bar'
 
             expect(runInstance.first).to.equal("foo");
             expect(runInstance.second).to.equal("bar");
-            expect(runInstance.third).to.equal("blah");
+            expect(runInstance.third).to.equal("blah\n");
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -1171,7 +1171,7 @@ My 'foo' Function 'bar'
             expect(tree.branches[0].steps[0].log).to.eql([
                 {text: "Function parameter {{first}} is 'foo'"},
                 {text: "Function parameter {{second}} is 'bar'"},
-                {text: "Function parameter {{third}} is 'blah'"}
+                {text: "Function parameter {{third}} is 'blah\\n'"}
             ]);
         });
 
@@ -2036,6 +2036,24 @@ My 'foo' Function 'bar' other text
             expect(runInstance.getLocal("var1")).to.equal(undefined);
             expect(runInstance.getGlobal("var1")).to.equal("foobar");
             expect(runInstance.getPersistent("var1")).to.equal(undefined);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+        });
+
+        it("executes a {var} = 'string' step where the string has escaped special chars", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+{var1} = 'escaped single quote: \\' escaped backslash: \\\\ newline: \\n'
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(runInstance.g("var1")).to.equal("escaped single quote: ' escaped backslash: \\ newline: \n");
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
