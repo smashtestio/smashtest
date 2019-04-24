@@ -630,14 +630,34 @@ Testing APIs
             - You can have multiple criteria in the same object
                 - E.g., { $typeof: "string", $length: 10, $regex: /[A-Z]+/ } or [ "$subset", "$anyOrder", A, B, C ]
             - When expected is an object, you can include both keys to match and $-keys in expected
+    - Examples
+        GET '/something/one?{{adults:}}{{children:}}'
+        GET '/something/two?{{adults:}}{{children:}}'
+
+            {{adults}}='adults={{num adults:}}'
+                {{children}}='children={{num children:}}'
+
+                    {{num adults}}='0'
+                    {{num adults}}='1'
+                    {{num adults}}='2'
+
+                        {{num children}}='0'
+                        {{num children}}='1'
+                        {{num children}}='2'
+
+                            Verify something
+
+            {{adults}}=''
+                {{children}}='children={{num children:}}'
+
+                    Verify something
+
+            {{children}}=''
+                {{adults}}='adults={{num adults:}}'
+
+                    Verify something
 
 Stubbing out APIs
-    - Examples
-        - Use packaged sinon-injecting js function
-        - Stubs out XHR
-            - https://sinonjs.org/releases/latest/fake-xhr-and-server/
-            - Give examples of a few GET/POST routes and their responses
-        - Restores original XHR once test is over
 
 CI/CD Integration
     - Exit codes 0 and 1

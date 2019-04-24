@@ -3,10 +3,10 @@ Function here
         Textual step 'non // comment string' -
             // comment on its own line
 
-            Manual step -M
+            Manual step -M // comment
 
             To-Do step -T
-                Stuff under the to-do step
+                Stuff under the to-do step...
 
             Step block one -
             Step block two -
@@ -21,7 +21,7 @@ Function here
 
                 Under step block -
 
-            Sequential step ..
+            Sequential step 'string' .. - //comment
 
                 Sequential one -
                     Sequential two -
@@ -29,10 +29,17 @@ Function here
                 Sequential three -
 
             $ IsOnly step -
-                Debug step ~
-                    ~ Debug step
+                IsOnly step $ -
+                    ~ Debug step // comment
+                        Debug step + ~ - //comment
 
-            -T -M - + .. # ~ $ .? All identifiers?. -T -M - + .. # ~ $ .?
+                ~ Debug code {var} 'string' block {
+                }
+                    Debug code block ~ {
+                    }
+                        Non-debug ~ step
+
+            -T -M - + .. # .? Non-Debug Identifiers?. -T -M - + .. # .?
 
             Code block {
                 throw new Error("oops");
@@ -40,14 +47,14 @@ Function here
 
 * Function here
     {global var}='something'
-        {{local var}}="something else here", {{local var2}} = "something {var inside string}"
-            {var} = [ 1st 'Login' box near 'title' ]
+        {{local var}}="something else here {var}", {{local var2}} = "something {var inside string}"
+            {var} = [ 1st 'Login' box near 'title' {var} ]
                 {escaping} = outside 'single\'\\\'quote\n' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
                     {escaping}=outside 'something' outside 'something else' outside
                         {escaping}=outside "something" outside "something else" outside
                             {escaping}=outside [something] outside [something else] outside
 
-* Other function {
+* Other function {{var}} 'string' {
     // code block
     let x = 5 + 5;
     setTimeout(() => {
@@ -56,6 +63,8 @@ Function here
 
     return new Object();
 }
+
+.. * Func - .?
 
 *** Before every branch {
     throw new Error("oops");
