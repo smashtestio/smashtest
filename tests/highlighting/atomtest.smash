@@ -55,7 +55,7 @@ Function here
                     {escaping}=outside 'something' outside 'something else' outside
                         {escaping}=outside "something" outside "something else" outside
                             {escaping}=outside [something] outside [something else] outside
-                                {lookahead var:}
+                                {lookahead var:} {{{var in squigglies}}} {a} {}
 
 * Other function {{var}} 'string' {
     // code block

@@ -1138,6 +1138,7 @@ My 'foo' Function 'bar'
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
 
             expect(tree.branches[0].steps[0].log).to.eql([
+                {text: "Calling function at file.txt:4"},
                 {text: "Function parameter {{one}} is 'foo'"},
                 {text: "Function parameter {{two}} is 'bar'"}
             ]);
@@ -1169,6 +1170,7 @@ My 'foo' Function 'bar'
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
 
             expect(tree.branches[0].steps[0].log).to.eql([
+                {text: "Calling function at file.txt:4"},
                 {text: "Function parameter {{first}} is 'foo'"},
                 {text: "Function parameter {{second}} is 'bar'"},
                 {text: "Function parameter {{third}} is 'blah\\n'"}
@@ -1223,7 +1225,8 @@ Set vars {
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(runInstance.one).to.eql({foo:"bar"});
-            expect(tree.branches[0].steps[1].log[0]).to.eql( {text: "Function parameter {{X}} is [object Object]"} );
+            expect(tree.branches[0].steps[1].log[0]).to.eql( {text: "Calling function at file.txt:8"} );
+            expect(tree.branches[0].steps[1].log[1]).to.eql( {text: "Function parameter {{X}} is [object Object]"} );
         });
 
         it("executes a function call with {{variables}} in its function declaration, passing in {{variables}}", async () => {
@@ -3626,6 +3629,7 @@ My function
             await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
             expect(tree.branches[0].steps[0].log).to.eql([
+                {text: "Calling function at file.txt:8"},
                 {text: "A"},
                 {text: "B"}
             ]);

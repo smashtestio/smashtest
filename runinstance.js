@@ -205,6 +205,8 @@ class RunInstance {
             try {
                 // Passing inputs into function calls
                 if(step.isFunctionCall) {
+                    this.appendToLog(`Calling function at ${step.originalStepInTree.functionDeclarationInTree.filename}:${step.originalStepInTree.functionDeclarationInTree.lineNumber}`, step);
+
                     // Set {{local vars}} based on function declaration signature and function call signature
 
                     let varList = step.functionDeclarationText.match(Constants.VAR);
