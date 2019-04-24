@@ -35,7 +35,7 @@ Function here
                     ~ Debug step // comment
                         Debug step + ~ - //comment
 
-                ~ Debug code {var} 'string' block {
+                ~ Debug code {var} {var2:} 'string' block {
                 }
                     Debug code block ~ {
                     }
@@ -49,12 +49,13 @@ Function here
 
 * Function here
     {global var}='something'
-        {{local var}}="something else here {var}", {{local var2}} = "something {var inside string}"
+        {{local var}}="something else here {var} {var:}", {{local var2}} = "something {var inside string}"
             {var} = [ 1st 'Login' box near 'title' {var} ]
                 {escaping} = outside 'single\'\\\'quote\n' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
                     {escaping}=outside 'something' outside 'something else' outside
                         {escaping}=outside "something" outside "something else" outside
                             {escaping}=outside [something] outside [something else] outside
+                                {lookahead var:}
 
 * Other function {{var}} 'string' {
     // code block
