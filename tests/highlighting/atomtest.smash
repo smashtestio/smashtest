@@ -28,6 +28,8 @@ Function here
 
                 Sequential three -
 
+            Sequential and debug ~ ..
+
             $ IsOnly step -
                 IsOnly step $ -
                     ~ Debug step // comment
@@ -39,7 +41,7 @@ Function here
                     }
                         Non-debug ~ step
 
-            -T -M - + .. # .? Non-Debug Identifiers?. -T -M - + .. # .?
+            - + # .? Identifiers?. - + # .?
 
             Code block {
                 throw new Error("oops");
