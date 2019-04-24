@@ -372,56 +372,56 @@
     // ***************************************
 
     * Offline {
-        // ChromeDriver only. driver.setNetworkConditions()
+        // ChromeDriver only (throw error if not Chrome). driver.setNetworkConditions()
 
 
 
     }
 
     * Online {
-        // ChromeDriver only. driver.setNetworkConditions()
+        // ChromeDriver only (throw error if not Chrome). driver.setNetworkConditions()
 
 
 
     }
 
     * Network latency of {{n}} ms {
-        // ChromeDriver only. driver.setNetworkConditions()
+        // ChromeDriver only (throw error if not Chrome). driver.setNetworkConditions()
 
 
 
     }
 
     * No network latency {
-        // ChromeDriver only. driver.setNetworkConditions()
+        // ChromeDriver only (throw error if not Chrome). driver.setNetworkConditions()
 
 
 
     }
 
     * Maximum download speed of {{n}} Kbps {
-        // ChromeDriver only. driver.setNetworkConditions()
+        // ChromeDriver only (throw error if not Chrome). driver.setNetworkConditions()
 
 
 
     }
 
     * No maximum download speed {
-        // ChromeDriver only. driver.setNetworkConditions()
+        // ChromeDriver only (throw error if not Chrome). driver.setNetworkConditions()
 
 
 
     }
 
     * Maximum upload speed of {{n}} Kbps {
-        // ChromeDriver only. driver.setNetworkConditions()
+        // ChromeDriver only (throw error if not Chrome). driver.setNetworkConditions()
 
 
 
     }
 
     * No maximum upload speed {
-        // ChromeDriver only. driver.setNetworkConditions()
+        // ChromeDriver only (throw error if not Chrome). driver.setNetworkConditions()
 
 
 
