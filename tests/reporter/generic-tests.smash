@@ -183,6 +183,12 @@ Skipping a MANUAL step -M
 
 
 
+Normal step -
+    Skipping a SKIP step -S
+        Normal step -
+
+
+
 Skipping similar branches for TODO steps + -
 
     TODO step -T

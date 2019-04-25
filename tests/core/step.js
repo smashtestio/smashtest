@@ -608,11 +608,13 @@ describe("Step", () => {
             let functionDeclarationInTree = new Step();
             functionDeclarationInTree.text = "T";
             functionDeclarationInTree.isToDo = true;
+            functionDeclarationInTree.isSkip = true;
             functionDeclarationInTree.isManual = true;
 
             step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
             expect(step.isToDo).to.equal(true);
+            expect(step.isSkip).to.equal(true);
             expect(step.isManual).to.equal(true);
             expect(step.isDebug).to.equal(undefined);
             expect(step.isPackaged).to.equal(undefined);
@@ -625,6 +627,7 @@ describe("Step", () => {
             let functionDeclarationInTree = new Step();
             functionDeclarationInTree.text = "T";
             functionDeclarationInTree.isToDo = true;
+            functionDeclarationInTree.isSkip = true;
             functionDeclarationInTree.isManual = true;
             functionDeclarationInTree.isDebug = true;
             functionDeclarationInTree.isOnly = true;
@@ -635,6 +638,7 @@ describe("Step", () => {
             step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
             expect(step.isToDo).to.equal(true);
+            expect(step.isSkip).to.equal(true);
             expect(step.isManual).to.equal(true);
             expect(step.isDebug).to.equal(true);
             expect(step.isOnly).to.equal(true);
@@ -652,6 +656,7 @@ describe("Step", () => {
             step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
             expect(step.isToDo).to.equal(undefined);
+            expect(step.isSkip).to.equal(undefined);
             expect(step.isManual).to.equal(undefined);
             expect(step.isDebug).to.equal(undefined);
             expect(step.isOnly).to.equal(undefined);

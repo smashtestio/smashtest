@@ -33,7 +33,8 @@ class Step {
         this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
         this.functionDeclarationText = "";    // if this step is a function call, this is set to the corresponding function declaration's text
 
-        this.isToDo = false;                  // true if this step has the To Do identifier (-T)
+        this.isToDo = false;                  // true if this step has the to-do identifier (-T)
+        this.isSkip = false;                  // true if this step has the skip identifier (-S)
         this.isManual = false;                // true if this step has the manual identifier (-M)
         this.isDebug = false;                 // true if this step has the debug identifier (~)
         this.isBeforeDebug = false;           // true if this step has the debug identifier (~) before the step text
@@ -188,6 +189,9 @@ class Step {
 
         let isToDo = this.isToDo || functionDeclarationInTree.isToDo;
         isToDo && (this.isToDo = isToDo);
+
+        let isSkip = this.isSkip || functionDeclarationInTree.isSkip;
+        isSkip && (this.isSkip = isSkip);
 
         let isManual = this.isManual || functionDeclarationInTree.isManual;
         isManual && (this.isManual = isManual);

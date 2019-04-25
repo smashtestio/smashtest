@@ -14438,6 +14438,182 @@ A - +
             expect(stepD.isRunning).to.equal(undefined);
             expect(branch1.isRunning).to.equal(undefined);
         });
+
+        it("skips over a step that has -S", () => {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.isRunning = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+            stepB.isSkip = true;
+
+            let stepC = new Step();
+            stepC.text = "C";
+
+            let stepD = new Step();
+            stepD.text = "D";
+
+            let branch = new Branch();
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.branches = [ branch ];
+
+            expect(tree.nextStep(branch, true)).to.containSubsetInOrder({
+                text: "C",
+                isSkipped: undefined,
+                isRunning: true
+            });
+
+            expect(stepA).to.containSubsetInOrder({
+                text: "A",
+                isPassed: true,
+                isSkipped: undefined,
+                isRunning: undefined
+            });
+
+            expect(stepB).to.containSubsetInOrder({
+                text: "B",
+                isSkipped: true,
+                isRunning: undefined
+            });
+
+            expect(stepC).to.containSubsetInOrder({
+                text: "C",
+                isSkipped: undefined,
+                isRunning: true
+            });
+        });
+
+        it("skips over a first step that has -S", () => {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isSkip = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+
+            let stepC = new Step();
+            stepC.text = "C";
+
+            let stepD = new Step();
+            stepD.text = "D";
+
+            let branch = new Branch();
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.branches = [ branch ];
+
+            expect(tree.nextStep(branch, true)).to.containSubsetInOrder({
+                text: "B",
+                isRunning: true
+            });
+
+            expect(stepA).to.containSubsetInOrder({
+                text: "A",
+                isSkipped: true,
+                isRunning: undefined
+            });
+
+            expect(stepB).to.containSubsetInOrder({
+                text: "B",
+                isSkipped: undefined,
+                isRunning: true
+            });
+        });
+
+        it("skips over multiple steps that have -S", () => {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.isRunning = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+            stepB.isSkip = true;
+
+            let stepC = new Step();
+            stepC.text = "C";
+            stepC.isSkip = true;
+
+            let stepD = new Step();
+            stepD.text = "D";
+
+            let branch = new Branch();
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.branches = [ branch ];
+
+            expect(tree.nextStep(branch, true)).to.containSubsetInOrder({
+                text: "D",
+                isRunning: true
+            });
+
+            expect(stepA).to.containSubsetInOrder({
+                text: "A",
+                isPassed: true,
+                isRunning: undefined
+            });
+
+            expect(stepB).to.containSubsetInOrder({
+                text: "B",
+                isSkipped: true,
+                isRunning: undefined
+            });
+
+            expect(stepC).to.containSubsetInOrder({
+                text: "C",
+                isSkipped: true,
+                isRunning: undefined
+            });
+
+            expect(stepD).to.containSubsetInOrder({
+                text: "D",
+                isSkipped: undefined,
+                isRunning: true
+            });
+        });
+
+        it("skips over a last step that has -S", () => {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.isRunning = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+            stepB.isSkip = true;
+
+            let branch = new Branch();
+            branch.steps = [ stepA, stepB ];
+
+            tree.branches = [ branch ];
+
+            expect(tree.nextStep(branch, true)).to.equal(null);
+
+            expect(stepA).to.containSubsetInOrder({
+                text: "A",
+                isPassed: true,
+                isRunning: undefined
+            });
+
+            expect(stepB).to.containSubsetInOrder({
+                text: "B",
+                isSkipped: true,
+                isRunning: undefined
+            });
+
+            expect(branch.isPassed).to.be.true;
+        });
     });
 
     describe("initCounts()", () => {

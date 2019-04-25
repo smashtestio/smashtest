@@ -180,6 +180,10 @@ class Tree {
                 step.isToDo = true;
                 step.isTextualStep = true;
             }
+            if(step.identifiers.includes('-S')) {
+                step.isSkip = true;
+                step.isTextualStep = true;
+            }
             if(step.identifiers.includes('-M')) {
                 step.isManual = true;
                 step.isTextualStep = true;
@@ -1707,6 +1711,12 @@ class Tree {
             }
 
             return null;
+        }
+
+        // If the next step is a -S, mark it as skipped and advance again
+        if(advance && nextStep && nextStep.isSkip) {
+            this.markStepSkipped(nextStep, branch);
+            return this.nextStep(branch, advance, skipsRepeats);
         }
 
         return nextStep;
