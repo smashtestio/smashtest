@@ -296,7 +296,8 @@ class RunInstance {
 
             // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
             let isPassed = !error;
-            if(step.isExpectedFail && isPassed) {
+            let isExpectedFail = step.isExpectedFail && step.hasCodeBlock();
+            if(isExpectedFail && isPassed) {
                 error = new Error("This step passed, but it was expected to fail (#)");
                 error.filename = step.filename;
                 error.lineNumber = step.lineNumber;
@@ -311,7 +312,7 @@ class RunInstance {
                 }
             }
 
-            this.tree.markStep(step, branch, isPassed, !!step.isExpectedFail == !isPassed, error, finishBranchNow, true);
+            this.tree.markStep(step, branch, isPassed, !!isExpectedFail == !isPassed, error, finishBranchNow, true);
         }
 
         // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)

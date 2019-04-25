@@ -200,9 +200,6 @@ class Tree {
             if(step.identifiers.includes('..')) {
                 step.isSequential = true;
             }
-            if(step.identifiers.includes('#')) {
-                step.isExpectedFail = true;
-            }
             if(step.identifiers.includes('.?')) {
                 step.isHidden = true;
             }
@@ -1214,22 +1211,33 @@ class Tree {
         /**
          * @param {Branch} branch - The branch to look through
          * @param {String} indentifier - The identifier to look for ('~' or '$')
-         * @return {Object} Object, in format { step = the first Step in the given branch to contain ~/$, depth = depth at which the ~/$ was found }, null if nothing found
+         * @return {Object} Object, in format { step = the first Step in the given branch to contain indentifier, depth = depth at which the indentifier was found }, null if nothing found
          */
         function findIdentifierDepth(branch, identifier) {
-            let isDebug = identifier == '~';
             for(let i = 0; i < branch.steps.length; i++) {
                 let step = branch.steps[i];
-                if(isDebug ? step.isDebug : step.isOnly) {
+
+                let stepProp = null;
+                let originalStepProp = null;
+                if(identifier == '~') {
+                    stepProp = step.isDebug;
+                    originalStepProp = step.originalStepInTree.isDebug;
+                }
+                else if(identifier == '$') {
+                    stepProp = step.isOnly;
+                    originalStepProp = step.originalStepInTree.isOnly;
+                }
+
+                if(stepProp) {
                     if(step.isFunctionCall) {
-                        // Tie-break based on if the ~/$ is on the function call vs. function declaration
-                        if(isDebug ? step.originalStepInTree.isDebug : step.originalStepInTree.isOnly) { // ~/$ is on the function call
+                        // Tie-break based on if the identifier is on the function call vs. function declaration
+                        if(originalStepProp) { // identifier is on the function call
                             return {
                                 step: step,
                                 depth: i
                             };
                         }
-                        else { // ~/$ is slightly deeper, at the function declaration (so add .5 to the depth)
+                        else { // identifier is slightly deeper, at the function declaration (so add .5 to the depth)
                             return {
                                 step: step,
                                 depth: i + 0.5
@@ -1477,10 +1485,10 @@ class Tree {
      * Get a count on the number of steps within this.branches. Does not include steps in hooks.
      * @param {Boolean} [runnableOnly] - If true, do not include branches that passed previously, or steps at or below a -T or -M
      * @param {Boolean} [completeOnly] - If true, only include steps that are complete (passed, failed, or skipped over)
-     * @param {Boolean} [unexpectedOnly] - If true, only include steps that are complete and have an unexpected result
+     * @param {Boolean} [failedOnly] - If true, only include steps that are complete and have failed
      * @return {Number} Total number of steps
      */
-    getStepCount(runnableOnly, completeOnly, unexpectedOnly) {
+    getStepCount(runnableOnly, completeOnly, failedOnly) {
         let count = 0;
         for(let i = 0; i < this.branches.length; i++) {
             let branch = this.branches[i];
@@ -1500,7 +1508,7 @@ class Tree {
                     continue;
                 }
 
-                if(unexpectedOnly && step.asExpected) {
+                if(failedOnly && !step.isFailed) {
                     continue;
                 }
 
@@ -1575,12 +1583,11 @@ class Tree {
      * @param {Step} step - The Step to mark
      * @param {Branch} [branch] - The Branch that contains the step, if any
      * @param {Boolean} isPassed - If true, marks the step as passed, if false, marks the step as failed
-     * @param {Boolean} asExpected - If true, the value of isPassed was expected, false otherwise
      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
      * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
      * @param {Boolean} [skipsRepeats] - If true, and if the branch failed, skips every other branch in this.branches whose first N steps are identical to this one's (up until this step)
      */
-    markStep(step, branch, isPassed, asExpected, error, finishBranchNow, skipsRepeats) {
+    markStep(step, branch, isPassed, error, finishBranchNow, skipsRepeats) {
         if(isPassed) {
             step.isPassed = true;
             delete step.isFailed;
@@ -1591,8 +1598,6 @@ class Tree {
             delete step.isPassed;
             delete step.isSkipped;
         }
-
-        step.asExpected = asExpected;
 
         if(error) {
             step.error = error;

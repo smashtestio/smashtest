@@ -19,16 +19,17 @@ class Branch {
 
         this.nonParallelId = "";            // When multiple branches cannot be run in parallel (due to +), they are each given the same nonParallelId
 
-        this.frequency = "";                // Frequency of this Branch (either 'high', 'med', or 'low')
-        this.groups = [];                   // The groups that this Branch is a part of
+        this.frequency = "";                // Frequency of this branch (either 'high', 'med', or 'low')
+        this.groups = [];                   // The groups that this branch is a part of
 
         this.beforeEveryBranch = [];        // Array of Step, the steps to execute before this branch starts
         this.afterEveryBranch = [];         // Array of Step, the steps to execute after this branch is done
         this.beforeEveryStep = [];          // Array of Step, the steps to execute before each step in this branch starts
         this.afterEveryStep = [];           // Array of Step, the steps to execute after each step in this branch is done
 
-        this.isOnly = false;                // If true, a Step in this Branch has a $
-        this.isDebug = false;               // If true, a Step in this Branch has a ~
+        this.isOnly = false;                // If true, a step in this branch has a $
+        this.isDebug = false;               // If true, a step in this branch has a ~
+        this.isExpectedFail = false;        // If true, a step in this branch has a #
 
         this.passedLastTime = false;        // if true, do not run this branch, but include it in the report
         this.isPassed = false;              // true if every step in this branch passed after being run
@@ -72,6 +73,7 @@ class Branch {
 
         branch.isOnly && (newBranch.isOnly = branch.isOnly);
         branch.isDebug && (newBranch.isDebug = branch.isDebug);
+        branch.isExpectedFail && (newBranch.isExpectedFail = branch.isExpectedFail);
 
         copyHooks("beforeEveryBranch", true); // Copy branch.beforeEveryBranch to the beginning of newBranch.beforeEveryBranch (so that packages comes first)
         copyHooks("afterEveryBranch", false); // Copy branch.afterEveryBranch to the end of newBranch.afterEveryBranch (so that packages comes last)
@@ -106,6 +108,7 @@ class Branch {
         this.steps.push(step);
         step.isOnly && (this.isOnly = true);
         step.isDebug && (this.isDebug = true);
+        step.isExpectedFail && (this.isExpectedFail = true);
     }
 
     /**
@@ -115,6 +118,7 @@ class Branch {
         this.steps.unshift(step);
         step.isOnly && (this.isOnly = true);
         step.isDebug && (this.isDebug = true);
+        step.isExpectedFail && (this.isExpectedFail = true);
     }
 
     /**

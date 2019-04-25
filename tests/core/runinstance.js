@@ -4145,7 +4145,8 @@ My function #
 My function #
     A -
 
-* My function
+* My function {
+}
 
 `, "file.txt");
 
@@ -4348,7 +4349,8 @@ A -
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B # -
+    B # {
+    }
         C -
 `, "file.txt");
 
@@ -4601,7 +4603,8 @@ A -
         it("a # doesn't apply to an error inside an After Every Step hook", async () => {
             let tree = new Tree();
             tree.parseIn(`
-A - #
+A # {
+}
 
 *** After Every Step {
     var a = 2 + 2;

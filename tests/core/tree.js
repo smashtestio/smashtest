@@ -12131,6 +12131,281 @@ G -
                 }
             ]);
         });
+
+        it.only("properly chooses which branches to apply # to", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B - #
+        C - #
+
+    D -
+    E - #
+    F -
+
+        G - #
+        H -
+
+            I -
+
+        J - #
+
+            K - #
+
+        L -
+
+            M - # // ignored
+
+N -
+    O -
+        Func
+            P -
+                Q - #
+
+                Func2 #
+
+                Func3
+
+* Func
+    F1 -
+    F2 - #
+
+* Func2
+    F3 -
+
+* Func3 #
+    F4 -
+
+    `);
+
+            let branches = tree.branchify(tree.root);
+
+            expect(branches).to.have.lengthOf(19);
+
+            expect(branches[0].steps).to.have.lengthOf(3);
+            expect(branches[0]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "B", isExpectedFail: true },
+                    { text: "C", isExpectedFail: true }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[1].steps).to.have.lengthOf(4);
+            expect(branches[1]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "D", isExpectedFail: undefined },
+                    { text: "G", isExpectedFail: undefined },
+                    { text: "I", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+
+            expect(branches[2].steps).to.have.lengthOf(4);
+            expect(branches[2]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "D", isExpectedFail: undefined },
+                    { text: "H", isExpectedFail: undefined },
+                    { text: "I", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+
+            expect(branches[3].steps).to.have.lengthOf(4);
+            expect(branches[3]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "D", isExpectedFail: undefined },
+                    { text: "J", isExpectedFail: undefined },
+                    { text: "K", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+
+            expect(branches[4].steps).to.have.lengthOf(4);
+            expect(branches[4]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "D", isExpectedFail: undefined },
+                    { text: "L", isExpectedFail: undefined },
+                    { text: "M", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+
+            expect(branches[5].steps).to.have.lengthOf(4);
+            expect(branches[5]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "E", isExpectedFail: true },
+                    { text: "G", isExpectedFail: true },
+                    { text: "I", isExpectedFail: undefined }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[6].steps).to.have.lengthOf(4);
+            expect(branches[6]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "E", isExpectedFail: true },
+                    { text: "H", isExpectedFail: undefined },
+                    { text: "I", isExpectedFail: undefined }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[7].steps).to.have.lengthOf(4);
+            expect(branches[7]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "E", isExpectedFail: true },
+                    { text: "J", isExpectedFail: true },
+                    { text: "K", isExpectedFail: true }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[8].steps).to.have.lengthOf(4);
+            expect(branches[8]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "E", isExpectedFail: true },
+                    { text: "L", isExpectedFail: undefined },
+                    { text: "M", isExpectedFail: undefined }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[9].steps).to.have.lengthOf(4);
+            expect(branches[9]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "F", isExpectedFail: undefined },
+                    { text: "G", isExpectedFail: undefined },
+                    { text: "I", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+
+            expect(branches[10].steps).to.have.lengthOf(4);
+            expect(branches[10]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "F", isExpectedFail: undefined },
+                    { text: "H", isExpectedFail: undefined },
+                    { text: "I", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+
+            expect(branches[11].steps).to.have.lengthOf(4);
+            expect(branches[11]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "F", isExpectedFail: undefined },
+                    { text: "J", isExpectedFail: undefined },
+                    { text: "K", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+
+            expect(branches[12].steps).to.have.lengthOf(4);
+            expect(branches[12]).to.containSubsetInOrder({
+                steps: [
+                    { text: "A", isExpectedFail: undefined },
+                    { text: "F", isExpectedFail: undefined },
+                    { text: "L", isExpectedFail: undefined },
+                    { text: "M", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+
+            expect(branches[13].steps).to.have.lengthOf(6);
+            expect(branches[13]).to.containSubsetInOrder({
+                steps: [
+                    { text: "N", isExpectedFail: undefined },
+                    { text: "O", isExpectedFail: undefined },
+                    { text: "Func", isExpectedFail: undefined },
+                    { text: "F1", isExpectedFail: undefined },
+                    { text: "P", isExpectedFail: undefined },
+                    { text: "Q", isExpectedFail: undefined }
+                ],
+                isExpectedFail: undefined
+            });
+return;
+            expect(branches[14].steps).to.have.lengthOf(7);
+            expect(branches[14]).to.containSubsetInOrder({
+                steps: [
+                    { text: "N", isExpectedFail: undefined },
+                    { text: "O", isExpectedFail: true },
+                    { text: "Func", isExpectedFail: undefined },
+                    { text: "F1", isExpectedFail: undefined },
+                    { text: "P", isExpectedFail: undefined },
+                    { text: "Func2", isExpectedFail: undefined },
+                    { text: "F3", isExpectedFail: undefined }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[15].steps).to.have.lengthOf(7);
+            expect(branches[15]).to.containSubsetInOrder({
+                steps: [
+                    { text: "N", isExpectedFail: undefined },
+                    { text: "O", isExpectedFail: true },
+                    { text: "Func", isExpectedFail: undefined },
+                    { text: "F1", isExpectedFail: undefined },
+                    { text: "P", isExpectedFail: undefined },
+                    { text: "Func3", isExpectedFail: undefined },
+                    { text: "F4", isExpectedFail: undefined }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[16].steps).to.have.lengthOf(6);
+            expect(branches[16]).to.containSubsetInOrder({
+                steps: [
+                    { text: "N", isExpectedFail: undefined },
+                    { text: "O", isExpectedFail: true },
+                    { text: "Func", isExpectedFail: undefined },
+                    { text: "F2", isExpectedFail: true },
+                    { text: "P", isExpectedFail: undefined },
+                    { text: "Q", isExpectedFail: true }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[17].steps).to.have.lengthOf(7);
+            expect(branches[17]).to.containSubsetInOrder({
+                steps: [
+                    { text: "N", isExpectedFail: undefined },
+                    { text: "O", isExpectedFail: true },
+                    { text: "Func", isExpectedFail: undefined },
+                    { text: "F2", isExpectedFail: true },
+                    { text: "P", isExpectedFail: undefined },
+                    { text: "Func2", isExpectedFail: true },
+                    { text: "F3", isExpectedFail: undefined }
+                ],
+                isExpectedFail: true
+            });
+
+            expect(branches[18].steps).to.have.lengthOf(7);
+            expect(branches[18]).to.containSubsetInOrder({
+                steps: [
+                    { text: "N", isExpectedFail: undefined },
+                    { text: "O", isExpectedFail: true },
+                    { text: "Func", isExpectedFail: undefined },
+                    { text: "F2", isExpectedFail: true },
+                    { text: "P", isExpectedFail: undefined },
+                    { text: "Func3", isExpectedFail: undefined },
+                    { text: "F4", isExpectedFail: undefined }
+                ],
+                isExpectedFail: true
+            });
+        });
     });
 
     describe("generateBranches()", () => {

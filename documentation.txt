@@ -497,16 +497,19 @@ No parallel execution (+)
 Expected failure (#)
     - #
     - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
+    - # on multiple steps in a branch to isolate a branch
 
 To-Do (-T)
     - Marks this step and those under it as todo
     - Treated as a textual step
     - Only one branch going through this step will be run, the rest will be skipped as repeats
+    - Be careful, when -T is in a function declaration it will affect steps after the function call as well
 
 Manual tests (-M)
     - Marks this step and those under it as manual
     - Treated as textual step, but you can ask to generate manual checklist from command line
     - Only one branch going through this step will be run, the rest will be skipped as repeats
+    - Be careful, when -M is in a function declaration it will affect steps after the function call as well
 
 Hidden steps (.?)
     - Only hidden in report and only if they're unexpected

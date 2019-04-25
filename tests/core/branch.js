@@ -36,6 +36,7 @@ describe("Branch", () => {
             branch2.frequency = "high";
             branch2.groups = [ "2", "3" ];
             branch2.isOnly = true;
+            branch2.isExpectedFail = true;
 
             branch1 = branch1.mergeToEnd(branch2);
 
@@ -52,7 +53,8 @@ describe("Branch", () => {
                 frequency: "high",
                 groups: [ "1", "2", "3" ],
                 isOnly: true,
-                isDebug: true
+                isDebug: true,
+                isExpectedFail: true
             });
         });
 
@@ -147,6 +149,7 @@ describe("Branch", () => {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
+                isExpectedFail: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -188,6 +191,7 @@ describe("Branch", () => {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
+                isExpectedFail: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -216,6 +220,7 @@ describe("Branch", () => {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
+                isExpectedFail: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -270,6 +275,7 @@ describe("Branch", () => {
             branch.groups = ['big', 'small'];
             branch.isOnly = true;
             branch.isDebug = true;
+            branch.isExpectedFail = true;
             branch.passedLastTime = true;
             branch.isPassed = true;
             branch.isFailed = true;
@@ -298,6 +304,7 @@ describe("Branch", () => {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
+                isExpectedFail: true,
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
@@ -343,6 +350,7 @@ describe("Branch", () => {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
+                isExpectedFail: true,
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
