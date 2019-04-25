@@ -3853,41 +3853,7 @@ Something {
             expect(tree.branches[0].error).to.equal(undefined);
         });
 
-        it("marks a step as expectedly failed when it expectedly fails", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-My function #
-
-* My function {
-    throw new Error("oops");
-}
-
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-
-            tree.nextStep(tree.branches[0], true);
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            tree.nextStep(tree.branches[0], true);
-
-            expect(tree.branches[0].steps[0].error.message).to.equal("oops");
-            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
-
-            expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].steps[0].isFailed).to.equal(true);
-            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(true);
-
-            expect(tree.branches[0].error).to.equal(undefined);
-            expect(tree.branches[0].isPassed).to.equal(true);
-            expect(tree.branches[0].isFailed).to.equal(undefined);
-            expect(tree.branches[0].isSkipped).to.equal(undefined);
-        });
-
-        it("marks a step as unexpectedly failed when it unexpectedly fails", async () => {
+        it("marks a step as failed when it fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3914,7 +3880,6 @@ My function
             expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
             expect(tree.branches[0].steps[0].isFailed).to.equal(true);
             expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].isPassed).to.equal(undefined);
@@ -3922,7 +3887,7 @@ My function
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("marks a step as expectedly passed when it expectedly passes", async () => {
+        it("marks a step as passed when it passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3946,45 +3911,10 @@ My function
             expect(tree.branches[0].steps[0].isPassed).to.equal(true);
             expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
             expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(true);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].isPassed).to.equal(true);
             expect(tree.branches[0].isFailed).to.equal(undefined);
-            expect(tree.branches[0].isSkipped).to.equal(undefined);
-        });
-
-        it("marks a step as unexpectedly passed when it unexpectedly passes", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-My function #
-
-* My function {
-    let a = 1 + 1;
-}
-
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-
-            tree.nextStep(tree.branches[0], true);
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            tree.nextStep(tree.branches[0], true);
-
-            expect(tree.branches[0].steps[0].error.message).to.equal("This step passed, but it was expected to fail (#)");
-            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
-
-            expect(tree.branches[0].steps[0].isPassed).to.equal(true);
-            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
-            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
-
-            expect(tree.branches[0].error).to.equal(undefined);
-            expect(tree.branches[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].isFailed).to.equal(true);
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
@@ -4028,7 +3958,7 @@ A -
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
-        it("doesn't finish off the branch if a step has an unexpected error and the error's continue flag is set", async () => {
+        it("doesn't finish off the branch if a step has an error and the error's continue flag is set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -4057,7 +3987,6 @@ My function
             expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
             expect(tree.branches[0].steps[0].isFailed).to.equal(true);
             expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].isPassed).to.equal(undefined);
@@ -4065,7 +3994,7 @@ My function
             expect(tree.branches[0].isSkipped).to.equal(undefined);
         });
 
-        it("doesn't finish off the branch if a step has an unexpected error and pauseOnFail is set", async () => {
+        it("doesn't finish off the branch if a step has an error and pauseOnFail is set", async () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -4094,79 +4023,6 @@ My function
             expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
             expect(tree.branches[0].steps[0].isFailed).to.equal(true);
             expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
-
-            expect(tree.branches[0].error).to.equal(undefined);
-            expect(tree.branches[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].isFailed).to.equal(undefined);
-            expect(tree.branches[0].isSkipped).to.equal(undefined);
-        });
-
-        it("doesn't finish off the branch if a step has an expected error and pauseOnFail is set", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-My function #
-    A -
-
-* My function {
-    let e = new Error("oops");
-    throw e;
-}
-
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            runner.pauseOnFail = true;
-            let runInstance = new RunInstance(runner);
-
-            tree.nextStep(tree.branches[0], true);
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            tree.nextStep(tree.branches[0], true);
-
-            expect(tree.branches[0].steps[0].error.message).to.equal("oops");
-            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
-
-            expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].steps[0].isFailed).to.equal(true);
-            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(true);
-
-            expect(tree.branches[0].error).to.equal(undefined);
-            expect(tree.branches[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].isFailed).to.equal(undefined);
-            expect(tree.branches[0].isSkipped).to.equal(undefined);
-        });
-
-        it("doesn't finish off the branch if a step has an unexpected pass and pauseOnFail is set", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-My function #
-    A -
-
-* My function {
-}
-
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            runner.pauseOnFail = true;
-            let runInstance = new RunInstance(runner);
-
-            tree.nextStep(tree.branches[0], true);
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            tree.nextStep(tree.branches[0], true);
-
-            expect(tree.branches[0].steps[0].error.message).to.equal("This step passed, but it was expected to fail (#)");
-            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
-
-            expect(tree.branches[0].steps[0].isPassed).to.equal(true);
-            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
-            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].isPassed).to.equal(undefined);
@@ -4297,7 +4153,7 @@ A -
             expect(runInstance.getGlobal("var1")).to.equal("foo");
         });
 
-        it("pauses when pauseOnFail is set and a step unexpectedly fails", async () => {
+        it("pauses when pauseOnFail is set and a step fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4321,54 +4177,7 @@ A -
             expect(runInstance.isPaused).to.equal(true);
         });
 
-        it("pauses when pauseOnFail is set and a step expectedly fails", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    B # {
-        throw new Error("oops");
-    }
-        C -
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            runner.pauseOnFail = true;
-            let runInstance = new RunInstance(runner);
-
-            expect(runInstance.isPaused).to.equal(false);
-
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            expect(runInstance.isPaused).to.equal(false);
-
-            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
-            expect(runInstance.isPaused).to.equal(true);
-        });
-
-        it("pauses when pauseOnFail is set and a step unexpectedly passes", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    B # {
-    }
-        C -
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            runner.pauseOnFail = true;
-            let runInstance = new RunInstance(runner);
-
-            expect(runInstance.isPaused).to.equal(false);
-
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            expect(runInstance.isPaused).to.equal(false);
-
-            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
-            expect(runInstance.isPaused).to.equal(true);
-        });
-
-        it("doesn't pause when pauseOnFail is set and a step expectedly passes", async () => {
+        it("doesn't pause when pauseOnFail is set and a step passes", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -4390,34 +4199,13 @@ A -
             expect(runInstance.isPaused).to.equal(false);
         });
 
-        it("doesn't pause when pauseOnFail is not set and a step unexpectedly fails", async () => {
+        it("doesn't pause when pauseOnFail is not set and a step fails", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B {
         throw new Error("oops");
     }
-        C -
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-
-            expect(runInstance.isPaused).to.equal(false);
-
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            expect(runInstance.isPaused).to.equal(false);
-
-            await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
-            expect(runInstance.isPaused).to.equal(false);
-        });
-
-        it("doesn't pause when pauseOnFail is not set and a step unexpectedly passes", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    B - #
         C -
 `, "file.txt");
 
@@ -4523,41 +4311,6 @@ A -
             expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
             expect(tree.branches[0].steps[0].isFailed).to.equal(true);
             expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
-
-            expect(tree.branches[0].error).to.equal(undefined);
-            expect(tree.branches[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].isFailed).to.equal(true);
-            expect(tree.branches[0].isSkipped).to.equal(undefined);
-        });
-
-        it("a # doesn't apply to an error inside a Before Every Step hook", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A # -
-
-*** Before Every Step {
-    var a = 2 + 2;
-    throw new Error("oops");
-}
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-
-            tree.nextStep(tree.branches[0], true);
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            tree.nextStep(tree.branches[0], true);
-
-            expect(tree.branches[0].steps[0].error.message).to.equal("oops");
-            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
-
-            expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].steps[0].isFailed).to.equal(true);
-            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].isPassed).to.equal(undefined);
@@ -4592,42 +4345,6 @@ A -
             expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
             expect(tree.branches[0].steps[0].isFailed).to.equal(true);
             expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
-
-            expect(tree.branches[0].error).to.equal(undefined);
-            expect(tree.branches[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].isFailed).to.equal(true);
-            expect(tree.branches[0].isSkipped).to.equal(undefined);
-        });
-
-        it("a # doesn't apply to an error inside an After Every Step hook", async () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A # {
-}
-
-*** After Every Step {
-    var a = 2 + 2;
-    throw new Error("oops");
-}
-`, "file.txt");
-
-            let runner = new Runner();
-            runner.init(tree);
-            let runInstance = new RunInstance(runner);
-
-            tree.nextStep(tree.branches[0], true);
-            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-            tree.nextStep(tree.branches[0], true);
-
-            expect(tree.branches[0].steps[0].error.message).to.equal("This step passed, but it was expected to fail (#)");
-            expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-            expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
-
-            expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
-            expect(tree.branches[0].steps[0].isFailed).to.equal(true);
-            expect(tree.branches[0].steps[0].isSkipped).to.equal(undefined);
-            expect(tree.branches[0].steps[0].asExpected).to.equal(false);
 
             expect(tree.branches[0].error).to.equal(undefined);
             expect(tree.branches[0].isPassed).to.equal(undefined);

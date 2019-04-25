@@ -36,7 +36,6 @@ describe("Branch", () => {
             branch2.frequency = "high";
             branch2.groups = [ "2", "3" ];
             branch2.isOnly = true;
-            branch2.isExpectedFail = true;
 
             branch1 = branch1.mergeToEnd(branch2);
 
@@ -53,8 +52,7 @@ describe("Branch", () => {
                 frequency: "high",
                 groups: [ "1", "2", "3" ],
                 isOnly: true,
-                isDebug: true,
-                isExpectedFail: true
+                isDebug: true
             });
         });
 
@@ -149,7 +147,6 @@ describe("Branch", () => {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                isExpectedFail: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -191,7 +188,6 @@ describe("Branch", () => {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                isExpectedFail: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -220,7 +216,6 @@ describe("Branch", () => {
                 groups: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
-                isExpectedFail: undefined,
                 passedLastTime: undefined,
                 isPassed: undefined,
                 isFailed: undefined,
@@ -275,7 +270,6 @@ describe("Branch", () => {
             branch.groups = ['big', 'small'];
             branch.isOnly = true;
             branch.isDebug = true;
-            branch.isExpectedFail = true;
             branch.passedLastTime = true;
             branch.isPassed = true;
             branch.isFailed = true;
@@ -304,7 +298,6 @@ describe("Branch", () => {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
-                isExpectedFail: true,
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
@@ -350,7 +343,6 @@ describe("Branch", () => {
                 groups: [ "big", "small" ],
                 isOnly: true,
                 isDebug: true,
-                isExpectedFail: true,
                 passedLastTime: true,
                 isPassed: true,
                 isFailed: true,
@@ -667,26 +659,22 @@ describe("Branch", () => {
     });
 
     describe("finishOffBranch()", () => {
-        it("marks a branch passed when all steps passed as expected", () => {
+        it("marks a branch passed when all steps passed", () => {
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
 
             let stepC = new Step();
             stepC.text = "C";
             stepC.isPassed = true;
-            stepC.asExpected = true;
 
             let stepD = new Step();
             stepD.text = "D";
             stepD.isPassed = true;
-            stepD.asExpected = true;
 
             let branch = new Branch();
 
@@ -700,92 +688,22 @@ describe("Branch", () => {
             });
         });
 
-        it("marks a branch passed when all steps passed or failed as expected", () => {
+        it("marks a branch failed when one of the steps failed", () => {
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
-
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.isPassed = true;
-            stepB.asExpected = true;
-
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.isFailed = true;
-            stepC.asExpected = true;
-
-            let stepD = new Step();
-            stepD.text = "D";
-            stepD.isPassed = true;
-            stepD.asExpected = true;
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            branch.finishOffBranch();
-
-            expect(branch).to.containSubsetInOrder({
-                isPassed: true,
-                isFailed: undefined
-            });
-        });
-
-        it("marks a branch failed when one of the steps failed not as expected", () => {
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isFailed = true;
-            stepB.asExpected = false;
 
             let stepC = new Step();
             stepC.text = "C";
             stepC.isPassed = true;
-            stepC.asExpected = true;
 
             let stepD = new Step();
             stepD.text = "D";
             stepD.isPassed = true;
-            stepD.asExpected = true;
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            branch.finishOffBranch();
-
-            expect(branch).to.containSubsetInOrder({
-                isPassed: undefined,
-                isFailed: true
-            });
-        });
-
-        it("marks a branch failed when one of the steps passed not as expected", () => {
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.isPassed = true;
-            stepA.asExpected = true;
-
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.isPassed = true;
-            stepB.asExpected = false;
-
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.isPassed = true;
-            stepC.asExpected = true;
-
-            let stepD = new Step();
-            stepD.text = "D";
-            stepD.isPassed = true;
-            stepD.asExpected = true;
 
             let branch = new Branch();
 

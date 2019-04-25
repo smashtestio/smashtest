@@ -20,7 +20,7 @@ class Step {
 
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
         this.text = "";                       // text of the command of the step (not including spaces in front, identifiers, comments, etc.)
-        this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['..', '+', '#something']) in front or behind the step
+        this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['..', '+']) in front or behind the step
         this.frontIdentifiers = [];           // Array of String, identifiers in front of the step text
         this.backIdentifiers = [];            // Array of String, identifiers in back of the step text
         this.codeBlock = "";                  // if this is a code block step, contains the '{' followed by the code
@@ -41,7 +41,6 @@ class Step {
         this.isOnly = false;                  // true if this step has the only identifier ($)
         this.isNonParallel = false;           // true if this step has the non-parallel identifier (+)
         this.isSequential = false;            // true if this step has the sequential identifier (..)
-        this.isExpectedFail = false;          // true if this step has the expected fail indentifier (#)
         this.isHidden = false;                // true if this step should be hidden in the report (?)
 
         this.isHook = false;                  // true if this step is a hook
@@ -58,7 +57,6 @@ class Step {
         this.isFailed = false;                // true if this step failed after being run
         this.isSkipped = false;               // true if this step was skipped
         this.isRunning = false;               // true if this step is currently running
-        this.asExpected = false;              // true if the passed/failed state is as expected
 
         this.error = {};                      // if this step failed, this is the Error that was thrown
         this.log = [];                        // Array of objects that represent the logs of this step
@@ -211,9 +209,6 @@ class Step {
 
         let isSequential = this.isSequential || functionDeclarationInTree.isSequential;
         isSequential && (this.isSequential = isSequential);
-
-        let isExpectedFail = this.isExpectedFail || functionDeclarationInTree.isExpectedFail;
-        isExpectedFail && (this.isExpectedFail = isExpectedFail);
 
         // we don't need to copy over isHidden
 

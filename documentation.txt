@@ -94,25 +94,18 @@ Reports
         - localhost:9000 (if 9000 isn't taken)
             - Live updates
             - Not recommended since this endpoint dies when smashtest ends. Use report.html instead (see console output for absolute path).
-    - Pass/fail and expected/unexpected
+    - Pass/fail
         - Steps
             - A step passes is no errors are thrown inside of it
             - A step fails if an error is thrown inside of it
-            - A step is marked expected if it passes, or unexpected if it fails
-                - However, if the step has a # identifier, it will be marked expected if it fails, and unexpected if it passes
-                - An error will show up in the report if a step is _unexpected_ (as opposed to passed or failed)
-                - Give an example of using #: a step fails, you file a defect, put in # and comment with bug tracker number so the
-                    test doesn't keep bothering you (it may be a low priority defect that isn't being fixed yet). Once it's fixed,
-                    the step will unexpectedly pass (and the branch will fail), you will notice, close off the bug tracker defect, and
-                    remove the # and comment.
         - Branches
-            - A branch will pass if all steps are as expected
-            - A branch will fail if one or more steps are unexpected
+            - A branch will pass if all steps pass
+            - A branch will fail if one or more steps fail
         - Error.continue
             - If the error obj thrown inside a step has error.continue set to true, the branch will continue executing, though it will still fail
-                if there is one or more unexpected errors
-            - If error.continue isn't set to true, and if the error was unexpected, the step will be marked as an unexpected fail, the branch will
-                be failed immediately, and all other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
+                if there is one or more failed steps
+            - If error.continue isn't set to true, the step will be marked as a fail, the branch will be failed immediately, and all
+                other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
         - Timeouts are set by each step on a case-by-case basis
     - Reading stack traces in errors
         - Error of step = filename and line number in filename
@@ -494,11 +487,6 @@ Sequential execution (..)
 No parallel execution (+)
     - No two child branches may execute simultaneously
 
-Expected failure (#)
-    - #
-    - Recommended to put a comment after the #, linking to a bug tracker ticket, etc.
-    - # on multiple steps in a branch to isolate a branch
-
 To-Do (-T)
     - Marks this step and those under it as todo
     - Treated as a textual step
@@ -512,7 +500,7 @@ Manual tests (-M)
     - Be careful, when -M is in a function declaration it will affect steps after the function call as well
 
 Hidden steps (.?)
-    - Only hidden in report and only if they're unexpected
+    - Only hidden in report and only if they fail
     - Good for internal stuff
 
 Only ($)
@@ -528,7 +516,7 @@ Debug (~)
         - Show example. Comes before or after a step, including before a function declaration's *.
         - Before means pause right before this step executes, after means pause right after
     - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
-    - Pauses right after a step if it fails (or unexpectedly passes)
+    - Pauses right after a step if it fails
     - Use multiple $'s and ~'s to isolate a single branch to debug (or you can use multiple ~'s)
 
 REPL

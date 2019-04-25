@@ -320,7 +320,7 @@ A {
             expect(isComplete).to.be.true;
         });
 
-        it("pauses after an unexpected fail occurs on a step that's inside a branch with ~ anywhere", async () => {
+        it("pauses after a fail occurs on a step that's inside a branch with ~ anywhere", async () => {
             let tree = new Tree();
             tree.parseIn(`
 A {

@@ -122,7 +122,7 @@ class RunInstance {
     /**
      * Executes a step, and its corresponding beforeEveryStep and afterEveryStep steps (if a branch is passed in)
      * Sets this.isPaused if the step requires execution to pause
-     * Marks the step as passed/failed and expected/unexpected, sets the step's error and log
+     * Marks the step as passed/failed, sets the step's error and log
      * Resolves immediately if step.isDebug is true (unless overrideDebug is true as well)
      * @param {Step} step - The Step to execute
      * @param {Branch} branch - The branch that contains the step to execute
@@ -294,25 +294,17 @@ class RunInstance {
                 }
             }
 
-            // Marks the step as passed/failed and expected/unexpected, sets the step's asExpected, error, and log
+            // Marks the step as passed/failed, sets the step's error and log
             let isPassed = !error;
-            let isExpectedFail = step.isExpectedFail && step.hasCodeBlock();
-            if(isExpectedFail && isPassed) {
-                error = new Error("This step passed, but it was expected to fail (#)");
-                error.filename = step.filename;
-                error.lineNumber = step.lineNumber;
-            }
-
             let finishBranchNow = false;
             if(!isPassed) {
-
                 finishBranchNow = true;
                 if(error.continue || this.runner.pauseOnFail) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
                     finishBranchNow = false;
                 }
             }
 
-            this.tree.markStep(step, branch, isPassed, !!isExpectedFail == !isPassed, error, finishBranchNow, true);
+            this.tree.markStep(step, branch, isPassed, error, finishBranchNow, true);
         }
 
         // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)
@@ -326,8 +318,8 @@ class RunInstance {
             }
         }
 
-        // Pause if pauseOnFail is set and the step failed or is unexpected
-        if(this.runner.pauseOnFail && (!step.isPassed || !step.asExpected)) {
+        // Pause if pauseOnFail is set and the step failed
+        if(this.runner.pauseOnFail && step.isFailed) {
             this.setPause(true);
         }
 
@@ -337,14 +329,12 @@ class RunInstance {
         if(this.runner.consoleOutput) {
             let seconds = step.elapsed/1000;
 
-            let isGreen = (step.isPassed && step.asExpected) || (step.isFailed && step.asExpected);
+            let isGreen = step.isPassed;
             console.log("End:       " +
                 (isGreen ? chalk.green(step.line.trim()) : chalk.red(step.line.trim()) ) +
                 "    " +
-                (step.isPassed && step.asExpected ? chalk.green(` passed`) : ``) +
-                (step.isPassed && !step.asExpected ? chalk.red(` passed not as expected`) : ``) +
-                (step.isFailed && step.asExpected ? chalk.green(` failed as expected`) : ``) +
-                (step.isFailed && !step.asExpected ? chalk.red(` failed`) : ``) +
+                (step.isPassed ? chalk.green(` passed`) : ``) +
+                (step.isFailed ? chalk.red(` failed`) : ``) +
                 chalk.gray(` (${seconds} s)`)
             );
             console.log("");
@@ -384,7 +374,7 @@ class RunInstance {
             this.fillErrorFromStep(e, step, true);
 
             if(stepToGetError) {
-                this.tree.markStep(stepToGetError, null, false, false, stepToGetError.error ? undefined : e); // do not set stepToGetError.error if it's already set
+                this.tree.markStep(stepToGetError, null, false, stepToGetError.error ? undefined : e); // do not set stepToGetError.error if it's already set
 
                 if(branchToGetError) {
                     branchToGetError.markBranch(false);
@@ -497,7 +487,7 @@ class RunInstance {
     /**
      * Runs the given step, then pauses again
      * Only call if already paused
-     * Stops execution upon the first failure, ignores # and ~
+     * Stops execution upon the first failure, ignores $ and ~
      * @param {Step} step - The step to run
      * @return {Promise} Promise that gets resolved with a Branch of steps that were run, once done executing
      * @throws {Error} Any errors that may occur during a branchify() of the given step

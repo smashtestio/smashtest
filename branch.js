@@ -29,7 +29,6 @@ class Branch {
 
         this.isOnly = false;                // If true, a step in this branch has a $
         this.isDebug = false;               // If true, a step in this branch has a ~
-        this.isExpectedFail = false;        // If true, a step in this branch has a #
 
         this.passedLastTime = false;        // if true, do not run this branch, but include it in the report
         this.isPassed = false;              // true if every step in this branch passed after being run
@@ -73,7 +72,6 @@ class Branch {
 
         branch.isOnly && (newBranch.isOnly = branch.isOnly);
         branch.isDebug && (newBranch.isDebug = branch.isDebug);
-        branch.isExpectedFail && (newBranch.isExpectedFail = branch.isExpectedFail);
 
         copyHooks("beforeEveryBranch", true); // Copy branch.beforeEveryBranch to the beginning of newBranch.beforeEveryBranch (so that packages comes first)
         copyHooks("afterEveryBranch", false); // Copy branch.afterEveryBranch to the end of newBranch.afterEveryBranch (so that packages comes last)
@@ -108,7 +106,6 @@ class Branch {
         this.steps.push(step);
         step.isOnly && (this.isOnly = true);
         step.isDebug && (this.isDebug = true);
-        step.isExpectedFail && (this.isExpectedFail = true);
     }
 
     /**
@@ -118,7 +115,6 @@ class Branch {
         this.steps.unshift(step);
         step.isOnly && (this.isOnly = true);
         step.isDebug && (this.isDebug = true);
-        step.isExpectedFail && (this.isExpectedFail = true);
     }
 
     /**
@@ -339,25 +335,18 @@ class Branch {
      }
 
      /**
-      * Marks this branch passed if all steps passed, failed if at least one step passed or failed not as expected
+      * Marks this branch passed if all steps passed, failed if at least one step failed
       */
      finishOffBranch() {
-         let badStepExists = false;
-
          for(let i = 0; i < this.steps.length; i++) {
              let step = this.steps[i];
-             if(step.asExpected === false) { // we're looking for false, not undefined
-                 badStepExists = true;
-                 break;
+             if(step.isFailed) {
+                 this.markBranch(false);
+                 return;
              }
          }
 
-         if(badStepExists) {
-             this.markBranch(false);
-         }
-         else {
-             this.markBranch(true);
-         }
+         this.markBranch(true);
      }
 
      /**

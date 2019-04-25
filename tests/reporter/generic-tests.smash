@@ -128,31 +128,6 @@ Lots of function indents -
 
 
 
-Expectations -
-    Expected pass -
-        Expected fail # {
-            throw new Error("oops");
-        }
-            We never get here -
-
-        Expected fail and continue # {
-            let e = new Error("oops");
-            e.continue = true;
-            throw e;
-        }
-            Expected pass -
-
-    Unexpected fail {
-        throw new Error("oops");
-    }
-
-        We never get here -
-
-    Unexpected pass # -
-
-        Expected pass -
-
-
 Continue failed -
     Step that fails but continues {
         let e = new Error("oops");

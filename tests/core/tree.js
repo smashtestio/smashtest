@@ -94,8 +94,6 @@ describe("Tree", () => {
             assert.equal(step.isOnly, undefined);
             assert.equal(step.isNonParallel, undefined);
             assert.equal(step.isSequential, undefined);
-            assert.equal(step.isExpectedFail, undefined);
-            assert.equal(step.expectedFailNote, undefined);
             assert.equal(step.varsBeingSet, undefined);
             assert.equal(step.varsList, undefined);
         });
@@ -487,16 +485,6 @@ describe("Tree", () => {
             step = tree.parseLine(`Click {button} -T .. + // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isSequential, true);
-        });
-
-        it("parses the expected fail identifier (#)", () => {
-            let step = tree.parseLine(`Click {button} #`, "file.txt", 10);
-            assert.equal(step.text, `Click {button}`);
-            assert.equal(step.isExpectedFail, true);
-
-            step = tree.parseLine(`Click {button} -T # + // comment`, "file.txt", 10);
-            assert.equal(step.text, `Click {button}`);
-            assert.equal(step.isExpectedFail, true);
         });
 
         it("parses the hidden identifier (.?)", () => {
@@ -3316,7 +3304,7 @@ C
         more code;
     }
 
-        Another code block # {
+        Another code block {
             blah;
         }
 `
@@ -3366,7 +3354,7 @@ C
         code;
         more code;
     }
-        Another code block - # {
+        Another code block - {
             blah;
         }`
             , "file.txt");
@@ -4395,7 +4383,7 @@ F -
             tree.parseIn(`
 ~ F
 
-* F + #
+* F +
     A -
     `);
 
@@ -4413,7 +4401,6 @@ F -
                             isFunctionDeclaration: undefined,
                             isDebug: true,
                             isNonParallel: true,
-                            isExpectedFail: true,
                             level: 0,
                             originalStepInTree: {
                                 text: "F",
@@ -4421,14 +4408,12 @@ F -
                                 isFunctionDeclaration: undefined,
                                 isDebug: true,
                                 isNonParallel: undefined,
-                                isExpectedFail: undefined,
                                 functionDeclarationInTree: {
                                     text: "F",
                                     isFunctionCall: undefined,
                                     isFunctionDeclaration: true,
                                     isDebug: undefined,
-                                    isNonParallel: true,
-                                    isExpectedFail: true
+                                    isNonParallel: true
                                 }
                             }
                         },
@@ -4439,7 +4424,6 @@ F -
                             isTextualStep: true,
                             isDebug: undefined,
                             isNonParallel: undefined,
-                            isExpectedFail: undefined,
                             level: 1,
                             originalStepInTree: {
                                 text: "A",
@@ -4457,7 +4441,7 @@ F -
             tree.parseIn(`
 ~ F
 
-* F + # {
+* F + {
     code block 1
     code block 2
 }
@@ -4477,7 +4461,6 @@ F -
                             isFunctionDeclaration: undefined,
                             isDebug: true,
                             isNonParallel: true,
-                            isExpectedFail: true,
                             level: 0,
                             codeBlock: '\n    code block 1\n    code block 2\n',
                             originalStepInTree: {
@@ -4486,7 +4469,6 @@ F -
                                 isFunctionDeclaration: undefined,
                                 isDebug: true,
                                 isNonParallel: undefined,
-                                isExpectedFail: undefined,
                                 codeBlock: undefined,
                                 functionDeclarationInTree: {
                                     text: "F",
@@ -4494,7 +4476,6 @@ F -
                                     isFunctionDeclaration: true,
                                     isDebug: undefined,
                                     isNonParallel: true,
-                                    isExpectedFail: true,
                                     codeBlock: '\n    code block 1\n    code block 2\n'
                                 }
                             }
@@ -12131,281 +12112,6 @@ G -
                 }
             ]);
         });
-
-        it.only("properly chooses which branches to apply # to", () => {
-            let tree = new Tree();
-            tree.parseIn(`
-A -
-    B - #
-        C - #
-
-    D -
-    E - #
-    F -
-
-        G - #
-        H -
-
-            I -
-
-        J - #
-
-            K - #
-
-        L -
-
-            M - # // ignored
-
-N -
-    O -
-        Func
-            P -
-                Q - #
-
-                Func2 #
-
-                Func3
-
-* Func
-    F1 -
-    F2 - #
-
-* Func2
-    F3 -
-
-* Func3 #
-    F4 -
-
-    `);
-
-            let branches = tree.branchify(tree.root);
-
-            expect(branches).to.have.lengthOf(19);
-
-            expect(branches[0].steps).to.have.lengthOf(3);
-            expect(branches[0]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "B", isExpectedFail: true },
-                    { text: "C", isExpectedFail: true }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[1].steps).to.have.lengthOf(4);
-            expect(branches[1]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "D", isExpectedFail: undefined },
-                    { text: "G", isExpectedFail: undefined },
-                    { text: "I", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-
-            expect(branches[2].steps).to.have.lengthOf(4);
-            expect(branches[2]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "D", isExpectedFail: undefined },
-                    { text: "H", isExpectedFail: undefined },
-                    { text: "I", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-
-            expect(branches[3].steps).to.have.lengthOf(4);
-            expect(branches[3]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "D", isExpectedFail: undefined },
-                    { text: "J", isExpectedFail: undefined },
-                    { text: "K", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-
-            expect(branches[4].steps).to.have.lengthOf(4);
-            expect(branches[4]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "D", isExpectedFail: undefined },
-                    { text: "L", isExpectedFail: undefined },
-                    { text: "M", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-
-            expect(branches[5].steps).to.have.lengthOf(4);
-            expect(branches[5]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "E", isExpectedFail: true },
-                    { text: "G", isExpectedFail: true },
-                    { text: "I", isExpectedFail: undefined }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[6].steps).to.have.lengthOf(4);
-            expect(branches[6]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "E", isExpectedFail: true },
-                    { text: "H", isExpectedFail: undefined },
-                    { text: "I", isExpectedFail: undefined }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[7].steps).to.have.lengthOf(4);
-            expect(branches[7]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "E", isExpectedFail: true },
-                    { text: "J", isExpectedFail: true },
-                    { text: "K", isExpectedFail: true }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[8].steps).to.have.lengthOf(4);
-            expect(branches[8]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "E", isExpectedFail: true },
-                    { text: "L", isExpectedFail: undefined },
-                    { text: "M", isExpectedFail: undefined }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[9].steps).to.have.lengthOf(4);
-            expect(branches[9]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "F", isExpectedFail: undefined },
-                    { text: "G", isExpectedFail: undefined },
-                    { text: "I", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-
-            expect(branches[10].steps).to.have.lengthOf(4);
-            expect(branches[10]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "F", isExpectedFail: undefined },
-                    { text: "H", isExpectedFail: undefined },
-                    { text: "I", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-
-            expect(branches[11].steps).to.have.lengthOf(4);
-            expect(branches[11]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "F", isExpectedFail: undefined },
-                    { text: "J", isExpectedFail: undefined },
-                    { text: "K", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-
-            expect(branches[12].steps).to.have.lengthOf(4);
-            expect(branches[12]).to.containSubsetInOrder({
-                steps: [
-                    { text: "A", isExpectedFail: undefined },
-                    { text: "F", isExpectedFail: undefined },
-                    { text: "L", isExpectedFail: undefined },
-                    { text: "M", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-
-            expect(branches[13].steps).to.have.lengthOf(6);
-            expect(branches[13]).to.containSubsetInOrder({
-                steps: [
-                    { text: "N", isExpectedFail: undefined },
-                    { text: "O", isExpectedFail: undefined },
-                    { text: "Func", isExpectedFail: undefined },
-                    { text: "F1", isExpectedFail: undefined },
-                    { text: "P", isExpectedFail: undefined },
-                    { text: "Q", isExpectedFail: undefined }
-                ],
-                isExpectedFail: undefined
-            });
-return;
-            expect(branches[14].steps).to.have.lengthOf(7);
-            expect(branches[14]).to.containSubsetInOrder({
-                steps: [
-                    { text: "N", isExpectedFail: undefined },
-                    { text: "O", isExpectedFail: true },
-                    { text: "Func", isExpectedFail: undefined },
-                    { text: "F1", isExpectedFail: undefined },
-                    { text: "P", isExpectedFail: undefined },
-                    { text: "Func2", isExpectedFail: undefined },
-                    { text: "F3", isExpectedFail: undefined }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[15].steps).to.have.lengthOf(7);
-            expect(branches[15]).to.containSubsetInOrder({
-                steps: [
-                    { text: "N", isExpectedFail: undefined },
-                    { text: "O", isExpectedFail: true },
-                    { text: "Func", isExpectedFail: undefined },
-                    { text: "F1", isExpectedFail: undefined },
-                    { text: "P", isExpectedFail: undefined },
-                    { text: "Func3", isExpectedFail: undefined },
-                    { text: "F4", isExpectedFail: undefined }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[16].steps).to.have.lengthOf(6);
-            expect(branches[16]).to.containSubsetInOrder({
-                steps: [
-                    { text: "N", isExpectedFail: undefined },
-                    { text: "O", isExpectedFail: true },
-                    { text: "Func", isExpectedFail: undefined },
-                    { text: "F2", isExpectedFail: true },
-                    { text: "P", isExpectedFail: undefined },
-                    { text: "Q", isExpectedFail: true }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[17].steps).to.have.lengthOf(7);
-            expect(branches[17]).to.containSubsetInOrder({
-                steps: [
-                    { text: "N", isExpectedFail: undefined },
-                    { text: "O", isExpectedFail: true },
-                    { text: "Func", isExpectedFail: undefined },
-                    { text: "F2", isExpectedFail: true },
-                    { text: "P", isExpectedFail: undefined },
-                    { text: "Func2", isExpectedFail: true },
-                    { text: "F3", isExpectedFail: undefined }
-                ],
-                isExpectedFail: true
-            });
-
-            expect(branches[18].steps).to.have.lengthOf(7);
-            expect(branches[18]).to.containSubsetInOrder({
-                steps: [
-                    { text: "N", isExpectedFail: undefined },
-                    { text: "O", isExpectedFail: true },
-                    { text: "Func", isExpectedFail: undefined },
-                    { text: "F2", isExpectedFail: true },
-                    { text: "P", isExpectedFail: undefined },
-                    { text: "Func3", isExpectedFail: undefined },
-                    { text: "F4", isExpectedFail: undefined }
-                ],
-                isExpectedFail: true
-            });
-        });
     });
 
     describe("generateBranches()", () => {
@@ -13367,7 +13073,7 @@ F -
             expect(tree.getStepCount(true, true)).to.equal(2);
         });
 
-        it("returns total number of unexpected steps", () => {
+        it("returns total number of failed steps", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -13381,16 +13087,16 @@ A -
 
             tree.generateBranches();
 
-            tree.branches[0].steps[0].asExpected = true;
-            tree.branches[0].steps[1].asExpected = false;
-            tree.branches[0].steps[2].asExpected = false;
-            tree.branches[0].steps[3].asExpected = true;
+            tree.branches[0].steps[0].isPassed = true;
+            tree.branches[0].steps[1].isFailed = true;
+            tree.branches[0].steps[2].isFailed = true;
+            tree.branches[0].steps[3].isPassed = true;
 
-            tree.branches[1].steps[0].asExpected = true;
-            tree.branches[1].steps[1].asExpected = false;
-            tree.branches[1].steps[2].asExpected = false;
+            tree.branches[1].steps[0].isPassed = true;
+            tree.branches[1].steps[1].isFailed = true;
+            tree.branches[1].steps[2].isFailed = true;
 
-            expect(tree.getStepCount(true, false, true)).to.equal(5);
+            expect(tree.getStepCount(true, false, true)).to.equal(4);
         });
     });
 
@@ -13640,7 +13346,7 @@ A - +
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(stepA, branch, true, true);
+            tree.markStep(stepA, branch, true);
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
@@ -13660,17 +13366,14 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
 
             let stepC = new Step();
             stepC.text = "C";
             stepC.isPassed = true;
-            stepC.asExpected = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -13680,14 +13383,14 @@ A - +
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(stepD, branch, true, true);
+            tree.markStep(stepD, branch, true);
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
                     { text: "A", isPassed: true },
                     { text: "B", isPassed: true },
                     { text: "C", isPassed: true },
-                    { text: "D", isPassed: true, asExpected: true, isRunning: true }
+                    { text: "D", isPassed: true, isRunning: true }
                 ],
                 isPassed: true,
                 isFailed: undefined
@@ -13700,17 +13403,14 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isFailed = true;
-            stepB.asExpected = false;
 
             let stepC = new Step();
             stepC.text = "C";
             stepC.isPassed = true;
-            stepC.asExpected = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -13720,14 +13420,14 @@ A - +
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(stepD, branch, true, true);
+            tree.markStep(stepD, branch, true);
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
                     { text: "A", isPassed: true },
                     { text: "B", isFailed: true },
                     { text: "C", isPassed: true },
-                    { text: "D", isPassed: true, asExpected: true, isRunning: true }
+                    { text: "D", isPassed: true, isRunning: true }
                 ],
                 isPassed: undefined,
                 isFailed: true
@@ -13754,11 +13454,11 @@ A - +
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(stepA, branch, false, false, new Error("foobar"));
+            tree.markStep(stepA, branch, false, new Error("foobar"));
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
-                    { text: "A", isFailed: true, asExpected: false, isRunning: true },
+                    { text: "A", isFailed: true, isRunning: true },
                     { text: "B", isFailed: undefined },
                     { text: "C", isFailed: undefined },
                     { text: "D", isFailed: undefined }
@@ -13776,17 +13476,14 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
 
             let stepC = new Step();
             stepC.text = "C";
             stepC.isPassed = true;
-            stepC.asExpected = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -13796,14 +13493,14 @@ A - +
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(stepD, branch, false, false, new Error("foobar"));
+            tree.markStep(stepD, branch, false, new Error("foobar"));
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
                     { text: "A", isFailed: undefined },
                     { text: "B", isFailed: undefined },
                     { text: "C", isFailed: undefined },
-                    { text: "D", isFailed: true, asExpected: false, isRunning: true }
+                    { text: "D", isFailed: true, isRunning: true }
                 ],
                 isPassed: undefined,
                 isFailed: true
@@ -13818,12 +13515,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
 
             let stepC = new Step();
             stepC.text = "C";
@@ -13836,13 +13531,13 @@ A - +
 
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
-            tree.markStep(stepC, branch, false, false, new Error("foobar"), true);
+            tree.markStep(stepC, branch, false, new Error("foobar"), true);
 
             expect(branch).to.containSubsetInOrder({
                 steps: [
                     { text: "A", isFailed: undefined },
                     { text: "B", isFailed: undefined },
-                    { text: "C", isFailed: true, asExpected: false, isRunning: true },
+                    { text: "C", isFailed: true, isRunning: true },
                     { text: "D", isFailed: undefined }
                 ],
                 isPassed: undefined,
@@ -13858,12 +13553,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
 
             let stepC = new Step();
             stepC.text = "C";
@@ -13886,13 +13579,13 @@ A - +
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            tree.markStep(stepC, branch1, false, false, new Error("foobar"), true, true);
+            tree.markStep(stepC, branch1, false, new Error("foobar"), true, true);
 
             expect(branch1).to.containSubsetInOrder({
                 steps: [
                     { text: "A", isFailed: undefined },
                     { text: "B", isFailed: undefined },
-                    { text: "C", isFailed: true, asExpected: false, isRunning: true },
+                    { text: "C", isFailed: true, isRunning: true },
                     { text: "D", isFailed: undefined }
                 ],
                 isPassed: undefined,
@@ -13920,12 +13613,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
 
             let stepC = new Step();
             stepC.text = "C";
@@ -13950,13 +13641,13 @@ A - +
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            tree.markStep(stepC, branch1, false, false, new Error("foobar"), true, true);
+            tree.markStep(stepC, branch1, false, new Error("foobar"), true, true);
 
             expect(branch1).to.containSubsetInOrder({
                 steps: [
                     { text: "A", isFailed: undefined },
                     { text: "B", isFailed: undefined },
-                    { text: "C", isFailed: true, asExpected: false, isRunning: true },
+                    { text: "C", isFailed: true, isRunning: true },
                     { text: "D", isFailed: undefined }
                 ],
                 isPassed: undefined,
@@ -13982,12 +13673,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
 
             let stepC = new Step();
             stepC.text = "C";
@@ -14012,13 +13701,13 @@ A - +
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            tree.markStep(stepC, branch1, false, false, new Error("foobar"), true, true);
+            tree.markStep(stepC, branch1, false, new Error("foobar"), true, true);
 
             expect(branch1).to.containSubsetInOrder({
                 steps: [
                     { text: "A", isFailed: undefined },
                     { text: "B", isFailed: undefined },
-                    { text: "C", isFailed: true, asExpected: false, isRunning: true },
+                    { text: "C", isFailed: true, isRunning: true },
                     { text: "D", isFailed: undefined }
                 ],
                 isPassed: undefined,
@@ -14080,7 +13769,6 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
@@ -14089,7 +13777,6 @@ A - +
             let stepC = new Step();
             stepC.text = "C";
             stepC.isPassed = true;
-            stepC.asExpected = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -14119,7 +13806,6 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
@@ -14128,7 +13814,6 @@ A - +
             let stepC = new Step();
             stepC.text = "C";
             stepC.isPassed = true;
-            stepC.asExpected = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -14349,12 +14034,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
             stepB.isRunning = true;
 
             let stepC = new Step();
@@ -14401,12 +14084,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
             stepB.isRunning = true;
 
             let stepC = new Step();
@@ -14453,12 +14134,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
             stepB.isRunning = true;
 
             let stepC = new Step();
@@ -14516,12 +14195,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
             stepB.isRunning = true;
 
             let stepC = new Step();
@@ -14579,12 +14256,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
             stepB.isRunning = true;
 
             let stepC = new Step();
@@ -14626,12 +14301,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
             stepB.isRunning = true;
 
             let stepC = new Step();
@@ -14684,12 +14357,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
             stepB.isRunning = true;
 
             let stepC = new Step();
@@ -14742,12 +14413,10 @@ A - +
             let stepA = new Step();
             stepA.text = "A";
             stepA.isPassed = true;
-            stepA.asExpected = true;
 
             let stepB = new Step();
             stepB.text = "B";
             stepB.isPassed = true;
-            stepB.asExpected = true;
             stepB.isRunning = true;
 
             let stepC = new Step();

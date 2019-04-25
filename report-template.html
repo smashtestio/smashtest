@@ -205,14 +205,6 @@
                 margin: 0 10px;
             }
 
-            .pill.expected {
-                background-color: green;
-            }
-
-            .pill.unexpected {
-                background-color: red;
-            }
-
             .pill.skipped {
                 background-color: rgb(0,200,200);
             }
@@ -495,12 +487,6 @@
             }
 
             function attachPreviewPaneTooltips() {
-                tippyOptions.content = wrapTippyContent("This step passed, but was<br>expected to fail (#)");
-                tippy(".preview-pane .pill.unexpected", tippyOptions);
-
-                tippyOptions.content = wrapTippyContent("This step failed,<br>as was expected (#)");
-                tippy(".preview-pane .pill.expected", tippyOptions);
-
                 tippyOptions.content = wrapTippyContentForKeystrokes(`
 left  = previous step
 right = next step
@@ -528,15 +514,6 @@ c     = copy debug command 'smashtest filename -d=hash'
 
                 tippyOptions.content = wrapTippyContent("Branch not run yet");
                 tippy(".branch-indicator.notrunyet", tippyOptions);
-
-                tippyOptions.content = wrapTippyContent("This step passed, but was<br>expected to fail (#)");
-                tippy(".pill.unexpected", tippyOptions);
-
-                tippyOptions.content = wrapTippyContent("This step failed,<br>as was expected (#)");
-                tippy(".pill.expected", tippyOptions);
-
-                /*tippyOptions.content = wrapTippyContent("Congrats! All branches passed");
-                tippy(".thumbs-up", tippyOptions);*/
             }
 
             // React Components
@@ -1097,7 +1074,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                         );
                     }
 
-                    let lines = this.props.branch.steps.filter(step => !step.isHidden || step.asExpected === false).map((step, index) =>
+                    let lines = this.props.branch.steps.filter(step => !step.isHidden).map((step, index) =>
                             <Line
                                 step={step}
                                 branch={this.props.branch}
@@ -1187,22 +1164,10 @@ c     = copy debug command 'smashtest filename -d=hash'
                         pill = <span className="pill running">RUNNING</span>;
                     }
                     else if(this.props.step.isPassed) {
-                        if(this.props.step.asExpected) {
-                            contentClassName += "passed-expected passed-item";
-                        }
-                        else {
-                            contentClassName += "passed-unexpected passed-item";
-                            pill = <span className="pill unexpected">UNEXPECTED</span>;
-                        }
+                        contentClassName += "passed-item";
                     }
                     else if(this.props.step.isFailed) {
-                        if(this.props.step.asExpected) {
-                            contentClassName += "failed-expected failed-item";
-                            pill = <span className="pill expected">EXPECTED</span>;
-                        }
-                        else {
-                            contentClassName += "failed-unexpected failed-item";
-                        }
+                        contentClassName += "failed-item";
                     }
                     else if(this.props.step.isSkipped) {
                         contentClassName += "skipped skipped-item";
@@ -1299,10 +1264,6 @@ c     = copy debug command 'smashtest filename -d=hash'
                     previewStateClassName += className;
 
                     previewStateText = "Passed";
-
-                    if(previewedItem.asExpected === false) {
-                        pill = <span className="pill unexpected">UNEXPECTED</span>;
-                    }
                 }
                 else if(previewedItem.isFailed) {
                     const className = "failed-item";
@@ -1313,10 +1274,6 @@ c     = copy debug command 'smashtest filename -d=hash'
 
                     if(previewedItem.error && previewedItem.error.continue) {
                         previewStateText += ", but continued branch";
-                    }
-
-                    if(previewedItem.asExpected === true) {
-                        pill = <span className="pill expected">EXPECTED</span>;
                     }
                 }
                 else if(previewedItem.isSkipped) {
