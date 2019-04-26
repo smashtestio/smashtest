@@ -853,6 +853,11 @@ describe("Comparer", () => {
                     expect(Comparer.print(obj)).to.equal(`"foobar"`);
                 });
 
+                it("expected=correct $regex in /regex/i form", () => {
+                    let obj = Comparer.comparison("foobar", { $regex: /fooBAR/i });
+                    expect(Comparer.print(obj)).to.equal(`"foobar"`);
+                });
+
                 it("expected=incorrect $regex in /regex/ form", () => {
                     let obj = Comparer.comparison("foobar", { $regex: /foo\\z[a-z]+/ });
                     expect(Comparer.print(obj)).to.equal(`"foobar"  -->  doesn't match $regex /foo\\\\z[a-z]+/`);
