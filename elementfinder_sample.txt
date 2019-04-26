@@ -3,9 +3,11 @@ Verify page contains [
     '/something' page url
 
     'Welcome to my site!' heading
-    'Sponsored by N' italic, bold
+    ['Sponsored by N' italic, bold]
 
-    'Latest News'
+    Latest News
+
+    More text here
 
     Multiple
     [news item
@@ -37,7 +39,7 @@ Verify page contains [
 
 
 
-
+Text
 
 <|counter>
 [ElementFinder
@@ -50,6 +52,8 @@ Verify page contains [
 
     <|counter>
     ElementFinder
+
+    Text
 
     etc.
 ]

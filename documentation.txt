@@ -305,6 +305,7 @@ Variables
             'string literal {var1}', "string literal {{var2}}", or [string literal {var3}]
     - Setting vars
         - {var} = 'String' (or "String" or [String])
+            - Everything in SmashTEST is a string (to make things less complicated, and since in most web ui/api testing you're dealing with strings anyway)
             - To clone a var, use {var}='{var2}'
             - {var1}='str1', {var2}='str2', etc.
                 - When setting multiple vars in a single line, use commas to separate them. Strings only. No functions.
