@@ -262,6 +262,25 @@ Functions
 
             On special cart page
                 Clear cart // specific stuff, then generic stuff
+        - Function acting as an anonymous step block
+            * *
+                A1
+                    A2
+                B1
+                    B2
+            *
+                Step applied to each leaf
+
+            * ===
+                A1
+                    A2
+                B1
+                    B2
+            ===
+                Step applied to each leaf
+
+            - But make sure only one * or = pair at this indent level, otherwise the first one will always be called.
+                Use more *'s, ='s, or give it a traditional name.
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
 
@@ -411,6 +430,7 @@ Code blocks
             - runInstance.currStep
             - runInstance.currBranch
             - runInstance.tree
+            - Can be used to dynamically edit or create tests at runtime
         - runInstance.runner Object (quick summary)
         - throw new Error("error msg")
     - JS file pattern

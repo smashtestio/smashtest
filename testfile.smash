@@ -5,6 +5,16 @@ Browser test -
     Open Safari
 
         Mobile
-        Desktop
+        $ Desktop
 
-            Wait '5' seconds
+            Wait '1' second
+
+                * *
+                    A1 -
+                        A2 -
+                    B1 -
+                        B2 -
+                *
+                    C1 -
+                        Skipped - -S
+                            C2 -

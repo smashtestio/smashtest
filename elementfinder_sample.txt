@@ -1,0 +1,88 @@
+Verify page contains [
+    'Welcome' page title
+    '/something' page url
+
+    'Welcome to my site!' heading
+    'Sponsored by N' italic, bold
+
+    'Latest News'
+
+    Multiple
+    [news item
+        'Here are the news stories:'
+    ]
+
+    [sidebar
+        Only one
+        [line item, selected]
+    ]
+
+    [component
+        Exactly
+        [item]
+        [item]
+        [item]
+        (no more items matched)
+    ]
+
+    [component
+        In any order
+        [item]
+        [item]
+        [item]
+        (no more items matched)
+    ]
+]
+
+
+
+
+
+
+<|counter>
+[ElementFinder
+    // must be inside or matching parent element
+
+    <|modifier>
+
+    <|counter>
+    ElementFinder
+
+    <|counter>
+    ElementFinder
+
+    etc.
+]
+
+modifier =
+    |Exactly|In any order
+        Exactly = may not contain items or text not listed inside the []'s, case sensitive
+        In any order = items inside the []'s may be in any order
+
+counter =
+    |Exactly N|At least N|At most N|One or more|Multiple|Every|Only one
+        Case insensitive
+        Every = one or more
+
+ElementFinder =
+    <|ord> <|text inside or near element> <property, property, etc.>
+        With or without []'s
+        Could just have []'s
+
+text =
+    'text' (case insensitive)
+    /regex/i (i for case insensitive is optional)
+
+property =
+    |not
+    enabled|disabled|checked|unchecked|selected|focused|in focus
+    'selector'
+    'text'
+    next to 'text'
+    page title
+    page url
+    Name of js function implemented in some central object
+        Case insensitive, use commas to separate
+
+
+'Check in' button, selected, next to 'something'
