@@ -116,7 +116,7 @@
     }
 
     * Click {{element}} {
-        // element is selector string or ElementFinder
+        // element is an ElementFinder
 
 
 
@@ -352,7 +352,7 @@
     }
 
     * Switch to iframe {{element}} {
-        // element is a selector or ElementFinder of an iframe
+        // element is an ElementFinder of an iframe
 
 
 
@@ -363,6 +363,13 @@
     * Switch to original iframe {
         // parentFrame aka defaultContent
 
+
+
+
+
+    }
+
+    * Execute in browser {{code}} {
 
 
 
@@ -521,7 +528,7 @@
 
     }
 
-    * Verify page contains {{elementFinder}} {
+    * Verify page contains {{element}} {
 
 
 
@@ -530,7 +537,7 @@
 
     }
 
-    * Verify page does not contain {{elementFinder}} {
+    * Verify page does not contain {{element}} {
 
 
 
@@ -573,7 +580,7 @@
 
     }
 
-    * Wait until page contains {{elementFinder}} {
+    * Wait until page contains {{element}} {
 
 
 
@@ -589,7 +596,7 @@
 
     }
 
-    * Wait until page does not contain {{elementFinder}} {
+    * Wait until page does not contain {{element}} {
 
 
 
