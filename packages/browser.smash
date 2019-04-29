@@ -504,7 +504,8 @@
     * Verify at page {{page}} {
         // page is page title or url (absolute or relative)
         // do a partial match
-        // wait for up to 10 secs
+        // wait for up to 3 secs?
+        // error.continue = true
 
 
 
@@ -513,7 +514,6 @@
     }
 
     * Verify cookie {{name}} contains {{value}} {
-        // wait for up to 10 secs
 
 
 
@@ -521,8 +521,7 @@
 
     }
 
-    * Verify page contains {{content}} {
-        // wait for up to 10 secs
+    * Verify page contains {{elementFinder}} {
 
 
 
@@ -531,8 +530,7 @@
 
     }
 
-    * Verify page does not contain {{content}} {
-        // wait for up to 10 secs
+    * Verify page does not contain {{elementFinder}} {
 
 
 
@@ -545,8 +543,23 @@
     //  Wait until
     // ***************************************
 
-    * Wait up to {{n}} secs until at page {{page}} {
+    * Wait until at page {{titleOrUrl}} {
+        // wait up to 15 secs
 
+
+
+
+    }
+
+    * Wait up to {{n}} secs until at page {{titleOrUrl}} {
+
+
+
+
+
+    }
+
+    * Wait until cookie {{name}} contains {{value}} {
 
 
 
@@ -560,7 +573,23 @@
 
     }
 
+    * Wait until page contains {{elementFinder}} {
+
+
+
+
+
+    }
+
     * Wait up to {{n}} secs until page contains {{content}} {
+
+
+
+
+
+    }
+
+    * Wait until page does not contain {{elementFinder}} {
 
 
 
