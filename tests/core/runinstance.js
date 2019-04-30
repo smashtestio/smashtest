@@ -2294,6 +2294,26 @@ My 'foo' Function 'bar' other text
             expect(tree.branches[0].steps[0].error).to.equal(undefined);
         });
 
+        it("executes a Function step, without {var}=, where the function declaration has a code block that returns a value", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+My function
+
+* My function {
+    return "foobar";
+}
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree);
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].error).to.equal(undefined);
+            expect(tree.branches[0].steps[0].error).to.equal(undefined);
+        });
+
         it("executes a {var} = Function step, where the function declaration has a code block that returns a value asynchonously", async () => {
             let tree = new Tree();
             tree.parseIn(`
