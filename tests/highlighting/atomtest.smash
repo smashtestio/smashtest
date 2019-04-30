@@ -30,29 +30,6 @@ Function here
 
                 Sequential three -
 
-Sequential ..
-    Still sequential
-Not sequential
-
-    Sequential ..
-        Still sequential
-
-            Still sequential
-
-        Still sequential
-
-Not sequential
-
-        Sequential ..
-            Still sequential
-
-                Still sequential
-
-            Still sequential
-
-    Not sequential
-
-
             Sequential and debug ~ ..
 
             $ IsOnly step -
