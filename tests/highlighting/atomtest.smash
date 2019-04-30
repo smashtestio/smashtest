@@ -30,6 +30,29 @@ Function here
 
                 Sequential three -
 
+Sequential ..
+    Still sequential
+Not sequential
+
+    Sequential ..
+        Still sequential
+
+            Still sequential
+
+        Still sequential
+
+Not sequential
+
+        Sequential ..
+            Still sequential
+
+                Still sequential
+
+            Still sequential
+
+    Not sequential
+
+
             Sequential and debug ~ ..
 
             $ IsOnly step -
@@ -43,11 +66,108 @@ Function here
                     }
                         Non-debug ~ step
 
-            - + # .? Identifiers?. - + # .?
+            - + .? Identifiers.?- - + .?
+
+            Step with \\ special \" chars "string \" " {"var"}
 
             Code block {
                 throw new Error("oops");
+                if(something) {
+                    something();
+                }
+                return 6;
             }
+
+            String payload block [
+                String
+                String \" \' \\
+                {var}
+                {{var}}
+                [
+                    something
+                    {var}
+                    [] [] []
+                ]
+                [
+                    fsdfdsf
+                ]
+            ]
+
+            Code payload block [{
+                 let x = 7;
+                 return new Error();
+                 throw new Error("oops");
+                 if(something) {
+                     something();
+                 }
+                 return 6;
+            }]
+
+                $ Code block ~ {
+                    throw new Error("oops");
+                    if(something) {
+                        something();
+                    }
+                    return 6;
+                }
+
+                $ String payload block ~ - [
+                    String
+                    String \" \' \\
+                    {var}
+                    {{var}}
+                    [
+                        something
+                        {var}
+                        [] [] []
+                    ]
+                    [
+                        fsdfdsf
+                    ]
+                ]
+
+                $ Code payload block ~ - [{
+                     let x = 7;
+                     return new Error();
+                     throw new Error("oops");
+                     if(something) {
+                         something();
+                     }
+                     return 6;
+                }]
+
+                    .. Code block {
+                        throw new Error("oops");
+                        if(something) {
+                            something();
+                        }
+                        return 6;
+                    }
+
+                    String payload block .. [
+                        String
+                        String \" \' \\
+                        {var}
+                        {{var}}
+                        [
+                            something
+                            {var}
+                            [] [] []
+                        ]
+                        [
+                            fsdfdsf
+                        ]
+                    ]
+
+                    Code payload block .. - [{
+                         let x = 7;
+                         return new Error();
+                         throw new Error("oops");
+                         if(something) {
+                             something();
+                         }
+                         return 6;
+                    }]
 
 * Function here
     {global var}='something'
@@ -70,6 +190,8 @@ Function here
 }
 
 .. * Func - .?
+
+- .? * Func - .?
 
 *** Before every branch {
     throw new Error("oops");
