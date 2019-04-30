@@ -1,4 +1,4 @@
-Browser test -
+- Browser test -
 
     $ Open Chrome
     Open Firefox
@@ -7,14 +7,13 @@ Browser test -
         Mobile
         $ Desktop
 
-            Wait '1' second
+            Wait '1' second -T
 
-                * *
-                    A1 -
-                        A2 -
-                    B1 -
-                        B2 -
-                *
-                    C1 -
-                        Skipped - -S
-                            C2 -
+            - This is a heading -
+                Standard step 1 -
+                    Standard step 2 -
+                        Standard step 3 -
+                            - This is a heading -
+                                Standard step 1 -
+                                    Standard step 2 -
+                                        Standard step 3 -

@@ -14,7 +14,7 @@ class Runner {
 
         this.flags = {};                 // Flags passed in through the command line (e.g., -maxInstances=7 -noDebug -groups="one two" --> {maxInstances: '7', noDebug: '', groups: 'one two'})
 
-        this.groups = undefined;         // Only run branches that are a part of one of these groups, no restrictions if this is undefined
+        this.groups = undefined;         // Array of string. Only run branches that are a part of one of these groups, no restrictions if this is undefined.
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
         this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
@@ -33,7 +33,7 @@ class Runner {
         this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
 
         this.isPaused = false;           // True if this runner has been paused (set by the RunInstance within this.runInstances)
-        this.isStopped = false;           // True if this runner has been stopped
+        this.isStopped = false;          // True if this runner has been stopped
         this.isComplete = false;         // True if this runner is done running its tree
     }
 

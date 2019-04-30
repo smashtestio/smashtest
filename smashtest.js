@@ -113,7 +113,7 @@ function processFlag(name, value) {
                 break;
 
             case "groups":
-                runner.groups = value.split(/\s+/);
+                runner.groups = value.split(/\s*\,\s*/);
                 break;
 
             case "group":
@@ -175,7 +175,7 @@ Options
   --debug=<hash> or -d           Run the branch associated with the hash in debug mode
   --group="<group name>"         Same as -groups, but only one group. Multiple -group's ok.
                                    Useful for group names with spaces.
-  --groups="<group1> <group2>"   Only run branches that are part of one of these groups
+  --groups="<group1>,<group2>"   Only run branches that are part of one of these groups
   --g:<name>="<value>"           Set the global variable with the given name to the given value,
                                    before each branch
   --headless=<true/false>        Overrides default headless behavior (headless unless debugging),
