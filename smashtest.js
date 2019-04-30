@@ -20,8 +20,9 @@ let runner = new Runner();
 let reporter = new Reporter(tree, runner);
 
 const yellowChalk = chalk.hex("#ffb347");
+const hRule = chalk.gray("─".repeat(process.stdout.columns));
 
-console.log("");
+console.log(hRule);
 console.log(yellowChalk.bold("SmashTEST 0.1.0 BETA"));
 console.log("");
 
@@ -39,6 +40,8 @@ async function exit(forcedStop, exitCode) {
         console.log("Stopping...");
         console.log("");
     }
+
+    //console.log(hRule);
 
     if(runner) {
         try {
@@ -451,6 +454,7 @@ async function runServer() {
             }
 
             console.log(``);
+            //console.log(hRule);
         }
 
         // Output header that contains number of branches to run and live report location
@@ -465,6 +469,7 @@ async function runServer() {
             if(!runner.noReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reporter.reportPath));
             }
+
             console.log(``);
         }
 
