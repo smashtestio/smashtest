@@ -4,11 +4,15 @@ Function here
             // comment on its own line
 
             Manual step -M // comment
+                Stuff under the manual step
+                    More stuff under manual .. ~
 
             To-Do step -T
                 Stuff under the to-do step...
-                    Skipped step -S
-                        Other stuff -
+                    More stuff under to-do step .. ~
+
+            Skipped step -S
+                Other stuff -
 
             Step block one -
             Step block two -
@@ -23,12 +27,60 @@ Function here
 
                 Under step block -
 
-            Sequential step 'string' .. - //comment
+                ..
+                Sequential step block one -
+                Sequential step block two -
+                Sequential step block three -
+                    Not sequential block -
 
+                    ..
+                    Sequential step block one -
+                    Sequential step block two -
+                    Sequential step block three -
+                Not sequential block -
+
+                        ..
+                        Sequential step block one -
+                        Sequential step block two -
+                        Sequential step block three -
+
+                    Not sequential block -
+
+                            ..
+                            Sequential step block one -
+                            Sequential step block two -
+                                ..
+                                Sequential step block one -
+                                Sequential step block two -
+                                    Not sequential -
+
+.. Sequential step 'string' - //comment
+    Sequential one -
+        Sequential two -
+    Sequential three -
+Not sequential
+
+    Sequential step 'string' .. - //comment
+        Sequential one -
+            Sequential two -
+        Sequential three -
+    Not sequential
+
+        Sequential step 'string' .. - //comment
+
+            Sequential one -
+
+                Sequential two -
+
+            Sequential three -
+
+        Not sequential
+
+            Sequential step 'string' .. - //comment
                 Sequential one -
                     Sequential two -
-
                 Sequential three -
+            Not sequential
 
             Sequential and debug ~ ..
 
@@ -88,7 +140,7 @@ Function here
                     return 6;
                 }
 
-                $ String payload block ~ - [
+                $ String payload block ~ .. - [
                     String
                     String \" \' \\
                     {var}
@@ -167,6 +219,8 @@ Function here
 }
 
 .. * Func - .?
+
+$ .. * Func - .?
 
 - .? * Func - .?
 
