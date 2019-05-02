@@ -1073,18 +1073,21 @@ c     = copy debug command 'smashtest filename -d=hash'
                 }
 
                 render() {
+                    let branch = this.props.branch;
+                    let previewedItem = this.props.previewedItem;
+
                     let indicatorClassName = "branch-indicator ";
 
-                    if(this.props.branch.isRunning) {
+                    if(branch.isRunning) {
                         indicatorClassName += "running";
                     }
-                    else if(this.props.branch.isFailed) {
+                    else if(branch.isFailed) {
                         indicatorClassName += "failed";
                     }
-                    else if(this.props.branch.isPassed) {
+                    else if(branch.isPassed) {
                         indicatorClassName += "passed";
                     }
-                    else if(this.props.branch.isSkipped) {
+                    else if(branch.isSkipped) {
                         indicatorClassName += "skipped";
                     }
                     else {
@@ -1092,56 +1095,64 @@ c     = copy debug command 'smashtest filename -d=hash'
                     }
 
                     let error = "";
-                    if(this.props.branch.error) {
+                    if(branch.error) {
                         error = (
                             <div className="stacktrace">
-                                {formatStackTrace(this.props.branch.error)}
+                                {formatStackTrace(branch.error)}
                             </div>
                         );
                     }
 
-                    // Reset collapse
-                    this.props.branch.steps.forEach(step => delete step.collapse);
+                    // Reset collapseHide
+                    branch.steps.forEach(step => delete step.collapseHide);
 
                     // If a step has a +, collapse all the steps underneath it, except if any step under it is currently running, failed, or selected
-                    // + steps will always override any collapsing set by + steps that came before
-                    this.props.branch.steps.forEach((step, index) => {
-                        if(step.isCollapsed) {
-                            let doCollapsing = true;
-                            for(let i = index; i < this.props.branch.steps.length; i++) {
-                                let s = this.props.branch.steps[i];
-                                if(s !== step && s.level <= step.level) {
-                                    break;
-                                }
+                    branch.steps.forEach((step, index) => {
+                        if(step.isCollapsed && !step.collapseHide) {
+                            step.doCollapsing = true;
 
-                                if(s.isRunning || s.isFailed || this.props.previewedItem === s) {
-                                    doCollapsing = false;
-                                    break;
-                                }
+                            if(previewedItem && previewedItem.props.step === step) {
+                                step.doCollapsing = false;
                             }
+                            else {
+                                for(let i = index + 1; i < branch.steps.length; i++) {
+                                    let s = branch.steps[i];
+                                    if(s.level <= step.level) {
+                                        break;
+                                    }
 
-                            for(let i = index; i < this.props.branch.steps.length; i++) {
-                                let s = this.props.branch.steps[i];
-                                if(s !== step && s.level <= step.level) {
-                                    break;
+                                    if(s.isRunning || s.isFailed || (previewedItem && previewedItem.props.step === s)) {
+                                        step.doCollapsing = false;
+                                        break;
+                                    }
                                 }
 
-                                s.collapse = doCollapsing;
+                                if(step.doCollapsing) {
+                                    for(let i = index + 1; i < branch.steps.length; i++) {
+                                        let s = branch.steps[i];
+                                        if(s.level <= step.level) {
+                                            break;
+                                        }
+
+                                        s.collapseHide = true;
+                                    }
+                                }
                             }
                         }
                     });
 
-                    let lines = this.props.branch.steps
-                        .filter(step => !step.isHidden && !step.collapse)
+                    let lines = branch.steps
+                        .filter(step => !step.isHidden)
                         .map((step, index) =>
+                            step.collapseHide ? '' : // do this here and not in filter() in order to preserve line numbering
                             <Line
                                 step={step}
-                                branch={this.props.branch}
+                                branch={branch}
                                 index={index+1}
-                                key={index}
-                                lastIndex={this.props.branch.steps.length - 1}
+                                key={step.text}
+                                lastIndex={branch.steps.length - 1}
                                 setPreview={this.props.setPreview}
-                                previewedItem={this.props.previewedItem}
+                                previewedItem={previewedItem}
                             />
                         );
 
@@ -1149,7 +1160,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                     if(this.state.hovered) {
                         branchClassName += "hover ";
                     }
-                    if(this.props.previewedItem === this) {
+                    if(previewedItem === this) {
                         branchClassName += "active ";
                     }
 
@@ -1247,27 +1258,25 @@ c     = copy debug command 'smashtest filename -d=hash'
                     }
 
                     let lineClassName = "line ";
-                    let active = false;
                     if(this.props.previewedItem === this) {
                         lineClassName += "active ";
-                        active = true;
                     }
 
                     let lineElem = (
                         <span className="line-container">
                             <span className={contentClassName}>
                                 {
-                                    !this.props.step.isCollapsed ? '' : (
-                                        active ?
-                                        <img
-                                            className="collapse minus"
-                                            src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48bGluZSB4MT0iOCIgeDI9IjE2IiB5MT0iMTIiIHkyPSIxMiIvPjwvc3ZnPg=="
-                                        /> :
+                                    this.props.step.isCollapsed ? (
+                                        this.props.step.doCollapsing ?
                                         <img
                                             className="collapse plus"
                                             src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTM0NCA4MDB2NjRxMCAxNC05IDIzdC0yMyA5aC0zNTJ2MzUycTAgMTQtOSAyM3QtMjMgOWgtNjRxLTE0IDAtMjMtOXQtOS0yM3YtMzUyaC0zNTJxLTE0IDAtMjMtOXQtOS0yM3YtNjRxMC0xNCA5LTIzdDIzLTloMzUydi0zNTJxMC0xNCA5LTIzdDIzLTloNjRxMTQgMCAyMyA5dDkgMjN2MzUyaDM1MnExNCAwIDIzIDl0OSAyM3ptMTI4IDQ0OHYtODMycTAtNjYtNDctMTEzdC0xMTMtNDdoLTgzMnEtNjYgMC0xMTMgNDd0LTQ3IDExM3Y4MzJxMCA2NiA0NyAxMTN0MTEzIDQ3aDgzMnE2NiAwIDExMy00N3Q0Ny0xMTN6bTEyOC04MzJ2ODMycTAgMTE5LTg0LjUgMjAzLjV0LTIwMy41IDg0LjVoLTgzMnEtMTE5IDAtMjAzLjUtODQuNXQtODQuNS0yMDMuNXYtODMycTAtMTE5IDg0LjUtMjAzLjV0MjAzLjUtODQuNWg4MzJxMTE5IDAgMjAzLjUgODQuNXQ4NC41IDIwMy41eiIvPjwvc3ZnPg=="
+                                        /> :
+                                        <img
+                                            className="collapse minus"
+                                            src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48bGluZSB4MT0iOCIgeDI9IjE2IiB5MT0iMTIiIHkyPSIxMiIvPjwvc3ZnPg=="
                                         />
-                                    )
+                                    ) : ''
                                 }
                                 {
                                     (this.props.step.frontIdentifiers ? this.props.step.frontIdentifiers.join(' ') + ' ' : '') +
