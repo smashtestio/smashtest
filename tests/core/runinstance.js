@@ -1023,7 +1023,7 @@ Cause a stop {
         it("resets global vars to their inits from the Runner", async () => {
             let tree = new Tree();
             tree.parseIn(`
-Run one at a time - +
+Run one at a time - !
     Branch 1 -
         Verify vars
             {x}='33'
@@ -1544,7 +1544,7 @@ My {var:} Function
             let tree = new Tree();
             tree.parseIn(`
 My {var:} Function
-    {var} = Set that var! {
+    {var} = Set that var {
         return 'foobar';
     }
 
@@ -1571,7 +1571,7 @@ My {var:} Function
             let tree = new Tree();
             tree.parseIn(`
 My {var:} Function
-    {var} = Set that var! {
+    {var} = Set that var {
         return new Promise((resolve, reject) => {});
     }
 
@@ -1682,7 +1682,7 @@ My 'so called {var:}' Function
             let tree = new Tree();
             tree.parseIn(`
 My 'so called {var :}' Function
-    {var} = Set that var! {
+    {var} = Set that var {
         return 'foobar';
     }
 
@@ -1709,7 +1709,7 @@ My 'so called {var :}' Function
             let tree = new Tree();
             tree.parseIn(`
 My 'so called {var :}' Function
-    {var} = Set that var! {
+    {var} = Set that var {
         return new Promise((resolve, reject) => { resolve('foobar'); });
     }
 
@@ -2317,7 +2317,7 @@ My function
         it("executes a {var} = Function step, where the function declaration has a code block that returns a value asynchonously", async () => {
             let tree = new Tree();
             tree.parseIn(`
-{var} = Set that var! {
+{var} = Set that var {
     return await new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve("foobar");

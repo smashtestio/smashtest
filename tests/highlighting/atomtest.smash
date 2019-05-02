@@ -24,8 +24,17 @@ Function here
             Sequential step block one -
             Sequential step block two -
             Sequential step block three -
+            {var} = "something \" "
 
                 Under step block -
+                {var1} = "something 111 \" "
+                {var222} = "something 222 \" "
+                {var3333} = "something 333 \" "
+
+                ..
+                {var1} = "something 111 \" "
+                {var222} = "something 222 \" "
+                {var3333} = "something 333 \" "
 
                 ..
                 Sequential step block one -
@@ -95,7 +104,7 @@ Not sequential
                     }
                         Non-debug ~ step
 
-            - + .? Identifiers.?- - + .?
+            - + +? ! Identifiers+?- - + +? !
 
             Step with \\ special \" chars "string \" " {"var"}
 
@@ -218,11 +227,11 @@ Not sequential
     return new Object();
 }
 
-.. * Func - .?
+.. * Func - +?
 
-$ .. * Func - .?
+$ .. * Func - +?
 
-- .? * Func - .?
+- +? * Func - +?
 
 *** Before every branch {
     throw new Error("oops");

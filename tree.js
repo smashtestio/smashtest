@@ -122,7 +122,16 @@ class Tree {
             step.identifiers = (step.identifiers || []).concat(step.backIdentifiers);
         }
         if(matches[15]) {
-            step.codeBlock = matches[15].substring(1); // substring() strips off leading {
+            let block = matches[15];
+            if(block.startsWith('[{')) { // payload code block
+                step.payloadCodeBlock = block.replace(/^\[\{/, '');
+            }
+            else if(block.startsWith('[')) { // payload string block
+                step.payloadBlock = block.replace(/^\[/, '');
+            }
+            else if(block.startsWith('{')) { // code block
+                step.codeBlock = block.replace(/^\{/, '');
+            }
         }
         if(matches[17]) {
             step.comment = matches[17];
@@ -140,6 +149,11 @@ class Tree {
         if(step.isFunctionDeclaration) {
             if(step.text.match(Constants.STRING_LITERAL)) {
                 utils.error(`A function declaration cannot have 'strings', "strings", or [strings] inside of it`, filename, lineNumber);
+            }
+
+            // Validate that a function declaration doesn't have a payload
+            if(step.hasPayloadBlock() || step.hasPayloadCodeBlock()) {
+                utils.error(`A function declaration cannot have a [payload] block at the end of it`, filename, lineNumber);
             }
 
             // Validate that all vars in a function declaration are {{local}}
@@ -198,13 +212,16 @@ class Tree {
             if(step.identifiers.includes('$')) {
                 step.isOnly = true;
             }
-            if(step.identifiers.includes('+')) {
+            if(step.identifiers.includes('!')) {
                 step.isNonParallel = true;
             }
             if(step.identifiers.includes('..')) {
                 step.isSequential = true;
             }
-            if(step.identifiers.includes('.?')) {
+            if(step.identifiers.includes('+')) {
+                step.isCollapsed = true;
+            }
+            if(step.identifiers.includes('+?')) {
                 step.isHidden = true;
             }
         }
@@ -1031,7 +1048,7 @@ class Tree {
             }
         }
 
-        // If isNonParallel (+) is set, connect up the branches in branchesBelow
+        // If isNonParallel (!) is set, connect up the branches in branchesBelow
         if(step.isNonParallel) {
             let nonParallelId = utils.randomId();
             branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);

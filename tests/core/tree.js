@@ -84,6 +84,8 @@ describe("Tree", () => {
             assert.equal(step.text, `Click "Big Red Button"`);
             assert.equal(step.identifiers, undefined);
             assert.equal(step.codeBlock, undefined);
+            assert.equal(step.payloadBlock, undefined);
+            assert.equal(step.payloadCodeBlock, undefined);
             assert.equal(step.comment, undefined);
             assert.equal(step.isFunctionDeclaration, undefined);
             assert.equal(step.isFunctionCall, true);
@@ -350,6 +352,26 @@ describe("Tree", () => {
             }, "A function declaration cannot be a textual step (-) as well [file.txt:10]");
         });
 
+        it("throws an error if a function declaration has a string payload block", () => {
+            assert.throws(() => {
+                tree.parseLine(`* Something - [`, "file.txt", 10);
+            }, "A function declaration cannot have a [payload] block at the end of it [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`* Something - [ // comment`, "file.txt", 10);
+            }, "A function declaration cannot have a [payload] block at the end of it [file.txt:10]");
+        });
+
+        it("throws an error if a function declaration has a code payload block", () => {
+            assert.throws(() => {
+                tree.parseLine(`* Something - [{`, "file.txt", 10);
+            }, "A function declaration cannot have a [payload] block at the end of it [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`* Something - [{ // comment`, "file.txt", 10);
+            }, "A function declaration cannot have a [payload] block at the end of it [file.txt:10]");
+        });
+
         it("parses a function declaration with a code block", () => {
             let step = tree.parseLine(`* Click {{var}} + { `, "file.txt", 10);
             assert.equal(step.text, `Click {{var}}`);
@@ -467,12 +489,12 @@ describe("Tree", () => {
             assert.equal(step.isOnly, true);
         });
 
-        it("parses the non-parallel identifier (+)", () => {
-            let step = tree.parseLine(`Click {button} +`, "file.txt", 10);
+        it("parses the non-parallel identifier (!)", () => {
+            let step = tree.parseLine(`Click {button} !`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isNonParallel, true);
 
-            step = tree.parseLine(`Click {button} -T + .. // comment`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} -T ! .. // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isNonParallel, true);
         });
@@ -487,16 +509,30 @@ describe("Tree", () => {
             assert.equal(step.isSequential, true);
         });
 
-        it("parses the hidden identifier (.?)", () => {
-            let step = tree.parseLine(`Click {button} .?`, "file.txt", 10);
+        it("parses the collapsed identifier (+)", () => {
+            let step = tree.parseLine(`Click {button} +`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isCollapsed, true);
+
+            step = tree.parseLine(`+ Click {button}`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isCollapsed, true);
+
+            step = tree.parseLine(`Click {button} -T + ! // comment`, "file.txt", 10);
+            assert.equal(step.text, `Click {button}`);
+            assert.equal(step.isCollapsed, true);
+        });
+
+        it("parses the hidden identifier (+?)", () => {
+            let step = tree.parseLine(`Click {button} +?`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isHidden, true);
 
-            step = tree.parseLine(`.? Click {button}`, "file.txt", 10);
+            step = tree.parseLine(`+? Click {button}`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isHidden, true);
 
-            step = tree.parseLine(`Click {button} -T .? + // comment`, "file.txt", 10);
+            step = tree.parseLine(`Click {button} -T +? + // comment`, "file.txt", 10);
             assert.equal(step.text, `Click {button}`);
             assert.equal(step.isHidden, true);
         });
@@ -4383,7 +4419,7 @@ F -
             tree.parseIn(`
 ~ F
 
-* F +
+* F !
     A -
     `);
 
@@ -4441,7 +4477,7 @@ F -
             tree.parseIn(`
 ~ F
 
-* F + {
+* F ! {
     code block 1
     code block 2
 }
@@ -9904,13 +9940,13 @@ A -
             }, "A hook cannot have children [file.txt:2]");
         });
 
-        it("connects branches via nonParallelId when + is set", () => {
+        it("connects branches via nonParallelId when ! is set", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
 
-    C - +
+    C - !
 
         D -
             E -
@@ -9953,15 +9989,15 @@ G -
             ]);
         });
 
-        it("handles two steps with +, one a descendant of the other", () => {
+        it("handles two steps with !, one a descendant of the other", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
     B -
 
-    C - +
+    C - !
 
-        D + -
+        D ! -
             E -
 
         F -
@@ -10002,13 +10038,13 @@ G -
             ]);
         });
 
-        it("handles two sibling steps with +", () => {
+        it("handles two sibling steps with !", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
-    B - +
+    B - !
 
-    C - +
+    C - !
 
         D -
             E -
@@ -13104,7 +13140,7 @@ A -
         it("returns the next branch", () => {
             let tree = new Tree();
             tree.parseIn(`
-A - +
+A - !
     B -
         C -
         D -
@@ -13167,7 +13203,7 @@ G -
         it("finds a branch not yet taken, skipping over those with a running branch with the same nonParallelId", () => {
             let tree = new Tree();
             tree.parseIn(`
-A - +
+A - !
     B -
         C -
         D -
@@ -13192,7 +13228,7 @@ G -
         it("returns null when no branches are available", () => {
             let tree = new Tree();
             tree.parseIn(`
-A - +
+A - !
     B -
         C -
         D -

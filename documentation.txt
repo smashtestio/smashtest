@@ -1,10 +1,9 @@
 What is SmashTEST?
-    - Generates and executes functional, (?)(load, and security tests) from a test tree
-        - Geared towards UI browser testing, but can be used for anything
-        - NodeJS for now
+    - Store tests in a tree. Makes building, updating, and destroying tests faster.
     - Example
     - Easier to create tests as a tree, makes you think of all permutations on a single page or input.
         Represents how a tester comes up with test cases (tester thinks breadth-first, user thinks depth-first).
+    - Look to "competitive advantages" section in SmashTEST Business
 
 Setup
     - Installation
@@ -14,7 +13,6 @@ Setup
         - https://github.com/SeleniumHQ/selenium/tree/master/javascript/node/selenium-webdriver
         - https://www.npmjs.com/package/selenium-webdriver
         - http://www.webdriverjs.com/example-program-for-webdriverjs/
-    - Installing SmashTEST Chrome Extension
 
 Example file
     - One big example file with each type of step, etc. and // comments explaining stuff
@@ -511,7 +509,7 @@ Sequential execution (..)
 
     - Show more examples from bottom of test_language_sample.txt
 
-No parallel execution (+)
+No parallel execution (!)
     - No two child branches may execute simultaneously
 
 To-Do (-T)
@@ -530,9 +528,14 @@ Manual (-M)
     - Only one branch going through this step will be run, the rest will be skipped as repeats
     - Be careful, when -M is in a function declaration it will affect steps after the function call as well
 
-Hidden steps (.?)
-    - Only hidden in report and only if they fail
-    - Good for internal stuff
+Collapsing (+ and +?)
+    - Collapsed (+)
+        - Put on function calls or function declarations
+        - Used to hide excess steps inside functions by collapsing them
+        - If there's an error inside that function, or if the function is currently running, it will be uncollapsed by default
+    - Hidden (+?)
+        - Only hidden in report if they pass
+        - Good for internal stuff
 
 Only ($)
     - $ = Only run branches under this step, but no debugging.

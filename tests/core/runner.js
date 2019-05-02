@@ -211,10 +211,10 @@ Branch 3 -
             expect(tree.elapsed).to.be.below(85);
         });
 
-        it("can spawn a multiple run instances, but due to +'es only some of them actually run'", async () => {
+        it("can spawn a multiple run instances, but due to !'es only some of them actually run'", async () => {
             let tree = new Tree();
             tree.parseIn(`
-Branch Group 1 - +
+Branch Group 1 - !
     Branch 1 -
         Wait '20' ms
             Log '1'
@@ -227,7 +227,7 @@ Branch Group 1 - +
         Wait '20' ms
             Log '3'
 
-Branch Group 2 - +
+Branch Group 2 - !
     Branch 4 -
         Wait '20' ms
             Log '4'

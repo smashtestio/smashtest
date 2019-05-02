@@ -23,7 +23,9 @@ class Step {
         this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['..', '+']) in front or behind the step
         this.frontIdentifiers = [];           // Array of String, identifiers in front of the step text
         this.backIdentifiers = [];            // Array of String, identifiers in back of the step text
-        this.codeBlock = "";                  // if this is a code block step, contains the '{' followed by the code
+        this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
+        this.payloadBlock = "";               // payload block contents (string) that come after the [ and not including the line with the ]
+        this.payloadCodeBlock = "";           // payload code block contents that come after the [{ and not including the line with the }]
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
         this.isFunctionDeclaration = false;   // true if this step is a function declaration
@@ -40,9 +42,10 @@ class Step {
         this.isBeforeDebug = false;           // true if this step has the debug identifier (~) before the step text
         this.isAfterDebug = false;            // true if this step has the debug identifier (~) after the step text
         this.isOnly = false;                  // true if this step has the only identifier ($)
-        this.isNonParallel = false;           // true if this step has the non-parallel identifier (+)
+        this.isNonParallel = false;           // true if this step has the non-parallel identifier (!)
         this.isSequential = false;            // true if this step has the sequential identifier (..)
-        this.isHidden = false;                // true if this step should be hidden in the report (?)
+        this.isCollapsed = false;             // true if this step should be collapsed in the report (+)
+        this.isHidden = false;                // true if this step should be hidden in the report (+?)
 
         this.isHook = false;                  // true if this step is a hook
         this.isPackaged = false;              // true if this step is from a package file
@@ -214,6 +217,9 @@ class Step {
         let isSequential = this.isSequential || functionDeclarationInTree.isSequential;
         isSequential && (this.isSequential = isSequential);
 
+        let isCollapsed = this.isCollapsed || functionDeclarationInTree.isCollapsed;
+        isCollapsed && (this.isCollapsed = isCollapsed);
+
         // we don't need to copy over isHidden
 
         let isHook = this.isHook || functionDeclarationInTree.isHook;
@@ -266,6 +272,27 @@ class Step {
      */
     hasCodeBlock() {
         return typeof this.codeBlock != 'undefined';
+    }
+
+    /**
+     * @return {Boolean} True if this step has a payload block, false otherwise
+     */
+    hasPayloadBlock() {
+        return typeof this.payloadBlock != 'undefined';
+    }
+
+    /**
+     * @return {Boolean} True if this step has a payload code block, false otherwise
+     */
+    hasPayloadCodeBlock() {
+        return typeof this.payloadCodeBlock != 'undefined';
+    }
+
+    /**
+     * @return {Boolean} True if this step has a payload block, code block, or payload code block, false otherwise
+     */
+    hasBlock() {
+        return hasCodeBlock() || hasPayloadBlock() || hasPayloadCodeBlock();
     }
 }
 module.exports = Step;

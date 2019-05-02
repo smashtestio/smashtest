@@ -1,3 +1,42 @@
+Collapsing -
+    Passing function 1 +
+        Step after passing function -
+            Passing function 1 +
+
+    Passing function 2
+        Step after passing function -
+            Passing function 2
+
+    Failing function +
+        Step never gotten to -
+
+    Function with multiple branches +
+
+    Function with empty body +
+
+    * Passing function 1
+        Passing step 1 -
+            Passing step 2 -
+
+    * Passing function 2 +
+        Passing step 1 -
+            Passing step 2 -
+
+    * Failing function
+        Passing step -
+            Failing step {
+                throw new Error("oops2");
+            }
+
+    * Function with multiple branches +
+        Branch 1 -
+        Branch 2 -
+
+    * Function with empty body
+
+
+
+
 Passing -
 
     Passing step -
@@ -163,7 +202,7 @@ After Every Step Error -
 
 
 
-Skipping similar branches on fail + -
+Skipping similar branches on fail ! -
 
     Failing step {
         throw new Error("oops");
@@ -189,7 +228,7 @@ Normal step -
 
 
 
-Skipping similar branches for TODO steps + -
+Skipping similar branches for TODO steps ! -
 
     TODO step -T
 
@@ -198,7 +237,7 @@ Skipping similar branches for TODO steps + -
 
 
 
-Skipping similar branches for MANUAL steps + -
+Skipping similar branches for MANUAL steps ! -
 
     MANUAL step -M
 

@@ -1,19 +1,15 @@
 - Browser test -
 
-    $ Open Chrome
+    Open Chrome $
     Open Firefox
     Open Safari
 
-        Mobile
-        $ Desktop
+        Mobile $
+        Desktop
 
-            Wait '1' second -T
+            Actual test starts here -
 
-            - This is a heading -
-                Standard step 1 -
-                    Standard step 2 -
-                        Standard step 3 -
-                            - This is a heading -
-                                Standard step 1 -
-                                    Standard step 2 -
-                                        Standard step 3 -
+* Mobile
+    Some mobile setup here -
+        More mobile setup here -
+            Mobile // original Mobile

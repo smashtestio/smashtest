@@ -610,12 +610,14 @@ describe("Step", () => {
             functionDeclarationInTree.isToDo = true;
             functionDeclarationInTree.isSkip = true;
             functionDeclarationInTree.isManual = true;
+            functionDeclarationInTree.isCollapsed = true;
 
             step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
             expect(step.isToDo).to.equal(true);
             expect(step.isSkip).to.equal(true);
             expect(step.isManual).to.equal(true);
+            expect(step.isCollapsed).to.equal(true);
             expect(step.isDebug).to.equal(undefined);
             expect(step.isPackaged).to.equal(undefined);
             expect(step.functionDeclarationText).to.equal("T");
@@ -634,6 +636,7 @@ describe("Step", () => {
             functionDeclarationInTree.isNonParallel = true;
             functionDeclarationInTree.isSequential = true;
             functionDeclarationInTree.isPackaged = true;
+            functionDeclarationInTree.isCollapsed = true;
 
             step.mergeInFunctionDeclaration(functionDeclarationInTree);
 
@@ -645,6 +648,7 @@ describe("Step", () => {
             expect(step.isNonParallel).to.equal(true);
             expect(step.isSequential).to.equal(true);
             expect(step.isPackaged).to.equal(true);
+            expect(step.isCollapsed).to.equal(true);
             expect(step.functionDeclarationText).to.equal("T");
         });
 
@@ -663,6 +667,7 @@ describe("Step", () => {
             expect(step.isNonParallel).to.equal(undefined);
             expect(step.isSequential).to.equal(undefined);
             expect(step.isPackaged).to.equal(undefined);
+            expect(step.isCollapsed).to.equal(undefined);
             expect(step.functionDeclarationText).to.equal(undefined);
         });
 
