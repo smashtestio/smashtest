@@ -12,28 +12,28 @@
 //  Open browsers
 // ***************************************
 
-* Open Chrome
-    {browser name}='chrome' +?
+* Open Chrome +
+    {browser name}='chrome'
         Use browser +?
 
-* Open Firefox
-    {browser name} = 'firefox' +?
+* Open Firefox +
+    {browser name} = 'firefox'
         Use browser +?
 
-* Open Safari
-    {browser name} = 'safari' +?
+* Open Safari +
+    {browser name} = 'safari'
         Use browser +?
 
-* Open IE
-    {browser name} = 'internet explorer' +?
+* Open IE +
+    {browser name} = 'internet explorer'
         Use browser +?
 
-* Open Edge
-    {browser name} = 'MicrosoftEdge' +?
+* Open Edge +
+    {browser name} = 'MicrosoftEdge'
         Use browser +?
 
-* Use browser {{name}}
-    {browser name} = '{{name}}' +?
+* Use browser {{name}} +
+    {browser name} = '{{name}}'
         Use browser +?
 
 // ***************************************

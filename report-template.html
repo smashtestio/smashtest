@@ -416,6 +416,17 @@
             }
 
             .preview-pane .msg.updates-paused {
+                background-color: rgb(90,90,90);
+                margin-bottom: 30px;
+                border: 1px solid rgb(90,90,90);
+                padding: 1px 7px;
+                border-radius: 6px;
+                display: inline-block;
+                color: rgb(45,45,45);
+                font-size: 0.75em;
+            }
+
+            .preview-pane .preview-divider {
                 margin-bottom: 30px;
             }
 
@@ -599,6 +610,7 @@ c     = copy debug command 'smashtest filename -d=hash'
 
                     // Bindings
                     this.setUpdateLoop = this.setUpdateLoop.bind(this);
+                    this.setLive = this.setLive.bind(this);
                     this.updateData = this.updateData.bind(this);
                     this.updateState = this.updateState.bind(this);
                     this.setPreview = this.setPreview.bind(this);
@@ -610,13 +622,11 @@ c     = copy debug command 'smashtest filename -d=hash'
                 }
 
                 componentDidMount() {
-                    if(window.location.href.match(/(^https?\:\/\/(localhost|127\.0\.0\.1))|(report\.html$)/)) { // dated reports from reports/ do not update themselves
+                    if(window.location.href.match(/^https?\:\/\/|report\.html$/)) { // dated reports from reports/ do not update themselves
                         this.setUpdateLoop();
                     }
                     else {
-                        this.setState({
-                            live: false
-                        });
+                        this.setState( { live: false } );
                     }
 
                     this.me.focus(); // focus on myself, so I can start getting keyboard commands
@@ -631,6 +641,17 @@ c     = copy debug command 'smashtest filename -d=hash'
                     }, this.slowPoll ? UPDATE_FREQUENCY_SLOW : UPDATE_FREQUENCY);
                 }
 
+                setLive(isLive) {
+                    if(isLive) {
+                        this.slowPoll = false;
+                        this.setState( { live: true } );
+                    }
+                    else {
+                        this.slowPoll = true;
+                        this.setState( { live: false } );
+                    }
+                }
+
                 updateData() {
                     let self = this;
                     return new Promise((resolve, reject) => {
@@ -642,24 +663,24 @@ c     = copy debug command 'smashtest filename -d=hash'
                                     preState = JSON.parse(xhr.response);
                                 }
                                 catch(e) {
-                                    this.slowPoll = true;
+                                    this.setLive(false);
                                     resolve(); // fail silently
                                     return;
                                 }
 
                                 if(!preState) {
-                                    this.slowPoll = true;
+                                    this.setLive(false);
                                     resolve(); // fail silently
                                     return;
                                 }
 
-                                this.slowPoll = false;
+                                this.setLive(true);
                                 self.preState = preState;
                                 self.updateState();
                                 resolve();
                             });
                             xhr.addEventListener("error", () => {
-                                this.slowPoll = true;
+                                this.setLive(false);
                                 self.updateState();
                                 resolve(); // fail silently
                             });
@@ -923,7 +944,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                             {
                                 !props.data.live ?
                                 <div className="msg">
-                                    This report is a snapshot. It is not live.
+                                    This report is a snapshot from a completed run.
                                 </div> :
                                 ""
                             }
@@ -1484,13 +1505,14 @@ c     = copy debug command 'smashtest filename -d=hash'
                                 <span>Branch {props.previewedItem.props.branch.hash} <span className="commandline-hint">Hover here for keystrokes</span></span>
                             }
                         </div>
-                        <div className="msg updates-paused">
-                            {
-                                props.live ?
-                                `Live updates are paused. Unselect this ${isBranch ? "branch" : "step"} to resume live updates.` :
-                                ""
-                            }
-                        </div>
+
+                        {
+                            props.live ?
+                            <div className="msg updates-paused">
+                                Live updates paused. Unselect this {isBranch ? "branch" : "step"} to resume live updates.
+                            </div> :
+                            <div className="preview-divider"></div>
+                        }
 
                         <PreviewError previewedItem={previewedItem}/>
                         {isBranch ? "" : <PreviewDetails previewedItem={previewedItem}/>}

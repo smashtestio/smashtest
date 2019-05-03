@@ -138,32 +138,6 @@ Step blocks
                 console.log("something")
             }
 
-Payload blocks
-    - Used to send multi-line input to a function
-
-    - String payload block
-        Function name [
-            String here
-        ]
-
-        - Last ] must be the same indentation as function, and nothing but whitespace before
-        - Captures string in between the Function name [ and ] lines
-        - {vars} inside get replaced as they do in normal strings
-
-    - Code payload block
-        Function name [{
-            js code or js object here
-        }]
-
-        - No spaces between [ and {, } and ]
-        - {vars} don't get replaced, but may be accessible as a plain js var depending on the function's implementation
-
-    - {var} = [
-    ]
-
-    - {var} = [{
-    }]
-
 Textual steps (-)
     - A textual step can be like a heading, describing the following steps until a new textual step occurs.
         Use functions to show multiple layers of headers (descriptions in varying degrees of specificity).
@@ -415,24 +389,13 @@ Variables
                     return "\u2665 \cJ";
                 }
 
-Comments
-    - // only, stuff before it is a legit step
-    - If whole line starts with //, it's ignored as if it weren't there
-        - For example
-            A
-            // B
-            C
-                is still a step block, with members A and C
-
-    - Use -S or -T to "comment out" a step or everything under a step (see To-Do and Skip identifier sections)
-
 Code blocks
     - Types
         - * Function {code}
         - Textual step {code} or Textual step - {code}
     - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
-    - +, .., etc. characters applied come after the step text and before the {
-    - Only lines after the { line and before the } count as part of the code block
+        - Captures code in between "Text {" and the } line (not including anything on the } line)
+    - +, .., etc. identifiers come after the step text and before the {
     - Variables
         - Get
             - {{var1}} is var1 or l("var1") or getLocal("var1")
@@ -475,6 +438,44 @@ Code blocks
         - Don't have multiple local, global, or persistent variables that are spelled the same, only different casing. Variable names are stored case-insensitively.
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., l(), g(), p()) instead.
+
+Payload blocks
+    - Used to send multi-line input to a function
+
+    - String payload block
+        Function name [
+            String here
+        ]
+
+        - Last ] must be the same indentation as function, and nothing but whitespace before
+        - Captures string in between "Function name [" and the ] line (not including anything on the ] line)
+        - {vars} inside get replaced as they do in normal strings
+
+    - Code payload block
+        Function name [{
+            js code or js object here
+        }]
+
+        - No spaces between [ and {, } and ]
+        - Captures code in between "Function name [{" and the }] line (not including anything on the }] line)
+        - {vars} don't get replaced, but may be accessible as a plain js var depending on the function's implementation
+
+    - {var} = [
+    ]
+
+    - {var} = [{
+    }]
+
+Comments
+    - // only, stuff before it is a legit step
+    - If whole line starts with //, it's ignored as if it weren't there
+        - For example
+            A
+            // B
+            C
+                is still a step block, with members A and C
+
+    - Use -S or -T to "comment out" a step or everything under a step (see To-Do and Skip identifier sections)
 
 Sequential execution (..)
     - .. at the end of a step
