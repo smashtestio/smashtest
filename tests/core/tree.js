@@ -353,6 +353,24 @@ describe("Tree", () => {
                 }, "A function declaration cannot be a textual step (-) as well [file.txt:10]");
             });
 
+            it("returns text set to empty string for empty or all-whitespace lines", () => {
+                let step = tree.parseLine(``, "file.txt", 10);
+                assert.equal(step.text, '');
+
+                step = tree.parseLine(`     `, "file.txt", 10);
+                assert.equal(step.text, '');
+            });
+
+            it("returns text set to '..' when the whole line is a sequential identifier (..)", () => {
+                let step = tree.parseLine(`..`, "file.txt", 10);
+                assert.equal(step.text, '..');
+
+                step = tree.parseLine(`    .. `, "file.txt", 10);
+                assert.equal(step.text, '..');
+            });
+        });
+
+        context("blocks", () => {
             it("throws an error if a function declaration has a string payload block", () => {
                 assert.throws(() => {
                     tree.parseLine(`* Something - [`, "file.txt", 10);
@@ -398,20 +416,34 @@ describe("Tree", () => {
                 assert.equal(step.comment, undefined);
             });
 
-            it("returns text set to empty string for empty or all-whitespace lines", () => {
-                let step = tree.parseLine(``, "file.txt", 10);
-                assert.equal(step.text, '');
-
-                step = tree.parseLine(`     `, "file.txt", 10);
-                assert.equal(step.text, '');
+            it("parses a string payload block", () => {
+                let step = tree.parseLine(`Something here + [`, "file.txt", 10);
+                assert.equal(step.text, `Something here`);
+                assert.equal(step.payloadBlock, '');
+                assert.equal(step.payloadCodeBlock, undefined);
             });
 
-            it("returns text set to '..' when the whole line is a sequential identifier (..)", () => {
-                let step = tree.parseLine(`..`, "file.txt", 10);
-                assert.equal(step.text, '..');
+            it("parses a string payload block followed by a comment", () => {
+                let step = tree.parseLine(`Something here + [ // comment here`, "file.txt", 10);
+                assert.equal(step.text, `Something here`);
+                assert.equal(step.payloadBlock, ' // comment here');
+                assert.equal(step.payloadCodeBlock, undefined);
+                assert.equal(step.comment, undefined);
+            });
 
-                step = tree.parseLine(`    .. `, "file.txt", 10);
-                assert.equal(step.text, '..');
+            it("parses a code payload block", () => {
+                let step = tree.parseLine(`Something here + [{`, "file.txt", 10);
+                assert.equal(step.text, `Something here`);
+                assert.equal(step.payloadBlock, undefined);
+                assert.equal(step.payloadCodeBlock, '');
+            });
+
+            it("parses a code payload block followed by a comment", () => {
+                let step = tree.parseLine(`Something here + [{ // comment here`, "file.txt", 10);
+                assert.equal(step.text, `Something here`);
+                assert.equal(step.payloadBlock, undefined);
+                assert.equal(step.payloadCodeBlock, ' // comment here');
+                assert.equal(step.comment, undefined);
             });
         });
 
