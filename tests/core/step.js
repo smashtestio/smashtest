@@ -602,8 +602,8 @@ describe("Step", () => {
 
     describe("mergeInFunctionDeclaration()", () => {
         it("merges in function declaration", () => {
-            let step = new Step();
-            step.isToDo = true;
+            let functionCall = new Step();
+            functionCall.isToDo = true;
 
             let functionDeclarationInTree = new Step();
             functionDeclarationInTree.text = "T";
@@ -612,19 +612,19 @@ describe("Step", () => {
             functionDeclarationInTree.isManual = true;
             functionDeclarationInTree.isCollapsed = true;
 
-            step.mergeInFunctionDeclaration(functionDeclarationInTree);
+            functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
 
-            expect(step.isToDo).to.equal(true);
-            expect(step.isSkip).to.equal(true);
-            expect(step.isManual).to.equal(true);
-            expect(step.isCollapsed).to.equal(true);
-            expect(step.isDebug).to.equal(undefined);
-            expect(step.isPackaged).to.equal(undefined);
-            expect(step.functionDeclarationText).to.equal("T");
+            expect(functionCall.isToDo).to.equal(true);
+            expect(functionCall.isSkip).to.equal(true);
+            expect(functionCall.isManual).to.equal(true);
+            expect(functionCall.isCollapsed).to.equal(true);
+            expect(functionCall.isDebug).to.equal(undefined);
+            expect(functionCall.isPackaged).to.equal(undefined);
+            expect(functionCall.functionDeclarationText).to.equal("T");
         });
 
         it("merges in function declaration with all identifiers set to false", () => {
-            let step = new Step();
+            let functionCall = new Step();
 
             let functionDeclarationInTree = new Step();
             functionDeclarationInTree.text = "T";
@@ -638,48 +638,73 @@ describe("Step", () => {
             functionDeclarationInTree.isPackaged = true;
             functionDeclarationInTree.isCollapsed = true;
 
-            step.mergeInFunctionDeclaration(functionDeclarationInTree);
+            functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
 
-            expect(step.isToDo).to.equal(true);
-            expect(step.isSkip).to.equal(true);
-            expect(step.isManual).to.equal(true);
-            expect(step.isDebug).to.equal(true);
-            expect(step.isOnly).to.equal(true);
-            expect(step.isNonParallel).to.equal(true);
-            expect(step.isSequential).to.equal(true);
-            expect(step.isPackaged).to.equal(true);
-            expect(step.isCollapsed).to.equal(true);
-            expect(step.functionDeclarationText).to.equal("T");
+            expect(functionCall.isToDo).to.equal(true);
+            expect(functionCall.isSkip).to.equal(true);
+            expect(functionCall.isManual).to.equal(true);
+            expect(functionCall.isDebug).to.equal(true);
+            expect(functionCall.isOnly).to.equal(true);
+            expect(functionCall.isNonParallel).to.equal(true);
+            expect(functionCall.isSequential).to.equal(true);
+            expect(functionCall.isPackaged).to.equal(true);
+            expect(functionCall.isCollapsed).to.equal(true);
+            expect(functionCall.functionDeclarationText).to.equal("T");
         });
 
         it("merges in function declaration with all identifiers missing", () => {
-            let step = new Step();
-
+            let functionCall = new Step();
             let functionDeclarationInTree = new Step();
 
-            step.mergeInFunctionDeclaration(functionDeclarationInTree);
+            functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
 
-            expect(step.isToDo).to.equal(undefined);
-            expect(step.isSkip).to.equal(undefined);
-            expect(step.isManual).to.equal(undefined);
-            expect(step.isDebug).to.equal(undefined);
-            expect(step.isOnly).to.equal(undefined);
-            expect(step.isNonParallel).to.equal(undefined);
-            expect(step.isSequential).to.equal(undefined);
-            expect(step.isPackaged).to.equal(undefined);
-            expect(step.isCollapsed).to.equal(undefined);
-            expect(step.functionDeclarationText).to.equal(undefined);
+            expect(functionCall.isToDo).to.equal(undefined);
+            expect(functionCall.isSkip).to.equal(undefined);
+            expect(functionCall.isManual).to.equal(undefined);
+            expect(functionCall.isDebug).to.equal(undefined);
+            expect(functionCall.isOnly).to.equal(undefined);
+            expect(functionCall.isNonParallel).to.equal(undefined);
+            expect(functionCall.isSequential).to.equal(undefined);
+            expect(functionCall.isPackaged).to.equal(undefined);
+            expect(functionCall.isCollapsed).to.equal(undefined);
+            expect(functionCall.functionDeclarationText).to.equal(undefined);
         });
 
         it("merges in code block", () => {
-            let step = new Step();
+            let functionCall = new Step();
 
             let functionDeclarationInTree = new Step();
             functionDeclarationInTree.codeBlock = 'code';
 
-            step.mergeInFunctionDeclaration(functionDeclarationInTree);
+            functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
 
-            expect(step.codeBlock).to.equal('code');
+            expect(functionCall.codeBlock).to.equal('code');
+        });
+
+        it("handles a merge between a function declaration with a code block and a function call with a string payload block", () => {
+            let functionCall = new Step();
+            functionCall.stringPayloadBlock = 'payload';
+
+            let functionDeclarationInTree = new Step();
+            functionDeclarationInTree.codeBlock = 'code';
+
+            functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
+
+            expect(functionCall.codeBlock).to.equal('code');
+            expect(functionCall.stringPayloadBlock).to.equal('payload');
+        });
+
+        it("handles a merge between a function declaration with a code block and a function call with a code payload block", () => {
+            let functionCall = new Step();
+            functionCall.codePayloadBlock = 'payload';
+
+            let functionDeclarationInTree = new Step();
+            functionDeclarationInTree.codeBlock = 'code';
+
+            functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
+
+            expect(functionCall.codeBlock).to.equal('code');
+            expect(functionCall.codePayloadBlock).to.equal('payload');
         });
     });
 

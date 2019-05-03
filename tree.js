@@ -124,10 +124,10 @@ class Tree {
         if(matches[15]) {
             let block = matches[15];
             if(block.startsWith('[{')) { // payload code block
-                step.payloadCodeBlock = block.replace(/^\[\{/, '');
+                step.codePayloadBlock = block.replace(/^\[\{/, '');
             }
             else if(block.startsWith('[')) { // payload string block
-                step.payloadBlock = block.replace(/^\[/, '');
+                step.stringPayloadBlock = block.replace(/^\[/, '');
             }
             else if(block.startsWith('{')) { // code block
                 step.codeBlock = block.replace(/^\{/, '');
@@ -362,7 +362,7 @@ class Tree {
         let lastNonEmptyStep = null;
 
         let currentlyInsideBlockFromLineNum = -1; // if we're currently inside a block, that block started on this line, otherwise -1
-        let currentlyInsideBlockType = ''; // 'codeBlock', 'payloadBlock', or 'payloadCodeBlock'
+        let currentlyInsideBlockType = ''; // 'codeBlock', 'stringPayloadBlock', or 'codePayloadBlock'
 
         for(let i = 0, lineNumber = 1; i < lines.length; i++, lineNumber++) {
             let line = lines[i];
@@ -382,10 +382,10 @@ class Tree {
                 if(currentlyInsideBlockType == 'codeBlock') {
                     endRegex = new RegExp(`${blockBegin}\\}${blockEnd}`);
                 }
-                else if(currentlyInsideBlockType == 'payloadBlock') {
+                else if(currentlyInsideBlockType == 'stringPayloadBlock') {
                     endRegex = new RegExp(`${blockBegin}\\]${blockEnd}`);
                 }
-                else if(currentlyInsideBlockType == 'payloadCodeBlock') {
+                else if(currentlyInsideBlockType == 'codePayloadBlock') {
                     endRegex = new RegExp(`${blockBegin}\\}\\]${blockEnd}`);
                 }
 
@@ -423,11 +423,11 @@ class Tree {
                 }
                 else if(step.hasPayloadBlock()) {
                     currentlyInsideBlockFromLineNum = lineNumber;
-                    currentlyInsideBlockType = 'payloadBlock';
+                    currentlyInsideBlockType = 'stringPayloadBlock';
                 }
                 else if(step.hasPayloadCodeBlock()) {
                     currentlyInsideBlockFromLineNum = lineNumber;
-                    currentlyInsideBlockType = 'payloadCodeBlock';
+                    currentlyInsideBlockType = 'codePayloadBlock';
                 }
 
                 lines[i] = step;
