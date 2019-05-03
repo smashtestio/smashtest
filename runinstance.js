@@ -734,7 +734,7 @@ class RunInstance {
             padding += '//\n';
         }
 
-        code = padding + `(` + (isSync ? `` : `async`) + ` function CodeBlock` + funcName + `(runInstance) { ` + header + `{` + code + ` }})(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks, code enclosed in {} so you can declare vars with the same name as vars in header
+        code = padding + `(` + (isSync ? `` : `async`) + ` function CodeBlock` + funcName + `(runInstance) { ` + header + `{` + code + `\n }})(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks, code enclosed in {} so you can declare vars with the same name as vars in header
 
         // Evaluate
         if(isSync) {

@@ -390,8 +390,7 @@ class Tree {
                 }
 
                 if(line.match(endRegex)) {
-                    // block is ending
-                    lastStepCreated[currentlyInsideBlockType] += "\n";
+                    // block has ended
                     currentlyInsideBlockFromLineNum = -1;
                     currentlyInsideBlockType = '';
                 }

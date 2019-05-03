@@ -3052,7 +3052,7 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: 'start;\n        code;\n        more code;\n',
+                                        codeBlock: 'start;\n        code;\n        more code;',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
@@ -3107,7 +3107,7 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: '\n',
+                                        codeBlock: '',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
@@ -3163,7 +3163,7 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: '\n        code;\n        more code;\n',
+                                        codeBlock: '\n        code;\n        more code;',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
@@ -3210,7 +3210,7 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: '\n        code;\n        more code;\n',
+                                        codeBlock: '\n        code;\n        more code;',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
@@ -3258,7 +3258,7 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: '\n        code;\n        more code;\n',
+                                        codeBlock: '\n        code;\n        more code;',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
@@ -3306,7 +3306,7 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: '\n        code;\n        more code;\n',
+                                        codeBlock: '\n        code;\n        more code;',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
@@ -3356,7 +3356,7 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: '\n        code;\n        more code;\n',
+                                        codeBlock: '\n        code;\n        more code;',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
@@ -3423,14 +3423,14 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: '\n        code;\n        more code;\n',
+                                        codeBlock: '\n        code;\n        more code;',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: [
                                             {
                                                 text: 'Another code block',
-                                                codeBlock: '\n            blah;\n',
+                                                codeBlock: '\n            blah;',
                                                 lineNumber: 7,
                                                 indents: 2,
                                                 parent: { indents: 1 },
@@ -3472,14 +3472,14 @@ C
                                 children: [
                                     {
                                         text: 'Code block here',
-                                        codeBlock: '\n        code;\n        more code;\n',
+                                        codeBlock: '\n        code;\n        more code;',
                                         lineNumber: 2,
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: [
                                             {
                                                 text: 'Another code block',
-                                                codeBlock: '\n            blah;\n',
+                                                codeBlock: '\n            blah;',
                                                 lineNumber: 6,
                                                 indents: 2,
                                                 parent: { indents: 1 },
@@ -3962,7 +3962,7 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
                 children: [],
-                codeBlock: '\n    code here\n'
+                codeBlock: '\n    code here'
             });
 
             expect(functionDeclaration === tree.root.children[2]).to.equal(true);
@@ -4514,7 +4514,8 @@ G -
                 ]);
             });
 
-            it("throws an exception when there's an infinite loop among function calls", function() { // function() needed for this.timeout() to work
+            // Skipped because it runs slow and we don't need to run it each time
+            it.skip("throws an exception when there's an infinite loop among function calls", function() { // function() needed for this.timeout() to work
                 this.timeout(10000);
 
                 let tree = new Tree();
@@ -4603,27 +4604,27 @@ A -
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n    F\n", isPackaged: true }
+                            { text: "Before Every Branch", codeBlock: "\n    F", isPackaged: true }
                         ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n    D\n", isPackaged: true }
+                            { text: "After Every Branch", codeBlock: "\n    D", isPackaged: true }
                         ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n    G\n", isPackaged: true }
+                            { text: "Before Every Step", codeBlock: "\n    G", isPackaged: true }
                         ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n    E\n", isPackaged: true }
+                            { text: "After Every Step", codeBlock: "\n    E", isPackaged: true }
                         ]
                     }
                 ]);
 
                 expect(tree.beforeEverything).to.containSubsetInOrder([
-                    { text: "Before Everything", codeBlock: "\n    B\n", isPackaged: true },
-                    { text: "Before Everything", codeBlock: "\n    K\n", isPackaged: undefined }
+                    { text: "Before Everything", codeBlock: "\n    B", isPackaged: true },
+                    { text: "Before Everything", codeBlock: "\n    K", isPackaged: undefined }
                 ]);
 
                 expect(tree.afterEverything).to.containSubsetInOrder([
-                    { text: "After Everything", codeBlock: "\n    C\n", isPackaged: true }
+                    { text: "After Everything", codeBlock: "\n    C", isPackaged: true }
                 ]);
             });
         });
@@ -4826,7 +4827,7 @@ F -
                                 isDebug: true,
                                 isNonParallel: true,
                                 level: 0,
-                                codeBlock: '\n    code block 1\n    code block 2\n',
+                                codeBlock: '\n    code block 1\n    code block 2',
                                 originalStepInTree: {
                                     text: "F",
                                     isFunctionCall: true,
@@ -4840,7 +4841,7 @@ F -
                                         isFunctionDeclaration: true,
                                         isDebug: undefined,
                                         isNonParallel: true,
-                                        codeBlock: '\n    code block 1\n    code block 2\n'
+                                        codeBlock: '\n    code block 1\n    code block 2'
                                     }
                                 }
                             }
@@ -6325,7 +6326,7 @@ My big 'foobar' function
                                 text: "{var} = F",
                                 isFunctionCall: true,
                                 level: 0,
-                                codeBlock: '\n    code block\n'
+                                codeBlock: '\n    code block'
                             }
                         ]
                     }
@@ -6438,7 +6439,7 @@ S - ..
 
                 expect(branches[0].steps[14].text).to.equal("{var} = F");
                 expect(branches[0].steps[15].text).to.equal("{var}=F3");
-                expect(branches[0].steps[15].codeBlock).to.equal("\n    return '5';\n");
+                expect(branches[0].steps[15].codeBlock).to.equal("\n    return '5';");
                 expect(branches[0].steps[16].text).to.equal("{var2}='0'");
             });
 
@@ -6491,7 +6492,7 @@ S - ..
 
                 expect(branches[4].steps[0].text).to.equal("{var} = F");
                 expect(branches[4].steps[1].text).to.equal("{var}=F3");
-                expect(branches[4].steps[1].codeBlock).to.equal("\n    return '5';\n");
+                expect(branches[4].steps[1].codeBlock).to.equal("\n    return '5';");
                 expect(branches[4].steps[2].text).to.equal("{var2}='0'");
             });
 
@@ -8771,7 +8772,7 @@ E -
                     {
                         steps: [ { text: "A" }, { text: "C" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", level: 0, codeBlock: "\n            D\n" }
+                            { text: "Before Every Branch", level: 0, codeBlock: "\n            D" }
                         ],
                         afterEveryBranch: undefined,
                         beforeEveryStep: undefined,
@@ -8805,7 +8806,7 @@ A -
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", level: 0, codeBlock: "\n" }
+                            { text: "Before Every Branch", level: 0, codeBlock: "" }
                         ],
                     }
                 ]);
@@ -8837,13 +8838,13 @@ C -
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", level: 0, codeBlock: "\n    B\n" }
+                            { text: "Before Every Branch", level: 0, codeBlock: "\n    B" }
                         ]
                     },
                     {
                         steps: [ { text: "C" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", level: 0, codeBlock: "\n    B\n" }
+                            { text: "Before Every Branch", level: 0, codeBlock: "\n    B" }
                         ]
                     }
                 ]);
@@ -8877,13 +8878,13 @@ F
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", level: 0, codeBlock: "\n        C\n" }
+                            { text: "Before Every Branch", level: 0, codeBlock: "\n        C" }
                         ]
                     },
                     {
                         steps: [ { text: "F" }, { text: "B" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", level: 0, codeBlock: "\n        C\n" }
+                            { text: "Before Every Branch", level: 0, codeBlock: "\n        C" }
                         ]
                     }
                 ]);
@@ -8919,13 +8920,13 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n            D\n"}
+                            { text: "Before Every Branch", codeBlock: "\n            D"}
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n            D\n"}
+                            { text: "Before Every Branch", codeBlock: "\n            D"}
                         ]
                     },
                     {
@@ -8964,7 +8965,7 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n            D\n" }
+                            { text: "Before Every Branch", codeBlock: "\n            D" }
                         ]
                     },
                     {
@@ -9003,7 +9004,7 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock:"\n            D\n" }
+                            { text: "Before Every Branch", codeBlock:"\n            D" }
                         ]
                     },
                     {
@@ -9071,7 +9072,7 @@ E -
                         steps: [ { text: "A" }, { text: "C" } ],
                         beforeEveryBranch: undefined,
                         afterEveryBranch: [
-                            { text: "After Every Branch", level: 0, codeBlock: "\n            D\n" }
+                            { text: "After Every Branch", level: 0, codeBlock: "\n            D" }
                         ],
                         beforeEveryStep: undefined,
                         afterEveryStep: undefined
@@ -9104,7 +9105,7 @@ A -
                     {
                         steps: [ { text: "A" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", level: 0, codeBlock: "\n" }
+                            { text: "After Every Branch", level: 0, codeBlock: "" }
                         ],
                     }
                 ]);
@@ -9136,13 +9137,13 @@ C -
                     {
                         steps: [ { text: "A" } ],
                         afterEveryBranch: [
-                            { text: "After  Every branch", level: 0, codeBlock: "\n    B\n" }
+                            { text: "After  Every branch", level: 0, codeBlock: "\n    B" }
                         ]
                     },
                     {
                         steps: [ { text: "C" } ],
                         afterEveryBranch: [
-                            { text: "After  Every branch", level: 0, codeBlock: "\n    B\n" }
+                            { text: "After  Every branch", level: 0, codeBlock: "\n    B" }
                         ]
                     }
                 ]);
@@ -9176,13 +9177,13 @@ F
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", level: 0, codeBlock: "\n        C\n" }
+                            { text: "After Every Branch", level: 0, codeBlock: "\n        C" }
                         ]
                     },
                     {
                         steps: [ { text: "F" }, { text: "B" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", level: 0, codeBlock: "\n        C\n" }
+                            { text: "After Every Branch", level: 0, codeBlock: "\n        C" }
                         ]
                     }
                 ]);
@@ -9209,7 +9210,7 @@ F
                     {
                         steps: [ { text: "F" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", level: 0, codeBlock: "\n        C\n" }
+                            { text: "After Every Branch", level: 0, codeBlock: "\n        C" }
                         ]
                     }
                 ]);
@@ -9245,13 +9246,13 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            D\n"}
+                            { text: "After Every Branch", codeBlock: "\n            D"}
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            D\n"}
+                            { text: "After Every Branch", codeBlock: "\n            D"}
                         ]
                     },
                     {
@@ -9290,7 +9291,7 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            D\n" }
+                            { text: "After Every Branch", codeBlock: "\n            D" }
                         ]
                     },
                     {
@@ -9329,7 +9330,7 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock:"\n            D\n" }
+                            { text: "After Every Branch", codeBlock:"\n            D" }
                         ]
                     },
                     {
@@ -9416,14 +9417,14 @@ E -
                     {
                         steps: [ { text: "A" }, { text: "C" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            G1\n" },
-                            { text: "After Every Branch", codeBlock: "\n            G2\n" },
-                            { text: "After Every Branch", codeBlock: "\n            G3\n" }
+                            { text: "After Every Branch", codeBlock: "\n            G1" },
+                            { text: "After Every Branch", codeBlock: "\n            G2" },
+                            { text: "After Every Branch", codeBlock: "\n            G3" }
                         ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n            D3\n" },
-                            { text: "Before Every Branch", codeBlock: "\n            D2\n" },
-                            { text: "Before Every Branch", codeBlock: "\n            D1\n" }
+                            { text: "Before Every Branch", codeBlock: "\n            D3" },
+                            { text: "Before Every Branch", codeBlock: "\n            D2" },
+                            { text: "Before Every Branch", codeBlock: "\n            D1" }
                         ]
                     },
                     {
@@ -9527,57 +9528,57 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n                    U\n" },
-                            { text: "After Every Branch", codeBlock: "\n                T\n" },
-                            { text: "After Every Branch", codeBlock: "\n        W\n" }
+                            { text: "After Every Branch", codeBlock: "\n                    U" },
+                            { text: "After Every Branch", codeBlock: "\n                T" },
+                            { text: "After Every Branch", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n                    U\n" },
-                            { text: "After Every Branch", codeBlock: "\n                T\n" },
-                            { text: "After Every Branch", codeBlock: "\n        W\n" }
+                            { text: "After Every Branch", codeBlock: "\n                    U" },
+                            { text: "After Every Branch", codeBlock: "\n                T" },
+                            { text: "After Every Branch", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "F" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n        W\n" }
+                            { text: "After Every Branch", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "H" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            S\n" },
-                            { text: "After Every Branch", codeBlock: "\n        W\n" }
+                            { text: "After Every Branch", codeBlock: "\n            S" },
+                            { text: "After Every Branch", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "I" } ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            S\n" },
-                            { text: "After Every Branch", codeBlock: "\n        W\n" }
+                            { text: "After Every Branch", codeBlock: "\n            S" },
+                            { text: "After Every Branch", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "J" }, { text: "K" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n            X\n" }
+                            { text: "Before Every Branch", codeBlock: "\n            X" }
                         ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            R\n" },
-                            { text: "After Every Branch", codeBlock: "\n        W\n" }
+                            { text: "After Every Branch", codeBlock: "\n            R" },
+                            { text: "After Every Branch", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "L" }, { text: "M" }, { text: "N" }, { text: "O" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n            Y\n" }
+                            { text: "Before Every Branch", codeBlock: "\n            Y" }
                         ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            Q\n" },
-                            { text: "After Every Branch", codeBlock: "\n        W\n" }
+                            { text: "After Every Branch", codeBlock: "\n            Q" },
+                            { text: "After Every Branch", codeBlock: "\n        W" }
                         ]
                     },
                     {
@@ -9628,7 +9629,7 @@ E -
                         beforeEveryBranch: undefined,
                         afterEveryBranch: undefined,
                         beforeEveryStep: [
-                            { text: "Before Every Step", level: 0, codeBlock: "\n            D\n" }
+                            { text: "Before Every Step", level: 0, codeBlock: "\n            D" }
                         ],
                         afterEveryStep: undefined
                     },
@@ -9660,7 +9661,7 @@ A -
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", level: 0, codeBlock: "\n" }
+                            { text: "Before Every Step", level: 0, codeBlock: "" }
                         ],
                     }
                 ]);
@@ -9692,13 +9693,13 @@ C -
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", level: 0, codeBlock: "\n    B\n" }
+                            { text: "Before Every Step", level: 0, codeBlock: "\n    B" }
                         ]
                     },
                     {
                         steps: [ { text: "C" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", level: 0, codeBlock: "\n    B\n" }
+                            { text: "Before Every Step", level: 0, codeBlock: "\n    B" }
                         ]
                     }
                 ]);
@@ -9732,13 +9733,13 @@ F
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", level: 0, codeBlock: "\n        C\n" }
+                            { text: "Before Every Step", level: 0, codeBlock: "\n        C" }
                         ]
                     },
                     {
                         steps: [ { text: "F" }, { text: "B" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", level: 0, codeBlock: "\n        C\n" }
+                            { text: "Before Every Step", level: 0, codeBlock: "\n        C" }
                         ]
                     }
                 ]);
@@ -9774,13 +9775,13 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n            D\n"}
+                            { text: "Before Every Step", codeBlock: "\n            D"}
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n            D\n"}
+                            { text: "Before Every Step", codeBlock: "\n            D"}
                         ]
                     },
                     {
@@ -9819,7 +9820,7 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n            D\n" }
+                            { text: "Before Every Step", codeBlock: "\n            D" }
                         ]
                     },
                     {
@@ -9858,7 +9859,7 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock:"\n            D\n" }
+                            { text: "Before Every Step", codeBlock:"\n            D" }
                         ]
                     },
                     {
@@ -9928,7 +9929,7 @@ E -
                         afterEveryBranch: undefined,
                         beforeEveryStep: undefined,
                         afterEveryStep: [
-                            { text: "After Every Step", level: 0, codeBlock: "\n            D\n" }
+                            { text: "After Every Step", level: 0, codeBlock: "\n            D" }
                         ]
                     },
                     {
@@ -9959,7 +9960,7 @@ A -
                     {
                         steps: [ { text: "A" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", level: 0, codeBlock: "\n" }
+                            { text: "After Every Step", level: 0, codeBlock: "" }
                         ],
                     }
                 ]);
@@ -9991,13 +9992,13 @@ C -
                     {
                         steps: [ { text: "A" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", level: 0, codeBlock: "\n    B\n" }
+                            { text: "After Every Step", level: 0, codeBlock: "\n    B" }
                         ]
                     },
                     {
                         steps: [ { text: "C" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", level: 0, codeBlock: "\n    B\n" }
+                            { text: "After Every Step", level: 0, codeBlock: "\n    B" }
                         ]
                     }
                 ]);
@@ -10031,13 +10032,13 @@ F
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", level: 0, codeBlock: "\n        C\n" }
+                            { text: "After Every Step", level: 0, codeBlock: "\n        C" }
                         ]
                     },
                     {
                         steps: [ { text: "F" }, { text: "B" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", level: 0, codeBlock: "\n        C\n" }
+                            { text: "After Every Step", level: 0, codeBlock: "\n        C" }
                         ]
                     }
                 ]);
@@ -10073,13 +10074,13 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            D\n"}
+                            { text: "After Every Step", codeBlock: "\n            D"}
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            D\n"}
+                            { text: "After Every Step", codeBlock: "\n            D"}
                         ]
                     },
                     {
@@ -10118,7 +10119,7 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            D\n" }
+                            { text: "After Every Step", codeBlock: "\n            D" }
                         ]
                     },
                     {
@@ -10157,7 +10158,7 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock:"\n            D\n" }
+                            { text: "After Every Step", codeBlock:"\n            D" }
                         ]
                     },
                     {
@@ -10244,14 +10245,14 @@ E -
                     {
                         steps: [ { text: "A" }, { text: "C" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            G1\n" },
-                            { text: "After Every Step", codeBlock: "\n            G2\n" },
-                            { text: "After Every Step", codeBlock: "\n            G3\n" }
+                            { text: "After Every Step", codeBlock: "\n            G1" },
+                            { text: "After Every Step", codeBlock: "\n            G2" },
+                            { text: "After Every Step", codeBlock: "\n            G3" }
                         ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n            D3\n" },
-                            { text: "Before Every Step", codeBlock: "\n            D2\n" },
-                            { text: "Before Every Step", codeBlock: "\n            D1\n" }
+                            { text: "Before Every Step", codeBlock: "\n            D3" },
+                            { text: "Before Every Step", codeBlock: "\n            D2" },
+                            { text: "Before Every Step", codeBlock: "\n            D1" }
                         ]
                     },
                     {
@@ -10355,57 +10356,57 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n                    U\n" },
-                            { text: "After Every Step", codeBlock: "\n                T\n" },
-                            { text: "After Every Step", codeBlock: "\n        W\n" }
+                            { text: "After Every Step", codeBlock: "\n                    U" },
+                            { text: "After Every Step", codeBlock: "\n                T" },
+                            { text: "After Every Step", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n                    U\n" },
-                            { text: "After Every Step", codeBlock: "\n                T\n" },
-                            { text: "After Every Step", codeBlock: "\n        W\n" }
+                            { text: "After Every Step", codeBlock: "\n                    U" },
+                            { text: "After Every Step", codeBlock: "\n                T" },
+                            { text: "After Every Step", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "F" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n        W\n" }
+                            { text: "After Every Step", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "H" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            S\n" },
-                            { text: "After Every Step", codeBlock: "\n        W\n" }
+                            { text: "After Every Step", codeBlock: "\n            S" },
+                            { text: "After Every Step", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "I" } ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            S\n" },
-                            { text: "After Every Step", codeBlock: "\n        W\n" }
+                            { text: "After Every Step", codeBlock: "\n            S" },
+                            { text: "After Every Step", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "J" }, { text: "K" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n            X\n" }
+                            { text: "Before Every Step", codeBlock: "\n            X" }
                         ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            R\n" },
-                            { text: "After Every Step", codeBlock: "\n        W\n" }
+                            { text: "After Every Step", codeBlock: "\n            R" },
+                            { text: "After Every Step", codeBlock: "\n        W" }
                         ]
                     },
                     {
                         steps: [ { text: "A" }, { text: "L" }, { text: "M" }, { text: "N" }, { text: "O" } ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n            Y\n" }
+                            { text: "Before Every Step", codeBlock: "\n            Y" }
                         ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            Q\n" },
-                            { text: "After Every Step", codeBlock: "\n        W\n" }
+                            { text: "After Every Step", codeBlock: "\n            Q" },
+                            { text: "After Every Step", codeBlock: "\n        W" }
                         ]
                     },
                     {
@@ -10440,7 +10441,7 @@ A -
                 ]);
 
                 expect(tree.beforeEverything).to.containSubsetInOrder([
-                    { text: "Before Everything", level: 0, codeBlock: "\n    B\n" }
+                    { text: "Before Everything", level: 0, codeBlock: "\n    B" }
                 ]);
             });
 
@@ -10456,7 +10457,7 @@ A -
                 expect(branches).to.have.lengthOf(0);
 
                 expect(tree.beforeEverything).to.containSubsetInOrder([
-                    { text: "Before Everything", level: 0, codeBlock: "\n" }
+                    { text: "Before Everything", level: 0, codeBlock: "" }
                 ]);
             });
 
@@ -10489,8 +10490,8 @@ A -
                 ]);
 
                 expect(tree.beforeEverything).to.containSubsetInOrder([
-                    { text: "Before Everything", level: 0, codeBlock: "\n    C\n" },
-                    { text: "Before Everything", level: 0, codeBlock: "\n    B\n" }
+                    { text: "Before Everything", level: 0, codeBlock: "\n    C" },
+                    { text: "Before Everything", level: 0, codeBlock: "\n    B" }
                 ]);
             });
 
@@ -10548,7 +10549,7 @@ A -
                 ]);
 
                 expect(tree.afterEverything).to.containSubsetInOrder([
-                    { text: "After Everything", level: 0, codeBlock: "\n    B\n" }
+                    { text: "After Everything", level: 0, codeBlock: "\n    B" }
                 ]);
             });
 
@@ -10564,7 +10565,7 @@ A -
                 expect(branches).to.have.lengthOf(0);
 
                 expect(tree.afterEverything).to.containSubsetInOrder([
-                    { text: "After Everything", level: 0, codeBlock: "\n" }
+                    { text: "After Everything", level: 0, codeBlock: "" }
                 ]);
             });
 
@@ -10595,8 +10596,8 @@ A -
                 ]);
 
                 expect(tree.afterEverything).to.containSubsetInOrder([
-                    { text: "After Everything", level: 0, codeBlock: "\n    B\n" },
-                    { text: "After Everything", level: 0, codeBlock: "\n    C\n" }
+                    { text: "After Everything", level: 0, codeBlock: "\n    B" },
+                    { text: "After Everything", level: 0, codeBlock: "\n    C" }
                 ]);
             });
 
@@ -12328,7 +12329,8 @@ A -
             }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
         });
 
-        it("throws an exception when there's an infinite loop among function calls", function() { // function() needed for this.timeout() to work
+        // Skipped because it runs slow and we don't need to run it each time
+        it.skip("throws an exception when there's an infinite loop among function calls", function() { // function() needed for this.timeout() to work
             this.timeout(10000);
 
             let tree = new Tree();
@@ -12618,16 +12620,16 @@ A -
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n            J\n" }
+                            { text: "Before Every Branch", codeBlock: "\n            J" }
                         ],
                         afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            D\n" }
+                            { text: "After Every Branch", codeBlock: "\n            D" }
                         ],
                         beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n            K\n" }
+                            { text: "Before Every Step", codeBlock: "\n            K" }
                         ],
                         afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            F\n" }
+                            { text: "After Every Step", codeBlock: "\n            F" }
                         ]
                     },
                     {
@@ -12635,11 +12637,11 @@ A -
                     }
                 ],
                 beforeEverything: [
-                    { text: "Before Everything", codeBlock: "\n    H\n" },
-                    { text: "Before Everything", codeBlock: "\n    G\n" }
+                    { text: "Before Everything", codeBlock: "\n    H" },
+                    { text: "Before Everything", codeBlock: "\n    G" }
                 ],
                 afterEverything: [
-                    { text: "After Everything", codeBlock: "\n    I\n" }
+                    { text: "After Everything", codeBlock: "\n    I" }
                 ]
             });
         });
