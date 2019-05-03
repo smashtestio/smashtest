@@ -1,4 +1,23 @@
 Collapsing -
+    A +
+
+    * A ..
+        A1 -
+        A2 -
+        B +
+        A3 -
+
+    * B ..
+        B1 -
+        B2 -
+        C
+        B3 -
+
+    * C .. +
+        C1 -
+        C2 -
+        C3 -
+
     Passing function 1 +
         Step after passing function -
             Passing function 1 +

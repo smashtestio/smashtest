@@ -334,7 +334,7 @@
                 margin-right: 1px;
             }
 
-            .collapse.empty {
+            .collapse.noncollapse {
                 position: relative;
                 top: 1px;
                 width: 13px;
@@ -1118,9 +1118,14 @@ c     = copy debug command 'smashtest filename -d=hash'
                     }
 
                     let hasLevels = false;
+                    branch.steps.forEach(step => step.level > 0 ? hasLevels = true : null);
 
-                    // Reset collapseHide
-                    branch.steps.forEach(step => delete step.collapseHide);
+                    // Reset collapse vars
+                    branch.steps.forEach(step => {
+                        delete step.doCollapsing;
+                        delete step.collapseHide;
+                        delete step.nonCollapseIcon;
+                    });
 
                     // If a step has a +, collapse all the steps underneath it, except if any step under it is currently running, failed, or selected
                     branch.steps.forEach((step, index) => {
@@ -1137,9 +1142,12 @@ c     = copy debug command 'smashtest filename -d=hash'
                                         break;
                                     }
 
-                                    hasLevels = true;
+                                    if(s.isRunning || s.isFailed) {
+                                        step.doCollapsing = false;
+                                        break;
+                                    }
 
-                                    if(s.isRunning || s.isFailed || (previewedItem && previewedItem.props.step === s)) {
+                                    if(previewedItem && previewedItem.props.step === s) {
                                         step.doCollapsing = false;
                                         break;
                                     }
@@ -1156,6 +1164,19 @@ c     = copy debug command 'smashtest filename -d=hash'
                                     }
                                 }
                             }
+
+                            // Set step.nonCollapseIcon
+                            for(let i = index + 1; i < branch.steps.length; i++) {
+                                let s = branch.steps[i];
+                                if(s.level <= step.level) {
+                                    break;
+                                }
+
+                                if(s.isRunning || s.isFailed) {
+                                    step.nonCollapseIcon = true;
+                                    break;
+                                }
+                            }
                         }
                     });
 
@@ -1167,7 +1188,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                                 step={step}
                                 branch={branch}
                                 index={index+1}
-                                key={step.text}
+                                key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step)}
                                 lastIndex={branch.steps.length - 1}
                                 setPreview={this.props.setPreview}
                                 previewedItem={previewedItem}
@@ -1291,10 +1312,11 @@ c     = copy debug command 'smashtest filename -d=hash'
                         src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48bGluZSB4MT0iOCIgeDI9IjE2IiB5MT0iMTIiIHkyPSIxMiIvPjwvc3ZnPg=="
                     />;
 
-                    let collapseEmptyElem = <img
-                        className="collapse empty"
-                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48L3N2Zz4="
-                    />;
+                    /*let nonCollapseElem = <img
+                        className="collapse noncollapse"
+                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBvbHlsaW5lIHBvaW50cz0iNiA5IDEyIDE1IDE4IDkiLz48L3N2Zz4="
+                    />;*/
+                    let nonCollapseElem = collapseMinusElem;
 
                     let lineElem = (
                         <span className="line-container">
@@ -1304,11 +1326,15 @@ c     = copy debug command 'smashtest filename -d=hash'
                                     (
                                         this.props.step.doCollapsing ?
                                         collapsePlusElem :
-                                        collapseMinusElem
+                                        (
+                                            this.props.step.nonCollapseIcon ?
+                                            nonCollapseElem :
+                                            collapseMinusElem
+                                        )
                                     ) :
                                     (
                                         this.props.step.isFunctionCall ?
-                                        collapseMinusElem /*collapseEmptyElem*/ :
+                                        nonCollapseElem :
                                         (
                                             this.props.hasLevels ?
                                             <span className="collapse-placeholder"/> :
