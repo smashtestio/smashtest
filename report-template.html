@@ -417,7 +417,6 @@
 
             .preview-pane .msg.updates-paused {
                 background-color: rgb(90,90,90);
-                margin-bottom: 30px;
                 border: 1px solid rgb(90,90,90);
                 padding: 1px 7px;
                 border-radius: 6px;
@@ -1506,13 +1505,15 @@ c     = copy debug command 'smashtest filename -d=hash'
                             }
                         </div>
 
-                        {
-                            props.live ?
-                            <div className="msg updates-paused">
-                                Live updates paused. Unselect this {isBranch ? "branch" : "step"} to resume live updates.
-                            </div> :
-                            <div className="preview-divider"></div>
-                        }
+                        <div className="preview-divider">
+                            {
+                                props.live ?
+                                <div className="msg updates-paused">
+                                    Live updates paused. Unselect this {isBranch ? "branch" : "step"} to resume live updates.
+                                </div> :
+                                ''
+                            }
+                        </div>
 
                         <PreviewError previewedItem={previewedItem}/>
                         {isBranch ? "" : <PreviewDetails previewedItem={previewedItem}/>}
