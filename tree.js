@@ -256,11 +256,7 @@ class Tree {
             let textCopy = step.text + "";
             step.varsBeingSet = [];
             while(textCopy.trim() != "") {
-                matches = textCopy.match(Constants.VARS_SET_WHOLE);
-                if(!matches) {
-                    utils.error(`A part of this line doesn't properly set a variable`, filename, lineNumber); // NOTE: probably unreachable
-                }
-
+                matches = textCopy.match(Constants.VARS_SET_WHOLE); // guaranteed to have matches
                 let varBeingSet = {
                     name: utils.stripBrackets(matches[2]),
                     value: matches[5],
@@ -307,9 +303,14 @@ class Tree {
             if(step.varsBeingSet.length > 1) {
                 // This step is {var1}='str1', {var2}='str2', etc. (two or more vars)
 
-                // If there are multiple vars being set, each value must be a string literal
+                // Validations
                 for(let i = 0; i < step.varsBeingSet.length; i++) {
-                    if(!step.varsBeingSet[i].value.match(Constants.STRING_LITERAL_WHOLE)) {
+                    let varBeingSet = step.varsBeingSet[i];
+
+                    if(varBeingSet.value.trim() == '') {
+                        utils.error(`A {variable} must be set to something`, filename, lineNumber);
+                    }
+                    if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
                         utils.error(`When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
                     }
                 }
@@ -317,7 +318,8 @@ class Tree {
             else {
                 // This step is {var}=Func or {var}='str' (only one var being set)
 
-                if(!step.varsBeingSet[0].value.match(Constants.STRING_LITERAL_WHOLE)) {
+                let varBeingSet = step.varsBeingSet[0];
+                if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
                     // This step is {var}=Func
 
                     step.isFunctionCall = true;
@@ -326,7 +328,10 @@ class Tree {
                     }
 
                     // Validations
-                    if(step.varsBeingSet[0].value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
+                    if(varBeingSet.value.trim() == '' && !step.hasPayloadBlock() && !step.hasPayloadCodeBlock()) {
+                        utils.error(`A {variable} must be set to something`, filename, lineNumber);
+                    }
+                    if(varBeingSet.value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
                         utils.error(`{vars} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
                     }
                     if(step.isTextualStep) {

@@ -593,6 +593,28 @@ describe("Tree", () => {
             }, "{vars} can only be set to 'strings', \"strings\", or [strings] [file.txt:10]");
         });
 
+        it("rejects {var}= by itself", () => {
+            assert.throws(() => {
+                tree.parseLine(`{var}=`, "file.txt", 10);
+            }, "A {variable} must be set to something [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`{{var}}=`, "file.txt", 10);
+            }, "A {variable} must be set to something [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`{var} = `, "file.txt", 10);
+            }, "A {variable} must be set to something [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`{var}=,{var2}='string'`, "file.txt", 10);
+            }, "A {variable} must be set to something [file.txt:10]");
+
+            assert.throws(() => {
+                tree.parseLine(`{var}= , {var2}='string'`, "file.txt", 10);
+            }, "A {variable} must be set to something [file.txt:10]");
+        });
+
         it("parses {var} = 'string'", () => {
             step = tree.parseLine(`{var} = 'foo'`, "file.txt", 10);
             assert.equal(step.text, `{var} = 'foo'`);
