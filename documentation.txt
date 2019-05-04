@@ -105,7 +105,8 @@ Reports
             - If error.continue isn't set to true, the step will be marked as a fail, the branch will be failed immediately, and all
                 other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
         - Timeouts are set by each step on a case-by-case basis
-        - Best practice: if a step fails, search the report for other instances of that step. If it always fails regardless of browser, for instance, the browser isn't the culprit.
+        - Best practice: if a step fails, search the report for other instances of that step (by step text or filename:lineNumber which is hidden but searchable).
+            If it always fails regardless of browser, for instance, the browser isn't the culprit.
     - Reading stack traces in errors
         - Error of step = filename and line number in filename
         - Stack trace = at CodeBlock_for_[NAME OF CODE BLOCK FUNCTION] (eval at ...), <anonymous>:[LINE NUMBER]:[COL NUMBER])
