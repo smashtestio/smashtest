@@ -346,15 +346,6 @@
                 margin-right: 1px;
             }
 
-            .collapse.noncollapsible {
-                position: relative;
-                top: 1px;
-                width: 13px;
-                height: 12px;
-                left: -2px;
-                margin-right: 1px;
-            }
-
             .collapse:hover {
                 filter: invert(60%);
             }
@@ -474,6 +465,10 @@
                 margin-left: 20px;
             }
 
+            .keystroke-command {
+                opacity: 0.4;
+            }
+
             #notification {
                 visibility: hidden;
                 position: fixed;
@@ -556,7 +551,7 @@ left  = collapse
 right = expand
 space = toggle before/after
 h     = copy hash
-c     = copy debug command 'smashtest filename -d=hash'
+c     = copy debug command <span class="keystroke-command">smashtest -d=hash</span>
                 `);
                 let tippyOptionsKeystrokes = Object.assign({}, tippyOptions);
                 Object.assign(tippyOptionsKeystrokes, { followCursor: false, placement: "bottom", maxWidth: 1000 } );
@@ -595,8 +590,8 @@ c     = copy debug command 'smashtest filename -d=hash'
                         port: null,
                         live: true
                     };
-                    this.preState = null;
-                    this.slowPoll = false;
+                    this.preState = null; // latest data to come from api, held in this variable if updates are paused on a preview
+                    this.slowPoll = false; // if true, don't poll the api as frequently since it's down
 
                     // App's DOM element
                     this.me = null;
@@ -606,6 +601,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                     let treeJSON = this.unescapeHtml(treeContent);
                     if(!treeJSON.startsWith("\{\{\{")) {
                         this.state.tree = JSON.parse(treeJSON);
+                        this.uncollapseSteps(this.state.tree);
                     }
 
                     // Parse in runner
@@ -626,6 +622,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                     this.setLive = this.setLive.bind(this);
                     this.updateData = this.updateData.bind(this);
                     this.updateState = this.updateState.bind(this);
+                    this.uncollapseSteps = this.uncollapseSteps.bind(this);
                     this.unescapeHtml = this.unescapeHtml.bind(this);
                     this.setPreview = this.setPreview.bind(this);
                     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -646,6 +643,9 @@ c     = copy debug command 'smashtest filename -d=hash'
                     this.me.focus(); // focus on myself, so I can start getting keyboard commands
                 }
 
+                /**
+                 * Starts the loop that polls the api for data updates
+                 */
                 setUpdateLoop() {
                     // Start update loop
                     const UPDATE_FREQUENCY = 500; // in ms
@@ -655,6 +655,9 @@ c     = copy debug command 'smashtest filename -d=hash'
                     }, this.slowPoll ? UPDATE_FREQUENCY_SLOW : UPDATE_FREQUENCY);
                 }
 
+                /**
+                 * Sets the report to either live or not live mode
+                 */
                 setLive(isLive) {
                     if(isLive) {
                         this.slowPoll = false;
@@ -666,6 +669,9 @@ c     = copy debug command 'smashtest filename -d=hash'
                     }
                 }
 
+                /**
+                 * Called when new data has been pulled from the api and the UI might need to get updated
+                 */
                 updateData() {
                     let self = this;
                     return new Promise((resolve, reject) => {
@@ -708,8 +714,12 @@ c     = copy debug command 'smashtest filename -d=hash'
                     });
                 }
 
+                /**
+                 * Updates this.state with the latest data pulled down from the api, if updates aren't currently paused on a preview
+                 */
                 updateState() {
                     if(!this.state.previewedItem && this.preState) {
+                        this.uncollapseSteps(this.preState.tree);
                         this.setState({
                             tree: this.preState.tree,
                             runner: this.preState.runner,
@@ -718,6 +728,33 @@ c     = copy debug command 'smashtest filename -d=hash'
                     }
                 }
 
+                /**
+                 * Uncollapse steps in the given tree if they have a step underneath that is running or is failed
+                 */
+                uncollapseSteps(tree) {
+                    tree.branches.forEach(branch => {
+                        branch.steps.forEach((step, index) => {
+                            if(step.isCollapsed && !step.collapseHide) {
+                                // If a step is currently running or is failed, set its isCollapsed = false
+                                for(let i = index + 1; i < branch.steps.length; i++) {
+                                    let s = branch.steps[i];
+                                    if(s.level <= step.level) {
+                                        break;
+                                    }
+
+                                    if(s.isRunning || s.isFailed) {
+                                        step.isCollapsed = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
+
+                /**
+                 * Converts the html entities in str into their actual chars
+                 */
                 unescapeHtml(str) {
                     return str
                         .replace(/&#039;/g, "'")
@@ -727,6 +764,11 @@ c     = copy debug command 'smashtest filename -d=hash'
                         .replace(/&amp;/g, "&");
                 }
 
+                /**
+                 * Sets the preview in the preview pane to the given step or branch
+                 * @param {Element} previewedItem - Sets the previewed item to this element (which represents a step or a branch). If that same element is already being previewed, the previewed item will be cleared. Clears the previewed item if null.
+                 * @param {Boolean} [force] - If true, set the previewed item to previewedItem regardless of what the current previewed item is
+                 */
                 setPreview(previewedItem, force) {
                     this.setState(state => {
                         if(force) {
@@ -747,6 +789,9 @@ c     = copy debug command 'smashtest filename -d=hash'
                     });
                 }
 
+                /**
+                 * Handles a key down event
+                 */
                 handleKeyDown(event) {
                     if(this.isModifierActive(event)) {
                         return;
@@ -757,21 +802,39 @@ c     = copy debug command 'smashtest filename -d=hash'
 
                     if(charCode == '37') { // left arrow
                         let [lines, activeIndex] = getActiveIndex();
+                        if(activeIndex != -1) {
+                            let collapseIcon = lines[activeIndex].querySelector(".collapse.minus");
+                            if(collapseIcon) {
+                                collapseIcon.click();
+                            }
+                        }
+                    }
+                    else if(charCode == '39') { // right arrow
+                        let [lines, activeIndex] = getActiveIndex();
+                        if(activeIndex != -1) {
+                            let collapseIcon = lines[activeIndex].querySelector(".collapse.plus");
+                            if(collapseIcon) {
+                                collapseIcon.click();
+                            }
+                        }
+                    }
+                    else if(charCode == '38') { // up arrow
+                        let [lines, activeIndex] = getActiveIndex();
                         let prevIndex = activeIndex - 1;
                         if(activeIndex != -1 && prevIndex >= 0) {
                             lines[prevIndex].click();
                         }
                     }
-                    else if(charCode == '39') { // right arrow
+                    else if(charCode == '40') { // down arrow
                         let [lines, activeIndex] = getActiveIndex();
                         let nextIndex = activeIndex + 1;
                         if(activeIndex != -1 && nextIndex < lines.length) {
                             lines[nextIndex].click();
                         }
                     }
-                    else if(charCode == '38') { // up arrow
-                        if(window.onUpArrowDown) {
-                            window.onUpArrowDown();
+                    else if(charCode == '32') { // spacebar
+                        if(window.onSpacebarDown) {
+                            window.onSpacebarDown();
                         }
                     }
                     else if(charStr == 'H') {
@@ -805,6 +868,9 @@ c     = copy debug command 'smashtest filename -d=hash'
                     }
                 }
 
+                /**
+                 * Handles a key up event
+                 */
                 handleKeyUp(event) {
                     if(this.isModifierActive(event)) {
                         return;
@@ -812,13 +878,16 @@ c     = copy debug command 'smashtest filename -d=hash'
 
                     let charCode = event.keyCode || event.which;
 
-                    if(charCode == '38') { // up arrow
-                        if(window.onUpArrowUp) {
-                            window.onUpArrowUp();
+                    if(charCode == '32') { // spacebar
+                        if(window.onSpacebarUp) {
+                            window.onSpacebarUp();
                         }
                     }
                 }
 
+                /**
+                 * Returns true if a modifier, such as Shift or Control, is currently active
+                 */
                 isModifierActive(event) {
                     return event.getModifierState("Shift") ||
                         event.getModifierState("Alt") ||
@@ -828,6 +897,9 @@ c     = copy debug command 'smashtest filename -d=hash'
                         event.getModifierState("OS");
                 }
 
+                /**
+                 * Shows a temporary notification at the top of the page
+                 */
                 showNotification(msg) {
                     const NOTIFICATION_TIMEOUT = 3000; // ms
                     let notification = document.getElementById("notification");
@@ -838,6 +910,9 @@ c     = copy debug command 'smashtest filename -d=hash'
                     setTimeout(() => notification.classList.remove("show"), NOTIFICATION_TIMEOUT);
                 }
 
+                /**
+                 * Copies the given text to the clipboard
+                 */
                 copyToClipboard(text) {
                     if(document.queryCommandSupported && document.queryCommandSupported("copy")) {
                         let textarea = document.createElement("textarea");
@@ -1108,6 +1183,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                     this.hoverStateOn = this.hoverStateOn.bind(this);
                     this.hoverStateOff = this.hoverStateOff.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
+                    this.updateCollapsing = this.updateCollapsing.bind(this);
                 }
 
                 hoverStateOn() {
@@ -1124,6 +1200,33 @@ c     = copy debug command 'smashtest filename -d=hash'
 
                 toggleActiveState() {
                     this.props.setPreview(this);
+                }
+
+                /**
+                 * Updates the collapsed/uncollapsed state of lines based on what's running and what has errors.
+                 * Chooses the lines that will be hidden by a collapse.
+                 */
+                updateCollapsing() {
+                    let branch = this.props.branch;
+
+                    // Reset collapse vars
+                    branch.steps.forEach(step => {
+                        delete step.collapseHide;
+                    });
+
+                    // If a step has isCollapsed set, collapse all the steps underneath it
+                    branch.steps.forEach((step, index) => {
+                        if(step.isCollapsed && !step.collapseHide) {
+                            for(let i = index + 1; i < branch.steps.length; i++) {
+                                let s = branch.steps[i];
+                                if(s.level <= step.level) {
+                                    break;
+                                }
+
+                                s.collapseHide = true;
+                            }
+                        }
+                    });
                 }
 
                 render() {
@@ -1160,45 +1263,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                     let hasLevels = false;
                     branch.steps.forEach(step => step.level > 0 ? hasLevels = true : null);
 
-                    // Reset collapse vars
-                    branch.steps.forEach(step => {
-                        delete step.collapseHide;
-                    });
-
-                    // If a step has isCollapsed set, collapse all the steps underneath it
-                    branch.steps.forEach((step, index) => {
-                        if(step.isCollapsed && !step.collapseHide) {
-                            for(let i = index + 1; i < branch.steps.length; i++) {
-                                let s = branch.steps[i];
-                                if(s.level <= step.level) {
-                                    break;
-                                }
-
-                                // If a step is currently running or is failed, set its isCollapsed = false
-                                if(s.isRunning || s.isFailed) {
-                                    step.isCollapsed = false;
-                                    step.nonCollapsible = true;
-                                    break;
-                                }
-                            }
-
-                            if(step.isCollapsed) {
-                                for(let i = index + 1; i < branch.steps.length; i++) {
-                                    let s = branch.steps[i];
-                                    if(s.level <= step.level) {
-                                        break;
-                                    }
-
-                                    s.collapseHide = true;
-
-                                    if(previewedItem && previewedItem.props.step === s) {
-                                        // Clear selection if it's being collapsed
-                                        this.props.setPreview(null);
-                                    }
-                                }
-                            }
-                        }
-                    });
+                    this.updateCollapsing();
 
                     let lines = branch.steps
                         .filter(step => !step.isHidden)
@@ -1385,12 +1450,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                         return plusElem;
                     }
                     else if(this.props.step.isCollapsed === false) {
-                        if(this.props.step.nonCollapsible) {
-                            return nonCollapsibleElem;
-                        }
-                        else {
-                            return minusElem;
-                        }
+                        return minusElem;
                     }
                     else {
                         if(this.props.step.isFunctionCall) {
