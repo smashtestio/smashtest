@@ -562,6 +562,7 @@ Collapsing (+ and +?)
         - Put on function calls or function declarations
         - Used to hide excess steps inside functions by collapsing them
         - If there's an error inside that function, or if the function is currently running, it will be uncollapsed by default
+        - Like a "given" marker (marks preconditions the details of which are not a central part of the test)
     - Hidden (+?)
         - Only hidden in report if they pass
         - Good for internal stuff

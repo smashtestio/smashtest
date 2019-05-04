@@ -346,7 +346,7 @@
                 margin-right: 1px;
             }
 
-            .collapse.noncollapse {
+            .collapse.noncollapsible {
                 position: relative;
                 top: 1px;
                 width: 13px;
@@ -355,7 +355,7 @@
                 margin-right: 1px;
             }
 
-            .line:hover .collapse {
+            .collapse:hover {
                 filter: invert(60%);
             }
 
@@ -550,9 +550,11 @@
 
             function attachPreviewPaneTooltips() {
                 tippyOptions.content = wrapTippyContentForKeystrokes(`
-left  = previous step
-right = next step
-up    = toggle before/after
+up    = previous step
+down  = next step
+left  = collapse
+right = expand
+space = toggle before/after
 h     = copy hash
 c     = copy debug command 'smashtest filename -d=hash'
                 `);
@@ -624,6 +626,7 @@ c     = copy debug command 'smashtest filename -d=hash'
                     this.setLive = this.setLive.bind(this);
                     this.updateData = this.updateData.bind(this);
                     this.updateState = this.updateState.bind(this);
+                    this.unescapeHtml = this.unescapeHtml.bind(this);
                     this.setPreview = this.setPreview.bind(this);
                     this.handleKeyDown = this.handleKeyDown.bind(this);
                     this.handleKeyUp = this.handleKeyUp.bind(this);
@@ -724,9 +727,14 @@ c     = copy debug command 'smashtest filename -d=hash'
                         .replace(/&amp;/g, "&");
                 }
 
-                setPreview(previewedItem) {
+                setPreview(previewedItem, force) {
                     this.setState(state => {
-                        if(state.previewedItem === previewedItem) { // toggle off
+                        if(force) {
+                            return {
+                                previewedItem: previewedItem
+                            };
+                        }
+                        else if(state.previewedItem === previewedItem) { // toggle off
                             return {
                                 previewedItem: null
                             };
@@ -1154,59 +1162,39 @@ c     = copy debug command 'smashtest filename -d=hash'
 
                     // Reset collapse vars
                     branch.steps.forEach(step => {
-                        delete step.doCollapsing;
                         delete step.collapseHide;
-                        delete step.nonCollapseIcon;
                     });
 
-                    // If a step has a +, collapse all the steps underneath it, except if any step under it is currently running, failed, or selected
+                    // If a step has isCollapsed set, collapse all the steps underneath it
                     branch.steps.forEach((step, index) => {
                         if(step.isCollapsed && !step.collapseHide) {
-                            step.doCollapsing = true;
-
-                            if(previewedItem && previewedItem.props.step === step) {
-                                step.doCollapsing = false;
-                            }
-                            else {
-                                for(let i = index + 1; i < branch.steps.length; i++) {
-                                    let s = branch.steps[i];
-                                    if(s.level <= step.level) {
-                                        break;
-                                    }
-
-                                    if(s.isRunning || s.isFailed) {
-                                        step.doCollapsing = false;
-                                        break;
-                                    }
-
-                                    if(previewedItem && previewedItem.props.step === s) {
-                                        step.doCollapsing = false;
-                                        break;
-                                    }
-                                }
-
-                                if(step.doCollapsing) {
-                                    for(let i = index + 1; i < branch.steps.length; i++) {
-                                        let s = branch.steps[i];
-                                        if(s.level <= step.level) {
-                                            break;
-                                        }
-
-                                        s.collapseHide = true;
-                                    }
-                                }
-                            }
-
-                            // Set step.nonCollapseIcon
                             for(let i = index + 1; i < branch.steps.length; i++) {
                                 let s = branch.steps[i];
                                 if(s.level <= step.level) {
                                     break;
                                 }
 
+                                // If a step is currently running or is failed, set its isCollapsed = false
                                 if(s.isRunning || s.isFailed) {
-                                    step.nonCollapseIcon = true;
+                                    step.isCollapsed = false;
+                                    step.nonCollapsible = true;
                                     break;
+                                }
+                            }
+
+                            if(step.isCollapsed) {
+                                for(let i = index + 1; i < branch.steps.length; i++) {
+                                    let s = branch.steps[i];
+                                    if(s.level <= step.level) {
+                                        break;
+                                    }
+
+                                    s.collapseHide = true;
+
+                                    if(previewedItem && previewedItem.props.step === s) {
+                                        // Clear selection if it's being collapsed
+                                        this.props.setPreview(null);
+                                    }
                                 }
                             }
                         }
@@ -1280,8 +1268,8 @@ c     = copy debug command 'smashtest filename -d=hash'
                     );
                 }
 
-                toggleActiveState() {
-                    this.props.setPreview(this);
+                toggleActiveState(e) {
+                    this.props.setPreview(this, e.target.classList.contains("collapse"));
                 }
 
                 render() {
@@ -1334,46 +1322,13 @@ c     = copy debug command 'smashtest filename -d=hash'
                         lineClassName += "active ";
                     }
 
-                    let collapsePlusElem = <img
-                        className="collapse plus"
-                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTM0NCA4MDB2NjRxMCAxNC05IDIzdC0yMyA5aC0zNTJ2MzUycTAgMTQtOSAyM3QtMjMgOWgtNjRxLTE0IDAtMjMtOXQtOS0yM3YtMzUyaC0zNTJxLTE0IDAtMjMtOXQtOS0yM3YtNjRxMC0xNCA5LTIzdDIzLTloMzUydi0zNTJxMC0xNCA5LTIzdDIzLTloNjRxMTQgMCAyMyA5dDkgMjN2MzUyaDM1MnExNCAwIDIzIDl0OSAyM3ptMTI4IDQ0OHYtODMycTAtNjYtNDctMTEzdC0xMTMtNDdoLTgzMnEtNjYgMC0xMTMgNDd0LTQ3IDExM3Y4MzJxMCA2NiA0NyAxMTN0MTEzIDQ3aDgzMnE2NiAwIDExMy00N3Q0Ny0xMTN6bTEyOC04MzJ2ODMycTAgMTE5LTg0LjUgMjAzLjV0LTIwMy41IDg0LjVoLTgzMnEtMTE5IDAtMjAzLjUtODQuNXQtODQuNS0yMDMuNXYtODMycTAtMTE5IDg0LjUtMjAzLjV0MjAzLjUtODQuNWg4MzJxMTE5IDAgMjAzLjUgODQuNXQ4NC41IDIwMy41eiIvPjwvc3ZnPg=="
-                    />;
-
-                    let collapseMinusElem = <img
-                        className="collapse minus"
-                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48bGluZSB4MT0iOCIgeDI9IjE2IiB5MT0iMTIiIHkyPSIxMiIvPjwvc3ZnPg=="
-                    />;
-
-                    /*let nonCollapseElem = <img
-                        className="collapse noncollapse"
-                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBvbHlsaW5lIHBvaW50cz0iNiA5IDEyIDE1IDE4IDkiLz48L3N2Zz4="
-                    />;*/
-                    let nonCollapseElem = collapseMinusElem;
-
                     let lineElem = (
                         <span className="line-container">
                             <span className={contentClassName}>
-                                {
-                                    this.props.step.isCollapsed ?
-                                    (
-                                        this.props.step.doCollapsing ?
-                                        collapsePlusElem :
-                                        (
-                                            this.props.step.nonCollapseIcon ?
-                                            nonCollapseElem :
-                                            collapseMinusElem
-                                        )
-                                    ) :
-                                    (
-                                        this.props.step.isFunctionCall ?
-                                        nonCollapseElem :
-                                        (
-                                            this.props.hasLevels ?
-                                            <span className="collapse-placeholder"/> :
-                                            ''
-                                        )
-                                    )
-                                }
+                                <CollapseIcon
+                                    step={this.props.step}
+                                    hasLevels={this.props.hasLevels}
+                                />
                                 {
                                     (this.props.step.frontIdentifiers ? this.props.step.frontIdentifiers.join(' ') + ' ' : '') +
                                     this.props.step.text.trim() +
@@ -1393,6 +1348,63 @@ c     = copy debug command 'smashtest filename -d=hash'
                             {lineElem}
                         </div>
                     );
+                }
+            }
+
+            class CollapseIcon extends React.Component {
+                constructor() {
+                    super();
+                    this.toggleCollapse = this.toggleCollapse.bind(this);
+                }
+
+                toggleCollapse(e) {
+                    this.props.step.isCollapsed = !this.props.step.isCollapsed;
+                }
+
+                render() {
+                    let plusElem = <img
+                        className="collapse plus"
+                        onClick={this.toggleCollapse}
+                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTM0NCA4MDB2NjRxMCAxNC05IDIzdC0yMyA5aC0zNTJ2MzUycTAgMTQtOSAyM3QtMjMgOWgtNjRxLTE0IDAtMjMtOXQtOS0yM3YtMzUyaC0zNTJxLTE0IDAtMjMtOXQtOS0yM3YtNjRxMC0xNCA5LTIzdDIzLTloMzUydi0zNTJxMC0xNCA5LTIzdDIzLTloNjRxMTQgMCAyMyA5dDkgMjN2MzUyaDM1MnExNCAwIDIzIDl0OSAyM3ptMTI4IDQ0OHYtODMycTAtNjYtNDctMTEzdC0xMTMtNDdoLTgzMnEtNjYgMC0xMTMgNDd0LTQ3IDExM3Y4MzJxMCA2NiA0NyAxMTN0MTEzIDQ3aDgzMnE2NiAwIDExMy00N3Q0Ny0xMTN6bTEyOC04MzJ2ODMycTAgMTE5LTg0LjUgMjAzLjV0LTIwMy41IDg0LjVoLTgzMnEtMTE5IDAtMjAzLjUtODQuNXQtODQuNS0yMDMuNXYtODMycTAtMTE5IDg0LjUtMjAzLjV0MjAzLjUtODQuNWg4MzJxMTE5IDAgMjAzLjUgODQuNXQ4NC41IDIwMy41eiIvPjwvc3ZnPg=="
+                    />;
+
+                    let minusElem = <img
+                        className="collapse minus"
+                        onClick={this.toggleCollapse}
+                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48bGluZSB4MT0iOCIgeDI9IjE2IiB5MT0iMTIiIHkyPSIxMiIvPjwvc3ZnPg=="
+                    />;
+
+                    let nonCollapsibleElem = <img
+                        className="collapse noncollapsible"
+                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48L3N2Zz4="
+                    />;
+
+                    let placeholderElem = <span className="collapse-placeholder"/>;
+
+                    if(this.props.step.isCollapsed === true) {
+                        return plusElem;
+                    }
+                    else if(this.props.step.isCollapsed === false) {
+                        if(this.props.step.nonCollapsible) {
+                            return nonCollapsibleElem;
+                        }
+                        else {
+                            return minusElem;
+                        }
+                    }
+                    else {
+                        if(this.props.step.isFunctionCall) {
+                            return minusElem;
+                        }
+                        else {
+                            if(this.props.hasLevels) {
+                                return placeholderElem;
+                            }
+                            else {
+                                return "";
+                            }
+                        }
+                    }
                 }
             }
 

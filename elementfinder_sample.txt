@@ -25,6 +25,7 @@
 
 
 
+
 Verify page contains [
     page title 'something', page url 'relative or absolute'     // these are just properties (function properties that return true on the body element)
 ]
