@@ -575,6 +575,15 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 tippy(".branch-indicator.notrunyet", tippyOptions);
             }
 
+            /**
+             * Returns the text of the given step with identifiers attached
+             */
+            function stepText(step) {
+                return (step.frontIdentifiers ? step.frontIdentifiers.join(' ') + ' ' : '') +
+                step.text.trim() +
+                (step.backIdentifiers ? ' ' + step.backIdentifiers.join(' ') : '')
+            }
+
             // React Components
 
             class App extends React.Component {
@@ -1394,11 +1403,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                     step={this.props.step}
                                     hasLevels={this.props.hasLevels}
                                 />
-                                {
-                                    (this.props.step.frontIdentifiers ? this.props.step.frontIdentifiers.join(' ') + ' ' : '') +
-                                    this.props.step.text.trim() +
-                                    (this.props.step.backIdentifiers ? ' ' + this.props.step.backIdentifiers.join(' ') : '')
-                                }
+                                {stepText(this.props.step)}
                                 {pill}
                             </span>
                             <span className="location">[{this.props.step.filename}:{this.props.step.lineNumber}]</span>
@@ -1558,7 +1563,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     previewedItemText = `Branch ${props.previewedItem.props.branch.hash}`;
                 }
                 else {
-                    previewedItemText = previewedItem.line.trim();
+                    previewedItemText = stepText(previewedItem);
                 }
 
                 let postPreviewedItemText = "";
