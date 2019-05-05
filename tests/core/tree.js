@@ -465,6 +465,23 @@ describe("Tree", () => {
                 assert.equal(step.isTextualStep, true);
             });
 
+            it("parses the skip identifier (-S)", () => {
+                let step = tree.parseLine(`Click {button} -S`, "file.txt", 10);
+                assert.equal(step.text, `Click {button}`);
+                assert.equal(step.isSkip, true);
+                assert.equal(step.isTextualStep, true);
+
+                step = tree.parseLine(`-S Click {button}`, "file.txt", 10);
+                assert.equal(step.text, `Click {button}`);
+                assert.equal(step.isSkip, true);
+                assert.equal(step.isTextualStep, true);
+
+                step = tree.parseLine(`Click {button} + -S ..`, "file.txt", 10);
+                assert.equal(step.text, `Click {button}`);
+                assert.equal(step.isSkip, true);
+                assert.equal(step.isTextualStep, true);
+            });
+
             it("parses the manual identifier (-M)", () => {
                 let step = tree.parseLine(`Click {button} -M`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);

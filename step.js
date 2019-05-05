@@ -292,7 +292,7 @@ class Step {
      * @return {Boolean} True if this step has a payload block, code block, or payload code block, false otherwise
      */
     hasBlock() {
-        return hasCodeBlock() || hasPayloadBlock() || hasPayloadCodeBlock();
+        return this.hasCodeBlock() || this.hasPayloadBlock() || this.hasPayloadCodeBlock();
     }
 }
 module.exports = Step;

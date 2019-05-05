@@ -988,10 +988,6 @@ class Tree {
         function getBranchesFromChildren(branchFromThisStep, self) {
             let branchesFromChildren = []; // Array of Branch
 
-            if(!branchFromThisStep) {
-                branchFromThisStep = new Branch();
-            }
-
             children.forEach(child => {
                 if(child instanceof StepBlock && !child.isSequential) {
                     // If this child is a non-sequential step block, just call branchify() directly on each member step
