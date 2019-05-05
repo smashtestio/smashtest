@@ -1,17 +1,74 @@
 class ElementFinder {
-    constructor() {
-        this.ordinal = "";      // the ordinal portion, e.g., 1st from [1st 'Login' box next to 'Welcome']
-        this.text = "";         // the text portion, e.g., Login from [1st 'Login' box next to 'Welcome']
-        this.variable = "";     // the variable portion, e.g., box from [1st 'Login' box next to 'Welcome']
-        this.selector = "";     // the variable portion replaced with the corresponding global var's value (which should contain the selector)
-        this.nextTo = "";       // the next to portion, e.g., Welcome from [1st 'Login' box next to 'Welcome']
+    /**
+     * Constructs this EF
+     * @param {String} [str] - The string to parse, must start with '[' and end with ']'
+     * @param {Object} [definedProps] - An object containing a map of prop names to strings or functions
+     * @throws {Error} If there is a parse error
+     */
+    constructor(str, definedProps) {
+        this.counter = {};      // Counter associated with this EF, { low: N, high: M }, where both low and high are optional (if omitted, equivalent to { low: 1, high: 1 })
+        this.isArray = false;   // If true, this is a [[ ]], otherwise this is a [ ]
+        this.props = [];        // Array of string or function, the properties of this EF (includes modifiers such as "any order" and "subset")
+        this.children = [];     // Array of ElementFinder, the children of this EF
 
-        // Matches an [ElementFinder] in this format:
-        // [ OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT') ]
-        this.REGEX = /(?<!(\\\\)*\\)\[\s*(([0-9]+)(st|nd|rd|th))?\s*(('[^']+?'|"[^"]+?")|([^"']+?)|(('[^']+?'|"[^"]+?")\s+([^"']+?)))\s*(next\s+to\s+('[^']+?'|"[^"]+?"))?\s*\]/g;
+        if(str) {
+            this.parseIn(str, definedProps);
+        }
+    }
 
-        // Same as ELEMENTFINDER, only matches the whole line
-        this.REGEX_WHOLE = new RegExp("^\\s*" + this.REGEX.source + "\\s*$");
+    /**
+     * Parses the given string into this EF
+     * @param {String} str - The string to parse, must start with '[' and end with ']'
+     * @param {Object} [definedProps] - An object containing a map of prop names to strings or functions
+     * @throws {Error} If there is a parse error
+     */
+    parseIn(str, definedProps) {
+
+
+
+
+
+
+
+
+
+
+        const ORD_REGEX = /([0-9]+)(st|nd|rd|th)/;
+
+
+
+    }
+
+    /**
+     * Finds the first element matching this EF
+     * @param {SeleniumBrowser} browser - Browser with which to look for this EF
+     * @param {Number} [timeout] - Number of ms to continue trying before giving up. If omitted, only try once before giving up.
+     * @param {Number} [pollFrequency] - How often to poll for a matching element, in ms. If omitted, polls every 500 ms.
+     * @throws {Error} If a matching element wasn't found, or if a [[ ]] wasn't matched exactly
+     */
+    findElement(browser, timeout, pollFrequency) {
+        let elems = this.findElements(browser, timeout, pollFrequency);
+        if(elems.length == 0) {
+            throw new Error("Element not found");
+        }
+    }
+
+    /**
+     * Finds all the elements matching this EF
+     * @param {SeleniumBrowser} browser - Browser with which to look for this EF
+     * @param {Number} [timeout] - Number of ms to continue trying before giving up. If omitted, only try once before giving up.
+     * @param {Number} [pollFrequency] - How often to poll for a matching element, in ms. If omitted, polls every 500 ms.
+     * @throws {Error} If a [[ ]] wasn't matched exactly
+     */
+    findElements(browser, timeout, pollFrequency) {
+
+
+
+
+
+
+
+
     }
 
     /**
@@ -19,49 +76,6 @@ class ElementFinder {
      */
     stripQuotes(str) {
         return str.trim().replace(/^'|^"|'$|"$/g, '');
-    }
-
-    /**
-     * Parses text inside brackets into an ElementFinder
-     * @param {String} text - The text to parse, with the brackets ([])
-     * @return {ElementFinder} The ElementFinder, or null if this is not a valid ElementFinder
-     */
-    static parseElementFinder(name) {
-        let matches = name.match(this.REGEX_WHOLE);
-        if(matches) {
-            let ordinal = (matches[3] || '');
-            let text = this.stripQuotes((matches[6] || '') + (matches[9] || '')); // it's either matches[6] or matches[9]
-            let variable = ((matches[7] || '') + (matches[10] || '')).trim(); // it's either matches[7] or matches[10]
-            let nextTo = this.stripQuotes(matches[12] || '');
-
-            if(!text && !variable) { // either the text and/or the variable must be present
-                return null;
-            }
-            if(nextTo && !ordinal && !text && !variable) { // next to cannot be listed alone
-                return null; // NOTE: probably unreachable because a "next to" by itself won't get matched by the regex
-            }
-
-            let ef = new ElementFinder();
-
-            if(ordinal) {
-                ef.ordinal = parseInt(ordinal);
-            }
-            if(text) {
-                ef.text = text;
-            }
-            if(variable) {
-                ef.variable = variable;
-                ef.selector = runInstance.findVarValue(variable, false, runInstance.currStep, runInstance.currBranch);
-            }
-            if(nextTo) {
-                ef.nextTo = nextTo;
-            }
-
-            return ef;
-        }
-        else {
-            return null;
-        }
     }
 }
 module.exports = ElementFinder;
