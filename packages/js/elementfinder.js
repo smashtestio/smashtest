@@ -44,12 +44,16 @@ class ElementFinder {
      * @param {SeleniumBrowser} browser - Browser with which to look for this EF
      * @param {Number} [timeout] - Number of ms to continue trying before giving up. If omitted, only try once before giving up.
      * @param {Number} [pollFrequency] - How often to poll for a matching element, in ms. If omitted, polls every 500 ms.
-     * @throws {Error} If a matching element wasn't found, or if a [[ ]] wasn't matched exactly
+     * @return {Element} The WebDriver Element that was found
+     * @throws {Error} If a matching element wasn't found in time, or if a [[ ]] wasn't properly matched
      */
-    findElement(browser, timeout, pollFrequency) {
+    async findElement(browser, timeout, pollFrequency) {
         let elems = this.findElements(browser, timeout, pollFrequency);
         if(elems.length == 0) {
             throw new Error("Element not found");
+        }
+        else {
+            return elems[0];
         }
     }
 
@@ -58,9 +62,10 @@ class ElementFinder {
      * @param {SeleniumBrowser} browser - Browser with which to look for this EF
      * @param {Number} [timeout] - Number of ms to continue trying before giving up. If omitted, only try once before giving up.
      * @param {Number} [pollFrequency] - How often to poll for a matching element, in ms. If omitted, polls every 500 ms.
-     * @throws {Error} If a [[ ]] wasn't matched exactly
+     * @return {Array} Array of WebDriver Elements that were found, empty array if nothing found in time
+     * @throws {Error} If a [[ ]] wasn't properly matched
      */
-    findElements(browser, timeout, pollFrequency) {
+    async findElements(browser, timeout, pollFrequency) {
 
 
 

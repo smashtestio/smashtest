@@ -222,35 +222,5 @@ class SeleniumBrowser {
 
         await this.driver.get(url);
     }
-
-    /**
-     * @param {String} finder - A string representing an ElementFinder, css selector, or xpath
-     * @param {Number} [timeout] - If no elements are found initially, this is how long (in ms) to keep trying until elements are found, 0 if omitted
-     * @param {Boolean} [noError] - If true, return an empty array if no elements found, otherwise throw an Error
-     * @param {Boolean} [anywhereInDOM] - If true, search among all elements in the DOM, otherwise only search among visible ones
-     * @return {Array} The elements matching the given finder, empty array if noError is set and nothing was found
-     * @throws {Error} If no elements are found before the timeout expires (if noError isn't set)
-     */
-    async elements(finder, timeout, noError, anywhereInDOM) {
-
-
-
-
-
-
-
-    }
-
-    /**
-     * Same as elements(), but only returns one element
-     * @return {Element} The first element matching the finder
-     * @throws {Error} Just like elements()
-     */
-    async element(finder, timeout, noError, anywhereInDOM) {
-        let elements = this.elements(finder, timeout, noError, anywhereInDOM);
-        if(elements.length > 0) {
-            return elements[0];
-        }
-    }
 }
 module.exports = SeleniumBrowser;
