@@ -92,7 +92,7 @@ class Tree {
             return step;
         }
 
-        if(line.trim() == '..') {
+        if(line.match(Constants.SEQ_IDENTIFIER_LINE)) {
             step.text = '..';
             return step;
         }

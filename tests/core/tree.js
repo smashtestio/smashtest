@@ -367,6 +367,9 @@ describe("Tree", () => {
 
                 step = tree.parseLine(`    .. `, "file.txt", 10);
                 assert.equal(step.text, '..');
+
+                step = tree.parseLine(`    .. // comment here`, "file.txt", 10);
+                assert.equal(step.text, '..');
             });
         });
 

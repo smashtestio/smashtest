@@ -12,6 +12,9 @@ exports.IDENTIFIER = /\-T|\-S|\-M|\-|\!|\.\.|\~|\$|\+\?|\+/;
 // Matches text that starts or ends with an identifier
 exports.IDENTIFIER_START_OR_END = new RegExp("^(" + exports.IDENTIFIER.source + ")|(" + exports.IDENTIFIER.source + ")$");
 
+// Matches a line that starts a sequential step block
+exports.SEQ_IDENTIFIER_LINE = /^\s*\.\.\s*(\/\/.*)?$/;
+
 // Matches a line that's entirely a // comment
 exports.FULL_LINE_COMMENT = /^\s*\/\//;
 

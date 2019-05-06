@@ -36,8 +36,8 @@ Function here
                 {var222} = "something 222 \" "
                 {var3333} = "something 333 \" "
 
-                ..
-                Sequential step block one -
+                ..  // comment here
+                Sequential step block one - // comment
                 Sequential step block two -
                 Sequential step block three -
                     Not sequential block -
