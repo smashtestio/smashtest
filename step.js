@@ -24,8 +24,6 @@ class Step {
         this.frontIdentifiers = [];           // Array of String, identifiers in front of the step text
         this.backIdentifiers = [];            // Array of String, identifiers in back of the step text
         this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
-        this.stringPayloadBlock = "";               // payload block contents (string) that come after the [ and not including the line with the ]
-        this.codePayloadBlock = "";           // payload code block contents that come after the [{ and not including the line with the }]
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
         this.isFunctionDeclaration = false;   // true if this step is a function declaration
@@ -272,27 +270,6 @@ class Step {
      */
     hasCodeBlock() {
         return typeof this.codeBlock != 'undefined';
-    }
-
-    /**
-     * @return {Boolean} True if this step has a payload block, false otherwise
-     */
-    hasPayloadBlock() {
-        return typeof this.stringPayloadBlock != 'undefined';
-    }
-
-    /**
-     * @return {Boolean} True if this step has a payload code block, false otherwise
-     */
-    hasPayloadCodeBlock() {
-        return typeof this.codePayloadBlock != 'undefined';
-    }
-
-    /**
-     * @return {Boolean} True if this step has a payload block, code block, or payload code block, false otherwise
-     */
-    hasBlock() {
-        return this.hasCodeBlock() || this.hasPayloadBlock() || this.hasPayloadCodeBlock();
     }
 }
 module.exports = Step;

@@ -85,8 +85,6 @@ describe("Tree", () => {
                 assert.equal(step.text, `Click "Big Red Button"`);
                 assert.equal(step.identifiers, undefined);
                 assert.equal(step.codeBlock, undefined);
-                assert.equal(step.stringPayloadBlock, undefined);
-                assert.equal(step.codePayloadBlock, undefined);
                 assert.equal(step.comment, undefined);
                 assert.equal(step.isFunctionDeclaration, undefined);
                 assert.equal(step.isFunctionCall, true);
@@ -374,26 +372,6 @@ describe("Tree", () => {
         });
 
         context("blocks", () => {
-            it("throws an error if a function declaration has a string payload block", () => {
-                assert.throws(() => {
-                    tree.parseLine(`* Something - [`, "file.txt", 10);
-                }, "A function declaration cannot have a [payload] block at the end of it [file.txt:10]");
-
-                assert.throws(() => {
-                    tree.parseLine(`* Something - [ // comment`, "file.txt", 10);
-                }, "A function declaration cannot have a [payload] block at the end of it [file.txt:10]");
-            });
-
-            it("throws an error if a function declaration has a code payload block", () => {
-                assert.throws(() => {
-                    tree.parseLine(`* Something - [{`, "file.txt", 10);
-                }, "A function declaration cannot have a [payload] block at the end of it [file.txt:10]");
-
-                assert.throws(() => {
-                    tree.parseLine(`* Something - [{ // comment`, "file.txt", 10);
-                }, "A function declaration cannot have a [payload] block at the end of it [file.txt:10]");
-            });
-
             it("parses a function declaration with a code block", () => {
                 let step = tree.parseLine(`* Click {{var}} + { `, "file.txt", 10);
                 assert.equal(step.text, `Click {{var}}`);
@@ -416,36 +394,6 @@ describe("Tree", () => {
                 let step = tree.parseLine(`Something here + { // comment here`, "file.txt", 10);
                 assert.equal(step.text, `Something here`);
                 assert.equal(step.codeBlock, ' // comment here');
-                assert.equal(step.comment, undefined);
-            });
-
-            it("parses a string payload block", () => {
-                let step = tree.parseLine(`Something here + [`, "file.txt", 10);
-                assert.equal(step.text, `Something here`);
-                assert.equal(step.stringPayloadBlock, '');
-                assert.equal(step.codePayloadBlock, undefined);
-            });
-
-            it("parses a string payload block followed by a comment", () => {
-                let step = tree.parseLine(`Something here + [ // comment here`, "file.txt", 10);
-                assert.equal(step.text, `Something here`);
-                assert.equal(step.stringPayloadBlock, ' // comment here');
-                assert.equal(step.codePayloadBlock, undefined);
-                assert.equal(step.comment, undefined);
-            });
-
-            it("parses a code payload block", () => {
-                let step = tree.parseLine(`Something here + [{`, "file.txt", 10);
-                assert.equal(step.text, `Something here`);
-                assert.equal(step.stringPayloadBlock, undefined);
-                assert.equal(step.codePayloadBlock, '');
-            });
-
-            it("parses a code payload block followed by a comment", () => {
-                let step = tree.parseLine(`Something here + [{ // comment here`, "file.txt", 10);
-                assert.equal(step.text, `Something here`);
-                assert.equal(step.stringPayloadBlock, undefined);
-                assert.equal(step.codePayloadBlock, ' // comment here');
                 assert.equal(step.comment, undefined);
             });
         });
@@ -3524,13 +3472,13 @@ C
         more code;
 `
                     , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
+                }, "An unclosed code block was found [file.txt:2]");
 
                 assert.throws(() => {
                     tree.parseIn(
 `Code block here {`
                     , "file.txt");
-                }, "An unclosed block was found [file.txt:1]");
+                }, "An unclosed code block was found [file.txt:1]");
             });
 
             it("rejects a code block with a closing } at the wrong indentation", () => {
@@ -3543,7 +3491,7 @@ C
 }
 `
                     , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
+                }, "An unclosed code block was found [file.txt:2]");
 
                 assert.throws(() => {
                     tree.parseIn(
@@ -3553,7 +3501,7 @@ C
         }
 `
                     , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
+                }, "An unclosed code block was found [file.txt:2]");
             });
 
             it("rejects a step that is directly adjacent to a code block above", () => {
@@ -3565,442 +3513,7 @@ C
 B -
 `
                     , "file.txt");
-                }, "You cannot have a step directly adjacent to a code or payload block above. Consider putting an empty line above this one. [file.txt:3]");
-            });
-        });
-
-        context("string payload blocks", () => {
-            it("parses a string payload block", () => {
-                let tree = new Tree();
-                tree.parseIn(
-`A
-    String payload block here [one
-        two
-        three
-    ]
-
-    B
-C
-`
-                , "file.txt");
-
-                expect(tree).to.containSubset({
-                    root: {
-                        indents: -1,
-                        parent: null,
-                        children: [
-                            {
-                                text: 'A',
-                                codeBlock: undefined,
-                                stringPayloadBlock: undefined,
-                                codePayloadBlock: undefined,
-                                lineNumber: 1,
-                                indents: 0,
-                                parent: { indents: -1 },
-                                children: [
-                                    {
-                                        text: 'String payload block here',
-                                        codeBlock: undefined,
-                                        stringPayloadBlock: 'one\n        two\n        three',
-                                        codePayloadBlock: undefined,
-                                        lineNumber: 2,
-                                        indents: 1,
-                                        parent: { indents: 0 },
-                                        children: []
-                                    },
-                                    {
-                                        text: 'B',
-                                        codeBlock: undefined,
-                                        stringPayloadBlock: undefined,
-                                        codePayloadBlock: undefined,
-                                        lineNumber: 7,
-                                        indents: 1,
-                                        parent: { indents: 0 },
-                                        children: []
-                                    }
-                                ]
-                            },
-                            {
-                                text: 'C',
-                                codeBlock: undefined,
-                                stringPayloadBlock: undefined,
-                                codePayloadBlock: undefined,
-                                lineNumber: 8,
-                                indents: 0,
-                                parent: { indents: -1 },
-                                children: []
-                            }
-                        ]
-                    }
-                });
-            });
-
-            it("parses an empty string payload block", () => {
-                let tree = new Tree();
-                tree.parseIn(
-`A
-    String payload block here [
-    ]
-
-    B
-C
-`
-                , "file.txt");
-
-                expect(tree).to.containSubset({
-                    root: {
-                        indents: -1,
-                        parent: null,
-                        children: [
-                            {
-                                text: 'A',
-                                codeBlock: undefined,
-                                stringPayloadBlock: undefined,
-                                codePayloadBlock: undefined,
-                                lineNumber: 1,
-                                indents: 0,
-                                parent: { indents: -1 },
-                                children: [
-                                    {
-                                        text: 'String payload block here',
-                                        codeBlock: undefined,
-                                        stringPayloadBlock: '',
-                                        codePayloadBlock: undefined,
-                                        lineNumber: 2,
-                                        indents: 1,
-                                        parent: { indents: 0 },
-                                        children: []
-                                    },
-                                    {
-                                        text: 'B',
-                                        codeBlock: undefined,
-                                        stringPayloadBlock: undefined,
-                                        codePayloadBlock: undefined,
-                                        lineNumber: 5,
-                                        indents: 1,
-                                        parent: { indents: 0 },
-                                        children: []
-                                    }
-                                ]
-                            },
-                            {
-                                text: 'C',
-                                codeBlock: undefined,
-                                stringPayloadBlock: undefined,
-                                codePayloadBlock: undefined,
-                                lineNumber: 6,
-                                indents: 0,
-                                parent: { indents: -1 },
-                                children: []
-                            }
-                        ]
-                    }
-                });
-            });
-
-            it("rejects a string payload block that isn't closed", () => {
-                let tree = new Tree();
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-    String payload block here [
-        one
-        two
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-
-                assert.throws(() => {
-                    tree.parseIn(
-`String payload block here [`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:1]");
-            });
-
-            it("rejects a string payload block with a closing ] at the wrong indentation", () => {
-                let tree = new Tree();
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-    String payload block here [
-
-]
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-    String payload block here [
-
-        ]
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-            });
-
-            it("rejects a step that is directly adjacent to a string payload block above", () => {
-                let tree = new Tree();
-                assert.throws(() => {
-                    tree.parseIn(
-`A [
-]
-B -
-`
-                    , "file.txt");
-                }, "You cannot have a step directly adjacent to a code or payload block above. Consider putting an empty line above this one. [file.txt:3]");
-            });
-
-            it("doesn't throw an exception for {var} = [ string payload block ]", () => {
-                let tree = new Tree();
-                tree.parseIn(
-`{var} = [
-    string payload block here
-]
-`
-                , "file.txt");
-
-                tree.parseIn(
-`{{var}}=[
-    string payload block here
-]
-`
-                , "file.txt");
-            });
-        });
-
-        context("code payload blocks", () => {
-            it("parses a code payload block", () => {
-                let tree = new Tree();
-                tree.parseIn(
-`A
-    Code payload block here [{one
-        two
-        three
-    }]
-
-    B
-C
-`
-                , "file.txt");
-
-                expect(tree).to.containSubset({
-                    root: {
-                        indents: -1,
-                        parent: null,
-                        children: [
-                            {
-                                text: 'A',
-                                codeBlock: undefined,
-                                stringPayloadBlock: undefined,
-                                codePayloadBlock: undefined,
-                                lineNumber: 1,
-                                indents: 0,
-                                parent: { indents: -1 },
-                                children: [
-                                    {
-                                        text: 'Code payload block here',
-                                        codeBlock: undefined,
-                                        stringPayloadBlock: undefined,
-                                        codePayloadBlock: 'one\n        two\n        three',
-                                        lineNumber: 2,
-                                        indents: 1,
-                                        parent: { indents: 0 },
-                                        children: []
-                                    },
-                                    {
-                                        text: 'B',
-                                        codeBlock: undefined,
-                                        stringPayloadBlock: undefined,
-                                        codePayloadBlock: undefined,
-                                        lineNumber: 7,
-                                        indents: 1,
-                                        parent: { indents: 0 },
-                                        children: []
-                                    }
-                                ]
-                            },
-                            {
-                                text: 'C',
-                                codeBlock: undefined,
-                                stringPayloadBlock: undefined,
-                                codePayloadBlock: undefined,
-                                lineNumber: 8,
-                                indents: 0,
-                                parent: { indents: -1 },
-                                children: []
-                            }
-                        ]
-                    }
-                });
-            });
-
-            it("parses an empty code payload block", () => {
-                let tree = new Tree();
-                tree.parseIn(
-`A
-    Code payload block here [{
-    }]
-
-    B
-C
-`
-                , "file.txt");
-
-                expect(tree).to.containSubset({
-                    root: {
-                        indents: -1,
-                        parent: null,
-                        children: [
-                            {
-                                text: 'A',
-                                codeBlock: undefined,
-                                stringPayloadBlock: undefined,
-                                codePayloadBlock: undefined,
-                                lineNumber: 1,
-                                indents: 0,
-                                parent: { indents: -1 },
-                                children: [
-                                    {
-                                        text: 'Code payload block here',
-                                        codeBlock: undefined,
-                                        stringPayloadBlock: undefined,
-                                        codePayloadBlock: '',
-                                        lineNumber: 2,
-                                        indents: 1,
-                                        parent: { indents: 0 },
-                                        children: []
-                                    },
-                                    {
-                                        text: 'B',
-                                        codeBlock: undefined,
-                                        stringPayloadBlock: undefined,
-                                        codePayloadBlock: undefined,
-                                        lineNumber: 5,
-                                        indents: 1,
-                                        parent: { indents: 0 },
-                                        children: []
-                                    }
-                                ]
-                            },
-                            {
-                                text: 'C',
-                                codeBlock: undefined,
-                                stringPayloadBlock: undefined,
-                                codePayloadBlock: undefined,
-                                lineNumber: 6,
-                                indents: 0,
-                                parent: { indents: -1 },
-                                children: []
-                            }
-                        ]
-                    }
-                });
-            });
-
-            it("rejects a code payload block that isn't closed", () => {
-                let tree = new Tree();
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-    Code payload block here [{
-        one
-        two
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-Code payload block here [{
-    one
-    two
-} ]
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-    Code payload block here [{
-        one
-        two
-    ]
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-    Code payload block here [{
-        one
-        two
-    }
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-
-                assert.throws(() => {
-                    tree.parseIn(
-`Code payload block here [{`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:1]");
-            });
-
-            it("rejects a code payload block with a closing }] at the wrong indentation", () => {
-                let tree = new Tree();
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-    Code payload block here [{
-
-}]
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-
-                assert.throws(() => {
-                    tree.parseIn(
-`A
-    Code payload block here [{
-
-        }]
-`
-                    , "file.txt");
-                }, "An unclosed block was found [file.txt:2]");
-            });
-
-            it("rejects a step that is directly adjacent to a code payload block above", () => {
-                let tree = new Tree();
-                assert.throws(() => {
-                    tree.parseIn(
-`A [{
-}]
-B -
-`
-                    , "file.txt");
-                }, "You cannot have a step directly adjacent to a code or payload block above. Consider putting an empty line above this one. [file.txt:3]");
-            });
-
-            it("doesn't throw an exception for {var} = [{ code payload block }]", () => {
-                let tree = new Tree();
-                tree.parseIn(
-`{var} = [
-    code payload block here
-]
-`
-                , "file.txt");
-
-                tree.parseIn(
-`{{var}}=[
-    code payload block here
-]
-`
-                , "file.txt");
+                }, "You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one. [file.txt:3]");
             });
         });
     });

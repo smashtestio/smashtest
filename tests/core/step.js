@@ -680,32 +680,6 @@ describe("Step", () => {
 
             expect(functionCall.codeBlock).to.equal('code');
         });
-
-        it("handles a merge between a function declaration with a code block and a function call with a string payload block", () => {
-            let functionCall = new Step();
-            functionCall.stringPayloadBlock = 'payload';
-
-            let functionDeclarationInTree = new Step();
-            functionDeclarationInTree.codeBlock = 'code';
-
-            functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
-
-            expect(functionCall.codeBlock).to.equal('code');
-            expect(functionCall.stringPayloadBlock).to.equal('payload');
-        });
-
-        it("handles a merge between a function declaration with a code block and a function call with a code payload block", () => {
-            let functionCall = new Step();
-            functionCall.codePayloadBlock = 'payload';
-
-            let functionDeclarationInTree = new Step();
-            functionDeclarationInTree.codeBlock = 'code';
-
-            functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
-
-            expect(functionCall.codeBlock).to.equal('code');
-            expect(functionCall.codePayloadBlock).to.equal('payload');
-        });
     });
 
     describe("cloneAsFunctionCall()", () => {

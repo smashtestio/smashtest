@@ -123,13 +123,7 @@ class Tree {
         }
         if(matches[15]) {
             let block = matches[15];
-            if(block.startsWith('[{')) { // payload code block
-                step.codePayloadBlock = block.replace(/^\[\{/, '');
-            }
-            else if(block.startsWith('[')) { // payload string block
-                step.stringPayloadBlock = block.replace(/^\[/, '');
-            }
-            else if(block.startsWith('{')) { // code block
+            if(block.startsWith('{')) { // code block
                 step.codeBlock = block.replace(/^\{/, '');
             }
         }
@@ -149,11 +143,6 @@ class Tree {
         if(step.isFunctionDeclaration) {
             if(step.text.match(Constants.STRING_LITERAL)) {
                 utils.error(`A function declaration cannot have 'strings', "strings", or [strings] inside of it`, filename, lineNumber);
-            }
-
-            // Validate that a function declaration doesn't have a payload
-            if(step.hasPayloadBlock() || step.hasPayloadCodeBlock()) {
-                utils.error(`A function declaration cannot have a [payload] block at the end of it`, filename, lineNumber);
             }
 
             // Validate that all vars in a function declaration are {{local}}
@@ -322,7 +311,7 @@ class Tree {
                     }
 
                     // Validations
-                    if(varBeingSet.value.trim() == '' && !step.hasPayloadBlock() && !step.hasPayloadCodeBlock()) {
+                    if(varBeingSet.value.trim() == '') {
                         utils.error(`A {variable} must be set to something`, filename, lineNumber);
                     }
                     if(varBeingSet.value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
@@ -357,12 +346,11 @@ class Tree {
         let lines = buffer.split(/\n/);
 
         // Convert each string in lines to either a Step object
-        // For a line that's part of a block, insert the block contents into the Step that started the block and remove that line
+        // For a line that's part of a code block, insert the code block contents into the Step that started the code block and remove that line
         let lastStepCreated = null;
         let lastNonEmptyStep = null;
 
-        let currentlyInsideBlockFromLineNum = -1; // if we're currently inside a block, that block started on this line, otherwise -1
-        let currentlyInsideBlockType = ''; // 'codeBlock', 'stringPayloadBlock', or 'codePayloadBlock'
+        let currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
 
         for(let i = 0, lineNumber = 1; i < lines.length; i++, lineNumber++) {
             let line = lines[i];
@@ -373,35 +361,20 @@ class Tree {
                 continue;
             }
 
-            if(currentlyInsideBlockFromLineNum != -1) { // we're currently inside a block
-                let blockBegin = `^[ ]{${lastStepCreated.indents * Constants.SPACES_PER_INDENT}}`;
-                let blockEnd = `\\s*(\\/\\/.*?)?\\s*$`;
-
-                let endRegex = null;
-
-                if(currentlyInsideBlockType == 'codeBlock') {
-                    endRegex = new RegExp(`${blockBegin}\\}${blockEnd}`);
-                }
-                else if(currentlyInsideBlockType == 'stringPayloadBlock') {
-                    endRegex = new RegExp(`${blockBegin}\\]${blockEnd}`);
-                }
-                else if(currentlyInsideBlockType == 'codePayloadBlock') {
-                    endRegex = new RegExp(`${blockBegin}\\}\\]${blockEnd}`);
-                }
-
+            if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
+                let endRegex = new RegExp(`^[ ]{${lastStepCreated.indents * Constants.SPACES_PER_INDENT}}\\}\\s*(\\/\\/.*?)?\\s*$`);
                 if(line.match(endRegex)) {
-                    // block has ended
-                    currentlyInsideBlockFromLineNum = -1;
-                    currentlyInsideBlockType = '';
+                    // code block has ended
+                    currentlyInsideCodeBlockFromLineNum = -1;
                 }
                 else {
-                    lastStepCreated[currentlyInsideBlockType] += ("\n" + line);
+                    lastStepCreated.codeBlock += ("\n" + line);
                 }
 
                 lines[i] = this.parseLine('', filename, lineNumber); // blank out the line we just handled
-                if(currentlyInsideBlockFromLineNum == -1) { // if the block just ended, mark it as such
+                if(currentlyInsideCodeBlockFromLineNum == -1) { // if the code block just ended, mark it as such
                     lines[i].indents = this.numIndents(line, filename, lineNumber);
-                    lines[i].blockEnd = true;
+                    lines[i].codeBlockEnd = true;
                 }
             }
             else {
@@ -412,22 +385,13 @@ class Tree {
                     utils.error(`The first step must have 0 indents`, filename, lineNumber);
                 }
 
-                if(i - 1 >= 0 && step.text != '' && lines[i - 1].blockEnd && step.indents == lines[i - 1].indents) {
-                    utils.error(`You cannot have a step directly adjacent to a code or payload block above. Consider putting an empty line above this one.`, filename, lineNumber);
+                if(i - 1 >= 0 && step.text != '' && lines[i - 1].codeBlockEnd && step.indents == lines[i - 1].indents) {
+                    utils.error(`You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one.`, filename, lineNumber);
                 }
 
-                // If this is the start of a new block
+                // If this is the start of a new code block
                 if(step.hasCodeBlock()) {
-                    currentlyInsideBlockFromLineNum = lineNumber;
-                    currentlyInsideBlockType = 'codeBlock';
-                }
-                else if(step.hasPayloadBlock()) {
-                    currentlyInsideBlockFromLineNum = lineNumber;
-                    currentlyInsideBlockType = 'stringPayloadBlock';
-                }
-                else if(step.hasPayloadCodeBlock()) {
-                    currentlyInsideBlockFromLineNum = lineNumber;
-                    currentlyInsideBlockType = 'codePayloadBlock';
+                    currentlyInsideCodeBlockFromLineNum = lineNumber;
                 }
 
                 lines[i] = step;
@@ -439,9 +403,9 @@ class Tree {
             }
         }
 
-        // If we're still inside a block, and EOF was reached, complain that a block is not closed
-        if(currentlyInsideBlockFromLineNum != -1) {
-            utils.error(`An unclosed block was found`, filename, currentlyInsideBlockFromLineNum);
+        // If we're still inside a code block, and EOF was reached, complain that a code block is not closed
+        if(currentlyInsideCodeBlockFromLineNum != -1) {
+            utils.error(`An unclosed code block was found`, filename, currentlyInsideCodeBlockFromLineNum);
         }
 
         // Validations for .. steps

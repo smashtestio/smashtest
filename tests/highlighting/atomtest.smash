@@ -116,31 +116,6 @@ Not sequential
                 return 6;
             }
 
-            String payload block [
-                String
-                String \" \' \\
-                {var}
-                {{var}}
-                [
-                    something
-                    {var}
-                    [] [] []
-                ]
-                [
-                    fsdfdsf
-                ]
-            ]
-
-            Code payload block [{
-                 let x = 7;
-                 return new Error();
-                 throw new Error("oops");
-                 if(something) {
-                     something();
-                 }
-                 return 6;
-            }]
-
                 $ Code block ~ {
                     throw new Error("oops");
                     if(something) {
@@ -149,31 +124,6 @@ Not sequential
                     return 6;
                 }
 
-                $ String payload block ~ .. - [
-                    String
-                    String \" \' \\
-                    {var}
-                    {{var}}
-                    [
-                        something
-                        {var}
-                        [] [] []
-                    ]
-                    [
-                        fsdfdsf
-                    ]
-                ]
-
-                $ Code payload block ~ - [{
-                     let x = 7;
-                     return new Error();
-                     throw new Error("oops");
-                     if(something) {
-                         something();
-                     }
-                     return 6;
-                }]
-
                     .. Code block {
                         throw new Error("oops");
                         if(something) {
@@ -181,31 +131,6 @@ Not sequential
                         }
                         return 6;
                     }
-
-                    String payload block .. [
-                        String
-                        String \" \' \\
-                        {var}
-                        {{var}}
-                        [
-                            something
-                            {var}
-                            [] [] []
-                        ]
-                        [
-                            fsdfdsf
-                        ]
-                    ]
-
-                    Code payload block .. - [{
-                         let x = 7;
-                         return new Error();
-                         throw new Error("oops");
-                         if(something) {
-                             something();
-                         }
-                         return 6;
-                    }]
 
 * Function here
     {global var}='something'
