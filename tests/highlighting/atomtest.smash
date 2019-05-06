@@ -1,6 +1,6 @@
 Function here
     Function here   // comment here
-        Textual step 'non // comment string' -
+        Textual step 'non // comment string' - // comment here
             // comment on its own line
 
             Manual step -M // comment
@@ -116,7 +116,7 @@ Not sequential
                 return 6;
             }
 
-                $ Code block ~ {
+                * Code block {
                     throw new Error("oops");
                     if(something) {
                         something();
@@ -124,13 +124,21 @@ Not sequential
                     return 6;
                 }
 
-                    .. Code block {
+                    $ Code block ~ {
                         throw new Error("oops");
                         if(something) {
                             something();
                         }
                         return 6;
                     }
+
+                        .. Code block {
+                            throw new Error("oops");
+                            if(something) {
+                                something();
+                            }
+                            return 6;
+                        }
 
 * Function here
     {global var}='something'
