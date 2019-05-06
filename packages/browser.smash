@@ -113,6 +113,13 @@
 
     * Navigate to {{url}} {
         browser.nav(url);
+
+        // TODO: log the details
+
+
+
+
+        
     }
 
     * Click {{element}} {

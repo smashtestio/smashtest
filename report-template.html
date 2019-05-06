@@ -377,6 +377,10 @@
                 overflow-x: auto;
             }
 
+            .line .stacktrace {
+                padding: 10px 0 16px 30px;
+            }
+
             .logs {
                 padding: 5px 0 20px 20px;
                 color: rgb(110,110,110);
@@ -1386,7 +1390,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     if(this.props.step.error) {
                         error = (
                             <div className="stacktrace">
-                                {formatStackTrace(this.props.step.error)}
+                                {formatErrorMsg(this.props.step.error)}
                             </div>
                         );
                     }
@@ -1721,6 +1725,13 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
              */
             function formatStackTrace(error) {
                 return error.stackTrace.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
+            }
+
+            /**
+             * Injects [filename:lineNumber] into the given Error's message, and returns it
+             */
+            function formatErrorMsg(error) {
+                return error.msg + `   [${error.filename}:${error.lineNumber}]`;
             }
 
             attachTreePaneTooltips();
