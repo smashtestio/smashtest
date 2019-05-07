@@ -222,5 +222,70 @@ class SeleniumBrowser {
 
         await this.driver.get(url);
     }
+
+    // TODO
+    $() {
+
+    }
+
+    // TODO
+    $$() {
+
+    }
+
+    // /**
+    //  * @param {Element} element - A DOM element
+    //  * @return {Boolean} true if element is clickable, false if not
+    //  */
+    // function isClickable(element) {
+    //     let tagName = element.tagName.toLowerCase();
+    //     return tagName == 'a' ||
+    //         tagName == 'button' ||
+    //         tagName == 'label' ||
+    //         tagName == 'input' ||
+    //         tagName == 'textarea' ||
+    //         tagName == 'select' ||
+    //         window.getComputedStyle(element).getPropertyValue('cursor') == 'pointer';
+    // }
+
+
+    // Finding an elem's label:
+    // if(elem.id) {
+    //     let labelElement = document.querySelector('label[for=' + CSS.escape(elem.id) + ']');
+    //     if(labelElement) {
+    //         let innerText = labelElement.innerText.trim();
+    //     }
+    // }
+
+    // /**
+    //  * @return {Bool} True is elem is visible to the user, false otherwise
+    //  */
+    // function isVisible(elem) {
+    //     if(elem.offsetWidth == 0 || elem.offsetHeight == 0) {
+    //         return false;
+    //     }
+    //
+    //     var cs = window.getComputedStyle(elem);
+    //
+    //     if(cs.visibility == 'hidden' || cs.visibility == 'collapse') {
+    //         return false;
+    //     }
+    //
+    //     if(cs.opacity == '0') {
+    //         return false;
+    //     }
+    //
+    //     // Check opacity of parents
+    //     elem = elem.parentElement;
+    //     while(elem) {
+    //         cs = window.getComputedStyle(elem);
+    //         if(cs.opacity == '0') {
+    //             return false;
+    //         }
+    //         elem = elem.parentElement;
+    //     }
+    //
+    //     return true;
+    // }
 }
 module.exports = SeleniumBrowser;

@@ -9,6 +9,20 @@ chai.use(chaiSubset);
 
 describe("ElementFinder", () => {
     describe("parseIn()", () => {
+        it("rejects an empty EF", () => {
+            assert.throws(() => {
+                new ElementFinder();
+            }, "Cannot create an empty ElementFinder");
+
+            assert.throws(() => {
+                new ElementFinder('');
+            }, "Cannot create an empty ElementFinder");
+
+            assert.throws(() => {
+                new ElementFinder(' ');
+            }, "Cannot create an empty ElementFinder");
+        });
+
         it.skip("TODO", () => {
 
         });

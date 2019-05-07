@@ -51,8 +51,8 @@
         await browser.open({name: name});
     }
 
-    g('$', browser.element);
-    g('$$', browser.elements);
+    g('$', browser.$);
+    g('$$', browser.$$);
 }
 
     // ***************************************
@@ -483,7 +483,7 @@
     * Verify at page {{page}} {
         // page is page title or url (absolute or relative)
         // do a partial match
-        // wait for up to 3 secs?
+        // wait for up to 3 secs? (log this)
         // error.continue = true
 
 
@@ -493,7 +493,7 @@
     }
 
     * Verify cookie {{name}} contains {{value}} {
-
+        // wait up to 1 sec? (log this)
 
 
 
@@ -501,7 +501,7 @@
     }
 
     * Verify {{element}} is visible {
-
+        // wait up to 1 sec? (log this)
 
 
 
@@ -523,7 +523,7 @@
     // ***************************************
 
     * Wait until at page {{titleOrUrl}} {
-        // wait up to 15 secs
+        // wait up to 15 secs (log this)
 
 
 
