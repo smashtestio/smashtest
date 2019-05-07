@@ -1,23 +1,39 @@
 class ElementFinder {
     /**
-     * Constructs this EF
-     * @param {String} str - The string to parse
+     * Constructs this EF, which represents a single line in an EF (and links to its child EFs)
+     * @param {String} str - The string to parse, may contain multiple lines representing an element and its children
      * @param {Object} [definedProps] - An object containing a map of prop names to ElementFinders or functions
-     * @param {Function} [logger] - The function used to log
+     * @param {Function} [logger] - The function used to log, takes in one parameter that is the string to log
      * @throws {Error} If there is a parse error
      */
     constructor(str, definedProps, logger) {
-        this.counter = {};       // Counter associated with this EF, { low: N, high: M }, where both low and high are optional (if omitted, equivalent to { low: 1, high: 1 })
+        // Counter
+        this.counter = { min: 1, max: 1 };   // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
-        this.props = [];         // Array of ElementFinder, function, or Object. Represents the properties of this EF. If "not" is applied to a property, it is stored as { not: ElementFinder or function }.
-        this.children = [];      // Array of ElementFinder. The children of this EF.
+        // Props and ord
+        this.props = [];           // Array of Object representing the 'text', selectors, and properties of this EF
+                                   // Each object in the array has the following format:
+                                   //   { prop: 'full prop text', func: function from definedProps, input: 'input text if any', not: true or false }
+                                   //       or
+                                   //   { prop: 'full prop text', ef: ElementFinder object, not: true or false }
+                                   //
+                                   // 'text' is converted to the prop "contains 'text'"
+                                   // a selector is converted to the prop "selector 'text'"
 
-        this.isArray = false;    // If true, this is an element array (*)
-        this.isAnyOrder = false; // If true, this.children can be in any order
-        this.isSubset = false;   // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
+        this.ord = null;           // If an ord is associated with this EF, this will be set to the number representing the ord (1, 2, etc.)
 
-        this.logger = logger;
+        // Children
+        this.children = [];        // Array of ElementFinder. The children of this EF.
+        this.isElemArray = false;  // If true, this is an element array
 
+        // Modifiers
+        this.isAnyOrder = false;   // If true, this.children can be in any order
+        this.isSubset = false;     // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
+
+        // Logger
+        this.logger = logger;      // Logger function, called as logger(text to log)
+
+        // Parse str into this EF
         this.parseIn(str, definedProps);
     }
 
@@ -32,7 +48,7 @@ class ElementFinder {
             throw new Error(`Cannot create an empty ElementFinder`);
         }
 
-        const COUNTER_REGEX = /([0-9]+)(\s*[\-\+](\s*[0-9]+)?)?/;
+        const COUNTER_REGEX = /([0-9]+)(\s*[\-\+](\s*[0-9]+)?)?\s*x\s+/;
         const ORD_REGEX = /([0-9]+)(st|nd|rd|th)/;
         const STR_REGEX = /(?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*")/;
 

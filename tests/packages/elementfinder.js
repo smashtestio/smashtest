@@ -14,11 +14,15 @@ describe("ElementFinder", () => {
                 assert.throws(() => {
                     new ElementFinder();
                 }, "Cannot create an empty ElementFinder");
+            });
 
+            it("rejects an empty string EF", () => {
                 assert.throws(() => {
                     new ElementFinder('');
                 }, "Cannot create an empty ElementFinder");
+            });
 
+            it("rejects a whitespace EF", () => {
                 assert.throws(() => {
                     new ElementFinder(' ');
                 }, "Cannot create an empty ElementFinder");
