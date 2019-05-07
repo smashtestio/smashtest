@@ -810,12 +810,6 @@ describe("Tree", () => {
                 }, "When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', \"strings\", or [strings] [file.txt:10]");
             });
 
-            it("throws an error when a function declaration contains {non-local variables}", () => {
-                assert.throws(() => {
-                    tree.parseLine(`* Function {one} and {{two}}`, "file.txt", 10);
-                }, "All variables in a function declaration must be {{local}} and {one} is not [file.txt:10]");
-            });
-
             it("throws an error when a step sets a variable and is a function declaration", () => {
                 assert.throws(() => {
                     tree.parseLine(`* {{var1}}= Some function`, "file.txt", 10);

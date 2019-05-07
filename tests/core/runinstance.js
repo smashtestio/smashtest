@@ -1907,6 +1907,87 @@ My {var:} Function
                 expect(tree.branches[0].steps[1].error).to.equal(undefined);
             });
 
+            it("{global} variables passed in retain their value after the end of the function", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+My 'foo' and 'bar' and 'FU' and 'ba arr' Function
+
+    Save var values {
+        runInstance.globalOne = g("one");
+        runInstance.globalTwo = g("two");
+        runInstance.globalThree = g("three");
+        runInstance.globalFour = g("four");
+
+        runInstance.localOne = l("one");
+        runInstance.localTwo = l("two");
+        runInstance.localThree = l("three");
+        runInstance.localFour = l("four");
+    }
+
+* My {{one}} and {two} and {three} and {{four}} Function {
+    // something
+}
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree);
+                let runInstance = new RunInstance(runner);
+                runInstance.currBranch = tree.branches[0];
+
+                runInstance.currStep = tree.branches[0].steps[0];
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                runInstance.currStep = tree.branches[0].steps[1];
+                await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+                expect(runInstance.globalOne).to.equal(undefined);
+                expect(runInstance.globalTwo).to.equal("bar");
+                expect(runInstance.globalThree).to.equal("FU");
+                expect(runInstance.globalFour).to.equal(undefined);
+
+                expect(runInstance.localOne).to.equal(undefined);
+                expect(runInstance.localTwo).to.equal(undefined);
+                expect(runInstance.localThree).to.equal(undefined);
+                expect(runInstance.localFour).to.equal(undefined);
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            });
+
+            it("allows a {global} variable passed into a function to be accessible by functions declared within, when called in context", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+Request '6'
+    Verify
+
+* Request {num} {
+    // do the request
+}
+
+    * Verify {
+        runInstance.one = num;
+    }
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree);
+                let runInstance = new RunInstance(runner);
+                runInstance.currBranch = tree.branches[0];
+
+                runInstance.currStep = tree.branches[0].steps[0];
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                runInstance.currStep = tree.branches[0].steps[1];
+                await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+                expect(runInstance.one).to.equal('6');
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            });
+
             it("ignores {{variables}} inside the text of a textual step", async () => {
                 let tree = new Tree();
                 tree.parseIn(`

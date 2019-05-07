@@ -207,7 +207,7 @@ class RunInstance {
                 if(step.isFunctionCall) {
                     this.appendToLog(`Calling function at ${step.originalStepInTree.functionDeclarationInTree.filename}:${step.originalStepInTree.functionDeclarationInTree.lineNumber}`, step);
 
-                    // Set {{local vars}} based on function declaration signature and function call signature
+                    // Set {vars} based on function declaration signature and function call signature
 
                     let varList = step.functionDeclarationText.match(Constants.VAR);
                     if(varList) {
@@ -219,6 +219,7 @@ class RunInstance {
                             }
 
                             for(let i = 0; i < varList.length; i++) {
+                                let isLocal = varList[i].includes('{{');
                                 let varname = utils.stripBrackets(varList[i]);
                                 let value = inputList[i];
 
@@ -232,8 +233,14 @@ class RunInstance {
                                     value = this.findVarValue(value, isLocal);
                                 }
 
-                                this.setLocalPassedIn(varname, value);
-                                this.appendToLog(`Function parameter {{${varname}}} is ${this.getLogValue(value)}`, step);
+                                if(isLocal) { // local
+                                    this.setLocalPassedIn(varname, value);
+                                }
+                                else { // global
+                                    this.setGlobal(varname, value);
+                                }
+
+                                this.appendToLog(`Function parameter ${varList[i]} is ${this.getLogValue(value)}`, step);
                             }
                         }
                         // NOTE: else probably unreachable as varList and inputList are supposed to be the same size

@@ -235,6 +235,7 @@ Functions
                 to something like Open phone (whose function declaration has its own declarations for Click, etc.) sets the
                 "context" to the phone, sending further child steps to the phone's functions
             - Viewport-based function implementations
+
                 * Mobile
                     Mobile // calls original
 
@@ -252,7 +253,35 @@ Functions
                         Logout // calls the mobile logout
                     Desktop
                         Logout // calls the desktop logout
+
+            - Request and verify
+
+                Insert '6' adults and '7' children
+                    Verify response
+
+                * Insert {adults} adults and {children} children {
+                    post(`${host}/calls/insert/${param}`, {
+                        headers: {},
+                        body: {
+                            adults: adults,
+                            children: children
+                        }
+                    });
+                }
+
+                    * Verify response {
+                        response.verify({
+                            status: 200,
+                            headers: {},
+                            body: {
+                                result: 'ok',
+                                num: adults + children
+                            }
+                        });
+                    }
+
         - Inheritance pattern
+
             * On special cart page
                 On cart page
                     Validate special cart stuff // this has to come last
@@ -267,7 +296,9 @@ Functions
 
             On special cart page
                 Clear cart // specific stuff, then generic stuff
+
         - Function acting as an anonymous step block
+        
             * *
                 A1
                     A2

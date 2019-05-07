@@ -144,18 +144,6 @@ class Tree {
             if(step.text.match(Constants.STRING_LITERAL)) {
                 utils.error(`A function declaration cannot have 'strings', "strings", or [strings] inside of it`, filename, lineNumber);
             }
-
-            // Validate that all vars in a function declaration are {{local}}
-            matches = step.text.match(Constants.VAR);
-            if(matches) {
-                for(let i = 0; i < matches.length; i++) {
-                    let match = matches[i];
-                    let name = utils.stripBrackets(match);
-                    if(!match.startsWith('{{')) {
-                        utils.error(`All variables in a function declaration must be {{local}} and {${name}} is not`, filename, lineNumber);
-                    }
-                }
-            }
         }
         else { // not a function declaration
             // Validate that a non-function declaration isn't using a hook step name
