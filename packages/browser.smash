@@ -119,7 +119,7 @@
 
 
 
-        
+
     }
 
     * Click {{element}} {
@@ -376,13 +376,6 @@
 
     }
 
-    * Execute in browser {{code}} {
-
-
-
-
-    }
-
     // ***************************************
     //  Network conditions and throttling (Chrome only)
     // ***************************************
@@ -467,76 +460,6 @@
     //  Mock
     // ***************************************
 
-    * Mock GET {{url}} {
-
-
-
-
-
-    }
-
-    * Mock HEAD {{url}} {
-
-
-
-
-
-    }
-
-    * Mock POST {{url}} {
-
-
-
-
-
-    }
-
-    * Mock PUT {{url}} {
-
-
-
-
-
-    }
-
-    * Mock DELETE {{url}} {
-
-
-
-
-
-    }
-
-    * Mock CONNECT {{url}} {
-
-
-
-
-
-    }
-
-    * Mock OPTIONS {{url}} {
-
-
-
-
-    }
-
-    * Mock TRACE {{url}} {
-
-
-
-
-    }
-
-    * Mock PATCH {{url}} {
-
-
-
-
-
-    }
-
     * Mock time to {{datetime}} {
         // https://sinonjs.org/releases/latest/fake-timers/
 
@@ -577,7 +500,7 @@
 
     }
 
-    * Verify page contains {{element}} {
+    * Verify {{element}} is visible {
 
 
 
@@ -586,7 +509,7 @@
 
     }
 
-    * Verify page does not contain {{element}} {
+    * Verify {{element}} is not visible {
 
 
 
@@ -607,7 +530,7 @@
 
     }
 
-    * Wait up to {{n}} secs until at page {{titleOrUrl}} {
+    * Wait until at page {{titleOrUrl}} (up to {{n}} secs) {
 
 
 
@@ -622,22 +545,14 @@
 
     }
 
-    * Wait up to {{n}} secs until cookie {{name}} contains {{value}} {
+    * Wait until cookie {{name}} contains {{value}} (up to {{n}} secs) {
 
 
 
 
     }
 
-    * Wait until page contains {{element}} {
-
-
-
-
-
-    }
-
-    * Wait up to {{n}} secs until page contains {{content}} {
+    * Wait until {{element}} is visible {
 
 
 
@@ -645,7 +560,7 @@
 
     }
 
-    * Wait until page does not contain {{element}} {
+    * Wait until {{content}} is visible (up to {{n}} secs) {
 
 
 
@@ -653,7 +568,15 @@
 
     }
 
-    * Wait up to {{n}} secs until page does not contain {{content}} {
+    * Wait until {{element}} is not visible {
+
+
+
+
+
+    }
+
+    * Wait until page {{content}} is not visible (up to {{n}} secs) {
 
 
 

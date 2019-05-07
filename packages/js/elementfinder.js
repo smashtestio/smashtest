@@ -107,13 +107,14 @@ class ElementFinder {
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {Element} [parentElem] - Only search at or inside this WebDriver Element, search anywhere on the page if omitted
      * @param {Element} [afterElem] - Only search after this WebDriver Element in the DOM, no restrictions if omitted
+     * @param {Boolean} [continue] - How to set Error.continue, if an Error is thrown
      * @param {Number} [timeout] - Number of ms to continue trying before giving up. If omitted, only try once before giving up.
      * @param {Number} [pollFrequency] - How often to poll for a matching element, in ms. If omitted, polls every 500 ms.
      * @return {Element} The WebDriver Element that was found
      * @throws {Error} If a matching element wasn't found in time, or if a [[ ]] wasn't properly matched
      */
-    async findElement(driver, parentElem, afterElem, timeout, pollFrequency) {
-        let elems = this.findElements(driver, parentElem, timeout, pollFrequency);
+    async findElement(driver, parentElem, afterElem, continue, timeout, pollFrequency) {
+        let elems = this.findElements(driver, parentElem, afterElem, continue, timeout, pollFrequency);
         if(elems.length == 0) {
             throw new Error("Element not found");
         }
@@ -128,7 +129,7 @@ class ElementFinder {
      * @return {Array} Array of WebDriver Elements that were found, empty array if nothing found in time
      * @throws {Error} If a [[ ]] wasn't properly matched
      */
-    async findElements(driver, parentElem, afterElem, timeout, pollFrequency) {
+    async findElements(driver, parentElem, afterElem, continue, timeout, pollFrequency) {
         // TODO: visible only
         // TODO: Don't forget to log stuff via this.logger
 
@@ -144,7 +145,7 @@ class ElementFinder {
      * Params same as in findElement()
      * @throws {Error} If this EF is still visible on the page after the timeout expires
      */
-    async not(driver, parentElem, afterElem, timeout, pollFrequency) {
+    async not(driver, parentElem, afterElem, continue, timeout, pollFrequency) {
 
 
 

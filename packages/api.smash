@@ -5,35 +5,3 @@
 * GET {{url}} {
 
 }
-
-* HEAD {{url}} {
-
-}
-
-* POST {{url}} {
-
-}
-
-* PUT {{url}} {
-
-}
-
-* DELETE {{url}} {
-
-}
-
-* CONNECT {{url}} {
-
-}
-
-* OPTIONS {{url}} {
-
-}
-
-* TRACE {{url}} {
-
-}
-
-* PATCH {{url}} {
-
-}

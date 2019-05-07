@@ -256,7 +256,10 @@ Functions
 
             - Request and verify
 
-                Insert '6' adults and '7' children
+                Insert '6' adults and '1' children
+                Insert '7' adults and '2' children
+                Insert '8' adults and '3' children
+
                     Verify response
 
                 * Insert {adults} adults and {children} children {
@@ -298,7 +301,7 @@ Functions
                 Clear cart // specific stuff, then generic stuff
 
         - Function acting as an anonymous step block
-        
+
             * *
                 A1
                     A2
