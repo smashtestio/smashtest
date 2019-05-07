@@ -195,6 +195,9 @@ class SeleniumBrowser {
         }
     }
 
+    /**
+     * Closes this browser
+     */
     async close() {
         if(this.driver) {
             await this.driver.quit();
