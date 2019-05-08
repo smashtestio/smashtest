@@ -97,6 +97,7 @@ Not sequential
                 IsOnly step $ -
                     ~ Debug step // comment
                         Debug step + ~ - //comment
+                            Non-debug step // comment ~ comment
 
                 ~ Debug code {var} {var2:} 'string' block {
                 }

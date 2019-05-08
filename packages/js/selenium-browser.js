@@ -7,10 +7,9 @@ const edge = require('selenium-webdriver/edge');
 const ElementFinder = require('./elementfinder.js');
 
 class SeleniumBrowser {
-    constructor(runInstance) {
-        this.driver = null;
-        this.runInstance = runInstance;
-    }
+    // ***************************************
+    //  Static functions
+    // ***************************************
 
     /**
      * Creates a new SeleniumBrowser and initializes global vars in runInstance
@@ -46,6 +45,15 @@ class SeleniumBrowser {
                 await browser.driver && browser.driver.quit();
             }
         }
+    }
+
+    // ***************************************
+    //  Member functions
+    // ***************************************
+
+    constructor(runInstance) {
+        this.driver = null;
+        this.runInstance = runInstance;
     }
 
     /**
@@ -103,6 +111,19 @@ class SeleniumBrowser {
             catch(e) {}
         }
 
+        // Mobile device emulation (Chrome only)
+
+        if(!params.deviceEmulation) {
+            try {
+                params.deviceEmulation = this.runInstance.findVarValue("device", false, true);
+            }
+            catch(e) {}
+        }
+
+        if(params.deviceEmulation) {
+            options.chrome.setMobileEmulation({deviceName: params.deviceEmulation});
+        }
+
         // Dimensions
 
         if(!params.width) {
@@ -119,24 +140,11 @@ class SeleniumBrowser {
             catch(e) {}
         }
 
-        if(params.width && params.height) {
-            options.chrome.windowSize({width: params.width, height: params.height});
+        if(params.width && params.height && !params.deviceEmulation) {
+            options.chrome.windowSize({width: parseInt(params.width), height: parseInt(params.height)});
             options.firefox.windowSize({width: params.width, height: params.height});
 
             // NOTE: safari, ie, and edge cannot do a windowSize() and so much be resized to width/heigh post launch
-        }
-
-        // Mobile device emulation (Chrome only)
-
-        if(!params.deviceEmulation) {
-            try {
-                params.deviceEmulation = this.runInstance.findVarValue("device", false, true);
-            }
-            catch(e) {}
-        }
-
-        if(params.deviceEmulation) {
-            options.chrome.setMobileEmulation({deviceName: params.deviceEmulation});
         }
 
         // Headless

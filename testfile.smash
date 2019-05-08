@@ -4,8 +4,9 @@
     Open Firefox
     Open Safari
 
-        $ iPhone 4
-        Mobile
+        iPhone 4
+        $ Mobile
         Desktop
 
-            Wait '3' seconds ~
+            Last step - ~
+            // Wait '3' seconds
