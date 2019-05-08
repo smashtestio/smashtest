@@ -60,7 +60,7 @@
     // ***************************************
 
     *** After Every Branch {
-        if(typeof browser != 'undefined') {
+        if(browser) {
             await browser.close();
         }
     }

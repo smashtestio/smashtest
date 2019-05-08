@@ -44,7 +44,7 @@ class SeleniumBrowser {
      * @param {String} [params.platform] - The platform (e.g., linux|mac|windows)
      * @param {Number} [params.width] - The initial browser width, in pixels
      * @param {Number} [params.height] - The initial browser height, in pixels
-     * @param {String} [params.deviceEmulation] - What mobile device to emulate, if any (only works with Chrome)
+     * @param {String} [params.deviceEmulation] - What mobile device to emulate, if any (overrides params.width and params.height, only works with Chrome)
      * @param {Boolean} [params.isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging
      * @param {String} [params.serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      */
@@ -63,59 +63,51 @@ class SeleniumBrowser {
 
         // Browser name
         if(!params.name) {
-
-
-
-
-
+            try {
+                this.runInstance.findVarValue("browser name", false, true); // look for {browser name}, above or below
+            }
+            catch(e) {
+                params.name = "chrome"; // defaults to chrome
+            }
         }
 
         // Browser version
         if(!params.version) {
-
-
-
-
-
+            try {
+                this.runInstance.findVarValue("browser version", false, true); // look for {browser version}, above or below
+            }
+            catch(e) {}  // it's ok if the variable isn't found (simply don't set browser version)
         }
 
         // Browser plaform
         if(!params.platform) {
-
-
-
-
-
+            try {
+                this.runInstance.findVarValue("browser platform", false, true); // look for {browser platform}, above or below
+            }
+            catch(e) {}
         }
 
         // Dimensions
 
         if(!params.width) {
-            // See if {browser width} is defined below
             try {
-                params.width = parseInt(this.runInstance.findVarValue("browser width", false, true));
+                params.width = parseInt(this.runInstance.findVarValue("browser width", false, true)); // look for {browser width}, above or below
             }
-            catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
+            catch(e) {}
         }
 
         if(!params.height) {
-            // See if {browser height} is defined below
             try {
-                params.height = parseInt(this.runInstance.findVarValue("browser height", false, true));
+                params.height = parseInt(this.runInstance.findVarValue("browser height", false, true)); // look for {browser height}, above or below
             }
-            catch(e) {} // it's ok if the variable isn't found (simply don't set dimensions)
+            catch(e) {}
         }
 
         if(params.width && params.height) {
             options.chrome.windowSize({width: params.width, height: params.height});
             options.firefox.windowSize({width: params.width, height: params.height});
 
-            // TODO: set window size later for safari, ie, and edge
-
-
-
-
-
+            // NOTE: safari, ie, and edge cannot do a windowSize() and so much be resized to width/heigh post launch
         }
 
         // Mobile device emulation (Chrome only)
@@ -124,7 +116,7 @@ class SeleniumBrowser {
             try {
                 params.deviceEmulation = this.runInstance.findVarValue("device", false, true);
             }
-            catch(e) {} // it's ok if the variable isn't found
+            catch(e) {}
         }
 
         if(params.deviceEmulation) {
@@ -156,13 +148,7 @@ class SeleniumBrowser {
             options.chrome.headless();
             options.firefox.headless();
 
-            // TODO: what to do about safari, ie, and edge?
-
-
-
-
-
-
+            // NOTE: safari, ie, and edge don't support headless, so they will always run normally
         }
 
         // Server URL
@@ -173,6 +159,8 @@ class SeleniumBrowser {
                 params.serverUrl = this.runInstance.runner.flags.seleniumServer;
             }
         }
+
+        // Build the driver
 
         let builder = new Builder()
             .forBrowser(params.name, params.version, params.platform)
@@ -193,15 +181,21 @@ class SeleniumBrowser {
             e.fatal = true;
             throw e;
         }
+
+        // Resize safari, ie, and edge
+        if(['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name)) {
+            this.driver.manage().window().setRect({width: params.width, height: params.height});
+        }
     }
 
     /**
      * Closes this browser
      */
     async close() {
-        if(this.driver) {
+        try {
             await this.driver.quit();
         }
+        catch(e) {}
 
         let browsers = this.runInstance.p("browsers");
         for(let i = 0; i < browsers.length; i++) {

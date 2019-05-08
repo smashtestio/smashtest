@@ -1,15 +1,10 @@
 - Browser test -
 
-    Open Chrome $
+    Open Chrome
     Open Firefox
-    Open Safari
+    $ Open Safari
 
-        Mobile $
+        $ Mobile
         Desktop
 
-            Actual test starts here -
-
-* Mobile +
-    Some mobile setup here -
-        More mobile setup here -
-            Mobile // original Mobile
+            Wait '3' seconds

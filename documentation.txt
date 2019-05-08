@@ -37,6 +37,8 @@ Running tests
             - If glob omitted, *.smash is default
         - Setting {vars} from command line
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
+        - Browser will run headless by default, except if you're debugging (in which case it will run normally), if it's Safari, IE, or Edge
+            (which don't support headless as of yet, so they will always run normally), or if the --headless flag is passed in
     - Command line options
         - --debug=[HASH] or -d
             - Only run that branch as debugged. Ignore $'s, ~'s, groups, and frequency
@@ -104,6 +106,8 @@ Reports
                 if there is one or more failed steps
             - If error.continue isn't set to true, the step will be marked as a fail, the branch will be failed immediately, and all
                 other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
+        - Error.fatal
+            - If set, the error will bubble all the way up to the console and will end test execution immediately
         - Timeouts are set by each step on a case-by-case basis
         - Best practice: if a step fails, search the report for other instances of that step (by step text or filename:lineNumber which is hidden but searchable).
             If it always fails regardless of browser, for instance, the browser isn't the culprit.

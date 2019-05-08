@@ -1227,8 +1227,13 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         delete step.collapseHide;
                     });
 
-                    // If a step has isCollapsed set, collapse all the steps underneath it
                     branch.steps.forEach((step, index) => {
+                        // Set hasChildren for step
+                        if(index + 1 < branch.steps.length) {
+                            step.hasChildren = step.level < branch.steps[index + 1].level;
+                        }
+
+                        // If a step has isCollapsed set, collapse all the steps underneath it
                         if(step.isCollapsed && !step.collapseHide) {
                             for(let i = index + 1; i < branch.steps.length; i++) {
                                 let s = branch.steps[i];
@@ -1279,7 +1284,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     this.updateCollapsing();
 
                     let lines = branch.steps
-                        .filter(step => !step.isHidden)
+                        .filter(step => !step.isHidden || step.isFailed)
                         .map((step, index) =>
                             step.collapseHide ? '' : // do this here and not in filter() in order to preserve line numbering
                             <Line
@@ -1462,7 +1467,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         return minusElem;
                     }
                     else {
-                        if(this.props.step.isFunctionCall) {
+                        if(this.props.step.hasChildren) {
                             return minusElem;
                         }
                         else {
