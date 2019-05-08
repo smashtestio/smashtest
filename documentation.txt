@@ -152,8 +152,14 @@ Textual steps (-)
     - Also -T, -S, or -M
 
 Step reference
-    - From built-in packages
-    - Browsers, Webdriver steps, Verify, Assertions, Wait, etc.
+    - Open Chrome/Open Firefox/Open Safari/Open IE/Open Edge
+        - Open browser 'browser name'
+    - Mobile/Tablet/Laptop/Desktop
+        - Sets width and height of browser
+        - Include full list from device.smash
+    - Devices
+        - Emulates device on Chrome. With other browsers, the browser size will be set to that of the device, but that's it.
+        - Include full list from device.smash
 
 Code reference
     - JS functions available as part of built-in packages
