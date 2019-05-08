@@ -160,6 +160,8 @@ Step reference
     - Devices
         - Emulates device on Chrome. With other browsers, the browser size will be set to that of the device, but that's it.
         - Include full list from device.smash
+    - Print [EF] or P [EF]
+        - Prints found elements to browser's console and number of elements found to regular console
 
 Code reference
     - JS functions available as part of built-in packages
@@ -167,20 +169,68 @@ Code reference
     - Timeout code
 
 ElementFinders
-    - [OPTIONAL(1st/2nd/3rd/etc.)   MANDATORY('TEXT' AND/OR VAR-NAME)   OPTIONAL(next to 'TEXT')]
+    - Method of finding and/or verifying elements on the page
     - Examples
-        - [ 'Login' box ]
-        - [ 'Login' ]
-            - Any element that's an a, button, input, textarea, etc.  or is clickable/has a click handler and contains text 'Login' (see SmashPANEL implementation)
-        - [ 'Login' box next to 'foo' ]
-        - [ box next to 'foo' ]
-        - [ box ] (although you could use {box} too)
-        - [ 4th 'Login' box ]
-        - [ 4th 'Login' next to 'foo' ]
-    - Explain the basics of the find algorithm
-    - May contain vars
-        - [ {{N}}th 'some {text}' next to '{{something}}' ]
-            Note: "th" can be applied to any number
+        - Examples from elementfinder_sample4.txt
+        - Show how a [] in a step's text can contain a one-line EF
+        - Show how to set props() in a code block, how to verify via a $(``) in a code block. Also mention $$().
+    - Each line contains one or more 'text', ord, prop, and/or selectors, separated by commas
+        - May contain // comments
+        - Not recommended to put selectors or xpaths into the text of a step.
+            Set a property to that selector, then use the property's name inside the step.
+            You'll be thankful later when reading your code or report.
+    - Searches among all iframes
+    - 'text'
+        - Contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
+            - Containing, lower case, trimmed, and whitespace-to-single-space match
+    - No quotes (in order of match attempt)
+        - Modifier
+            - any order|subset
+            - Must be the only thing on that line
+        - Counter
+            - N, N-, N+, N-M
+            - Must be the first item on that line, followed by an "x"
+            - When omitted, implicitly 1
+        - ord
+            - 4th = take the elements that are matched by all other properties and choose only the 4th one
+        - property
+            - Can start with "not"
+            - Setting props
+                - prop('prop name', 'EF')
+                - prop('prop name', (elems, text) => array of elems that match) // the text is the string passed in
+                - prop('prop name', null) // clears prop
+            - Pre-implemented properties
+                - enabled|disabled|checked|unchecked|selected|focused|in focus
+                - element // matches any element
+                - clickable
+                - page title 'title'
+                - page title contains 'title'
+                - page url 'url' // relative or absolute
+                - page url contains 'text' // relative or absolute
+                - next to 'text'
+                - value 'text' // elem.value only
+                - exact 'text'
+                - contains 'text'
+                - innerText 'text'
+                - selector '.selector'
+                - xpath 'xpath'
+                - has 'selector' (matches this selector or has a child that matches)
+        - .css.selector
+            - selectorOfIframe/selectorOfIframe/selectorOfElement
+    - Children
+        - Children elements are indented by 4 spaces
+        - First non-blank line in EF string determines the baseline indentation (0) for the top parent
+        - Parent element must contain each child, in that order
+        - If "any order" keyword is present, children can be in any order
+        - Blank lines don't matter
+    - Line that starts with * = element array
+        - Will match all elements at that scope
+        - Children listed inside must be a 1 to 1 mapping to children matched by array (same order, same amount), otherwise an Error is thrown
+        - If "any order" modifier is present, children can be in any order
+        - If "subset" modifier is present, children can be a subset of all matched children
+    - Errors: Output expected object with "  -->  not found on page" on some lines
+    - Print [EF] or P [EF] step prints found elements to browser's console and number of elements found to regular console
+    - $() and $$()
 
 Functions
     - Calling
