@@ -144,6 +144,10 @@ describe("ElementFinder", () => {
 
             });
 
+            it.skip("throws an error if there is more than one line at the top indent", () => {
+
+            });
+
             it.skip("handles empty lines between normal lines", () => {
 
             });
