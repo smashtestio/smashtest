@@ -1,10 +1,11 @@
 - Browser test -
 
-    Open Chrome
+    $ Open Chrome
     Open Firefox
-    $ Open Safari
+    Open Safari
 
-        $ Mobile
+        $ iPhone 4
+        Mobile
         Desktop
 
-            Wait '3' seconds
+            Wait '3' seconds ~

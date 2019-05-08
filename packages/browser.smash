@@ -12,29 +12,47 @@
 //  Open browsers
 // ***************************************
 
-* Open Chrome +
-    {browser name}='chrome'
-        Use browser +?
+* Open Chrome + {
+    i('./packages/js/selenium-browser.js')
+        .create(runInstance)
+        .open({name: 'chrome'});
+}
+    Use browser +?
 
-* Open Firefox +
-    {browser name} = 'firefox'
-        Use browser +?
+* Open Firefox + {
+    i('./packages/js/selenium-browser.js')
+        .create(runInstance)
+        .open({name: 'firefox'});
+}
+    Use browser +?
 
-* Open Safari +
-    {browser name} = 'safari'
-        Use browser +?
+* Open Safari + {
+    i('./packages/js/selenium-browser.js')
+        .create(runInstance)
+        .open({name: 'safari'});
+}
+    Use browser +?
 
-* Open IE +
-    {browser name} = 'internet explorer'
-        Use browser +?
+* Open IE + {
+    i('./packages/js/selenium-browser.js')
+        .create(runInstance)
+        .open({name: 'internet explorer'});
+}
+    Use browser +?
 
-* Open Edge +
-    {browser name} = 'MicrosoftEdge'
-        Use browser +?
+* Open Edge + {
+    i('./packages/js/selenium-browser.js')
+        .create(runInstance)
+        .open({name: 'MicrosoftEdge'});
+}
+    Use browser +?
 
-* Use browser {{name}} +
-    {browser name} = '{{name}}'
-        Use browser +?
+* Use browser {{name}} + {
+    i('./packages/js/selenium-browser.js')
+        .create(runInstance)
+        .open({name: name});
+}
+    Use browser +?
 
 // ***************************************
 //  Browser-dependent functions
@@ -42,18 +60,7 @@
 
 // Note: functions under Use browser are indented because they're only available after a Use browser call
 
-* Use browser {
-    let SeleniumBrowser = i('SeleniumBrowser', './packages/js/selenium-browser.js');
-    let browser = g('browser', new SeleniumBrowser(runInstance));
-    let name = g('browser name');
-
-    if(name) {
-        await browser.open({name: name});
-    }
-
-    g('$', browser.$);
-    g('$$', browser.$$);
-}
+* Use browser
 
     // ***************************************
     //  Hooks

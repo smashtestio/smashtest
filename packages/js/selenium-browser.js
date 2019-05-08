@@ -10,16 +10,29 @@ class SeleniumBrowser {
     constructor(runInstance) {
         this.driver = null;
         this.runInstance = runInstance;
+    }
+
+    /**
+     * Creates a new SeleniumBrowser and initializes global vars in runInstance
+     * @return {SeleniumBrowser} The newly created SeleniumBrowser
+     */
+    static create(runInstance) {
+        let browser = runInstance.g('browser', new SeleniumBrowser(runInstance));
 
         // Register this browser in the persistent array browsers
         // Used to kill all open browsers if the runner is stopped
-        let browsers = this.runInstance.p("browsers");
+        let browsers = runInstance.p("browsers");
         if(!browsers) {
-            browsers = this.runInstance.p("browsers", []);
+            browsers = runInstance.p("browsers", []);
         }
+        browsers.push(browser);
+        runInstance.p("browsers", browsers);
 
-        browsers.push(this);
-        this.runInstance.p("browsers", browsers);
+        // Set commonly-used global vars
+        runInstance.g('$', browser.$);
+        runInstance.g('$$', browser.$$);
+
+        return browser;
     }
 
     /**
@@ -62,6 +75,7 @@ class SeleniumBrowser {
         };
 
         // Browser name
+
         if(!params.name) {
             try {
                 this.runInstance.findVarValue("browser name", false, true); // look for {browser name}, above or below
@@ -72,6 +86,7 @@ class SeleniumBrowser {
         }
 
         // Browser version
+
         if(!params.version) {
             try {
                 this.runInstance.findVarValue("browser version", false, true); // look for {browser version}, above or below
@@ -79,7 +94,8 @@ class SeleniumBrowser {
             catch(e) {}  // it's ok if the variable isn't found (simply don't set browser version)
         }
 
-        // Browser plaform
+        // Browser platform
+
         if(!params.platform) {
             try {
                 this.runInstance.findVarValue("browser platform", false, true); // look for {browser platform}, above or below
@@ -151,7 +167,7 @@ class SeleniumBrowser {
             // NOTE: safari, ie, and edge don't support headless, so they will always run normally
         }
 
-        // Server URL
+        // Server url
 
         if(!params.serverUrl) {
             // If serverUrl isn't set, look to the -seleniumServer flag
@@ -159,6 +175,19 @@ class SeleniumBrowser {
                 params.serverUrl = this.runInstance.runner.flags.seleniumServer;
             }
         }
+
+        // Log
+
+        let logStr = `Starting browser '${params.name}'`;
+        params.version && (logStr += `, version '${params.version}'`);
+        params.platform && (logStr += `, platform '${params.platform}'`);
+        params.deviceEmulation && (logStr += `, device '${params.deviceEmulation}'`);
+        params.width && (logStr += `, width '${params.width}'`);
+        params.height && (logStr += `, height '${params.height}'`);
+        params.isHeadless && !['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name) && (logStr += `, headless mode`);
+        params.serverUrl && (logStr += `, server url '${params.serverUrl}'`);
+
+        this.runInstance.log(logStr);
 
         // Build the driver
 
