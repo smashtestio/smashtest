@@ -30,6 +30,7 @@ class SeleniumBrowser {
         // Set commonly-used global vars
         runInstance.g('$', browser.$);
         runInstance.g('$$', browser.$$);
+        runInstance.g('prop', browser.prop);
 
         return browser;
     }
@@ -54,6 +55,7 @@ class SeleniumBrowser {
     constructor(runInstance) {
         this.driver = null;
         this.runInstance = runInstance;
+        this.props = {}; // ElementFinder props
     }
 
     /**
@@ -265,6 +267,18 @@ class SeleniumBrowser {
     // TODO
     $$() {
 
+    }
+
+    /**
+     * Sets the given ElementFinder property
+     */
+    prop(name, value) {
+        if(typeof value != 'function') {
+            // parse it as an EF
+            value = new ElementFinder(value, this.props, runInstance.log);
+        }
+
+        this.props[name] = value;
     }
 
     // /**
