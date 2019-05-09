@@ -149,7 +149,7 @@ Textual steps (-)
         Recommended to put the - before the step for these (looks like a heading in the report)
     - Textual steps can also be comments you want to appear at a certain point in the report.
         Recommended to use - after the step for these.
-    - Also -T, -S, or -M
+    - Also -S
 
 UI Testing
     - Open Chrome/Open Firefox/Open Safari/Open IE/Open Edge
@@ -627,17 +627,6 @@ Code blocks
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., l(), g(), p()) instead.
 
-Comments
-    - // only, stuff before it is a legit step
-    - If whole line starts with //, it's ignored as if it weren't there
-        - For example
-            A
-            // B
-            C
-                is still a step block, with members A and C
-
-    - Use -S or -T to "comment out" a step or everything under a step (see To-Do and Skip identifier sections)
-
 Sequential execution (..)
     - .. at the end of a step
         - .. means execute branches at and below me depth-first sequentially
@@ -701,21 +690,43 @@ Sequential execution (..)
 No parallel execution (!)
     - No two child branches may execute simultaneously
 
+
+
+
+
+Comments
+    - // only, stuff before it is a legit step
+    - If whole line starts with //, it's ignored as if it weren't there
+        - For example
+            A
+            // B
+            C
+                is still a step block, with members A and C
+
+Skipping
+    - One step
+        - -      = don't run me, do run below, don't expand me, outputted to report as passing textual step
+        - -S     = don't run me, do run below, don't expand me, outputted to report as skipped
+        - //     = don't run me, do run below, don't expand me, not outputted to report, might need to dedent lines below
+    - One step and steps below
+        - .S  = don't run me, don't run below, expand me, outputted to report as skipped
+    - Branches passing through a step
+        - $S  = don't run entire branch, don't expand me (entire branch marked as skipped from the get-go)
+
 To-Do (-T)
     - Marks this step and those under it as todo
-    - Treated as a textual step
+    - Note that functions are still expanded under a -T. Use - -T to make the line textual.
     - Only one branch going through this step will be run, the rest will be skipped as repeats
     - Be careful, when -T is in a function declaration it will affect steps after the function call as well
 
 Skip (-S)
     - Skips that single step. Marks it as skipped. Continues on with the branch as usual.
+    - Treats the step as a textual step
     - Can be used to "comment out" individual steps without having to dedent everything underneath
 
-Manual (-M)
-    - Marks this step and those under it as manual
-    - Treated as textual step, but you can ask to generate manual checklist from command line
-    - Only one branch going through this step will be run, the rest will be skipped as repeats
-    - Be careful, when -M is in a function declaration it will affect steps after the function call as well
+
+
+
 
 Collapsing (+ and +?)
     - Collapsed (+)

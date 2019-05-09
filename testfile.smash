@@ -1,9 +1,9 @@
-- Test - !
+- Test -
 
-    Open Chrome
+    Open Chrome -T
     Open Firefox
 
-        Mobile
+        Mobile -T
         Desktop
 
             //Last step -

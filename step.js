@@ -35,7 +35,6 @@ class Step {
 
         this.isToDo = false;                  // true if this step has the to-do identifier (-T)
         this.isSkip = false;                  // true if this step has the skip identifier (-S)
-        this.isManual = false;                // true if this step has the manual identifier (-M)
         this.isDebug = false;                 // true if this step has the debug identifier (~)
         this.isBeforeDebug = false;           // true if this step has the debug identifier (~) before the step text
         this.isAfterDebug = false;            // true if this step has the debug identifier (~) after the step text
@@ -193,9 +192,6 @@ class Step {
 
         let isSkip = this.isSkip || functionDeclarationInTree.isSkip;
         isSkip && (this.isSkip = isSkip);
-
-        let isManual = this.isManual || functionDeclarationInTree.isManual;
-        isManual && (this.isManual = isManual);
 
         let isDebug = this.isDebug || functionDeclarationInTree.isDebug;
         isDebug && (this.isDebug = isDebug);

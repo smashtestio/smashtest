@@ -3,10 +3,6 @@ Function here
         Textual step 'non // comment string' - // comment here
             // comment on its own line
 
-            Manual step -M // comment
-                Stuff under the manual step
-                    More stuff under manual .. ~
-
             To-Do step -T
                 Stuff under the to-do step...
                     More stuff under to-do step .. ~

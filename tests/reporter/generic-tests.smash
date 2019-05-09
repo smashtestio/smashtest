@@ -237,10 +237,6 @@ Skipping a TODO step -T
 
 
 
-Skipping a MANUAL step -M
-
-
-
 Normal step -
     Skipping a SKIP step -S
         Normal step -
@@ -252,15 +248,6 @@ Skipping similar branches for TODO steps ! -
     TODO step -T
 
         Branch one will be run, but not including the TODO step above -
-        Branch two will be skipped entirely -
-
-
-
-Skipping similar branches for MANUAL steps ! -
-
-    MANUAL step -M
-
-        Branch one will be run, but not including the MANUAL step above -
         Branch two will be skipped entirely -
 
 
