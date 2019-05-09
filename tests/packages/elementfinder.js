@@ -86,7 +86,15 @@ describe("ElementFinder", () => {
 
             });
 
+            it.skip("handles a selector containing quotes and commas", () => {
+                // e.g., input[name='foo,bar']
+            });
+
             it.skip("handles a property with 'input text' containing commas and escaped quotes", () => {
+
+            });
+
+            it.skip("handles a property with 'input text' containing a selector, which contains quotes and commas", () => {
 
             });
         });
