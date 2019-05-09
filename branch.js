@@ -27,16 +27,17 @@ class Branch {
         this.beforeEveryStep = [];          // Array of Step, the steps to execute before each step in this branch starts
         this.afterEveryStep = [];           // Array of Step, the steps to execute after each step in this branch is done
 
+        this.isSkipBranch = false;          // If true, a step in this branch has a $s
         this.isOnly = false;                // If true, a step in this branch has a $
         this.isDebug = false;               // If true, a step in this branch has a ~
 
-        this.passedLastTime = false;        // if true, do not run this branch, but include it in the report
+        this.passedLastTime = false;        // If true, do not run this branch, but include it in the report
         this.isPassed = false;              // true if every step in this branch passed after being run
         this.isFailed = false;              // true if at least one step in this branch failed after being run
         this.isSkipped = false;             // true if this branch was skipped after an attempted run
         this.isRunning = false;             // true if this branch is currently running
 
-        this.error = {};                    // if this branch failed, this is the Error that was thrown (only for failure that occurs within the branch but not within a particular step)
+        this.error = {};                    // If this branch failed, this is the Error that was thrown (only for failure that occurs within the branch but not within a particular step)
         this.log = [];                      // Array of objects that represent the logs of this branch (logs related to the branch but not to a particular step)
 
         this.elapsed = 0;                   // number of ms it took this step to execute
@@ -70,6 +71,7 @@ class Branch {
             });
         }
 
+        branch.isSkipBranch && (newBranch.isSkipBranch = branch.isSkipBranch);
         branch.isOnly && (newBranch.isOnly = branch.isOnly);
         branch.isDebug && (newBranch.isDebug = branch.isDebug);
 
@@ -104,6 +106,7 @@ class Branch {
      */
     push(step) {
         this.steps.push(step);
+        step.isSkipBranch && (this.isSkipBranch = true);
         step.isOnly && (this.isOnly = true);
         step.isDebug && (this.isDebug = true);
     }
@@ -113,6 +116,7 @@ class Branch {
      */
     unshift(step) {
         this.steps.unshift(step);
+        step.isSkipBranch && (this.isSkipBranch = true);
         step.isOnly && (this.isOnly = true);
         step.isDebug && (this.isDebug = true);
     }
@@ -246,7 +250,7 @@ class Branch {
              let text = step.text.replace(/\s+/g, ' ');
              if(step.identifiers) {
                  step.identifiers.forEach(identifier => {
-                     if(identifier != '~' && identifier != '$') {
+                     if(identifier != '~' && identifier != '$' && identifier != '$s') {
                          text += ' ' + identifier;
                      }
                  });

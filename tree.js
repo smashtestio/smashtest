@@ -976,6 +976,7 @@ class Tree {
                 bigBranch = bigBranch.mergeToEnd(branchFromThisStep);
 
                 let branchesFromChildren = getBranchesFromChildren(branchFromThisStep, this);
+                branchesFromChildren.forEach(branch => branch.isSkipBranch && (bigBranch.isSkipBranch = true));
                 branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, step.indents == -1);
                 branchesFromChildren.forEach(branchFromChild => {
                     bigBranch = bigBranch.mergeToEnd(branchFromChild);
@@ -1044,7 +1045,13 @@ class Tree {
         }
 
         // ***************************************
-        // 1) Remove branches by $'s
+        // 1) Remove branches by $s's
+        // ***************************************
+
+        branches = branches.filter(branch => !branch.isSkipBranch);
+
+        // ***************************************
+        // 2) Remove branches by $'s
         // ***************************************
 
         // Choose the branch with the $ at the shallowest depth, choosing multiple branches if there's a tie
@@ -1094,7 +1101,7 @@ class Tree {
         }
 
         // ***************************************
-        // 2) Remove branches by groups
+        // 3) Remove branches by groups
         //    (but only for steps at the top of the tree)
         // ***************************************
         if(groups && isRoot) {
@@ -1135,7 +1142,7 @@ class Tree {
         }
 
         // ***************************************
-        // 3) Remove branches by frequency
+        // 4) Remove branches by frequency
         //    (but only for steps at the top of the tree)
         // ***************************************
         if(minFrequency && isRoot) {
@@ -1178,7 +1185,7 @@ class Tree {
         }
 
         // ***************************************
-        // 4) Remove branches by ~'s
+        // 5) Remove branches by ~'s
         // ***************************************
 
         // If found, remove all branches other than the one that's connected with one or more ~'s

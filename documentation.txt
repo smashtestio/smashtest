@@ -710,7 +710,7 @@ Skipping (-, -s, .s, $s)
             - Only one branch going through this step will be run, the rest will be skipped as repeats
             - Be careful, when .s is in a function declaration it will affect steps after the function call as well
     - Skip all branches passing through a step
-        - $s     = don't run entire branch, don't expand me (entire branch marked as skipped from the get-go)
+        - $s     = don't run entire branch, expand me and below, not outputted to report
 
 Collapsing (+, +?)
     - Collapsed (+)

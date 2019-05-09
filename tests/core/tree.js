@@ -10645,6 +10645,279 @@ A -
     });
 
     describe("removeUnwantedBranches()", () => {
+        context("$s", () => {
+            it("removes branches under a $s", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+
+    $s C -
+
+        D -
+
+        E -
+
+G -
+
+H -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(3);
+                expect(branches[0].steps).to.have.lengthOf(2);
+                expect(branches[1].steps).to.have.lengthOf(1);
+                expect(branches[2].steps).to.have.lengthOf(1);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "B" }
+                ]);
+
+                expect(branches[1].steps).to.containSubsetInOrder([
+                    { text: "G" }
+                ]);
+
+                expect(branches[2].steps).to.containSubsetInOrder([
+                    { text: "H" }
+                ]);
+            });
+
+            it("handles multiple $s's", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+
+    $s C -
+
+        D -
+
+        $s E -
+
+G - $s
+
+H -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(2);
+                expect(branches[0].steps).to.have.lengthOf(2);
+                expect(branches[1].steps).to.have.lengthOf(1);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "B" }
+                ]);
+
+                expect(branches[1].steps).to.containSubsetInOrder([
+                    { text: "H" }
+                ]);
+            });
+
+            it("handles $s when it's attached to a step block member", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+B - $s
+C - $s
+
+    D - $s
+    E -
+    F -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(2);
+
+                expect(branches[0].steps).to.have.lengthOf(2);
+                expect(branches[1].steps).to.have.lengthOf(2);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "E" }
+                ]);
+
+                expect(branches[1].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "F" }
+                ]);
+            });
+
+            it("handles $s when it's inside a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+
+* F
+    $s A -
+        B -
+
+    C -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(1);
+                expect(branches[0].steps).to.have.lengthOf(2);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "F" }, { text: "C" }
+                ]);
+            });
+
+            it("handles $s when it's on a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+
+$s * F
+    A -
+        B -
+
+C -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(1);
+                expect(branches[0].steps).to.have.lengthOf(1);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "C" }
+                ]);
+            });
+
+            it("handles $s when it's on a function call", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F $s
+
+* F
+    A -
+        B -
+
+C -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(1);
+                expect(branches[0].steps).to.have.lengthOf(1);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "C" }
+                ]);
+            });
+
+            it("handles $s when it's on a function call and function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F $s
+
+* F $s
+    A -
+        B -
+
+C -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(1);
+                expect(branches[0].steps).to.have.lengthOf(1);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "C" }
+                ]);
+            });
+
+            it("handles multiple $s's inside and outside a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+J -
+    F
+
+$s K -
+    F
+
+* F
+    $s A -
+        B -
+
+    C -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(1);
+                expect(branches[0].steps).to.have.lengthOf(3);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "J" }, { text: "F" }, { text: "C" }
+                ]);
+            });
+
+            it("handles $s when it's inside a .. step", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A .. -
+    B - $s
+        C -
+
+$s G .. -
+    H -
+    I -
+
+J -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(1);
+                expect(branches[0].steps).to.have.lengthOf(1);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "J" }
+                ]);
+            });
+
+            it("handles $s when it's attached to a .. step block member", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+..
+A -
+$s B -
+C -
+
+    D -
+    E -
+
+F -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(1);
+                expect(branches[0].steps).to.have.lengthOf(1);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "F" }
+                ]);
+            });
+
+            it("still expands branches under a $s and throws an error if a function declaration cannot be found", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    F $s
+                `, "file.txt");
+
+                assert.throws(() => {
+                    tree.branchify(tree.root);
+                }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:3]");
+            });
+        });
+
         context("$", () => {
             it("only keeps a branches under a $", () => {
                 let tree = new Tree();

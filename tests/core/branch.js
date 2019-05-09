@@ -35,6 +35,7 @@ describe("Branch", () => {
             branch2.nonParallelId = "ppppp";
             branch2.frequency = "high";
             branch2.groups = [ "2", "3" ];
+            branch2.isSkipBranch = true;
             branch2.isOnly = true;
 
             branch1 = branch1.mergeToEnd(branch2);
@@ -51,6 +52,7 @@ describe("Branch", () => {
                 nonParallelId: "ppppp",
                 frequency: "high",
                 groups: [ "1", "2", "3" ],
+                isSkipBranch: true,
                 isOnly: true,
                 isDebug: true
             });
@@ -145,6 +147,7 @@ describe("Branch", () => {
                 nonParallelId: undefined,
                 frequency: undefined,
                 groups: undefined,
+                isSkipBranch: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
                 passedLastTime: undefined,
@@ -186,6 +189,7 @@ describe("Branch", () => {
                 nonParallelId: undefined,
                 frequency: undefined,
                 groups: undefined,
+                isSkipBranch: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
                 passedLastTime: undefined,
@@ -214,6 +218,7 @@ describe("Branch", () => {
                 nonParallelId: undefined,
                 frequency: undefined,
                 groups: undefined,
+                isSkipBranch: undefined,
                 isOnly: undefined,
                 isDebug: undefined,
                 passedLastTime: undefined,
@@ -268,6 +273,7 @@ describe("Branch", () => {
             branch.nonParallelId = "foobarId";
             branch.frequency = "high";
             branch.groups = ['big', 'small'];
+            branch.isSkipBranch = true;
             branch.isOnly = true;
             branch.isDebug = true;
             branch.passedLastTime = true;
@@ -296,6 +302,7 @@ describe("Branch", () => {
                 nonParallelId: "foobarId",
                 frequency: "high",
                 groups: [ "big", "small" ],
+                isSkipBranch: true,
                 isOnly: true,
                 isDebug: true,
                 passedLastTime: true,
@@ -341,6 +348,7 @@ describe("Branch", () => {
                 nonParallelId: "foobarId",
                 frequency: "high",
                 groups: [ "big", "small" ],
+                isSkipBranch: true,
                 isOnly: true,
                 isDebug: true,
                 passedLastTime: true,
