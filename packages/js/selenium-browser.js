@@ -142,13 +142,6 @@ class SeleniumBrowser {
             catch(e) {}
         }
 
-        if(params.width && params.height && !params.deviceEmulation) {
-            options.chrome.windowSize({width: parseInt(params.width), height: parseInt(params.height)});
-            options.firefox.windowSize({width: params.width, height: params.height});
-
-            // NOTE: safari, ie, and edge cannot do a windowSize() and so much be resized to width/heigh post launch
-        }
-
         // Headless
 
         if(typeof params.isHeadless == 'undefined') {
@@ -221,8 +214,9 @@ class SeleniumBrowser {
             throw e;
         }
 
-        // Resize safari, ie, and edge
-        if(['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name)) {
+        // Resize to dimensions
+        // NOTE: Options.windowSize() wasn't working properly
+        if(params.width && params.height && !(params.name == 'chrome' && params.deviceEmulation)) {
             this.driver.manage().window().setRect({width: params.width, height: params.height});
         }
     }
