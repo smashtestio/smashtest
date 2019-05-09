@@ -4,10 +4,10 @@
 
 // Matches any well-formed non-empty line, in this format:
 // Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
-exports.LINE_WHOLE = /^\s*(((\-T|\-S|\-|\!|\.\.|\~|\$|\+\?|\+)\s+)*)(\*{1,3}\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-T|\-S|\-|\!|\.\.|\~|\$|\+\?|\+))*)(\s+(\[\{[^\}\]]*$|\{[^\}]*$|\[[^\]]*$))?(\s*(\/\/.*))?\s*$/;
+exports.LINE_WHOLE = /^\s*(((\-s|\.s|\$s|\-|\!|\.\.|\~|\$|\+\?|\+)\s+)*)(\*{1,3}\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-s|\.s|\$s|\-|\!|\.\.|\~|\$|\+\?|\+))*)(\s+(\[\{[^\}\]]*$|\{[^\}]*$|\[[^\]]*$))?(\s*(\/\/.*))?\s*$/;
 
 // Matches an identifier by itself
-exports.IDENTIFIER = /\-T|\-S|\-|\!|\.\.|\~|\$|\+\?|\+/;
+exports.IDENTIFIER = /\-s|\.s|\$s|\-|\!|\.\.|\~|\$|\+\?|\+/;
 
 // Matches text that starts or ends with an identifier
 exports.IDENTIFIER_START_OR_END = new RegExp("^(" + exports.IDENTIFIER.source + ")|(" + exports.IDENTIFIER.source + ")$");

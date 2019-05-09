@@ -33,8 +33,9 @@ class Step {
         this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
         this.functionDeclarationText = "";    // if this step is a function call, this is set to the corresponding function declaration's text
 
-        this.isToDo = false;                  // true if this step has the to-do identifier (-T)
-        this.isSkip = false;                  // true if this step has the skip identifier (-S)
+        this.isSkip = false;                  // true if this step has the skip identifier (-s)
+        this.isSkipBelow = false;             // true if this step has the skip below identifier (.s)
+        this.isSkipBranch = false;            // true if this step has the skip branch identifier ($s)
         this.isDebug = false;                 // true if this step has the debug identifier (~)
         this.isBeforeDebug = false;           // true if this step has the debug identifier (~) before the step text
         this.isAfterDebug = false;            // true if this step has the debug identifier (~) after the step text
@@ -187,11 +188,14 @@ class Step {
         this.functionDeclarationInTree = functionDeclarationInTree;
         this.functionDeclarationText = functionDeclarationInTree.text;
 
-        let isToDo = this.isToDo || functionDeclarationInTree.isToDo;
-        isToDo && (this.isToDo = isToDo);
-
         let isSkip = this.isSkip || functionDeclarationInTree.isSkip;
         isSkip && (this.isSkip = isSkip);
+
+        let isSkipBelow = this.isSkipBelow || functionDeclarationInTree.isSkipBelow;
+        isSkipBelow && (this.isSkipBelow = isSkipBelow);
+
+        let isSkipBranch = this.isSkipBranch || functionDeclarationInTree.isSkipBranch;
+        isSkipBranch && (this.isSkipBranch = isSkipBranch);
 
         let isDebug = this.isDebug || functionDeclarationInTree.isDebug;
         isDebug && (this.isDebug = isDebug);

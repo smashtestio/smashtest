@@ -233,21 +233,21 @@ Skipping similar branches on fail ! -
 
 
 
-Skipping a TODO step -T
+Skipping a skip below step .s
 
 
 
 Normal step -
-    Skipping a SKIP step -S
+    Skipping a SKIP step -s
         Normal step -
 
 
 
-Skipping similar branches for TODO steps ! -
+Skipping similar branches for skip below steps ! -
 
-    TODO step -T
+    Skip below step .s
 
-        Branch one will be run, but not including the TODO step above -
+        Branch one will be run, but not including the skip below step above -
         Branch two will be skipped entirely -
 
 

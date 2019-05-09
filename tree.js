@@ -167,12 +167,15 @@ class Tree {
             }
         }
         if(step.identifiers) {
-            if(step.identifiers.includes('-T')) {
-                step.isToDo = true;
-            }
-            if(step.identifiers.includes('-S')) {
+            if(step.identifiers.includes('-s')) {
                 step.isSkip = true;
                 step.isTextualStep = true;
+            }
+            if(step.identifiers.includes('.s')) {
+                step.isSkipBelow = true;
+            }
+            if(step.identifiers.includes('$s')) {
+                step.isSkipBranch = true;
             }
             if(step.identifiers.includes('-')) {
                 step.isTextualStep = true;
@@ -1296,9 +1299,9 @@ class Tree {
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
 
-        // Marks branches with a first step of -T as skipped
+        // Marks branches with a first step of .S as skipped
         this.branches.forEach(branch => {
-            if(branch.steps[0].isToDo) {
+            if(branch.steps[0].isSkipBelow) {
                 branch.isSkipped = true;
             }
         });
@@ -1474,7 +1477,7 @@ class Tree {
 
     /**
      * Get a count on the number of steps within this.branches. Does not include steps in hooks.
-     * @param {Boolean} [runnableOnly] - If true, do not include branches that passed previously, or steps at or below a -T
+     * @param {Boolean} [runnableOnly] - If true, do not include branches that passed previously, or steps at or below a .S
      * @param {Boolean} [completeOnly] - If true, only include steps that are complete (passed, failed, or skipped over)
      * @param {Boolean} [failedOnly] - If true, only include steps that are complete and have failed
      * @return {Number} Total number of steps
@@ -1491,7 +1494,7 @@ class Tree {
             for(let j = 0; j < branch.steps.length; j++) {
                 let step = branch.steps[j];
 
-                if(runnableOnly && step.isToDo) {
+                if(runnableOnly && step.isSkipBelow) {
                     break; // go to next branch
                 }
 
@@ -1627,11 +1630,11 @@ class Tree {
     }
 
     /**
-     * Returns and/or advances to the next step in the given branch (after the currently running step), or null if no steps are left, the next step is a -T, or the branch already failed/skipped
+     * Returns and/or advances to the next step in the given branch (after the currently running step), or null if no steps are left, the next step is a .s, or the branch already failed/skipped
      * NOTE: This is the only function that's allowed to change Step.isRunning
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
-     * @param {Boolean} [skipsRepeats] - If true, if the next step is a -T, skips every other branch whose first N steps are identical to this one's (up until the -T step)
+     * @param {Boolean} [skipsRepeats] - If true, if the next step is a -s, skips every other branch whose first N steps are identical to this one's (up until the .s step)
      * @return {Step} The next step in the given branch, null if there are none left
      */
     nextStep(branch, advance, skipsRepeats) {
@@ -1671,8 +1674,8 @@ class Tree {
             }
         }
 
-        // End the branch if next step is a -T
-        if(nextStep && nextStep.isToDo) {
+        // End the branch if next step is a .S
+        if(nextStep && nextStep.isSkipBelow) {
             if(advance) {
                 delete nextStep.isRunning;
             }
@@ -1685,7 +1688,7 @@ class Tree {
                     if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
                         branchToSkip.isSkipped = true;
                         branchToSkip.appendToLog(
-                            `Branch skipped because it is identical to an earlier branch, up to the -T step (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`
+                            `Branch skipped because it is identical to an earlier branch, up to the .s step (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`
                         );
                     }
                 });
@@ -1698,7 +1701,7 @@ class Tree {
             return null;
         }
 
-        // If the next step is a -S, mark it as skipped and advance again
+        // If the next step is a -s, mark it as skipped and advance again
         if(advance && nextStep && nextStep.isSkip) {
             this.markStepSkipped(nextStep, branch);
             return this.nextStep(branch, advance, skipsRepeats);

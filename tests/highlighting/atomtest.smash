@@ -3,12 +3,14 @@ Function here
         Textual step 'non // comment string' - // comment here
             // comment on its own line
 
-            To-Do step -T
-                Stuff under the to-do step...
-                    More stuff under to-do step .. ~
-
-            Skipped step -S
+            Skipped step -s
                 Other stuff -
+
+            Skip below step .s
+                Stuff under the skip below step...
+                    More stuff under skip below step .. ~
+
+            Skip branch step $s
 
             Step block one -
             Step block two -
@@ -27,18 +29,6 @@ Function here
             Step block three
 
                 Should this be blue or white?
-
-            Step block one
-            Step block two -T
-            Step block three
-
-                Under step block
-
-            Step block one
-            Step block two
-            Step block three -T
-
-                Under step block
 
             ..
             Sequential step block one -

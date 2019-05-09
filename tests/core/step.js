@@ -603,18 +603,20 @@ describe("Step", () => {
     describe("mergeInFunctionDeclaration()", () => {
         it("merges in function declaration", () => {
             let functionCall = new Step();
-            functionCall.isToDo = true;
+            functionCall.isSkipBelow = true;
 
             let functionDeclarationInTree = new Step();
             functionDeclarationInTree.text = "T";
-            functionDeclarationInTree.isToDo = true;
             functionDeclarationInTree.isSkip = true;
+            functionDeclarationInTree.isSkipBelow = true;
+            functionDeclarationInTree.isSkipBranch = true;
             functionDeclarationInTree.isCollapsed = true;
 
             functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
 
-            expect(functionCall.isToDo).to.equal(true);
             expect(functionCall.isSkip).to.equal(true);
+            expect(functionCall.isSkipBelow).to.equal(true);
+            expect(functionCall.isSkipBranch).to.equal(true);
             expect(functionCall.isCollapsed).to.equal(true);
             expect(functionCall.isDebug).to.equal(undefined);
             expect(functionCall.isPackaged).to.equal(undefined);
@@ -626,8 +628,9 @@ describe("Step", () => {
 
             let functionDeclarationInTree = new Step();
             functionDeclarationInTree.text = "T";
-            functionDeclarationInTree.isToDo = true;
             functionDeclarationInTree.isSkip = true;
+            functionDeclarationInTree.isSkipBelow = true;
+            functionDeclarationInTree.isSkipBranch = true;
             functionDeclarationInTree.isDebug = true;
             functionDeclarationInTree.isOnly = true;
             functionDeclarationInTree.isNonParallel = true;
@@ -637,8 +640,9 @@ describe("Step", () => {
 
             functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
 
-            expect(functionCall.isToDo).to.equal(true);
             expect(functionCall.isSkip).to.equal(true);
+            expect(functionCall.isSkipBelow).to.equal(true);
+            expect(functionCall.isSkipBranch).to.equal(true);
             expect(functionCall.isDebug).to.equal(true);
             expect(functionCall.isOnly).to.equal(true);
             expect(functionCall.isNonParallel).to.equal(true);
@@ -654,8 +658,9 @@ describe("Step", () => {
 
             functionCall.mergeInFunctionDeclaration(functionDeclarationInTree);
 
-            expect(functionCall.isToDo).to.equal(undefined);
             expect(functionCall.isSkip).to.equal(undefined);
+            expect(functionCall.isSkipBelow).to.equal(undefined);
+            expect(functionCall.isSkipBranch).to.equal(undefined);
             expect(functionCall.isDebug).to.equal(undefined);
             expect(functionCall.isOnly).to.equal(undefined);
             expect(functionCall.isNonParallel).to.equal(undefined);

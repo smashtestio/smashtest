@@ -88,7 +88,9 @@ describe("Tree", () => {
                 assert.equal(step.comment, undefined);
                 assert.equal(step.isFunctionDeclaration, undefined);
                 assert.equal(step.isFunctionCall, true);
-                assert.equal(step.isToDo, undefined);
+                assert.equal(step.isSkip, undefined);
+                assert.equal(step.isSkipBelow, undefined);
+                assert.equal(step.isSkipBranch, undefined);
                 assert.equal(step.isDebug, undefined);
                 assert.equal(step.isTextualStep, undefined);
                 assert.equal(step.isOnly, undefined);
@@ -398,38 +400,55 @@ describe("Tree", () => {
         });
 
         context("identifiers", () => {
-            it("parses the to-do identifier (-T)", () => {
-                let step = tree.parseLine(`Click {button} -T`, "file.txt", 10);
+            it("parses the skip identifier (-s)", () => {
+                let step = tree.parseLine(`Click {button} -s`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
-                assert.equal(step.isToDo, true);
+                assert.equal(step.isSkip, true);
+                assert.equal(step.isTextualStep, true);
+
+                step = tree.parseLine(`-s Click {button}`, "file.txt", 10);
+                assert.equal(step.text, `Click {button}`);
+                assert.equal(step.isSkip, true);
+                assert.equal(step.isTextualStep, true);
+
+                step = tree.parseLine(`Click {button} + -s ..`, "file.txt", 10);
+                assert.equal(step.text, `Click {button}`);
+                assert.equal(step.isSkip, true);
+                assert.equal(step.isTextualStep, true);
+            });
+
+            it("parses the skip below identifier (.s)", () => {
+                let step = tree.parseLine(`Click {button} .s`, "file.txt", 10);
+                assert.equal(step.text, `Click {button}`);
+                assert.equal(step.isSkipBelow, true);
                 assert.equal(step.isTextualStep, undefined);
 
-                step = tree.parseLine(`-T Click {button}`, "file.txt", 10);
+                step = tree.parseLine(`.s Click {button}`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
-                assert.equal(step.isToDo, true);
+                assert.equal(step.isSkipBelow, true);
                 assert.equal(step.isTextualStep, undefined);
 
-                step = tree.parseLine(`Click {button} + -T ..`, "file.txt", 10);
+                step = tree.parseLine(`Click {button} + .s ..`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
-                assert.equal(step.isToDo, true);
+                assert.equal(step.isSkipBelow, true);
                 assert.equal(step.isTextualStep, undefined);
             });
 
-            it("parses the skip identifier (-S)", () => {
-                let step = tree.parseLine(`Click {button} -S`, "file.txt", 10);
+            it("parses the skip branch identifier ($s)", () => {
+                let step = tree.parseLine(`Click {button} $s`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
-                assert.equal(step.isSkip, true);
-                assert.equal(step.isTextualStep, true);
+                assert.equal(step.isSkipBranch, true);
+                assert.equal(step.isTextualStep, undefined);
 
-                step = tree.parseLine(`-S Click {button}`, "file.txt", 10);
+                step = tree.parseLine(`$s Click {button}`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
-                assert.equal(step.isSkip, true);
-                assert.equal(step.isTextualStep, true);
+                assert.equal(step.isSkipBranch, true);
+                assert.equal(step.isTextualStep, undefined);
 
-                step = tree.parseLine(`Click {button} + -S ..`, "file.txt", 10);
+                step = tree.parseLine(`Click {button} + $s ..`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
-                assert.equal(step.isSkip, true);
-                assert.equal(step.isTextualStep, true);
+                assert.equal(step.isSkipBranch, true);
+                assert.equal(step.isTextualStep, undefined);
             });
 
             it("parses the textual step identifier (-)", () => {
@@ -499,7 +518,7 @@ describe("Tree", () => {
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isNonParallel, true);
 
-                step = tree.parseLine(`Click {button} -T ! .. // comment`, "file.txt", 10);
+                step = tree.parseLine(`Click {button} .s ! .. // comment`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isNonParallel, true);
             });
@@ -509,7 +528,7 @@ describe("Tree", () => {
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isSequential, true);
 
-                step = tree.parseLine(`Click {button} -T .. + // comment`, "file.txt", 10);
+                step = tree.parseLine(`Click {button} .s .. + // comment`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isSequential, true);
             });
@@ -523,7 +542,7 @@ describe("Tree", () => {
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isCollapsed, true);
 
-                step = tree.parseLine(`Click {button} -T + ! // comment`, "file.txt", 10);
+                step = tree.parseLine(`Click {button} .s + ! // comment`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isCollapsed, true);
             });
@@ -537,7 +556,7 @@ describe("Tree", () => {
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isHidden, true);
 
-                step = tree.parseLine(`Click {button} -T +? + // comment`, "file.txt", 10);
+                step = tree.parseLine(`Click {button} .s +? + // comment`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isHidden, true);
             });
@@ -6031,10 +6050,10 @@ My big 'foobar' function
                 expect(branches[0].steps[3].text).to.equal("C");
             });
 
-            it("expands functions under a -T", () => {
+            it("expands functions under a .s", () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A -T
+A .s
 B
 
     C -
@@ -12278,12 +12297,12 @@ D -
             ]);
         });
 
-        it("marks as skipped branches that start with -T", () => {
+        it("marks as skipped branches that start with .s", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
-B - -T
-C - -T
+B - .s
+C - .s
 D -
 `, "file.txt");
 
@@ -12803,9 +12822,9 @@ $ A -
 
             E -
 
-    H - -T
+    H - .s
         I -
-    J - -T
+    J - .s
 
 F -
     G -
@@ -12827,9 +12846,9 @@ $ A -
 
             E -
 
-    H - -T
+    H - .s
         I -
-    J - -T
+    J - .s
 
 F -
     G -
@@ -12853,9 +12872,9 @@ $ A -
 
             E -
 
-    H - -T
+    H - .s
         I -
-    J - -T
+    J - .s
 
 F -
     G -
@@ -12972,9 +12991,9 @@ $ A -
                 P
             }
 
-    H - -T
+    H - .s
         I -
-    J - -T
+    J - .s
 
 F -
     G -
@@ -13032,9 +13051,9 @@ $ A -
 
             E -
 
-    H - -T
+    H - .s
         I -
-    J - -T
+    J - .s
 
 F -
     G -
@@ -13056,9 +13075,9 @@ $ A -
 
             E -
 
-    H - -T
+    H - .s
         I -
-    J - -T
+    J - .s
 
 F -
     G -
@@ -13085,9 +13104,9 @@ $ A -
 
             E -
 
-    H - -T
+    H - .s
         I -
-    J - -T
+    J - .s
 
 F -
     G -
@@ -13150,9 +13169,9 @@ $ A -
                 P
             }
 
-    H - -T
+    H - .s
         I -
-    J - -T
+    J - .s
 
 F -
     G -
@@ -14157,7 +14176,7 @@ A - !
             });
         });
 
-        it("ends the branch if the next step is a -T", () => {
+        it("ends the branch if the next step is a .s", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14171,7 +14190,7 @@ A - !
 
             let stepC = new Step();
             stepC.text = "C";
-            stepC.isToDo = true;
+            stepC.isSkipBelow = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -14207,7 +14226,7 @@ A - !
             expect(branch4.isSkipped).to.equal(undefined);
         });
 
-        it("skips repeat branches and end this branch if next step is a -T", () => {
+        it("skips repeat branches and end this branch if next step is a .s", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14221,7 +14240,7 @@ A - !
 
             let stepC = new Step();
             stepC.text = "C";
-            stepC.isToDo = true;
+            stepC.isSkipBelow = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -14260,15 +14279,15 @@ A - !
 
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step (ends at file.txt:10)" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:10)" }
             ]);
             expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step (ends at file.txt:10)" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:10)" }
             ]);
             expect(branch4.log).to.equal(undefined);
         });
 
-        it("doesn't skips repeat branches if the next step isn't a -T", () => {
+        it("doesn't skips repeat branches if the next step isn't a .s", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14327,7 +14346,7 @@ A - !
 
             let stepC = new Step();
             stepC.text = "C";
-            stepC.isToDo = true;
+            stepC.isSkipBelow = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -14364,7 +14383,7 @@ A - !
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.equal(undefined);
             expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step (ends at file.txt:10)" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:10)" }
             ]);
             expect(branch4.log).to.equal(undefined);
         });
@@ -14383,7 +14402,7 @@ A - !
 
             let stepC = new Step();
             stepC.text = "C";
-            stepC.isToDo = true;
+            stepC.isSkipBelow = true;
 
             let stepD = new Step();
             stepD.text = "D";
@@ -14420,7 +14439,7 @@ A - !
             expect(branch1.log).to.equal(undefined);
             expect(branch2.log).to.equal(undefined);
             expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the -T step (ends at file.txt:10)" }
+                { text: "Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:10)" }
             ]);
             expect(branch4.log).to.equal(undefined);
         });
@@ -14457,7 +14476,7 @@ A - !
             expect(branch1.isRunning).to.equal(undefined);
         });
 
-        it("skips over a step that has -S", () => {
+        it("skips over a step that has -s", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14506,7 +14525,7 @@ A - !
             });
         });
 
-        it("skips over a first step that has -S", () => {
+        it("skips over a first step that has -s", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14545,7 +14564,7 @@ A - !
             });
         });
 
-        it("skips over multiple steps that have -S", () => {
+        it("skips over multiple steps that have -s", () => {
             let tree = new Tree();
 
             let stepA = new Step();
@@ -14599,7 +14618,7 @@ A - !
             });
         });
 
-        it("skips over a last step that has -S", () => {
+        it("skips over a last step that has -s", () => {
             let tree = new Tree();
 
             let stepA = new Step();

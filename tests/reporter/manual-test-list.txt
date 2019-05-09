@@ -19,8 +19,8 @@
         - Step errors that end branch (causing branch to fail)
         - Step errors that continue branch (with some further steps passing and others failing)
         - Step errors that end branch and cause other branches to skip
-        - -T, -S steps
-        - -T steps that cause other branches to skip
+        - -, -s, .s, $s steps
+        - .s steps that cause other branches to skip
         - Before and After Every Step errors (causing branch to fail)
         - Before and After Every Branch errors
     - Before and After Everything errors
