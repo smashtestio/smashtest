@@ -4,7 +4,8 @@
     Open Firefox
 
         Mobile
-        Desktop $s
+        Desktop
 
-            // Last step -
-            Wait '3' seconds
+            Skip -s
+
+                Wait '1' seconds

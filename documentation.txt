@@ -707,10 +707,11 @@ Skipping (-, -s, .s, $s)
     - Skip one step and all steps below
         - .s     = don't run me, don't run below, expand me and below, outputted to report as skipped
             - expand = replace function calls with corresponding function declarations, error if a function declaration isn't found
-            - Only one branch going through this step will be run, the rest will be skipped as repeats
+            - Marks this and all steps below as skipped. Skips entire branches that are identical to this one.
             - Be careful, when .s is in a function declaration it will affect steps after the function call as well
     - Skip all branches passing through a step
-        - $s     = don't run entire branch, expand me and below, not outputted to report
+        - $s     = don't run entire branch, expand me and below, outputted to report as skipped
+            - Will mark skipped entire branches in report
 
 Collapsing (+, +?)
     - Collapsed (+)

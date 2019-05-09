@@ -10645,279 +10645,6 @@ A -
     });
 
     describe("removeUnwantedBranches()", () => {
-        context("$s", () => {
-            it("removes branches under a $s", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-A -
-    B -
-
-    $s C -
-
-        D -
-
-        E -
-
-G -
-
-H -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(3);
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(1);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "B" }
-                ]);
-
-                expect(branches[1].steps).to.containSubsetInOrder([
-                    { text: "G" }
-                ]);
-
-                expect(branches[2].steps).to.containSubsetInOrder([
-                    { text: "H" }
-                ]);
-            });
-
-            it("handles multiple $s's", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-A -
-    B -
-
-    $s C -
-
-        D -
-
-        $s E -
-
-G - $s
-
-H -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "B" }
-                ]);
-
-                expect(branches[1].steps).to.containSubsetInOrder([
-                    { text: "H" }
-                ]);
-            });
-
-            it("handles $s when it's attached to a step block member", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-A -
-B - $s
-C - $s
-
-    D - $s
-    E -
-    F -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "E" }
-                ]);
-
-                expect(branches[1].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "F" }
-                ]);
-            });
-
-            it("handles $s when it's inside a function declaration", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-F
-
-* F
-    $s A -
-        B -
-
-    C -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "F" }, { text: "C" }
-                ]);
-            });
-
-            it("handles $s when it's on a function declaration", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-F
-
-$s * F
-    A -
-        B -
-
-C -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "C" }
-                ]);
-            });
-
-            it("handles $s when it's on a function call", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-F $s
-
-* F
-    A -
-        B -
-
-C -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "C" }
-                ]);
-            });
-
-            it("handles $s when it's on a function call and function declaration", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-F $s
-
-* F $s
-    A -
-        B -
-
-C -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "C" }
-                ]);
-            });
-
-            it("handles multiple $s's inside and outside a function declaration", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-J -
-    F
-
-$s K -
-    F
-
-* F
-    $s A -
-        B -
-
-    C -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "J" }, { text: "F" }, { text: "C" }
-                ]);
-            });
-
-            it("handles $s when it's inside a .. step", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-A .. -
-    B - $s
-        C -
-
-$s G .. -
-    H -
-    I -
-
-J -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "J" }
-                ]);
-            });
-
-            it("handles $s when it's attached to a .. step block member", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-..
-A -
-$s B -
-C -
-
-    D -
-    E -
-
-F -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "F" }
-                ]);
-            });
-
-            it("still expands branches under a $s and throws an error if a function declaration cannot be found", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-A -
-    F $s
-                `, "file.txt");
-
-                assert.throws(() => {
-                    tree.branchify(tree.root);
-                }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:3]");
-            });
-        });
-
         context("$", () => {
             it("only keeps a branches under a $", () => {
                 let tree = new Tree();
@@ -12516,12 +12243,8 @@ A -
         {group}='sixth'
             L -
 
-    M - $s
-    
 G -
 
-H -
-    I - $s
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, ["first", "sixth"], "med");
@@ -12576,73 +12299,731 @@ D -
             ]);
         });
 
-        it("marks as skipped branches that start with .s", () => {
-            let tree = new Tree();
-            tree.parseIn(`
+        context(".s", () => {
+            it("marks as skipped branches that start with .s", () => {
+                let tree = new Tree();
+                tree.parseIn(`
 A -
 B - .s
 C - .s
 D -
-`, "file.txt");
+                `, "file.txt");
 
-            tree.generateBranches();
+                tree.generateBranches();
 
-            expect(tree.branches).to.containSubsetInOrder([
-                {
-                    steps: [ { text: "A" } ],
-                    isSkipped: undefined
-                },
-                {
-                    steps: [ { text: "B" } ],
-                    isSkipped: true
-                },
-                {
-                    steps: [ { text: "C" } ],
-                    isSkipped: true
-                },
-                {
-                    steps: [ { text: "D" } ],
-                    isSkipped: undefined
-                }
-            ]);
-        });
+                expect(tree.branches).to.have.lengthOf(4);
 
-        it("handles an error from branchify()", () => {
-            let tree = new Tree();
-            tree.parseIn(`
+                expect(tree.branches).to.containSubsetInOrder([
+                    {
+                        steps: [ { text: "A" } ],
+                        isSkipped: undefined
+                    },
+                    {
+                        steps: [ { text: "B" } ],
+                        isSkipped: true
+                    },
+                    {
+                        steps: [ { text: "C" } ],
+                        isSkipped: true
+                    },
+                    {
+                        steps: [ { text: "D" } ],
+                        isSkipped: undefined
+                    }
+                ]);
+            });
+
+            it("marks as skipped steps with a .s and all steps after", () => {
+                let tree = new Tree();
+                tree.parseIn(`
 A -
-    *** Before Everything {
-    }
-    `, "file.txt");
+    B - .s
+        C -
+            D -
+                `, "file.txt");
 
-            assert.throws(() => {
                 tree.generateBranches();
-            }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
+
+                expect(tree.branches).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.undefined;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "B",
+                        isSkipped: true
+                    },
+                    {
+                        text: "C",
+                        isSkipped: true
+                    },
+                    {
+                        text: "D",
+                        isSkipped: true
+                    }
+                ]);
+            });
+
+            it("marks as skipped steps with a last step of .s", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+        C -
+            D - .s
+                `, "file.txt");
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.undefined;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "B",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "C",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "D",
+                        isSkipped: true
+                    }
+                ]);
+            });
+
+            it("marks as skipped all similar branches after the first one with a .s", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B - .s
+    C -
+
+        E -
+            F -
+
+        G -
+
+        H -
+
+    D -
+
+I -
+                `, "file.txt");
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(8);
+
+                expect(tree.branches[0].isSkipped).to.be.undefined;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "B",
+                        isSkipped: true
+                    },
+                    {
+                        text: "E",
+                        isSkipped: true
+                    },
+                    {
+                        text: "F",
+                        isSkipped: true
+                    }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.true;
+                expect(tree.branches[1].log[0].text).to.equal("Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:7)");
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "B",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "G",
+                        isSkipped: undefined
+                    }
+                ]);
+
+                expect(tree.branches[2].isSkipped).to.be.true;
+                expect(tree.branches[2].log[0].text).to.equal("Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:7)");
+                expect(tree.branches[2].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "B",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "H",
+                        isSkipped: undefined
+                    }
+                ]);
+
+                expect(tree.branches[3].isSkipped).to.be.undefined;
+                expect(tree.branches[3].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "C",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "E",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "F",
+                        isSkipped: undefined
+                    }
+                ]);
+
+                expect(tree.branches[4].isSkipped).to.be.undefined;
+                expect(tree.branches[4].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "C",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "G",
+                        isSkipped: undefined
+                    }
+                ]);
+
+                expect(tree.branches[5].isSkipped).to.be.undefined;
+                expect(tree.branches[5].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "C",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "H",
+                        isSkipped: undefined
+                    }
+                ]);
+
+                expect(tree.branches[6].isSkipped).to.be.undefined;
+                expect(tree.branches[6].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "D",
+                        isSkipped: undefined
+                    }
+                ]);
+
+                expect(tree.branches[7].isSkipped).to.be.undefined;
+                expect(tree.branches[7].steps).to.containSubsetInOrder([
+                    {
+                        text: "I",
+                        isSkipped: undefined
+                    }
+                ]);
+            });
+
+            it("doesn't skip any other branches when the last step is a .s", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+        C - .s
+        D -
+                `, "file.txt");
+
+                tree.generateBranches();
+
+                expect(tree.branches[0].isSkipped).to.be.undefined;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "B",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "C",
+                        isSkipped: true
+                    }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.undefined;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    {
+                        text: "A",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "B",
+                        isSkipped: undefined
+                    },
+                    {
+                        text: "D",
+                        isSkipped: undefined
+                    }
+                ]);
+            });
         });
 
-        // Skipped because it runs slow and we don't need to run it each time
-        it.skip("throws an exception when there's an infinite loop among function calls", function() { // function() needed for this.timeout() to work
-            this.timeout(10000);
+        context("$s", () => {
+            it("removes branches under a $s", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
 
-            let tree = new Tree();
-            tree.parseIn(`
-A
+    $s C -
 
-* A
-    B
+        D -
 
-* B
-    A
-`, "file.txt");
+        E -
 
-            assert.throws(() => {
+G -
+
+H -
+                `);
+
                 tree.generateBranches();
-            }, /Infinite loop detected \[file\.txt:(5|8)\]/);
+
+                expect(tree.branches).to.have.lengthOf(5);
+                expect(tree.branches[0].steps).to.have.lengthOf(2);
+                expect(tree.branches[1].steps).to.have.lengthOf(3);
+                expect(tree.branches[2].steps).to.have.lengthOf(3);
+                expect(tree.branches[3].steps).to.have.lengthOf(1);
+                expect(tree.branches[4].steps).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.undefined;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "B" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.true;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "C" }, { text: "D" }
+                ]);
+
+                expect(tree.branches[2].isSkipped).to.be.true;
+                expect(tree.branches[2].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "C" }, { text: "E" }
+                ]);
+
+                expect(tree.branches[3].isSkipped).to.be.undefined;
+                expect(tree.branches[3].steps).to.containSubsetInOrder([
+                    { text: "G" }
+                ]);
+
+                expect(tree.branches[4].isSkipped).to.be.undefined;
+                expect(tree.branches[4].steps).to.containSubsetInOrder([
+                    { text: "H" }
+                ]);
+            });
+
+            it("handles multiple $s's", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+
+    $s C -
+
+        D -
+
+        $s E -
+
+G - $s
+
+H -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(5);
+                expect(tree.branches[0].steps).to.have.lengthOf(2);
+                expect(tree.branches[1].steps).to.have.lengthOf(3);
+                expect(tree.branches[2].steps).to.have.lengthOf(3);
+                expect(tree.branches[3].steps).to.have.lengthOf(1);
+                expect(tree.branches[4].steps).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.undefined;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "B" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.true;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "C" }, { text: "D" }
+                ]);
+
+                expect(tree.branches[2].isSkipped).to.be.true;
+                expect(tree.branches[2].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "C" }, { text: "E" }
+                ]);
+
+                expect(tree.branches[3].isSkipped).to.be.true;
+                expect(tree.branches[3].steps).to.containSubsetInOrder([
+                    { text: "G" }
+                ]);
+
+                expect(tree.branches[4].isSkipped).to.be.undefined;
+                expect(tree.branches[4].steps).to.containSubsetInOrder([
+                    { text: "H" }
+                ]);
+            });
+
+            it("handles $s when it's attached to a step block member", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+B - $s
+C - $s
+
+    D - $s
+    E -
+    F -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(9);
+                expect(tree.branches[0].steps).to.have.lengthOf(2);
+                expect(tree.branches[1].steps).to.have.lengthOf(2);
+                expect(tree.branches[2].steps).to.have.lengthOf(2);
+                expect(tree.branches[3].steps).to.have.lengthOf(2);
+                expect(tree.branches[4].steps).to.have.lengthOf(2);
+                expect(tree.branches[5].steps).to.have.lengthOf(2);
+                expect(tree.branches[6].steps).to.have.lengthOf(2);
+                expect(tree.branches[7].steps).to.have.lengthOf(2);
+                expect(tree.branches[8].steps).to.have.lengthOf(2);
+
+                expect(tree.branches[0].isSkipped).to.be.true;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "D" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.undefined;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "E" }
+                ]);
+
+                expect(tree.branches[2].isSkipped).to.be.undefined;
+                expect(tree.branches[2].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "F" }
+                ]);
+
+                expect(tree.branches[3].isSkipped).to.be.true;
+                expect(tree.branches[3].steps).to.containSubsetInOrder([
+                    { text: "B" }, { text: "D" }
+                ]);
+
+                expect(tree.branches[4].isSkipped).to.be.true;
+                expect(tree.branches[4].steps).to.containSubsetInOrder([
+                    { text: "B" }, { text: "E" }
+                ]);
+
+                expect(tree.branches[5].isSkipped).to.be.true;
+                expect(tree.branches[5].steps).to.containSubsetInOrder([
+                    { text: "B" }, { text: "F" }
+                ]);
+
+                expect(tree.branches[6].isSkipped).to.be.true;
+                expect(tree.branches[6].steps).to.containSubsetInOrder([
+                    { text: "C" }, { text: "D" }
+                ]);
+
+                expect(tree.branches[7].isSkipped).to.be.true;
+                expect(tree.branches[7].steps).to.containSubsetInOrder([
+                    { text: "C" }, { text: "E" }
+                ]);
+
+                expect(tree.branches[8].isSkipped).to.be.true;
+                expect(tree.branches[8].steps).to.containSubsetInOrder([
+                    { text: "C" }, { text: "F" }
+                ]);
+            });
+
+            it("handles $s when it's inside a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+
+* F
+    $s A -
+        B -
+
+    C -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(2);
+                expect(tree.branches[0].steps).to.have.lengthOf(3);
+                expect(tree.branches[1].steps).to.have.lengthOf(2);
+
+                expect(tree.branches[0].isSkipped).to.be.true;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "F" }, { text: "A" }, { text: "B" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.undefined;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "F" }, { text: "C" }
+                ]);
+            });
+
+            it("handles $s when it's on a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+
+$s * F
+    A -
+        B -
+
+C -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(2);
+                expect(tree.branches[0].steps).to.have.lengthOf(3);
+                expect(tree.branches[1].steps).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.true;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "F" }, { text: "A" }, { text: "B" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.undefined;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "C" }
+                ]);
+            });
+
+            it("handles $s when it's on a function call", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F $s
+
+* F
+    A -
+        B -
+
+C -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(2);
+                expect(tree.branches[0].steps).to.have.lengthOf(3);
+                expect(tree.branches[1].steps).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.true;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "F" }, { text: "A" }, { text: "B" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.undefined;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "C" }
+                ]);
+            });
+
+            it("handles $s when it's on a function call and function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F $s
+
+* F $s
+    A -
+        B -
+
+C -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(2);
+                expect(tree.branches[0].steps).to.have.lengthOf(3);
+                expect(tree.branches[1].steps).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.true;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "F" }, { text: "A" }, { text: "B" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.undefined;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "C" }
+                ]);
+            });
+
+            it("handles multiple $s's inside and outside a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+J -
+    F
+
+$s K -
+    F
+
+* F
+    $s A -
+        B -
+
+    C -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(4);
+                expect(tree.branches[0].steps).to.have.lengthOf(4);
+                expect(tree.branches[1].steps).to.have.lengthOf(3);
+                expect(tree.branches[2].steps).to.have.lengthOf(4);
+                expect(tree.branches[3].steps).to.have.lengthOf(3);
+
+                expect(tree.branches[0].isSkipped).to.be.true;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "J" }, { text: "F" }, { text: "A" }, { text: "B" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.undefined;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "J" }, { text: "F" }, { text: "C" }
+                ]);
+
+                expect(tree.branches[2].isSkipped).to.be.true;
+                expect(tree.branches[2].steps).to.containSubsetInOrder([
+                    { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" }
+                ]);
+
+                expect(tree.branches[3].isSkipped).to.be.true;
+                expect(tree.branches[3].steps).to.containSubsetInOrder([
+                    { text: "K" }, { text: "F" }, { text: "C" }
+                ]);
+            });
+
+            it("handles $s when it's inside a .. step", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A .. -
+    B - $s
+        C -
+
+$s G .. -
+    H -
+    I -
+
+J -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(3);
+                expect(tree.branches[0].steps).to.have.lengthOf(3);
+                expect(tree.branches[1].steps).to.have.lengthOf(3);
+                expect(tree.branches[2].steps).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.true;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "B" }, { text: "C" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.true;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "G" }, { text: "H" }, { text: "I" }
+                ]);
+
+                expect(tree.branches[2].isSkipped).to.be.undefined;
+                expect(tree.branches[2].steps).to.containSubsetInOrder([
+                    { text: "J" }
+                ]);
+            });
+
+            it("handles $s when it's attached to a .. step block member", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+..
+A -
+$s B -
+C -
+
+    D -
+    E -
+
+F -
+                `);
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(3);
+                expect(tree.branches[0].steps).to.have.lengthOf(4);
+                expect(tree.branches[1].steps).to.have.lengthOf(4);
+                expect(tree.branches[2].steps).to.have.lengthOf(1);
+
+                expect(tree.branches[0].isSkipped).to.be.true;
+                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" }
+                ]);
+
+                expect(tree.branches[1].isSkipped).to.be.true;
+                expect(tree.branches[1].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" }
+                ]);
+
+                expect(tree.branches[2].isSkipped).to.be.undefined;
+                expect(tree.branches[2].steps).to.containSubsetInOrder([
+                    { text: "F" }
+                ]);
+            });
+
+            it("still expands branches under a $s and throws an error if a function declaration cannot be found", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    F $s
+                `, "file.txt");
+
+                assert.throws(() => {
+                    tree.generateBranches();
+                }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:3]");
+            });
         });
 
-        it("can isolate a branch by hash", () => {
-            let tree = new Tree();
-            tree.parseIn(`
+        context("debug by hash", () => {
+            it("can isolate a branch by hash", () => {
+                let tree = new Tree();
+                tree.parseIn(`
 A -
     B - $
         C - ~
@@ -12653,22 +13034,22 @@ D -
 
 H -
     I -
-`, "file.txt");
+                `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, "30cb5a00b9b3401c1a038b06e19f1d21");
+                tree.generateBranches(undefined, undefined, undefined, "30cb5a00b9b3401c1a038b06e19f1d21");
 
-            expect(tree.branches).to.have.lengthOf(1);
-            expect(tree.branches[0].steps).to.have.lengthOf(3);
-            expect(tree.branches).to.containSubsetInOrder([
-                {
-                    steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isAfterDebug: true }  ]
-                }
-            ]);
-        });
+                expect(tree.branches).to.have.lengthOf(1);
+                expect(tree.branches[0].steps).to.have.lengthOf(3);
+                expect(tree.branches).to.containSubsetInOrder([
+                    {
+                        steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isAfterDebug: true }  ]
+                    }
+                ]);
+            });
 
-        it("throws an exception when it can't find a branch with a given hash", () => {
-            let tree = new Tree();
-            tree.parseIn(`
+            it("throws an exception when it can't find a branch with a given hash", () => {
+                let tree = new Tree();
+                tree.parseIn(`
 A -
     B - $
         C - ~
@@ -12676,138 +13057,174 @@ A -
 D -
     E -
         F -
-`, "file.txt");
+                `, "file.txt");
 
-            assert.throws(() => {
-                tree.generateBranches(undefined, undefined, undefined, "INVALID-HASH");
-            }, "Couldn't find the branch with the given hash");
+                assert.throws(() => {
+                    tree.generateBranches(undefined, undefined, undefined, "INVALID-HASH");
+                }, "Couldn't find the branch with the given hash");
+            });
         });
 
-        // NOTE: this just freezes up the executable
-        // Unlike the infinite loop which causes an immediate stack size exception, this probably blows out memory before stack size (and there is no exception thrown)
-        // This many branches are unlikely in normal usage, though
-        /*
-        it.skip("throws an exception when there are too many branches", () => {
-            let tree = new Tree();
-            // This is 10^10 branches, or 10,000,000,000 branches
-            tree.parseIn(`
-A-1 -
-B-1 -
-C-1 -
-D-1 -
-E-1 -
-F-1 -
-G-1 -
-H-1 -
-I-1 -
-K-1 -
+        context("errors", () => {
+            it("handles an error from branchify()", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    *** Before Everything {
+    }
+                `, "file.txt");
 
-    A-2 -
-    B-2 -
-    C-2 -
-    D-2 -
-    E-2 -
-    F-2 -
-    G-2 -
-    H-2 -
-    I-2 -
-    K-2 -
+                assert.throws(() => {
+                    tree.generateBranches();
+                }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
+            });
 
-        A-3 -
-        B-3 -
-        C-3 -
-        D-3 -
-        E-3 -
-        F-3 -
-        G-3 -
-        H-3 -
-        I-3 -
-        K-3 -
+            // Skipped because it runs slow and we don't need to run it each time
+            it.skip("throws an exception when there's an infinite loop among function calls", function() { // function() needed for this.timeout() to work
+                this.timeout(10000);
 
-            A-4 -
-            B-4 -
-            C-4 -
-            D-4 -
-            E-4 -
-            F-4 -
-            G-4 -
-            H-4 -
-            I-4 -
-            K-4 -
+                let tree = new Tree();
+                tree.parseIn(`
+A
 
-                A-5 -
-                B-5 -
-                C-5 -
-                D-5 -
-                E-5 -
-                F-5 -
-                G-5 -
-                H-5 -
-                I-5 -
-                K-5 -
+* A
+    B
 
-                    A-6 -
-                    B-6 -
-                    C-6 -
-                    D-6 -
-                    E-6 -
-                    F-6 -
-                    G-6 -
-                    H-6 -
-                    I-6 -
-                    K-6 -
+* B
+    A
+                `, "file.txt");
 
-                        A-7 -
-                        B-7 -
-                        C-7 -
-                        D-7 -
-                        E-7 -
-                        F-7 -
-                        G-7 -
-                        H-7 -
-                        I-7 -
-                        K-7 -
+                assert.throws(() => {
+                    tree.generateBranches();
+                }, /Infinite loop detected \[file\.txt:(5|8)\]/);
+            });
 
-                            A-8 -
-                            B-8 -
-                            C-8 -
-                            D-8 -
-                            E-8 -
-                            F-8 -
-                            G-8 -
-                            H-8 -
-                            I-8 -
-                            K-8 -
+            // NOTE: this just freezes up the executable
+            // Unlike the infinite loop which causes an immediate stack size exception, this probably blows out memory before stack size (and there is no exception thrown)
+            // This many branches are unlikely in normal usage, though
+            /*
+            it.skip("throws an exception when there are too many branches", () => {
+                let tree = new Tree();
+                // This is 10^10 branches, or 10,000,000,000 branches
+                tree.parseIn(`
+    A-1 -
+    B-1 -
+    C-1 -
+    D-1 -
+    E-1 -
+    F-1 -
+    G-1 -
+    H-1 -
+    I-1 -
+    K-1 -
 
-                                A-9 -
-                                B-9 -
-                                C-9 -
-                                D-9 -
-                                E-9 -
-                                F-9 -
-                                G-9 -
-                                H-9 -
-                                I-9 -
-                                K-9 -
+        A-2 -
+        B-2 -
+        C-2 -
+        D-2 -
+        E-2 -
+        F-2 -
+        G-2 -
+        H-2 -
+        I-2 -
+        K-2 -
 
-                                    A-10 -
-                                    B-10 -
-                                    C-10 -
-                                    D-10 -
-                                    E-10 -
-                                    F-10 -
-                                    G-10 -
-                                    H-10 -
-                                    I-10 -
-                                    K-10 -
+            A-3 -
+            B-3 -
+            C-3 -
+            D-3 -
+            E-3 -
+            F-3 -
+            G-3 -
+            H-3 -
+            I-3 -
+            K-3 -
 
-`, "file.txt");
+                A-4 -
+                B-4 -
+                C-4 -
+                D-4 -
+                E-4 -
+                F-4 -
+                G-4 -
+                H-4 -
+                I-4 -
+                K-4 -
 
-            assert.throws(() => {
-                tree.generateBranches();
-            }, "Infinite loop detected");
+                    A-5 -
+                    B-5 -
+                    C-5 -
+                    D-5 -
+                    E-5 -
+                    F-5 -
+                    G-5 -
+                    H-5 -
+                    I-5 -
+                    K-5 -
+
+                        A-6 -
+                        B-6 -
+                        C-6 -
+                        D-6 -
+                        E-6 -
+                        F-6 -
+                        G-6 -
+                        H-6 -
+                        I-6 -
+                        K-6 -
+
+                            A-7 -
+                            B-7 -
+                            C-7 -
+                            D-7 -
+                            E-7 -
+                            F-7 -
+                            G-7 -
+                            H-7 -
+                            I-7 -
+                            K-7 -
+
+                                A-8 -
+                                B-8 -
+                                C-8 -
+                                D-8 -
+                                E-8 -
+                                F-8 -
+                                G-8 -
+                                H-8 -
+                                I-8 -
+                                K-8 -
+
+                                    A-9 -
+                                    B-9 -
+                                    C-9 -
+                                    D-9 -
+                                    E-9 -
+                                    F-9 -
+                                    G-9 -
+                                    H-9 -
+                                    I-9 -
+                                    K-9 -
+
+                                        A-10 -
+                                        B-10 -
+                                        C-10 -
+                                        D-10 -
+                                        E-10 -
+                                        F-10 -
+                                        G-10 -
+                                        H-10 -
+                                        I-10 -
+                                        K-10 -
+
+    `, "file.txt");
+
+                assert.throws(() => {
+                    tree.generateBranches();
+                }, "Infinite loop detected");
+            });
+            */
         });
-        */
     });
 
     describe("serialize()", () => {
@@ -14503,224 +14920,6 @@ A - !
             expect(branch2.isSkipped).to.equal(undefined);
             expect(branch3.isSkipped).to.equal(undefined);
             expect(branch4.isSkipped).to.equal(undefined);
-        });
-
-        it("skips repeat branches and end this branch if next step is a .s", () => {
-            let tree = new Tree();
-
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.isPassed = true;
-
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.isPassed = true;
-            stepB.isRunning = true;
-
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.isSkipBelow = true;
-
-            let stepD = new Step();
-            stepD.text = "D";
-            stepD.filename = "file.txt";
-            stepD.lineNumber = 10;
-
-            let branch1 = new Branch();
-            let branch2 = new Branch();
-            let branch3 = new Branch();
-            let branch4 = new Branch();
-
-            branch1.steps = [ stepA, stepB, stepC, stepD ];
-            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
-            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
-            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
-
-            tree.branches = [ branch2, branch1, branch3, branch4 ];
-
-            expect(tree.nextStep(branch1, true, true)).to.equal(null);
-
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
-                isRunning: undefined
-            });
-
-            expect(stepC).to.containSubsetInOrder({
-                text: "C",
-                isRunning: undefined
-            });
-
-            expect(branch1.isPassed).to.equal(true);
-            expect(branch1.isSkipped).to.equal(undefined);
-            expect(branch2.isSkipped).to.equal(true);
-            expect(branch3.isSkipped).to.equal(true);
-            expect(branch4.isSkipped).to.equal(undefined);
-
-            expect(branch1.log).to.equal(undefined);
-            expect(branch2.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:10)" }
-            ]);
-            expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:10)" }
-            ]);
-            expect(branch4.log).to.equal(undefined);
-        });
-
-        it("doesn't skips repeat branches if the next step isn't a .s", () => {
-            let tree = new Tree();
-
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.isPassed = true;
-
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.isPassed = true;
-            stepB.isRunning = true;
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
-
-            let branch1 = new Branch();
-            let branch2 = new Branch();
-            let branch3 = new Branch();
-            let branch4 = new Branch();
-
-            branch1.steps = [ stepA, stepB, stepC, stepD ];
-            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
-            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
-            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
-
-            tree.branches = [ branch2, branch1, branch3, branch4 ];
-
-            expect(tree.nextStep(branch1, true, true)).to.containSubsetInOrder({
-                text: "C",
-                isRunning: true
-            });
-
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
-                isRunning: undefined
-            });
-
-            expect(branch2.isSkipped).to.equal(undefined);
-            expect(branch3.isSkipped).to.equal(undefined);
-            expect(branch4.isSkipped).to.equal(undefined);
-        });
-
-        it("doesn't skip a repeat branch if it's currently running", () => {
-            let tree = new Tree();
-
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.isPassed = true;
-
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.isPassed = true;
-            stepB.isRunning = true;
-
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.isSkipBelow = true;
-
-            let stepD = new Step();
-            stepD.text = "D";
-            stepD.filename = "file.txt";
-            stepD.lineNumber = 10;
-
-            let branch1 = new Branch();
-            let branch2 = new Branch();
-            let branch3 = new Branch();
-            let branch4 = new Branch();
-
-            branch1.steps = [ stepA, stepB, stepC, stepD ];
-            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
-            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
-            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
-
-            branch2.isRunning = true;
-
-            tree.branches = [ branch2, branch1, branch3, branch4 ];
-
-            expect(tree.nextStep(branch1, true, true)).to.equal(null);
-
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
-                isRunning: undefined
-            });
-
-            expect(branch1.isPassed).to.equal(true);
-            expect(branch1.isSkipped).to.equal(undefined);
-            expect(branch2.isSkipped).to.equal(undefined);
-            expect(branch3.isSkipped).to.equal(true);
-            expect(branch4.isSkipped).to.equal(undefined);
-
-            expect(branch1.log).to.equal(undefined);
-            expect(branch2.log).to.equal(undefined);
-            expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:10)" }
-            ]);
-            expect(branch4.log).to.equal(undefined);
-        });
-
-        it("doesn't skip a repeat branch if it already ran", () => {
-            let tree = new Tree();
-
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.isPassed = true;
-
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.isPassed = true;
-            stepB.isRunning = true;
-
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.isSkipBelow = true;
-
-            let stepD = new Step();
-            stepD.text = "D";
-            stepD.filename = "file.txt";
-            stepD.lineNumber = 10;
-
-            let branch1 = new Branch();
-            let branch2 = new Branch();
-            let branch3 = new Branch();
-            let branch4 = new Branch();
-
-            branch1.steps = [ stepA, stepB, stepC, stepD ];
-            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
-            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
-            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
-
-            branch2.isFailed = true;
-
-            tree.branches = [ branch2, branch1, branch3, branch4 ];
-
-            expect(tree.nextStep(branch1, true, true)).to.equal(null);
-
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
-                isRunning: undefined
-            });
-
-            expect(branch1.isPassed).to.equal(true);
-            expect(branch1.isSkipped).to.equal(undefined);
-            expect(branch2.isSkipped).to.equal(undefined);
-            expect(branch3.isSkipped).to.equal(true);
-            expect(branch4.isSkipped).to.equal(undefined);
-
-            expect(branch1.log).to.equal(undefined);
-            expect(branch2.log).to.equal(undefined);
-            expect(branch3.log).to.eql([
-                { text: "Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:10)" }
-            ]);
-            expect(branch4.log).to.equal(undefined);
         });
 
         it("clears isRunning on all steps in the branch if the branch completed already", () => {

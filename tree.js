@@ -1045,13 +1045,7 @@ class Tree {
         }
 
         // ***************************************
-        // 1) Remove branches by $s's
-        // ***************************************
-
-        branches = branches.filter(branch => !branch.isSkipBranch);
-
-        // ***************************************
-        // 2) Remove branches by $'s
+        // 1) Remove branches by $'s
         // ***************************************
 
         // Choose the branch with the $ at the shallowest depth, choosing multiple branches if there's a tie
@@ -1101,7 +1095,7 @@ class Tree {
         }
 
         // ***************************************
-        // 3) Remove branches by groups
+        // 2) Remove branches by groups
         //    (but only for steps at the top of the tree)
         // ***************************************
         if(groups && isRoot) {
@@ -1142,7 +1136,7 @@ class Tree {
         }
 
         // ***************************************
-        // 4) Remove branches by frequency
+        // 3) Remove branches by frequency
         //    (but only for steps at the top of the tree)
         // ***************************************
         if(minFrequency && isRoot) {
@@ -1185,7 +1179,7 @@ class Tree {
         }
 
         // ***************************************
-        // 5) Remove branches by ~'s
+        // 4) Remove branches by ~'s
         // ***************************************
 
         // If found, remove all branches other than the one that's connected with one or more ~'s
@@ -1306,10 +1300,44 @@ class Tree {
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
 
-        // Marks branches with a first step of .S as skipped
+        // Marks branches with a first step of .s as skipped
         this.branches.forEach(branch => {
             if(branch.steps[0].isSkipBelow) {
                 branch.isSkipped = true;
+            }
+        });
+
+        // Marks branches with a $s as skipped
+        this.branches.forEach(branch => {
+            if(branch.isSkipBranch) {
+                branch.isSkipped = true;
+            }
+        });
+
+        // Skips all steps at or after a .s, skips all similar branches
+        this.branches.forEach(branch => {
+            if(!branch.isSkipped) {
+                let indexOfSkipBelow = -1;
+                for(let i = 0; i < branch.steps.length; i++) {
+                    let s = branch.steps[i];
+                    if(s.isSkipBelow) {
+                        indexOfSkipBelow = i;
+                    }
+                    if(indexOfSkipBelow != -1) {
+                        s.isSkipped = true;
+                    }
+                }
+
+                // Mark all similar branches as skipped
+                if(indexOfSkipBelow != -1) {
+                    let branchesToSkip = this.findSimilarBranches(branch, indexOfSkipBelow + 1, this.branches);
+                    branchesToSkip.forEach(branchToSkip => {
+                        branchToSkip.isSkipped = true;
+                        branchToSkip.appendToLog(
+                            `Branch skipped because it is identical to an earlier branch, up to the .s step (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`
+                        );
+                    });
+                }
             }
         });
 
@@ -1641,10 +1669,9 @@ class Tree {
      * NOTE: This is the only function that's allowed to change Step.isRunning
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
-     * @param {Boolean} [skipsRepeats] - If true, if the next step is a -s, skips every other branch whose first N steps are identical to this one's (up until the .s step)
      * @return {Step} The next step in the given branch, null if there are none left
      */
-    nextStep(branch, advance, skipsRepeats) {
+    nextStep(branch, advance) {
         if(branch.isComplete()) {
             if(advance) {
                 branch.steps.forEach(step => delete step.isRunning);
@@ -1681,27 +1708,10 @@ class Tree {
             }
         }
 
-        // End the branch if next step is a .S
+        // End the branch if next step is a .s
         if(nextStep && nextStep.isSkipBelow) {
             if(advance) {
                 delete nextStep.isRunning;
-            }
-
-            // Skip other repeat branches
-            if(skipsRepeats) {
-                let n = branch.steps.indexOf(nextStep);
-                let branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
-                branchesToSkip.forEach(branchToSkip => {
-                    if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
-                        branchToSkip.isSkipped = true;
-                        branchToSkip.appendToLog(
-                            `Branch skipped because it is identical to an earlier branch, up to the .s step (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`
-                        );
-                    }
-                });
-            }
-
-            if(advance) {
                 branch.finishOffBranch();
             }
 
@@ -1711,7 +1721,7 @@ class Tree {
         // If the next step is a -s, mark it as skipped and advance again
         if(advance && nextStep && nextStep.isSkip) {
             this.markStepSkipped(nextStep, branch);
-            return this.nextStep(branch, advance, skipsRepeats);
+            return this.nextStep(branch, advance);
         }
 
         return nextStep;
