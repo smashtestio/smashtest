@@ -151,24 +151,27 @@ Textual steps (-)
         Recommended to use - after the step for these.
     - Also -T, -S, or -M
 
-Step reference
+UI Testing
     - Open Chrome/Open Firefox/Open Safari/Open IE/Open Edge
         - Open browser 'browser name'
+        - All steps below only exist in the context of Open browser
     - Mobile/Tablet/Laptop/Desktop
         - Sets width and height of browser
         - Include full list from device.smash
     - Devices
         - Emulates device on Chrome. With other browsers, the browser size will be set to that of the device, but that's it.
         - Include full list from device.smash
-    - Print [EF] or P [EF]
+    - Print [EF] or just [EF]
         - Prints found elements to browser's console and number of elements found to regular console
-
-Code reference
-    - JS functions available as part of built-in packages
-    - execInBrowser()
-    - Timeout code
+    - Code
+        - TODO
+        - JS functions available as part of built-in packages
+        - execInBrowser()
+        - Timeout code
+        - Stubbing out APIs
 
 ElementFinders
+    - Make this a part of the UI Testing section?
     - Method of finding and/or verifying elements on the page
     - Examples
         - Examples from elementfinder_sample4.txt
@@ -232,6 +235,96 @@ ElementFinders
     - Errors: Output expected object with "  -->  not found on page" on some lines
     - Print [EF] or P [EF] step prints found elements to browser's console and number of elements found to regular console
     - $() and $$()
+
+API Testing
+    - Tutorials on how to test APIs (using existing npm libraries in code blocks)
+        - fetch + chai subsets?
+            - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+            - swapi.co for sample data
+    - Comparer (built-in library for validating json)
+        - Comparer.expect(actualObj).to.match(expectedObj)
+            - Throws error if matching fails, containing whole json object prettified, with a ---> + explanation next to each line that didn't match
+        - Defaults
+            - Expected arrays without $-identifiers are exact match by default
+                - E.g., expected [ A, B, C ] means actual must be [ A, B, C ] exactly
+            - Expected objects without $-identifiers are subset matching by default
+                - E.g., expected { one: 1 } will match { one: 1, two: 2 } but not { one: 3 } or { two: 2 }
+        - Special matching objects in expectedObj (correspond to values in actualObj)
+            - $typeof
+                - { $typeof: "type" }
+                - Makes sure corresponding value in actualObj is of this type (uses js's typeof)
+                    - Exception: you can use "array" to match arrays
+            - $regex
+                - { $regex: /regex/ }
+                - { $regex: "regex" }
+                - Makes sure corresponding value in actualObj is a string that matches this regex
+            - $contains
+                - { $contains: "string" }
+                - Makes sure corresponding value in actualObj is a string that contains this string
+            - $max
+                - { $max: A }
+                - Makes sure corresponding value in actualObj is a number that isn't greater than this number
+            - $min
+                - { $min: A }
+                - Makes sure corresponding value in actualObj is a number that isn't less than this number
+            - $code
+                - { $code: (actual) => { return actual.toLowerCase() == 'something'; } }
+                - { $code: "return actual.toLowerCase() == 'something'"}
+                - { $code: "actual.toLowerCase() == 'something'"}
+                - Makes sure corresponding value in actualObj causes this code to evaluate to true or return true
+            - $length
+                - { $length: A }
+                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length is A
+            - $maxLength
+                - { $maxLength: A }
+                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length isn't greater than A
+            - $minLength
+                - { $minLength: A }
+                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length isn't less than A
+            - $exact
+                - { $exact: true, a: A, b: B }
+                - Makes sure corresponding value in actualObj is an object that matches exactly (every expected key exists and has the expected value, and no other keys exist)
+                - E.g., { $exact: true, one: 1 } will match { one: 1 } but not { one: 1, two: 2 } or { one: 3 } or { two: 2 }
+            - $every
+                - { $every: A }
+                - Makes sure corresponding value in actualObj is an array where every item matches A
+                - E.g., { $every: A } would match [ A, A, A ], and { $every, { $contains: "foo" } } would match [ "foobar", "barfoo", "foo" ]
+            - $subset
+                - [ "$subset", A, B, C ]
+                - Makes sure corresponding value in actualObj is an array that contains A, B, and C in any order (and it could have more items)
+            - $anyOrder
+                - [ "$anyOrder", A, B, C ]
+                - Makes sure corresponding value in actualObj is an array that contains A, B, and C (and nothing else) in any order
+                - You can use $subset and $anyOrder together such as [ "$subset", "$anyOrder", A, B, C ] to match an array containing A, B, and C (and potentially more items) in any order
+            - You can have multiple criteria in the same object
+                - E.g., { $typeof: "string", $length: 10, $regex: /[A-Z]+/ } or [ "$subset", "$anyOrder", A, B, C ]
+            - When expected is an object, you can include both keys to match and $-keys in expected
+    - Examples
+        GET '/something/one?{{adults:}}{{children:}}'
+        GET '/something/two?{{adults:}}{{children:}}'
+
+            {{adults}}='adults={{num adults:}}'
+                {{children}}='children={{num children:}}'
+
+                    {{num adults}}='0'
+                    {{num adults}}='1'
+                    {{num adults}}='2'
+
+                        {{num children}}='0'
+                        {{num children}}='1'
+                        {{num children}}='2'
+
+                            Verify something
+
+            {{adults}}=''
+                {{children}}='children={{num children:}}'
+
+                    Verify something
+
+            {{children}}=''
+                {{adults}}='adults={{num adults:}}'
+
+                    Verify something
 
 Functions
     - Calling
@@ -653,7 +746,7 @@ Debug (~)
 REPL
     - What REPL does, show screenshot and a one sentence description
     - Starting REPL
-        - -repl
+        - --repl or -r
             - No filenames - kicks off blank browser and REPL
             - Filenames - it will load the first branch but open up repl before first step begins
         - ~ in test file
@@ -688,98 +781,6 @@ Selective test running
         - Recommended to sort the children of a step by their frequency
     - When noDebug command line flag is set, a ~ or $ anywhere in your tree will cause an error
         - Great for making sure you're not debug prior to committing test files to CI
-
-Testing APIs
-    - Tutorials on how to test APIs (using existing npm libraries in code blocks)
-        - fetch + chai subsets?
-            - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-            - swapi.co for sample data
-    - Comparer (built-in library for validating json)
-        - Comparer.expect(actualObj).to.match(expectedObj)
-            - Throws error if matching fails, containing whole json object prettified, with a ---> + explanation next to each line that didn't match
-        - Defaults
-            - Expected arrays without $-identifiers are exact match by default
-                - E.g., expected [ A, B, C ] means actual must be [ A, B, C ] exactly
-            - Expected objects without $-identifiers are subset matching by default
-                - E.g., expected { one: 1 } will match { one: 1, two: 2 } but not { one: 3 } or { two: 2 }
-        - Special matching objects in expectedObj (correspond to values in actualObj)
-            - $typeof
-                - { $typeof: "type" }
-                - Makes sure corresponding value in actualObj is of this type (uses js's typeof)
-                    - Exception: you can use "array" to match arrays
-            - $regex
-                - { $regex: /regex/ }
-                - { $regex: "regex" }
-                - Makes sure corresponding value in actualObj is a string that matches this regex
-            - $contains
-                - { $contains: "string" }
-                - Makes sure corresponding value in actualObj is a string that contains this string
-            - $max
-                - { $max: A }
-                - Makes sure corresponding value in actualObj is a number that isn't greater than this number
-            - $min
-                - { $min: A }
-                - Makes sure corresponding value in actualObj is a number that isn't less than this number
-            - $code
-                - { $code: (actual) => { return actual.toLowerCase() == 'something'; } }
-                - { $code: "return actual.toLowerCase() == 'something'"}
-                - { $code: "actual.toLowerCase() == 'something'"}
-                - Makes sure corresponding value in actualObj causes this code to evaluate to true or return true
-            - $length
-                - { $length: A }
-                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length is A
-            - $maxLength
-                - { $maxLength: A }
-                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length isn't greater than A
-            - $minLength
-                - { $minLength: A }
-                - Makes sure corresponding value in actualObj is an array, string, or object (with a length property set) whose length isn't less than A
-            - $exact
-                - { $exact: true, a: A, b: B }
-                - Makes sure corresponding value in actualObj is an object that matches exactly (every expected key exists and has the expected value, and no other keys exist)
-                - E.g., { $exact: true, one: 1 } will match { one: 1 } but not { one: 1, two: 2 } or { one: 3 } or { two: 2 }
-            - $every
-                - { $every: A }
-                - Makes sure corresponding value in actualObj is an array where every item matches A
-                - E.g., { $every: A } would match [ A, A, A ], and { $every, { $contains: "foo" } } would match [ "foobar", "barfoo", "foo" ]
-            - $subset
-                - [ "$subset", A, B, C ]
-                - Makes sure corresponding value in actualObj is an array that contains A, B, and C in any order (and it could have more items)
-            - $anyOrder
-                - [ "$anyOrder", A, B, C ]
-                - Makes sure corresponding value in actualObj is an array that contains A, B, and C (and nothing else) in any order
-                - You can use $subset and $anyOrder together such as [ "$subset", "$anyOrder", A, B, C ] to match an array containing A, B, and C (and potentially more items) in any order
-            - You can have multiple criteria in the same object
-                - E.g., { $typeof: "string", $length: 10, $regex: /[A-Z]+/ } or [ "$subset", "$anyOrder", A, B, C ]
-            - When expected is an object, you can include both keys to match and $-keys in expected
-    - Examples
-        GET '/something/one?{{adults:}}{{children:}}'
-        GET '/something/two?{{adults:}}{{children:}}'
-
-            {{adults}}='adults={{num adults:}}'
-                {{children}}='children={{num children:}}'
-
-                    {{num adults}}='0'
-                    {{num adults}}='1'
-                    {{num adults}}='2'
-
-                        {{num children}}='0'
-                        {{num children}}='1'
-                        {{num children}}='2'
-
-                            Verify something
-
-            {{adults}}=''
-                {{children}}='children={{num children:}}'
-
-                    Verify something
-
-            {{children}}=''
-                {{adults}}='adults={{num adults:}}'
-
-                    Verify something
-
-Stubbing out APIs
 
 CI/CD Integration
     - Exit codes 0 and 1
