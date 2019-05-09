@@ -175,6 +175,7 @@ ElementFinders
         - Show how a [] in a step's text can contain a one-line EF
         - Show how to set props() in a code block, how to verify via a $(``) in a code block. Also mention $$().
     - Each line contains one or more 'text', ord, prop, and/or selectors, separated by commas
+        - Each item narrows the elements matched from everything on down
         - May contain // comments
         - Not recommended to put selectors or xpaths into the text of a step.
             Set a property to that selector, then use the property's name inside the step.

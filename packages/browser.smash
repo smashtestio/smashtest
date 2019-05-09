@@ -3,7 +3,7 @@
 // ***************************************
 
 *** After Everything {
-    if(SeleniumBrowser) {
+    if(typeof SeleniumBrowser != 'undefined') {
         await SeleniumBrowser.killAllBrowsers(runInstance.runner);
     }
 }
@@ -67,7 +67,7 @@
     // ***************************************
 
     *** After Every Branch {
-        if(browser) {
+        if(typeof browser != 'undefined') {
             await browser.close();
         }
     }

@@ -1824,6 +1824,52 @@ My Function
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
             });
+
+            it("executes a function call with only a {{variable}} in its function declaration", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+'foobar'
+
+* {{input}} {
+    runInstance.one = input;
+}
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                expect(runInstance.one).to.equal('foobar');
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            });
+
+            it("executes a function call with only two {{variables}} in its function declaration", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+'foo' 'bar'
+
+* {{A}} {{B}} {
+    runInstance.one = A;
+    runInstance.two = B;
+}
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                expect(runInstance.one).to.equal('foo');
+                expect(runInstance.two).to.equal('bar');
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            });
         });
 
         context("passing in {vars}", () => {
