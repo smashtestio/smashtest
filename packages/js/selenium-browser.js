@@ -273,7 +273,7 @@ class SeleniumBrowser {
      * Sets the given ElementFinder property
      */
     prop(name, value) {
-        if(typeof value != 'function') {
+        if(typeof value == 'string') {
             // parse it as an EF
             value = new ElementFinder(value, this.props, runInstance.log);
         }
