@@ -12515,7 +12515,13 @@ A -
 
         {group}='sixth'
             L -
+
+    M - $s
+    
 G -
+
+H -
+    I - $s
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, ["first", "sixth"], "med");

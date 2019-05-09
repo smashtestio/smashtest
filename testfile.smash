@@ -1,10 +1,10 @@
 - Test -
 
-    Open Chrome $s
+    Open Chrome
     Open Firefox
 
-        Mobile $s
-        Desktop
+        Mobile
+        Desktop $s
 
-            //Last step -
+            // Last step -
             Wait '3' seconds
