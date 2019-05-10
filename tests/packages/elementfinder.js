@@ -50,23 +50,35 @@ describe("ElementFinder", function() {
         });
 
         context("one-line EFs", () => {
-            it.skip("'text' only", () => {
+            it.skip("'text'", () => {
 
             });
 
-            it.skip("property only", () => {
+            it.skip("'text' with 'not' keyword", () => {
 
             });
 
-            it.skip("property with 'text input' only", () => {
+            it.skip("defined property set to an EF", () => {
 
             });
 
-            it.skip("property with 'not' keyword", () => {
+            it.skip("defined property set to a function", () => {
 
             });
 
-            it.skip("selector only", () => {
+            it.skip("defined property with 'text input'", () => {
+
+            });
+
+            it.skip("defined property with 'not' keyword", () => {
+
+            });
+
+            it.skip("selector", () => {
+
+            });
+
+            it.skip("selector with 'not' keyword", () => {
 
             });
 
@@ -110,11 +122,11 @@ describe("ElementFinder", function() {
                 // e.g., input[name='foo,bar']
             });
 
-            it.skip("handles a property with 'input text' containing commas and escaped quotes", () => {
+            it.skip("handles a defined property with 'input text' containing commas and escaped quotes", () => {
 
             });
 
-            it.skip("handles a property with 'input text' containing a selector, which contains quotes and commas", () => {
+            it.skip("handles a defined property with 'input text' containing a selector, which contains quotes and commas", () => {
 
             });
         });
@@ -165,6 +177,10 @@ describe("ElementFinder", function() {
             });
 
             it.skip("throws an error when a line is indented more than twice compared to the one above", () => {
+
+            });
+
+            it.skip("throws an error when a line is indented to the left of the top line's indent", () => {
 
             });
 
@@ -337,7 +353,7 @@ describe("ElementFinder", function() {
             });
         });
 
-        context("property EFs", () => {
+        context("defined property EFs", () => {
             it.skip("finds elements based on an EF property", () => {
 
             });
