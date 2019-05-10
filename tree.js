@@ -1724,8 +1724,8 @@ class Tree {
             return null;
         }
 
-        // If the next step is a -s, mark it as skipped and advance again
-        if(advance && nextStep && nextStep.isSkip) {
+        // If the next step is a -s or is already skipped, mark it as skipped and advance again
+        if(advance && nextStep && (nextStep.isSkip || nextStep.isSkipped)) {
             this.markStepSkipped(nextStep, branch);
             return this.nextStep(branch, advance);
         }

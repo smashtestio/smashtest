@@ -15050,6 +15050,55 @@ A - !
             expect(branch1.isRunning).to.equal(undefined);
         });
 
+        it("skips over a step that is already skipped", () => {
+            let tree = new Tree();
+
+            let stepA = new Step();
+            stepA.text = "A";
+            stepA.isPassed = true;
+            stepA.isRunning = true;
+
+            let stepB = new Step();
+            stepB.text = "B";
+            stepB.isSkipped = true;
+
+            let stepC = new Step();
+            stepC.text = "C";
+
+            let stepD = new Step();
+            stepD.text = "D";
+
+            let branch = new Branch();
+            branch.steps = [ stepA, stepB, stepC, stepD ];
+
+            tree.branches = [ branch ];
+
+            expect(tree.nextStep(branch, true)).to.containSubsetInOrder({
+                text: "C",
+                isSkipped: undefined,
+                isRunning: true
+            });
+
+            expect(stepA).to.containSubsetInOrder({
+                text: "A",
+                isPassed: true,
+                isSkipped: undefined,
+                isRunning: undefined
+            });
+
+            expect(stepB).to.containSubsetInOrder({
+                text: "B",
+                isSkipped: true,
+                isRunning: undefined
+            });
+
+            expect(stepC).to.containSubsetInOrder({
+                text: "C",
+                isSkipped: undefined,
+                isRunning: true
+            });
+        });
+
         it("skips over a step that has -s", () => {
             let tree = new Tree();
 

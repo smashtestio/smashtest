@@ -43,7 +43,10 @@ class SeleniumBrowser {
         if(browsers) {
             for(let i = 0; i < browsers.length; i++) {
                 let browser = browsers[i];
-                await browser.driver && browser.driver.quit();
+                if(browser.driver) {
+                    await browser.driver.quit();
+                    browser.driver = null;
+                }
             }
         }
     }
@@ -226,7 +229,10 @@ class SeleniumBrowser {
      */
     async close() {
         try {
-            await this.driver.quit();
+            if(this.driver) {
+                await this.driver.quit();
+                this.driver = null;
+            }
         }
         catch(e) {}
 
