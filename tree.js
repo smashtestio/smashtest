@@ -88,10 +88,7 @@ class Tree {
             step.modifiers = (step.modifiers || []).concat(step.backModifiers);
         }
         if(matches[15]) {
-            let block = matches[15];
-            if(block.startsWith('{')) { // code block
-                step.codeBlock = block.replace(/^\{/, '');
-            }
+            step.codeBlock = matches[15].replace(/^\{/, '');
         }
         if(matches[17]) {
             step.comment = matches[17];

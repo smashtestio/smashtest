@@ -26,6 +26,6 @@
     "util": "^0.11.1"
   },
   "scripts": {
-    "test": "nyc --reporter=lcov mocha tests/core/*.js"
+    "test": "nyc --reporter=lcov mocha tests/core/*.js tests/packages/elementfinder.js"
   }
 }
