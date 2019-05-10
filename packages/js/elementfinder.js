@@ -1,4 +1,5 @@
 const utils = require('../../utils.js');
+const Constants = require('../../constants.js');
 
 class ElementFinder {
     /**
@@ -15,14 +16,13 @@ class ElementFinder {
 
         this.props = [];           // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
                                    // Each object in the array has the following format:
-                                   //   { prop: 'full prop text', func: function from definedProps, input: 'input text if any', not: true or false }
+                                   //   { prop: 'full prop text', func: function from definedProps, input: 'input text if any', not: true or undefined }
                                    //       or
-                                   //   { prop: 'full prop text', ef: ElementFinder object, not: true or false }
+                                   //   { prop: 'full prop text', ef: ElementFinder object, not: true or undefined }
                                    //
                                    // 'text' is converted to the prop "contains 'text'"
                                    // a selector is converted to the prop "selector 'text'"
-
-        this.ord = null;           // If an ord is associated with this EF, this will be set to the number representing the ord (1, 2, etc.)
+                                   // an ord is converted to the prop "position 'N'"
 
         this.parent = parent;      // Parent EF, null if none
         this.children = [];        // Array of ElementFinder. The children of this EF.
@@ -49,8 +49,19 @@ class ElementFinder {
             throw new Error(`Cannot create an empty ElementFinder`);
         }
 
-        // Set lines, figure out base indent
         let lines = str.split(/\n/);
+
+        // Strip out // comments
+        for(let k = 0; k < lines.length; k++) {
+            let line = lines[k];
+            line = line.replace(Constants.SINGLE_QUOTE_STR, '').replace(Constants.DOUBLE_QUOTE_STR, ''); // remove strings, since a // inside a string doesn't count
+            let matches = line.match(/\/\/.*$/);
+            if(matches) {
+                lines[k] = line.replace(matches[0], '');
+            }
+        }
+
+        // Find parent line
         let parentLine = null;
         let parentLineNumber = null;
 
@@ -158,15 +169,30 @@ class ElementFinder {
                 }
 
                 // Split into comma-separated props
-                let props = parentLine.match(PROP_REGEX);
+                let propStrs = parentLine.match(PROP_REGEX);
 
-                props.forEach(prop => {
-                    parentLine = parentLine.trim();
-                    
-                    // TODO: don't forget properties that start with "not" (look at comments in constructor for how to store)
-                    // TODO: look for ords
-                    // TODO: if it doesn't match anything in definedProps, it's a css selector
-                    // TODO: set this.props
+                for(let i = 0; i < propStrs.length; i++) {
+                    let propStr = propStrs[i].trim();
+                    let prop = {};
+
+                    // not keyword
+                    if(propStr.match(/^not /)) {
+                        propStr = propStr.replace(/^not /, '').trim();
+                        prop.not = true;
+                    }
+
+                    // ords (convert to `position 'N'`)
+                    let matches = propStr.match(ORD_REGEX);
+                    if(matches) {
+                        propStr = `position '${parseInt(matches[1])}'`;
+                    }
+
+                    // 'text' (convert to `contains 'text'`)
+                    if(propStr.match(Constants.SINGLE_QUOTE_STR) || propStr.match(Constants.DOUBLE_QUOTE_STR)) {
+                        propStr = `contains ${propStr}`;
+                    }
+
+                    // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
 
 
 
@@ -174,13 +200,18 @@ class ElementFinder {
 
 
 
+                    // Set prop based on the correct entry in definedProps
+
+                    // TODO: see constructor for possibilities
+                    // TODO: error if no corresponding match found (rare)
 
 
-                });
 
 
 
 
+                    this.props.push(prop);
+                }
             }
         }
 

@@ -106,7 +106,11 @@ describe("ElementFinder", function() {
 
             });
 
-            it.skip("comments", () => {
+            it.skip("comment at the end of a line", () => {
+
+            });
+
+            it.skip("comment on its own line", () => {
 
             });
 
@@ -647,6 +651,22 @@ describe("ElementFinder", function() {
             });
 
             it.skip("doesn't find elements based on 'xpath'", () => {
+
+            });
+
+            it.skip("finds elements based on 'has'", () => {
+
+            });
+
+            it.skip("doesn't find elements based on 'has'", () => {
+
+            });
+
+            it.skip("finds elements based on 'position'", () => {
+
+            });
+
+            it.skip("doesn't find elements based on 'position'", () => {
 
             });
 

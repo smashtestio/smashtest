@@ -188,6 +188,9 @@ ElementFinders
         - 'text'
             - Contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
                 - Containing, lower case, trimmed, and whitespace-to-single-space match
+        - ord
+            - 4th = take the elements currently matched and choose only the 4th one
+            - You should list list this one last
         - defined property
             - Setting props
                 - prop('prop name', 'EF')
@@ -209,11 +212,10 @@ ElementFinders
                 - selector '.selector'
                 - xpath 'xpath'
                 - has 'selector' (matches this selector or has a child that matches)
+                - position 'N' (same as ord)
         - .css.selector
             - selectorOfIframe/selectorOfIframe/selectorOfElement
     - Special
-        - ord
-            - 4th = take the elements that are matched by all other properties and choose only the 4th one
         - Keyword
             - any order|subset
             - Must be the only thing on that line
