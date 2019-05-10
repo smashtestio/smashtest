@@ -1,3 +1,5 @@
+const utils = require('../../utils.js');
+
 class ElementFinder {
     /**
      * Constructs this EF, which represents a single line in an EF (and links to its child EFs)
@@ -7,10 +9,8 @@ class ElementFinder {
      * @throws {Error} If there is a parse error
      */
     constructor(str, definedProps, logger) {
-        // Counter
         this.counter = { min: 1, max: 1 };   // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
-        // Props and ord
         this.props = [];           // Array of Object representing the 'text', selectors, and properties of this EF
                                    // Each object in the array has the following format:
                                    //   { prop: 'full prop text', func: function from definedProps, input: 'input text if any', not: true or false }
@@ -22,15 +22,15 @@ class ElementFinder {
 
         this.ord = null;           // If an ord is associated with this EF, this will be set to the number representing the ord (1, 2, etc.)
 
-        // Children
+        this.parent = null;        // The parent EF, null if this is the top EF
         this.children = [];        // Array of ElementFinder. The children of this EF.
-        this.isElemArray = false;  // If true, this is an element array
 
-        // Keywords
+        this.isElemArray = false;  // If true, this is an element array
         this.isAnyOrder = false;   // If true, this.children can be in any order
         this.isSubset = false;     // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
 
-        // Logger
+        this.indents = 0;          // Number of indents to the right of the base indent (first line's indent) where this EF is at
+
         this.logger = logger;      // Logger function, called as logger(text to log)
 
         // Parse str into this EF
@@ -52,6 +52,58 @@ class ElementFinder {
         const ORD_REGEX = /([0-9]+)(st|nd|rd|th)/;
         const PROP_REGEX = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/;
 
+        // Figure out base indent
+        let lines = str.split(/\n/).filter(line => line.trim() != '');
+        let baseIndent = utils.numIndents(lines[0]);
+        let currEF = null;
+
+        lines.forEach((line, index) => {
+            let filename = ''
+            let lineNumber = index + 1;
+
+            // Set currEF based on number of indents
+            if(index == 0) {
+                currEF = this;
+            }
+            else {
+                let indents = utils.numIndents(line, filename, lineNumber) - baseIndent;
+                if(indents == 0 && index != 0) {
+                    utils.error(`ElementFinder cannot have more than one base element at indent 0`, filename, lineNumber);
+                }
+                else if(indents < 0) {
+                    utils.error(`ElementFinder cannot have a line that's indented left of the first line`, filename, lineNumber);
+                }
+                else if(indents < currEF.indents) {
+
+                }
+                else if(indents == currEF.indents) {
+
+                }
+                else if(indents > currEF.indents) {
+
+                }
+                // else unreachable
+            }
+
+            // Element Array
+            if(line[0] == '*') {
+                currEF.isElemArray = true;
+                line = line.substr(1); // drop the *
+            }
+
+            // Split into comma-separated items
+
+
+
+
+            // TODO: don't forget properties that start with "not" (look at comments in constructor for how to store)
+
+
+
+
+            
+
+        });
 
 
 
@@ -63,16 +115,10 @@ class ElementFinder {
 
 
 
-        // TODO: don't forget properties that start with "not" (look at comments in constructor for how to store)
+
+
 
         return this;
-
-        /**
-         * @return {String} str but with leading/trailing whitespace and quotes removed
-         */
-        function stripQuotes(str) {
-            return str.trim().replace(/^'|^"|'$|"$/g, '');
-        }
     }
 
     /**

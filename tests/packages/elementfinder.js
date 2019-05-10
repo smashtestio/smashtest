@@ -20,6 +20,8 @@ describe("ElementFinder", function() {
             .forBrowser('chrome')
             .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
             .build();
+
+        await this.driver.get(`file://${__dirname}/generic-page.html`);
     });
 
     after(async () => {

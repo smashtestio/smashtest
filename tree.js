@@ -40,40 +40,6 @@ class Tree {
     }
 
     /**
-     * @param {String} line - A single line
-     * @param {String} filename - The filename of the file where the line is
-     * @param {Integer} lineNumber - The line number
-     * @return {Integer} The number of indents in line (where each SPACES_PER_INDENT spaces counts as 1 indent). Always returns 0 for empty string or all whitespace.
-     * @throws {Error} If there are an invalid number of spaces, or invalid whitespace chars, at the beginning of the step
-     */
-    numIndents(line, filename, lineNumber) {
-        if(line.match(/^\s*$/)) { // empty string or all whitespace
-            return 0;
-        }
-        if(line.match(Constants.FULL_LINE_COMMENT)) { // comment
-            return 0;
-        }
-
-        let spacesAtFront = line.match(/^( *)([^ ]|$)/);
-        let whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
-
-        if(spacesAtFront[1] != whitespaceAtFront[1]) {
-            utils.error(`Spaces are the only type of whitespace allowed at the beginning of a step`, filename, lineNumber);
-        }
-        else {
-            let numSpaces = spacesAtFront[1].length;
-            let numIndents = numSpaces / Constants.SPACES_PER_INDENT;
-
-            if(numIndents - Math.floor(numIndents) != 0) {
-                utils.error(`The number of spaces at the beginning of a step must be a multiple of ${Constants.SPACES_PER_INDENT}. You have ${numSpaces} space(s).`, filename, lineNumber);
-            }
-            else {
-                return numIndents;
-            }
-        }
-    }
-
-    /**
      * Parses in a line and converts it to a Step object
      * @param {String} line - The full text of the line
      * @param {String} filename - The filename of the file where the step is
@@ -359,13 +325,13 @@ class Tree {
 
                 lines[i] = this.parseLine('', filename, lineNumber); // blank out the line we just handled
                 if(currentlyInsideCodeBlockFromLineNum == -1) { // if the code block just ended, mark it as such
-                    lines[i].indents = this.numIndents(line, filename, lineNumber);
+                    lines[i].indents = utils.numIndents(line, filename, lineNumber);
                     lines[i].codeBlockEnd = true;
                 }
             }
             else {
                 let step = this.parseLine(line, filename, lineNumber);
-                step.indents = this.numIndents(line, filename, lineNumber);
+                step.indents = utils.numIndents(line, filename, lineNumber);
 
                 if(!lastNonEmptyStep && step.indents != 0) {
                     utils.error(`The first step must have 0 indents`, filename, lineNumber);

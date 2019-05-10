@@ -87,4 +87,62 @@ describe("Utils", () => {
             expect(utils.keepCaseCanonicalize(" After   EVERY Branch  ")).to.equal("After EVERY Branch");
         });
     });
+
+    describe("numIndents()", () => {
+        it("counts spaces properly", () => {
+            assert.equal(utils.numIndents('m ', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('blah', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('    blah blah', 'file.txt', 10), 1);
+            assert.equal(utils.numIndents('        blah  \t ', 'file.txt', 10), 2);
+        });
+
+        it("throws an exception for non-whitespace at the beginning of a step", () => {
+            assert.throws(() => {
+                utils.numIndents('\tblah', 'file.txt', 10);
+            }, "Spaces are the only type of whitespace allowed at the beginning of a step [file.txt:10]");
+
+            assert.throws(() => {
+                utils.numIndents(' \tblah', 'file.txt', 10);
+            }, "Spaces are the only type of whitespace allowed at the beginning of a step [file.txt:10]");
+        });
+
+        it("throws an exception for a number of spaces not a multiple of 4", () => {
+            assert.throws(() => {
+                utils.numIndents(' blah', 'file.txt', 10);
+            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space(s). [file.txt:10]");
+
+            assert.throws(() => {
+                utils.numIndents('  blah', 'file.txt', 10);
+            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 2 space(s). [file.txt:10]");
+
+            assert.throws(() => {
+                utils.numIndents('   blah', 'file.txt', 10);
+            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 3 space(s). [file.txt:10]");
+
+            assert.throws(() => {
+                utils.numIndents('     blah', 'file.txt', 10);
+            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 5 space(s). [file.txt:10]");
+        });
+
+        it("returns 0 for an empty string or all-whitespace string", () => {
+            assert.equal(utils.numIndents('', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents(' ', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('  ', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('     ', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('        ', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('    \t   ', 'file.txt', 10), 0);
+        });
+
+        it("returns 0 for a string that's entirely a comment", () => {
+            assert.equal(utils.numIndents('//', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('// blah', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('//blah', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents(' //', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents(' // blah', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents(' //blah', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('    //', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('    // blah', 'file.txt', 10), 0);
+            assert.equal(utils.numIndents('    //blah', 'file.txt', 10), 0);
+        });
+    });
 });

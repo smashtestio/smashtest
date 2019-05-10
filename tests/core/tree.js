@@ -13,66 +13,6 @@ chai.use(chaiSubset);
 chai.use(chaiSubsetInOrder);
 
 describe("Tree", () => {
-    describe("numIndents()", () => {
-        let tree = new Tree();
-
-        it("counts spaces properly", () => {
-            assert.equal(tree.numIndents('m ', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('blah', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('    blah blah', 'file.txt', 10), 1);
-            assert.equal(tree.numIndents('        blah  \t ', 'file.txt', 10), 2);
-        });
-
-        it("throws an exception for non-whitespace at the beginning of a step", () => {
-            assert.throws(() => {
-                tree.numIndents('\tblah', 'file.txt', 10);
-            }, "Spaces are the only type of whitespace allowed at the beginning of a step [file.txt:10]");
-
-            assert.throws(() => {
-                tree.numIndents(' \tblah', 'file.txt', 10);
-            }, "Spaces are the only type of whitespace allowed at the beginning of a step [file.txt:10]");
-        });
-
-        it("throws an exception for a number of spaces not a multiple of 4", () => {
-            assert.throws(() => {
-                tree.numIndents(' blah', 'file.txt', 10);
-            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space(s). [file.txt:10]");
-
-            assert.throws(() => {
-                tree.numIndents('  blah', 'file.txt', 10);
-            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 2 space(s). [file.txt:10]");
-
-            assert.throws(() => {
-                tree.numIndents('   blah', 'file.txt', 10);
-            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 3 space(s). [file.txt:10]");
-
-            assert.throws(() => {
-                tree.numIndents('     blah', 'file.txt', 10);
-            }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 5 space(s). [file.txt:10]");
-        });
-
-        it("returns 0 for an empty string or all-whitespace string", () => {
-            assert.equal(tree.numIndents('', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents(' ', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('  ', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('     ', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('        ', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('    \t   ', 'file.txt', 10), 0);
-        });
-
-        it("returns 0 for a string that's entirely a comment", () => {
-            assert.equal(tree.numIndents('//', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('// blah', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('//blah', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents(' //', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents(' // blah', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents(' //blah', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('    //', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('    // blah', 'file.txt', 10), 0);
-            assert.equal(tree.numIndents('    //blah', 'file.txt', 10), 0);
-        });
-    });
-
     describe("parseLine()", () => {
         let tree = new Tree();
 
