@@ -26,7 +26,7 @@ class ElementFinder {
         this.children = [];        // Array of ElementFinder. The children of this EF.
         this.isElemArray = false;  // If true, this is an element array
 
-        // Modifiers
+        // Keywords
         this.isAnyOrder = false;   // If true, this.children can be in any order
         this.isSubset = false;     // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
 

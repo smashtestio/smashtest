@@ -187,7 +187,7 @@ ElementFinders
         - Contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
             - Containing, lower case, trimmed, and whitespace-to-single-space match
     - No quotes (in order of match attempt)
-        - Modifier
+        - Keyword
             - any order|subset
             - Must be the only thing on that line
         - Counter
@@ -229,8 +229,8 @@ ElementFinders
     - Line that starts with * = element array
         - Will match all elements at that scope
         - Children listed inside must be a 1 to 1 mapping to children matched by array (same order, same amount), otherwise an Error is thrown
-        - If "any order" modifier is present, children can be in any order
-        - If "subset" modifier is present, children can be a subset of all matched children
+        - If "any order" keyword is present, children can be in any order
+        - If "subset" keyword is present, children can be a subset of all matched children
     - Errors: Output expected object with "  -->  not found on page" on some lines
     - Print [EF] or P [EF] step prints found elements to browser's console and number of elements found to regular console
     - $() and $$()

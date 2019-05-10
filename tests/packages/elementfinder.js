@@ -116,19 +116,19 @@ describe("ElementFinder", () => {
 
             });
 
-            it.skip("'any order' modifier", () => {
+            it.skip("'any order' keyword", () => {
 
             });
 
-            it.skip("'subset' modifier", () => {
+            it.skip("'subset' keyword", () => {
 
             });
 
-            it.skip("doesn't recognize the 'any order' modifier if there are other things on its line", () => {
+            it.skip("doesn't recognize the 'any order' keyword if there are other things on its line", () => {
 
             });
 
-            it.skip("doesn't recognize the 'subset' modifier if there are other things on its line", () => {
+            it.skip("doesn't recognize the 'subset' keyword if there are other things on its line", () => {
 
             });
 
@@ -136,11 +136,11 @@ describe("ElementFinder", () => {
 
             });
 
-            it.skip("any order modifier inside element array", () => {
+            it.skip("'any order' keyword inside element array", () => {
 
             });
 
-            it.skip("subset modifier inside element array", () => {
+            it.skip("'subset' keyword inside element array", () => {
 
             });
 
@@ -606,15 +606,15 @@ describe("ElementFinder", () => {
 
             });
 
-            it.skip("finds elements in a differing order with the 'any order' modifier", () => {
+            it.skip("finds elements in a differing order with the 'any order' keyword", () => {
 
             });
 
-            it.skip("finds elements with the 'subset' modifier, even though it doesn't do anything", () => {
+            it.skip("finds elements with the 'subset' keyword, even though it doesn't do anything", () => {
 
             });
 
-            it.skip("handles the 'any order' and 'subset' modifiers together", () => {
+            it.skip("handles the 'any order' and 'subset' keywords together", () => {
 
             });
         });
@@ -656,27 +656,27 @@ describe("ElementFinder", () => {
 
             });
 
-            it.skip("accepts a correct matching with the 'any order' modifier", () => {
+            it.skip("accepts a correct matching with the 'any order' keyword", () => {
 
             });
 
-            it.skip("rejects an incorrect matching with the 'any order' modifier", () => {
+            it.skip("rejects an incorrect matching with the 'any order' keyword", () => {
 
             });
 
-            it.skip("accepts a correct matching with the 'subset' modifier", () => {
+            it.skip("accepts a correct matching with the 'subset' keyword", () => {
 
             });
 
-            it.skip("rejects an incorrect matching with the 'subset' modifier", () => {
+            it.skip("rejects an incorrect matching with the 'subset' keyword", () => {
 
             });
 
-            it.skip("accepts a correct matching with the 'any order' and 'subset' modifiers together", () => {
+            it.skip("accepts a correct matching with the 'any order' and 'subset' keywords together", () => {
 
             });
 
-            it.skip("rejects an incorrect matching with the 'any order' and 'subset' modifiers together", () => {
+            it.skip("rejects an incorrect matching with the 'any order' and 'subset' keywords together", () => {
 
             });
         });
