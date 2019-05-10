@@ -1620,9 +1620,8 @@ class Tree {
      * @param {Boolean} isPassed - If true, marks the step as passed, if false, marks the step as failed
      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
      * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
-     * @param {Boolean} [skipsRepeats] - If true, and if the branch failed, skips every other branch in this.branches whose first N steps are identical to this one's (up until this step)
      */
-    markStep(step, branch, isPassed, error, finishBranchNow, skipsRepeats) {
+    markStep(step, branch, isPassed, error, finishBranchNow) {
         if(isPassed) {
             step.isPassed = true;
             delete step.isFailed;
@@ -1643,17 +1642,6 @@ class Tree {
         // If this is the very last step in the branch, mark the branch as passed/failed
         if(branch && (finishBranchNow || branch.steps.indexOf(step) + 1 == branch.steps.length)) {
             branch.finishOffBranch();
-
-            if(skipsRepeats && branch.isFailed) {
-                let n = branch.steps.indexOf(step);
-                let branchesToSkip = this.findSimilarBranches(branch, n + 1, this.branches);
-                branchesToSkip.forEach(branchToSkip => {
-                    if(!branchToSkip.isCompleteOrRunning()) { // let it finish running on its own
-                        branchToSkip.isSkipped = true;
-                        branchToSkip.appendToLog(`Branch skipped because it is identical to an earlier branch that ran and failed (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`);
-                    }
-                });
-            }
         }
     }
 

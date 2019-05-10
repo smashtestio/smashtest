@@ -311,7 +311,7 @@ class RunInstance {
                 }
             }
 
-            this.tree.markStep(step, branch, isPassed, error, finishBranchNow, true);
+            this.tree.markStep(step, branch, isPassed, error, finishBranchNow);
         }
 
         // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)
