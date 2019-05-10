@@ -802,4 +802,31 @@ describe("ElementFinder", function() {
 
         });
     });
+
+    describe("canonicalizePropStr", () => {
+        it("canonicalizes a prop string with no input", () => {
+            expect(ElementFinder.canonicalizePropStr(`foobar`)).to.equal(`foobar`);
+            expect(ElementFinder.canonicalizePropStr(`foo bar`)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`  foo  bar  `)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`  Foo  bAr  `)).to.equal(`foo bar`);
+        });
+
+        it("canonicalizes a prop string with single quote input", () => {
+            expect(ElementFinder.canonicalizePropStr(`foobar 'blah'`)).to.equal(`foobar`);
+            expect(ElementFinder.canonicalizePropStr(`foo bar 'blah'`)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`foo 'blah' bar`)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`  foo  bar  ' blah  2 '  `)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`  Foo  bAr  ' blah  2 '  `)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`  Foo  bAr  ' blah \\' \\' \\\\\\' " 2 '  `)).to.equal(`foo bar`);
+        });
+
+        it("canonicalizes a prop string with single quote input", () => {
+            expect(ElementFinder.canonicalizePropStr(`foobar "blah"`)).to.equal(`foobar`);
+            expect(ElementFinder.canonicalizePropStr(`foo bar "blah"`)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`foo "blah" bar`)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`  foo  bar  " blah  2 "  `)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`  Foo  bAr  " blah  2 "  `)).to.equal(`foo bar`);
+            expect(ElementFinder.canonicalizePropStr(`  Foo  bAr  " blah \\" \\" \\\\\\" ' 2 "  `)).to.equal(`foo bar`);
+        });
+    });
 });

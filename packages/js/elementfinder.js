@@ -194,12 +194,12 @@ class ElementFinder {
                     }
 
                     // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
-                    if(!definedProps.hasOwnProperty(canonicalizePropStr(propStr))) {
+                    if(!definedProps.hasOwnProperty(this.canonicalizePropStr(propStr))) {
                         propStr = `selector '${propStr}'`;
                     }
 
                     // Set prop based on the correct entry in definedProps
-                    let canonPropStr = canonicalizePropStr(propStr);
+                    let canonPropStr = this.canonicalizePropStr(propStr);
                     if(definedProps.hasOwnProperty(canonPropStr)) {
                         let propDef = definedProps[canonPropStr];
                         if(typeof propDef == 'function') {
@@ -221,18 +221,6 @@ class ElementFinder {
                     }
 
                     this.props.push(prop);
-
-                    /**
-                     * Removes 'text' and canonicalizes the text of a prop
-                     */
-                    function canonicalizePropStr(str) {
-                        return str
-                            .replace(Constants.SINGLE_QUOTE_STR, '')
-                            .replace(Constants.DOUBLE_QUOTE_STR, '')
-                            .trim()
-                            .replace(/\s+/g, ' ')
-                            .toLowerCase();
-                    }
                 }
             }
         }
@@ -420,6 +408,18 @@ class ElementFinder {
                 return elems[parseInt(input) - 1];
             }
         };
+    }
+
+    /**
+     * Removes 'text' and canonicalizes the text of a prop
+     */
+    static canonicalizePropStr(str) {
+        return str
+            .replace(Constants.SINGLE_QUOTE_STR, '')
+            .replace(Constants.DOUBLE_QUOTE_STR, '')
+            .trim()
+            .replace(/\s+/g, ' ')
+            .toLowerCase();
     }
 }
 module.exports = ElementFinder;
