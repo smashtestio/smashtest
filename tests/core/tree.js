@@ -6050,10 +6050,96 @@ My big 'foobar' function
                 expect(branches[0].steps[3].text).to.equal("C");
             });
 
+            it("doesn't expand functions under a -s", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -s
+B
+
+    C -
+    D -
+
+* A
+    F -
+
+* B
+    G -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(4);
+                expect(branches[0].steps).to.have.lengthOf(2);
+                expect(branches[1].steps).to.have.lengthOf(2);
+                expect(branches[2].steps).to.have.lengthOf(3);
+                expect(branches[3].steps).to.have.lengthOf(3);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "C" }
+                ]);
+
+                expect(branches[1].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "D" }
+                ]);
+
+                expect(branches[2].steps).to.containSubsetInOrder([
+                    { text: "B" }, { text: "G" }, { text: "C" }
+                ]);
+
+                expect(branches[3].steps).to.containSubsetInOrder([
+                    { text: "B" }, { text: "G" }, { text: "D" }
+                ]);
+            });
+
             it("expands functions under a .s", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 A .s
+B
+
+    C -
+    D -
+
+        E
+
+* A
+    * E
+        F -
+
+* B
+    * E
+        G -
+                `);
+
+                let branches = tree.branchify(tree.root);
+
+                expect(branches).to.have.lengthOf(4);
+                expect(branches[0].steps).to.have.lengthOf(4);
+                expect(branches[1].steps).to.have.lengthOf(4);
+                expect(branches[2].steps).to.have.lengthOf(4);
+                expect(branches[3].steps).to.have.lengthOf(4);
+
+                expect(branches[0].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" }
+                ]);
+
+                expect(branches[1].steps).to.containSubsetInOrder([
+                    { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" }
+                ]);
+
+                expect(branches[2].steps).to.containSubsetInOrder([
+                    { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" }
+                ]);
+
+                expect(branches[3].steps).to.containSubsetInOrder([
+                    { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" }
+                ]);
+            });
+
+            it("expands functions under a $s", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A $s
 B
 
     C -

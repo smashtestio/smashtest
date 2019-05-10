@@ -4,6 +4,7 @@
 
 *** After Everything {
     if(typeof SeleniumBrowser != 'undefined') {
+        console.log("HEEEEEERE");
         await SeleniumBrowser.killAllBrowsers(runInstance.runner);
     }
 }

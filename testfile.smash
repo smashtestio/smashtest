@@ -1,11 +1,11 @@
 - Test -
 
     Open Chrome
-    Open Firefox
+    //Open Firefox
 
         Mobile
-        Desktop
+        //Desktop
 
             Wait '1' seconds
 
-                Skip $s -
+                Skip - .s
