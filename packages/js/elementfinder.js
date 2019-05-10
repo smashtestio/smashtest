@@ -4,12 +4,13 @@ class ElementFinder {
     /**
      * Constructs this EF, which represents a single line in an EF (and links to its child EFs)
      * @param {String} str - The string to parse, may contain multiple lines representing an element and its children
+     * @param {ElementFinder} [parent] - The ElementFinder that's the parent of this one, none if ommitted
      * @param {Object} [definedProps] - An object containing a map of prop names to ElementFinders or functions
      * @param {Function} [logger] - The function used to log, takes in one parameter that is the string to log
      * @param {Number} [lineNumberOffset] - Offset line numbers by this amount (if this EF has a parent), 0 if omitted
      * @throws {Error} If there is a parse error
      */
-    constructor(str, definedProps, logger, lineNumberOffset) {
+    constructor(str, parent, definedProps, logger, lineNumberOffset) {
         this.counter = { min: 1, max: 1 };   // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
         this.props = [];           // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
@@ -23,6 +24,7 @@ class ElementFinder {
 
         this.ord = null;           // If an ord is associated with this EF, this will be set to the number representing the ord (1, 2, etc.)
 
+        this.parent = parent;      // Parent EF, null if none
         this.children = [];        // Array of ElementFinder. The children of this EF.
 
         this.isElemArray = false;  // If true, this is an element array
@@ -50,12 +52,14 @@ class ElementFinder {
         // Set lines, figure out base indent
         let lines = str.split(/\n/);
         let parentLine = null;
+        let parentLineNumber = null;
 
         let i = 0;
         for(; i < lines.length; i++) {
             let line = lines[i];
             if(line.trim() != 0) {
                 parentLine = line;
+                parentLineNumber = i + 1;
                 break;
             }
         }
@@ -94,22 +98,75 @@ class ElementFinder {
         }
 
         childStrs.forEach(str => {
-            this.children.push(new ElementFinder(str, definedProps, logger, i + this.lineNumberOffset));
+            this.children.push(new ElementFinder(str, this, definedProps, logger, i + this.lineNumberOffset));
         });
 
         // Parse parentLine
 
-        const COUNTER_REGEX = /([0-9]+)(\s*[\-\+](\s*[0-9]+)?)?\s*x\s+/;
+        const COUNTER_REGEX = /^([0-9]+)(\s*([\-\+])(\s*([0-9]+))?)?\s*x\s+/;
         const ORD_REGEX = /([0-9]+)(st|nd|rd|th)/;
         const PROP_REGEX = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g;
 
         // Element Array
         if(parentLine[0] == '*') {
             this.isElemArray = true;
-            parentLine = parentLine.substr(1); // drop the *
+            parentLine = parentLine.substr(1).trim(); // drop the *
         }
         else {
-            // TODO: does parentLine start with a counter? keyword?
+            // Is parentLine a keyword or does it start with a counter?
+            parentLine = parentLine.trim();
+            if(parentLine == 'any order') {
+                if(this.parent) {
+                    this.parent.isAnyOrder = true;
+                }
+                else {
+                    utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber);
+                }
+            }
+            else if(parentLine == 'subset') {
+                if(this.parent) {
+                    this.parent.isSubset = true;
+                }
+                else {
+                    utils.error(`The 'subset' keyword must have a parent element`, filename, parentLineNumber);
+                }
+            }
+            else {
+                // Check for counter
+                let matches = parentLine.match(COUNTER_REGEX);
+                if(matches) {
+                    parentLine = parentLine.replace(COUNTER_REGEX, ''); // remove counter
+
+                    let min = matches[1];
+                    let middle = matches[3];
+                    let max = matches[5];
+
+                    if(middle == '-') {
+                        if(typeof max == 'undefined') { // N-
+                            this.counter = { min: parseInt(min) };
+                        }
+                        else { // N-M
+                            this.counter = { min: parseInt(min), max: parseInt(max) };
+                        }
+                    }
+                    else if(middle == '+') { // N+
+                        this.counter = { min: parseInt(min) };
+                    }
+                    else { // N
+                        this.counter = { min: parseInt(min), max: parseInt(min) };
+                    }
+                }
+
+                // Split into comma-separated props
+                let props = parentLine.match(PROP_REGEX);
+
+                props.forEach(prop => {
+                    parentLine = parentLine.trim();
+                    
+                    // TODO: don't forget properties that start with "not" (look at comments in constructor for how to store)
+                    // TODO: look for ords
+                    // TODO: if it doesn't match anything in definedProps, it's a css selector
+                    // TODO: set this.props
 
 
 
@@ -117,23 +174,15 @@ class ElementFinder {
 
 
 
+
+
+                });
+
+
+
+
+            }
         }
-
-        // Split into comma-separated props
-        let props = parentLine.match(PROP_REGEX);
-
-        props.forEach(prop => {
-            // TODO: don't forget properties that start with "not" (look at comments in constructor for how to store)
-            // TODO: look for ords
-            // TODO: if it doesn't match anything in definedProps, it's a css selector
-            // TODO: set this.props
-
-
-
-
-
-
-        });
 
         return this;
     }
