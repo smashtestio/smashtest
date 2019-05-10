@@ -580,12 +580,12 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             }
 
             /**
-             * Returns the text of the given step with identifiers attached
+             * Returns the text of the given step with modifiers attached
              */
             function stepText(step) {
-                return (step.frontIdentifiers ? step.frontIdentifiers.join(' ') + ' ' : '') +
+                return (step.frontModifiers ? step.frontModifiers.join(' ') + ' ' : '') +
                 step.text.trim() +
-                (step.backIdentifiers ? ' ' + step.backIdentifiers.join(' ') : '')
+                (step.backModifiers ? ' ' + step.backModifiers.join(' ') : '')
             }
 
             // React Components

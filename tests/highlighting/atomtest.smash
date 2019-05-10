@@ -115,7 +115,7 @@ Not sequential
                     }
                         Non-debug ~ step
 
-            - + +? ! Identifiers+?- - + +? !
+            - + +? ! Modifiers+?- - + +? !
 
             Step with \\ special \" chars "string \" " {"var"}
 

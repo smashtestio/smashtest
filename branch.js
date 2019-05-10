@@ -248,10 +248,10 @@ class Branch {
 
          function getCanonicalStepText(step) {
              let text = step.text.replace(/\s+/g, ' ');
-             if(step.identifiers) {
-                 step.identifiers.forEach(identifier => {
-                     if(identifier != '~' && identifier != '$' && identifier != '$s') {
-                         text += ' ' + identifier;
+             if(step.modifiers) {
+                 step.modifiers.forEach(modifier => {
+                     if(modifier != '~' && modifier != '$' && modifier != '$s') {
+                         text += ' ' + modifier;
                      }
                  });
              }

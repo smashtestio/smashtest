@@ -623,7 +623,7 @@ describe("Step", () => {
             expect(functionCall.functionDeclarationText).to.equal("T");
         });
 
-        it("merges in function declaration with all identifiers set to false", () => {
+        it("merges in function declaration with all modifiers set to false", () => {
             let functionCall = new Step();
 
             let functionDeclarationInTree = new Step();
@@ -652,7 +652,7 @@ describe("Step", () => {
             expect(functionCall.functionDeclarationText).to.equal("T");
         });
 
-        it("merges in function declaration with all identifiers missing", () => {
+        it("merges in function declaration with all modifiers missing", () => {
             let functionCall = new Step();
             let functionDeclarationInTree = new Step();
 

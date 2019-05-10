@@ -426,27 +426,27 @@ describe("Branch", () => {
         it("finds two equal branches to be equal", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
-            stepA1.identifiers = [ '-' ];
+            stepA1.modifiers = [ '-' ];
 
             let stepB1 = new Step();
             stepB1.text = 'B';
-            stepB1.identifiers = [ '+' ];
+            stepB1.modifiers = [ '+' ];
 
             let stepC1 = new Step();
             stepC1.text = 'C';
-            stepC1.identifiers = [];
+            stepC1.modifiers = [];
 
             let stepA2 = new Step();
             stepA2.text = 'A';
-            stepA2.identifiers = [ '-' ];
+            stepA2.modifiers = [ '-' ];
 
             let stepB2 = new Step();
             stepB2.text = 'B';
-            stepB2.identifiers = [ '$', '+' ];
+            stepB2.modifiers = [ '$', '+' ];
 
             let stepC2 = new Step();
             stepC2.text = 'C';
-            stepC2.identifiers = [];
+            stepC2.modifiers = [];
 
             let branch1 = new Branch();
             branch1.steps = [ stepA1, stepB1, stepC1 ];
@@ -463,23 +463,23 @@ describe("Branch", () => {
         it("finds two differently-sized branches to be not equal", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
-            stepA1.identifiers = [ '-' ];
+            stepA1.modifiers = [ '-' ];
 
             let stepB1 = new Step();
             stepB1.text = 'B';
-            stepB1.identifiers = [ '+' ];
+            stepB1.modifiers = [ '+' ];
 
             let stepC1 = new Step();
             stepC1.text = 'C';
-            stepC1.identifiers = [];
+            stepC1.modifiers = [];
 
             let stepA2 = new Step();
             stepA2.text = 'A';
-            stepA2.identifiers = [ '-' ];
+            stepA2.modifiers = [ '-' ];
 
             let stepB2 = new Step();
             stepB2.text = 'B';
-            stepB2.identifiers = [ '$', '+' ];
+            stepB2.modifiers = [ '$', '+' ];
 
             let branch1 = new Branch();
             branch1.steps = [ stepA1, stepB1, stepC1 ];
@@ -495,23 +495,23 @@ describe("Branch", () => {
         it("finds two differently-sized branches to be equal if the first N steps are the same", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
-            stepA1.identifiers = [ '-' ];
+            stepA1.modifiers = [ '-' ];
 
             let stepB1 = new Step();
             stepB1.text = 'B';
-            stepB1.identifiers = [ '+' ];
+            stepB1.modifiers = [ '+' ];
 
             let stepC1 = new Step();
             stepC1.text = 'C';
-            stepC1.identifiers = [];
+            stepC1.modifiers = [];
 
             let stepA2 = new Step();
             stepA2.text = 'A';
-            stepA2.identifiers = [ '-' ];
+            stepA2.modifiers = [ '-' ];
 
             let stepB2 = new Step();
             stepB2.text = 'B';
-            stepB2.identifiers = [ '$', '+' ];
+            stepB2.modifiers = [ '$', '+' ];
 
             let branch1 = new Branch();
             branch1.steps = [ stepA1, stepB1, stepC1 ];
@@ -526,27 +526,27 @@ describe("Branch", () => {
         it("finds two branches with different steps to be not equal", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
-            stepA1.identifiers = [ '-' ];
+            stepA1.modifiers = [ '-' ];
 
             let stepB1 = new Step();
             stepB1.text = 'B';
-            stepB1.identifiers = [ '+' ];
+            stepB1.modifiers = [ '+' ];
 
             let stepC1 = new Step();
             stepC1.text = 'C';
-            stepC1.identifiers = [];
+            stepC1.modifiers = [];
 
             let stepA2 = new Step();
             stepA2.text = 'A';
-            stepA2.identifiers = [ '-' ];
+            stepA2.modifiers = [ '-' ];
 
             let stepK2 = new Step();
             stepK2.text = 'K';
-            stepK2.identifiers = [ '$', '+' ];
+            stepK2.modifiers = [ '$', '+' ];
 
             let stepC2 = new Step();
             stepC2.text = 'C';
-            stepC2.identifiers = [];
+            stepC2.modifiers = [];
 
             let branch1 = new Branch();
             branch1.steps = [ stepA1, stepB1, stepC1 ];
@@ -561,27 +561,27 @@ describe("Branch", () => {
         it("finds two branches with different steps to be equal if the first N steps are the same", () => {
             let stepA1 = new Step();
             stepA1.text = 'A';
-            stepA1.identifiers = [ '-' ];
+            stepA1.modifiers = [ '-' ];
 
             let stepB1 = new Step();
             stepB1.text = 'B';
-            stepB1.identifiers = [ '+' ];
+            stepB1.modifiers = [ '+' ];
 
             let stepC1 = new Step();
             stepC1.text = 'C';
-            stepC1.identifiers = [];
+            stepC1.modifiers = [];
 
             let stepA2 = new Step();
             stepA2.text = 'A';
-            stepA2.identifiers = [ '-' ];
+            stepA2.modifiers = [ '-' ];
 
             let stepK2 = new Step();
             stepK2.text = 'K';
-            stepK2.identifiers = [ '$', '+' ];
+            stepK2.modifiers = [ '$', '+' ];
 
             let stepC2 = new Step();
             stepC2.text = 'C';
-            stepC2.identifiers = [];
+            stepC2.modifiers = [];
 
             let branch1 = new Branch();
             branch1.steps = [ stepA1, stepB1, stepC1 ];

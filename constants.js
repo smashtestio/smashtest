@@ -3,17 +3,17 @@
 // ***************************************
 
 // Matches any well-formed non-empty line, in this format:
-// Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then identifiers, then { and code, or // and a comment
+// Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then modifiers, then { and code, or // and a comment
 exports.LINE_WHOLE = /^\s*(((\-s|\.s|\$s|\-|\!|\.\.|\~|\$|\+\?|\+)\s+)*)(\*{1,3}\s+)?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-s|\.s|\$s|\-|\!|\.\.|\~|\$|\+\?|\+))*)(\s+(\[\{[^\}\]]*$|\{[^\}]*$|\[[^\]]*$))?(\s*(\/\/.*))?\s*$/;
 
-// Matches an identifier by itself
-exports.IDENTIFIER = /\-s|\.s|\$s|\-|\!|\.\.|\~|\$|\+\?|\+/;
+// Matches an modifier by itself
+exports.MODIFIER = /\-s|\.s|\$s|\-|\!|\.\.|\~|\$|\+\?|\+/;
 
-// Matches text that starts or ends with an identifier
-exports.IDENTIFIER_START_OR_END = new RegExp("^(" + exports.IDENTIFIER.source + ")|(" + exports.IDENTIFIER.source + ")$");
+// Matches text that starts or ends with an modifier
+exports.MODIFIER_START_OR_END = new RegExp("^(" + exports.MODIFIER.source + ")|(" + exports.MODIFIER.source + ")$");
 
 // Matches a line that starts a sequential step block
-exports.SEQ_IDENTIFIER_LINE = /^\s*\.\.\s*(\/\/.*)?$/;
+exports.SEQ_MODIFIER_LINE = /^\s*\.\.\s*(\/\/.*)?$/;
 
 // Matches a line that's entirely a // comment
 exports.FULL_LINE_COMMENT = /^\s*\/\//;

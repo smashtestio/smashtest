@@ -19,10 +19,10 @@ class Step {
         OPTIONAL
 
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
-        this.text = "";                       // text of the command of the step (not including spaces in front, identifiers, comments, etc.)
-        this.identifiers = [];                // Array of String, each of which represents an identifier (e.g., ['..', '+']) in front or behind the step
-        this.frontIdentifiers = [];           // Array of String, identifiers in front of the step text
-        this.backIdentifiers = [];            // Array of String, identifiers in back of the step text
+        this.text = "";                       // text of the command of the step (not including spaces in front, modifiers, comments, etc.)
+        this.modifiers = [];                // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step
+        this.frontModifiers = [];           // Array of String, modifiers in front of the step text
+        this.backModifiers = [];            // Array of String, modifiers in back of the step text
         this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
@@ -33,15 +33,15 @@ class Step {
         this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
         this.functionDeclarationText = "";    // if this step is a function call, this is set to the corresponding function declaration's text
 
-        this.isSkip = false;                  // true if this step has the skip identifier (-s)
-        this.isSkipBelow = false;             // true if this step has the skip below identifier (.s)
-        this.isSkipBranch = false;            // true if this step has the skip branch identifier ($s)
-        this.isDebug = false;                 // true if this step has the debug identifier (~)
-        this.isBeforeDebug = false;           // true if this step has the debug identifier (~) before the step text
-        this.isAfterDebug = false;            // true if this step has the debug identifier (~) after the step text
-        this.isOnly = false;                  // true if this step has the only identifier ($)
-        this.isNonParallel = false;           // true if this step has the non-parallel identifier (!)
-        this.isSequential = false;            // true if this step has the sequential identifier (..)
+        this.isSkip = false;                  // true if this step has the skip modifier (-s)
+        this.isSkipBelow = false;             // true if this step has the skip below modifier (.s)
+        this.isSkipBranch = false;            // true if this step has the skip branch modifier ($s)
+        this.isDebug = false;                 // true if this step has the debug modifier (~)
+        this.isBeforeDebug = false;           // true if this step has the debug modifier (~) before the step text
+        this.isAfterDebug = false;            // true if this step has the debug modifier (~) after the step text
+        this.isOnly = false;                  // true if this step has the only modifier ($)
+        this.isNonParallel = false;           // true if this step has the non-parallel modifier (!)
+        this.isSequential = false;            // true if this step has the sequential modifier (..)
         this.isCollapsed = false;             // true if this step should be collapsed in the report (+)
         this.isHidden = false;                // true if this step should be hidden in the report (+?)
 
@@ -179,7 +179,7 @@ class Step {
     }
 
     /**
-     * Merges functionDeclarationInTree into this Step (identifier booleans are OR'ed in from functionDeclarationInTree into this)
+     * Merges functionDeclarationInTree into this Step (modifier booleans are OR'ed in from functionDeclarationInTree into this)
      * If this.functionDeclarationInTree has a code block, it is copied into this
      * This step must be a function call
      * @param {Step} functionDeclarationInTree - The function declaration that corresponds to this step

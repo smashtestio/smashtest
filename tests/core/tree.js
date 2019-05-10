@@ -83,7 +83,7 @@ describe("Tree", () => {
                 assert.equal(step.lineNumber, 10);
                 assert.equal(step.line, `Click "Big Red Button"`);
                 assert.equal(step.text, `Click "Big Red Button"`);
-                assert.equal(step.identifiers, undefined);
+                assert.equal(step.modifiers, undefined);
                 assert.equal(step.codeBlock, undefined);
                 assert.equal(step.comment, undefined);
                 assert.equal(step.isFunctionDeclaration, undefined);
@@ -104,7 +104,7 @@ describe("Tree", () => {
                 let step = tree.parseLine(`    Click "B\"ig" 'Re\'d' "Button ['he' re]" `, "file.txt", 10);
                 assert.equal(step.line, `    Click "B\"ig" 'Re\'d' "Button ['he' re]" `);
                 assert.equal(step.text, `Click "B\"ig" 'Re\'d' "Button ['he' re]"`);
-                assert.equal(step.identifiers, undefined);
+                assert.equal(step.modifiers, undefined);
                 assert.equal(step.codeBlock, undefined);
             });
 
@@ -122,48 +122,48 @@ describe("Tree", () => {
                 }, "Invalid step name [file.txt:10]");
             });
 
-            it("throws an error if a step starts with an identifier followed by no space", () => {
+            it("throws an error if a step starts with an modifier followed by no space", () => {
                 assert.throws(() => {
                     tree.parseLine(`$Hello world`, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`    ~ $Hello world    `, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`~$ Hello world`, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`.. ~$ Hello world`, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`~$ .. Hello world`, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
             });
 
-            it("throws an error if a step ends with an identifier with no space before it", () => {
+            it("throws an error if a step ends with an modifier with no space before it", () => {
                 assert.throws(() => {
                     tree.parseLine(`Hello world$`, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`    Hello world.. $    `, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`Hello world ..$`, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`Hello world ..$ ~`, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`Hello world ~ ..$`, "file.txt", 10);
-                }, "Spaces must separate identifiers from each other and from the step [file.txt:10]");
+                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
             });
 
             it("throws an error if a step has the name of a hook", () => {
@@ -258,7 +258,7 @@ describe("Tree", () => {
                 let step = tree.parseLine(`Click {Big Red Button}`, "file.txt", 10);
                 assert.equal(step.line, `Click {Big Red Button}`);
                 assert.equal(step.text, `Click {Big Red Button}`);
-                assert.equal(step.identifiers, undefined);
+                assert.equal(step.modifiers, undefined);
                 assert.equal(step.codeBlock, undefined);
                 assert.equal(step.varsBeingSet, undefined);
             });
@@ -267,7 +267,7 @@ describe("Tree", () => {
                 let step = tree.parseLine(`Click {{Big Red Button}}`, "file.txt", 10);
                 assert.equal(step.line, `Click {{Big Red Button}}`);
                 assert.equal(step.text, `Click {{Big Red Button}}`);
-                assert.equal(step.identifiers, undefined);
+                assert.equal(step.modifiers, undefined);
                 assert.equal(step.codeBlock, undefined);
                 assert.equal(step.varsBeingSet, undefined);
             });
@@ -276,7 +276,7 @@ describe("Tree", () => {
                 let step = tree.parseLine(`    Click {{Big}} {Red} 'dazzling' {{Button}} `, "file.txt", 10);
                 assert.equal(step.line, `    Click {{Big}} {Red} 'dazzling' {{Button}} `);
                 assert.equal(step.text, `Click {{Big}} {Red} 'dazzling' {{Button}}`);
-                assert.equal(step.identifiers, undefined);
+                assert.equal(step.modifiers, undefined);
                 assert.equal(step.codeBlock, undefined);
                 assert.equal(step.varsBeingSet, undefined);
             });
@@ -360,7 +360,7 @@ describe("Tree", () => {
                 assert.equal(step.text, '');
             });
 
-            it("returns text set to '..' when the whole line is a sequential identifier (..)", () => {
+            it("returns text set to '..' when the whole line is a sequential modifier (..)", () => {
                 let step = tree.parseLine(`..`, "file.txt", 10);
                 assert.equal(step.text, '..');
 
@@ -399,8 +399,8 @@ describe("Tree", () => {
             });
         });
 
-        context("identifiers", () => {
-            it("parses the skip identifier (-s)", () => {
+        context("modifiers", () => {
+            it("parses the skip modifier (-s)", () => {
                 let step = tree.parseLine(`Click {button} -s`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isSkip, true);
@@ -417,7 +417,7 @@ describe("Tree", () => {
                 assert.equal(step.isTextualStep, true);
             });
 
-            it("parses the skip below identifier (.s)", () => {
+            it("parses the skip below modifier (.s)", () => {
                 let step = tree.parseLine(`Click {button} .s`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isSkipBelow, true);
@@ -434,7 +434,7 @@ describe("Tree", () => {
                 assert.equal(step.isTextualStep, undefined);
             });
 
-            it("parses the skip branch identifier ($s)", () => {
+            it("parses the skip branch modifier ($s)", () => {
                 let step = tree.parseLine(`Click {button} $s`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isSkipBranch, true);
@@ -451,7 +451,7 @@ describe("Tree", () => {
                 assert.equal(step.isTextualStep, undefined);
             });
 
-            it("parses the textual step identifier (-)", () => {
+            it("parses the textual step modifier (-)", () => {
                 let step = tree.parseLine(`Click {button} -`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isTextualStep, true);
@@ -465,7 +465,7 @@ describe("Tree", () => {
                 assert.equal(step.isTextualStep, true);
             });
 
-            it("parses the debug identifier (~)", () => {
+            it("parses the debug modifier (~)", () => {
                 let step = tree.parseLine(`~ Click {button}`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isDebug, true);
@@ -503,7 +503,7 @@ describe("Tree", () => {
                 assert.equal(step.isAfterDebug, true);
             });
 
-            it("parses the only identifier ($)", () => {
+            it("parses the only modifier ($)", () => {
                 let step = tree.parseLine(`$ Click {button}`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isOnly, true);
@@ -513,7 +513,7 @@ describe("Tree", () => {
                 assert.equal(step.isOnly, true);
             });
 
-            it("parses the non-parallel identifier (!)", () => {
+            it("parses the non-parallel modifier (!)", () => {
                 let step = tree.parseLine(`Click {button} !`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isNonParallel, true);
@@ -523,7 +523,7 @@ describe("Tree", () => {
                 assert.equal(step.isNonParallel, true);
             });
 
-            it("parses the sequential identifier (..)", () => {
+            it("parses the sequential modifier (..)", () => {
                 let step = tree.parseLine(`Click {button} ..`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isSequential, true);
@@ -533,7 +533,7 @@ describe("Tree", () => {
                 assert.equal(step.isSequential, true);
             });
 
-            it("parses the collapsed identifier (+)", () => {
+            it("parses the collapsed modifier (+)", () => {
                 let step = tree.parseLine(`Click {button} +`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isCollapsed, true);
@@ -547,7 +547,7 @@ describe("Tree", () => {
                 assert.equal(step.isCollapsed, true);
             });
 
-            it("parses the hidden identifier (+?)", () => {
+            it("parses the hidden modifier (+?)", () => {
                 let step = tree.parseLine(`Click {button} +?`, "file.txt", 10);
                 assert.equal(step.text, `Click {button}`);
                 assert.equal(step.isHidden, true);
@@ -561,20 +561,20 @@ describe("Tree", () => {
                 assert.equal(step.isHidden, true);
             });
 
-            it("rejects a hook with an identifier", () => {
+            it("rejects a hook with an modifier", () => {
                 assert.throws(() => {
                     tree.parseLine(`$ *** After Every Branch + {`, "file.txt", 10);
-                }, "A hook cannot have any identifiers ($) [file.txt:10]");
+                }, "A hook cannot have any modifiers ($) [file.txt:10]");
             });
 
             it("rejects a hook with a ~", () => {
                 assert.throws(() => {
                     tree.parseLine(`~ *** Before Every Step {`, "file.txt", 10);
-                }, "A hook cannot have any identifiers (~) [file.txt:10]");
+                }, "A hook cannot have any modifiers (~) [file.txt:10]");
 
                 assert.throws(() => {
                     tree.parseLine(`*** Before Every Step ~ {`, "file.txt", 10);
-                }, "A hook cannot have any identifiers (~) [file.txt:10]");
+                }, "A hook cannot have any modifiers (~) [file.txt:10]");
             });
         });
 
@@ -4710,7 +4710,7 @@ F -
                 ]);
             });
 
-            it("properly merges identifiers between function call and function declaration", () => {
+            it("properly merges modifiers between function call and function declaration", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 ~ F
@@ -4768,7 +4768,7 @@ F -
                 ]);
             });
 
-            it("properly merges identifiers and a code block between function call and function declaration", () => {
+            it("properly merges modifiers and a code block between function call and function declaration", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 ~ F

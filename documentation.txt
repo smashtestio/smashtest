@@ -27,7 +27,7 @@ Steps
         - Use them for stylistic organization and to group similar steps
         - Recommended to put a blank line above and below a step block, to make it easier to see.
         - You can also use blank lines to prevent a step block from forming, since step blocks require consecutive lines
-    - Identifiers are symbols that can come before or after the step. Usually after is recommended, for consistency.
+    - Modifiers are symbols that can come before or after the step. Usually after is recommended, for consistency.
     - Generally stored in smashfiles (.smash), but can be any kind of text file
 
 Running tests
@@ -244,9 +244,9 @@ API Testing
         - Comparer.expect(actualObj).to.match(expectedObj)
             - Throws error if matching fails, containing whole json object prettified, with a ---> + explanation next to each line that didn't match
         - Defaults
-            - Expected arrays without $-identifiers are exact match by default
+            - Expected arrays without $-modifiers are exact match by default
                 - E.g., expected [ A, B, C ] means actual must be [ A, B, C ] exactly
-            - Expected objects without $-identifiers are subset matching by default
+            - Expected objects without $-modifiers are subset matching by default
                 - E.g., expected { one: 1 } will match { one: 1, two: 2 } but not { one: 3 } or { two: 2 }
         - Special matching objects in expectedObj (correspond to values in actualObj)
             - $typeof
@@ -485,6 +485,49 @@ Functions
             On special cart page
                 Clear cart // specific stuff, then generic stuff
 
+        - Must test pattern (ensures that all permutations are implemented)
+
+            Chrome
+            FF
+            IE
+
+                Desktop
+                Tablet
+                Mobile
+
+                    Verify
+
+            * Chrome
+                * Desktop
+                    * Verify
+                        A
+                * Tablet
+                    * Verify
+                        B
+                * Mobile
+                    * Verify
+                        C
+            * FF
+                * Desktop
+                    * Verify
+                        D
+                * Tablet
+                    * Verify
+                        E
+                * Mobile
+                    * Verify
+                        F
+            * IE
+                * Desktop
+                    * Verify
+                        G
+                * Tablet
+                    * Verify
+                        H
+                * Mobile
+                    * Verify
+                        I
+
         - Function acting as an anonymous step block
 
             * *
@@ -614,7 +657,7 @@ Code blocks
         - Textual step {code} or Textual step - {code}
     - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
         - Captures code in between "Text {" and the } line (not including anything on the } line)
-    - +, .., etc. identifiers come after the step text and before the {
+    - +, .., etc. modifiers come after the step text and before the {
     - Variables
         - Get
             - {{var1}} is var1 or l("var1") or getLocal("var1")
@@ -769,7 +812,7 @@ Only ($)
         - Give more examples
 
 Debug (~)
-    - Debug identifier (~)
+    - Debug modifier (~)
         - Show example. Comes before or after a step, including before a function declaration's *.
         - Before means pause right before this step executes, after means pause right after
     - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
@@ -801,7 +844,7 @@ REPL
             .save     Save all evaluated commands in this REPL session to a file
 
 Selective test running
-    - Only identifier ($)
+    - Only modifier ($)
     - Groups
         - Choosing which groups to run from variable, or from command line
         - When multiple group vars are set in a branch, the branch belongs to all groups
@@ -845,7 +888,7 @@ Hooks (***)
             is not enough time before the process exists. If you have async code, check the isSync js variable beforehand to see if
             the code block is being executed sync.
     - Code blocks only. They cannot have children.
-    - You're not allowed to have any identifiers (~, $, .., .s, etc.) on them
+    - You're not allowed to have any modifiers (~, $, .., .s, etc.) on them
     - Hooks won't have a pass/fail state. If a hook fails, the step/branch it corresponds to will take the error.
     - Setting runInstance.currStep.htmlReport (for right pane)
     - These are recommended for internal framework stuff, like reporting (so you can run this code whether or not the step failed)

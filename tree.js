@@ -92,7 +92,7 @@ class Tree {
             return step;
         }
 
-        if(line.match(Constants.SEQ_IDENTIFIER_LINE)) {
+        if(line.match(Constants.SEQ_MODIFIER_LINE)) {
             step.text = '..';
             return step;
         }
@@ -114,12 +114,12 @@ class Tree {
             }
         }
         if(matches[1]) {
-            step.frontIdentifiers = matches[1].trim().split(/\s+/);
-            step.identifiers = (step.identifiers || []).concat(step.frontIdentifiers);
+            step.frontModifiers = matches[1].trim().split(/\s+/);
+            step.modifiers = (step.modifiers || []).concat(step.frontModifiers);
         }
         if(matches[11]) {
-            step.backIdentifiers = matches[11].trim().split(/\s+/);
-            step.identifiers = (step.identifiers || []).concat(step.backIdentifiers);
+            step.backModifiers = matches[11].trim().split(/\s+/);
+            step.modifiers = (step.modifiers || []).concat(step.backModifiers);
         }
         if(matches[15]) {
             let block = matches[15];
@@ -135,8 +135,8 @@ class Tree {
         if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
             utils.error(`Invalid step name`, filename, lineNumber);
         }
-        if(step.text.match(Constants.IDENTIFIER_START_OR_END)) {
-            utils.error(`Spaces must separate identifiers from each other and from the step`, filename, lineNumber);
+        if(step.text.match(Constants.MODIFIER_START_OR_END)) {
+            utils.error(`Spaces must separate modifiers from each other and from the step`, filename, lineNumber);
         }
 
         // Function Declaration
@@ -152,51 +152,51 @@ class Tree {
             }
         }
 
-        // Set identifier booleans and perform related validations
-        if(step.frontIdentifiers) {
-            if(step.frontIdentifiers.includes('~')) {
+        // Set modifier booleans and perform related validations
+        if(step.frontModifiers) {
+            if(step.frontModifiers.includes('~')) {
                 step.isDebug = true;
                 step.isBeforeDebug = true;
             }
 
         }
-        if(step.backIdentifiers) {
-            if(step.backIdentifiers.includes('~')) {
+        if(step.backModifiers) {
+            if(step.backModifiers.includes('~')) {
                 step.isDebug = true;
                 step.isAfterDebug = true;
             }
         }
-        if(step.identifiers) {
-            if(step.identifiers.includes('-s')) {
+        if(step.modifiers) {
+            if(step.modifiers.includes('-s')) {
                 step.isSkip = true;
                 step.isTextualStep = true;
             }
-            if(step.identifiers.includes('.s')) {
+            if(step.modifiers.includes('.s')) {
                 step.isSkipBelow = true;
             }
-            if(step.identifiers.includes('$s')) {
+            if(step.modifiers.includes('$s')) {
                 step.isSkipBranch = true;
             }
-            if(step.identifiers.includes('-')) {
+            if(step.modifiers.includes('-')) {
                 step.isTextualStep = true;
 
                 if(step.isFunctionDeclaration) {
                     utils.error(`A function declaration cannot be a textual step (-) as well`, filename, lineNumber);
                 }
             }
-            if(step.identifiers.includes('$')) {
+            if(step.modifiers.includes('$')) {
                 step.isOnly = true;
             }
-            if(step.identifiers.includes('!')) {
+            if(step.modifiers.includes('!')) {
                 step.isNonParallel = true;
             }
-            if(step.identifiers.includes('..')) {
+            if(step.modifiers.includes('..')) {
                 step.isSequential = true;
             }
-            if(step.identifiers.includes('+')) {
+            if(step.modifiers.includes('+')) {
                 step.isCollapsed = true;
             }
-            if(step.identifiers.includes('+?')) {
+            if(step.modifiers.includes('+?')) {
                 step.isHidden = true;
             }
         }
@@ -213,8 +213,8 @@ class Tree {
                 if(!step.hasCodeBlock()) {
                     utils.error(`A hook must have a code block`, filename, lineNumber);
                 }
-                if(step.identifiers && step.identifiers.length > 0) {
-                    utils.error(`A hook cannot have any identifiers (${step.identifiers[0]})`, filename, lineNumber);
+                if(step.modifiers && step.modifiers.length > 0) {
+                    utils.error(`A hook cannot have any modifiers (${step.modifiers[0]})`, filename, lineNumber);
                 }
             }
         }
@@ -696,7 +696,7 @@ class Tree {
      * @param {Branch} [branchAbove] - branch that comes above this step, with function calls, etc. already expanded (used to help find function declarations), empty branch if omitted
      * @param {Number} [level] - Number of levels of function calls this step is under, 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, step is a function declaration, and this branchify() call is in response to encountering a function call step
-     * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. identifier on a step)
+     * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. modifier on a step)
      * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchAbove). Returns null if step is a function declaration but isFunctionCall wasn't set (i.e., an unexpected function declaration).
      * @throws {Error} If an error occurred
      */
@@ -1054,7 +1054,7 @@ class Tree {
             let branch = branches[i];
             if(branch.isOnly) {
                 // A $ was found
-                let o = findIdentifierDepth(branch, '$');
+                let o = findModifierDepth(branch, '$');
                 if(o.depth < shortestDepth || shortestDepth == -1) {
                     shortestDepth = o.depth;
                 }
@@ -1062,7 +1062,7 @@ class Tree {
         }
         if(shortestDepth != -1) {
             branches = branches.filter(branch => {
-                let o = findIdentifierDepth(branch, '$');
+                let o = findModifierDepth(branch, '$');
                 if(!o) {
                     return false;
                 }
@@ -1125,7 +1125,7 @@ class Tree {
 
                 function removeBranch() {
                     if(branch.isDebug) {
-                        let debugStep = findIdentifierDepth(branch, '~').step;
+                        let debugStep = findModifierDepth(branch, '~').step;
                         utils.error(`This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.`, debugStep.filename, debugStep.lineNumber);
                     }
                     else {
@@ -1150,7 +1150,7 @@ class Tree {
                 }
                 else {
                     if(branch.isDebug) {
-                        let debugStep = findIdentifierDepth(branch, '~').step;
+                        let debugStep = findModifierDepth(branch, '~').step;
                         utils.error(`This step contains a ~, but is not above the frequency allowed to run (${minFrequency}). Either set its frequency higher or remove the ~.`, debugStep.filename, debugStep.lineNumber);
                     }
                     else {
@@ -1190,7 +1190,7 @@ class Tree {
             let branch = branches[i];
             if(branch.isDebug) {
                 // A ~ was found
-                let o = findIdentifierDepth(branch, '~');
+                let o = findModifierDepth(branch, '~');
                 if(o.depth < shortestDepth || shortestDepth == -1) {
                     shortestDepth = o.depth;
                     branchFound = branch;
@@ -1205,34 +1205,34 @@ class Tree {
 
         /**
          * @param {Branch} branch - The branch to look through
-         * @param {String} indentifier - The identifier to look for ('~' or '$')
-         * @return {Object} Object, in format { step = the first Step in the given branch to contain indentifier, depth = depth at which the indentifier was found }, null if nothing found
+         * @param {String} modifier - The modifier to look for ('~' or '$')
+         * @return {Object} Object, in format { step = the first Step in the given branch to contain modifier, depth = depth at which the modifier was found }, null if nothing found
          */
-        function findIdentifierDepth(branch, identifier) {
+        function findModifierDepth(branch, modifier) {
             for(let i = 0; i < branch.steps.length; i++) {
                 let step = branch.steps[i];
 
                 let stepProp = null;
                 let originalStepProp = null;
-                if(identifier == '~') {
+                if(modifier == '~') {
                     stepProp = step.isDebug;
                     originalStepProp = step.originalStepInTree.isDebug;
                 }
-                else if(identifier == '$') {
+                else if(modifier == '$') {
                     stepProp = step.isOnly;
                     originalStepProp = step.originalStepInTree.isOnly;
                 }
 
                 if(stepProp) {
                     if(step.isFunctionCall) {
-                        // Tie-break based on if the identifier is on the function call vs. function declaration
-                        if(originalStepProp) { // identifier is on the function call
+                        // Tie-break based on if the modifier is on the function call vs. function declaration
+                        if(originalStepProp) { // modifier is on the function call
                             return {
                                 step: step,
                                 depth: i
                             };
                         }
-                        else { // identifier is slightly deeper, at the function declaration (so add .5 to the depth)
+                        else { // modifier is slightly deeper, at the function declaration (so add .5 to the depth)
                             return {
                                 step: step,
                                 depth: i + 0.5
