@@ -188,29 +188,51 @@ class ElementFinder {
                     }
 
                     // 'text' (convert to `contains 'text'`)
-                    if(propStr.match(Constants.SINGLE_QUOTE_STR) || propStr.match(Constants.DOUBLE_QUOTE_STR)) {
+                    let textMatches = propStr.match(new RegExp(`^${Constants.SINGLE_QUOTE_STR.source}$`)) || propStr.match(new RegExp(`^${Constants.DOUBLE_QUOTE_STR.source}$`));
+                    if(textMatches) {
                         propStr = `contains ${propStr}`;
                     }
 
                     // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
-
-
-
-
-
-
+                    if(!definedProps.hasOwnProperty(canonicalizePropStr(propStr))) {
+                        propStr = `selector '${propStr}'`;
+                    }
 
                     // Set prop based on the correct entry in definedProps
-
-                    // TODO: see constructor for possibilities
-                    // TODO: error if no corresponding match found (rare)
-
-
-
-
-
+                    let canonPropStr = canonicalizePropStr(propStr);
+                    if(definedProps.hasOwnProperty(canonPropStr)) {
+                        let propDef = definedProps[canonPropStr];
+                        if(typeof propDef == 'function') {
+                            prop = {
+                                prop: propStr,
+                                func: propDef,
+                                input: textMatches[0]
+                            };
+                        }
+                        else { // EF
+                            prop = {
+                                prop: propStr,
+                                ef: propDef
+                            };
+                        }
+                    }
+                    else { // rare case (usually if someone explicitly overrides the selector prop)
+                        utils.error(`Cannot find property that matches '${propStr}'`, filename, parentLineNumber);
+                    }
 
                     this.props.push(prop);
+
+                    /**
+                     * Removes 'text' and canonicalizes the text of a prop
+                     */
+                    function canonicalizePropStr(str) {
+                        return str
+                            .replace(Constants.SINGLE_QUOTE_STR, '')
+                            .replace(Constants.DOUBLE_QUOTE_STR, '')
+                            .trim()
+                            .replace(/\s+/g, ' ')
+                            .toLowerCase();
+                    }
                 }
             }
         }
@@ -300,6 +322,104 @@ class ElementFinder {
 
 
 
+    }
+
+    /**
+     * @return {Object} An object with all the default props to be fed into the constructor's definedProps
+     */
+    static defaultProps() {
+        return {
+            'enabled': (elems, input) => {
+
+            },
+
+            'disabled': (elems, input) => {
+
+            },
+
+            'checked': (elems, input) => {
+
+            },
+
+            'unchecked': (elems, input) => {
+
+            },
+
+            'selected': (elems, input) => {
+
+            },
+
+            'focused': (elems, input) => {
+
+            },
+
+            'in focus': (elems, input) => {
+
+            },
+
+            'element': (elems, input) => {
+                return elems;
+            },
+
+            'clickable': (elems, input) => {
+                // a, button, label, input, textarea, select, cursor:pointer, cursor:pointer when hovered over
+                // maybe if nothing match the above, just send back all elems (so Click step will work with whatever other selectors sent in)
+            },
+
+            'page title': (elems, input) => {
+
+            },
+
+            'page title contains': (elems, input) => {
+
+            },
+
+            'page url': (elems, input) => {
+                // relative or absolute
+            },
+
+            'page url contains': (elems, input) => {
+                // relative or absolute
+            },
+
+            'next to': (elems, input) => {
+                // Find closest element by x,y coords to smallest element(s) containing the text? Or just use expanding containers?
+            },
+
+            'value': (elems, input) => {
+                // elem.value only
+            },
+
+            'exact': (elems, input) => {
+
+            },
+
+            'contains': (elems, input) => {
+                // Contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
+                // Containing, lower case, trimmed, and whitespace-to-single-space match
+            },
+
+            'innertext': (elems, input) => {
+
+            },
+
+            'selector': (elems, input) => {
+                // Handles iframe/iframe/selector
+            },
+
+            'xpath': (elems, input) => {
+
+            },
+
+            'has': (elems, input) => {
+                // matches this selector or has a child that matches
+            },
+
+            // Same as an ord, returns nth elem, where n is 1-indexed
+            'position': (elems, input) => {
+                return elems[parseInt(input) - 1];
+            }
+        };
     }
 }
 module.exports = ElementFinder;

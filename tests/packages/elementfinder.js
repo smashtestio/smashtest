@@ -6,6 +6,7 @@ const util = require('util');
 const {Builder, By, Key, until} = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const ElementFinder = require('../../packages/js/elementfinder.js');
+const Comparer = require('../../packages/js/comparer.js');
 
 chai.use(chaiSubset);
 
@@ -379,196 +380,6 @@ describe("ElementFinder", function() {
             });
         });
 
-        context("built-in properties", () => {
-            it.skip("finds elements based on 'enabled'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'enabled'", () => {
-
-            });
-
-            it.skip("finds elements based on 'disabled'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'disabled'", () => {
-
-            });
-
-            it.skip("finds elements based on 'checked'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'checked'", () => {
-
-            });
-
-            it.skip("finds elements based on 'unchecked'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'unchecked'", () => {
-
-            });
-
-            it.skip("finds elements based on 'selected'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'selected'", () => {
-
-            });
-
-            it.skip("finds elements based on 'focused'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'focused'", () => {
-
-            });
-
-            it.skip("finds elements based on 'in focus'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'in focus'", () => {
-
-            });
-
-            it.skip("finds elements based on 'element'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'element'", () => {
-
-            });
-
-            it.skip("finds elements based on 'clickable'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'clickable'", () => {
-
-            });
-
-            it.skip("finds elements based on 'page title'", () => {
-                // page title 'title'
-            });
-
-            it.skip("doesn't find elements based on 'page title'", () => {
-
-            });
-
-            it.skip("finds elements based on 'page title contains'", () => {
-                // page title contains 'title'
-            });
-
-            it.skip("doesn't find elements based on 'page title contains'", () => {
-
-            });
-
-            it.skip("finds elements based on a relative 'page url'", () => {
-                // page url 'url'
-            });
-
-            it.skip("doesn't find elements based on a relative 'page url'", () => {
-
-            });
-
-            it.skip("finds elements based on an absolute 'page url'", () => {
-                // page url 'url'
-            });
-
-            it.skip("doesn't find elements based on an absolute 'page url'", () => {
-
-            });
-
-            it.skip("finds elements based on 'page url contains'", () => {
-                // page url contains 'url'
-            });
-
-            it.skip("doesn't find elements based on 'page url contains'", () => {
-
-            });
-
-            it.skip("finds elements based on 'next to'", () => {
-                // next to 'text', only one element chosen from many
-            });
-
-            it.skip("doesn't find elements based on 'next to'", () => {
-
-            });
-
-            it.skip("finds elements based on 'value'", () => {
-                // value 'text', elem.value only
-            });
-
-            it.skip("doesn't find elements based on 'value'", () => {
-
-            });
-
-            it.skip("finds elements based on 'exact text'", () => {
-                // exact 'text'
-            });
-
-            it.skip("doesn't find elements based on 'exact text'", () => {
-
-            });
-
-            it.skip("finds elements based on 'contains text'", () => {
-                // contains 'text'
-            });
-
-            it.skip("doesn't find elements based on 'contains text'", () => {
-
-            });
-
-            it.skip("finds elements based on 'innerText'", () => {
-                // innerText 'text'
-            });
-
-            it.skip("doesn't find elements based on 'innerText'", () => {
-
-            });
-
-            it.skip("finds elements based on 'selector'", () => {
-                // selector '.selector'
-            });
-
-            it.skip("doesn't find elements based on 'selector'", () => {
-
-            });
-
-            it.skip("finds elements based on 'xpath'", () => {
-                // xpath 'xpath'
-            });
-
-            it.skip("doesn't find elements based on 'xpath'", () => {
-
-            });
-
-            it.skip("finds elements based on 'has'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'has'", () => {
-
-            });
-
-            it.skip("finds elements based on 'position'", () => {
-
-            });
-
-            it.skip("doesn't find elements based on 'position'", () => {
-
-            });
-
-            it.skip("handles the 'not' keyword", () => {
-
-            });
-        });
-
         context("children", () => {
             it.skip("finds elements with one level of children", () => {
 
@@ -798,6 +609,196 @@ describe("ElementFinder", function() {
         });
 
         it.skip("sets an error's continue properly", () => {
+
+        });
+    });
+
+    describe("defaultProps()", () => {
+        it.skip("finds elements based on 'enabled'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'enabled'", () => {
+
+        });
+
+        it.skip("finds elements based on 'disabled'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'disabled'", () => {
+
+        });
+
+        it.skip("finds elements based on 'checked'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'checked'", () => {
+
+        });
+
+        it.skip("finds elements based on 'unchecked'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'unchecked'", () => {
+
+        });
+
+        it.skip("finds elements based on 'selected'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'selected'", () => {
+
+        });
+
+        it.skip("finds elements based on 'focused'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'focused'", () => {
+
+        });
+
+        it.skip("finds elements based on 'in focus'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'in focus'", () => {
+
+        });
+
+        it.skip("finds elements based on 'element'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'element'", () => {
+
+        });
+
+        it.skip("finds elements based on 'clickable'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'clickable'", () => {
+
+        });
+
+        it.skip("finds elements based on 'page title'", () => {
+            // page title 'title'
+        });
+
+        it.skip("doesn't find elements based on 'page title'", () => {
+
+        });
+
+        it.skip("finds elements based on 'page title contains'", () => {
+            // page title contains 'title'
+        });
+
+        it.skip("doesn't find elements based on 'page title contains'", () => {
+
+        });
+
+        it.skip("finds elements based on a relative 'page url'", () => {
+            // page url 'url'
+        });
+
+        it.skip("doesn't find elements based on a relative 'page url'", () => {
+
+        });
+
+        it.skip("finds elements based on an absolute 'page url'", () => {
+            // page url 'url'
+        });
+
+        it.skip("doesn't find elements based on an absolute 'page url'", () => {
+
+        });
+
+        it.skip("finds elements based on 'page url contains'", () => {
+            // page url contains 'url'
+        });
+
+        it.skip("doesn't find elements based on 'page url contains'", () => {
+
+        });
+
+        it.skip("finds elements based on 'next to'", () => {
+            // next to 'text', only one element chosen from many
+        });
+
+        it.skip("doesn't find elements based on 'next to'", () => {
+
+        });
+
+        it.skip("finds elements based on 'value'", () => {
+            // value 'text', elem.value only
+        });
+
+        it.skip("doesn't find elements based on 'value'", () => {
+
+        });
+
+        it.skip("finds elements based on 'exact text'", () => {
+            // exact 'text'
+        });
+
+        it.skip("doesn't find elements based on 'exact text'", () => {
+
+        });
+
+        it.skip("finds elements based on 'contains text'", () => {
+            // contains 'text'
+        });
+
+        it.skip("doesn't find elements based on 'contains text'", () => {
+
+        });
+
+        it.skip("finds elements based on 'innerText'", () => {
+            // innerText 'text'
+        });
+
+        it.skip("doesn't find elements based on 'innerText'", () => {
+
+        });
+
+        it.skip("finds elements based on 'selector'", () => {
+            // selector '.selector'
+        });
+
+        it.skip("doesn't find elements based on 'selector'", () => {
+
+        });
+
+        it.skip("finds elements based on 'xpath'", () => {
+            // xpath 'xpath'
+        });
+
+        it.skip("doesn't find elements based on 'xpath'", () => {
+
+        });
+
+        it.skip("finds elements based on 'has'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'has'", () => {
+
+        });
+
+        it.skip("finds elements based on 'position'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'position'", () => {
+
+        });
+
+        it.skip("handles the 'not' keyword", () => {
 
         });
     });

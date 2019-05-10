@@ -230,7 +230,7 @@ ElementFinders
         - If "any order" keyword is present, children can be in any order
         - Blank lines don't matter
     - Line that starts with * = element array
-        - Will match all elements at that scope
+        - Will match as many elements as possible not exceeding the bounds of the parent element
         - Children listed inside must be a 1 to 1 mapping to children matched by array (same order, same amount), otherwise an Error is thrown
         - If "any order" keyword is present, children can be in any order
         - If "subset" keyword is present, children can be a subset of all matched children

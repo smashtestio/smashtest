@@ -58,7 +58,7 @@ class SeleniumBrowser {
     constructor(runInstance) {
         this.driver = null;
         this.runInstance = runInstance;
-        this.props = {}; // ElementFinder props
+        this.props = ElementFinder.defaultProps(); // ElementFinder props
     }
 
     /**
