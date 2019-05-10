@@ -9,7 +9,7 @@ class ElementFinder {
      * @param {Number} [lineNumberOffset] - Offset line numbers by this amount (if this EF has a parent), 0 if omitted
      * @throws {Error} If there is a parse error
      */
-    constructor(str, definedProps, logger) {
+    constructor(str, definedProps, logger, lineNumberOffset) {
         this.counter = { min: 1, max: 1 };   // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
         this.props = [];           // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)

@@ -413,6 +413,56 @@ describe("ElementFinder", function() {
             });
         });
 
+        context("counter EFs", () => {
+            it.skip("finds elements based on a counter with a min", () => {
+
+            });
+
+            it.skip("doesn't find elements based on a counter with a min", () => {
+
+            });
+
+            it.skip("finds elements based on a counter with a max", () => {
+
+            });
+
+            it.skip("doesn't find elements based on a counter with a max", () => {
+
+            });
+
+            it.skip("finds elements based on a counter with a min and max", () => {
+
+            });
+
+            it.skip("doesn't find elements based on a counter with a min and max", () => {
+
+            });
+
+            it.skip("finds elements based on a counter with an equal min and max", () => {
+
+            });
+
+            it.skip("doesn't find elements based on a counter with an equal min and max", () => {
+
+            });
+
+            it.skip("finds elements based on a counter with a min of 0", () => {
+
+            });
+
+            it.skip("doesn't find elements based on a counter with a min of 0", () => {
+
+            });
+
+            it.skip("finds elements based on a counter with a min and max of 0", () => {
+
+            });
+
+            it.skip("doesn't find elements based on a counter with a min and max of 0", () => {
+
+            });
+        });
+
         context("one-line EFs", () => {
             it.skip("finds elements based on multiple items", () => {
                 // text, ords, properties, selectors
