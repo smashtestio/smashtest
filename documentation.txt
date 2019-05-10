@@ -388,24 +388,56 @@ Functions
                 to something like Open phone (whose function declaration has its own declarations for Click, etc.) sets the
                 "context" to the phone, sending further child steps to the phone's functions
             - Viewport-based function implementations
+                - Simple
 
-                * Mobile
-                    Mobile // calls original
+                    * Mobile
+                        * Logout
+                            // steps to logout
 
-                    * Logout
-                        // steps to logout
+                    * Desktop
+                        * Logout
+                            // different steps to logout
 
-                * Desktop
-                    Desktop
-
-                    * Logout
-                        // different steps to logout
-
-                Test 1 -
                     Mobile
-                        Logout // calls the mobile logout
                     Desktop
-                        Logout // calls the desktop logout
+
+                        Logout // calls the one corresponding to mobile or desktop
+
+                - More complex, using both viewport and page and calling original
+
+                    * Mobile
+
+                        * On page X
+
+                            * Logout
+                                // steps to logout
+
+                            On page X    // calls original
+
+                        Mobile    // calls original
+
+                    * Desktop
+
+                        * On page X
+
+                            * Logout
+                                // different steps to logout
+
+                            On page X
+
+                        Desktop
+
+                    * On page X
+                        // other funcs related to page X
+
+                        On generic page
+
+                    Mobile
+                    Desktop
+
+                        On page X    // calls the one corresponding to mobile or desktop
+
+                            Logout   // calls the one corresponding to mobile or desktop
 
             - Request and verify
 
