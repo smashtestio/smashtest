@@ -219,6 +219,26 @@ class ElementFinder {
     }
 
     /**
+     * Finds all visible elements matching this EF at the current moment in time
+     * @param {Driver} driver - WebDriver object with which to look for this EF
+     * @param {Element} [parentElem] - Only search at or inside this WebDriver Element, search anywhere on the page if omitted
+     * @param {Element} [afterElem] - Only search after this WebDriver Element in the DOM, no restrictions if omitted
+     * @return {Promise} Promise that resolves to Array of WebDriver Elements that were found, empty array if nothing found
+     * @throws {Error} If an element array wasn't properly matched
+     */
+    async getAll(driver, parentElem, afterElem) {
+        // TODO: inject js that does all the work
+        // TODO: visible only
+        // TODO: Don't forget to log stuff via this.logger
+
+
+
+
+
+
+    }
+
+    /**
      * Finds the first visible element matching this EF
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {Element} [parentElem] - Only search at or inside this WebDriver Element, search anywhere on the page if omitted
@@ -275,24 +295,6 @@ class ElementFinder {
      * @throws {Error} If this EF is still visible on the page after the timeout expires
      */
     async not(driver, parentElem, afterElem, isContinue, timeout, pollFrequency) {
-
-
-
-
-
-    }
-
-    /**
-     * Finds all visible elements matching this EF at the current moment in time
-     * Params same as in find()
-     * @return {Promise} Promise that resolves to Array of WebDriver Elements that were found, empty array if nothing found
-     * @throws {Error} If an element array wasn't properly matched
-     */
-    async getAll(driver, parentElem, afterElem) {
-        // TODO: inject js that does all the work
-        // TODO: visible only
-        // TODO: Don't forget to log stuff via this.logger
-
 
 
 

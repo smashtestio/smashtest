@@ -202,112 +202,6 @@ describe("ElementFinder", function() {
         });
     });
 
-    describe("find()", () => {
-        it.skip("sends back the first element if multiple elements are found", async () => {
-
-        });
-
-        it.skip("throws an error if nothing is found", async () => {
-
-        });
-
-        it.skip("throws an error if nothing is found and timeout is 0", async () => {
-
-        });
-
-        it.skip("throws an error if nothing is found and timeout is omitted", async () => {
-
-        });
-
-        it.skip("finds an element if it appears before the timeout", () => {
-
-        });
-
-        it.skip("doesn't find an element if it appears after the timeout", () => {
-
-        });
-
-        it.skip("sends back an element as soon as one is found", () => {
-
-        });
-
-        it.skip("polls according to the requested poll frequency", () => {
-
-        });
-
-        it.skip("sets an error's continue properly", () => {
-
-        });
-    });
-
-    describe("findAll()", () => {
-        it.skip("sends back all elements if multiple elements are found", async () => {
-
-        });
-
-        it.skip("sends back empty array if nothing is found", async () => {
-
-        });
-
-        it.skip("sends back empty array if nothing is found and timeout is 0", async () => {
-
-        });
-
-        it.skip("sends back empty array if nothing is found and timeout is omitted", async () => {
-
-        });
-
-        it.skip("finds elements if they appear before the timeout", () => {
-
-        });
-
-        it.skip("doesn't find elements if they appear after the timeout", () => {
-
-        });
-
-        it.skip("sends back elements as soon as it finds something", () => {
-
-        });
-
-        it.skip("polls according to the requested poll frequency", () => {
-
-        });
-
-        it.skip("sets an error's continue properly", () => {
-
-        });
-    });
-
-    describe("not()", () => {
-        it.skip("throws error if elements are found", async () => {
-
-        });
-
-        it.skip("doesn't throw error if elements aren't found because they don't exist in the DOM", async () => {
-
-        });
-
-        it.skip("doesn't throw error if elements aren't found because they aren't visible", async () => {
-
-        });
-
-        it.skip("doesn't throw an error if elements disappear before the timeout", () => {
-
-        });
-
-        it.skip("throws an error if elements disappear after the timeout", () => {
-
-        });
-
-        it.skip("polls according to the requested poll frequency", () => {
-
-        });
-
-        it.skip("sets an error's continue properly", () => {
-
-        });
-    });
-
     describe("getAll()", () => {
         context("text EFs", () => {
             it.skip("finds elements based on innerText", () => {
@@ -799,6 +693,112 @@ describe("ElementFinder", function() {
             it.skip("only searches within a parent element and after an element simultaneously", () => {
 
             });
+        });
+    });
+
+    describe("find()", () => {
+        it.skip("sends back the first element if multiple elements are found", async () => {
+
+        });
+
+        it.skip("throws an error if nothing is found", async () => {
+
+        });
+
+        it.skip("throws an error if nothing is found and timeout is 0", async () => {
+
+        });
+
+        it.skip("throws an error if nothing is found and timeout is omitted", async () => {
+
+        });
+
+        it.skip("finds an element if it appears before the timeout", () => {
+
+        });
+
+        it.skip("doesn't find an element if it appears after the timeout", () => {
+
+        });
+
+        it.skip("sends back an element as soon as one is found", () => {
+
+        });
+
+        it.skip("polls according to the requested poll frequency", () => {
+
+        });
+
+        it.skip("sets an error's continue properly", () => {
+
+        });
+    });
+
+    describe("findAll()", () => {
+        it.skip("sends back all elements if multiple elements are found", async () => {
+
+        });
+
+        it.skip("sends back empty array if nothing is found", async () => {
+
+        });
+
+        it.skip("sends back empty array if nothing is found and timeout is 0", async () => {
+
+        });
+
+        it.skip("sends back empty array if nothing is found and timeout is omitted", async () => {
+
+        });
+
+        it.skip("finds elements if they appear before the timeout", () => {
+
+        });
+
+        it.skip("doesn't find elements if they appear after the timeout", () => {
+
+        });
+
+        it.skip("sends back elements as soon as it finds something", () => {
+
+        });
+
+        it.skip("polls according to the requested poll frequency", () => {
+
+        });
+
+        it.skip("sets an error's continue properly", () => {
+
+        });
+    });
+
+    describe("not()", () => {
+        it.skip("throws error if elements are found", async () => {
+
+        });
+
+        it.skip("doesn't throw error if elements aren't found because they don't exist in the DOM", async () => {
+
+        });
+
+        it.skip("doesn't throw error if elements aren't found because they aren't visible", async () => {
+
+        });
+
+        it.skip("doesn't throw an error if elements disappear before the timeout", () => {
+
+        });
+
+        it.skip("throws an error if elements disappear after the timeout", () => {
+
+        });
+
+        it.skip("polls according to the requested poll frequency", () => {
+
+        });
+
+        it.skip("sets an error's continue properly", () => {
+
         });
     });
 });
