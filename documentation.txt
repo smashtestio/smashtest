@@ -710,7 +710,11 @@ Skipping (-, -s, .s, $s)
             - Marks this and all steps below as skipped. Skips entire branches that are identical to this one.
             - Be careful, when .s is in a function declaration it will affect steps after the function call as well
         - // on a step and all steps under it
+            - Good if you don't want functions to expand (e.g., you have too many branches you don't want showing up in the report,
+                or you have functions whose declarations can't be found yet)
+            - Won't remind you in the report that a step is being skipped
         - // on a step that's a member of a step block
+            - Won't remind you in the report that a step is being skipped
     - Skip all branches passing through a step
         - $s     = don't run entire branch, expand me and below, outputted to report as skipped
             - Will mark skipped entire branches in report
