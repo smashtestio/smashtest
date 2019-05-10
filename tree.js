@@ -620,7 +620,17 @@ class Tree {
             }
         }
 
-        utils.error(`The function '${functionCall.getFunctionCallText()}' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?`, functionCall.filename, functionCall.lineNumber);
+        utils.error(`The function '${functionCall.getFunctionCallText()}' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+${outputBranchAbove()}
+`, functionCall.filename, functionCall.lineNumber);
+
+        function outputBranchAbove() {
+            let str = '';
+            branchAbove.steps.forEach(s => str += `   ${s.text}\n`);
+            return str;
+        }
     }
 
     /**

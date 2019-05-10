@@ -3971,7 +3971,12 @@ Function that doesn't exist
             let functionCall = tree.root.children[0].cloneForBranch();
             assert.throws(() => {
                 tree.findFunctionDeclaration(functionCall, branchAbove);
-            }, "The function 'Function that doesn't exist' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
+            }, `The function 'Function that doesn't exist' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+   Function that doesn't exist
+
+ [file.txt:2]`);
         });
 
         it("rejects function calls to functions that were declared in a different scope", () => {
@@ -3988,7 +3993,12 @@ Other scope -
             let functionCall = tree.root.children[0].cloneForBranch();
             assert.throws(() => {
                 tree.findFunctionDeclaration(functionCall, branchAbove);
-            }, "The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
+            }, `The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+   My function
+
+ [file.txt:2]`);
 
             tree = new Tree();
             tree.parseIn(`
@@ -4005,7 +4015,13 @@ Other scope -
             functionCall = tree.root.children[0].children[0].cloneForBranch();
             assert.throws(() => {
                 tree.findFunctionDeclaration(functionCall, branchAbove);
-            }, "The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:3]");
+            }, `The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+   One scope
+   My function
+
+ [file.txt:3]`);
         });
     });
 
@@ -4966,7 +4982,12 @@ F
 
                 assert.throws(() => {
                     tree.branchify(tree.root);
-                }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:2]");
+                }, `The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+   F
+
+ [file.txt:2]`);
             });
 
             it("branchifies a function call with children, whose function declaration has no children", () => {
@@ -5720,7 +5741,13 @@ F
 
                 assert.throws(() => {
                     tree.branchify(tree.root);
-                }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:5]");
+                }, `The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+   F
+   F
+
+ [file.txt:5]`);
             });
 
             it("doesn't allow a function to call itself and finds a function with the same name beyond", () => {
@@ -13112,7 +13139,13 @@ A -
 
                 assert.throws(() => {
                     tree.generateBranches();
-                }, "The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)? [file.txt:3]");
+                }, `The function 'F' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+   A
+   F
+
+ [file.txt:3]`);
             });
         });
 

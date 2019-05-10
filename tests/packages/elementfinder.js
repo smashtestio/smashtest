@@ -3,11 +3,29 @@ const chaiSubset = require('chai-subset');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
+const {Builder, By, Key, until} = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
 const ElementFinder = require('../../packages/js/elementfinder.js');
 
 chai.use(chaiSubset);
 
-describe("ElementFinder", () => {
+const HEADLESS = true;
+
+describe("ElementFinder", function() {
+    this.driver = null;
+    this.timeout(5000);
+
+    before(async () => {
+        this.driver = await new Builder()
+            .forBrowser('chrome')
+            .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
+            .build();
+    });
+
+    after(async () => {
+        await this.driver.quit();
+    });
+
     describe("parseIn()", () => {
         context("empty EFs", () => {
             it("rejects an empty EF", () => {
