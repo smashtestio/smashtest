@@ -104,8 +104,7 @@ Reports
         - Error.continue
             - If the error obj thrown inside a step has error.continue set to true, the branch will continue executing, though it will still fail
                 if there is one or more failed steps
-            - If error.continue isn't set to true, the step will be marked as a fail, the branch will be failed immediately, and all
-                other branches that go through that step will be automatically skipped (there's no point in repeating steps that are doomed to fail)
+            - If error.continue isn't set to true, the step will be marked as a fail, and the branch will be failed immediately
         - Error.fatal
             - If set, the error will bubble all the way up to the console and will end test execution immediately
         - Timeouts are set by each step on a case-by-case basis
@@ -717,7 +716,7 @@ Skipping (-, -s, .s, $s)
             - Won't remind you in the report that steps are being skipped
     - Skip all branches passing through a step
         - $s     = don't run entire branch, expand me and below, outputted to report as skipped
-            - Will mark skipped entire branches in report
+            - Will mark as skipped entire branches in report
 
 Collapsing (+, +?)
     - Collapsed (+)
