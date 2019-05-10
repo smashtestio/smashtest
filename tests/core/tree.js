@@ -12316,19 +12316,23 @@ D -
                 expect(tree.branches).to.containSubsetInOrder([
                     {
                         steps: [ { text: "A" } ],
-                        isSkipped: undefined
+                        isSkipped: undefined,
+                        log: undefined
                     },
                     {
                         steps: [ { text: "B" } ],
-                        isSkipped: true
+                        isSkipped: true,
+                        log: [ { text: "Branch skipped because it starts with a .s step" } ]
                     },
                     {
                         steps: [ { text: "C" } ],
-                        isSkipped: true
+                        isSkipped: true,
+                        log: [ { text: "Branch skipped because it starts with a .s step" } ]
                     },
                     {
                         steps: [ { text: "D" } ],
-                        isSkipped: undefined
+                        isSkipped: undefined,
+                        log: undefined
                     }
                 ]);
             });
@@ -12597,7 +12601,7 @@ A -
         });
 
         context("$s", () => {
-            it("removes branches under a $s", () => {
+            it("skips branches under a $s", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 A -
@@ -12612,7 +12616,7 @@ A -
 G -
 
 H -
-                `);
+                `, "file.txt");
 
                 tree.generateBranches();
 
@@ -12629,11 +12633,13 @@ H -
                 ]);
 
                 expect(tree.branches[1].isSkipped).to.be.true;
+                expect(tree.branches[1].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:5");
                 expect(tree.branches[1].steps).to.containSubsetInOrder([
                     { text: "A" }, { text: "C" }, { text: "D" }
                 ]);
 
                 expect(tree.branches[2].isSkipped).to.be.true;
+                expect(tree.branches[2].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:5");
                 expect(tree.branches[2].steps).to.containSubsetInOrder([
                     { text: "A" }, { text: "C" }, { text: "E" }
                 ]);
@@ -12664,7 +12670,7 @@ A -
 G - $s
 
 H -
-                `);
+                `, "file.txt");
 
                 tree.generateBranches();
 
@@ -12681,16 +12687,20 @@ H -
                 ]);
 
                 expect(tree.branches[1].isSkipped).to.be.true;
+                expect(tree.branches[1].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:5");
                 expect(tree.branches[1].steps).to.containSubsetInOrder([
                     { text: "A" }, { text: "C" }, { text: "D" }
                 ]);
 
                 expect(tree.branches[2].isSkipped).to.be.true;
+                expect(tree.branches[2].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:5");
+                expect(tree.branches[2].log[1].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:9");
                 expect(tree.branches[2].steps).to.containSubsetInOrder([
                     { text: "A" }, { text: "C" }, { text: "E" }
                 ]);
 
                 expect(tree.branches[3].isSkipped).to.be.true;
+                expect(tree.branches[3].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:11");
                 expect(tree.branches[3].steps).to.containSubsetInOrder([
                     { text: "G" }
                 ]);

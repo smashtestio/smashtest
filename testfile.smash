@@ -6,6 +6,6 @@
         Mobile
         Desktop
 
-            Skip -s
+            Wait '1' seconds
 
-                Wait '1' seconds
+                Skip $s -

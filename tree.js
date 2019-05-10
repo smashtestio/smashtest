@@ -1304,6 +1304,7 @@ class Tree {
         this.branches.forEach(branch => {
             if(branch.steps[0].isSkipBelow) {
                 branch.isSkipped = true;
+                branch.appendToLog(`Branch skipped because it starts with a .s step`);
             }
         });
 
@@ -1311,6 +1312,11 @@ class Tree {
         this.branches.forEach(branch => {
             if(branch.isSkipBranch) {
                 branch.isSkipped = true;
+                branch.steps.forEach(s => {
+                    if(s.isSkipBranch) {
+                        branch.appendToLog(`Branch skipped because a $s step was encountered at ${s.filename}:${s.lineNumber}`);
+                    }
+                });
             }
         });
 
