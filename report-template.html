@@ -406,6 +406,21 @@
                 cursor: default;
             }
 
+            .preview-pane .close {
+                display: inline;
+                position: absolute;
+                top: 0;
+                right: 0;
+                color: rgb(110,110,110);
+                font-size: 30px;
+                cursor: pointer;
+                padding: 10px 24px 0 0;
+            }
+
+            .preview-pane .close:hover {
+                color: rgb(150,150,150);
+            }
+
             .preview-pane .preview-name {
                 margin-bottom: 10px;
             }
@@ -565,6 +580,7 @@ down  = next step
 left  = collapse
 right = expand
 space = toggle before/after
+esc   = close preview
 h     = copy hash
 c     = copy debug command <span class="keystroke-command">smashtest -d=hash</span>
                 `);
@@ -878,6 +894,9 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             this.showNotification(`Copied  <span class="copied-text">${command}</span> to clipboard`);
                         }
                     }
+                    else if(event.key == 'Escape') { // esc key
+                        this.setPreview(null);
+                    }
 
                     function getActiveIndex() {
                         let lines = document.querySelectorAll(".line");
@@ -960,7 +979,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         <div className="main" tabIndex="0" onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp} ref={elem => this.me = elem}>
                             <div id="notification"><span className="notification-text"></span></div>
                             <TreePane data={this.state} setPreview={this.setPreview}/>
-                            <PreviewPane previewedItem={this.state.previewedItem} live={this.state.live}/>
+                            <PreviewPane previewedItem={this.state.previewedItem} setPreview={this.setPreview} live={this.state.live}/>
                         </div>
                     );
                 }
@@ -1512,7 +1531,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 render() {
                     if(this.props.previewedItem) {
                         return (
-                            <Preview previewedItem={this.props.previewedItem} live={this.props.live}/>
+                            <Preview previewedItem={this.props.previewedItem} setPreview={this.props.setPreview} live={this.props.live}/>
                         );
                     }
                     else {
@@ -1600,6 +1619,8 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                 return (
                     <div className={className}>
+                        <div className="close" onClick={() => {props.setPreview(null)}}>&#xd7;</div>
+
                         <div className={headerClassName}>
                             {previewedItemText}
                         </div>
