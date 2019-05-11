@@ -5,13 +5,13 @@ class ElementFinder {
     /**
      * Constructs this EF, which represents a single line in an EF (and links to its child EFs)
      * @param {String} str - The string to parse, may contain multiple lines representing an element and its children
-     * @param {ElementFinder} [parent] - The ElementFinder that's the parent of this one, none if ommitted
      * @param {Object} [definedProps] - An object containing a map of prop names to ElementFinders or functions
      * @param {Function} [logger] - The function used to log, takes in one parameter that is the string to log
+     * @param {ElementFinder} [parent] - The ElementFinder that's the parent of this one, none if ommitted
      * @param {Number} [lineNumberOffset] - Offset line numbers by this amount (if this EF has a parent), 0 if omitted
      * @throws {Error} If there is a parse error
      */
-    constructor(str, parent, definedProps, logger, lineNumberOffset) {
+    constructor(str, definedProps, logger, parent, lineNumberOffset) {
         this.counter = { min: 1, max: 1 };   // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
         this.props = [];           // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
@@ -24,7 +24,7 @@ class ElementFinder {
                                    // a selector is converted to the prop "selector 'text'"
                                    // an ord is converted to the prop "position 'N'"
 
-        this.parent = parent;      // Parent EF, null if none
+        this.parent = parent;      // Parent EF, if one exists
         this.children = [];        // Array of ElementFinder. The children of this EF.
 
         this.isElemArray = false;  // If true, this is an element array
@@ -35,7 +35,7 @@ class ElementFinder {
         this.lineNumberOffset = lineNumberOffset || 0;
 
         // Parse str into this EF
-        this.parseIn(str, definedProps);
+        this.parseIn(str, definedProps || ElementFinder.defaultProps());
     }
 
     /**
@@ -49,12 +49,16 @@ class ElementFinder {
             throw new Error(`Cannot create an empty ElementFinder`);
         }
 
+        if(!definedProps) {
+            definedProps = {};
+        }
+
         let lines = str.split(/\n/);
 
         // Strip out // comments
         for(let k = 0; k < lines.length; k++) {
             let line = lines[k];
-            line = line.replace(Constants.SINGLE_QUOTE_STR, '').replace(Constants.DOUBLE_QUOTE_STR, ''); // remove strings, since a // inside a string doesn't count
+            line = line.replace(Constants.QUOTED_STRING_LITERAL, ''); // remove strings, since a // inside a string doesn't count
             let matches = line.match(/\/\/.*$/);
             if(matches) {
                 lines[k] = line.replace(matches[0], '');
@@ -94,7 +98,9 @@ class ElementFinder {
                 utils.error(`ElementFinder cannot have a line that's indented left of the first line`, filename, lineNumber);
             }
             else if(indents == 0) {
-                utils.error(`ElementFinder cannot have more than one line at indent 0`, filename, lineNumber);
+                if(this.parent) {
+                    utils.error(`ElementFinder cannot have more than one line at indent 0`, filename, lineNumber);
+                }
             }
             else if(indents == 1) {
                 childStrs.push(line); // a new child is formed
@@ -109,7 +115,7 @@ class ElementFinder {
         }
 
         childStrs.forEach(str => {
-            this.children.push(new ElementFinder(str, this, definedProps, logger, i + this.lineNumberOffset));
+            this.children.push(new ElementFinder(str, definedProps, logger, this, i + this.lineNumberOffset));
         });
 
         // Parse parentLine
@@ -169,7 +175,7 @@ class ElementFinder {
                 }
 
                 // Split into comma-separated props
-                let propStrs = parentLine.match(PROP_REGEX);
+                let propStrs = parentLine.match(PROP_REGEX).filter(propStr => propStr.trim() != '');
 
                 for(let i = 0; i < propStrs.length; i++) {
                     let propStr = propStrs[i].trim();
@@ -186,27 +192,29 @@ class ElementFinder {
                     if(matches) {
                         propStr = `position '${parseInt(matches[1])}'`;
                     }
-
-                    // 'text' (convert to `contains 'text'`)
-                    let textMatches = propStr.match(new RegExp(`^${Constants.SINGLE_QUOTE_STR.source}$`)) || propStr.match(new RegExp(`^${Constants.DOUBLE_QUOTE_STR.source}$`));
-                    if(textMatches) {
-                        propStr = `contains ${propStr}`;
-                    }
-
-                    // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
-                    if(!definedProps.hasOwnProperty(this.canonicalizePropStr(propStr))) {
-                        propStr = `selector '${propStr}'`;
+                    else {
+                        // 'text' (convert to `contains 'text'`)
+                        matches = propStr.match(Constants.QUOTED_STRING_LITERAL_WHOLE);
+                        if(matches) {
+                            propStr = `contains ${propStr}`;
+                        }
+                        else {
+                            // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
+                            if(!definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr))) {
+                                propStr = `selector '${propStr}'`;
+                            }
+                        }
                     }
 
                     // Set prop based on the correct entry in definedProps
-                    let canonPropStr = this.canonicalizePropStr(propStr);
+                    let [canonPropStr, input] = ElementFinder.canonicalizePropStr(propStr);
                     if(definedProps.hasOwnProperty(canonPropStr)) {
                         let propDef = definedProps[canonPropStr];
                         if(typeof propDef == 'function') {
                             prop = {
                                 prop: propStr,
                                 func: propDef,
-                                input: textMatches[0]
+                                input: input
                             };
                         }
                         else { // EF
@@ -217,7 +225,7 @@ class ElementFinder {
                         }
                     }
                     else { // rare case (usually if someone explicitly overrides the selector prop)
-                        utils.error(`Cannot find property that matches '${propStr}'`, filename, parentLineNumber);
+                        utils.error(`Cannot find property that matches \`${propStr}\``, filename, parentLineNumber);
                     }
 
                     this.props.push(prop);
@@ -411,15 +419,23 @@ class ElementFinder {
     }
 
     /**
-     * Removes 'text' and canonicalizes the text of a prop
+     * Canonicalizes the text of a prop and isolates the input
+     * @return {Array} Where index 0 contains str canonicalized and without 'text', and index 1 contains the input (undefined if no input)
      */
     static canonicalizePropStr(str) {
-        return str
-            .replace(Constants.SINGLE_QUOTE_STR, '')
-            .replace(Constants.DOUBLE_QUOTE_STR, '')
+        let canonStr = str
+            .replace(Constants.QUOTED_STRING_LITERAL, '')
             .trim()
             .replace(/\s+/g, ' ')
             .toLowerCase();
+
+        let input = (str.match(Constants.QUOTED_STRING_LITERAL) || [])[0];
+        if(input) {
+            input = utils.stripQuotes(input);
+            input = utils.unescape(input);
+        }
+
+        return [canonStr, input];
     }
 }
 module.exports = ElementFinder;

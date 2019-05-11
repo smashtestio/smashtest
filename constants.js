@@ -33,6 +33,12 @@ exports.STRING_LITERAL = new RegExp(exports.SINGLE_QUOTE_STR.source + "|" + expo
 // Same as STRING_LITERAL, only matches the whole line
 exports.STRING_LITERAL_WHOLE = new RegExp("^(" + exports.STRING_LITERAL.source + ")$");
 
+// Matches "string" or 'string', handles escaped chars
+exports.QUOTED_STRING_LITERAL = new RegExp(exports.SINGLE_QUOTE_STR.source + "|" + exports.DOUBLE_QUOTE_STR.source, "g");
+
+// Same as QUOTED_STRING_LITERAL, only matches the whole line
+exports.QUOTED_STRING_LITERAL_WHOLE = new RegExp("^(" + exports.QUOTED_STRING_LITERAL.source + ")$");
+
 // Matches {var} or {{var}}
 exports.VAR = /\{\{[^\{\}\\]+\}\}|\{[^\{\}\\]+\}/g;
 
