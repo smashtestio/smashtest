@@ -63,10 +63,18 @@
                 padding: 10px 0 10px 8px;
             }
 
+            .tree-pane.full {
+                width: 100%;
+            }
+
             .preview-pane {
                 right: 0;
                 padding: 10px 14px;
                 background-color: rgb(45,45,45);
+            }
+
+            .preview-pane.hidden {
+                display: none;
             }
 
             .tree-header {
@@ -242,6 +250,7 @@
 
             .progress-bar {
                 height: 20px;
+                max-width: 600px;
                 margin: -6px 10px 15px 0;
                 padding-right: 20px;
             }
@@ -960,8 +969,10 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     return "";
                 }
 
+                let className = `pane tree-pane ${!props.data.previewedItem ? `full` : ``}`;
+
                 return (
-                    <div className="pane tree-pane">
+                    <div className={className}>
                         <TreeHeader data={props.data}/>
                         <TreeErrors data={props.data}/>
                         <BranchListing branches={props.data.tree.branches} setPreview={props.setPreview} previewedItem={props.data.previewedItem}/>
@@ -1512,10 +1523,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
             function NoPreview(props) {
                 return (
-                    <div className="pane preview-pane">
-                        <div className="preview-pane-msg">
-                            &lt; Select a step to preview
-                        </div>
+                    <div className="pane preview-pane hidden">
                     </div>
                 );
             }
