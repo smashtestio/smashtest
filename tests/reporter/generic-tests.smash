@@ -233,7 +233,7 @@ Skipping similar branches on fail ! -
 
 
 
-Skipping a skip below step .s
+Skipping a skip below step - .s
 
 
 
@@ -245,7 +245,7 @@ Normal step -
 
 Skipping similar branches for skip below steps ! -
 
-    Skip below step .s
+    Skip below step - .s
 
         Branch one will be run, but not including the skip below step above -
         Branch two will be skipped entirely -
