@@ -29,7 +29,6 @@
                 font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
                 margin: 0;
                 padding: 0;
-                overflow-y: hidden;
             }
 
             .main {
@@ -46,15 +45,8 @@
             }
 
             .pane {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                height: 100%;
-                vertical-align: top;
                 border: 0;
                 margin: 0;
-                overflow-y: auto;
-                overflow-x: hidden;
             }
 
             .tree-pane {
@@ -70,9 +62,16 @@
             }
 
             .preview-pane {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                height: 100%;
+                vertical-align: top;
+                overflow-y: auto;
+                overflow-x: hidden;
                 width: calc(100% - 630px);
                 min-width: calc(50% - 30px);
-                right: 0;
                 padding: 10px 14px;
                 background-color: rgb(45,45,45);
             }
@@ -866,14 +865,18 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         let prevIndex = activeIndex - 1;
                         if(activeIndex != -1 && prevIndex >= 0) {
                             lines[prevIndex].click();
+                            scrollIntoView(lines[prevIndex]);
                         }
+                        event.preventDefault();
                     }
                     else if(charCode == '40') { // down arrow
                         let [lines, activeIndex] = getActiveIndex();
                         let nextIndex = activeIndex + 1;
                         if(activeIndex != -1 && nextIndex < lines.length) {
                             lines[nextIndex].click();
+                            scrollIntoView(lines[nextIndex]);
                         }
+                        event.preventDefault();
                     }
                     else if(charCode == '32') { // spacebar
                         if(window.onSpacebarDown) {
@@ -1232,6 +1235,31 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     this.hoverStateOff = this.hoverStateOff.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
                     this.updateCollapsing = this.updateCollapsing.bind(this);
+                }
+
+                /**
+                 * Speeds up React in large reports by only rendering branches that need to be rendered
+                 */
+                shouldComponentUpdate(nextProps, nextState) {
+                    if(!nextProps.previewedItem) { // nothing will be previewed
+                        return true;
+                    }
+                    else if(this.props.previewedItem && this.props.previewedItem === this) { // this branch was previewed
+                        return true;
+                    }
+                    else if(nextProps.previewedItem && nextProps.previewedItem === this) { // this branch will be previewed
+                        return true;
+                    }
+                    else if(this.props.previewedItem && this.props.previewedItem.props.step &&
+                        this.props.branch.steps.includes(this.props.previewedItem.props.step)) { // a step under this branch was previewed
+                        return true;
+                    }
+                    else if(nextProps.previewedItem && nextProps.previewedItem.props.step &&
+                        this.props.branch.steps.includes(nextProps.previewedItem.props.step)) { // a step under this branch will be previewed
+                        return true;
+                    }
+
+                    return false;
                 }
 
                 hoverStateOn() {
@@ -1776,6 +1804,25 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
              */
             function formatErrorMsg(error) {
                 return error.msg + `   [${error.filename}:${error.lineNumber}]`;
+            }
+
+            /**
+             * @return {Boolean} True if elem is in view, false otherwise
+             */
+            function isScrolledIntoView(elem) {
+                var rect = elem.getBoundingClientRect();
+                return (rect.top >= 0) && (rect.bottom <= window.innerHeight);
+            }
+
+            /**
+             * Scrolls elem into view if it's not in view
+             */
+            function scrollIntoView(elem) {
+                if(!isScrolledIntoView(elem)) {
+                    elem.scrollIntoView({
+                        block: 'nearest'
+                    });
+                }
             }
 
             attachTreePaneTooltips();
