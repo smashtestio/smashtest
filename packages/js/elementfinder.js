@@ -80,7 +80,7 @@ class ElementFinder {
         }
 
         let baseIndent = utils.numIndents(parentLine);
-        let filename = '';
+        let filename = 'line';
 
         // Split into children
         let childStrs = [];
@@ -201,7 +201,8 @@ class ElementFinder {
                         }
                         else {
                             // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
-                            if(!definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr))) {
+                            let [canonPropStr, input] = ElementFinder.canonicalizePropStr(propStr);
+                            if(!definedProps.hasOwnProperty(canonPropStr)) {
                                 propStr = `selector '${propStr}'`;
                             }
                         }

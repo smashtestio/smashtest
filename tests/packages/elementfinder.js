@@ -73,6 +73,34 @@ describe("ElementFinder", function() {
                 });
             });
 
+            it("multiple 'text'", () => {
+                let ef = new ElementFinder(`'text1', 'text 2'`);
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `contains 'text1'`,
+                            func: { $typeof: 'function' },
+                            input: `text1`,
+                            not: false
+                        },
+                        {
+                            prop: `contains 'text 2'`,
+                            func: { $typeof: 'function' },
+                            input: `text 2`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
+            });
+
             it("'text' with 'not' keyword", () => {
                 let ef = new ElementFinder(`not 'text'`);
                 Comparer.expect(ef).to.match({
@@ -95,21 +123,116 @@ describe("ElementFinder", function() {
                 });
             });
 
+            it("multiple 'text' with 'not' keyword", () => {
+                let ef = new ElementFinder(`not 'text1', not 'text 2', 'text 3'`);
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `not contains 'text1'`,
+                            func: { $typeof: 'function' },
+                            input: `text1`,
+                            not: true
+                        },
+                        {
+                            prop: `not contains 'text 2'`,
+                            func: { $typeof: 'function' },
+                            input: `text 2`,
+                            not: true
+                        },
+                        {
+                            prop: `contains 'text 3'`,
+                            func: { $typeof: 'function' },
+                            input: `text 3`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
+            });
+
             it("defined property set to an EF", () => {
+                let ef = new ElementFinder(`bold`, {
+                    bold: new ElementFinder(`b`)
+                });
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `bold`,
+                            ef: {
+                                counter: { min: 1, max: 1 },
+                                props: [
+                                    {
+                                        prop: `selector 'b'`,
+                                        func: { $typeof: 'function' },
+                                        input: `b`,
+                                        not: false
+                                    }
+                                ],
 
+                                parent: undefined,
+                                children: [],
 
+                                isElemArray: false,
+                                isAnyOrder: false,
+                                isSubset: false
+                            },
+                            input: undefined
+                        }
+                    ],
 
+                    parent: undefined,
+                    children: [],
 
-
-
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("defined property set to a function", () => {
+            it("defined property set to a function", () => {
+                let ef = new ElementFinder(`bold`, {
+                    bold: (elems, input) => true
+                });
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `bold`,
+                            func: { $typeof: 'function' },
+                            input: undefined,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("defined property with 'text input'", () => {
+            it("defined property with 'text input'", () => {
+
+
+
+
+
+
+
+
+
 
             });
 
