@@ -60,7 +60,7 @@ describe("ElementFinder", function() {
                             prop: `contains 'text'`,
                             func: { $typeof: 'function' },
                             input: `text`,
-                            not: undefined
+                            not: false
                         }
                     ],
 
@@ -73,11 +73,35 @@ describe("ElementFinder", function() {
                 });
             });
 
-            it.skip("'text' with 'not' keyword", () => {
+            it("'text' with 'not' keyword", () => {
+                let ef = new ElementFinder(`not 'text'`);
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `not contains 'text'`,
+                            func: { $typeof: 'function' },
+                            input: `text`,
+                            not: true
+                        }
+                    ],
 
+                    parent: undefined,
+                    children: [],
+
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("defined property set to an EF", () => {
+            it("defined property set to an EF", () => {
+
+
+
+
+
+
 
             });
 

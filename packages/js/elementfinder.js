@@ -16,9 +16,9 @@ class ElementFinder {
 
         this.props = [];           // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
                                    // Each object in the array has the following format:
-                                   //   { prop: 'full prop text', func: function from definedProps, input: 'input text if any', not: true or undefined }
+                                   //   { prop: 'full prop text', func: function from definedProps, input: 'input text if any', not: true or false }
                                    //       or
-                                   //   { prop: 'full prop text', ef: ElementFinder object, not: true or undefined }
+                                   //   { prop: 'full prop text', ef: ElementFinder object }
                                    //
                                    // 'text' is converted to the prop "contains 'text'"
                                    // a selector is converted to the prop "selector 'text'"
@@ -182,9 +182,10 @@ class ElementFinder {
                     let prop = {};
 
                     // not keyword
+                    let isNot = false;
                     if(propStr.match(/^not /)) {
                         propStr = propStr.replace(/^not /, '').trim();
-                        prop.not = true;
+                        isNot = true;
                     }
 
                     // ords (convert to `position 'N'`)
@@ -212,9 +213,10 @@ class ElementFinder {
                         let propDef = definedProps[canonPropStr];
                         if(typeof propDef == 'function') {
                             prop = {
-                                prop: propStr,
+                                prop: (isNot ? 'not ' : '') + propStr,
                                 func: propDef,
-                                input: input
+                                input: input,
+                                not: isNot
                             };
                         }
                         else { // EF
