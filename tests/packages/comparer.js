@@ -221,6 +221,18 @@ describe("Comparer", () => {
 }`);
             });
 
+            it("actual=simple object with undefined keys, expected=same simple object with undefined keys", () => {
+                let obj = Comparer.comparison({ one: 1, two: "2", three: 3, threepointfive: undefined, four: "4", five: undefined }, { one: 1, two: "2", three: 3, threepointfive: undefined, four: "4", five: undefined });
+                expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: 3,
+    threepointfive: undefined,
+    four: "4",
+    five: undefined
+}`);
+            });
+
             it("actual=simple object, expected=same simple object but with a subset of keys", () => {
                 let obj = Comparer.comparison({ one: 1, two: "2", three: 3, four: "4" }, { one: 1, two: "2" });
                 expect(Comparer.print(obj)).to.equal(`{
@@ -1733,6 +1745,16 @@ describe("Comparer", () => {
     two: "2",
     three: null,
     four: undefined
+}`);
+                });
+
+                it("actual=simple object with undefineds, expected=$exact with same simple object but without undefineds", () => {
+                    let obj = Comparer.comparison( { one: 1, two: "2", three: null, four: undefined }, { $exact: true, one: 1, two: "2", three: null } );
+                    expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: null,
+    four: undefined  -->  this key isn't in $exact object
 }`);
                 });
 

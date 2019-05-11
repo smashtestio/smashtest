@@ -254,6 +254,9 @@ API Testing
                 - E.g., expected [ A, B, C ] means actual must be [ A, B, C ] exactly
             - Expected objects without $-modifiers are subset matching by default
                 - E.g., expected { one: 1 } will match { one: 1, two: 2 } but not { one: 3 } or { two: 2 }
+                - expected { one: undefined, two: 2 } will match { one: undefined, two: 2 } or { two: 2 }
+                    - To validate one: undefined is actually there, use one: { $typeof: 'undefined' }
+                    - To validate one: undefined is actually not there, use { $exact: true, two: 2 }
         - Special matching objects in expectedObj (correspond to values in actualObj)
             - $typeof
                 - { $typeof: "type" }
