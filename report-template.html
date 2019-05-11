@@ -410,7 +410,7 @@
 
             .preview-pane .close {
                 display: inline;
-                position: absolute;
+                position: fixed;
                 top: 0;
                 right: 0;
                 color: rgb(110,110,110);
@@ -761,7 +761,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                  * @param {Boolean} [force] - If true, updates the state regardless of whether updates are currently paused on a preview
                  */
                 updateState(force) {
-                    if((!this.state.previewedItem && this.preState) || force) {
+                    if((!this.state.previewedItem || force) && this.preState) {
                         this.uncollapseSteps(this.preState.tree);
                         this.setState({
                             tree: this.preState.tree,
@@ -888,6 +888,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         if(window.onSpacebarDown) {
                             window.onSpacebarDown();
                         }
+                        event.preventDefault();
                     }
                     else if(charStr == 'H') {
                         if(this.state.previewedItem) {
@@ -1250,7 +1251,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     if(this.state.hovered != nextState.hovered) { // hover state changed
                         return true;
                     }
-                    else if(!nextProps.previewedItem) { // nothing will be previewed (need to update whole tree, in case we're running)
+                    else if(!nextProps.previewedItem) { // nothing will be previewed (need to update whole tree, in case we were running and something changed)
                         return true;
                     }
                     else if(this.props.previewedItem && this.props.previewedItem === this) { // this branch was previewed
@@ -1589,111 +1590,122 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 );
             }
 
-            function Preview(props) {
-                let previewedItem = props.previewedItem.props.step || props.previewedItem.props.branch;
-                let isBranch = previewedItem.hasOwnProperty("steps");
-
-                let headerClassName = "header preview-name ";
-                let previewStateClassName = "preview-state ";
-                let previewStateText = "";
-                let pill = "";
-                if(previewedItem.isRunning) {
-                    headerClassName += "running-item-no-anim";
-                    previewStateClassName += "running-item";
-                    previewStateText = "Currently running";
+            class Preview extends React.Component {
+                constructor() {
+                    super();
+                    this.handleCloseClick = this.handleCloseClick.bind(this);
                 }
-                else if(previewedItem.isPassed) {
-                    const className = "passed-item";
-                    headerClassName += className;
-                    previewStateClassName += className;
 
-                    previewStateText = "Passed";
+                handleCloseClick() {
+                    this.props.setPreview(null);
                 }
-                else if(previewedItem.isFailed) {
-                    const className = "failed-item";
-                    headerClassName += className;
-                    previewStateClassName += className;
 
-                    previewStateText = "Failed";
+                render() {
+                    let previewedItem = this.props.previewedItem.props.step || this.props.previewedItem.props.branch;
+                    let isBranch = previewedItem.hasOwnProperty("steps");
 
-                    if(previewedItem.error && previewedItem.error.continue) {
-                        previewStateText += ", but continued branch";
+                    let headerClassName = "header preview-name ";
+                    let previewStateClassName = "preview-state ";
+                    let previewStateText = "";
+                    let pill = "";
+                    if(previewedItem.isRunning) {
+                        headerClassName += "running-item-no-anim";
+                        previewStateClassName += "running-item";
+                        previewStateText = "Currently running";
                     }
-                }
-                else if(previewedItem.isSkipped) {
-                    const className = "skipped-item";
-                    headerClassName += className;
-                    previewStateClassName += className;
-                    previewStateText = "Skipped";
-                }
-                else { // Not run yet
-                    const className = "notrunyet-item";
-                    headerClassName += className;
-                    previewStateClassName += className;
-                    previewStateText = "Not run yet";
-                }
+                    else if(previewedItem.isPassed) {
+                        const className = "passed-item";
+                        headerClassName += className;
+                        previewStateClassName += className;
 
-                let elapsedText = "";
-                let elapsed = previewedItem.elapsed;
-                if(typeof elapsed != "undefined" && elapsed != -1) {
-                    elapsedText = `(${formatElapsed(elapsed)})`;
-                }
+                        previewStateText = "Passed";
+                    }
+                    else if(previewedItem.isFailed) {
+                        const className = "failed-item";
+                        headerClassName += className;
+                        previewStateClassName += className;
 
-                let className = `pane preview-pane ${isBranch ? "branch-preview" : "step-preview"}`;
+                        previewStateText = "Failed";
 
-                let previewedItemText = "";
-                if(isBranch) {
-                    previewedItemText = `Branch ${props.previewedItem.props.branch.hash}`;
-                }
-                else {
-                    previewedItemText = stepText(previewedItem);
-                }
+                        if(previewedItem.error && previewedItem.error.continue) {
+                            previewStateText += ", but continued branch";
+                        }
+                    }
+                    else if(previewedItem.isSkipped) {
+                        const className = "skipped-item";
+                        headerClassName += className;
+                        previewStateClassName += className;
+                        previewStateText = "Skipped";
+                    }
+                    else { // Not run yet
+                        const className = "notrunyet-item";
+                        headerClassName += className;
+                        previewStateClassName += className;
+                        previewStateText = "Not run yet";
+                    }
 
-                let postPreviewedItemText = "";
-                if(isBranch) {
-                    postPreviewedItemText = `[${previewedItem.steps[previewedItem.steps.length - 1].filename}:${previewedItem.steps[previewedItem.steps.length - 1].lineNumber}] ${elapsedText}`;
-                }
-                else {
-                    postPreviewedItemText = `[${previewedItem.filename}:${previewedItem.lineNumber}] ${elapsedText}`;
-                }
+                    let elapsedText = "";
+                    let elapsed = previewedItem.elapsed;
+                    if(typeof elapsed != "undefined" && elapsed != -1) {
+                        elapsedText = `(${formatElapsed(elapsed)})`;
+                    }
 
-                return (
-                    <div className={className}>
-                        <div className="close" onClick={() => {props.setPreview(null)}}>&#xd7;</div>
+                    let className = `pane preview-pane ${isBranch ? "branch-preview" : "step-preview"}`;
 
-                        <div className={headerClassName}>
-                            {previewedItemText}
+                    let previewedItemText = "";
+                    if(isBranch) {
+                        previewedItemText = `Branch ${this.props.previewedItem.props.branch.hash}`;
+                    }
+                    else {
+                        previewedItemText = stepText(previewedItem);
+                    }
+
+                    let postPreviewedItemText = "";
+                    if(isBranch) {
+                        postPreviewedItemText = `[${previewedItem.steps[previewedItem.steps.length - 1].filename}:${previewedItem.steps[previewedItem.steps.length - 1].lineNumber}] ${elapsedText}`;
+                    }
+                    else {
+                        postPreviewedItemText = `[${previewedItem.filename}:${previewedItem.lineNumber}] ${elapsedText}`;
+                    }
+
+                    return (
+                        <div className={className}>
+                            <div className="close" onClick={this.handleCloseClick}>&#xd7;</div>
+
+                            <div className={headerClassName}>
+                                {previewedItemText}
+                            </div>
+
+                            <div className={previewStateClassName}>
+                                {previewStateText}
+                                {pill}
+                                <span className="location">{postPreviewedItemText}</span>
+                            </div>
+
+                            <div className="msg">
+                                {
+                                    isBranch ?
+                                    "" :
+                                    <span>Branch {this.props.previewedItem.props.branch.hash} <span className="commandline-hint">Hover here for keystrokes</span></span>
+                                }
+                            </div>
+
+                            <div className="preview-divider">
+                                {
+                                    this.props.live ?
+                                    <div className="msg updates-paused">
+                                        Live updates paused. Close this preview to resume live updates.
+                                    </div> :
+                                    ''
+                                }
+                            </div>
+
+                            <PreviewError previewedItem={previewedItem}/>
+                            {isBranch ? "" : <PreviewDetails previewedItem={previewedItem}/>}
+                            <PreviewLogs previewedItem={previewedItem}/>
                         </div>
-
-                        <div className={previewStateClassName}>
-                            {previewStateText}
-                            {pill}
-                            <span className="location">{postPreviewedItemText}</span>
-                        </div>
-
-                        <div className="msg">
-                            {
-                                isBranch ?
-                                "" :
-                                <span>Branch {props.previewedItem.props.branch.hash} <span className="commandline-hint">Hover here for keystrokes</span></span>
-                            }
-                        </div>
-
-                        <div className="preview-divider">
-                            {
-                                props.live ?
-                                <div className="msg updates-paused">
-                                    Live updates paused. Close this preview to resume live updates.
-                                </div> :
-                                ''
-                            }
-                        </div>
-
-                        <PreviewError previewedItem={previewedItem}/>
-                        {isBranch ? "" : <PreviewDetails previewedItem={previewedItem}/>}
-                        <PreviewLogs previewedItem={previewedItem}/>
-                    </div>
-                );
+                    );
+                }
             }
 
             function PreviewError(props) {
