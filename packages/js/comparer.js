@@ -20,7 +20,7 @@ class Comparer {
                     actualObj = clonedeep(actualObj);
                     let comp = this.comparison(actualObj, expectedObj);
                     if(this.hasErrors(comp)) {
-                        throw new Error(this.print(comp));
+                        throw new Error('\n' + this.print(comp));
                     }
                 }
             }
@@ -331,7 +331,7 @@ class Comparer {
                     else {
                         // Make sure every key in expected matches every key in actual
                         for(let key of expectedKeys) {
-                            if(!actual || !actual.hasOwnProperty(key)) {
+                            if(!actual || (!actual.hasOwnProperty(key) && expected[key] !== undefined)) {
                                 errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
                             }
                             else if(!this.isComparerNode(actual[key])) { // skip over keys in actual already "visited"
