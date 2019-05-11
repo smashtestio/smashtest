@@ -205,6 +205,22 @@ describe("Comparer", () => {
 }`);
             });
 
+            it("actual=simple object, expected=same simple object with keys set to typeof undefined", () => {
+                let obj = Comparer.comparison({ one: 1, two: "2", three: 3, four: "4" }, { one: 1, two: "2", three: 3, threepointfive: { $typeof: "undefined" }, four: "4", five: undefined });
+                expect(Comparer.print(obj)).to.equal(`{
+    one: 1,
+    two: "2",
+    three: 3,
+    four: "4",
+    five: undefined
+
+    --> missing
+    threepointfive: {
+        $typeof: "undefined"
+    }
+}`);
+            });
+
             it("actual=simple object, expected=same simple object but with a subset of keys", () => {
                 let obj = Comparer.comparison({ one: 1, two: "2", three: 3, four: "4" }, { one: 1, two: "2" });
                 expect(Comparer.print(obj)).to.equal(`{
