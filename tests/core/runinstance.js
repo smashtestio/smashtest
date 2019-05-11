@@ -3859,7 +3859,7 @@ My function
 Something {
     let a = "a";
     let b = "b";
-    c; // will throw an exception
+    cc; // will throw an exception
     let d = "d";
 }
                 `, "file.txt");
@@ -3895,7 +3895,7 @@ Something {
                 runInstance.badFunc = () => {
                     let a = "a";
                     let b = "b";
-                    c;
+                    cc;
                     let d = "d";
                 };
 
@@ -3918,7 +3918,7 @@ First {
     runInstance.badFunc = () => {
         let a = "a";
         let b = "b";
-        c;
+        cc;
         let d = "d";
     };
 }
@@ -3989,7 +3989,7 @@ tree.parseIn(`
 * Packaged function {
     let a = "a";
     let b = "b";
-    c; // will throw an exception
+    cc; // will throw an exception
     let d = "d";
 }
                 `, "package.txt", true);
@@ -4135,7 +4135,7 @@ A -
     Something {
         let a = "A";
         let b = "B";
-        c;
+        cc;
         let d = "D";
     }
         My function
