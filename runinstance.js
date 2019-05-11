@@ -713,6 +713,13 @@ class RunInstance {
             return runInstance.i(name1, name2);
         }
 
+        function c(s) {
+            console.log(''); // outputs empty lines so s is completely clear of the progress bar in the console
+            console.log('');
+            console.log(s);
+            console.log('');
+        }
+
         // Generate code
         const JS_VARNAME_WHITELIST = /^[A-Za-z\_\$][A-Za-z0-9\_\$]*$/;
         const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;

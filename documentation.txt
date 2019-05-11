@@ -121,6 +121,9 @@ Reports
         just one step. When you name a test, you're really just providing a crude summary of one of the steps towards the end.
         Really, naming is useless and only slows you down.
 
+Modifiers
+    - Table of modifiers and quick summaries for each
+
 Step blocks
     - Vertical list of 2 or more steps, no blank lines in between
     - Must end in an empty line if it has children
@@ -686,6 +689,7 @@ Code blocks
         - i(varName, packageName) or i(packageName) - sets persistent var varName and returns the object
             - If only packageName passed in, generates it by camel casing packageName, e.g., one-two-three --> oneTwoThree
             - Usage: let chai = i('chai');
+        - c() - same as console.log(), but prints it out more neatly (and clear of the progress bar)
         - runInstance object (quick summary)
             - runInstance.currStep
             - runInstance.currBranch
