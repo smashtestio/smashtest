@@ -12,13 +12,14 @@ class Comparer {
      * Usage: expect(actualObj).to.match(expectedObj)
      * @param {Object} actualObj - The object to check. Must not have circular references or multiple references to the same object inside. Could be an array.
      * @param {Object} expectedObj - The object specifying criteria for actualObj to match
+     * @param {Boolean} [roughClone] - If true, compares using the rough clone method (which handles multiple references to the same object inside actualObj, but also converts undefineds to nulls)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static expect(actualObj) {
+    static expect(actualObj, roughClone) {
         return {
             to: {
                 match: (expectedObj) => {
-                    actualObj = this.clone(actualObj);
+                    actualObj = this.clone(actualObj, roughClone);
                     let comp = this.comparison(actualObj, expectedObj);
                     if(this.hasErrors(comp)) {
                         throw new Error('\n' + this.print(comp));
@@ -550,14 +551,17 @@ class Comparer {
     }
 
     /**
+     * @param {Anything} value - Any value
+     * @param {Boolean} [roughClone] - If true, compares using the rough clone method
      * @return A clone of the given value
      * NOTE: when there are multiple references to the same object within value, that will be retained in the clone
      */
-    static clone(value) {
-        return clonedeep(value);
+    static clone(value, roughClone) {
+        return roughClone ? this.roughClone(value) : clonedeep(value);
     }
 
     /**
+     * @param {Anything} value - Any value
      * @return A clone of the given value
      * NOTE: When there are multiple references to the same object within value, they will be separate objects in the clone
      * NOTE: An undefined value will be converted to a null

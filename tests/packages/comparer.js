@@ -4,7 +4,7 @@ const assert = chai.assert;
 const utils = require('../../utils.js');
 const Comparer = require('../../packages/js/comparer.js');
 
-describe("Comparer", () => {
+describe.only("Comparer", () => {
     describe("expect()", () => {
         it("doesn't throw an exception if there's no error and doesn't edit the objects sent in", () => {
             let actual = { one: "foobar" };
@@ -34,7 +34,7 @@ describe("Comparer", () => {
             let actual = [ { shared: a }, { shared: a } ];
             let expected = [ { shared: [ 6 ] }, { shared: [ 6 ] } ];
 
-            Comparer.expect(Comparer.roughClone(actual)).to.match(expected);
+            Comparer.expect(actual, true).to.match(expected);
         });
     });
 
