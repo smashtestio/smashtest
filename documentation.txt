@@ -198,9 +198,9 @@ ElementFinders
             - You should list list this one last
         - defined property
             - Setting props
-                - prop('prop name', 'EF')
-                - prop('prop name', (elems, text) => array of elems that match) // the text is the string passed in
-                - prop('prop name', null) // clears prop
+                - prop('prop name', 'EF') // adds to prop definition, an element is matched if it's included in at least one definition
+                - prop('prop name', (elems, input) => array of elems that match) // adds to prop definition, the input is the string passed in
+                - prop('prop name', null) // clears prop completely
             - Built-in properties
                 - enabled|disabled|checked|unchecked|selected|focused|in focus
                 - element // matches any element
@@ -258,6 +258,7 @@ API Testing
     - Comparer (built-in library for validating json)
         - Comparer.expect(actualObj).to.match(expectedObj)
             - Throws error if matching fails, containing whole json object prettified, with a ---> + explanation next to each line that didn't match
+            - actualObj must not have circular references or multiple references to the same object inside
         - Defaults
             - Expected arrays without $-modifiers are exact match by default
                 - E.g., expected [ A, B, C ] means actual must be [ A, B, C ] exactly

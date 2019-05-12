@@ -1,6 +1,7 @@
 const clonedeep = require('lodash/clonedeep');
 
 const RESERVED_KEYWORDS = ['$typeof', '$regex', '$contains', '$max', '$min', '$code', '$length', '$maxLength', '$minLength', '$subset', '$anyOrder', '$exact', '$every'];
+const DEBUG = false;
 
 class Comparer {
     constructor() {
@@ -9,7 +10,7 @@ class Comparer {
     /**
      * Compares the actual object against the expected object
      * Usage: expect(actualObj).to.match(expectedObj)
-     * @param {Object} actualObj - The object to check. Must not have circular references. Could be an array.
+     * @param {Object} actualObj - The object to check. Must not have circular references or multiple references to the same object inside. Could be an array.
      * @param {Object} expectedObj - The object specifying criteria for actualObj to match
      * @throws {Error} If actualObj doesn't match expectedObj
      */
@@ -17,7 +18,7 @@ class Comparer {
         return {
             to: {
                 match: (expectedObj) => {
-                    actualObj = clonedeep(actualObj);
+                    actualObj = this.clone(actualObj);
                     let comp = this.comparison(actualObj, expectedObj);
                     if(this.hasErrors(comp)) {
                         throw new Error('\n' + this.print(comp));
@@ -38,6 +39,9 @@ class Comparer {
      */
     static comparison(actual, expected, subsetMatching) {
         let errors = [];
+
+        let origActual = DEBUG && this.clone(actual);
+        let origExpected = DEBUG && this.clone(expected);
 
         if(typeof expected == 'object') {
             if(expected === null) { // remember, typeof null is "object"
@@ -69,7 +73,7 @@ class Comparer {
                         if(['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
                             if(anyOrder || subset) {
                                 // corresponding actual item can be anywhere
-                                let actualClone = clonedeep(actual);
+                                let actualClone = this.clone(actual);
                                 let found = false;
                                 for(let i = 0; i < actualClone.length; i++) {
                                     let actualItem = actualClone[i];
@@ -354,12 +358,24 @@ class Comparer {
             }
         }
         else { // expected is a primitive (also handles functions, undefineds, and other constructs whose typeof isn't object)
-            if(actual !== expected) {
+            if(actual !== expected || (actual && actual.$undefined && expected !== undefined)) {
                 errors.push(`not ${JSON.stringify(expected)}`);
             }
         }
 
-        return { errors: errors, value: actual, $comparerNode: true };
+        let ret = { errors: errors, value: actual, $comparerNode: true };
+
+        if(DEBUG) {
+            console.log("----------");
+            console.log("ACTUAL:");
+            console.log(origActual);
+            console.log("EXPECTED:")
+            console.log(origExpected);
+            console.log("RETURN");
+            console.log(ret);
+        }
+
+        return ret;
     }
 
     /**
@@ -460,7 +476,14 @@ class Comparer {
             }
         }
         else { // primitive
-            ret = JSON.stringify(value) + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
+            if(typeof value == 'function') {
+                value = '[Function]';
+            }
+            else {
+                value = JSON.stringify(value);
+            }
+
+            ret = value + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
         }
 
         if(indents == 0) {
@@ -526,5 +549,21 @@ class Comparer {
         }
     }
 
+    /**
+     * @return A clone of the given value
+     * NOTE: when there are multiple references to the same object within value, that will be retained in the clone
+     */
+    static clone(value) {
+        return clonedeep(value);
+    }
+
+    /**
+     * @return A clone of the given value
+     * NOTE: When there are multiple references to the same object within value, they will be separate objects in the clone
+     * NOTE: An undefined value will be converted to a null
+     */
+    static roughClone(value) {
+        return JSON.parse(JSON.stringify(value));
+    }
 }
 module.exports = Comparer;

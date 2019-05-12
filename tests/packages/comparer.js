@@ -28,6 +28,14 @@ describe("Comparer", () => {
             expect(actual).to.eql( { one: "foobar" } );
             expect(expected).to.eql( { one: "foobar2" } );
         });
+
+        it("handles actual object that contain multiple references to the same object when a rough clone is made", () => {
+            let a = [ 6 ];
+            let actual = [ { shared: a }, { shared: a } ];
+            let expected = [ { shared: [ 6 ] }, { shared: [ 6 ] } ];
+
+            Comparer.expect(Comparer.roughClone(actual)).to.match(expected);
+        });
     });
 
     describe("comparison()", () => {
@@ -158,17 +166,17 @@ describe("Comparer", () => {
 
             it("actual=function, expected=function with same body", () => {
                 let obj = Comparer.comparison(() => {return 1;}, () => {return 1;});
-                expect(Comparer.print(obj)).to.equal(`undefined  -->  not undefined`);
+                expect(Comparer.print(obj)).to.equal(`[Function]  -->  not undefined`);
             });
 
             it("actual=function, expected=primitive", () => {
                 let obj = Comparer.comparison(() => {return 1;}, 1);
-                expect(Comparer.print(obj)).to.equal(`undefined  -->  not 1`);
+                expect(Comparer.print(obj)).to.equal(`[Function]  -->  not 1`);
             });
 
             it("actual=function, expected=undefined", () => {
                 let obj = Comparer.comparison(() => {return 1;}, undefined);
-                expect(Comparer.print(obj)).to.equal(`undefined  -->  not undefined`);
+                expect(Comparer.print(obj)).to.equal(`[Function]  -->  not undefined`);
             });
 
             it("actual=simple object, expected=same simple object", () => {
@@ -881,6 +889,28 @@ describe("Comparer", () => {
                 it("actual=non-array, expected=$typeof array", () => {
                     let obj = Comparer.comparison({}, { $typeof: "array" });
                     expect(Comparer.print(obj)).to.equal(`{  -->  not $typeof array
+}`);
+                });
+
+                it("actual=[], expected=$typeof", () => {
+                    let obj = Comparer.comparison([], [ { $typeof: 'function' } ] );
+                    expect(Comparer.print(obj)).to.equal(`[
+    undefined  -->  not $typeof function
+]`);
+                });
+
+                it("actual={key:[]}, expected=$typeof", () => {
+                    let obj = Comparer.comparison({ key: [] }, { key: [ { $typeof: 'function' } ] });
+                    expect(Comparer.print(obj)).to.equal(`{
+    key: [
+        undefined  -->  not $typeof function
+    ]
+}`);
+                });
+
+                it("actual={}, expected=$typeof function", () => {
+                    let obj = Comparer.comparison({}, { $typeof: 'function' });
+                    expect(Comparer.print(obj)).to.equal(`{  -->  not $typeof function
 }`);
                 });
             });
