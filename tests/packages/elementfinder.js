@@ -1137,6 +1137,14 @@ describe("ElementFinder", function() {
 
         });
 
+        it.skip("finds elements based on 'style'", () => {
+            // style 'name: val'
+        });
+
+        it.skip("doesn't find elements based on 'style'", () => {
+
+        });
+
         it.skip("finds elements based on 'has'", () => {
 
         });

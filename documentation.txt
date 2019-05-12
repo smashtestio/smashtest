@@ -216,6 +216,7 @@ ElementFinders
                 - innerText 'text'
                 - selector '.selector'
                 - xpath 'xpath'
+                - style 'name: val'
                 - has 'selector' (matches this selector or has a child that matches)
                 - position 'N' (same as ord)
         - .css.selector
@@ -244,6 +245,7 @@ ElementFinders
             .parent, 'nearby text'
                 [.child]
         - Counters have to be outside of this, e.g., 4 x [.child]
+        - 'next to' prop has the advantage of being used on one-line EFs inside a step
     - Errors: Output expected object with "  -->  not found on page" on some lines
     - [EF] step prints found elements to browser's console and number of elements found to regular console
     - $() and $$()

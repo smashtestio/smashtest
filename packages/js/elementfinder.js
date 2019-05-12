@@ -423,6 +423,10 @@ class ElementFinder {
 
             },
 
+            'style': (elems, input) => {
+                // input = 'name: val'
+            },
+
             'has': (elems, input) => {
                 // matches this selector or has a child that matches
             },
