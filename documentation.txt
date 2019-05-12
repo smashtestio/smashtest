@@ -16,6 +16,8 @@ Setup
 
 Example file
     - One big example file with each type of step, etc. and // comments explaining stuff
+    - Suggested flow of putting a ~ at the end of a step, ruining browser there, coming up with all permutations on all elements on
+        that page and adding those steps, repeat
 
 Steps
     - Textual steps, packaged steps, functions
@@ -237,8 +239,13 @@ ElementFinders
         - Children listed inside must be a 1 to 1 mapping to children matched by array (same order, same amount), otherwise an Error is thrown
         - If "any order" keyword is present, children can be in any order
         - If "subset" keyword is present, children can be a subset of all matched children
+    - [] around an element(s) to match that element(s). Usually used for children
+        Example:
+            .parent, 'nearby text'
+                [.child]
+        - Counters have to be outside of this, e.g., 4 x [.child]
     - Errors: Output expected object with "  -->  not found on page" on some lines
-    - Print [EF] or P [EF] step prints found elements to browser's console and number of elements found to regular console
+    - [EF] step prints found elements to browser's console and number of elements found to regular console
     - $() and $$()
 
 API Testing

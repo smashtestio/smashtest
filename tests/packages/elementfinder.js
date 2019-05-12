@@ -29,7 +29,7 @@ describe("ElementFinder", function() {
         await this.driver.quit();
     });
 
-    describe("parseIn()", () => {
+    describe.only("parseIn()", () => {
         context("empty EFs", () => {
             it("rejects an empty EF", () => {
                 assert.throws(() => {
@@ -53,11 +53,12 @@ describe("ElementFinder", function() {
         context("one-line EFs", () => {
             it("'text'", () => {
                 let ef = new ElementFinder(`'text'`);
+
                 Comparer.expect(ef).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `contains 'text'`,
+                            prop: `'text'`,
                             func: { $typeof: 'function' },
                             input: `text`,
                             not: false
@@ -67,6 +68,7 @@ describe("ElementFinder", function() {
                     parent: undefined,
                     children: [],
 
+                    matchMe: false,
                     isElemArray: false,
                     isAnyOrder: false,
                     isSubset: false
@@ -75,17 +77,18 @@ describe("ElementFinder", function() {
 
             it("multiple 'text'", () => {
                 let ef = new ElementFinder(`'text1', 'text 2'`);
+
                 Comparer.expect(ef).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `contains 'text1'`,
+                            prop: `'text1'`,
                             func: { $typeof: 'function' },
                             input: `text1`,
                             not: false
                         },
                         {
-                            prop: `contains 'text 2'`,
+                            prop: `'text 2'`,
                             func: { $typeof: 'function' },
                             input: `text 2`,
                             not: false
@@ -95,6 +98,7 @@ describe("ElementFinder", function() {
                     parent: undefined,
                     children: [],
 
+                    matchMe: false,
                     isElemArray: false,
                     isAnyOrder: false,
                     isSubset: false
@@ -103,11 +107,12 @@ describe("ElementFinder", function() {
 
             it("'text' with 'not' keyword", () => {
                 let ef = new ElementFinder(`not 'text'`);
+
                 Comparer.expect(ef).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `not contains 'text'`,
+                            prop: `not 'text'`,
                             func: { $typeof: 'function' },
                             input: `text`,
                             not: true
@@ -117,6 +122,7 @@ describe("ElementFinder", function() {
                     parent: undefined,
                     children: [],
 
+                    matchMe: false,
                     isElemArray: false,
                     isAnyOrder: false,
                     isSubset: false
@@ -125,23 +131,24 @@ describe("ElementFinder", function() {
 
             it("multiple 'text' with 'not' keyword", () => {
                 let ef = new ElementFinder(`not 'text1', not 'text 2', 'text 3'`);
+
                 Comparer.expect(ef).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `not contains 'text1'`,
+                            prop: `not 'text1'`,
                             func: { $typeof: 'function' },
                             input: `text1`,
                             not: true
                         },
                         {
-                            prop: `not contains 'text 2'`,
+                            prop: `not 'text 2'`,
                             func: { $typeof: 'function' },
                             input: `text 2`,
                             not: true
                         },
                         {
-                            prop: `contains 'text 3'`,
+                            prop: `'text 3'`,
                             func: { $typeof: 'function' },
                             input: `text 3`,
                             not: false
@@ -151,6 +158,7 @@ describe("ElementFinder", function() {
                     parent: undefined,
                     children: [],
 
+                    matchMe: false,
                     isElemArray: false,
                     isAnyOrder: false,
                     isSubset: false
@@ -171,7 +179,7 @@ describe("ElementFinder", function() {
                                 counter: { min: 1, max: 1 },
                                 props: [
                                     {
-                                        prop: `selector 'b'`,
+                                        prop: `b`,
                                         func: { $typeof: 'function' },
                                         input: `b`,
                                         not: false
@@ -181,6 +189,7 @@ describe("ElementFinder", function() {
                                 parent: undefined,
                                 children: [],
 
+                                matchMe: false,
                                 isElemArray: false,
                                 isAnyOrder: false,
                                 isSubset: false
@@ -192,6 +201,7 @@ describe("ElementFinder", function() {
                     parent: undefined,
                     children: [],
 
+                    matchMe: false,
                     isElemArray: false,
                     isAnyOrder: false,
                     isSubset: false
@@ -217,6 +227,7 @@ describe("ElementFinder", function() {
                     parent: undefined,
                     children: [],
 
+                    matchMe: false,
                     isElemArray: false,
                     isAnyOrder: false,
                     isSubset: false
@@ -224,24 +235,175 @@ describe("ElementFinder", function() {
             });
 
             it("defined property with 'text input'", () => {
+                let ef = new ElementFinder(`bold "foobar"`, {
+                    bold: (elems, input) => true
+                });
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `bold "foobar"`,
+                            func: { $typeof: 'function' },
+                            input: `foobar`,
+                            not: false
+                        }
+                    ],
 
+                    parent: undefined,
+                    children: [],
 
-
-
-
-
-
-
-
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("defined property with 'not' keyword", () => {
+            it("defined property with 'not' keyword", () => {
+                let ef = new ElementFinder(`not bold "foobar"`, {
+                    bold: (elems, input) => true
+                });
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `not bold "foobar"`,
+                            func: { $typeof: 'function' },
+                            input: `foobar`,
+                            not: true
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("selector", () => {
+            it("selector", () => {
+                let ef = new ElementFinder(`div.class1 .class2`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `div.class1 .class2`,
+                            func: { $typeof: 'function' },
+                            input: `div.class1 .class2`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
+            });
+
+            it("handles selectors with one single quote", () => {
+                let ef = new ElementFinder(`div.class1 .class2'`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `div.class1 .class2'`,
+                            func: { $typeof: 'function' },
+                            input: `div.class1 .class2'`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
+            });
+
+            it("handles selectors with two single quotes", () => {
+                let ef = new ElementFinder(`div[attr='foobar']`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `div[attr='foobar']`,
+                            func: { $typeof: 'function' },
+                            input: `div[attr='foobar']`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
+            });
+
+            it("handles selectors with one double quote", () => {
+                let ef = new ElementFinder(`div.class1 .class2"`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `div.class1 .class2"`,
+                            func: { $typeof: 'function' },
+                            input: `div.class1 .class2"`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
+            });
+
+            it("handles selectors with two double quotes", () => {
+                let ef = new ElementFinder(`div[attr="foobar"]`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `div[attr="foobar"]`,
+                            func: { $typeof: 'function' },
+                            input: `div[attr="foobar"]`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
             it.skip("selector with 'not' keyword", () => {
@@ -282,6 +444,14 @@ describe("ElementFinder", function() {
 
             it.skip("multiple items separated by commas", () => {
 
+            });
+
+            it.skip("multiple items separated by commas with extra whitespace everywhere", () => {
+
+            });
+
+            it.skip("multiple items separated by commas, including selectors with quotes inside", () => {
+                // input[attr='quote'].div[attr='quote'], double quotes too
             });
 
             it.skip("handles 'text' containing commas and escaped quotes", () => {
@@ -343,6 +513,18 @@ describe("ElementFinder", function() {
             });
 
             it.skip("'subset' keyword inside element array", () => {
+
+            });
+
+            it.skip("no [child element]", () => {
+                // matchMe not set anywhere
+            });
+
+            it.skip("[child element]", () => {
+
+            });
+
+            it.skip("multiple [child element]", () => {
 
             });
 
@@ -591,6 +773,14 @@ describe("ElementFinder", function() {
             });
 
             it.skip("handles the 'any order' and 'subset' keywords together", () => {
+
+            });
+
+            it.skip("finds [child elements]", () => {
+
+            });
+
+            it.skip("doesn't find [child elements]", () => {
 
             });
         });

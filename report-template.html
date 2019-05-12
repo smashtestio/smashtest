@@ -1167,19 +1167,19 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             function BranchListing(props) {
                 let branchesRunning = props.branches
                     .filter(branch => branch.isRunning)
-                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
                 let branchesFailed = props.branches
                     .filter(branch => branch.isFailed)
-                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
                 let branchesPassed = props.branches
                     .filter(branch => branch.isPassed)
-                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
                 let branchesSkipped = props.branches
                     .filter(branch => branch.isSkipped)
-                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
                 let branchesNotRunYet = props.branches
                     .filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped)
-                    .map((branch, index) => <Branch key={index} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
 
                 return (
                     <div className="branch-listing">
