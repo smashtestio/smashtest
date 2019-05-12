@@ -4,7 +4,7 @@ const assert = chai.assert;
 const utils = require('../../utils.js');
 const Comparer = require('../../packages/js/comparer.js');
 
-describe.only("Comparer", () => {
+describe("Comparer", () => {
     describe("expect()", () => {
         it("doesn't throw an exception if there's no error and doesn't edit the objects sent in", () => {
             let actual = { one: "foobar" };

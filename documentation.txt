@@ -259,7 +259,7 @@ API Testing
         - Comparer.expect(actualObj).to.match(expectedObj)
             - Throws error if matching fails, containing whole json object prettified, with a ---> + explanation next to each line that didn't match
             - actualObj must not have circular references or multiple references to the same object inside
-                - If expect(actualObj, true), compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds)
+                - If expect(actualObj, true), compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
         - Defaults
             - Expected arrays without $-modifiers are exact match by default
                 - E.g., expected [ A, B, C ] means actual must be [ A, B, C ] exactly

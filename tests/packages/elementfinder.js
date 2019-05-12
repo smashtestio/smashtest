@@ -3,6 +3,7 @@ const chaiSubset = require('chai-subset');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
+const utils = require('../../utils.js');
 const {Builder, By, Key, until} = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const ElementFinder = require('../../packages/js/elementfinder.js');
@@ -15,7 +16,7 @@ const HEADLESS = true;
 describe("ElementFinder", function() {
     this.driver = null;
     this.timeout(5000);
-
+/*
     before(async () => {
         this.driver = await new Builder()
             .forBrowser('chrome')
@@ -28,8 +29,8 @@ describe("ElementFinder", function() {
     after(async () => {
         await this.driver.quit();
     });
-
-    describe.only("parseIn()", () => {
+*/
+    describe("parseIn()", () => {
         context("empty EFs", () => {
             it("rejects an empty EF", () => {
                 assert.throws(() => {
@@ -59,7 +60,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `'text'`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `text`,
                             not: false
                         }
@@ -78,18 +79,18 @@ describe("ElementFinder", function() {
             it("multiple 'text'", () => {
                 let ef = new ElementFinder(`'text1', 'text 2'`);
 
-                Comparer.expect(ef).to.match({
+                Comparer.expect(ef, true).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `'text1'`,
-                            func: { $typeof: 'function' },
+                            defs: { $typeof: 'array' },
                             input: `text1`,
                             not: false
                         },
                         {
                             prop: `'text 2'`,
-                            func: { $typeof: 'function' },
+                            defs: { $typeof: 'array' },
                             input: `text 2`,
                             not: false
                         }
@@ -113,7 +114,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `not 'text'`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `text`,
                             not: true
                         }
@@ -132,24 +133,24 @@ describe("ElementFinder", function() {
             it("multiple 'text' with 'not' keyword", () => {
                 let ef = new ElementFinder(`not 'text1', not 'text 2', 'text 3'`);
 
-                Comparer.expect(ef).to.match({
+                Comparer.expect(ef, true).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `not 'text1'`,
-                            func: { $typeof: 'function' },
+                            defs: { $typeof: 'array' },
                             input: `text1`,
                             not: true
                         },
                         {
                             prop: `not 'text 2'`,
-                            func: { $typeof: 'function' },
+                            defs: { $typeof: 'array' },
                             input: `text 2`,
                             not: true
                         },
                         {
                             prop: `'text 3'`,
-                            func: { $typeof: 'function' },
+                            defs: { $typeof: 'array' },
                             input: `text 3`,
                             not: false
                         }
@@ -167,7 +168,7 @@ describe("ElementFinder", function() {
 
             it("defined property set to an EF", () => {
                 let ef = new ElementFinder(`bold`, {
-                    bold: new ElementFinder(`b`)
+                    bold: [ new ElementFinder(`b`) ]
                 });
 
                 Comparer.expect(ef).to.match({
@@ -175,25 +176,27 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `bold`,
-                            ef: {
-                                counter: { min: 1, max: 1 },
-                                props: [
-                                    {
-                                        prop: `b`,
-                                        func: { $typeof: 'function' },
-                                        input: `b`,
-                                        not: false
-                                    }
-                                ],
+                            defs: [
+                                {
+                                    counter: { min: 1, max: 1 },
+                                    props: [
+                                        {
+                                            prop: `b`,
+                                            defs: [ { $typeof: 'function' } ],
+                                            input: `b`,
+                                            not: false
+                                        }
+                                    ],
 
-                                parent: undefined,
-                                children: [],
+                                    parent: undefined,
+                                    children: [],
 
-                                matchMe: false,
-                                isElemArray: false,
-                                isAnyOrder: false,
-                                isSubset: false
-                            },
+                                    matchMe: false,
+                                    isElemArray: false,
+                                    isAnyOrder: false,
+                                    isSubset: false
+                                }
+                            ],
                             input: undefined
                         }
                     ],
@@ -210,7 +213,7 @@ describe("ElementFinder", function() {
 
             it("defined property set to a function", () => {
                 let ef = new ElementFinder(`bold`, {
-                    bold: (elems, input) => true
+                    bold: [ (elems, input) => true ]
                 });
 
                 Comparer.expect(ef).to.match({
@@ -218,7 +221,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `bold`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: undefined,
                             not: false
                         }
@@ -236,7 +239,7 @@ describe("ElementFinder", function() {
 
             it("defined property with 'text input'", () => {
                 let ef = new ElementFinder(`bold "foobar"`, {
-                    bold: (elems, input) => true
+                    bold: [ (elems, input) => true ]
                 });
 
                 Comparer.expect(ef).to.match({
@@ -244,7 +247,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `bold "foobar"`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `foobar`,
                             not: false
                         }
@@ -262,15 +265,15 @@ describe("ElementFinder", function() {
 
             it("defined property with 'not' keyword", () => {
                 let ef = new ElementFinder(`not bold "foobar"`, {
-                    bold: (elems, input) => true
+                    bold: [ (elems, input) => true ]
                 });
 
-                Comparer.expect(ef).to.match({
+                Comparer.expect(ef, true).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `not bold "foobar"`,
-                            func: { $typeof: 'function' },
+                            defs: { $typeof: 'array' },
                             input: `foobar`,
                             not: true
                         }
@@ -294,7 +297,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `div.class1 .class2`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `div.class1 .class2`,
                             not: false
                         }
@@ -318,7 +321,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `div.class1 .class2'`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `div.class1 .class2'`,
                             not: false
                         }
@@ -342,7 +345,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `div[attr='foobar']`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `div[attr='foobar']`,
                             not: false
                         }
@@ -366,7 +369,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `div.class1 .class2"`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `div.class1 .class2"`,
                             not: false
                         }
@@ -390,7 +393,7 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `div[attr="foobar"]`,
-                            func: { $typeof: 'function' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `div[attr="foobar"]`,
                             not: false
                         }

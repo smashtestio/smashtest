@@ -12,7 +12,7 @@ class Comparer {
      * Usage: expect(actualObj).to.match(expectedObj)
      * @param {Object} actualObj - The object to check. Must not have circular references or multiple references to the same object inside. Could be an array.
      * @param {Object} expectedObj - The object specifying criteria for actualObj to match
-     * @param {Boolean} [roughClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds)
+     * @param {Boolean} [roughClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
     static expect(actualObj, roughClone) {

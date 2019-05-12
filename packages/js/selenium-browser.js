@@ -271,14 +271,25 @@ class SeleniumBrowser {
 
     /**
      * Sets the given ElementFinder property
+     * Clears the property if value is null
      */
     prop(name, value) {
+        if(value === null) {
+            delete this.props[name];
+            return;
+        }
+
         if(typeof value == 'string') {
             // parse it as an EF
             value = new ElementFinder(value, this.props, runInstance.log);
         }
 
-        this.props[name] = value;
+        if(this.props.hasOwnProperty(name)) {
+            this.props[name].push(value);
+        }
+        else {
+            this.props[name] = [ value ];
+        }
     }
 
     // /**

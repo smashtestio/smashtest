@@ -5,7 +5,7 @@ class ElementFinder {
     /**
      * Constructs this EF, which represents a single line in an EF (and links to its child EFs)
      * @param {String} str - The string to parse, may contain multiple lines representing an element and its children
-     * @param {Object} [definedProps] - An object containing a map of prop names to ElementFinders or functions
+     * @param {Object} [definedProps] - An object containing a map of prop names to arrays of ElementFinders or functions (the prop matches if at least one of these EFs or functions match)
      * @param {Function} [logger] - The function used to log, takes in one parameter that is the string to log
      * @param {ElementFinder} [parent] - The ElementFinder that's the parent of this one, none if ommitted
      * @param {Number} [lineNumberOffset] - Offset line numbers by this amount (if this EF has a parent), 0 if omitted
@@ -16,9 +16,7 @@ class ElementFinder {
 
         this.props = [];           // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
                                    // Each object in the array has the following format:
-                                   //   { prop: 'full prop text', func: function from definedProps, input: 'input text if any', not: true or false }
-                                   //       or
-                                   //   { prop: 'full prop text', ef: ElementFinder object }
+                                   //   { prop: 'full prop text', defs: [ EFs or functions ], input: 'input text if any', not: true or false }
                                    //
                                    // 'text' is converted to the prop "contains 'text'"
                                    // a selector is converted to the prop "selector 'text'"
@@ -224,21 +222,13 @@ class ElementFinder {
                     }
 
                     if(definedProps.hasOwnProperty(canonPropStr)) {
-                        let propDef = definedProps[canonPropStr];
-                        if(typeof propDef == 'function') {
-                            prop = {
-                                prop: (isNot ? 'not ' : '') + propStr,
-                                func: propDef,
-                                input: input,
-                                not: isNot
-                            };
-                        }
-                        else { // EF
-                            prop = {
-                                prop: propStr,
-                                ef: propDef
-                            };
-                        }
+                        let defs = definedProps[canonPropStr];
+                        prop = {
+                            prop: (isNot ? 'not ' : '') + propStr,
+                            defs: defs,
+                            input: input,
+                            not: isNot
+                        };
                     }
                     else { // rare case (usually if someone explicitly overrides the selector prop)
                         utils.error(`Cannot find property that matches \`${canonPropStr}\``, filename, parentLineNumber);
@@ -341,100 +331,100 @@ class ElementFinder {
      */
     static defaultProps() {
         return {
-            'enabled': (elems, input) => {
+            'enabled': [ (elems, input) => {
 
-            },
+            } ],
 
-            'disabled': (elems, input) => {
+            'disabled': [ (elems, input) => {
 
-            },
+            } ],
 
-            'checked': (elems, input) => {
+            'checked': [ (elems, input) => {
 
-            },
+            } ],
 
-            'unchecked': (elems, input) => {
+            'unchecked': [ (elems, input) => {
 
-            },
+            } ],
 
-            'selected': (elems, input) => {
+            'selected': [ (elems, input) => {
 
-            },
+            } ],
 
-            'focused': (elems, input) => {
+            'focused': [ (elems, input) => {
 
-            },
+            } ],
 
-            'in focus': (elems, input) => {
+            'in focus': [ (elems, input) => {
 
-            },
+            } ],
 
-            'element': (elems, input) => {
+            'element': [ (elems, input) => {
                 return elems;
-            },
+            } ],
 
-            'clickable': (elems, input) => {
+            'clickable': [ (elems, input) => {
                 // a, button, label, input, textarea, select, cursor:pointer, cursor:pointer when hovered over
                 // maybe if nothing match the above, just send back all elems (so Click step will work with whatever other selectors sent in)
-            },
+            } ],
 
-            'page title': (elems, input) => {
+            'page title': [ (elems, input) => {
 
-            },
+            } ],
 
-            'page title contains': (elems, input) => {
+            'page title contains': [ (elems, input) => {
 
-            },
+            } ],
 
-            'page url': (elems, input) => {
+            'page url': [ (elems, input) => {
                 // relative or absolute
-            },
+            } ],
 
-            'page url contains': (elems, input) => {
+            'page url contains': [ (elems, input) => {
                 // relative or absolute
-            },
+            } ],
 
-            'next to': (elems, input) => {
+            'next to': [ (elems, input) => {
                 // Find closest element by x,y coords to smallest element(s) containing the text? Or just use expanding containers?
-            },
+            } ],
 
-            'value': (elems, input) => {
+            'value': [ (elems, input) => {
                 // elem.value only
-            },
+            } ],
 
-            'exact': (elems, input) => {
+            'exact': [ (elems, input) => {
 
-            },
+            } ],
 
-            'contains': (elems, input) => {
+            'contains': [ (elems, input) => {
                 // Contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
                 // Containing, lower case, trimmed, and whitespace-to-single-space match
-            },
+            } ],
 
-            'innertext': (elems, input) => {
+            'innertext': [ (elems, input) => {
 
-            },
+            } ],
 
-            'selector': (elems, input) => {
+            'selector': [ (elems, input) => {
                 // Handles iframe/iframe/selector
-            },
+            } ],
 
-            'xpath': (elems, input) => {
+            'xpath': [ (elems, input) => {
 
-            },
+            } ],
 
-            'style': (elems, input) => {
+            'style': [ (elems, input) => {
                 // input = 'name: val'
-            },
+            } ],
 
-            'has': (elems, input) => {
+            'has': [ (elems, input) => {
                 // matches this selector or has a child that matches
-            },
+            } ],
 
             // Same as an ord, returns nth elem, where n is 1-indexed
-            'position': (elems, input) => {
+            'position': [ (elems, input) => {
                 return elems[parseInt(input) - 1];
-            }
+            } ]
         };
     }
 
