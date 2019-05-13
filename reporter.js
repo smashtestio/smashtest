@@ -36,7 +36,7 @@ class Reporter {
     async start() {
         // Initialize path variables (if they haven't been already)
         if(!this.datedReportPath) {
-            this.datedReportPath = this.reportsDirPath + "/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_') + (this.tree.isDebug ? "_debug" : "") + ".html";
+            this.datedReportPath = this.reportsDirPath + "/" + (new Date()).toISOString().replace(/\..*$/, '').replace('T', '_').replace(/:/g, '-') + (this.tree.isDebug ? "_debug" : "") + ".html";
         }
 
         // Load template

@@ -103,6 +103,8 @@ class RunInstance {
                 // Execute steps in the branch
                 while(this.currStep) {
                     await this.runStep(this.currStep, this.currBranch, overrideDebug);
+                    await utils.breather();
+
                     overrideDebug = false; // only override a debug on the first step we run after an unpause
                     if(this.checkForPaused() || this.checkForStopped()) {
                         return;

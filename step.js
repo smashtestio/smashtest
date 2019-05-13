@@ -20,9 +20,9 @@ class Step {
 
         this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
         this.text = "";                       // text of the command of the step (not including spaces in front, modifiers, comments, etc.)
-        this.modifiers = [];                // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step
-        this.frontModifiers = [];           // Array of String, modifiers in front of the step text
-        this.backModifiers = [];            // Array of String, modifiers in back of the step text
+        this.modifiers = [];                  // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step
+        this.frontModifiers = [];             // Array of String, modifiers in front of the step text
+        this.backModifiers = [];              // Array of String, modifiers in back of the step text
         this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
@@ -53,7 +53,7 @@ class Step {
         this.containingStepBlock = {};        // the StepBlock that contains this Step
 
         this.originalStepInTree = {};         // when this step is cloned, the clone's originalStepInTree points to the Step from which it was cloned
-        this.level = 0;               // number of function calls deep this step is within its branch
+        this.level = 0;                       // number of function calls deep this step is within its branch
 
         this.isPassed = false;                // true if this step passed after being run
         this.isFailed = false;                // true if this step failed after being run

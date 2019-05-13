@@ -182,3 +182,10 @@ exports.numIndents = (line, filename, lineNumber) => {
         }
     }
 }
+
+/**
+ * Call during big tasks so as not to hog the event loop
+ */
+exports.breather = async () => {
+    await new Promise(r => setTimeout(r, 0));
+}
