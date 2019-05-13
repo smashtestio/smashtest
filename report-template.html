@@ -29,6 +29,7 @@
                 font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
                 margin: 0;
                 padding: 0;
+                overflow-x: hidden;
             }
 
             .main {
@@ -312,6 +313,14 @@
 
             .counts {
                 line-height: 16px;
+            }
+
+            .counts a {
+                text-decoration: none;
+            }
+
+            .counts .count:hover {
+                filter: brightness(1.5);
             }
 
             .line-index {
@@ -1067,27 +1076,27 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             <div className="counts tree-header-item">
                                 {
                                     totalRunning > 0 ?
-                                    <span><span className="running-count running-item"> {totalRunning} running</span> | </span> :
+                                    <span><a className="running-count count running-item" href="#branch-list-running"> {totalRunning} running</a> | </span> :
                                     ""
                                 }
                                 {
                                     props.data.tree.passed > 0 ?
-                                    <span><span className="passed-count passed-item"> {props.data.tree.totalPassedInReport} passed</span> | </span> :
+                                    <span><a className="passed-count count passed-item" href="#branch-list-passed"> {props.data.tree.totalPassedInReport} passed</a> | </span> :
                                     ""
                                 }
                                 {
                                     props.data.tree.failed > 0 ?
-                                    <span><span className="failed-count failed-item"> {props.data.tree.failed} failed</span> | </span> :
+                                    <span><a className="failed-count count failed-item" href="#branch-list-failed"> {props.data.tree.failed} failed</a> | </span> :
                                     ""
                                 }
                                 {
                                     props.data.tree.skipped > 0 ?
-                                    <span><span className="skipped-count skipped-item"> {props.data.tree.skipped} skipped</span> | </span> :
+                                    <span><a className="skipped-count count skipped-item" href="#branch-list-skipped"> {props.data.tree.skipped} skipped</a> | </span> :
                                     ""
                                 }
                                 {
                                     totalNotRunYet > 0 ?
-                                    <span><span className="notrunyet-count notrunyet-item"> {totalNotRunYet} not run yet</span> | </span> :
+                                    <span><a className="notrunyet-count count notrunyet-item" href="#branch-list-notyetrun"> {totalNotRunYet} not run yet</a> | </span> :
                                     ""
                                 }
                                 <span className="total-count notrunyet-item"> {props.data.tree.totalInReport} total branches</span>
@@ -1185,7 +1194,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     <div className="branch-listing">
                         {
                             branchesRunning.length > 0 ? (
-                                <div className="branch-list">
+                                <div className="branch-list" id="branch-list-running">
                                     <div className="header">Branches currently running</div>
                                     {branchesRunning}
                                 </div>
@@ -1194,7 +1203,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                         {
                             branchesFailed.length > 0 ? (
-                                <div className="branch-list">
+                                <div className="branch-list" id="branch-list-failed">
                                     <div className="header">Failed branches</div>
                                     {branchesFailed}
                                 </div>
@@ -1203,7 +1212,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                         {
                             branchesPassed.length > 0 ? (
-                                <div className="branch-list">
+                                <div className="branch-list" id="branch-list-passed">
                                     <div className="header">Passed branches</div>
                                     {branchesPassed}
                                 </div>
@@ -1212,7 +1221,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                         {
                             branchesSkipped.length > 0 ? (
-                                <div className="branch-list">
+                                <div className="branch-list" id="branch-list-skipped">
                                     <div className="header">Skipped branches</div>
                                     {branchesSkipped}
                                 </div>
@@ -1221,7 +1230,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                         {
                             branchesNotRunYet.length > 0 ? (
-                                <div className="branch-list">
+                                <div className="branch-list" id="branch-list-notrunyet">
                                     <div className="header">Branches not run yet</div>
                                     {branchesNotRunYet}
                                 </div>
@@ -1605,9 +1614,8 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     let isBranch = previewedItem.hasOwnProperty("steps");
 
                     let headerClassName = "header preview-name ";
-                    let previewStateClassName = "preview-state ";
+                    let previewStateClassName = "";
                     let previewStateText = "";
-                    let pill = "";
                     if(previewedItem.isRunning) {
                         headerClassName += "running-item-no-anim";
                         previewStateClassName += "running-item";
@@ -1676,9 +1684,8 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                 {previewedItemText}
                             </div>
 
-                            <div className={previewStateClassName}>
-                                {previewStateText}
-                                {pill}
+                            <div className="preview-state">
+                                <span className={previewStateClassName}>{previewStateText}</span>
                                 <span className="location">{postPreviewedItemText}</span>
                             </div>
 
