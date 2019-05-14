@@ -176,9 +176,9 @@ class SeleniumBrowser {
         // Server url
 
         if(!params.serverUrl) {
-            // If serverUrl isn't set, look to the -seleniumServer flag
-            if(this.runInstance.runner.flags.seleniumServer) {
-                params.serverUrl = this.runInstance.runner.flags.seleniumServer;
+            // If serverUrl isn't set, look to the -selenium-server flag
+            if(this.runInstance.runner.flags['selenium-server']) {
+                params.serverUrl = this.runInstance.runner.flags['selenium-server'];
             }
         }
 

@@ -124,44 +124,44 @@ Files
 
 Options
 
-  --debug=<hash> or -d           Run the branch associated with the hash in debug mode
-  --group="<group name>"         Same as -groups, but only one group. Multiple -group's ok.
-                                   Useful for group names with spaces.
-  --groups="<group1>,<group2>"   Only run branches that are part of one of these groups
-  --g:<name>="<value>"           Set the global variable with the given name to the given value,
-                                   before each branch
-  --headless=<true/false>        Overrides default headless behavior (headless unless debugging),
-                                   true if true/false omitted
-  --help or -?                   Open this help prompt
-  --maxInstances=<N>             Do not run more than N branches simultaneously
-  --minFrequency=<high/med/low>  Only run branches at or above this frequency
-  --noDebug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
-  --p:<name>="<value>"           Set the persistent variable with the given name to the given value
-  --random=<true/false>          Whether or not to randomize the order of branches. Default is true.
-  --repl or -r                   Open the REPL (drive SmashTEST from command line)
-  --report=<true/false>          Whether or not to output a report. Default is true.
-  --reportDomain=<url>           Domain and port where report server should run (http://domain:port format)
-  --reportServer=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
-  --seleniumServer=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
-  --screenshots=<true/false>     Whether or not to generate screenshots. Default is true.
-  --skipPassed or -s             Do not run branches that passed last time. Just carry them over
-                                   into new report.
-  --version or -v                Output the version of SmashTEST
+  --debug=<hash> or -d            Run the branch associated with the hash in debug mode
+  --group="<group name>"          Same as -groups, but only one group. Multiple -group's ok.
+                                    Useful for group names with spaces.
+  --groups="<group1>,<group2>"    Only run branches that are part of one of these groups
+  --g:<name>="<value>"            Set the global variable with the given name to the given value,
+                                    before each branch
+  --headless=<true/false>         Overrides default headless behavior (headless unless debugging),
+                                    true if true/false omitted
+  --help or -?                    Open this help prompt
+  --max-instances=<N>             Do not run more than N branches simultaneously
+  --min-frequency=<high/med/low>  Only run branches at or above this frequency
+  --no-debug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
+  --p:<name>="<value>"            Set the persistent variable with the given name to the given value
+  --random=<true/false>           Whether or not to randomize the order of branches. Default is true.
+  --repl or -r                    Open the REPL (drive SmashTEST from command line)
+  --report=<true/false>           Whether or not to output a report. Default is true.
+  --report-domain=<url>           Domain and port where report server should run (http://domain:port format)
+  --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
+  --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
+  --screenshots=<true/false>      Whether or not to generate screenshots. Default is true.
+  --skip-passed or -s             Do not run branches that passed last time. Just carry them over
+                                    into new report.
+  --version or -v                 Output the version of SmashTEST
 `);
                 process.exit();
 
-            case "maxinstances":
+            case "max-instances":
                 runner.maxInstances = value;
                 break;
 
-            case "minfrequency":
+            case "min-frequency":
                 if(['high', 'med', 'low'].indexOf(value) == -1) {
-                    utils.error("Invalid minFrequency argument. Must be either high, med, or low.");
+                    utils.error("Invalid min-frequency argument. Must be either high, med, or low.");
                 }
                 runner.minFrequency = value;
                 break;
 
-            case "nodebug":
+            case "no-debug":
                 runner.noDebug = true;
                 break;
 
@@ -182,21 +182,21 @@ Options
                 runner.report = (value == 'true');
                 break;
 
-            case "reportdomain":
+            case "report-domain":
                 if(!value.match(/^https?/)) { // add an http:// if one is missing
                     value = "http://" + value;
                 }
                 if(!value.match(/^https?\:\/\/[^\/ ]+(\:[0-9]+)?$/)) {
-                    utils.error("Invalid reportDomain");
+                    utils.error("Invalid report-domain");
                 }
                 runner.reportDomain = value;
                 break;
 
-            case "reportserver":
+            case "report-server":
                 runner.reportServer = (value == 'true');
                 break;
 
-            case "skippassed":
+            case "skip-passed":
             case "s":
                 if(value) {
                     runner.skipPassed = value;
@@ -418,11 +418,11 @@ async function runServer() {
         if(runner.skipPassed) {
             let buffer = null;
             if(typeof runner.skipPassed == 'string') {
-                // -skipPassed='filename of report that constitutes last run'
+                // --skip-passed='filename of report that constitutes last run'
                 await reporter.mergeInLastReport(runner.skipPassed);
             }
             else {
-                // -skipPassed with no filename
+                // --skip-passed with no filename
                 // Use last report from /reports that doesn't have debug.html in its name
                 // If one isn't found, use report.html in same directory
 
