@@ -12317,9 +12317,10 @@ G -
     });
 
     describe("generateBranches()", () => {
-        it("sorts branches by {frequency}", () => {
-            let tree = new Tree();
-            tree.parseIn(`
+        context("sorting branches", () => {
+            it("sorts branches by {frequency}", () => {
+                let tree = new Tree();
+                tree.parseIn(`
 A -
     {frequency}='low'
 B -
@@ -12328,28 +12329,57 @@ C -
     {frequency}='high', {var}='foo'
 D -
     {frequency}='med'
-`, "file.txt");
+                `, "file.txt");
 
-            tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
-            expect(tree.branches).to.containSubsetInOrder([
-                {
-                    steps: [ { text: "C" }, { text: "{frequency}='high', {var}='foo'" } ],
-                    frequency: 'high'
-                },
-                {
-                    steps: [ { text: "B" } ],
-                    frequency: undefined
-                },
-                {
-                    steps: [ { text: "D" }, { text: "{frequency}='med'" } ],
-                    frequency: 'med'
-                },
-                {
-                    steps: [ { text: "A" }, { text: "{frequency}='low'" } ],
-                    frequency: 'low'
-                }
-            ]);
+                expect(tree.branches).to.containSubsetInOrder([
+                    {
+                        steps: [ { text: "C" }, { text: "{frequency}='high', {var}='foo'" } ],
+                        frequency: 'high'
+                    },
+                    {
+                        steps: [ { text: "B" } ],
+                        frequency: undefined
+                    },
+                    {
+                        steps: [ { text: "D" }, { text: "{frequency}='med'" } ],
+                        frequency: 'med'
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "{frequency}='low'" } ],
+                        frequency: 'low'
+                    }
+                ]);
+            });
+
+            it("sorts branches randomly without errors and without losing a branch", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+B -
+C -
+D -
+                `, "file.txt");
+
+                tree.generateBranches();
+
+                expect(tree.branches).to.have.lengthOf(4);
+                expect(tree.branches).to.containSubset([
+                    {
+                        steps: [ { text: "A" } ]
+                    },
+                    {
+                        steps: [ { text: "B" } ]
+                    },
+                    {
+                        steps: [ { text: "C" } ]
+                    },
+                    {
+                        steps: [ { text: "D" } ]
+                    }
+                ]);
+            });
         });
 
         context(".s", () => {
@@ -12362,7 +12392,7 @@ C - .s
 D -
                 `, "file.txt");
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(4);
 
@@ -12399,7 +12429,7 @@ A -
             D -
                 `, "file.txt");
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(1);
 
@@ -12433,7 +12463,7 @@ A -
             D - .s
                 `, "file.txt");
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(1);
 
@@ -12477,7 +12507,7 @@ A -
 I -
                 `, "file.txt");
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(8);
 
@@ -12617,7 +12647,7 @@ A -
         D -
                 `, "file.txt");
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches[0].isSkipped).to.be.undefined;
                 expect(tree.branches[0].steps).to.containSubsetInOrder([
@@ -12671,7 +12701,7 @@ G -
 H -
                 `, "file.txt");
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(5);
                 expect(tree.branches[0].steps).to.have.lengthOf(2);
@@ -12725,7 +12755,7 @@ G - $s
 H -
                 `, "file.txt");
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(5);
                 expect(tree.branches[0].steps).to.have.lengthOf(2);
@@ -12776,7 +12806,7 @@ C - $s
     F -
                 `);
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(9);
                 expect(tree.branches[0].steps).to.have.lengthOf(2);
@@ -12847,7 +12877,7 @@ F
     C -
                 `);
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(2);
                 expect(tree.branches[0].steps).to.have.lengthOf(3);
@@ -12876,7 +12906,7 @@ $s * F
 C -
                 `);
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(2);
                 expect(tree.branches[0].steps).to.have.lengthOf(3);
@@ -12905,7 +12935,7 @@ F $s
 C -
                 `);
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(2);
                 expect(tree.branches[0].steps).to.have.lengthOf(3);
@@ -12934,7 +12964,7 @@ F $s
 C -
                 `);
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(2);
                 expect(tree.branches[0].steps).to.have.lengthOf(3);
@@ -12967,7 +12997,7 @@ $s K -
     C -
                 `);
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(4);
                 expect(tree.branches[0].steps).to.have.lengthOf(4);
@@ -13010,7 +13040,7 @@ $s G .. -
 J -
                 `);
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(3);
                 expect(tree.branches[0].steps).to.have.lengthOf(3);
@@ -13047,7 +13077,7 @@ C -
 F -
                 `);
 
-                tree.generateBranches();
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
                 expect(tree.branches).to.have.lengthOf(3);
                 expect(tree.branches[0].steps).to.have.lengthOf(4);
@@ -13144,7 +13174,7 @@ A -
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.generateBranches();
+                    tree.generateBranches(undefined, undefined, undefined, undefined, true);
                 }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
             });
 
@@ -13325,7 +13355,7 @@ A -
     C -
 `);
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
             tree.isDebug = true;
             tree.elapsed = "DATE";
             tree.branches[0].passedLastTime = true;
@@ -13384,7 +13414,7 @@ A -
 }
 `);
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
             let obj = tree.serialize();
 
             expect(obj.branches[0].beforeEveryBranch).to.have.lengthOf(1);
@@ -13598,7 +13628,7 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             expect(tree.getBranchCount(false, false)).to.equal(4);
         });
@@ -13622,7 +13652,7 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].passedLastTime = true;
 
@@ -13648,7 +13678,7 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].passedLastTime = true;
             tree.branches[2].isFailed = true;
@@ -13679,7 +13709,7 @@ D -
 E -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].isPassed = true;
             tree.branches[1].isSkipped = true;
@@ -13700,7 +13730,7 @@ D -
 E -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].isPassed = true;
             tree.branches[1].isSkipped = true;
@@ -13721,7 +13751,7 @@ D -
 E -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].isPassed = true;
             tree.branches[1].isSkipped = true;
@@ -13801,7 +13831,7 @@ F -
 }
 `, "packages.txt", true);
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             expect(tree.getBranchCount(false, false)).to.equal(4);
         });
@@ -13827,7 +13857,7 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             expect(tree.getStepCount()).to.equal(13);
         });
@@ -13851,7 +13881,7 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             expect(tree.getStepCount(false)).to.equal(13);
             expect(tree.getStepCount(true)).to.equal(10);
@@ -13880,7 +13910,7 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isFailed = true;
@@ -13902,7 +13932,7 @@ A -
             E -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].isSkipped = true;
 
@@ -13979,7 +14009,7 @@ F -
 }
 `, "packages.txt", true);
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isFailed = true;
@@ -14001,7 +14031,7 @@ A -
             E -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isFailed = true;
@@ -14031,7 +14061,7 @@ F -
 G -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             expect(tree.nextBranch()).to.containSubsetInOrder({
                 steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
@@ -14094,7 +14124,7 @@ F -
 G -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].isRunning = true;
             tree.branches[0].steps[0].isPassed = true;
@@ -14115,7 +14145,7 @@ A - !
         E -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].isRunning = true;
             tree.branches[0].steps[0].isPassed = true;
@@ -14135,7 +14165,7 @@ A - !
 
         it("returns null on an empty tree", () => {
             tree = new Tree();
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             expect(tree.nextBranch()).to.equal(null);
         });
@@ -15084,7 +15114,7 @@ B -
     D -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
             tree.initCounts();
 
             expect(tree.passed).to.equal(0);
@@ -15112,7 +15142,7 @@ B -
     D -
 `, "file.txt");
 
-            tree.generateBranches();
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
 
             tree.branches[0].isPassed = true;
             tree.branches[0].steps[0].isPassed = true;

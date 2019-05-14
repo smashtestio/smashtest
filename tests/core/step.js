@@ -133,7 +133,7 @@ describe("Step", () => {
             });
         });
 
-        it("can properly clone with no refernces to outside objects", () => {
+        it("can properly clone with no references to outside objects", () => {
             let C = root.children[0].children[1];
             let clonedC = C.cloneForBranch(true);
 

@@ -1226,16 +1226,18 @@ ${outputBranchAbove()}
     }
 
     /**
-     * Converts the tree under this.root into an array of Branch in this.branches
+     * Converts the tree under this.root into an array of Branch in this.branches, randomly sorts these branches
      * Called after all of the tree's text has been inputted with parseIn()
      * Gets everything ready for the test runner
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
      * @param {String} [debugHash] - If set, run the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
+     * @param {Boolean} [noRandom] - If true, does not randomly sort branches
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
-    generateBranches(groups, minFrequency, noDebug, debugHash) {
+    generateBranches(groups, minFrequency, noDebug, debugHash, noRandom) {
+        // Branchify and detect infinite loops
         try {
             this.branches = this.branchify(this.root, groups, minFrequency, noDebug, debugHash);
         }
@@ -1252,26 +1254,6 @@ ${outputBranchAbove()}
                 throw e;
             }
         }
-
-        // Sort by {frequency}, but otherwise keeping the same order
-        let highBranches = [];
-        let medBranches = [];
-        let lowBranches = [];
-        this.branches.forEach(branch => {
-            if(branch.frequency == 'high') {
-                highBranches.push(branch);
-            }
-            else if(branch.frequency == 'med') {
-                medBranches.push(branch);
-            }
-            else if(branch.frequency == 'low') {
-                lowBranches.push(branch);
-            }
-            else { // branch.frequency is undefined
-                medBranches.push(branch);
-            }
-        });
-        this.branches = highBranches.concat(medBranches).concat(lowBranches);
 
         // Marks branches with a first step of .s as skipped
         this.branches.forEach(branch => {
@@ -1319,6 +1301,37 @@ ${outputBranchAbove()}
                 }
             }
         });
+
+        // Randomize order of branches
+        if(!noRandom) {
+            function randomizeOrder(arr) {
+                for(let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+            }
+            randomizeOrder(this.branches);
+        }
+
+        // Sort by {frequency}, but otherwise keeping the same order
+        let highBranches = [];
+        let medBranches = [];
+        let lowBranches = [];
+        this.branches.forEach(branch => {
+            if(branch.frequency == 'high') {
+                highBranches.push(branch);
+            }
+            else if(branch.frequency == 'med') {
+                medBranches.push(branch);
+            }
+            else if(branch.frequency == 'low') {
+                lowBranches.push(branch);
+            }
+            else { // branch.frequency is undefined
+                medBranches.push(branch);
+            }
+        });
+        this.branches = highBranches.concat(medBranches).concat(lowBranches);
 
         // Updates hashes of all branches
         this.branches.forEach(branch => branch.updateHash());

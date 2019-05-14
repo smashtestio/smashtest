@@ -41,6 +41,9 @@ Running tests
         - Branches are run in order of {frequency}, high to low, where no {frequency} is med
         - Browser will run headless by default, except if you're debugging (in which case it will run normally), if it's Safari, IE, or Edge
             (which don't support headless as of yet, so they will always run normally), or if the --headless flag is passed in
+    - Tests are sorted randomly, for two main reasons
+        - 1) You can run a ton of tests, but cut the run off at any time and get a good sampling of different functionality
+        - 2) Diversifies the browsers and devices used at any given time, so as to maximize the capabilities of a grid (such as selenium grid)
     - Command line options
         - --debug=[HASH] or -d
             - Only run that branch as debugged. Ignore $'s, ~'s, groups, and frequency
@@ -52,6 +55,8 @@ Running tests
         - --help/-?
         - --maxInstances=5
             - 5 if omitted
+            - If you're hitting a selenium grid, set this high enough so as to max out the available slots (capabilities)
+                - Tests will block on Open browser if a capability isn't available yet
         - --minFrequency=med
             - med if omitted
         - --noDebug

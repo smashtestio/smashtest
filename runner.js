@@ -39,14 +39,17 @@ class Runner {
 
     /**
      * Initializes the runner with a tree and reporter
+     * @param {Tree} tree - The tree to use
+     * @param {Reporter} reporter - The reporter to use
+     * @param {Boolean} [noRandom] - If true, does not randomly sort branches
      */
-    init(tree, reporter) {
+    init(tree, reporter, noRandom) {
         if(!this.noReport) {
             this.reporter = reporter;
         }
         this.tree = tree;
 
-        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash);
+        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash, noRandom);
     }
 
     /**

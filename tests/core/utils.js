@@ -38,13 +38,13 @@ describe("Utils", () => {
 
     describe("escapeHtml()", () => {
         it("escapes html", () => {
-            expect(utils.escapeHtml("foo<>&amp;\"'bar")).to.equal("foo&lt;&gt;&amp;amp;&quot;&#039;bar");
+            expect(utils.escapeHtml("foo<>&amp;\"'bar")).to.equal("foo&lt;&gt;&amp;amp;\"'bar");
         });
     });
 
     describe("unescapeHtml()", () => {
         it("unescapes html", () => {
-            expect(utils.unescapeHtml("foo&lt;&gt;&amp;amp;&quot;&#039;bar")).to.equal("foo<>&amp;\"'bar");
+            expect(utils.unescapeHtml("foo&lt;&gt;&amp;amp;\"'bar")).to.equal("foo<>&amp;\"'bar");
         });
     });
 
