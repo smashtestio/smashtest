@@ -22,6 +22,9 @@ let reporter = new Reporter(tree, runner);
 const yellowChalk = chalk.hex("#ffb347");
 const hRule = chalk.gray("─".repeat(process.stdout.columns));
 
+const PROGRESS_BAR_ON = true;
+let fullRun = false;
+
 console.log(hRule);
 console.log(yellowChalk.bold("SmashTEST 0.1.0 BETA"));
 console.log("");
@@ -670,9 +673,9 @@ async function runServer() {
             // ***************************************
             //  Full run
             // ***************************************
-            const PROGRESS_BAR_ON = true;
             let timer = null;
             let progressBar = null;
+            fullRun = true;
 
             if(PROGRESS_BAR_ON) {
                 // Progress bar
@@ -767,6 +770,6 @@ async function runServer() {
         }
     }
     catch(e) {
-        onError(e);
+        onError(e, fullRun && PROGRESS_BAR_ON);
     }
 })();
