@@ -61,11 +61,10 @@ Running tests
         - --minFrequency=med
             - med if omitted
         - --noDebug
-        - --noReport
-        - --noReportServer
         - --p:varname=value or "value" (persistent var)
         - --random=true/false
         - --repl or -r
+        - --report=<true/false>
         - --reportDomain=http://domain:port
             - This is where the apis will be exposed for reports to get live updates
             - Port indicates what port smashtest should run on
@@ -74,6 +73,7 @@ Running tests
                 - If omitted, localhost will be chosen
                 - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
             - https currently doesn't work - if you use it it acts like http
+        - --reportServer=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
         - --seleniumServer=http://localhost:4444/wd/hub
         - --screenshots=false (default is true)
         - --skipPassed or -s

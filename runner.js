@@ -14,17 +14,17 @@ class Runner {
 
         this.flags = {};                 // Flags passed in through the command line (e.g., -maxInstances=7 -noDebug -groups="one two" --> {maxInstances: '7', noDebug: '', groups: 'one two'})
 
+        this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
         this.groups = undefined;         // Array of string. Only run branches that are a part of one of these groups, no restrictions if this is undefined.
+        this.maxInstances = 5;           // The maximum number of simultaneous branches to run
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
-        this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
-        this.noReport = false;           // If true, do not output a report
-        this.noReportServer = false;     // If true, do not run a report server
-        this.reportDomain = undefined;   // http(s)://domain:port where to run the report server
-        this.maxInstances = 5;           // The maximum number of simultaneous branches to run
-        this.skipPassed = undefined;     // If true, don't run and carry over branches that passed last time
         this.random = true;              // If true, randomize the order of branches
         this.repl = false;               // If true, run the REPL immediately
+        this.report = true;              // If true, output a report
+        this.reportDomain = undefined;   // http(s)://domain:port where to run the report server
+        this.reportServer = true;        // If true, run a report server
+        this.skipPassed = undefined;     // If true, don't run and carry over branches that passed last time
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
         this.consoleOutput = false;      // If true, output debug info to console
@@ -45,7 +45,7 @@ class Runner {
      * @param {Boolean} [noRandom] - If true, does not randomly sort branches
      */
     init(tree, reporter, noRandom) {
-        if(!this.noReport) {
+        if(this.report) {
             this.reporter = reporter;
         }
         this.tree = tree;

@@ -93,35 +93,13 @@ function processFlag(name, value) {
         }
 
         switch(name.toLowerCase()) {
-            case "nodebug":
-                runner.noDebug = true;
-                break;
-
             case "debug":
             case "d":
                 runner.debugHash = value;
                 break;
 
-            case "noreport":
-                runner.noReport = true;
-                break;
-
-            case "noreportserver":
-                runner.noReportServer = true;
-                break;
-
-            case "reportdomain":
-                if(!value.match(/^https?/)) { // add an http:// if one is missing
-                    value = "http://" + value;
-                }
-                if(!value.match(/^https?\:\/\/[^\/ ]+(\:[0-9]+)?$/)) {
-                    utils.error("Invalid reportDomain");
-                }
-                runner.reportDomain = value;
-                break;
-
-            case "groups":
-                runner.groups = value.split(/\s*\,\s*/);
+            case "g":
+                runner.globalInit[varName] = value;
                 break;
 
             case "group":
@@ -131,47 +109,9 @@ function processFlag(name, value) {
                 runner.groups.push(group);
                 break;
 
-            case "minfrequency":
-                if(['high', 'med', 'low'].indexOf(value) == -1) {
-                    utils.error("Invalid minFrequency argument. Must be either high, med, or low.");
-                }
-                runner.minFrequency = value;
+            case "groups":
+                runner.groups = value.split(/\s*\,\s*/);
                 break;
-
-            case "maxinstances":
-                runner.maxInstances = value;
-                break;
-
-            case "skippassed":
-            case "s":
-                if(value) {
-                    runner.skipPassed = value;
-                }
-                else {
-                    runner.skipPassed = true;
-                }
-                break;
-
-            case "random":
-                runner.random = (value == 'true');
-                break;
-
-            case "r":
-            case "repl":
-                runner.repl = true;
-                break;
-
-            case "g":
-                runner.globalInit[varName] = value;
-                break;
-
-            case "p":
-                runner.persistent[varName] = value;
-                break;
-
-            case "version":
-            case "v":
-                process.exit();
 
             case "help":
             case "?":
@@ -196,18 +136,78 @@ Options
   --maxInstances=<N>             Do not run more than N branches simultaneously
   --minFrequency=<high/med/low>  Only run branches at or above this frequency
   --noDebug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
-  --noReport                     Do not output a report
-  --noReportServer               Do not run a server during run for live report updates
   --p:<name>="<value>"           Set the persistent variable with the given name to the given value
   --random=<true/false>          Whether or not to randomize the order of branches. Default is true.
   --repl or -r                   Open the REPL (drive SmashTEST from command line)
+  --report=<true/false>          Whether or not to output a report. Default is true.
   --reportDomain=<url>           Domain and port where report server should run (http://domain:port format)
+  --reportServer=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
   --seleniumServer=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
   --screenshots=<true/false>     Whether or not to generate screenshots. Default is true.
   --skipPassed or -s             Do not run branches that passed last time. Just carry them over
                                    into new report.
   --version or -v                Output the version of SmashTEST
 `);
+                process.exit();
+
+            case "maxinstances":
+                runner.maxInstances = value;
+                break;
+
+            case "minfrequency":
+                if(['high', 'med', 'low'].indexOf(value) == -1) {
+                    utils.error("Invalid minFrequency argument. Must be either high, med, or low.");
+                }
+                runner.minFrequency = value;
+                break;
+
+            case "nodebug":
+                runner.noDebug = true;
+                break;
+
+            case "p":
+                runner.persistent[varName] = value;
+                break;
+
+            case "random":
+                runner.random = (value == 'true');
+                break;
+
+            case "repl":
+            case "r":
+                runner.repl = true;
+                break;
+
+            case "report":
+                runner.report = (value == 'true');
+                break;
+
+            case "reportdomain":
+                if(!value.match(/^https?/)) { // add an http:// if one is missing
+                    value = "http://" + value;
+                }
+                if(!value.match(/^https?\:\/\/[^\/ ]+(\:[0-9]+)?$/)) {
+                    utils.error("Invalid reportDomain");
+                }
+                runner.reportDomain = value;
+                break;
+
+            case "reportserver":
+                runner.reportServer = (value == 'true');
+                break;
+
+            case "skippassed":
+            case "s":
+                if(value) {
+                    runner.skipPassed = value;
+                }
+                else {
+                    runner.skipPassed = true;
+                }
+                break;
+
+            case "version":
+            case "v":
                 process.exit();
 
             default:
@@ -259,7 +259,7 @@ function plural(count) {
  */
 async function runServer() {
     try {
-        if(runner.noReportServer) {
+        if(!runner.reportServer) {
             return;
         }
 
@@ -456,8 +456,8 @@ async function runServer() {
         function outputCompleteMessage() {
             console.log(``);
             console.log(yellowChalk("Run complete"));
-            console.log(`${tree.complete} branch${plural(tree.complete)} ran` + (!runner.noReport ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``));
-            if(!runner.noReport) {
+            console.log(`${tree.complete} branch${plural(tree.complete)} ran` + (runner.report ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``));
+            if(runner.report) {
                 console.log(`Report at: ` + chalk.gray.italic(reporter.reportPath));
             }
 
@@ -484,8 +484,8 @@ async function runServer() {
                 return;
             }
 
-            console.log(`${tree.totalToRun} branch${plural(tree.totalToRun)} to run` + (!runner.noReport ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
-            if(!runner.noReport) {
+            console.log(`${tree.totalToRun} branch${plural(tree.totalToRun)} to run` + (runner.report ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
+            if(runner.report) {
                 console.log(`Live report at: ` + chalk.gray.italic(reporter.reportPath));
             }
 
