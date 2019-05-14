@@ -54,9 +54,7 @@ exports.escapeHtml = (str) => {
     return str
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/>/g, "&gt;");
 }
 
 /**
@@ -64,8 +62,6 @@ exports.escapeHtml = (str) => {
  */
 exports.unescapeHtml = (str) => {
     return str
-        .replace(/&#039;/g, "'")
-        .replace(/&quot;/g, "\"")
         .replace(/&gt;/g, ">")
         .replace(/&lt;/g, "<")
         .replace(/&amp;/g, "&");

@@ -76,7 +76,7 @@ class Reporter {
         }
 
         if(!this.stopped) {
-            const REPORT_GENERATE_FREQUENCY = 500; // ms
+            const REPORT_GENERATE_FREQUENCY = 30000; // ms
             this.timer = setTimeout(() => { this.checkForChanges(); }, REPORT_GENERATE_FREQUENCY);
         }
     }
@@ -139,6 +139,7 @@ class Reporter {
                 reportTime: stringify(this.reportTime),
                 domain: this.domain || ""
             }
+
             return mustache.render(this.reportTemplate, view);
         }
     }

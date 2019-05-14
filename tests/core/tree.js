@@ -13171,7 +13171,7 @@ A
             // NOTE: this just freezes up the executable
             // Unlike the infinite loop which causes an immediate stack size exception, this doesn't blow up stack size (and no exception is thrown) but runs really long
             // This many branches are unlikely in normal usage, though
-            it.only("throws an exception when there are too many branches", function() {
+            it.skip("throws an exception when there are too many branches", function() {
                 this.timeout(60000);
                 let tree = new Tree();
                 // Each group is another power of 10 worth of branches

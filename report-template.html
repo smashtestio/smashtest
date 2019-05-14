@@ -1,10 +1,5 @@
 <html>
     <head>
-        <meta name="tree" content="{{{tree}}}"/>
-        <meta name="runner" content="{{{runner}}}"/>
-        <meta name="reportTime" content="{{{reportTime}}}"/>
-        <meta name="domain" content="{{{domain}}}"/>
-
         <title>SmashTEST Report</title>
 
         <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
@@ -30,6 +25,10 @@
                 margin: 0;
                 padding: 0;
                 overflow-x: hidden;
+            }
+
+            #data {
+                display: none;
             }
 
             .main {
@@ -564,6 +563,21 @@
     <body>
         <div id="root"></div>
 
+        <pre id="data">
+            <code id="tree">
+                {{{tree}}}
+            </code>
+            <code id="runner">
+                {{{runner}}}
+            </code>
+            <code id="reportTime">
+                {{{reportTime}}}
+            </code>
+            <code id="domain">
+                {{{domain}}}
+            </code>
+        </pre>
+
         <script type="text/babel">
             // Tooltips
 
@@ -648,7 +662,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     this.me = null;
 
                     // Parse in tree
-                    let treeContent = document.querySelector("meta[name=tree]").getAttribute("content");
+                    let treeContent = document.getElementById("tree").innerHTML;
                     let treeJSON = this.unescapeHtml(treeContent);
                     if(!treeJSON.startsWith("\{\{\{")) {
                         this.state.tree = JSON.parse(treeJSON);
@@ -656,17 +670,17 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     }
 
                     // Parse in runner
-                    let runnerContent = document.querySelector("meta[name=runner]").getAttribute("content");
+                    let runnerContent = document.getElementById("runner").innerHTML;
                     let runnerJSON = this.unescapeHtml(runnerContent);
                     if(!runnerJSON.startsWith("\{\{\{")) {
                         this.state.runner = JSON.parse(runnerJSON);
                     }
 
                     // Parse in reportTime
-                    this.state.reportTime = document.querySelector("meta[name=reportTime]").getAttribute("content");
+                    this.state.reportTime = document.getElementById("reportTime").innerHTML;
 
                     // Parse in domain
-                    this.state.domain = document.querySelector("meta[name=domain]").getAttribute("content");
+                    this.state.domain = document.getElementById("domain").innerHTML;
 
                     // Bindings
                     this.setUpdateLoop = this.setUpdateLoop.bind(this);
@@ -809,8 +823,6 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                  */
                 unescapeHtml(str) {
                     return str
-                        .replace(/&#039;/g, "'")
-                        .replace(/&quot;/g, "\"")
                         .replace(/&gt;/g, ">")
                         .replace(/&lt;/g, "<")
                         .replace(/&amp;/g, "&");

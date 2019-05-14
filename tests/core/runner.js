@@ -260,7 +260,7 @@ Branch Group 2 - !
             await runner.run();
 
             expect(tree.elapsed).to.be.above(55);
-            expect(tree.elapsed).to.be.below(85);
+            expect(tree.elapsed).to.be.below(90);
 
             expect(runner.numArr).to.eql([ '1', '4', '2', '5', '3', '6' ]);
         });

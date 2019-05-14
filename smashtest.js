@@ -42,6 +42,7 @@ async function exit(forcedStop, exitCode) {
     }
 
     //console.log(hRule);
+    process.stderr.write('\x1B[?25h'); // restore console cursor, if it's been hidden
 
     if(runner) {
         try {
