@@ -315,8 +315,8 @@
                 line-height: 16px;
             }
 
-            .counts a {
-                text-decoration: none;
+            .counts .count {
+                cursor: pointer;
             }
 
             .counts .count:hover {
@@ -1023,95 +1023,109 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 );
             }
 
-            function TreeHeader(props) {
-                let elapsedText = "";
-                let elapsed = props.data.tree.elapsed;
-                if(typeof elapsed != undefined && elapsed != -1) {
-                    elapsedText = `(${formatElapsed(elapsed)})`;
+            class TreeHeader extends React.Component {
+                constructor() {
+                    super();
+                    this.scrollToBranchList = this.scrollToBranchList.bind(this);
                 }
 
-                let anyFailed = false;
-                for(let i = 0; i < props.data.tree.branches.length; i++) {
-                    let branch = props.data.tree.branches[i];
-                    if(branch.isFailed) {
-                        anyFailed = true;
-                        break;
+                scrollToBranchList(id) {
+                    let elem = document.getElementById(id);
+                    if(elem) {
+                        elem.scrollIntoView();
                     }
                 }
 
-                let runnerStatusElem = null;
-                if(props.data.runner.isStopped) {
-                    runnerStatusElem = <span>Run stopped {elapsedText}</span>
-                }
-                else if(props.data.runner.isComplete) {
-                    runnerStatusElem = <span>Run completed {elapsedText}</span>;
-                }
-                else if(props.data.runner.isPaused) {
-                    runnerStatusElem = <span>Run paused</span>;
-                }
-                else { // currently running
-                    runnerStatusElem = <span className="running-item">Currently running</span>;
-                }
+                render() {
+                    let elapsedText = "";
+                    let elapsed = this.props.data.tree.elapsed;
+                    if(typeof elapsed != undefined && elapsed != -1) {
+                        elapsedText = `(${formatElapsed(elapsed)})`;
+                    }
 
-                let totalRunning = 0;
-                props.data.tree.branches.forEach(branch => branch.isRunning && totalRunning++);
+                    let anyFailed = false;
+                    for(let i = 0; i < this.props.data.tree.branches.length; i++) {
+                        let branch = this.props.data.tree.branches[i];
+                        if(branch.isFailed) {
+                            anyFailed = true;
+                            break;
+                        }
+                    }
 
-                let totalNotRunYet = props.data.tree.totalToRun - props.data.tree.complete - totalRunning;
+                    let runnerStatusElem = null;
+                    if(this.props.data.runner.isStopped) {
+                        runnerStatusElem = <span>Run stopped {elapsedText}</span>
+                    }
+                    else if(this.props.data.runner.isComplete) {
+                        runnerStatusElem = <span>Run completed {elapsedText}</span>;
+                    }
+                    else if(this.props.data.runner.isPaused) {
+                        runnerStatusElem = <span>Run paused</span>;
+                    }
+                    else { // currently running
+                        runnerStatusElem = <span className="running-item">Currently running</span>;
+                    }
 
-                return (
-                    <div className="tree-header">
-                        <div className="header">{/*props.data.live ? "Live " : ""*/}SmashTEST Report</div>
-                        <div className="tree-header-container">
-                            {
-                                !props.data.runner.isComplete && !props.data.runner.isStopped ?
-                                <ProgressBar decimal={props.data.tree.totalStepsComplete / props.data.tree.totalSteps} paused={/*props.data.runner.isPaused ||*/ props.data.previewedItem}/> :
-                                ""
-                            }
-                            <div className="runner-status-msg tree-header-item">
-                                {runnerStatusElem}
-                                <span className="debug-mode">
-                                    {props.data.tree.isDebug ? "In DEBUG mode (~)" : ""}
-                                </span>
+                    let totalRunning = 0;
+                    this.props.data.tree.branches.forEach(branch => branch.isRunning && totalRunning++);
+
+                    let totalNotRunYet = this.props.data.tree.totalToRun - this.props.data.tree.complete - totalRunning;
+
+                    return (
+                        <div className="tree-header">
+                            <div className="header">{/*this.props.data.live ? "Live " : ""*/}SmashTEST Report</div>
+                            <div className="tree-header-container">
+                                {
+                                    !this.props.data.runner.isComplete && !this.props.data.runner.isStopped ?
+                                    <ProgressBar decimal={this.props.data.tree.totalStepsComplete / this.props.data.tree.totalSteps} paused={/*this.props.data.runner.isPaused ||*/ this.props.data.previewedItem}/> :
+                                    ""
+                                }
+                                <div className="runner-status-msg tree-header-item">
+                                    {runnerStatusElem}
+                                    <span className="debug-mode">
+                                        {this.props.data.tree.isDebug ? "In DEBUG mode (~)" : ""}
+                                    </span>
+                                </div>
+                                <div className="counts tree-header-item">
+                                    {
+                                        totalRunning > 0 ?
+                                        <span><span className="running-count count running-item" onClick={() => this.scrollToBranchList("branch-list-running")}> {totalRunning} running</span> | </span> :
+                                        ""
+                                    }
+                                    {
+                                        this.props.data.tree.passed > 0 ?
+                                        <span><span className="passed-count count passed-item" onClick={() => this.scrollToBranchList("branch-list-passed")}> {this.props.data.tree.totalPassedInReport} passed</span> | </span> :
+                                        ""
+                                    }
+                                    {
+                                        this.props.data.tree.failed > 0 ?
+                                        <span><span className="failed-count count failed-item" onClick={() => this.scrollToBranchList("branch-list-failed")}> {this.props.data.tree.failed} failed</span> | </span> :
+                                        ""
+                                    }
+                                    {
+                                        this.props.data.tree.skipped > 0 ?
+                                        <span><span className="skipped-count count skipped-item" onClick={() => this.scrollToBranchList("branch-list-skipped")}> {this.props.data.tree.skipped} skipped</span> | </span> :
+                                        ""
+                                    }
+                                    {
+                                        totalNotRunYet > 0 ?
+                                        <span><span className="notrunyet-count count notrunyet-item" onClick={() => this.scrollToBranchList("branch-list-notyetrun")}> {totalNotRunYet} not run yet</span> | </span> :
+                                        ""
+                                    }
+                                    <span className="total-count notrunyet-item"> {this.props.data.tree.totalInReport} total branches</span>
+                                </div>
+
+                                {
+                                    !this.props.data.live ?
+                                    <div className="msg">
+                                        This report is a snapshot from a completed run.
+                                    </div> :
+                                    ""
+                                }
                             </div>
-                            <div className="counts tree-header-item">
-                                {
-                                    totalRunning > 0 ?
-                                    <span><a className="running-count count running-item" href="#branch-list-running"> {totalRunning} running</a> | </span> :
-                                    ""
-                                }
-                                {
-                                    props.data.tree.passed > 0 ?
-                                    <span><a className="passed-count count passed-item" href="#branch-list-passed"> {props.data.tree.totalPassedInReport} passed</a> | </span> :
-                                    ""
-                                }
-                                {
-                                    props.data.tree.failed > 0 ?
-                                    <span><a className="failed-count count failed-item" href="#branch-list-failed"> {props.data.tree.failed} failed</a> | </span> :
-                                    ""
-                                }
-                                {
-                                    props.data.tree.skipped > 0 ?
-                                    <span><a className="skipped-count count skipped-item" href="#branch-list-skipped"> {props.data.tree.skipped} skipped</a> | </span> :
-                                    ""
-                                }
-                                {
-                                    totalNotRunYet > 0 ?
-                                    <span><a className="notrunyet-count count notrunyet-item" href="#branch-list-notyetrun"> {totalNotRunYet} not run yet</a> | </span> :
-                                    ""
-                                }
-                                <span className="total-count notrunyet-item"> {props.data.tree.totalInReport} total branches</span>
-                            </div>
-
-                            {
-                                !props.data.live ?
-                                <div className="msg">
-                                    This report is a snapshot from a completed run.
-                                </div> :
-                                ""
-                            }
                         </div>
-                    </div>
-                );
+                    );
+                }
             }
 
             class ProgressBar extends React.Component {
