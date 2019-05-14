@@ -44,6 +44,7 @@ Running tests
     - Tests are sorted randomly, for two main reasons
         - 1) You can run a ton of tests, but cut the run off at any time and get a good sampling of different functionality
         - 2) Diversifies the browsers and devices used at any given time, so as to maximize the capabilities of a grid (such as selenium grid)
+        - Disable with --random=false
     - Command line options
         - --debug=[HASH] or -d
             - Only run that branch as debugged. Ignore $'s, ~'s, groups, and frequency
@@ -63,6 +64,7 @@ Running tests
         - --noReport
         - --noReportServer
         - --p:varname=value or "value" (persistent var)
+        - --random=true/false
         - --repl or -r
         - --reportDomain=http://domain:port
             - This is where the apis will be exposed for reports to get live updates

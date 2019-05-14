@@ -152,6 +152,10 @@ function processFlag(name, value) {
                 }
                 break;
 
+            case "random":
+                runner.random = (value == 'true');
+                break;
+
             case "r":
             case "repl":
                 runner.repl = true;
@@ -195,10 +199,11 @@ Options
   --noReport                     Do not output a report
   --noReportServer               Do not run a server during run for live report updates
   --p:<name>="<value>"           Set the persistent variable with the given name to the given value
+  --random=<true/false>          Whether or not to randomize the order of branches. Default is true.
   --repl or -r                   Open the REPL (drive SmashTEST from command line)
   --reportDomain=<url>           Domain and port where report server should run (http://domain:port format)
   --seleniumServer=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
-  --screenshots=false            Do not output screenshots
+  --screenshots=<true/false>     Whether or not to generate screenshots. Default is true.
   --skipPassed or -s             Do not run branches that passed last time. Just carry them over
                                    into new report.
   --version or -v                Output the version of SmashTEST

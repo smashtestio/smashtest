@@ -23,6 +23,7 @@ class Runner {
         this.reportDomain = undefined;   // http(s)://domain:port where to run the report server
         this.maxInstances = 5;           // The maximum number of simultaneous branches to run
         this.skipPassed = undefined;     // If true, don't run and carry over branches that passed last time
+        this.random = true;              // If true, randomize the order of branches
         this.repl = false;               // If true, run the REPL immediately
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
@@ -49,7 +50,7 @@ class Runner {
         }
         this.tree = tree;
 
-        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash, noRandom);
+        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash, noRandom || this.random);
     }
 
     /**
