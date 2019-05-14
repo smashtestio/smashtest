@@ -42,7 +42,7 @@ async function exit(forcedStop, exitCode) {
     }
 
     //console.log(hRule);
-    process.stderr.write('\x1B[?25h'); // restore console cursor, if it's been hidden
+    restoreCursor();
 
     if(runner) {
         try {
@@ -66,11 +66,27 @@ async function exit(forcedStop, exitCode) {
 }
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.log('');
-    console.log('');
-    console.log(reason);
-    console.log('');
+    outputError(reason);
 });
+
+process.on('uncaughtException', (err) => {
+    outputError(err);
+});
+
+function outputError(msg) {
+    restoreCursor();
+    console.log('');
+    console.log('');
+    console.log(msg);
+    console.log('');
+}
+
+/**
+ * Restores the console's cursor (if it's been hidden)
+ */
+function restoreCursor() {
+    process.stderr.write('\x1B[?25h');
+}
 
 // ***************************************
 //  Helper Functions
