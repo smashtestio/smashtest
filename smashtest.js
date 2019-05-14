@@ -66,27 +66,12 @@ async function exit(forcedStop, exitCode) {
 }
 
 process.on('unhandledRejection', (reason, promise) => {
-    outputError(reason);
+    onError(reason, true);
 });
 
 process.on('uncaughtException', (err) => {
-    outputError(err);
+    onError(err, true);
 });
-
-function outputError(msg) {
-    restoreCursor();
-    console.log('');
-    console.log('');
-    console.log(msg);
-    console.log('');
-}
-
-/**
- * Restores the console's cursor (if it's been hidden)
- */
-function restoreCursor() {
-    process.stderr.write('\x1B[?25h');
-}
 
 // ***************************************
 //  Helper Functions
@@ -229,15 +214,24 @@ Options
 /**
  * Handles a generic error inside of a catch block
  */
-function onError(e) {
-    if(e.fatal) { // extra spacing needed for fatal errors coming out of runner
-        console.log("");
-        console.log("");
+function onError(e, extraSpace) {
+    restoreCursor();
+
+    if(e.fatal || extraSpace) { // extra spacing needed for fatal errors coming out of runner
+        console.log('');
+        console.log('');
     }
 
     console.log(e.stack);
-    console.log("");
+    console.log('');
     process.exit();
+}
+
+/**
+ * Restores the console's cursor (if it's been hidden)
+ */
+function restoreCursor() {
+    process.stderr.write('\x1B[?25h');
 }
 
 /**
