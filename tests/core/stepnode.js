@@ -42,7 +42,6 @@ describe("StepNode", () => {
                 assert.equal(s.isOnly, undefined);
                 assert.equal(s.isNonParallel, undefined);
                 assert.equal(s.isSequential, undefined);
-                assert.equal(s.varsBeingSet, undefined);
                 assert.equal(s.varsList, undefined);
             });
 
@@ -198,7 +197,6 @@ describe("StepNode", () => {
                 assert.equal(s.text, `Click {Big Red Button}`);
                 assert.equal(s.modifiers, undefined);
                 assert.equal(s.codeBlock, undefined);
-                assert.equal(s.varsBeingSet, undefined);
             });
 
             it("parses a line with a {{local variable}}", () => {
@@ -206,7 +204,6 @@ describe("StepNode", () => {
                 assert.equal(s.text, `Click {{Big Red Button}}`);
                 assert.equal(s.modifiers, undefined);
                 assert.equal(s.codeBlock, undefined);
-                assert.equal(s.varsBeingSet, undefined);
             });
 
             it("parses a line with multiple variables and whitespace", () => {
@@ -214,7 +211,6 @@ describe("StepNode", () => {
                 assert.equal(s.text, `Click {{Big}} {Red} 'dazzling' {{Button}}`);
                 assert.equal(s.modifiers, undefined);
                 assert.equal(s.codeBlock, undefined);
-                assert.equal(s.varsBeingSet, undefined);
             });
 
             it("parses a comment", () => {
@@ -559,13 +555,11 @@ describe("StepNode", () => {
                 s.parseLine(`{var} = Click 'something' {blah}`, "file.txt", 10);
                 assert.equal(s.text, `{var} = Click 'something' {blah}`);
                 assert.equal(s.isFunctionCall, true);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "Click 'something' {blah}", isLocal: false} ]);
 
                 s = new StepNode(0);
                 s.parseLine(`    {var with spaces}  = Click 'something' {{blah}}`, "file.txt", 10);
                 assert.equal(s.text, `{var with spaces}  = Click 'something' {{blah}}`);
                 assert.equal(s.isFunctionCall, true);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var with spaces", value: "Click 'something' {{blah}}", isLocal: false} ]);
             });
 
             it("parses {var} = Code Block Function {", () => {
@@ -573,7 +567,6 @@ describe("StepNode", () => {
                 assert.equal(s.text, `{var} = Code Block Function`);
                 assert.equal(s.isFunctionCall, undefined);
                 assert.equal(s.isTextualStep, undefined);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "Code Block Function", isLocal: false} ]);
             });
 
             it("rejects {var} = Textual Function -", () => {
@@ -623,19 +616,16 @@ describe("StepNode", () => {
                 s.parseLine(`{var} = 'foo'`, "file.txt", 10);
                 assert.equal(s.text, `{var} = 'foo'`);
                 assert.equal(s.isFunctionCall, undefined);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "'foo'", isLocal: false} ]);
 
                 s = new StepNode(0);
                 s.parseLine(`{var} = "foo"`, "file.txt", 10);
                 assert.equal(s.text, `{var} = "foo"`);
                 assert.equal(s.isFunctionCall, undefined);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "\"foo\"", isLocal: false} ]);
 
                 s = new StepNode(0);
                 s.parseLine(`{var} = [foo]`, "file.txt", 10);
                 assert.equal(s.text, `{var} = [foo]`);
                 assert.equal(s.isFunctionCall, undefined);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "[foo]", isLocal: false} ]);
             });
 
             it("parses {{var}} = Function", () => {
@@ -643,18 +633,15 @@ describe("StepNode", () => {
                 s.parseLine(`{{var}} = Click 'something' [here] { blah }`, "file.txt", 10);
                 assert.equal(s.text, `{{var}} = Click 'something' [here] { blah }`);
                 assert.equal(s.isFunctionCall, true);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "Click 'something' [here] { blah }", isLocal: true} ]);
 
                 s = new StepNode(0);
                 s.parseLine(`    {{ var with spaces  }} =  Click 'something' [here] {{blah}}`, "file.txt", 10);
                 assert.equal(s.text, `{{ var with spaces  }} =  Click 'something' [here] {{blah}}`);
                 assert.equal(s.isFunctionCall, true);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var with spaces", value: "Click 'something' [here] {{blah}}", isLocal: true} ]);
 
                 s = new StepNode(0);
                 s.parseLine(`{{var}} = Click 'something \\\\ \'' "something2 \"" [\\'he\\' re] {blah} {{blah2}}`, "file.txt", 10);
                 assert.equal(s.isFunctionCall, true);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: `Click 'something \\\\ \'' "something2 \"" [\\'he\\' re] {blah} {{blah2}}`, isLocal: true} ]);
             });
 
             it("parses {{var}} = 'string'", () => {
@@ -662,37 +649,27 @@ describe("StepNode", () => {
                 s.parseLine(`{{var}} = 'foo \\\''`, "file.txt", 10);
                 assert.equal(s.text, `{{var}} = 'foo \\\''`);
                 assert.equal(s.isFunctionCall, undefined);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "'foo \\\''", isLocal: true} ]);
 
                 s = new StepNode(0);
                 s.parseLine(`{{var}} = "foo \\\""`, "file.txt", 10);
                 assert.equal(s.text, `{{var}} = "foo \\\""`);
                 assert.equal(s.isFunctionCall, undefined);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "\"foo \\\"\"", isLocal: true} ]);
 
                 s = new StepNode(0);
                 s.parseLine(`{{var}} = [foo 'bar'\\\[\\\]]`, "file.txt", 10);
                 assert.equal(s.text, `{{var}} = [foo 'bar'\\\[\\\]]`);
                 assert.equal(s.isFunctionCall, undefined);
-                assert.deepEqual(s.varsBeingSet, [ {name: "var", value: "[foo 'bar'\\\[\\\]]", isLocal: true} ]);
             });
 
             it("parses multiple {var} = 'string literal', separated by commas", () => {
                 s.parseLine(`{var1} = 'one', {{var2}}='two 2', {var 3}= "three 3",{var4}=[four "4"] +`, "file.txt", 10);
                 assert.equal(s.text, `{var1} = 'one', {{var2}}='two 2', {var 3}= "three 3",{var4}=[four "4"]`);
                 assert.equal(s.isFunctionCall, undefined);
-                assert.deepEqual(s.varsBeingSet, [
-                    {name: "var1", value: "'one'", isLocal: false},
-                    {name: "var2", value: "'two 2'", isLocal: true},
-                    {name: "var 3", value: "\"three 3\"", isLocal: false},
-                    {name: "var4", value: "[four \"4\"]", isLocal: false}
-                ]);
             });
 
             it("doesn't recognize {vars} with backslashes in their names", () => {
                 s.parseLine(`{var\\} = Click 'something \\{blah\\}' {foo}`, "file.txt", 10);
                 assert.equal(s.text, `{var\\} = Click 'something \\{blah\\}' {foo}`);
-                assert.equal(s.varsBeingSet, undefined);
             });
 
             it("rejects {vars} with only numbers in their names", () => {
@@ -797,6 +774,86 @@ describe("StepNode", () => {
                     s.parseLine(`* {{var1}}= Some function`, "file.txt", 10);
                 }, "A step setting {variables} cannot start with a \* [file.txt:10]");
             });
+        });
+    });
+
+    describe("getVarsBeingSet()", () => {
+        let s = null;
+
+        beforeEach(() => {
+            s = new StepNode(0);
+        });
+
+        it("parses {var} = Function", () => {
+            s = new StepNode(0);
+            s.parseLine(`{var} = Click 'something' {blah}`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "Click 'something' {blah}", isLocal: false} ]);
+
+            s = new StepNode(0);
+            s.parseLine(`    {var with spaces}  = Click 'something' {{blah}}`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var with spaces", value: "Click 'something' {{blah}}", isLocal: false} ]);
+        });
+
+        it("parses {var} = Code Block Function {", () => {
+            s.parseLine(`{var} = Code Block Function {`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "Code Block Function", isLocal: false} ]);
+        });
+
+        it("parses {var} = 'string'", () => {
+            s = new StepNode(0);
+            s.parseLine(`{var} = 'foo'`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "'foo'", isLocal: false} ]);
+
+            s = new StepNode(0);
+            s.parseLine(`{var} = "foo"`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "\"foo\"", isLocal: false} ]);
+
+            s = new StepNode(0);
+            s.parseLine(`{var} = [foo]`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "[foo]", isLocal: false} ]);
+        });
+
+        it("parses {{var}} = Function", () => {
+            s = new StepNode(0);
+            s.parseLine(`{{var}} = Click 'something' [here] { blah }`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "Click 'something' [here] { blah }", isLocal: true} ]);
+
+            s = new StepNode(0);
+            s.parseLine(`    {{ var with spaces  }} =  Click 'something' [here] {{blah}}`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var with spaces", value: "Click 'something' [here] {{blah}}", isLocal: true} ]);
+
+            s = new StepNode(0);
+            s.parseLine(`{{var}} = Click 'something \\\\ \'' "something2 \"" [\\'he\\' re] {blah} {{blah2}}`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: `Click 'something \\\\ \'' "something2 \"" [\\'he\\' re] {blah} {{blah2}}`, isLocal: true} ]);
+        });
+
+        it("parses {{var}} = 'string'", () => {
+            s = new StepNode(0);
+            s.parseLine(`{{var}} = 'foo \\\''`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "'foo \\\''", isLocal: true} ]);
+
+            s = new StepNode(0);
+            s.parseLine(`{{var}} = "foo \\\""`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "\"foo \\\"\"", isLocal: true} ]);
+
+            s = new StepNode(0);
+            s.parseLine(`{{var}} = [foo 'bar'\\\[\\\]]`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [ {name: "var", value: "[foo 'bar'\\\[\\\]]", isLocal: true} ]);
+        });
+
+        it("parses multiple {var} = 'string literal', separated by commas", () => {
+            s.parseLine(`{var1} = 'one', {{var2}}='two 2', {var 3}= "three 3",{var4}=[four "4"] +`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), [
+                {name: "var1", value: "'one'", isLocal: false},
+                {name: "var2", value: "'two 2'", isLocal: true},
+                {name: "var 3", value: "\"three 3\"", isLocal: false},
+                {name: "var4", value: "[four \"4\"]", isLocal: false}
+            ]);
+        });
+
+        it("doesn't recognize {vars} with backslashes in their names", () => {
+            s.parseLine(`{var\\} = Click 'something \\{blah\\}' {foo}`, "file.txt", 10);
+            assert.deepEqual(s.getVarsBeingSet(), []);
         });
     });
 });

@@ -12,14 +12,13 @@ class Tree {
     constructor() {
         this.root = new StepNode();          // the root Step of the tree (parsed version of the text that got inputted)
         this.stepNodeCount = 0;              // number of StepNodes under this.root, used to generate StepNode ids
+        this.isDebug = false;                // true if at least one step has isDebug (~) set
 
         this.branches = [];                  // Array of Branch, generated from this.root
-
         this.beforeEverything = [];          // Array of Step, the steps to execute before all branches
         this.afterEverything = [];           // Array of Step, the steps to execute after all branches
 
         this.latestBranchifiedStep = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
-        this.isDebug = false;                // true if at least one step has isDebug (~) set
 
         /*
         OPTIONAL
@@ -1123,7 +1122,7 @@ ${outputBranchAbove()}
     }
 
     /**
-     * @return {Object} Object containing this.branches, with references to other objects removed
+     * @return {Object} Object representing this tree, capable of being converted to JSON
      */
     serialize() {
         let obj = {
@@ -1160,20 +1159,23 @@ ${outputBranchAbove()}
     }
 
     /**
-     * Merges the given JSON (previous) with this tree's branches and hooks (current)
-     * If a branch...
-     *     1) Exists in both previous and current
-     *         a) Didn't pass in previous (it failed or it didn't run)
-     *             It will be included in current
-     *         b) Passed in previous
-     *             It will be included in current, but marked to not run
-     *     2) Only exists in previous
-     *         It will remain absent from current (tester got rid of this branch)
-     *     3) Only exists in current
-     *         It will remain included in current (this is a new branch)
-     * @param {String} json - A JSON representation of branches and hooks from a previous run. Same JSON that serialize() returns.
+     * Marks branches passed last time as such in this.branches
+     * @param {String} json - A JSON representation of branches from a previous run. Same JSON that serialize() returns.
      */
     mergeBranchesFromPrevRun(json) {
+        /*
+         If a branch...
+             1) Exists in both previous and current
+                 a) Didn't pass in previous (it failed or it didn't run)
+                     It will be included in current
+                 b) Passed in previous
+                     It will be included in current, but marked to not run
+             2) Only exists in previous
+                 It will remain absent from current (tester got rid of this branch)
+             3) Only exists in current
+                 It will remain included in current (this is a new branch)
+        */
+
         let previous = JSON.parse(json);
         let prevBranches = previous.branches;
         let currBranches = this.branches;

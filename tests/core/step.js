@@ -533,7 +533,6 @@ describe("Step", () => {
             let step = new Step();
             step.isFunctionCall = true;
             step.text = "{var} = Function call";
-            step.varsBeingSet = [ {name: "var", value: "Function call", isLocal: false} ];
             expect(step.getFunctionCallText()).to.equal("Function call");
         });
 

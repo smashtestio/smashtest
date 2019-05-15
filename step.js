@@ -70,8 +70,9 @@ class Step {
      */
     getFunctionCallText() {
         if(this.isFunctionCall) {
-            if(this.varsBeingSet && this.varsBeingSet.length == 1) { // {var} = Func
-                return this.varsBeingSet[0].value;
+            let varsBeingSet = []; // TODO: call originalStepNode.getVarsBeingSet()
+            if(varsBeingSet && varsBeingSet.length == 1) { // {var} = Func
+                return varsBeingSet[0].value;
             }
             else { // Func
                 return this.text;
