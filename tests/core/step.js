@@ -285,62 +285,6 @@ describe("Step", () => {
         });
     });
 
-    describe("getLeaves()", () => {
-        it("returns all leaves", () => {
-            let leaves = root.getLeaves();
-            root.rootMark = true;
-
-            expect(leaves).to.containSubset([
-                {
-                    text: 'B',
-                    varsList: [ 'B1', 'B2' ],
-                    parent: { text: 'A' },
-                    children: []
-                },
-                {
-                    text: 'D',
-                    varsList: [ 'D1', 'D2' ],
-                    parent: { text: 'C' },
-                    children: []
-                },
-                {
-                    steps: [
-                        {
-                            text: 'E',
-                            varsList: [ 'E1', 'E2' ],
-                            parent: null,
-                            children: []
-                        },
-                        {
-                            text: 'F',
-                            varsList: [ 'F1', 'F2' ],
-                            parent: null,
-                            children: []
-                        }
-                    ],
-                    parent: { rootMark: true },
-                    children: []
-                }
-            ]);
-        });
-
-        it("returns an array with itself when called on a leaf", () => {
-            let D = root.children[0].children[1].children[0];
-            let leaves = D.getLeaves();
-
-            expect(leaves).to.containSubset([
-                {
-                    text: 'D',
-                    varsList: [ 'D1', 'D2' ],
-                    parent: { text: 'C' },
-                    children: []
-                }
-            ]);
-
-            expect(leaves).to.have.length(1);
-        });
-    });
-
     describe("isFunctionMatch()", () => {
         let functionDeclaration = new Step();
         let functionCall = new Step();

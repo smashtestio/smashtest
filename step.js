@@ -1,58 +1,18 @@
-const clonedeep = require('lodash/clonedeep');
 const utils = require('./utils.js');
 const Constants = require('./constants.js');
 
 /**
- * Represents a Step within a Tree or StepBlock
+ * Represents a step within a Branch
  */
 class Step {
-    constructor() {
-        this.indents = -1;                    // number of indents before this step's text, where an indent consists of SPACES_PER_INDENT spaces
-
-        this.parent = null;                   // Step or StepBlock that's the parent of this Step (null if this Step is itself part of a StepBlock)
-        this.children = [];                   // Step or StepBlock objects that are children of this Step ([] if this Step is itself part of a StepBlock)
-
-        this.filename = null;                 // filename where this step is from
-        this.lineNumber = null;               // line number where this step is from
+    constructor(id) {
+        this.id = id || -1;                   // id of the corresponding StepNode
 
         /*
         OPTIONAL
 
-        this.line = "";                       // entire text of the step, including spaces at the front, comments, etc.
-        this.text = "";                       // text of the command of the step (not including spaces in front, modifiers, comments, etc.)
-        this.modifiers = [];                  // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step
-        this.frontModifiers = [];             // Array of String, modifiers in front of the step text
-        this.backModifiers = [];              // Array of String, modifiers in back of the step text
-        this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
-        this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
+        this.functionDeclarationId = -1;      // id of StepNode that corresponds to the function declaration, if this step is a function call
 
-        this.isFunctionDeclaration = false;   // true if this step is a function declaration
-        this.isFunctionCall = false;          // true if this step is a function call
-        this.isPrivateFunctionDeclaration = false;   // true if this is a private function declaration
-        this.isTextualStep = false;           // true if this step is textual (-) and not a function call
-        this.functionDeclarationInTree = {};  // Step that corresponds to the function declaration, if this step is a function call
-        this.functionDeclarationText = "";    // if this step is a function call, this is set to the corresponding function declaration's text
-
-        this.isSkip = false;                  // true if this step has the skip modifier (-s)
-        this.isSkipBelow = false;             // true if this step has the skip below modifier (.s)
-        this.isSkipBranch = false;            // true if this step has the skip branch modifier ($s)
-        this.isDebug = false;                 // true if this step has the debug modifier (~)
-        this.isBeforeDebug = false;           // true if this step has the debug modifier (~) before the step text
-        this.isAfterDebug = false;            // true if this step has the debug modifier (~) after the step text
-        this.isOnly = false;                  // true if this step has the only modifier ($)
-        this.isNonParallel = false;           // true if this step has the non-parallel modifier (!)
-        this.isSequential = false;            // true if this step has the sequential modifier (..)
-        this.isCollapsed = false;             // true if this step should be collapsed in the report (+)
-        this.isHidden = false;                // true if this step should be hidden in the report (+?)
-
-        this.isHook = false;                  // true if this step is a hook
-        this.isPackaged = false;              // true if this step is from a package file
-
-        this.varsBeingSet = [];               // if this step is in the format {var1}=Step1, {{var2}}=Step2, etc., this array will contain objects {name: "var1", value: "Step1", isLocal: false}, {name: "var2", value: "Step2", isLocal: true} etc.
-
-        this.containingStepBlock = {};        // the StepBlock that contains this Step
-
-        this.originalStepInTree = {};         // when this step is cloned, the clone's originalStepInTree points to the Step from which it was cloned
         this.level = 0;                       // number of function calls deep this step is within its branch
 
         this.isPassed = false;                // true if this step passed after being run
@@ -67,70 +27,14 @@ class Step {
         this.timeStarted = {};                // Date object (time) of when this step started being executed
         this.timeEnded = {};                  // Date object (time) of when this step ended execution
 
-        htmlReport = "";                      // html that represents this step in reports
+        reportTemplate = "";                  // points to object whose html property contains html that represents this step in reports
+        reportView = {};                      // object that replaces {{{mustache templates}}} in reportTemplate
         */
     }
 
     /**
-     * Generates a clone of this Step, ready to be placed into a Branch
-     * Cannot be called if this is a StepBlock
-     * @param {Boolean} [noRefs] - If true, the clone will contain no references to outside objects (such as originalStepInTree)
-     * @return {Step} A distinct copy of this Step, but with parent, children, containingStepBlock, and functionDeclarationInTree deleted, and originalStepInTree set
-     */
-    cloneForBranch(noRefs) {
-        // We don't want the clone to walk the tree into other Step objects, such as this.parent
-        // Therefore, temporarily remove references to other Steps
-        let originalParent = this.parent;
-        delete this.parent;
-
-        let originalChildren = this.children;
-        delete this.children;
-
-        let originalFunctionDeclarationInTree = this.functionDeclarationInTree;
-        delete this.functionDeclarationInTree; // delete because this variable is optional and is undefined by default
-
-        let originalContainingStepBlock = this.containingStepBlock;
-        delete this.containingStepBlock; // delete because this variable is optional and is undefined by default
-
-        let originalOriginalStepInTree = this.originalStepInTree;
-        delete this.originalStepInTree;
-
-        // Clone
-        let clone = clonedeep(this);
-        if(!noRefs) {
-            clone.originalStepInTree = originalOriginalStepInTree ? originalOriginalStepInTree : this; // double-cloning a Step retains originalStepInTree pointing at the original step under this.root
-        }
-
-        // Restore originals
-        this.parent = originalParent;
-        this.children = originalChildren;
-        originalFunctionDeclarationInTree && (this.functionDeclarationInTree = originalFunctionDeclarationInTree);
-        originalContainingStepBlock && (this.containingStepBlock = originalContainingStepBlock);
-        originalOriginalStepInTree && (this.originalStepInTree = originalOriginalStepInTree);
-
-        return clone;
-    }
-
-    /**
-     * @return {Array} Array of Step, which are the leaves of this step's underlying tree, [ this ] if this is itself a leaf
-     */
-    getLeaves() {
-        if(this.children.length == 0) {
-            // this is a leaf
-            return [ this ];
-        }
-        else {
-            let arr = [];
-            this.children.forEach(child => {
-                arr = arr.concat(child.getLeaves());
-            });
-            return arr;
-        }
-    }
-
-    /**
-     * Checks to see if this step, which is a function call, matches the given function declaration (case insensitive)
-     * @param {Step} functionDeclaration - A function declaration step
+     * Checks to see if this step, which is a function call, matches the given function declaration node (case insensitive)
+     * @param {StepNode} functionDeclaration - A function declaration node
      * @return {Boolean} true if they match, false if they don't
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
      */
@@ -179,55 +83,54 @@ class Step {
     }
 
     /**
-     * Merges functionDeclarationInTree into this Step (modifier booleans are OR'ed in from functionDeclarationInTree into this)
-     * If this.functionDeclarationInTree has a code block, it is copied into this
+     * Merges functionDeclaration into this Step (modifier booleans are OR'ed in from functionDeclaration into this)
      * This step must be a function call
-     * @param {Step} functionDeclarationInTree - The function declaration that corresponds to this step
+     * @param {StepNode} functionDeclaration - The function declaration that corresponds to this step
      */
-    mergeInFunctionDeclaration(functionDeclarationInTree) {
-        this.functionDeclarationInTree = functionDeclarationInTree;
-        this.functionDeclarationText = functionDeclarationInTree.text;
+    mergeInFunctionDeclaration(functionDeclaration) {
+        this.functionDeclaration = functionDeclaration;
+        this.functionDeclarationText = functionDeclaration.text;
 
-        let isSkip = this.isSkip || functionDeclarationInTree.isSkip;
+        let isSkip = this.isSkip || functionDeclaration.isSkip;
         isSkip && (this.isSkip = isSkip);
 
-        let isSkipBelow = this.isSkipBelow || functionDeclarationInTree.isSkipBelow;
+        let isSkipBelow = this.isSkipBelow || functionDeclaration.isSkipBelow;
         isSkipBelow && (this.isSkipBelow = isSkipBelow);
 
-        let isSkipBranch = this.isSkipBranch || functionDeclarationInTree.isSkipBranch;
+        let isSkipBranch = this.isSkipBranch || functionDeclaration.isSkipBranch;
         isSkipBranch && (this.isSkipBranch = isSkipBranch);
 
-        let isDebug = this.isDebug || functionDeclarationInTree.isDebug;
+        let isDebug = this.isDebug || functionDeclaration.isDebug;
         isDebug && (this.isDebug = isDebug);
 
-        let isBeforeDebug = this.isBeforeDebug || functionDeclarationInTree.isBeforeDebug;
+        let isBeforeDebug = this.isBeforeDebug || functionDeclaration.isBeforeDebug;
         isBeforeDebug && (this.isBeforeDebug = isBeforeDebug);
 
-        let isAfterDebug = this.isAfterDebug || functionDeclarationInTree.isAfterDebug;
+        let isAfterDebug = this.isAfterDebug || functionDeclaration.isAfterDebug;
         isAfterDebug && (this.isAfterDebug = isAfterDebug);
 
-        let isOnly = this.isOnly || functionDeclarationInTree.isOnly;
+        let isOnly = this.isOnly || functionDeclaration.isOnly;
         isOnly && (this.isOnly = isOnly);
 
-        let isNonParallel = this.isNonParallel || functionDeclarationInTree.isNonParallel;
+        let isNonParallel = this.isNonParallel || functionDeclaration.isNonParallel;
         isNonParallel && (this.isNonParallel = isNonParallel);
 
-        let isSequential = this.isSequential || functionDeclarationInTree.isSequential;
+        let isSequential = this.isSequential || functionDeclaration.isSequential;
         isSequential && (this.isSequential = isSequential);
 
-        let isCollapsed = this.isCollapsed || functionDeclarationInTree.isCollapsed;
+        let isCollapsed = this.isCollapsed || functionDeclaration.isCollapsed;
         isCollapsed && (this.isCollapsed = isCollapsed);
 
         // we don't need to copy over isHidden
 
-        let isHook = this.isHook || functionDeclarationInTree.isHook;
+        let isHook = this.isHook || functionDeclaration.isHook;
         isHook && (this.isHook = isHook);
 
-        let isPackaged = this.isPackaged || functionDeclarationInTree.isPackaged;
+        let isPackaged = this.isPackaged || functionDeclaration.isPackaged;
         isPackaged && (this.isPackaged = isPackaged);
 
-        if(functionDeclarationInTree.hasCodeBlock()) {
-            this.codeBlock = functionDeclarationInTree.codeBlock;
+        if(functionDeclaration.hasCodeBlock()) {
+            this.codeBlock = functionDeclaration.codeBlock;
         }
     }
 
@@ -270,6 +173,17 @@ class Step {
      */
     hasCodeBlock() {
         return typeof this.codeBlock != 'undefined';
+    }
+
+    getVarsList() {
+        // TODO
+
+
+
+
+
+
+
     }
 }
 module.exports = Step;

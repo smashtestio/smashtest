@@ -4,7 +4,7 @@ const Constants = require('./constants.js');
 const utils = require('./utils.js');
 
 /**
- * Represents a Branch from the test tree
+ * Represents a single branch containing steps
  */
 class Branch {
     constructor(steps) {

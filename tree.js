@@ -10,11 +10,13 @@ const utils = require('./utils.js');
  */
 class Tree {
     constructor() {
-        this.root = new Step();              // the root Step of the tree (parsed version of the text that got inputted)
+        this.root = new StepNode();          // the root Step of the tree (parsed version of the text that got inputted)
+        this.stepNodeCount = 0;              // number of StepNodes under this.root, used to generate StepNode ids
+
         this.branches = [];                  // Array of Branch, generated from this.root
 
-        this.beforeEverything = [];          // Array of Step, the steps (and their children) to execute before all branches (tests)
-        this.afterEverything = [];           // Array of Step, the steps (and their children) to execute after all branches (tests)
+        this.beforeEverything = [];          // Array of Step, the steps to execute before all branches
+        this.afterEverything = [];           // Array of Step, the steps to execute after all branches
 
         this.latestBranchifiedStep = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
         this.isDebug = false;                // true if at least one step has isDebug (~) set
@@ -40,249 +42,10 @@ class Tree {
     }
 
     /**
-     * Parses in a line and converts it to a Step object
-     * @param {String} line - The full text of the line
-     * @param {String} filename - The filename of the file where the step is
-     * @param {Integer} lineNumber - The line number of the step
-     * @return {Step} The Step object representing this parsed step. The Step's text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
-     * @throws {Error} If there is a parse error
+     * @return {StepNode} A new StepNode
      */
-    parseLine(line, filename, lineNumber) {
-        let step = new Step();
-        step.line = line;
-        step.filename = filename;
-        step.lineNumber = lineNumber;
-
-        if(line.trim() == '') {
-            step.text = '';
-            return step;
-        }
-
-        if(line.match(Constants.SEQ_MODIFIER_LINE)) {
-            step.text = '..';
-            return step;
-        }
-
-        let matches = line.match(Constants.LINE_WHOLE);
-        if(!matches) {
-            utils.error(`This step is not written correctly`, filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
-        }
-
-        // Parsed parts of the line
-        step.text = matches[5];
-        if(matches[4]) {
-            step.isFunctionDeclaration = true;
-            if(matches[4].trim() == '**') {
-                step.isPrivateFunctionDeclaration = true;
-            }
-            else if(matches[4].trim() == '***') {
-                step.isHook = true;
-            }
-        }
-        if(matches[1]) {
-            step.frontModifiers = matches[1].trim().split(/\s+/);
-            step.modifiers = (step.modifiers || []).concat(step.frontModifiers);
-        }
-        if(matches[11]) {
-            step.backModifiers = matches[11].trim().split(/\s+/);
-            step.modifiers = (step.modifiers || []).concat(step.backModifiers);
-        }
-        if(matches[15]) {
-            step.codeBlock = matches[15].replace(/^\{/, '');
-        }
-        if(matches[17]) {
-            step.comment = matches[17];
-        }
-
-        // Validation against prohibited step texts
-        if(step.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-            utils.error(`Invalid step name`, filename, lineNumber);
-        }
-        if(step.text.match(Constants.MODIFIER_START_OR_END)) {
-            utils.error(`Spaces must separate modifiers from each other and from the step`, filename, lineNumber);
-        }
-
-        // Function Declaration
-        if(step.isFunctionDeclaration) {
-            if(step.text.match(Constants.STRING_LITERAL)) {
-                utils.error(`A function declaration cannot have 'strings', "strings", or [strings] inside of it`, filename, lineNumber);
-            }
-        }
-        else { // not a function declaration
-            // Validate that a non-function declaration isn't using a hook step name
-            if(Constants.HOOK_NAMES.indexOf(utils.canonicalize(step.text)) != -1) {
-                utils.error(`You cannot have a function call with that name. That's reserved for hook function declarations.`, filename, lineNumber);
-            }
-        }
-
-        // Set modifier booleans and perform related validations
-        if(step.frontModifiers) {
-            if(step.frontModifiers.includes('~')) {
-                step.isDebug = true;
-                step.isBeforeDebug = true;
-            }
-
-        }
-        if(step.backModifiers) {
-            if(step.backModifiers.includes('~')) {
-                step.isDebug = true;
-                step.isAfterDebug = true;
-            }
-        }
-        if(step.modifiers) {
-            if(step.modifiers.includes('-s')) {
-                step.isSkip = true;
-                step.isTextualStep = true;
-            }
-            if(step.modifiers.includes('.s')) {
-                step.isSkipBelow = true;
-            }
-            if(step.modifiers.includes('$s')) {
-                step.isSkipBranch = true;
-            }
-            if(step.modifiers.includes('-')) {
-                step.isTextualStep = true;
-
-                if(step.isFunctionDeclaration) {
-                    utils.error(`A function declaration cannot be a textual step (-) as well`, filename, lineNumber);
-                }
-            }
-            if(step.modifiers.includes('$')) {
-                step.isOnly = true;
-            }
-            if(step.modifiers.includes('!')) {
-                step.isNonParallel = true;
-            }
-            if(step.modifiers.includes('..')) {
-                step.isSequential = true;
-            }
-            if(step.modifiers.includes('+')) {
-                step.isCollapsed = true;
-            }
-            if(step.modifiers.includes('+?')) {
-                step.isHidden = true;
-            }
-        }
-
-        // Validate hook steps
-        if(step.isHook) {
-            let canStepText = utils.canonicalize(step.text);
-            let stepText = step.text.trim().replace(/\s+/g, ' ');
-            let index = Constants.HOOK_NAMES.indexOf(canStepText);
-            if(index == -1) {
-                utils.error(`Invalid hook name`, filename, lineNumber);
-            }
-            else {
-                if(!step.hasCodeBlock()) {
-                    utils.error(`A hook must have a code block`, filename, lineNumber);
-                }
-                if(step.modifiers && step.modifiers.length > 0) {
-                    utils.error(`A hook cannot have any modifiers (${step.modifiers[0]})`, filename, lineNumber);
-                }
-            }
-        }
-
-        // Steps that set variables
-        if(step.text.match(Constants.VARS_SET_WHOLE)) {
-            // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
-
-            if(step.isFunctionDeclaration) {
-                utils.error(`A step setting {variables} cannot start with a *`, filename, lineNumber);
-            }
-
-            // Parse vars from text into step.varsBeingSet
-            let textCopy = step.text + "";
-            step.varsBeingSet = [];
-            while(textCopy.trim() != "") {
-                matches = textCopy.match(Constants.VARS_SET_WHOLE); // guaranteed to have matches
-                let varBeingSet = {
-                    name: utils.stripBrackets(matches[2]),
-                    value: matches[5],
-                    isLocal: matches[2].includes('{{')
-                };
-
-                // Generate variable name validations
-                if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                    utils.error(`A {variable name} cannot be just numbers`, filename, lineNumber);
-                }
-
-                // Variable names cannot end in a * (that's reserved for lookahead vars)
-                if(varBeingSet.name.match(/\*\s*$/)) {
-                    utils.error(`A variable name to the left of an = cannot end in a *`, filename, lineNumber);
-                }
-
-                // Validations for special variables
-                if(varBeingSet.name.toLowerCase() == 'frequency') {
-                    if(varBeingSet.isLocal) {
-                        utils.error(`The {frequency} variable is special and cannot be a local variable`, filename, lineNumber);
-                    }
-                    if(!utils.hasQuotes(varBeingSet.value) || ['high','med','low'].indexOf(utils.stripQuotes(varBeingSet.value)) == -1) {
-                        utils.error(`The {frequency} variable is special and can only be set to 'high', 'med', or 'low'`, filename, lineNumber);
-                    }
-                }
-                else if(varBeingSet.name.toLowerCase() == 'group') {
-                    if(varBeingSet.isLocal) {
-                        utils.error(`The {group} variable is special and cannot be a local variable`, filename, lineNumber);
-                    }
-                }
-
-                step.varsBeingSet.push(varBeingSet);
-
-                textCopy = textCopy.replace(matches[1], ''); // strip the leading {var}=Step from the string
-                textCopy = textCopy.replace(/^\,/, ''); // string the leading comma, if there is one
-            }
-
-            if(step.varsBeingSet.length > 1) {
-                // This step is {var1}='str1', {var2}='str2', etc. (two or more vars)
-
-                // Validations
-                for(let i = 0; i < step.varsBeingSet.length; i++) {
-                    let varBeingSet = step.varsBeingSet[i];
-
-                    if(varBeingSet.value.trim() == '') {
-                        utils.error(`A {variable} must be set to something`, filename, lineNumber);
-                    }
-                    if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
-                        utils.error(`When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
-                    }
-                }
-            }
-            else {
-                // This step is {var}=Func or {var}='str' (only one var being set)
-
-                let varBeingSet = step.varsBeingSet[0];
-                if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
-                    // This step is {var}=Func
-
-                    step.isFunctionCall = true;
-                    if(step.hasCodeBlock()) { // In {var} = Text {, the Text is not considered a function call
-                        delete step.isFunctionCall;
-                    }
-
-                    // Validations
-                    if(varBeingSet.value.trim() == '') {
-                        utils.error(`A {variable} must be set to something`, filename, lineNumber);
-                    }
-                    if(varBeingSet.value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                        utils.error(`{vars} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
-                    }
-                    if(step.isTextualStep) {
-                        utils.error(`A textual step (ending in -) cannot also start with a {variable} assignment`, filename, lineNumber);
-                    }
-                }
-            }
-        }
-        else { // this step is not a {var}= step
-            // Set isFunctionCall
-            if(!step.isTextualStep && !step.isFunctionDeclaration) {
-                step.isFunctionCall = true;
-                if(step.hasCodeBlock()) { // In Text {, the Text is not considered a function call
-                    delete step.isFunctionCall;
-                }
-            }
-        }
-
-        return step;
+    newStepNode() {
+        return new StepNode(stepNodeCount++);
     }
 
     /**
@@ -320,34 +83,34 @@ class Tree {
                     lastStepCreated.codeBlock += ("\n" + line);
                 }
 
-                lines[i] = this.parseLine('', filename, lineNumber); // blank out the line we just handled
+                lines[i] = this.newStepNode().parseLine('', filename, lineNumber); // blank out the line we just handled
                 if(currentlyInsideCodeBlockFromLineNum == -1) { // if the code block just ended, mark it as such
                     lines[i].indents = utils.numIndents(line, filename, lineNumber);
                     lines[i].codeBlockEnd = true;
                 }
             }
             else {
-                let step = this.parseLine(line, filename, lineNumber);
-                step.indents = utils.numIndents(line, filename, lineNumber);
+                let s = this.newStepNode().parseLine(line, filename, lineNumber);
+                s.indents = utils.numIndents(line, filename, lineNumber);
 
-                if(!lastNonEmptyStep && step.indents != 0) {
+                if(!lastNonEmptyStep && s.indents != 0) {
                     utils.error(`The first step must have 0 indents`, filename, lineNumber);
                 }
 
-                if(i - 1 >= 0 && step.text != '' && lines[i - 1].codeBlockEnd && step.indents == lines[i - 1].indents) {
+                if(i - 1 >= 0 && s.text != '' && lines[i - 1].codeBlockEnd && s.indents == lines[i - 1].indents) {
                     utils.error(`You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one.`, filename, lineNumber);
                 }
 
                 // If this is the start of a new code block
-                if(step.hasCodeBlock()) {
+                if(s.hasCodeBlock()) {
                     currentlyInsideCodeBlockFromLineNum = lineNumber;
                 }
 
-                lines[i] = step;
+                lines[i] = s;
                 lastStepCreated = lines[i];
 
-                if(step.text != '') {
-                    lastNonEmptyStep = step;
+                if(s.text != '') {
+                    lastNonEmptyStep = s;
                 }
             }
         }
