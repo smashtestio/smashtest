@@ -73,7 +73,7 @@
     }
 
     *** Before Every Step {
-        // Take screenshot, set runInstance.currStep.htmlReport
+        // Take screenshot, set runInstance.currStep.reportTemplate and reportView
 
 
 
@@ -83,7 +83,7 @@
     }
 
     *** After Every Step {
-        // Take screenshot, set runInstance.currStep.htmlReport (which already exists - just add to it)
+        // Take screenshot, set runInstance.currStep.reportTemplate and reportView (which already exists - just add to it)
 
 
 

@@ -11,6 +11,7 @@ const utils = require('./utils.js');
 class Tree {
     constructor() {
         this.root = new StepNode();          // the root Step of the tree (parsed version of the text that got inputted)
+        this.stepNodeIndex = {};             // object where keys are ids and values are references to StepNodes under this.root
         this.stepNodeCount = 0;              // number of StepNodes under this.root, used to generate StepNode ids
         this.isDebug = false;                // true if at least one step has isDebug (~) set
 
@@ -45,6 +46,20 @@ class Tree {
      */
     newStepNode() {
         return new StepNode(stepNodeCount++);
+    }
+
+    /**
+     * @return {StepNode} The StepNode under this.root with the given id
+     */
+    getStepNode(id) {
+        return stepNodeIndex[id];
+    }
+
+    /**
+     * @return {StepNode} The StepNode under this.root that corresponds to the given Step
+     */
+    getStepNode(step) {
+        return this.getStepNode(step.id);
     }
 
     /**
@@ -626,6 +641,15 @@ ${outputBranchAbove()}
 
         function setHooks(child, self) {
             if(child.isHook) {
+                /*
+                TODO: here's the implementation:
+                cloneAsFunctionCall() {
+                    let clone = this.cloneForBranch();
+                    clone.isFunctionDeclaration = false;
+                    clone.isFunctionCall = true;
+                    return clone;
+                }
+                */
                 let clonedHookStep = child.cloneAsFunctionCall();
                 clonedHookStep.level = 0;
 
@@ -1122,40 +1146,39 @@ ${outputBranchAbove()}
     }
 
     /**
-     * @return {Object} Object representing this tree, capable of being converted to JSON
+     * @return {String} JSON representation of this tree
      */
     serialize() {
-        let obj = {
-            branches: [],
-            beforeEverything: [],
-            afterEverything: []
-        };
+        return JSON.stringify({
+            stepNodeIndex: this.stepNodeIndex,
+            isDebug: this.isDebug,
 
-        this.branches.forEach(branch => {
-            let clone = branch.clone(true);
-            if(branch.passedLastTime) {
-                clone.isPassed = true;
+            branches: this.branches,
+            beforeEverything: this.beforeEverything,
+            afterEverything: this.afterEverything,
+
+            elapsed: this.elapsed,
+            timeStarted: this.timeStarted,
+            timeEnded: this.timeEnded,
+
+            passed: this.passed,
+            failed: this.failed,
+            skipped: this.skipped,
+            complete: this.complete,
+            totalToRun: this.totalToRun,
+            totalInReport: this.totalInReport,
+            totalPassedInReport: this.totalPassedInReport,
+
+            totalStepsComplete: this.totalStepsComplete,
+            totalSteps: this.totalSteps
+        }, (k, v) => {
+            if(v instanceof Branch || v instanceof StepNode || v instanceof Step) {
+                return v.serializeObj();
             }
-            obj.branches.push(clone);
-        });
-
-        this.beforeEverything.forEach(s => {
-            obj.beforeEverything.push(s.cloneForBranch(true));
-        });
-
-        this.afterEverything.forEach(s => {
-            obj.afterEverything.push(s.cloneForBranch(true));
-        });
-
-        const BLACKLIST = [ 'branches', 'beforeEverything', 'afterEverything', 'root', 'latestBranchifiedStep' ];
-
-        for(let property in this) {
-            if(this.hasOwnProperty(property) && BLACKLIST.indexOf(property) == -1) {
-                obj[property] = this[property];
+            else {
+                return v;
             }
-        }
-
-        return obj;
+        });
     }
 
     /**

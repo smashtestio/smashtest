@@ -33,7 +33,7 @@
     - Ctrl + C, Runner stopped
     - Try a step with a very long text (sometimes branches will have tons of indents). Make sure something scrolls horizontally.
     - Branch with over 10 steps, make sure line numbers rendered properly
-    - Set step.htmlReport with the sample html
+    - Set step.reportTemplate and reportView with the sample html
     - Test that takes a while to finish (using setTimeout()s, used to check progress bar mid-run)
 
     - Manually try in all browsers

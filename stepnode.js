@@ -67,6 +67,23 @@ class StepNode {
     }
 
     /**
+     * @return {Object} Object that contains a codeBlock property with this step node's code block, null if this step node has no code block
+     */
+    getCodeBlockObj() {
+        if(this.hasCodeBlock()) {
+            if(typeof this.codeBlock == 'string') {
+                return this;
+            }
+            else { // codeBlock is a StepNode containing the code block
+                return this.codeBlock;
+            }
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
      * Parses a line into this StepNode
      * this.text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
      * @param {String} line - The full text of the line
@@ -318,6 +335,118 @@ class StepNode {
         }
 
         return varsBeingSet;
+    }
+
+    /**
+     * @return {String} The text of the function call (without the leading {var}=, if one exists), null if step isn't a function call
+     */
+    getFunctionCallText() {
+        if(this.isFunctionCall) {
+            let varsBeingSet = this.getVarsBeingSet();
+            if(varsBeingSet && varsBeingSet.length == 1) { // {var} = Func
+                return varsBeingSet[0].value;
+            }
+            else { // Func
+                return this.text;
+            }
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Checks to see if this step, which is a function call, matches the given function declaration node (case insensitive)
+     * @param {StepNode} functionDeclarationNode - A function declaration node
+     * @return {Boolean} true if they match, false if they don't
+     * @throws {Error} if there's a case insensitive match but not a case sensitive match
+     */
+    isFunctionMatch(functionDeclarationNode) {
+        let functionCallText = this.getFunctionCallText();
+        let functionDeclarationText = functionDeclarationNode.text;
+
+        // Canonicalize by replacing {vars} and 'strings' with {}'s
+
+        functionDeclarationText = functionDeclarationText
+            .replace(Constants.VAR, '{}');
+        functionDeclarationText = utils.unescape(functionDeclarationText);
+        functionDeclarationText = utils.canonicalize(functionDeclarationText);
+
+        functionCallText = functionCallText
+            .replace(Constants.STRING_LITERAL, '{}')
+            .replace(Constants.VAR, '{}');
+        functionCallText = utils.unescape(functionCallText);
+        functionCallText = utils.canonicalize(functionCallText);
+
+        if(functionDeclarationText.endsWith('*')) {
+            return functionCallText.startsWith(functionDeclarationText.replace(/\*$/, ''));
+        }
+        else {
+            return functionCallText == functionDeclarationText;
+        }
+    }
+
+    /**
+     * @param {StepNode} functionDeclarationNode - The function declaration that corresponds to this step
+     * @return {Object} An object containing a merge (OR'ing) of this StepNode's modifiers and functionDeclarationNode's modifiers
+     */
+    getMergedModifiers(functionDeclarationNode) {
+        let o = {};
+
+        let isSkip = this.isSkip || functionDeclarationNode.isSkip;
+        isSkip && (o.isSkip = isSkip);
+
+        let isSkipBelow = this.isSkipBelow || functionDeclarationNode.isSkipBelow;
+        isSkipBelow && (o.isSkipBelow = isSkipBelow);
+
+        let isSkipBranch = this.isSkipBranch || functionDeclarationNode.isSkipBranch;
+        isSkipBranch && (o.isSkipBranch = isSkipBranch);
+
+        let isDebug = this.isDebug || functionDeclarationNode.isDebug;
+        isDebug && (o.isDebug = isDebug);
+
+        let isBeforeDebug = this.isBeforeDebug || functionDeclarationNode.isBeforeDebug;
+        isBeforeDebug && (o.isBeforeDebug = isBeforeDebug);
+
+        let isAfterDebug = this.isAfterDebug || functionDeclarationNode.isAfterDebug;
+        isAfterDebug && (o.isAfterDebug = isAfterDebug);
+
+        let isOnly = this.isOnly || functionDeclarationNode.isOnly;
+        isOnly && (o.isOnly = isOnly);
+
+        let isNonParallel = this.isNonParallel || functionDeclarationNode.isNonParallel;
+        isNonParallel && (o.isNonParallel = isNonParallel);
+
+        let isSequential = this.isSequential || functionDeclarationNode.isSequential;
+        isSequential && (o.isSequential = isSequential);
+
+        let isCollapsed = this.isCollapsed || functionDeclarationNode.isCollapsed;
+        isCollapsed && (o.isCollapsed = isCollapsed);
+
+        // we don't need to merge isHidden
+
+        let isHook = this.isHook || functionDeclarationNode.isHook;
+        isHook && (o.isHook = isHook);
+
+        let isPackaged = this.isPackaged || functionDeclarationNode.isPackaged;
+        isPackaged && (o.isPackaged = isPackaged);
+
+        return o;
+    }
+
+    /**
+     * @return {Object} An Object representing this step node, but able to be converted to JSON
+     */
+    serializeObj() {
+        let o = {};
+        Object.assign(o, this);
+
+        delete o.parent;
+        delete o.children;
+        delete o.containingStepBlock;
+        delete o.codeBlock;
+
+        return o;
     }
 }
 module.exports = StepNode;

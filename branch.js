@@ -49,6 +49,28 @@ class Branch {
     }
 
     /**
+     * @return {Object} An Object representing this branch, but able to be converted to JSON
+     */
+    serializeObj() {
+        let o = {};
+        Object.assign(o, this);
+
+        if(o.passedLastTime) {
+            o.isPassed = true;
+        }
+
+        return o;
+    }
+
+
+
+
+
+
+
+
+
+    /**
      * @return {Branch} A new branch consisting of this branch with the steps and hooks of the given branch attached to the end
      * Copies over the other members, if they exist in branch
      */
