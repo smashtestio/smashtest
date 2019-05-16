@@ -49,6 +49,7 @@ class Tree {
      */
     newStepNode() {
         let stepNode = new StepNode(this.stepNodeCount + 1);
+        this.stepNodeIndex[stepNode.id] = stepNode;
         this.stepNodeCount++;
         return stepNode;
     }
@@ -284,63 +285,63 @@ class Tree {
     }
 
     /**
-     * Finds the nearest function declaration step under this.root that matches a given function call step
-     * Does not choose a function declaration already represented inside branchAbove (a function cannot call itself)
-     * @param {Step} functionCall - The function call whose function declaration we're trying to find
-     * @param {Array} branchAbove - Branch containing steps (no StepBlocks), steps above the function call step (with functions, step blocks, etc. already expanded by branchify())
-     * @return {Step} The nearest function declaration under this.root that matches the function call step
+     * Finds the nearest function declaration step node that matches a given function call step
+     * Does not choose a function declaration with a corresponding function call already inside branchAbove (a function cannot call itself)
+     * @param {Step} functionCall - The function call Step whose function declaration we're trying to find
+     * @param {Branch} branchAbove - Post-branchify Branch of steps that come before functionCall
+     * @return {StepNode} The nearest function declaration step node that matches the function call step
      * @throws {Error} If a matching function declaration could not be found
      */
     findFunctionDeclaration(functionCall, branchAbove) {
-        // NOTE: Why do we input branchAbove instead of just inputting functionCall?
-        // The difference between the parents of a step in the tree and branchAbove is that branchAbove has been "expanded" by branchify().
-        // Suppose function declaration B is declared inside function declaration A. If A is called, B has to be accessible
-        // to the steps under the call to A. This can only be done if the call to A has been "expanded" (has the steps from
-        // A's declaration attached).
-        // Also, if F is called within * F, we search for the closest * F that's not the current * F
-
-        branchAbove = branchAbove.clone();
         branchAbove.steps.push(functionCall);
 
-        // If the functionCall is F *, find out what * was substituted for in branchAbove and use that to replace the *
-        if(functionCall.text.trim().endsWith('*')) {
+        let functionCallNode = this.getStepNode(functionCall.id);
+        let functionCallText = functionCallNode.text;
+
+        // If the functionCall ends in a *, find out what text was used for the * in branchAbove
+        if(functionCallNode.text.trim().endsWith('*')) {
             for(let i = branchAbove.steps.length - 2; i >= 0; i--) {
                 let stepAbove = branchAbove.steps[i];
+                let stepAboveNode = this.getStepNode(stepAbove.id);
+                let stepAboveFunctionDeclarationNode = stepAboveNode.functionDeclarationId;
 
-                if(stepAbove.originalStepInTree.functionDeclarationInTree && functionCall.isFunctionMatch(stepAbove.originalStepInTree.functionDeclarationInTree)) {
-                    functionCall = functionCall.cloneForBranch();
-                    functionCall.text = stepAbove.text;
+                if(stepAboveFunctionDeclarationNode && functionCallNode.isFunctionMatch(stepAboveFunctionDeclarationNode)) {
+                    functionCallText = stepAboveNode.text;
                     break;
                 }
             }
         }
 
-        // Go all the way up the tree and find cases where F is being called from within * F (recursion not allowed)
-        // Add * F to a list of untouchables
+        // Say functionCall is F, and needs to be matched to a *F. If we go up branchAbove and find other instances of F,
+        // add their corresponding *F's to a list of untouchables. functionCall F is never matched to an untouchable.
+        // This prevents an F within a *F from infinitely recursing.
         let untouchables = [];
-        for(let s = functionCall.originalStepInTree; s.indents != -1; s = s.parent || s.containingStepBlock.parent) {
-            if(s.isFunctionDeclaration && functionCall.isFunctionMatch(s)) {
+        for(let s = functionCallNode; s.indents != -1; s = s.parent || s.containingStepBlock.parent) {
+            if(s.isFunctionDeclaration && functionCallNode.isFunctionMatch(s)) {
                 untouchables.push(s);
             }
         }
 
         for(let index = branchAbove.steps.length - 1; index >= 0; index--) {
-            let currStepInTree = branchAbove.steps[index].originalStepInTree;
-            let parent = currStepInTree.parent || currStepInTree.containingStepBlock.parent;
+            let currStepNode = this.getStepNode(branchAbove.steps[index].id);
+            let parent = currStepNode.parent || currStepNode.containingStepBlock.parent;
             let siblings = parent.children;
 
             let foundDeclaration = searchAmongSiblings(siblings);
             if(foundDeclaration) {
+                branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
                 return foundDeclaration;
             }
 
             // Search inside the corresponding function declaration's children
-            if(index > 0 && branchAbove.steps[index-1].isFunctionCall) {
-                parent = branchAbove.steps[index-1].originalStepInTree.functionDeclarationInTree;
+            let currStepNodeAbove = index > 0 ? this.getStepNode(branchAbove.steps[index-1].id) : null;
+            if(currStepNodeAbove && currStepNodeAbove.isFunctionCall) {
+                parent = this.getStepNode(currStepNodeAbove.functionDeclarationId);
                 if(parent) {
                     siblings = parent.children;
                     foundDeclaration = searchAmongSiblings(siblings);
                     if(foundDeclaration) {
+                        branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
                         return foundDeclaration;
                     }
                 }
@@ -349,8 +350,8 @@ class Tree {
             function searchAmongSiblings(siblings) {
                 for(let i = 0; i < siblings.length; i++) {
                     let sibling = siblings[i];
-                    if(sibling.isFunctionDeclaration && functionCall.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
-                        if(sibling.isPrivateFunctionDeclaration && branchAbove.steps[index].level > functionCall.level) {
+                    if(sibling.isFunctionDeclaration && functionCallNode.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
+                        if(sibling.isPrivateFunctionDeclaration && currStepNode.level > functionCallNode.level) {
                             continue; // ignore private functions that are inaccessible
                         }
 
@@ -362,15 +363,17 @@ class Tree {
             }
         }
 
-        utils.error(`The function '${functionCall.getFunctionCallText()}' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+        utils.error(`The function '${functionCallNode.getFunctionCallText()}' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
 
 Trace:
-${outputBranchAbove()}
-`, functionCall.filename, functionCall.lineNumber);
+${outputBranchAbove(this)}
+`, functionCallNode.filename, functionCallNode.lineNumber);
 
-        function outputBranchAbove() {
+        function outputBranchAbove(self) {
             let str = '';
-            branchAbove.steps.forEach(s => str += `   ${s.text}\n`);
+            branchAbove.steps.forEach(s => {
+                str += `   ${self.getStepNode(s.id).text}\n`
+            });
             return str;
         }
     }

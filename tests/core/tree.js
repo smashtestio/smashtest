@@ -1540,7 +1540,7 @@ B`
             });
         });
 
-        context.only(".. step blocks", () => {
+        context(".. step blocks", () => {
             it("parses a .. step block with an empty line above it", () => {
                 let tree = new Tree();
                 tree.parseIn(
@@ -1575,7 +1575,7 @@ B`
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             },
                                             {
                                                 text: 'C',
@@ -1583,7 +1583,7 @@ B`
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             },
                                             {
                                                 text: 'D',
@@ -1591,7 +1591,7 @@ B`
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             }
                                         ],
                                         parent: { indents: 0 },
@@ -1615,7 +1615,7 @@ B`
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -1637,7 +1637,7 @@ B`
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             },
                                             {
                                                 text: 'C',
@@ -1645,7 +1645,7 @@ B`
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             },
                                             {
                                                 text: 'D',
@@ -1653,7 +1653,7 @@ B`
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             }
                                         ],
                                         parent: { indents: 0 },
@@ -1676,7 +1676,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -1692,7 +1692,7 @@ C
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     },
                                     {
                                         text: 'B',
@@ -1700,7 +1700,7 @@ C
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     },
                                     {
                                         text: 'C',
@@ -1708,7 +1708,7 @@ C
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     }
                                 ],
                                 parent: { indents: -1 },
@@ -1731,7 +1731,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -1747,7 +1747,7 @@ C
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     },
                                     {
                                         text: 'B',
@@ -1755,7 +1755,7 @@ C
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     },
                                     {
                                         text: 'C',
@@ -1763,7 +1763,7 @@ C
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     }
                                 ],
                                 parent: { indents: -1 },
@@ -1889,7 +1889,7 @@ B
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -1905,7 +1905,7 @@ B
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     },
                                     {
                                         text: 'B',
@@ -1913,7 +1913,7 @@ B
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     }
                                 ],
                                 parent: { indents: -1 },
@@ -1929,7 +1929,7 @@ B
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             },
                                             {
                                                 text: 'D',
@@ -1937,7 +1937,7 @@ B
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             }
                                         ],
                                         parent: { indents: 0 },
@@ -1962,7 +1962,7 @@ B
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -1978,7 +1978,7 @@ B
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     },
                                     {
                                         text: 'B',
@@ -1986,7 +1986,7 @@ B
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     }
                                 ],
                                 parent: { indents: -1 },
@@ -2002,7 +2002,7 @@ B
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             },
                                             {
                                                 text: 'D',
@@ -2010,7 +2010,7 @@ B
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             }
                                         ],
                                         parent: { indents: 0 },
@@ -2035,7 +2035,7 @@ B
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2051,7 +2051,7 @@ B
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     },
                                     {
                                         text: 'B',
@@ -2059,7 +2059,7 @@ B
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     }
                                 ],
                                 parent: { indents: -1 },
@@ -2075,7 +2075,7 @@ B
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             },
                                             {
                                                 text: 'D',
@@ -2083,7 +2083,7 @@ B
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             }
                                         ],
                                         parent: { indents: 0 },
@@ -2109,7 +2109,7 @@ B
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2125,7 +2125,7 @@ B
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     },
                                     {
                                         text: 'B',
@@ -2133,7 +2133,7 @@ B
                                         indents: 0,
                                         parent: null,
                                         children: [],
-                                        containingStepBlock: { indents: 0, steps: [] }
+                                        containingStepBlock: { indents: 0, steps: { $typeof: 'array' } }
                                     }
                                 ],
                                 parent: { indents: -1 },
@@ -2149,7 +2149,7 @@ B
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             },
                                             {
                                                 text: 'D',
@@ -2157,7 +2157,7 @@ B
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
-                                                containingStepBlock: { indents: 1, steps: [] }
+                                                containingStepBlock: { indents: 1, steps: { $typeof: 'array' } }
                                             }
                                         ],
                                         parent: { indents: 0 },
@@ -2186,7 +2186,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2241,7 +2241,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2297,7 +2297,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2344,7 +2344,7 @@ C
     B`
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2392,7 +2392,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2440,7 +2440,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2490,7 +2490,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2519,7 +2519,7 @@ C
                                                         indents: 2,
                                                         parent: null,
                                                         children: [],
-                                                        containingStepBlock: { indents: 2, steps: [] }
+                                                        containingStepBlock: { indents: 2, steps: { $typeof: 'array' } }
                                                     },
                                                     {
                                                         text: 'C',
@@ -2527,7 +2527,7 @@ C
                                                         indents: 2,
                                                         parent: null,
                                                         children: [],
-                                                        containingStepBlock: { indents: 2, steps: [] }
+                                                        containingStepBlock: { indents: 2, steps: { $typeof: 'array' } }
                                                     }
                                                 ],
                                                 parent: { indents: 1 },
@@ -2557,7 +2557,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2606,7 +2606,7 @@ C
         }`
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -2706,14 +2706,13 @@ My function
 
 * My function
     Step one -
-`);
+            `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My function",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -2738,11 +2737,10 @@ My function
 `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My function",
                 isFunctionDeclaration: true,
                 isPrivateFunctionDeclaration: true,
@@ -2767,11 +2765,10 @@ My function
 `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[1].cloneForBranch();
+            let functionCall = new Step(tree.root.children[1].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My function",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -2798,12 +2795,12 @@ Some parent step -
 
             let branchAbove = new Branch();
             branchAbove.steps = [
-                tree.root.children[0].cloneForBranch()
+                new Step(tree.root.children[0].id)
             ];
-            let functionCall = tree.root.children[0].children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My function",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -2832,12 +2829,12 @@ Step block step 2 -
 
             let branchAbove = new Branch();
             branchAbove.steps = [
-                tree.root.children[0].steps[0].cloneForBranch()
+                new Step(tree.root.children[0].steps[0].id)
             ];
-            let functionCall = tree.root.children[0].children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My function",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -2864,12 +2861,12 @@ Some parent step -
 
             let branchAbove = new Branch();
             branchAbove.steps = [
-                tree.root.children[0].cloneForBranch()
+                new Step(tree.root.children[0].id)
             ];
-            let functionCall = tree.root.children[0].children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My  function",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -2904,12 +2901,12 @@ Some parent step -
 
             let branchAbove = new Branch();
             branchAbove.steps = [
-                tree.root.children[0].cloneForBranch()
+                new Step(tree.root.children[0].id)
             ];
-            let functionCall = tree.root.children[0].children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My function",
                 isFunctionDeclaration: true,
                 parent: { text: "Some parent step" },
@@ -2937,11 +2934,10 @@ My function
 `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My function",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -2969,11 +2965,10 @@ My big function
 `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My big function",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -3001,11 +2996,10 @@ My big function
 `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "My big *",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -3034,11 +3028,10 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "One {{var1}} two {{var2}}   three   {{var3}}",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -3067,11 +3060,10 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "One {{var1}} two {{var2}}   three   {{var3}}",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -3101,11 +3093,10 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 `);
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "One {{var1}} two {{var2}}   three   {{var3}}",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -3125,11 +3116,10 @@ My function
 `, "file.txt");
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
 
-            expect(functionDeclaration).to.containSubset({
+            Comparer.expect(functionDeclaration).to.match({
                 text: "my function",
                 isFunctionDeclaration: true,
                 parent: { indents: -1 },
@@ -3148,8 +3138,7 @@ Function that doesn't exist
 `, "file.txt");
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             assert.throws(() => {
                 tree.findFunctionDeclaration(functionCall, branchAbove);
             }, `The function 'Function that doesn't exist' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
@@ -3170,8 +3159,7 @@ Other scope -
 `, "file.txt");
 
             let branchAbove = new Branch();
-            branchAbove.steps = [];
-            let functionCall = tree.root.children[0].cloneForBranch();
+            let functionCall = new Step(tree.root.children[0].id);
             assert.throws(() => {
                 tree.findFunctionDeclaration(functionCall, branchAbove);
             }, `The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
@@ -3191,9 +3179,9 @@ Other scope -
 `, "file.txt");
 
             branchAbove.steps = [
-                tree.root.children[0].cloneForBranch()
+                new Step(tree.root.children[0].id)
             ];
-            functionCall = tree.root.children[0].children[0].cloneForBranch();
+            functionCall = new Step(tree.root.children[0].children[0].id);
             assert.throws(() => {
                 tree.findFunctionDeclaration(functionCall, branchAbove);
             }, `The function 'My function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
