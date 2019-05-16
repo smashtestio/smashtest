@@ -1,11 +1,8 @@
 const chai = require('chai');
-const chaiSubset = require('chai-subset');
 const expect = chai.expect;
 const assert = chai.assert;
-const util = require('util');
 const StepNode = require('../../stepnode.js');
-
-chai.use(chaiSubset);
+const Comparer = require('../../packages/js/comparer.js');
 
 describe("StepNode", () => {
     describe("createStep()", () => {
@@ -1180,6 +1177,29 @@ describe("StepNode", () => {
             expect(o.isSequential).to.equal(undefined);
             expect(o.isPackaged).to.equal(undefined);
             expect(o.isCollapsed).to.equal(undefined);
+        });
+    });
+
+    describe("serializeObj()", () => {
+        it("returns a serialized object", () => {
+            let s = new StepNode(1);
+            s.text = "Foobar";
+            s.filename = "file.txt";
+            s.lineNumber = 10;
+            s.isTextualStep = true;
+            s.parent = null;
+            s.children = [ new StepNode(2), new StepNode(3) ];
+
+            let o = s.serializeObj();
+
+            Comparer.expect(o).to.match({
+                $exact: true,
+
+                id: 1,
+                text: "Foobar",
+                filename: "file.txt",
+                lineNumber: 10
+            });
         });
     });
 });

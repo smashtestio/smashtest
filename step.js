@@ -27,8 +27,8 @@ class Step {
         this.timeStarted = {};                // Date object (time) of when this step started being executed
         this.timeEnded = {};                  // Date object (time) of when this step ended execution
 
-        reportTemplate = "";                  // points to object whose html property contains html that represents this step in reports
-        reportView = {};                      // object that replaces {{{mustache templates}}} in reportTemplate
+        reportTemplateIndex = -1;             // Index of the html that represents this step in reports (stored in Tree.reportTemplates)
+        reportView = {};                      // object that replaces {{{mustache templates}}} in reportTemplates, values can only be strings and not functions
         */
     }
 
@@ -57,15 +57,27 @@ class Step {
     }
 
     /**
-     * @return {Object} An Object representing this step, but able to be converted to JSON
+     * @return {Object} An Object representing this step, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serializeObj() {
-        let o = {};
-        Object.assign(o, this);
+        return utils.removeUndefineds({
+            id: this.id,
 
-        // TODO: delete stuff from o
+            level: this.level,
 
-        return o;
+            isPassed: this.isPassed,
+            isFailed: this.isFailed,
+            isSkipped: this.isSkipped,
+            isRunning: this.isRunning,
+
+            error: this.error,
+            log: this.log,
+
+            elapsed: this.elapsed,
+
+            reportTemplateIndex: this.reportTemplateIndex,
+            reportView: this.reportView
+        });
     }
 }
 module.exports = Step;

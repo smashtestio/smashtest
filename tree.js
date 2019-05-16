@@ -24,6 +24,8 @@ class Tree {
         /*
         OPTIONAL
 
+        this.reportTemplates = [];           // Array of strings, each of which is html that represents step details
+
         this.elapsed = 0;                    // number of ms it took for all branches to execute, set to -1 if paused
         this.timeStarted = {};               // Date object (time) of when this tree started being executed
         this.timeEnded = {};                 // Date object (time) of when this tree ended execution
@@ -49,17 +51,10 @@ class Tree {
     }
 
     /**
-     * @return {StepNode} The StepNode under this.root with the given id
+     * @return {StepNode} The StepNode under this.root with the given id, undefined if not found
      */
     getStepNode(id) {
         return stepNodeIndex[id];
-    }
-
-    /**
-     * @return {StepNode} The StepNode under this.root that corresponds to the given Step
-     */
-    getStepNode(step) {
-        return this.getStepNode(step.id);
     }
 
     /**
@@ -1146,16 +1141,18 @@ ${outputBranchAbove()}
     }
 
     /**
-     * @return {String} JSON representation of this tree
+     * @return {String} JSON representation of this tree, only containing the most necessary stuff for a report
      */
     serialize() {
-        return JSON.stringify({
+        return JSON.stringify(utils.removeUndefineds({
             stepNodeIndex: this.stepNodeIndex,
             isDebug: this.isDebug,
 
             branches: this.branches,
             beforeEverything: this.beforeEverything,
             afterEverything: this.afterEverything,
+
+            reportTemplates: this.reportTemplates,
 
             elapsed: this.elapsed,
             timeStarted: this.timeStarted,
@@ -1171,7 +1168,7 @@ ${outputBranchAbove()}
 
             totalStepsComplete: this.totalStepsComplete,
             totalSteps: this.totalSteps
-        }, (k, v) => {
+        }), (k, v) => {
             if(v instanceof Branch || v instanceof StepNode || v instanceof Step) {
                 return v.serializeObj();
             }

@@ -145,4 +145,24 @@ describe("Utils", () => {
             assert.equal(utils.numIndents('    //blah', 'file.txt', 10), 0);
         });
     });
+
+    describe("removeUndefineds()", () => {
+        it("removes undefined properies", () => {
+            let o = utils.removeUndefineds({
+                one: 1,
+                two: undefined,
+                three: undefined,
+                four: null,
+                five: 0,
+                six: "6"
+            });
+
+            expect(o).to.eql({
+                one: 1,
+                four: null,
+                five: 0,
+                six: "6"
+            });
+        });
+    });
 });

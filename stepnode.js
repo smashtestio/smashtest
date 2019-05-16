@@ -67,23 +67,6 @@ class StepNode {
     }
 
     /**
-     * @return {Object} Object that contains a codeBlock property with this step node's code block, null if this step node has no code block
-     */
-    getCodeBlockObj() {
-        if(this.hasCodeBlock()) {
-            if(typeof this.codeBlock == 'string') {
-                return this;
-            }
-            else { // codeBlock is a StepNode containing the code block
-                return this.codeBlock;
-            }
-        }
-        else {
-            return null;
-        }
-    }
-
-    /**
      * Parses a line into this StepNode
      * this.text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
      * @param {String} line - The full text of the line
@@ -435,18 +418,23 @@ class StepNode {
     }
 
     /**
-     * @return {Object} An Object representing this step node, but able to be converted to JSON
+     * @return {Object} An Object representing this step node, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serializeObj() {
-        let o = {};
-        Object.assign(o, this);
+        return utils.removeUndefineds({
+            id: this.id,
 
-        delete o.parent;
-        delete o.children;
-        delete o.containingStepBlock;
-        delete o.codeBlock;
+            text: this.text,
 
-        return o;
+            filename: this.filename,
+            lineNumber: this.lineNumber,
+
+            frontModifiers: this.frontModifiers,
+            backModifiers: this.backModifiers,
+
+            isCollapsed: this.isCollapsed,
+            isHidden: this.isHidden
+        });
     }
 }
 module.exports = StepNode;

@@ -112,12 +112,13 @@ exports.unescape = (str) => {
 
 /**
  * Prints an array of branches to console
+ * @param {Tree} tree - The tree in which the branches live
  * @param {Array} Array of Branch to print out
  */
-exports.printBranches = (branches) => {
-    for(let i = 0; i < branches.length; i++) {
-        console.log(branches[i].output("Branch " + i));
-    }
+exports.printBranches = (tree, branches) => {
+    branches.forEach((b, i) => {
+        console.log(b.output(tree.getStepNode, "Branch " + i));
+    });
 }
 
 /**
@@ -184,4 +185,12 @@ exports.numIndents = (line, filename, lineNumber) => {
  */
 exports.breather = async () => {
     await new Promise(r => setTimeout(r, 0));
+}
+
+/**
+ * Removes undefined properties of the given object
+ */
+exports.removeUndefineds = (obj) => {
+    Object.keys(obj).forEach(key => obj[key] === undefined && delete obj[key]);
+    return obj;
 }

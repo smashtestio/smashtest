@@ -49,34 +49,51 @@ class Branch {
     }
 
     /**
-     * @return {Object} An Object representing this branch, but able to be converted to JSON
+     * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serializeObj() {
-        let o = {};
-        Object.assign(o, this);
+        return utils.removeUndefineds({
+            steps: this.steps,
 
-        if(o.passedLastTime) {
-            o.isPassed = true;
-        }
+            isPassed: this.isPassed || this.passedLastTime,
+            isFailed: this.isFailed,
+            isSkipped: this.isSkipped,
+            isRunning: this.isRunning,
 
-        return o;
+            error: this.error,
+            log: this.log,
+
+            elapsed: this.elapsed,
+
+            hash: this.hash
+        });
     }
 
+    /**
+     * Pushes the given Step to the end of this Branch
+     */
+    push(step) {
+        this.steps.push(step);
+        step.isSkipBranch && (this.isSkipBranch = true);
+        step.isOnly && (this.isOnly = true);
+        step.isDebug && (this.isDebug = true);
+    }
 
-
-
-
-
-
-
+    /**
+     * Pushes the given Step to the front of this Branch
+     */
+    unshift(step) {
+        this.steps.unshift(step);
+        step.isSkipBranch && (this.isSkipBranch = true);
+        step.isOnly && (this.isOnly = true);
+        step.isDebug && (this.isDebug = true);
+    }
 
     /**
      * @return {Branch} A new branch consisting of this branch with the steps and hooks of the given branch attached to the end
-     * Copies over the other members, if they exist in branch
      */
     mergeToEnd(branch) {
-        let newBranch = this.clone();
-        branch = branch.clone();
+        let newBranch = clonedeep(this);
 
         newBranch.steps = newBranch.steps.concat(branch.steps);
 
@@ -124,81 +141,12 @@ class Branch {
     }
 
     /**
-     * Pushes the given Step to the end of this Branch
-     */
-    push(step) {
-        this.steps.push(step);
-        step.isSkipBranch && (this.isSkipBranch = true);
-        step.isOnly && (this.isOnly = true);
-        step.isDebug && (this.isDebug = true);
-    }
-
-    /**
-     * Pushes the given Step to the front of this Branch
-     */
-    unshift(step) {
-        this.steps.unshift(step);
-        step.isSkipBranch && (this.isSkipBranch = true);
-        step.isOnly && (this.isOnly = true);
-        step.isDebug && (this.isDebug = true);
-    }
-
-    /**
-     * Clones this branch
-     * @param {Boolean} [noRefs] - If true, the clone will contain no references to outside objects (such as Step.originalStepInTree)
-     * @return {Branch} Cloned version of this branch
-     */
-    clone(noRefs) {
-        let clone = new Branch();
-        this.steps.forEach(step => {
-            clone.steps.push(step.cloneForBranch(noRefs));
-        });
-
-        // Copy booleans and strings
-        for(let attr in this) {
-            if(this.hasOwnProperty(attr) && (['string', 'boolean', 'number'].indexOf(typeof this[attr]) != -1)) {
-                clone[attr] = this[attr];
-            }
-        }
-
-        if(this.groups) {
-            clone.groups = [];
-            this.groups.forEach(group => {
-                clone.groups.push(group);
-            });
-        }
-
-        cloneHooks("beforeEveryBranch", this);
-        cloneHooks("afterEveryBranch", this);
-        cloneHooks("beforeEveryStep", this);
-        cloneHooks("afterEveryStep", this);
-
-        function cloneHooks(name, self) {
-            if(self.hasOwnProperty(name)) {
-                clone[name] = [];
-                self[name].forEach(step => {
-                    clone[name].push(step.cloneForBranch(noRefs));
-                });
-            }
-        }
-
-        if(this.error) {
-            clone.error = {};
-            Object.assign(clone.error, this.error);
-        }
-
-        this.log && (clone.log = clonedeep(this.log));
-
-        this.timeStarted && (clone.timeStarted = new Date(this.timeStarted.getTime()));
-        this.timeEnded && (clone.timeEnded = new Date(this.timeEnded.getTime()));
-
-        return clone;
-    }
-
-    /**
+     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
+     * @param {String} [branchName] - The name of this branch
+     * @param {Number} [startIndent] - How many indents to put before the output, 0 if omitted
      * @return {String} The string representation of this branch
      */
-    output(branchName, startIndent) {
+    output(stepNodeLookup, branchName, startIndent) {
         if(typeof startIndent == 'undefined') {
             startIndent = 0;
         }
@@ -206,7 +154,8 @@ class Branch {
         let output = spaces(startIndent) + branchName + '\n';
 
         this.steps.forEach(step => {
-            output += spaces(step.level + startIndent + 1) + step.text + '\n';
+            let stepNode = stepNodeLookup(step.id);
+            output += spaces(step.level + startIndent + 1) + stepNode.text + '\n';
         });
 
         function spaces(indents) {
@@ -223,12 +172,14 @@ class Branch {
     }
 
     /**
+     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
      * @return {String} A short string representation of this branch
      */
-    quickOutput() {
+    quickOutput(stepNodeLookup) {
         let output = '';
         this.steps.forEach(step => {
-            output += step.text + ' ';
+            let stepNode = stepNodeLookup(step.id);
+            output += stepNode.text + ' ';
         });
         return output;
     }
@@ -237,10 +188,11 @@ class Branch {
      * Returns whether or not this branch equals another
      * Does not take hooks into account
      * @param {Branch} branch - The branch we're comparing to this one
+     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
      * @param {Number} [n] - Only compare the first N steps, no limit if omitted
      * @return {Boolean} true if the given branch's steps are equal to this brach's steps, false otherwise
      */
-     equals(branch, n) {
+     equals(branch, stepNodeLookup, n) {
          let thisLen = this.steps.length;
          let branchLen = branch.steps.length;
          if(typeof n != 'undefined') {
@@ -257,21 +209,31 @@ class Branch {
          }
 
          for(let i = 0; i < thisLen; i++) {
-             if(getCanonicalStepText(this.steps[i]) != getCanonicalStepText(branch.steps[i])) {
+             let stepNodeA = stepNodeLookup(this.steps[i].id);
+             let stepNodeB = stepNodeLookup(branch.steps[i].id);
+
+             if(getCanonicalStepText(stepNodeA) != getCanonicalStepText(stepNodeB)) {
                  return false;
              }
 
-             if(this.steps[i].codeBlock != branch.steps[i].codeBlock) {
-                 return false;
+             if(stepNodeA.hasCodeBlock()) {
+                 if(stepNodeA.codeBlock != stepNodeB.codeBlock) {
+                     return false;
+                 }
+             }
+             else {
+                 if(this.steps[i].functionDeclarationId != branch.steps[i].functionDeclarationId) {
+                     return false;
+                 }
              }
          }
 
          return true;
 
-         function getCanonicalStepText(step) {
-             let text = step.text.replace(/\s+/g, ' ');
-             if(step.modifiers) {
-                 step.modifiers.forEach(modifier => {
+         function getCanonicalStepText(stepNode) {
+             let text = stepNode.text.replace(/\s+/g, ' ');
+             if(stepNode.modifiers) {
+                 stepNode.modifiers.forEach(modifier => {
                      if(modifier != '~' && modifier != '$' && modifier != '$s') {
                          text += ' ' + modifier;
                      }
@@ -286,29 +248,20 @@ class Branch {
       * @return {Boolean} True if the hash matches this branch, false otherwise
       */
      equalsHash(hash) {
-         if(!this.hash) {
-             this.updateHash();
-         }
          return hash == this.hash;
      }
 
      /**
       * Updates the hash of this branch
+      * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
       */
-     updateHash() {
-         this.hash = this.getHash();
-     }
-
-     /**
-      * @return {String} A hash representing this branch
-      */
-     getHash() {
+     updateHash(stepNodeLookup) {
          let combinedStr = '';
          this.steps.forEach(step => {
-             combinedStr += utils.canonicalize(step.text) + '\n';
-         })
-
-         return md5(combinedStr);
+             let stepNode = stepNodeLookup(step.id);
+             combinedStr += utils.canonicalize(stepNode.text) + '\n';
+         });
+         this.hash = md5(combinedStr);
      }
 
      /**

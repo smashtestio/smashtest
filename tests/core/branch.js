@@ -3,15 +3,37 @@ const chaiSubset = require('chai-subset');
 const chaiSubsetInOrder = require('chai-subset-in-order');
 const expect = chai.expect;
 const assert = chai.assert;
-const util = require('util');
 const utils = require('../../utils.js');
 const Step = require('../../step.js');
+const StepNode = require('../../stepnode.js');
 const Branch = require('../../branch.js');
+const Comparer = require('../../packages/js/comparer.js');
 
 chai.use(chaiSubset);
 chai.use(chaiSubsetInOrder);
 
 describe("Branch", () => {
+    describe("serializeObj", () => {
+        it("returns a serialized object", () => {
+            let b = new Branch();
+
+            b.nonParallelId = 4;
+            b.isPassed = true;
+            b.steps = [ new Step(1), new Step(2) ];
+
+            let o = b.serializeObj();
+
+            Comparer.expect(o).to.match({
+                $exact: true,
+
+                isPassed: true,
+                steps: [
+                    { id: 1 }, { id: 2 }
+                ]
+            });
+        });
+    });
+
     describe("mergeToEnd()", () => {
         it("merges one branch to the end of another branch", () => {
             let stepA = new Step();
@@ -137,276 +159,25 @@ describe("Branch", () => {
         });
     });
 
-    describe("clone()", () => {
-        it("clones an empty branch", () => {
-            let branch = new Branch();
-            let clonedBranch = branch.clone();
-
-            expect(clonedBranch).to.containSubset({
-                steps: [],
-                nonParallelId: undefined,
-                frequency: undefined,
-                groups: undefined,
-                isSkipBranch: undefined,
-                isOnly: undefined,
-                isDebug: undefined,
-                passedLastTime: undefined,
-                isPassed: undefined,
-                isFailed: undefined,
-                isSkipped: undefined,
-                isRunning: undefined,
-                beforeEveryBranch: undefined,
-                afterEveryBranch: undefined,
-                beforeEveryStep: undefined,
-                afterEveryStep: undefined,
-                error: undefined,
-                log: undefined,
-                elapsed: undefined,
-                timeStarted: undefined,
-                timeEnded: undefined
-            });
-
-            expect(branch.steps).to.have.lengthOf(0);
-        });
-
-        it("clones a branch with steps", () => {
-            let stepA = new Step();
-            stepA.text = "A";
-
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let branch = new Branch();
-            branch.steps = [ stepA, stepB ];
-
-            let clonedBranch = branch.clone();
-
-            expect(clonedBranch).to.containSubset({
-                steps: [
-                    { text: "A" },
-                    { text: "B" }
-                ],
-                nonParallelId: undefined,
-                frequency: undefined,
-                groups: undefined,
-                isSkipBranch: undefined,
-                isOnly: undefined,
-                isDebug: undefined,
-                passedLastTime: undefined,
-                isPassed: undefined,
-                isFailed: undefined,
-                isSkipped: undefined,
-                isRunning: undefined,
-                beforeEveryBranch: undefined,
-                afterEveryBranch: undefined,
-                beforeEveryStep: undefined,
-                afterEveryStep: undefined,
-                error: undefined,
-                log: undefined,
-                elapsed: undefined,
-                timeStarted: undefined,
-                timeEnded: undefined
-            });
-
-            expect(clonedBranch.steps).to.have.lengthOf(2);
-
-            expect(branch).to.containSubset({
-                steps: [
-                    { text: "A" },
-                    { text: "B" }
-                ],
-                nonParallelId: undefined,
-                frequency: undefined,
-                groups: undefined,
-                isSkipBranch: undefined,
-                isOnly: undefined,
-                isDebug: undefined,
-                passedLastTime: undefined,
-                isPassed: undefined,
-                isFailed: undefined,
-                isSkipped: undefined,
-                isRunning: undefined,
-                beforeEveryBranch: undefined,
-                afterEveryBranch: undefined,
-                beforeEveryStep: undefined,
-                afterEveryStep: undefined,
-                error: undefined,
-                log: undefined,
-                elapsed: undefined,
-                timeStarted: undefined,
-                timeEnded: undefined
-            });
-
-            expect(branch.steps).to.have.lengthOf(2);
-        });
-
-        it("clones a branch with all member vars set", () => {
-            let stepA = new Step();
-            stepA.text = "A";
-
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepD = new Step();
-            stepD.text = "D";
-
-            let stepE = new Step();
-            stepE.text = "E";
-
-            let stepF = new Step();
-            stepF.text = "F";
-
-            let stepG = new Step();
-            stepG.text = "G";
-
-            let afterBranch1 = new Branch();
-            afterBranch1.steps = [ stepD, stepE ];
-
-            let afterBranch2 = new Branch();
-            afterBranch2.steps = [ stepF ];
-
-            let afterBranch3 = new Branch();
-            afterBranch3.steps = [ stepG ];
-
-            let branch = new Branch();
-            branch.steps = [ stepA, stepB ];
-            branch.nonParallelId = "foobarId";
-            branch.frequency = "high";
-            branch.groups = ['big', 'small'];
-            branch.isSkipBranch = true;
-            branch.isOnly = true;
-            branch.isDebug = true;
-            branch.passedLastTime = true;
-            branch.isPassed = true;
-            branch.isFailed = true;
-            branch.isSkipped = true;
-            branch.isRunning = true,
-            branch.beforeEveryBranch = [ stepD ];
-            branch.afterEveryBranch = [ stepD, stepE ];
-            branch.beforeEveryStep = [ stepG ];
-            branch.afterEveryStep = [ stepF, stepG ];
-            branch.error = new Error("oops");
-            branch.error.msg = "oops2";
-            branch.log = [{text: 'one'}, {text: 'two'}];
-            branch.elapsed = 45;
-            branch.timeStarted = new Date();
-            branch.timeEnded = new Date();
-
-            let clonedBranch = branch.clone();
-
-            expect(clonedBranch).to.containSubset({
-                steps: [
-                    { text: "A" },
-                    { text: "B" }
-                ],
-                nonParallelId: "foobarId",
-                frequency: "high",
-                groups: [ "big", "small" ],
-                isSkipBranch: true,
-                isOnly: true,
-                isDebug: true,
-                passedLastTime: true,
-                isPassed: true,
-                isFailed: true,
-                isSkipped: true,
-                isRunning: true,
-                beforeEveryBranch: [
-                    { text: "D" }
-                ],
-                afterEveryBranch: [
-                    { text: "D" },
-                    { text: "E" }
-                ],
-                beforeEveryStep: [
-                    { text: "G" }
-                ],
-                afterEveryStep: [
-                    { text: "F" },
-                    { text: "G" }
-                ],
-                error: {
-                    msg: "oops2"
-                },
-                log: [
-                    {text: 'one'},
-                    {text: 'two'}
-                ],
-                elapsed: 45,
-                timeStarted: {},
-                timeEnded: {}
-            });
-
-            expect(clonedBranch.timeStarted instanceof Date).to.be.true;
-            expect(clonedBranch.timeEnded instanceof Date).to.be.true;
-            expect(clonedBranch.steps).to.have.lengthOf(2);
-
-            expect(branch).to.containSubset({
-                steps: [
-                    { text: "A" },
-                    { text: "B" }
-                ],
-                nonParallelId: "foobarId",
-                frequency: "high",
-                groups: [ "big", "small" ],
-                isSkipBranch: true,
-                isOnly: true,
-                isDebug: true,
-                passedLastTime: true,
-                isPassed: true,
-                isFailed: true,
-                isSkipped: true,
-                isRunning: true,
-                beforeEveryBranch: [
-                    { text: "D" }
-                ],
-                afterEveryBranch: [
-                    { text: "D" },
-                    { text: "E" }
-                ],
-                beforeEveryStep: [
-                    { text: "G" }
-                ],
-                afterEveryStep: [
-                    { text: "F" },
-                    { text: "G" }
-                ],
-                error: {
-                    msg: "oops2"
-                },
-                log: [
-                    {text: 'one'},
-                    {text: 'two'}
-                ],
-                elapsed: 45,
-                timeStarted: {},
-                timeEnded: {}
-            });
-
-            expect(branch.timeStarted instanceof Date).to.be.true;
-            expect(branch.timeEnded instanceof Date).to.be.true;
-            expect(branch.steps).to.have.lengthOf(2);
-        });
-    });
-
     describe("output()", () => {
         it("outputs the right text", () => {
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.level = 0;
+            let stepNodes = [ new StepNode(1), new StepNode(2), new StepNode(3) ];
+            let steps = [ new Step(1), new Step(2), new Step(3) ];
 
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.level = 1;
+            stepNodes[0].text = "A";
+            steps[0].level = 0;
 
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.level = 2;
-            stepC.isPackaged = true;
+            stepNodes[1].text = "B";
+            steps[1].level = 1;
+
+            stepNodes[2].text = "C";
+            stepNodes[2].isPackaged = true;
+            steps[2].level = 2;
 
             let branch = new Branch;
-            branch.steps = [ stepA, stepB, stepC ];
+            branch.steps = steps;
 
-            expect(branch.output("Foo")).to.equal(`Foo
+            expect(branch.output((id) => stepNodes[id-1], "Foo")).to.equal(`Foo
     A
         B
             C
@@ -415,278 +186,176 @@ describe("Branch", () => {
     });
 
     describe("equals()", () => {
-        it("finds two empty branches to be equal", () => {
-            let branch1 = new Branch();
-            let branch2 = new Branch();
+        let stepNodes = [];
+        let steps = [];
 
-            expect(branch1.equals(branch2)).to.equal(true);
-            expect(branch1.equals(branch2, 1)).to.equal(true);
+        let branch1 = null;
+        let branch2 = null;
+
+        let f = (id) => stepNodes[id-1];
+
+        beforeEach(() => {
+            for(let i = 1; i <= 6; i++) {
+                stepNodes.push(new StepNode(i));
+                steps.push(new Step(i));
+            }
+
+            stepNodes[0].text = "A";
+            stepNodes[0].modifiers = [ '-' ];
+
+            stepNodes[1].text = "B";
+            stepNodes[1].modifiers = [ '+' ];
+
+            stepNodes[2].text = "C";
+            stepNodes[2].modifiers = [];
+
+            stepNodes[3].text = "A";
+            stepNodes[3].modifiers = [ '-' ];
+
+            stepNodes[4].text = "B";
+            stepNodes[4].modifiers = [ '$', '+' ];
+
+            stepNodes[5].text = "C";
+            stepNodes[5].modifiers = [];
+
+            branch1 = new Branch();
+            branch2 = new Branch();
+        });
+
+        it("finds two empty branches to be equal", () => {
+            expect(branch1.equals(branch2, ()=>{})).to.equal(true);
+            expect(branch1.equals(branch2, ()=>{}, 1)).to.equal(true);
         });
 
         it("finds two equal branches to be equal", () => {
-            let stepA1 = new Step();
-            stepA1.text = 'A';
-            stepA1.modifiers = [ '-' ];
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 6);
 
-            let stepB1 = new Step();
-            stepB1.text = 'B';
-            stepB1.modifiers = [ '+' ];
-
-            let stepC1 = new Step();
-            stepC1.text = 'C';
-            stepC1.modifiers = [];
-
-            let stepA2 = new Step();
-            stepA2.text = 'A';
-            stepA2.modifiers = [ '-' ];
-
-            let stepB2 = new Step();
-            stepB2.text = 'B';
-            stepB2.modifiers = [ '$', '+' ];
-
-            let stepC2 = new Step();
-            stepC2.text = 'C';
-            stepC2.modifiers = [];
-
-            let branch1 = new Branch();
-            branch1.steps = [ stepA1, stepB1, stepC1 ];
-
-            let branch2 = new Branch();
-            branch2.steps = [ stepA2, stepB2, stepC2 ];
-
-            expect(branch1.equals(branch2)).to.equal(true);
-            expect(branch1.equals(branch2, 3)).to.equal(true);
-            expect(branch1.equals(branch2, 2)).to.equal(true);
-            expect(branch1.equals(branch2, 1)).to.equal(true);
+            expect(branch1.equals(branch2, f)).to.equal(true);
+            expect(branch1.equals(branch2, f, 3)).to.equal(true);
+            expect(branch1.equals(branch2, f, 2)).to.equal(true);
+            expect(branch1.equals(branch2, f, 1)).to.equal(true);
         });
 
         it("finds two differently-sized branches to be not equal", () => {
-            let stepA1 = new Step();
-            stepA1.text = 'A';
-            stepA1.modifiers = [ '-' ];
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 5);
 
-            let stepB1 = new Step();
-            stepB1.text = 'B';
-            stepB1.modifiers = [ '+' ];
-
-            let stepC1 = new Step();
-            stepC1.text = 'C';
-            stepC1.modifiers = [];
-
-            let stepA2 = new Step();
-            stepA2.text = 'A';
-            stepA2.modifiers = [ '-' ];
-
-            let stepB2 = new Step();
-            stepB2.text = 'B';
-            stepB2.modifiers = [ '$', '+' ];
-
-            let branch1 = new Branch();
-            branch1.steps = [ stepA1, stepB1, stepC1 ];
-
-            let branch2 = new Branch();
-            branch2.steps = [ stepA2, stepB2 ];
-
-            expect(branch1.equals(branch2)).to.equal(false);
-            expect(branch1.equals(branch2, 3)).to.equal(false);
-            expect(branch1.equals(branch2, 4)).to.equal(false);
+            expect(branch1.equals(branch2, f)).to.equal(false);
+            expect(branch1.equals(branch2, f, 3)).to.equal(false);
+            expect(branch1.equals(branch2, f, 4)).to.equal(false);
         });
 
         it("finds two differently-sized branches to be equal if the first N steps are the same", () => {
-            let stepA1 = new Step();
-            stepA1.text = 'A';
-            stepA1.modifiers = [ '-' ];
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 5);
 
-            let stepB1 = new Step();
-            stepB1.text = 'B';
-            stepB1.modifiers = [ '+' ];
-
-            let stepC1 = new Step();
-            stepC1.text = 'C';
-            stepC1.modifiers = [];
-
-            let stepA2 = new Step();
-            stepA2.text = 'A';
-            stepA2.modifiers = [ '-' ];
-
-            let stepB2 = new Step();
-            stepB2.text = 'B';
-            stepB2.modifiers = [ '$', '+' ];
-
-            let branch1 = new Branch();
-            branch1.steps = [ stepA1, stepB1, stepC1 ];
-
-            let branch2 = new Branch();
-            branch2.steps = [ stepA2, stepB2 ];
-
-            expect(branch1.equals(branch2, 1)).to.equal(true);
-            expect(branch1.equals(branch2, 2)).to.equal(true);
+            expect(branch1.equals(branch2, f, 1)).to.equal(true);
+            expect(branch1.equals(branch2, f, 2)).to.equal(true);
         });
 
         it("finds two branches with different steps to be not equal", () => {
-            let stepA1 = new Step();
-            stepA1.text = 'A';
-            stepA1.modifiers = [ '-' ];
+            stepNodes[4].text = "K";
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 6);
 
-            let stepB1 = new Step();
-            stepB1.text = 'B';
-            stepB1.modifiers = [ '+' ];
-
-            let stepC1 = new Step();
-            stepC1.text = 'C';
-            stepC1.modifiers = [];
-
-            let stepA2 = new Step();
-            stepA2.text = 'A';
-            stepA2.modifiers = [ '-' ];
-
-            let stepK2 = new Step();
-            stepK2.text = 'K';
-            stepK2.modifiers = [ '$', '+' ];
-
-            let stepC2 = new Step();
-            stepC2.text = 'C';
-            stepC2.modifiers = [];
-
-            let branch1 = new Branch();
-            branch1.steps = [ stepA1, stepB1, stepC1 ];
-
-            let branch2 = new Branch();
-            branch2.steps = [ stepA2, stepK2, stepC2 ];
-
-            expect(branch1.equals(branch2)).to.equal(false);
-            expect(branch1.equals(branch2, 2)).to.equal(false);
+            expect(branch1.equals(branch2, f)).to.equal(false);
+            expect(branch1.equals(branch2, f, 2)).to.equal(false);
         });
 
         it("finds two branches with different steps to be equal if the first N steps are the same", () => {
-            let stepA1 = new Step();
-            stepA1.text = 'A';
-            stepA1.modifiers = [ '-' ];
+            stepNodes[4].text = "K";
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 6);
 
-            let stepB1 = new Step();
-            stepB1.text = 'B';
-            stepB1.modifiers = [ '+' ];
-
-            let stepC1 = new Step();
-            stepC1.text = 'C';
-            stepC1.modifiers = [];
-
-            let stepA2 = new Step();
-            stepA2.text = 'A';
-            stepA2.modifiers = [ '-' ];
-
-            let stepK2 = new Step();
-            stepK2.text = 'K';
-            stepK2.modifiers = [ '$', '+' ];
-
-            let stepC2 = new Step();
-            stepC2.text = 'C';
-            stepC2.modifiers = [];
-
-            let branch1 = new Branch();
-            branch1.steps = [ stepA1, stepB1, stepC1 ];
-
-            let branch2 = new Branch();
-            branch2.steps = [ stepA2, stepK2, stepC2 ];
-
-            expect(branch1.equals(branch2, 1)).to.equal(true);
+            expect(branch1.equals(branch2, f, 1)).to.equal(true);
         });
 
         it("finds two branches with the same steps but different code blocks to not be equal", () => {
-            let stepA1 = new Step();
-            stepA1.text = 'A';
-            stepA1.codeBlock = "foo";
+            stepNodes[1].codeBlock = 'foo';
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 6);
 
-            let stepB1 = new Step();
-            stepB1.text = 'A';
+            expect(branch1.equals(branch2, f)).to.equal(false);
 
-            let branch1 = new Branch();
-            branch1.steps = [ stepA1 ];
+            stepNodes[1].codeBlock = 'foo';
+            stepNodes[4].codeBlock = 'bar';
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 6);
 
-            let branch2 = new Branch();
-            branch2.steps = [ stepB1 ];
+            expect(branch1.equals(branch2, f)).to.equal(false);
 
-            expect(branch1.equals(branch2)).to.equal(false);
+            delete stepNodes[1].codeBlock;
+            steps[1].functionDeclarationId = 6;
+            delete stepNodes[4].codeBlock;
+            steps[4].functionDeclarationId = 7;
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 6);
 
-            stepA1 = new Step();
-            stepA1.text = 'A';
-            stepA1.codeBlock = "foo";
-
-            stepB1 = new Step();
-            stepB1.text = 'A';
-            stepB1.codeBlock = "bar";
-
-            branch1 = new Branch();
-            branch1.steps = [ stepA1 ];
-
-            branch2 = new Branch();
-            branch2.steps = [ stepB1 ];
-
-            expect(branch1.equals(branch2)).to.equal(false);
+            expect(branch1.equals(branch2, f)).to.equal(false);
         });
 
         it("finds two branches with the same steps and the same code blocks to be equal", () => {
-            let stepA1 = new Step();
-            stepA1.text = 'A';
-            stepA1.codeBlock = "foo";
+            stepNodes[1].codeBlock = 'foo';
+            stepNodes[4].codeBlock = 'foo';
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 6);
 
-            let stepB1 = new Step();
-            stepB1.text = 'A';
-            stepB1.codeBlock = "foo";
+            expect(branch1.equals(branch2, f)).to.equal(true);
 
-            let branch1 = new Branch();
-            branch1.steps = [ stepA1 ];
+            delete stepNodes[1].codeBlock;
+            steps[1].functionDeclarationId = 6;
+            delete stepNodes[4].codeBlock;
+            steps[4].functionDeclarationId = 6;
+            branch1.steps = steps.slice(0, 3);
+            branch2.steps = steps.slice(3, 6);
 
-            let branch2 = new Branch();
-            branch2.steps = [ stepB1 ];
-
-            expect(branch1.equals(branch2)).to.equal(true);
+            expect(branch1.equals(branch2, f)).to.equal(true);
         });
     });
 
-    describe("getHash()", () => {
+    describe("updateHash()", () => {
         it("generates the hash for the branch", () => {
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepNodes = [ new StepNode(1), new StepNode(2), new StepNode(3) ];
+            let steps = [ new Step(1), new Step(2), new Step(3) ];
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            stepNodes[0].text = "A";
+            stepNodes[1].text = "B";
+            stepNodes[2].text = "C";
 
             let branch = new Branch();
+            branch.steps = steps;
 
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            expect(branch.getHash()).to.equal("47ece2e49e5c0333677fc34e044d8257");
+            branch.updateHash((id) => stepNodes[id-1]);
+            expect(branch.hash).to.equal("40c53c58fdafacc83cfff6ee3d2f6d69");
         });
     });
 
     describe("finishOffBranch()", () => {
         it("marks a branch passed when all steps passed", () => {
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.isPassed = true;
+            let stepNodes = [];
+            let steps = [];
+            let f = (id) => stepNodes[id-1];
 
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.isPassed = true;
+            for(let i = 1; i <= 4; i++) {
+                stepNodes.push(new StepNode(i));
+                steps.push(new Step(i));
+            }
 
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.isPassed = true;
+            stepNodes[0].text = "A";
+            steps[0].isPassed = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
-            stepD.isPassed = true;
+            stepNodes[1].text = "B";
+            steps[1].isPassed = true;
+
+            stepNodes[2].text = "C";
+            steps[2].isPassed = true;
+
+            stepNodes[3].text = "D";
+            steps[3].isPassed = true;
 
             let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
+            branch.steps = steps;
 
             branch.finishOffBranch();
 
@@ -697,25 +366,29 @@ describe("Branch", () => {
         });
 
         it("marks a branch failed when one of the steps failed", () => {
-            let stepA = new Step();
-            stepA.text = "A";
-            stepA.isPassed = true;
+            let stepNodes = [];
+            let steps = [];
+            let f = (id) => stepNodes[id-1];
 
-            let stepB = new Step();
-            stepB.text = "B";
-            stepB.isFailed = true;
+            for(let i = 1; i <= 4; i++) {
+                stepNodes.push(new StepNode(i));
+                steps.push(new Step(i));
+            }
 
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.isPassed = true;
+            stepNodes[0].text = "A";
+            steps[0].isPassed = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
-            stepD.isPassed = true;
+            stepNodes[1].text = "B";
+            steps[1].isFailed = true;
+
+            stepNodes[2].text = "C";
+            steps[2].isPassed = true;
+
+            stepNodes[3].text = "D";
+            steps[3].isPassed = true;
 
             let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
+            branch.steps = steps;
 
             branch.finishOffBranch();
 
