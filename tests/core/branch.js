@@ -1,6 +1,4 @@
 const chai = require('chai');
-const chaiSubset = require('chai-subset');
-const chaiSubsetInOrder = require('chai-subset-in-order');
 const expect = chai.expect;
 const assert = chai.assert;
 const utils = require('../../utils.js');
@@ -8,9 +6,6 @@ const Step = require('../../step.js');
 const StepNode = require('../../stepnode.js');
 const Branch = require('../../branch.js');
 const Comparer = require('../../packages/js/comparer.js');
-
-chai.use(chaiSubset);
-chai.use(chaiSubsetInOrder);
 
 describe("Branch", () => {
     describe("serializeObj", () => {
@@ -65,7 +60,7 @@ describe("Branch", () => {
             expect(branch1.steps.length).to.equal(3);
             expect(branch2.steps.length).to.equal(2);
 
-            expect(branch1).to.containSubsetInOrder({
+            Comparer.expect(branch1).to.match({
                 steps: [
                     { text: "A" },
                     { text: "B" },
@@ -137,7 +132,7 @@ describe("Branch", () => {
             expect(branch1.afterEveryStep.length).to.equal(3);
             expect(branch2.afterEveryStep.length).to.equal(2);
 
-            expect(branch1).to.containSubsetInOrder({
+            Comparer.expect(branch1).to.match({
                 steps: [
                     { text: "A" },
                     { text: "B" },
@@ -359,7 +354,7 @@ describe("Branch", () => {
 
             branch.finishOffBranch();
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 isPassed: true,
                 isFailed: undefined
             });
@@ -392,7 +387,7 @@ describe("Branch", () => {
 
             branch.finishOffBranch();
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 isPassed: undefined,
                 isFailed: true
             });

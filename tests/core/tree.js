@@ -1,16 +1,11 @@
 const chai = require('chai');
-const chaiSubset = require('chai-subset');
-const chaiSubsetInOrder = require('chai-subset-in-order');
 const expect = chai.expect;
 const assert = chai.assert;
-const util = require('util');
 const utils = require('../../utils.js');
 const Tree = require('../../tree.js');
 const Branch = require('../../branch.js');
 const Step = require('../../step.js');
-
-chai.use(chaiSubset);
-chai.use(chaiSubsetInOrder);
+const Comparer = require('../../packages/js/comparer.js');
 
 describe("Tree", () => {
     describe("parseIn()", () => {
@@ -19,7 +14,7 @@ describe("Tree", () => {
                 let tree = new Tree();
                 tree.parseIn(``, "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -33,7 +28,7 @@ describe("Tree", () => {
                 tree.parseIn(`
                     `, "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -42,7 +37,7 @@ describe("Tree", () => {
                 });
             });
 
-            it("parses a normal tree", () => {
+            it.only("parses a normal tree", () => {
                 let tree = new Tree();
                 tree.parseIn(
 `A
@@ -61,7 +56,7 @@ H
 L`
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -187,7 +182,7 @@ L
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -320,7 +315,7 @@ H
 `L`
                 , "file3.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -454,7 +449,7 @@ H
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
@@ -548,7 +543,7 @@ H
     D`
                 , "file2.txt", true);
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,

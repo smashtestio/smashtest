@@ -1,5 +1,6 @@
+const StepNode = require('./stepnode.js');
+const StepBlockNode = require('./stepblocknode.js');
 const Step = require('./step.js');
-const StepBlock = require('./stepblock.js');
 const Branch = require('./branch.js');
 const Constants = require('./constants.js');
 const util = require('util');
@@ -47,14 +48,14 @@ class Tree {
      * @return {StepNode} A new StepNode
      */
     newStepNode() {
-        return new StepNode(stepNodeCount++);
+        return new StepNode(this.stepNodeCount++);
     }
 
     /**
      * @return {StepNode} The StepNode under this.root with the given id, undefined if not found
      */
     getStepNode(id) {
-        return stepNodeIndex[id];
+        return this.stepNodeIndex[id];
     }
 
     /**
@@ -66,10 +67,10 @@ class Tree {
     parseIn(buffer, filename, isPackaged) {
         let lines = buffer.split(/\n/);
 
-        // Convert each string in lines to either a Step object
-        // For a line that's part of a code block, insert the code block contents into the Step that started the code block and remove that line
-        let lastStepCreated = null;
-        let lastNonEmptyStep = null;
+        // Convert each string in lines to a StepNode object
+        // For a line that's part of a code block, insert the code block contents into the StepNode that started the code block and remove that line
+        let lastStepNodeCreated = null;
+        let lastNonEmptyStepNode = null;
 
         let currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
 
@@ -83,13 +84,13 @@ class Tree {
             }
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
-                let endRegex = new RegExp(`^[ ]{${lastStepCreated.indents * Constants.SPACES_PER_INDENT}}\\}\\s*(\\/\\/.*?)?\\s*$`);
+                let endRegex = new RegExp(`^[ ]{${lastStepNodeCreated.indents * Constants.SPACES_PER_INDENT}}\\}\\s*(\\/\\/.*?)?\\s*$`);
                 if(line.match(endRegex)) {
                     // code block has ended
                     currentlyInsideCodeBlockFromLineNum = -1;
                 }
                 else {
-                    lastStepCreated.codeBlock += ("\n" + line);
+                    lastStepNodeCreated.codeBlock += ("\n" + line);
                 }
 
                 lines[i] = this.newStepNode().parseLine('', filename, lineNumber); // blank out the line we just handled
@@ -102,7 +103,7 @@ class Tree {
                 let s = this.newStepNode().parseLine(line, filename, lineNumber);
                 s.indents = utils.numIndents(line, filename, lineNumber);
 
-                if(!lastNonEmptyStep && s.indents != 0) {
+                if(!lastNonEmptyStepNode && s.indents != 0) {
                     utils.error(`The first step must have 0 indents`, filename, lineNumber);
                 }
 
@@ -116,10 +117,10 @@ class Tree {
                 }
 
                 lines[i] = s;
-                lastStepCreated = lines[i];
+                lastStepNodeCreated = lines[i];
 
                 if(s.text != '') {
-                    lastNonEmptyStep = s;
+                    lastNonEmptyStepNode = s;
                 }
             }
         }
@@ -129,7 +130,7 @@ class Tree {
             utils.error(`An unclosed code block was found`, filename, currentlyInsideCodeBlockFromLineNum);
         }
 
-        // Validations for .. steps
+        // Validations for .. step nodes
         for(let i = 0; i < lines.length; i++) {
             if(lines[i].text == '..') {
                 if(i > 0 && lines[i-1].text != '' && lines[i-1].indents == lines[i].indents) {
@@ -147,11 +148,11 @@ class Tree {
             }
         }
 
-        // Look for groups of consecutive steps that consititute a step block, and replace them with a StepBlock object
+        // Look for groups of consecutive steps that consititute a step block, and replace them with a StepBlockNode object
         // A step block:
-        // 1) all steps are at the same indent level
-        // 2) has no '' steps in the middle
-        // 3) is followed by a '' line, indented '..' step, line that's differntly indented, or end of file
+        // 1) all lines are at the same indent level
+        // 2) has no '' lines in the middle
+        // 3) is followed by a '' line, indented '..' line, line that's differently indented, or end of file
         for(let i = 0; i < lines.length;) {
             if(lines[i].text == '' || lines[i].text == '..') {
                 // The first line in a step block is a normal line
@@ -159,8 +160,8 @@ class Tree {
                 continue;
             }
 
-            // Current step may start a step block
-            let potentialStepBlock = new StepBlock();
+            // Current line may start a step block
+            let potentialStepBlock = new StepBlockNode();
 
             if(i > 0 && lines[i-1].text == '..') {
                 potentialStepBlock.isSequential = true;
@@ -198,12 +199,12 @@ class Tree {
                     }
                 }
 
-                // Have the StepBlock object we created replace its corresponding Steps
+                // Have the StepBlockNode object we created replace its corresponding StepNodes
                 lines.splice(i, potentialStepBlock.steps.length, potentialStepBlock);
-                i++; // next i will be one position past the new StepBlock's index
+                i++; // next i will be one position past the new StepBlockNode's index
             }
             else {
-                i = j; // no new StepBlock was created, so just advance i to however far down we ventured
+                i = j; // no new StepBlockNode was created, so just advance i to however far down we ventured
             }
         }
 
@@ -214,7 +215,7 @@ class Tree {
             }
             else if(lines[i].text == '..') {
                 // Validate that .. steps have a StepBlock directly below
-                if(i + 1 < lines.length && !(lines[i+1] instanceof StepBlock)) {
+                if(i + 1 < lines.length && !(lines[i+1] instanceof StepBlockNode)) {
                     utils.error(`A .. line must be followed by a step block`, filename, lines[i].lineNumber);
                 }
                 else {
@@ -226,52 +227,52 @@ class Tree {
             }
         }
 
-        // Set the parents and children of each Step/StepBlock in lines, based on the indents of each Step/StepBlock
+        // Set the parents and children of each StepNode/StepBlockNode in lines, based on the indents of each StepNode/StepBlockNode
         // Insert the contents of lines into the tree (under this.root)
         for(let i = 0; i < lines.length; i++) {
-            let currStepObj = lines[i]; // either a Step or StepBlock object
-            let prevStepObj = i > 0 ? lines[i-1] : null;
+            let currStepNode = lines[i]; // either a StepNode or StepBlockNode object
+            let prevStepNode = i > 0 ? lines[i-1] : null;
 
             // Packages
             if(isPackaged) {
-                currStepObj.isPackaged = true;
+                currStepNode.isPackaged = true;
             }
 
-            // Indents of new step vs. last step
+            // Indents of new step node vs. last step node
             let indentsAdvanced = 0;
-            if(prevStepObj != null) {
-                indentsAdvanced = currStepObj.indents - prevStepObj.indents;
+            if(prevStepNode != null) {
+                indentsAdvanced = currStepNode.indents - prevStepNode.indents;
             }
 
-            if(indentsAdvanced == 0) { // current step is a peer of the previous step
-                if(prevStepObj) {
-                    currStepObj.parent = prevStepObj.parent;
+            if(indentsAdvanced == 0) { // current step node is a peer of the previous step node
+                if(prevStepNode) {
+                    currStepNode.parent = prevStepNode.parent;
                 }
                 else { // only the root has been inserted thus far
-                    currStepObj.parent = this.root;
+                    currStepNode.parent = this.root;
                 }
 
-                currStepObj.parent.children.push(currStepObj);
+                currStepNode.parent.children.push(currStepNode);
             }
-            else if(indentsAdvanced == 1) { // current step is a child of the previous step
-                currStepObj.parent = prevStepObj;
-                prevStepObj.children.push(currStepObj);
+            else if(indentsAdvanced == 1) { // current step node is a child of the previous step node
+                currStepNode.parent = prevStepNode;
+                prevStepNode.children.push(currStepNode);
             }
             else if(indentsAdvanced > 1) {
-                utils.error(`You cannot have a step that has 2 or more indents beyond the previous step`, filename, currStepObj.lineNumber);
+                utils.error(`You cannot have a step that has 2 or more indents beyond the previous step`, filename, currStepNode.lineNumber);
             }
-            else { // indentsAdvanced < 0, and current step is a child of an ancestor of the previous step
-                let parent = prevStepObj.parent;
+            else { // indentsAdvanced < 0, and current step node is a child of an ancestor of the previous step node
+                let parent = prevStepNode.parent;
                 for(let j = indentsAdvanced; j < 0; j++) {
                     if(parent.parent == null) {
-                        utils.error(`Invalid number of indents`, filename, currStepObj.lineNumber); // NOTE: probably unreachable
+                        utils.error(`Invalid number of indents`, filename, currStepNode.lineNumber); // NOTE: probably unreachable
                     }
 
                     parent = parent.parent;
                 }
 
-                currStepObj.parent = parent;
-                parent.children.push(currStepObj);
+                currStepNode.parent = parent;
+                parent.children.push(currStepNode);
             }
         }
     }

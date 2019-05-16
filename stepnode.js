@@ -72,6 +72,7 @@ class StepNode {
      * @param {String} line - The full text of the line
      * @param {String} filename - The filename of the file where this step is
      * @param {Integer} lineNumber - The line number of this step
+     * @returns {StepNode} This StepNode
      * @throws {Error} If there is a parse error
      */
     parseLine(line, filename, lineNumber) {
@@ -80,12 +81,12 @@ class StepNode {
 
         if(line.trim() == '') {
             this.text = '';
-            return;
+            return this;
         }
 
         if(line.match(Constants.SEQ_MODIFIER_LINE)) {
             this.text = '..';
-            return;
+            return this;
         }
 
         let matches = line.match(Constants.LINE_WHOLE);
@@ -294,6 +295,8 @@ class StepNode {
                 }
             }
         }
+
+        return this;
     }
 
     /**
