@@ -9,7 +9,6 @@ class StepNode {
     constructor(id) {
         this.id = id || -1;                   // number that uniquely identifiers this step node
 
-        this.text = "";                       // text of the command of the step (not including spaces in front, modifiers, comments, etc.)
         this.indents = -1;                    // number of indents before this step's text, where an indent consists of SPACES_PER_INDENT spaces
 
         this.parent = null;                   // Step or StepBlock that's the parent of this Step (null if this Step is itself part of a StepBlock)
@@ -20,6 +19,8 @@ class StepNode {
 
         /*
         OPTIONAL
+
+        this.text = "";                       // text of the command of the step (not including spaces in front, modifiers, comments, etc.)
 
         this.modifiers = [];                  // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step
         this.frontModifiers = [];             // Array of String, modifiers in front of the step text

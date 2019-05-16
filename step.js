@@ -28,7 +28,7 @@ class Step {
         this.timeEnded = {};                  // Date object (time) of when this step ended execution
 
         reportTemplateIndex = -1;             // Index of the html that represents this step in reports (stored in Tree.reportTemplates)
-        reportView = {};                      // object that replaces {{{mustache templates}}} in reportTemplates, values can only be strings and not functions
+        reportView = {};                      // object that replaces {{{template tags}}} in reportTemplates, values can only be strings
         */
     }
 

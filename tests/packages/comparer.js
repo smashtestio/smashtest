@@ -29,7 +29,7 @@ describe("Comparer", () => {
             expect(expected).to.eql( { one: "foobar2" } );
         });
 
-        it("handles actual object that contain multiple references to the same object when a rough clone is made", () => {
+        it("handles actual object that contain multiple references to the same object when a json clone is made", () => {
             let a = [ 6 ];
             let actual = [ { shared: a }, { shared: a } ];
             let expected = [ { shared: [ 6 ] }, { shared: [ 6 ] } ];
@@ -53,6 +53,102 @@ describe("Comparer", () => {
                     }
                 }
             });
+        });
+
+        it("handles traversing the same object multiple times when the actual object has circular references, passing case", () => {
+            let a = {};
+            let b = {};
+            let c = {};
+            let d = {};
+            let e = {};
+
+            a.b = b;
+            a.c = c;
+            b.d = d;
+            c.d = d;
+            d.one = 1;
+            d.two = 2;
+            d.e = e;
+            e.three = 3;
+
+            Comparer.expect(a).to.match({
+                b: {
+                    d: {
+                        one: 1,
+                        two: 2,
+                        e: {
+                            three: 3
+                        }
+                    }
+                },
+                c: {
+                    d: {
+                        one: 1,
+                        two: { $typeof: 'number' },
+                        e: {}
+                    }
+                }
+            });
+        });
+
+        it("handles traversing the same object multiple times when the actual object has circular references, failing case", () => {
+            let a = {};
+            let b = {};
+            let c = {};
+            let d = {};
+            let e = {};
+
+            a.b = b;
+            a.c = c;
+            b.d = d;
+            c.d = d;
+            d.one = 1;
+            d.two = 2;
+            d.e = e;
+            e.three = 3;
+
+            assert.throws(() => {
+                Comparer.expect(a).to.match({
+                    b: {
+                        d: {
+                            one: 1,
+                            two: 2,
+                            e: {
+                                three: 3
+                            }
+                        }
+                    },
+                    c: {
+                        d: {
+                            one: 1,
+                            two: { $typeof: 'number' },
+                            e: {
+                                notHere: false
+                            }
+                        }
+                    }
+                });
+            }, `{
+    b: {
+        d: {
+            one: 1,
+            two: 2,
+            e: {
+                three: 3
+
+                --> missing
+                notHere: false
+            }
+        }
+    },
+    c: {
+        d: {
+            one: [Circular]
+            two: [Circular]
+            e: [Circular]
+        }
+    }
+}`);
         });
     });
 
@@ -2213,138 +2309,6 @@ describe("Comparer", () => {
             let failed = Comparer.hasErrors([1, 2]);
             expect(failed).to.be.false;
         });
-
-        it("returns true when there are errors in an object inside a complex object", () => {
-            let failed = Comparer.hasErrors({
-                $comparerNode: true,
-                errors: [],
-                value: {
-                    one: 1,
-                    two: [
-                        22,
-                        undefined,
-                        {
-                            $comparerNode: true,
-                            errors: [],
-                            value: 33
-                        }
-                    ],
-                    three: {
-                        $comparerNode: true,
-                        errors: [ "oops" ],
-                        value: 3
-                    },
-                    four: null
-                }
-            });
-            expect(failed).to.be.true;
-        });
-
-        it("returns true when there are block errors in an object inside a complex object", () => {
-            let failed = Comparer.hasErrors({
-                $comparerNode: true,
-                errors: [],
-                value: {
-                    one: 1,
-                    two: [
-                        22,
-                        undefined,
-                        {
-                            $comparerNode: true,
-                            errors: [],
-                            value: 33
-                        }
-                    ],
-                    three: {
-                        $comparerNode: true,
-                        errors: [ { blockError: true, text: "oops", obj: {} } ],
-                        value: 3
-                    },
-                    four: null
-                }
-            });
-            expect(failed).to.be.true;
-        });
-
-        it("returns true when there are errors in an array inside a complex object", () => {
-            let failed = Comparer.hasErrors({
-                $comparerNode: true,
-                errors: [],
-                value: {
-                    one: 1,
-                    two: [
-                        22,
-                        undefined,
-                        {
-                            $comparerNode: true,
-                            errors: [ "oops" ],
-                            value: 33
-                        }
-                    ],
-                    three: {
-                        $comparerNode: true,
-                        errors: [],
-                        value: 3
-                    },
-                    four: null
-                }
-            });
-            expect(failed).to.be.true;
-        });
-
-        it("returns false when there are no errors in a complex object", () => {
-            let failed = Comparer.hasErrors({
-                $comparerNode: true,
-                errors: [],
-                value: {
-                    one: 1,
-                    two: [
-                        22,
-                        undefined,
-                        {
-                            $comparerNode: true,
-                            errors: [],
-                            value: 33
-                        }
-                    ],
-                    three: {
-                        $comparerNode: true,
-                        errors: [],
-                        value: 3
-                    },
-                    four: null
-                }
-            });
-            expect(failed).to.be.false;
-        });
-
-        it("handles objects with circular references", () => {
-            let o = {
-                $comparerNode: true,
-                errors: [],
-                value: {
-                    one: 1
-                }
-            };
-
-            o.value.two = o;
-
-            let failed = Comparer.hasErrors(o);
-            expect(failed).to.be.false;
-
-            o = {
-                $comparerNode: true,
-                errors: [ 'oops' ],
-                value: {
-                    one: 1
-                }
-            };
-
-            o.value.two = o;
-
-            failed = Comparer.hasErrors(o);
-            expect(failed).to.be.true;
-        });
     });
 
     describe("print()", () => {
@@ -2405,87 +2369,6 @@ describe("Comparer", () => {
     1,
     "2"
 ]`);
-        });
-
-        it("prints a complex object containing objects/arrays/primitives and that contains normal errors and block errors", () => {
-            let printed = Comparer.print({
-                $comparerNode: true,
-                errors: [],
-                value: {
-                    one: 1,
-                    two: {
-                        $comparerNode: true,
-                        errors: [
-                            { blockError: true, text: "oops", key: "K", obj: { sorry: true } }
-                        ],
-                        value: [
-                            22,
-                            undefined,
-                            {
-                                $comparerNode: true,
-                                errors: [ "oops1" ],
-                                value: 33
-                            }
-                        ]
-                    },
-                    three: {
-                        $comparerNode: true,
-                        errors: [ "oops2", "oops3" ],
-                        value: 3
-                    },
-                    four: null
-                }
-            });
-            expect(printed).to.equal(`{
-    one: 1,
-    two: [
-        22,
-        undefined,
-        33  -->  oops1
-
-        --> oops
-        K: {
-            sorry: true
-        }
-    ],
-    three: 3,  -->  oops2, oops3
-    four: null
-}`);
-        });
-
-        it("prints a complex object containing objects/arrays/primitives and that doesn't contain errors", () => {
-            let printed = Comparer.print({
-                $comparerNode: true,
-                errors: [],
-                value: {
-                    one: 1,
-                    two: [
-                        22,
-                        undefined,
-                        {
-                            $comparerNode: true,
-                            errors: [],
-                            value: 33
-                        }
-                    ],
-                    three: {
-                        $comparerNode: true,
-                        errors: [],
-                        value: 3
-                    },
-                    four: null
-                }
-            });
-            expect(printed).to.equal(`{
-    one: 1,
-    two: [
-        22,
-        undefined,
-        33
-    ],
-    three: 3,
-    four: null
-}`);
         });
 
         it("prints an object with a circular reference", () => {

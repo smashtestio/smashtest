@@ -1,7 +1,18 @@
 const clonedeep = require('lodash/clonedeep');
+const utils = require('../../utils.js');
 
 const RESERVED_KEYWORDS = ['$typeof', '$regex', '$contains', '$max', '$min', '$code', '$length', '$maxLength', '$minLength', '$subset', '$anyOrder', '$exact', '$every'];
-const DEBUG = false;
+
+/**
+ * Replaces a value inside an object to mark that the Comparer was there, and to store any associated errors
+ */
+class ComparerNode {
+    constructor(errors, value) {
+        this.errors = errors;    // array of strings describing errors related to comparison
+        this.value = value;      // original actual value at the position of this ComparerNode
+        //this.$comparerNode = true;
+    }
+}
 
 class Comparer {
     constructor() {
@@ -12,14 +23,14 @@ class Comparer {
      * Usage: expect(actualObj).to.match(expectedObj)
      * @param {Object} actualObj - The object to check. Must not have circular references or multiple references to the same object inside. Could be an array.
      * @param {Object} expectedObj - The object specifying criteria for actualObj to match
-     * @param {Boolean} [roughClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
+     * @param {Boolean} [jsonClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static expect(actualObj, roughClone) {
+    static expect(actualObj, jsonClone) {
         return {
             to: {
                 match: (expectedObj) => {
-                    actualObj = this.clone(actualObj, roughClone);
+                    actualObj = this.clone(actualObj, jsonClone);
                     let comp = this.comparison(actualObj, expectedObj);
                     if(this.hasErrors(comp)) {
                         throw new Error('\n' + this.print(comp));
@@ -32,17 +43,19 @@ class Comparer {
     /**
      * Compares the actual value against the expected value
      * Calls itself recursively on every object, array, and primitive inside of actual
-     * Replaces every object, array, and primitive inside of actual with a special $comparerNode object. See return value for format.
+     * Replaces every object, array, and primitive inside of actual with a special ComparerNode object
      * @param {Anything} actual - The value to check (could be a plain object, array, or primitive)
      * @param {Anything} expected - Criteria for actual to match (could be a primitive, object, or array to match exactly or an object/array that specifies constraints)
      * @param {Boolean} [subsetMatching] - If true, all objects and arrays are matched by subset (not just objects, as is the default)
-     * @return {Object} { errors: array of strings describing errors related to comparison, value: original actual value at this position, $comparerNode: true }
+     * @return {ComparerNode} A ComparerNode
      */
     static comparison(actual, expected, subsetMatching) {
-        let errors = [];
+        let originalActual = actual;
+        if(actual instanceof ComparerNode) { // we've already been here
+            actual = actual.value;
+        }
 
-        let origActual = DEBUG && this.clone(actual);
-        let origExpected = DEBUG && this.clone(expected);
+        let errors = [];
 
         if(typeof expected == 'object') {
             if(expected === null) { // remember, typeof null is "object"
@@ -78,10 +91,6 @@ class Comparer {
                                 let found = false;
                                 for(let i = 0; i < actualClone.length; i++) {
                                     let actualItem = actualClone[i];
-                                    if(this.isComparerNode(actualItem)) {
-                                        continue; // this item has been claimed already
-                                    }
-
                                     let comparisonResult = this.comparison(actualItem, expectedItem, true);
                                     if(!this.hasErrors(comparisonResult)) {
                                         // we have a match
@@ -107,8 +116,8 @@ class Comparer {
                     if(!subset) {
                         // Make sure we don't have any items in actual that haven't been visited
                         for(let i = 0; i < actual.length; i++) {
-                            if(!this.isComparerNode(actual[i])) {
-                                actual[i] = { errors: [ `not expected` ], value: actual[i], $comparerNode: true };
+                            if(!(actual[i] instanceof ComparerNode)) {
+                                actual[i] = this.createComparerNode([`not expected`], actual[i]);
                             }
                         }
                     }
@@ -339,7 +348,7 @@ class Comparer {
                             if(!actual || (!actual.hasOwnProperty(key) && expected[key] !== undefined)) {
                                 errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
                             }
-                            else if(!this.isComparerNode(actual[key])) { // skip over keys in actual already "visited"
+                            else {
                                 actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
                             }
                         }
@@ -349,7 +358,7 @@ class Comparer {
                             for(let key in actual) {
                                 if(actual.hasOwnProperty(key)) {
                                     if(!expected.hasOwnProperty(key)) {
-                                        actual[key] = { errors: [ `this key isn't in $exact object` ], value: actual[key], $comparerNode: true };
+                                        actual[key] = this.createComparerNode([`this key isn't in $exact object`], actual[key]);
                                     }
                                 }
                             }
@@ -364,23 +373,26 @@ class Comparer {
             }
         }
 
-        let ret = { errors: errors, value: actual, $comparerNode: true };
-
-        if(DEBUG) {
-            console.log("----------");
-            console.log("ACTUAL:");
-            console.log(origActual);
-            console.log("EXPECTED:")
-            console.log(origExpected);
-            console.log("RETURN");
-            console.log(ret);
-        }
-
-        return ret;
+        return this.createComparerNode(errors, originalActual);
     }
 
     /**
-     * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or $comparerNode object)
+     * Creates a new ComparerNode
+     * @param {Array} errors - An array of strings describing the errors
+     * @param {Anything} value - The value that will be replaced with the new ComparerNode
+     * @return {ComparerNode} The ComparerNode that destination will be set to
+     */
+    static createComparerNode(errors, value) {
+        if(value instanceof ComparerNode) {
+            return new ComparerNode(value.errors.concat(errors), value.value);
+        }
+        else {
+            return new ComparerNode(errors, value);
+        }
+    }
+
+    /**
+     * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or ComparerNode object)
      * @param {Boolean} [isRecursive] - If true, this is a recursive call from within hasErrors()
      * @return {Boolean} True if value has errors in it, false otherwise
      */
@@ -388,7 +400,7 @@ class Comparer {
         // Do not traverse value if it's been seen already (in the case of object with circular references)
         if(this.wasSeen(value)) return false;
 
-        if(this.isComparerNode(value)) {
+        if(value instanceof ComparerNode) {
             if(value.errors.length > 0) {
                 this.endSeen(!isRecursive);
                 return true;
@@ -427,13 +439,6 @@ class Comparer {
     }
 
     /**
-     * @return {Boolean} True if the given value is an object with $comparerNode set, false otherwise
-     */
-    static isComparerNode(value) {
-        return typeof value == 'object' && value !== null && value.$comparerNode;
-    }
-
-    /**
      * Ends maintaining a list of seen objects (used to prevent infinite loops on circular objects). Only works if go is true.
      */
     static endSeen(go) {
@@ -463,7 +468,7 @@ class Comparer {
     }
 
     /**
-     * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or $comparerNode object)
+     * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or ComparerNode object)
      * @param {Number} [indents] - The number of indents at this value, 0 if omitted
      * @param {Boolean} [commaAtEnd] - If true, put a comma at the end of the printed value
      * @return {String} The pretty-printed version of value, including errors
@@ -481,7 +486,7 @@ class Comparer {
         let self = this;
 
         let errors = [];
-        if(this.isComparerNode(value)) {
+        if(value instanceof ComparerNode) {
             errors = value.errors;
             value = value.value;
         }
@@ -593,21 +598,22 @@ class Comparer {
 
     /**
      * @param {Anything} value - Any value
-     * @param {Boolean} [roughClone] - If true, compares using the rough clone method
+     * @param {Boolean} [jsonClone] - If true, compares using the json clone method (throws error if there's a circular reference in value)
      * @return A clone of the given value
-     * NOTE: when there are multiple references to the same object within value, that will be retained in the clone
+     * NOTE: In non-json-clone, if there are multiple references to a shared object in value, that object will be shared in the clone as well
      */
-    static clone(value, roughClone) {
-        return roughClone ? this.roughClone(value) : clonedeep(value);
+    static clone(value, jsonClone) {
+        return jsonClone ? this.jsonClone(value) : clonedeep(value);
     }
 
     /**
      * @param {Anything} value - Any value
      * @return A clone of the given value
-     * NOTE: When there are multiple references to the same object within value, they will be separate objects in the clone
-     * NOTE: An undefined value or function will be removed
+     * When there are multiple references to a shared object within value, they will be separate objects in the clone
+     * An object value that's undefined or a function will be removed. An array value that's undefined or a function will be convered to null.
+     * Will throw an error if value contains a circular reference
      */
-    static roughClone(value) {
+    static jsonClone(value) {
         return JSON.parse(JSON.stringify(value));
     }
 }

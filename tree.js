@@ -48,7 +48,9 @@ class Tree {
      * @return {StepNode} A new StepNode
      */
     newStepNode() {
-        return new StepNode(this.stepNodeCount++);
+        let stepNode = new StepNode(this.stepNodeCount + 1);
+        this.stepNodeCount++;
+        return stepNode;
     }
 
     /**
@@ -210,11 +212,15 @@ class Tree {
 
         // Remove steps that are '' or '..' (we don't need them anymore)
         for(let i = 0; i < lines.length;) {
-            if(lines[i].text == '') {
+            if(lines[i] instanceof StepBlockNode) {
+                i++;
+                continue;
+            }
+            else if(lines[i].text == '') {
                 lines.splice(i, 1);
             }
             else if(lines[i].text == '..') {
-                // Validate that .. steps have a StepBlock directly below
+                // Validate that .. steps have a StepBlockNode directly below
                 if(i + 1 < lines.length && !(lines[i+1] instanceof StepBlockNode)) {
                     utils.error(`A .. line must be followed by a step block`, filename, lines[i].lineNumber);
                 }
