@@ -386,34 +386,26 @@ class Comparer {
      */
     static hasErrors(value, isRecursive) {
         // Do not traverse value if it's been seen already (in the case of object with circular references)
-        createSeen();
-        if(typeof value == 'object') {
-            for(let i = 0; i < Comparer.seen.length; i++) {
-                if(Comparer.seen[i] === value) {
-                    return;
-                }
-            }
-            Comparer.seen.push(value);
-        }
+        if(this.wasSeen(value)) return false;
 
         if(this.isComparerNode(value)) {
             if(value.errors.length > 0) {
-                removeSeen();
+                this.endSeen(!isRecursive);
                 return true;
             }
-
             value = value.value;
+            if(this.wasSeen(value)) return false;
         }
 
         if(typeof value == 'object') {
             if(value === null) {
-                removeSeen();
+                this.endSeen(!isRecursive);
                 return false;
             }
             else if(value instanceof Array) {
                 for(let item of value) {
                     if(this.hasErrors(item, true)) {
-                        removeSeen();
+                        this.endSeen(!isRecursive);
                         return true;
                     }
                 }
@@ -422,7 +414,7 @@ class Comparer {
                 for(let key in value) {
                     if(value.hasOwnProperty(key)) {
                         if(this.hasErrors(value[key], true)) {
-                            removeSeen();
+                            this.endSeen(!isRecursive);
                             return true;
                         }
                     }
@@ -430,20 +422,8 @@ class Comparer {
             }
         }
 
-        removeSeen();
+        this.endSeen(!isRecursive);
         return false;
-
-        function createSeen() {
-            if(!isRecursive) {
-                Comparer.seen = [];
-            }
-        }
-
-        function removeSeen() {
-            if(!isRecursive) {
-                delete Comparer.seen;
-            }
-        }
     }
 
     /**
@@ -451,6 +431,35 @@ class Comparer {
      */
     static isComparerNode(value) {
         return typeof value == 'object' && value !== null && value.$comparerNode;
+    }
+
+    /**
+     * Ends maintaining a list of seen objects (used to prevent infinite loops on circular objects). Only works if go is true.
+     */
+    static endSeen(go) {
+        if(go) {
+            delete Comparer.seen;
+        }
+    }
+
+    /**
+     * @return {Boolean} True if the given value was seen already, false otherwise
+     */
+    static wasSeen(value) {
+        if(!Comparer.seen) {
+            Comparer.seen = [];
+        }
+
+        if(typeof value == 'object' && value !== null) {
+            for(let i = 0; i < Comparer.seen.length; i++) {
+                if(Comparer.seen[i] === value) {
+                    return true;
+                }
+            }
+            Comparer.seen.push(value);
+        }
+
+        return false;
     }
 
     /**
@@ -463,6 +472,8 @@ class Comparer {
         if(!indents) {
             indents = 0;
         }
+
+        if(this.wasSeen(value)) return '[Circular]\n';
 
         let spaces = outputIndents(indents);
         let nextSpaces = outputIndents(indents + 1);
@@ -517,6 +528,7 @@ class Comparer {
         }
 
         if(indents == 0) {
+            this.endSeen(true);
             return ret.trim();
         }
         else {

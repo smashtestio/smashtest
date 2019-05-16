@@ -2487,5 +2487,20 @@ describe("Comparer", () => {
     four: null
 }`);
         });
+
+        it("prints an object with a circular reference", () => {
+            let parent = {};
+            let child = {};
+
+            parent.child = child;
+            child.parent = parent;
+
+            let printed = Comparer.print(parent);
+            expect(printed).to.equal(`{
+    child: {
+        parent: [Circular]
+    }
+}`);
+        });
     });
 });

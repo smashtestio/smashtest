@@ -37,7 +37,7 @@ describe("Tree", () => {
                 });
             });
 
-            it.only("parses a normal tree", () => {
+            it("parses a normal tree", () => {
                 let tree = new Tree();
                 tree.parseIn(
 `A
@@ -427,7 +427,7 @@ H
                 });
             });
 
-            it("ignores lines that are fully comments", () => {
+            it.only("ignores lines that are fully comments", () => {
                 let tree = new Tree();
                 tree.parseIn(
 `A
@@ -622,9 +622,9 @@ H
         });
 
         context("step blocks", () => {
-                it("parses a step block at the very top", () => {
-                    let tree = new Tree();
-                    tree.parseIn(
+            it("parses a step block at the very top", () => {
+                let tree = new Tree();
+                tree.parseIn(
 `A
 B
 C
@@ -633,7 +633,7 @@ C
 `
                 , "file.txt");
 
-                expect(tree).to.containSubset({
+                Comparer.expect(tree).to.match({
                     root: {
                         indents: -1,
                         parent: null,
