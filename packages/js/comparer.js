@@ -381,11 +381,24 @@ class Comparer {
 
     /**
      * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or $comparerNode object)
+     * @param {Boolean} [isRecursive] - If true, this is a recursive call from within hasErrors()
      * @return {Boolean} True if value has errors in it, false otherwise
      */
-    static hasErrors(value) {
+    static hasErrors(value, isRecursive) {
+        // Do not traverse value if it's been seen already (in the case of object with circular references)
+        createSeen();
+        if(typeof value == 'object') {
+            for(let i = 0; i < Comparer.seen.length; i++) {
+                if(Comparer.seen[i] === value) {
+                    return;
+                }
+            }
+            Comparer.seen.push(value);
+        }
+
         if(this.isComparerNode(value)) {
             if(value.errors.length > 0) {
+                removeSeen();
                 return true;
             }
 
@@ -394,11 +407,13 @@ class Comparer {
 
         if(typeof value == 'object') {
             if(value === null) {
+                removeSeen();
                 return false;
             }
             else if(value instanceof Array) {
                 for(let item of value) {
-                    if(this.hasErrors(item)) {
+                    if(this.hasErrors(item, true)) {
+                        removeSeen();
                         return true;
                     }
                 }
@@ -406,7 +421,8 @@ class Comparer {
             else { // plain object
                 for(let key in value) {
                     if(value.hasOwnProperty(key)) {
-                        if(this.hasErrors(value[key])) {
+                        if(this.hasErrors(value[key], true)) {
+                            removeSeen();
                             return true;
                         }
                     }
@@ -414,7 +430,20 @@ class Comparer {
             }
         }
 
+        removeSeen();
         return false;
+
+        function createSeen() {
+            if(!isRecursive) {
+                Comparer.seen = [];
+            }
+        }
+
+        function removeSeen() {
+            if(!isRecursive) {
+                delete Comparer.seen;
+            }
+        }
     }
 
     /**

@@ -36,6 +36,24 @@ describe("Comparer", () => {
 
             Comparer.expect(actual, true).to.match(expected);
         });
+
+        it("handles actual objects with circular references", () => {
+            let child = {};
+            let parent = {};
+
+            parent.child = child;
+            child.parent = parent;
+
+            Comparer.expect(parent).to.match({
+                child: {
+                    parent: {
+                        child: {
+                            parent: {}
+                        }
+                    }
+                }
+            });
+        });
     });
 
     describe("comparison()", () => {
@@ -2249,7 +2267,7 @@ describe("Comparer", () => {
         });
 
         it("returns true when there are errors in an array inside a complex object", () => {
-            failed = Comparer.hasErrors({
+            let failed = Comparer.hasErrors({
                 $comparerNode: true,
                 errors: [],
                 value: {
@@ -2275,7 +2293,7 @@ describe("Comparer", () => {
         });
 
         it("returns false when there are no errors in a complex object", () => {
-            failed = Comparer.hasErrors({
+            let failed = Comparer.hasErrors({
                 $comparerNode: true,
                 errors: [],
                 value: {
@@ -2298,6 +2316,34 @@ describe("Comparer", () => {
                 }
             });
             expect(failed).to.be.false;
+        });
+
+        it("handles objects with circular references", () => {
+            let o = {
+                $comparerNode: true,
+                errors: [],
+                value: {
+                    one: 1
+                }
+            };
+
+            o.value.two = o;
+
+            let failed = Comparer.hasErrors(o);
+            expect(failed).to.be.false;
+
+            o = {
+                $comparerNode: true,
+                errors: [ 'oops' ],
+                value: {
+                    one: 1
+                }
+            };
+
+            o.value.two = o;
+
+            failed = Comparer.hasErrors(o);
+            expect(failed).to.be.true;
         });
     });
 
