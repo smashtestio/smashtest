@@ -2385,5 +2385,19 @@ describe("Comparer", () => {
     }
 }`);
         });
+
+        it("prints using a custom errorStart and errorEnd", () => {
+            let obj = Comparer.comparison( { one: 1, two: "2" }, { one: { $max: 0, $min: 2 }, two: "3", five: 5, six: 6 } );
+            expect(Comparer.print(obj, '<start>', '<end>')).to.equal(`{
+    one: 1,  <start>  is greater than the $max of 0, is less than the $min of 2<end>
+    two: "2"  <start>  not "3"<end>
+
+    <start> missing
+    five: 5
+<end>
+    <start> missing
+    six: 6
+<end>}`);
+        });
     });
 });

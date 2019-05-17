@@ -20,20 +20,22 @@ class Comparer {
 
     /**
      * Compares the actual object against the expected object
-     * Usage: expect(actualObj).to.match(expectedObj)
+     * Usage: expect(actualObj, errorStart, errorEnd, jsonClone).to.match(expectedObj)
      * @param {Object} actualObj - The object to check. Must not have circular references or multiple references to the same object inside. Could be an array.
      * @param {Object} expectedObj - The object specifying criteria for actualObj to match
+     * @param {String} [errorStart] - String to mark the start of an error, '-->' if omitted
+     * @param {String} [errorEnd] - String to mark the end of an error, '' if omitted
      * @param {Boolean} [jsonClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static expect(actualObj, jsonClone) {
+    static expect(actualObj, errorStart, errorEnd, jsonClone) {
         return {
             to: {
                 match: (expectedObj) => {
                     actualObj = this.clone(actualObj, jsonClone);
                     let comp = this.comparison(actualObj, expectedObj);
                     if(this.hasErrors(comp)) {
-                        throw new Error('\n' + this.print(comp));
+                        throw new Error('\n' + this.print(comp, errorStart, errorEnd));
                     }
                 }
             }
@@ -469,13 +471,22 @@ class Comparer {
 
     /**
      * @param {Anything} value - Something that came out of comparison() (a plain object, array, primitive, or ComparerNode object)
+     * @param {String} [errorStart] - String to mark the start of an error, '-->' if omitted
+     * @param {String} [errorEnd] - String to mark the end of an error, '' if omitted
      * @param {Number} [indents] - The number of indents at this value, 0 if omitted
      * @param {Boolean} [commaAtEnd] - If true, put a comma at the end of the printed value
      * @return {String} The pretty-printed version of value, including errors
      */
-    static print(value, indents, commaAtEnd) {
+    static print(value, errorStart, errorEnd, indents, commaAtEnd) {
         if(!indents) {
             indents = 0;
+        }
+
+        if(typeof errorStart == 'undefined') {
+            errorStart = '-->';
+        }
+        if(typeof errorEnd == 'undefined') {
+            errorEnd = '';
         }
 
         if(this.wasSeen(value)) return '[Circular]\n';
@@ -498,7 +509,7 @@ class Comparer {
             else if(value instanceof Array) {
                 ret += '[' + outputErrors() + '\n';
                 for(let i = 0; i < value.length; i++) {
-                    ret += nextSpaces + this.print(value[i], indents + 1, i < value.length - 1);
+                    ret += nextSpaces + this.print(value[i], errorStart, errorEnd, indents + 1, i < value.length - 1);
                 }
 
                 ret += outputBlockErrors();
@@ -512,7 +523,7 @@ class Comparer {
                     let key = keys[i];
                     if(value.hasOwnProperty(key)) {
                         let hasWeirdChars = key.match(/[^A-Za-z0-9\$]/); // put quotes around the key if there are non-standard chars in it
-                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], indents + 1, i < keys.length - 1);
+                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
                     }
                 }
 
@@ -562,13 +573,13 @@ class Comparer {
                 return '';
             }
 
-            let ret = '  -->  ';
+            let ret = `  ${errorStart}  `;
             for(let error of errors) {
                 ret += error.replace(/\n/g, ' ') + ', ';
             }
 
-            // Slice off last ', '
-            ret = ret.slice(0, -2);
+            ret = ret.slice(0, -2); // slice off last ', '
+            ret += errorEnd;
 
             return ret;
         }
@@ -585,12 +596,11 @@ class Comparer {
 
             let ret = '\n';
             for(let error of errors) {
-                ret += nextSpaces + '--> ' + error.text + '\n';
-                ret += nextSpaces + (error.key ? error.key + ': ' : '') + self.print(error.obj, indents + 1) + '\n';
+                ret += nextSpaces + `${errorStart} ${error.text}\n`;
+                ret += nextSpaces + (error.key ? error.key + ': ' : '') + self.print(error.obj, errorStart, errorEnd, indents + 1) + errorEnd + '\n';
             }
 
-            // Slice off last '\n'
-            ret = ret.slice(0, -1);
+            ret = ret.slice(0, -1); // slice off last '\n'
 
             return ret;
         }
