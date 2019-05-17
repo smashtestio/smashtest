@@ -3194,7 +3194,7 @@ Trace:
         });
     });
 
-    describe("validateVarSetting()", () => {
+    describe("validateVarSettingFunction()", () => {
         it("accepts function that has muliple branches in {x}='value' format", () => {
             let tree = new Tree();
             tree.parseIn(`
@@ -3208,8 +3208,8 @@ Trace:
     {x}=['3 {var}']
 `);
 
-            let functionCall = tree.root.children[0].cloneForBranch();
-            functionCall.functionDeclarationInTree = tree.root.children[1];
+            let functionCall = new Step(tree.root.children[0].id);
+            functionCall.functionDeclarationId = tree.root.children[1].id;
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
@@ -3229,8 +3229,8 @@ Trace:
     {x}=Function
 `);
 
-            let functionCall = tree.root.children[0].cloneForBranch();
-            functionCall.functionDeclarationInTree = tree.root.children[1];
+            let functionCall = new Step(tree.root.children[0].id);
+            functionCall.functionDeclarationId = tree.root.children[1].id;
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
@@ -3244,8 +3244,8 @@ Trace:
 }
 `);
 
-            let functionCall = tree.root.children[0].cloneForBranch();
-            functionCall.functionDeclarationInTree = tree.root.children[1];
+            let functionCall = new Step(tree.root.children[0].id);
+            functionCall.functionDeclarationId = tree.root.children[1].id;
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(false);
         });
 
@@ -3257,8 +3257,8 @@ Trace:
 * F
 `, "file.txt");
 
-            let functionCall = tree.root.children[0].cloneForBranch();
-            functionCall.functionDeclarationInTree = tree.root.children[1];
+            let functionCall = new Step(tree.root.children[0].id);
+            functionCall.functionDeclarationId = tree.root.children[1].id;
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
             }, "You cannot use an empty function [file.txt:2]");
@@ -3277,8 +3277,8 @@ Trace:
     {x}='3'
 `, "file.txt");
 
-            let functionCall = tree.root.children[0].cloneForBranch();
-            functionCall.functionDeclarationInTree = tree.root.children[1];
+            let functionCall = new Step(tree.root.children[0].id);
+            functionCall.functionDeclarationId = tree.root.children[1].id;
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
@@ -3294,8 +3294,8 @@ Trace:
     {x}=[3]
 `, "file.txt");
 
-            functionCall = tree.root.children[0].cloneForBranch();
-            functionCall.functionDeclarationInTree = tree.root.children[1];
+            functionCall = new Step(tree.root.children[0].id);
+            functionCall.functionDeclarationId = tree.root.children[1].id;
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
@@ -3313,8 +3313,8 @@ Trace:
     Child -
 `, "file.txt");
 
-            let functionCall = tree.root.children[0].cloneForBranch();
-            functionCall.functionDeclarationInTree = tree.root.children[1];
+            let functionCall = new Step(tree.root.children[0].id);
+            functionCall.functionDeclarationId = tree.root.children[1].id;
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
@@ -3335,8 +3335,8 @@ Trace:
     {x}='3'
 `, "file.txt");
 
-            let functionCall = tree.root.children[0].cloneForBranch();
-            functionCall.functionDeclarationInTree = tree.root.children[1];
+            let functionCall = new Step(tree.root.children[0].id);
+            functionCall.functionDeclarationId = tree.root.children[1].id;
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
@@ -3345,6 +3345,22 @@ Trace:
     });
 
     describe("branchify()", () => {
+        function mergeStepsWithStepNodes(tree, branches) {
+            branches.forEach(branch => {
+                mergeStepsArrWithStepNodes(tree, branch.steps);
+                branch.beforeEveryBranch && mergeStepsArrWithStepNodes(tree, branch.beforeEveryBranch);
+                branch.afterEveryBranch && mergeStepsArrWithStepNodes(tree, branch.afterEveryBranch);
+                branch.beforeEveryStep && mergeStepsArrWithStepNodes(tree, branch.beforeEveryStep);
+                branch.afterEveryStep && mergeStepsArrWithStepNodes(tree, branch.afterEveryStep);
+            });
+        }
+
+        function mergeStepsArrWithStepNodes(tree, steps) {
+            for(let i = 0; i < steps.length; i++) {
+                steps[i] = Object.assign(steps[i], tree.getStepNode(steps[i].id));
+            }
+        }
+
         context("generic tests", () => {
             it("handles an empty tree", () => {
                 let tree = new Tree();
@@ -3363,29 +3379,32 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { id: 2 },
+                            { id: 3 },
+                            { id: 4 }
+                        ]
+                    }
+                ]);
 
-                expect(branches).to.containSubsetInOrder([
+                mergeStepsWithStepNodes(tree, branches);
+
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
                                 text: "A",
-                                level: 0,
-                                parent: undefined,
-                                children: undefined
+                                level: 0
                             },
                             {
                                 text: "B",
-                                level: 0,
-                                parent: undefined,
-                                children: undefined
+                                level: 0
                             },
                             {
                                 text: "C",
-                                level: 0,
-                                parent: undefined,
-                                children: undefined
+                                level: 0
                             }
                         ]
                     }
@@ -3411,15 +3430,9 @@ H -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(3);
-                expect(branches[2].steps).to.have.lengthOf(2);
-                expect(branches[3].steps).to.have.lengthOf(3);
-                expect(branches[4].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             { text: "A", level: 0 },
@@ -3473,15 +3486,9 @@ H -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(3);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(3);
-                expect(branches[4].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             { text: "A", level: 0 },
@@ -3535,13 +3542,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(4);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(1);
+                mergeStepsWithStepNodes(tree, branches);
 
                 expect(branches[0].nonParallelId).to.equal(undefined);
                 let nonParallelId = branches[1].nonParallelId;
@@ -3549,7 +3550,7 @@ G -
                 expect(branches[2].nonParallelId).to.equal(nonParallelId);
                 expect(branches[3].nonParallelId).to.equal(undefined);
 
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         nonParallelId: undefined
@@ -3584,13 +3585,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(4);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(1);
+                mergeStepsWithStepNodes(tree, branches);
 
                 expect(branches[0].nonParallelId).to.equal(undefined);
                 let nonParallelId = branches[1].nonParallelId;
@@ -3598,7 +3593,7 @@ G -
                 expect(branches[2].nonParallelId).to.equal(nonParallelId);
                 expect(branches[3].nonParallelId).to.equal(undefined);
 
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         nonParallelId: undefined
@@ -3633,13 +3628,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(4);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(1);
+                mergeStepsWithStepNodes(tree, branches);
 
                 let nonParallelId0 = branches[0].nonParallelId;
                 expect(nonParallelId0).to.have.lengthOf.above(0);
@@ -3649,7 +3638,7 @@ G -
                 expect(branches[2].nonParallelId).to.equal(nonParallelId1);
                 expect(branches[3].nonParallelId).to.equal(undefined);
 
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ]
                     },
@@ -3747,12 +3736,9 @@ A -
                 `, "file2.txt", true);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(tree.beforeEverything).to.have.lengthOf(2);
-                expect(tree.afterEverything).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryBranch: [
@@ -3770,14 +3756,18 @@ A -
                     }
                 ]);
 
-                expect(tree.beforeEverything).to.containSubsetInOrder([
-                    { text: "Before Everything", codeBlock: "\n    B", isPackaged: true },
-                    { text: "Before Everything", codeBlock: "\n    K", isPackaged: undefined }
-                ]);
+                mergeStepsArrWithStepNodes(tree, tree.beforeEverything);
+                mergeStepsArrWithStepNodes(tree, tree.afterEverything);
 
-                expect(tree.afterEverything).to.containSubsetInOrder([
-                    { text: "After Everything", codeBlock: "\n    C", isPackaged: true }
-                ]);
+                Comparer.expect(tree).to.match({
+                    beforeEverything: [
+                        { text: "Before Everything", codeBlock: "\n    B", isPackaged: true },
+                        { text: "Before Everything", codeBlock: "\n    K", isPackaged: undefined }
+                    ],
+                    afterEverything: [
+                        { text: "After Everything", codeBlock: "\n    C", isPackaged: true }
+                    ]
+                });
             });
         });
 
@@ -3791,11 +3781,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -3803,14 +3791,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F",
-                                        lineNumber: 4
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             }
                         ]
                     }
@@ -3827,11 +3808,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -3839,14 +3818,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F",
-                                        lineNumber: 4
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -3854,11 +3826,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "A",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     }
@@ -3875,11 +3843,9 @@ F -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -3887,115 +3853,7 @@ F -
                                 isFunctionCall: undefined,
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
-                                level: 0,
-                                originalStepInTree: { text: "F" }
-                            }
-                        ]
-                    }
-                ]);
-            });
-
-            it("properly merges modifiers between function call and function declaration", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-~ F
-
-* F !
-    A -
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                isDebug: true,
-                                isNonParallel: true,
-                                level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    isFunctionCall: true,
-                                    isFunctionDeclaration: undefined,
-                                    isDebug: true,
-                                    isNonParallel: undefined,
-                                    functionDeclarationInTree: {
-                                        text: "F",
-                                        isFunctionCall: undefined,
-                                        isFunctionDeclaration: true,
-                                        isDebug: undefined,
-                                        isNonParallel: true
-                                    }
-                                }
-                            },
-                            {
-                                text: "A",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                isDebug: undefined,
-                                isNonParallel: undefined,
-                                level: 1,
-                                originalStepInTree: {
-                                    text: "A",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
-                            }
-                        ]
-                    }
-                ]);
-            });
-
-            it("properly merges modifiers and a code block between function call and function declaration", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-~ F
-
-* F ! {
-    code block 1
-    code block 2
-}
-                `);
-
-                let branches = tree.branchify(tree.root);
-
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                isDebug: true,
-                                isNonParallel: true,
-                                level: 0,
-                                codeBlock: '\n    code block 1\n    code block 2',
-                                originalStepInTree: {
-                                    text: "F",
-                                    isFunctionCall: true,
-                                    isFunctionDeclaration: undefined,
-                                    isDebug: true,
-                                    isNonParallel: undefined,
-                                    codeBlock: undefined,
-                                    functionDeclarationInTree: {
-                                        text: "F",
-                                        isFunctionCall: undefined,
-                                        isFunctionDeclaration: true,
-                                        isDebug: undefined,
-                                        isNonParallel: true,
-                                        codeBlock: '\n    code block 1\n    code block 2'
-                                    }
-                                }
+                                level: 0
                             }
                         ]
                     }
@@ -4014,12 +3872,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -4027,14 +3882,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F",
-                                        lineNumber: 4
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4042,11 +3890,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "A",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "B",
@@ -4054,11 +3898,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "B",
-                                    parent: { text: "A" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     },
@@ -4069,14 +3909,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F",
-                                        lineNumber: 4
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "C",
@@ -4084,11 +3917,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "C",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     }
@@ -4104,11 +3933,9 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
@@ -4126,12 +3953,9 @@ B -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     },
@@ -4170,11 +3994,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -4182,13 +4004,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F"
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4196,11 +4012,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "A",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "B",
@@ -4208,11 +4020,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "B",
-                                    parent: { text: "A" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     }
@@ -4234,11 +4042,9 @@ A
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "F" }, { text: "D" } ]
                     }
@@ -4258,11 +4064,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(5);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -4270,13 +4074,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F"
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4284,11 +4082,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "A",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "B",
@@ -4296,11 +4090,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "B",
-                                    parent: { text: "A" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "C",
@@ -4308,11 +4098,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "C",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "D",
@@ -4320,11 +4106,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "D",
-                                    parent: { text: "C" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     }
@@ -4345,12 +4127,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(5);
-                expect(branches[1].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -4358,13 +4137,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F"
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4372,11 +4145,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "A",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "B",
@@ -4384,11 +4153,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "B",
-                                    parent: { text: "A" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "C",
@@ -4396,11 +4161,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "C",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "D",
@@ -4408,11 +4169,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "D",
-                                    parent: { text: "C" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     },
@@ -4423,13 +4180,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F"
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "E",
@@ -4437,11 +4188,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "E",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "C",
@@ -4449,11 +4196,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "C",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "D",
@@ -4461,11 +4204,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "D",
-                                    parent: { text: "C" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     }
@@ -4487,14 +4226,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(4);
-                expect(branches[0].steps).to.have.lengthOf(5);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(4);
-                expect(branches[3].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -4502,13 +4236,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F"
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4516,11 +4244,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "A",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "B",
@@ -4528,11 +4252,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "B",
-                                    parent: { text: "A" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "C",
@@ -4540,11 +4260,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "C",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "D",
@@ -4552,11 +4268,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "D",
-                                    parent: { text: "C" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     },
@@ -4567,13 +4279,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F"
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4581,11 +4287,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "A",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "B",
@@ -4593,11 +4295,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "B",
-                                    parent: { text: "A" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "G",
@@ -4605,11 +4303,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "G",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     },
@@ -4620,13 +4314,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F"
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "E",
@@ -4634,11 +4322,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "E",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "C",
@@ -4646,11 +4330,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "C",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "D",
@@ -4658,11 +4338,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "D",
-                                    parent: { text: "C" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     },
@@ -4673,13 +4349,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "F",
-                                    parent: { indents: -1 },
-                                    functionDeclarationInTree: {
-                                        text: "F"
-                                    }
-                                }
+                                functionDeclarationId: { $typeof: 'number' }
                             },
                             {
                                 text: "E",
@@ -4687,11 +4357,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                originalStepInTree: {
-                                    text: "E",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             },
                             {
                                 text: "G",
@@ -4699,11 +4365,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                originalStepInTree: {
-                                    text: "G",
-                                    parent: { text: "F" },
-                                    functionDeclarationInTree: undefined
-                                }
+                                functionDeclarationId: undefined
                             }
                         ]
                     }
@@ -4734,13 +4396,9 @@ FC
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-                expect(branches[0].steps).to.have.lengthOf(5);
-                expect(branches[1].steps).to.have.lengthOf(5);
-                expect(branches[2].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -4830,12 +4488,9 @@ FA
                 // A call to FA makes FB accessible to its children
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[1].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -4875,11 +4530,9 @@ A
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -4932,11 +4585,9 @@ F
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F", lineNumber: 2 }, { text: "F", lineNumber: 5 }, { text: "A", lineNumber: 8 } ]
                     }
@@ -4961,16 +4612,20 @@ Start browser
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(6);
-
-                expect(branches[0].steps[0].text).to.equal("Start browser");
-                expect(branches[0].steps[1].text).to.equal("Starting browser");
-                expect(branches[0].steps[2].text).to.equal("Nav to page");
-                expect(branches[0].steps[3].text).to.equal("Specific nav to page");
-                expect(branches[0].steps[4].text).to.equal("Nav to page");
-                expect(branches[0].steps[5].text).to.equal("Generic nav to page");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'Start browser' },
+                            { text: 'Starting browser' },
+                            { text: 'Nav to page' },
+                            { text: 'Specific nav to page' },
+                            { text: 'Nav to page' },
+                            { text: 'Generic nav to page' }
+                        ]
+                    }
+                ]);
             });
 
             it("doesn't allow a function to call itself, with a private function, and finds a function with the same name beyond", () => {
@@ -4991,16 +4646,20 @@ Start browser
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(6);
-
-                expect(branches[0].steps[0].text).to.equal("Start browser");
-                expect(branches[0].steps[1].text).to.equal("Starting browser");
-                expect(branches[0].steps[2].text).to.equal("Nav to page");
-                expect(branches[0].steps[3].text).to.equal("Specific nav to page");
-                expect(branches[0].steps[4].text).to.equal("Nav to page");
-                expect(branches[0].steps[5].text).to.equal("Generic nav to page");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'Start browser' },
+                            { text: 'Starting browser' },
+                            { text: 'Nav to page' },
+                            { text: 'Specific nav to page' },
+                            { text: 'Nav to page' },
+                            { text: 'Generic nav to page' }
+                        ]
+                    }
+                ]);
             });
 
             it("doesn't allow a function to call itself and finds a function with the same name beyond, slightly more complex example", () => {
@@ -5023,20 +4682,24 @@ On special cart page
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(7);
-
-                expect(branches[0].steps[0].text).to.equal("On special cart page");
-                expect(branches[0].steps[1].text).to.equal("On cart page");
-                expect(branches[0].steps[2].text).to.equal("Validate special cart stuff");
-                expect(branches[0].steps[3].text).to.equal("Clear cart");
-                expect(branches[0].steps[4].text).to.equal("Specific stuff");
-                expect(branches[0].steps[5].text).to.equal("Clear cart");
-                expect(branches[0].steps[6].text).to.equal("Generic stuff");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'On special cart page' },
+                            { text: 'On cart page' },
+                            { text: 'Validate special cart stuff' },
+                            { text: 'Clear cart' },
+                            { text: 'Specific stuff' },
+                            { text: 'Clear cart' },
+                            { text: 'Generic stuff' }
+                        ]
+                    }
+                ]);
             });
 
-            it("allows access to a function declared within a function", () => {
+            it.only("allows access to a function declared within a function", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 F

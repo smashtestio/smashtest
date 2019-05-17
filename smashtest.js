@@ -143,9 +143,9 @@ Options
   --report-domain=<url>           Domain and port where report server should run (http://domain:port format)
   --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
-  --screenshots=<true/false>      Whether or not to generate screenshots. Default is true.
   --skip-passed or -s             Do not run branches that passed last time. Just carry them over
                                     into new report.
+  --step-data=<all/fail/none>     Keep step data for all steps, failed step, or no steps. Default is all.
   --version or -v                 Output the version of SmashTEST
 `);
                 process.exit();

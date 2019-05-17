@@ -1,3 +1,4 @@
+const clonedeep = require('lodash/clonedeep');
 const utils = require('./utils.js');
 const Constants = require('./constants.js');
 
@@ -6,7 +7,7 @@ const Constants = require('./constants.js');
  */
 class Step {
     constructor(id) {
-        this.id = id || -1;                   // id of the corresponding StepNode
+        this.id = id;                         // id of the corresponding StepNode
 
         /*
         OPTIONAL
@@ -14,6 +15,10 @@ class Step {
         this.functionDeclarationId = -1;      // id of StepNode that corresponds to the function declaration, if this step is a function call
 
         this.level = 0;                       // number of function calls deep this step is within its branch
+
+        this.isDebug = false;                 // true if this step has the debug modifier (~)
+        this.isBeforeDebug = false;           // true if this step has the debug modifier (~) before the step text
+        this.isAfterDebug = false;            // true if this step has the debug modifier (~) after the step text
 
         this.isPassed = false;                // true if this step passed after being run
         this.isFailed = false;                // true if this step failed after being run
@@ -33,6 +38,20 @@ class Step {
     }
 
     /**
+     * @return {Step} Clone of this step
+     */
+    clone() {
+        return clonedeep(this);
+    }
+
+    /**
+     * @return {Boolean} True if this Step completed already
+     */
+    isComplete() {
+        return this.isPassed || this.isFailed || this.isSkipped;
+    }
+
+    /**
      * Logs the given item to this Step
      * @param {Object or String} item - The item to log
      */
@@ -47,13 +66,6 @@ class Step {
         else {
             this.log.push(item);
         }
-    }
-
-    /**
-     * @return {Boolean} True if this Step completed already
-     */
-    isComplete() {
-        return this.isPassed || this.isFailed || this.isSkipped;
     }
 
     /**

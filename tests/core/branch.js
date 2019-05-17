@@ -8,27 +8,6 @@ const Branch = require('../../branch.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 describe("Branch", () => {
-    describe("serializeObj", () => {
-        it("returns a serialized object", () => {
-            let b = new Branch();
-
-            b.nonParallelId = 4;
-            b.isPassed = true;
-            b.steps = [ new Step(1), new Step(2) ];
-
-            let o = b.serializeObj();
-
-            Comparer.expect(o).to.match({
-                $exact: true,
-
-                isPassed: true,
-                steps: [
-                    { id: 1 }, { id: 2 }
-                ]
-            });
-        });
-    });
-
     describe("mergeToEnd()", () => {
         it("merges one branch to the end of another branch", () => {
             let stepA = new Step();
@@ -55,7 +34,7 @@ describe("Branch", () => {
             branch2.isSkipBranch = true;
             branch2.isOnly = true;
 
-            branch1 = branch1.mergeToEnd(branch2);
+            branch1.mergeToEnd(branch2);
 
             expect(branch1.steps.length).to.equal(3);
             expect(branch2.steps.length).to.equal(2);
@@ -115,7 +94,7 @@ describe("Branch", () => {
             branch1.afterEveryStep = [ stepG ];
             branch2.afterEveryStep = [ stepE, stepF ];
 
-            branch1 = branch1.mergeToEnd(branch2);
+            branch1.mergeToEnd(branch2);
 
             expect(branch1.steps.length).to.equal(3);
             expect(branch2.steps.length).to.equal(2);
@@ -390,6 +369,27 @@ describe("Branch", () => {
             Comparer.expect(branch).to.match({
                 isPassed: undefined,
                 isFailed: true
+            });
+        });
+    });
+
+    describe("serializeObj", () => {
+        it("returns a serialized object", () => {
+            let b = new Branch();
+
+            b.nonParallelId = 4;
+            b.isPassed = true;
+            b.steps = [ new Step(1), new Step(2) ];
+
+            let o = b.serializeObj();
+
+            Comparer.expect(o).to.match({
+                $exact: true,
+
+                isPassed: true,
+                steps: [
+                    { id: 1 }, { id: 2 }
+                ]
             });
         });
     });

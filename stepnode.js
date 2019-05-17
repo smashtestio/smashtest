@@ -7,7 +7,7 @@ const Constants = require('./constants.js');
  */
 class StepNode {
     constructor(id) {
-        this.id = id || -1;                   // number that uniquely identifiers this step node
+        this.id = id;                         // number that uniquely identifiers this step node
 
         this.indents = -1;                    // number of indents before this step's text, where an indent consists of SPACES_PER_INDENT spaces
 
@@ -50,14 +50,6 @@ class StepNode {
 
         this.containingStepBlock = {};        // the StepBlock that contains this Step
         */
-    }
-
-    /**
-     * Generates a Step from this StepNode, ready to be placed into a Branch
-     * @return {Step} The Step generated from this StepNode
-     */
-    createStep() {
-        return new Step(this.id);
     }
 
     /**
@@ -353,7 +345,6 @@ class StepNode {
         let functionDeclarationText = functionDeclarationNode.text;
 
         // Canonicalize by replacing {vars} and 'strings' with {}'s
-
         functionDeclarationText = functionDeclarationText
             .replace(Constants.VAR, '{}');
         functionDeclarationText = utils.unescape(functionDeclarationText);
@@ -379,6 +370,7 @@ class StepNode {
      */
     getMergedModifiers(functionDeclarationNode) {
         let o = {};
+        functionDeclarationNode = functionDeclarationNode || {};
 
         let isSkip = this.isSkip || functionDeclarationNode.isSkip;
         isSkip && (o.isSkip = isSkip);

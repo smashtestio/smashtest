@@ -49,27 +49,6 @@ class Branch {
     }
 
     /**
-     * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
-     */
-    serializeObj() {
-        return utils.removeUndefineds({
-            steps: this.steps,
-
-            isPassed: this.isPassed || this.passedLastTime,
-            isFailed: this.isFailed,
-            isSkipped: this.isSkipped,
-            isRunning: this.isRunning,
-
-            error: this.error,
-            log: this.log,
-
-            elapsed: this.elapsed,
-
-            hash: this.hash
-        });
-    }
-
-    /**
      * Pushes the given Step to the end of this Branch
      */
     push(step) {
@@ -90,29 +69,38 @@ class Branch {
     }
 
     /**
-     * @return {Branch} A new branch consisting of this branch with the steps and hooks of the given branch attached to the end
+     * @return {Branch} A clone of this branch
+     */
+    clone() {
+        return clonedeep(this);
+    }
+
+    /**
+     * Attaches the given branch to the end of this branch
+     * @param {Branch} branch - The branch to merge in
+     * @return {Branch} This branch
      */
     mergeToEnd(branch) {
-        let newBranch = clonedeep(this);
+        this.steps = this.steps.concat(branch.steps);
 
-        newBranch.steps = newBranch.steps.concat(branch.steps);
-
-        branch.nonParallelId && (newBranch.nonParallelId = branch.nonParallelId);
-        branch.frequency && (newBranch.frequency = branch.frequency);
+        branch.nonParallelId && (this.nonParallelId = branch.nonParallelId);
+        branch.frequency && (this.frequency = branch.frequency);
 
         if(branch.groups) {
-            if(typeof newBranch.groups == 'undefined') {
-                newBranch.groups = [];
+            if(typeof this.groups == 'undefined') {
+                this.groups = [];
             }
 
             branch.groups.forEach(group => {
-                newBranch.groups.push(group);
+                this.groups.push(group);
             });
         }
 
-        branch.isSkipBranch && (newBranch.isSkipBranch = branch.isSkipBranch);
-        branch.isOnly && (newBranch.isOnly = branch.isOnly);
-        branch.isDebug && (newBranch.isDebug = branch.isDebug);
+        branch.isSkipBranch && (this.isSkipBranch = true);
+        branch.isOnly && (this.isOnly = true);
+        branch.isDebug && (this.isDebug = true);
+
+        let self = this;
 
         copyHooks("beforeEveryBranch", true); // Copy branch.beforeEveryBranch to the beginning of newBranch.beforeEveryBranch (so that packages comes first)
         copyHooks("afterEveryBranch", false); // Copy branch.afterEveryBranch to the end of newBranch.afterEveryBranch (so that packages comes last)
@@ -124,20 +112,20 @@ class Branch {
          */
         function copyHooks(name, toBeginning) {
             if(branch.hasOwnProperty(name)) {
-                if(!newBranch.hasOwnProperty(name)) {
-                    newBranch[name] = [];
+                if(!self.hasOwnProperty(name)) {
+                    self[name] = [];
                 }
 
                 if(toBeginning) {
-                    newBranch[name] = branch[name].concat(newBranch[name]);
+                    self[name] = branch[name].concat(self[name]);
                 }
                 else {
-                    newBranch[name] = newBranch[name].concat(branch[name]);
+                    self[name] = self[name].concat(branch[name]);
                 }
             }
         }
 
-        return newBranch;
+        return this;
     }
 
     /**
@@ -343,6 +331,27 @@ class Branch {
          else {
              this.log.push(item);
          }
+     }
+
+     /**
+      * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
+      */
+     serializeObj() {
+         return utils.removeUndefineds({
+             steps: this.steps,
+
+             isPassed: this.isPassed || this.passedLastTime,
+             isFailed: this.isFailed,
+             isSkipped: this.isSkipped,
+             isRunning: this.isRunning,
+
+             error: this.error,
+             log: this.log,
+
+             elapsed: this.elapsed,
+
+             hash: this.hash
+         });
      }
 }
 module.exports = Branch;

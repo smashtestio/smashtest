@@ -5,14 +5,6 @@ const StepNode = require('../../stepnode.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 describe("StepNode", () => {
-    describe("createStep()", () => {
-        it("creates a Step from a StepNode", () => {
-            let s = new StepNode(3);
-            let step = s.createStep();
-            expect(step.id).to.equal(3);
-        });
-    });
-
     describe("parseLine()", () => {
         let s = null;
 
@@ -1132,6 +1124,19 @@ describe("StepNode", () => {
             expect(o.isCollapsed).to.equal(true);
             expect(o.isDebug).to.equal(undefined);
             expect(o.isPackaged).to.equal(undefined);
+        });
+
+        it("merges with no function declaration", () => {
+            let functionCall = new StepNode(0);
+            functionCall.text = "T";
+            functionCall.isSkip = true;
+            functionCall.isSkipBelow = true;
+
+            let o = functionCall.getMergedModifiers();
+
+            expect(o.text).to.equal(undefined);
+            expect(o.isSkip).to.equal(true);
+            expect(o.isSkipBelow).to.equal(true);
         });
 
         it("merges with a function declaration with all modifiers set to false", () => {

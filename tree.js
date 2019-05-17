@@ -20,7 +20,7 @@ class Tree {
         this.beforeEverything = [];          // Array of Step, the steps to execute before all branches
         this.afterEverything = [];           // Array of Step, the steps to execute after all branches
 
-        this.latestBranchifiedStep = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
+        this.latestBranchifiedStepNode = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
 
         /*
         OPTIONAL
@@ -323,26 +323,31 @@ class Tree {
         }
 
         for(let index = branchAbove.steps.length - 1; index >= 0; index--) {
-            let currStepNode = this.getStepNode(branchAbove.steps[index].id);
+            let currStep = branchAbove.steps[index];
+            let currStepNode = this.getStepNode(currStep.id);
             let parent = currStepNode.parent || currStepNode.containingStepBlock.parent;
             let siblings = parent.children;
 
-            let foundDeclaration = searchAmongSiblings(siblings);
-            if(foundDeclaration) {
+            let foundDeclarationNode = searchAmongSiblings(siblings);
+            if(foundDeclarationNode) {
                 branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
-                return foundDeclaration;
+                return foundDeclarationNode;
             }
 
             // Search inside the corresponding function declaration's children
-            let currStepNodeAbove = index > 0 ? this.getStepNode(branchAbove.steps[index-1].id) : null;
-            if(currStepNodeAbove && currStepNodeAbove.isFunctionCall) {
-                parent = this.getStepNode(currStepNodeAbove.functionDeclarationId);
-                if(parent) {
-                    siblings = parent.children;
-                    foundDeclaration = searchAmongSiblings(siblings);
-                    if(foundDeclaration) {
-                        branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
-                        return foundDeclaration;
+            if(index > 0) {
+                let currStepAbove = branchAbove.steps[index-1];
+                let currStepNodeAbove = this.getStepNode(currStepAbove.id);
+
+                if(currStepNodeAbove && currStepNodeAbove.isFunctionCall) {
+                    parent = this.getStepNode(currStepAbove.functionDeclarationId);
+                    if(parent) {
+                        siblings = parent.children;
+                        foundDeclarationNode = searchAmongSiblings(siblings);
+                        if(foundDeclarationNode) {
+                            branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
+                            return foundDeclarationNode;
+                        }
                     }
                 }
             }
@@ -351,7 +356,7 @@ class Tree {
                 for(let i = 0; i < siblings.length; i++) {
                     let sibling = siblings[i];
                     if(sibling.isFunctionDeclaration && functionCallNode.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
-                        if(sibling.isPrivateFunctionDeclaration && currStepNode.level > functionCallNode.level) {
+                        if(sibling.isPrivateFunctionDeclaration && currStep.level > functionCall.level) {
                             continue; // ignore private functions that are inaccessible
                         }
 
@@ -379,17 +384,20 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Validates that F from {var} = F is either a code block function or in {x}='val' format
-     * @param {Step} step - The step {var} = F, with step.functionDeclarationInTree already set to F
+     * Validates that F from step {var} = F is either a code block function or in {x}='val' format (see below)
+     * @param {Step} step - The step {var} = F, with step.functionDeclarationId already set to F
      * @return {Boolean} true if F is in {x}='val' format, false if F is a code block function
      * @throws {Error} If F is not the right format
      */
     validateVarSettingFunction(step) {
         /*
         Acceptable formats of F:
+
             * F {
                 code
             }
+
+                OR
 
             * F
                 {x}='val1'
@@ -399,25 +407,28 @@ ${outputBranchAbove(this)}
                 {x}='val4'
                 {x}='val5'
 
-                    - No children
-                    - No sequential (..) anything
-                    - May contain steps, step blocks, or a combination of them
+                - No children
+                - No sequential (..) anything
+                - May contain steps, step blocks, or a combination of them
         */
 
-        if(step.functionDeclarationInTree.hasCodeBlock()) {
-            if(step.functionDeclarationInTree.children.length > 0) {
-                utils.error(`The function called at ${step.filename}:${step.lineNumber} has a code block in its declaration (at ${step.functionDeclarationInTree.filename}:${step.functionDeclarationInTree.lineNumber}) but that code block must not have any child steps`, step.filename, step.lineNumber);
+        let stepNode = this.getStepNode(step.id);
+        let functionDeclarationNode = this.getStepNode(step.functionDeclarationId);
+
+        if(functionDeclarationNode.hasCodeBlock()) {
+            if(functionDeclarationNode.children.length > 0) {
+                utils.error(`The function called at ${stepNode.filename}:${stepNode.lineNumber} has a code block in its declaration (at ${functionDeclarationNode.filename}:${functionDeclarationNode.lineNumber}) but that code block must not have any child steps`, stepNode.filename, stepNode.lineNumber);
             }
 
             return false;
         }
         else {
-            if(step.functionDeclarationInTree.children.length == 0) {
-                utils.error(`You cannot use an empty function`, step.filename, step.lineNumber);
+            if(functionDeclarationNode.children.length == 0) {
+                utils.error(`You cannot use an empty function`, stepNode.filename, stepNode.lineNumber);
             }
 
-            step.functionDeclarationInTree.children.forEach(child => {
-                if(child instanceof StepBlock) {
+            functionDeclarationNode.children.forEach(child => {
+                if(child instanceof StepBlockNode) {
                     child.steps.forEach(childStep => {
                         validateChild(childStep);
                     });
@@ -430,12 +441,13 @@ ${outputBranchAbove(this)}
             return true;
 
             function validateChild(child) {
-                if(!child.varsBeingSet || child.varsBeingSet.length != 1 || child.varsBeingSet[0].isLocal) {
-                    utils.error(`The function called at ${step.filename}:${step.lineNumber} must have all steps in its declaration be in format {x}='string' or {x}=Function (but ${child.filename}:${child.lineNumber} is not)`, step.filename, step.lineNumber);
+                let varsBeingSet = child.getVarsBeingSet();
+                if(!varsBeingSet || varsBeingSet.length != 1 || varsBeingSet[0].isLocal) {
+                    utils.error(`The function called at ${stepNode.filename}:${stepNode.lineNumber} must have all steps in its declaration be in format {x}='string' or {x}=Function (but ${child.filename}:${child.lineNumber} is not)`, stepNode.filename, stepNode.lineNumber);
                 }
 
                 if(child.children.length > 0) {
-                    utils.error(`The function called at ${step.filename}:${step.lineNumber} must not have any steps in its declaration that have children of their own (but ${child.filename}:${child.lineNumber} does)`, step.filename, step.lineNumber);
+                    utils.error(`The function called at ${stepNode.filename}:${stepNode.lineNumber} must not have any steps in its declaration that have children of their own (but ${child.filename}:${child.lineNumber} does)`, stepNode.filename, stepNode.lineNumber);
                 }
             }
         }
@@ -443,19 +455,19 @@ ${outputBranchAbove(this)}
 
     /**
      * Converts step and its children into branches. Expands function calls, step blocks, etc.
-     * @param {Step} step - Step from the tree (this.root) to convert to branches (NOTE: do not set step to a StepBlock unless it's a sequential StepBlock)
-     * @param {Array} [groups] - Array of String, where each string is a group we want run (do include branches with no group or not in at least one group listed here), no group restrictions if this is undefined
-     * @param {String} [minFrequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+     * @param {Step} stepNode - StepNode to convert to branches (NOTE: do not set step to a StepBlockNode unless it's a sequential StepBlockNode)
+     * @param {Array} [groups] - Array of String, only return branches part of at least one of these groups, no group restrictions if this is undefined
+     * @param {String} [minFrequency] - Only return branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
      * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in the tree at or below the given step
-     * @param {String} [debugHash] - If set, run the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
-     * @param {Branch} [branchAbove] - branch that comes above this step, with function calls, etc. already expanded (used to help find function declarations), empty branch if omitted
-     * @param {Number} [level] - Number of levels of function calls this step is under, 0 if omitted
-     * @param {Boolean} [isFunctionCall] - If true, step is a function declaration, and this branchify() call is in response to encountering a function call step
-     * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. modifier on a step)
-     * @return {Array} Array of Branch, containing the branches at and under step (does not include the steps from branchAbove). Returns null if step is a function declaration but isFunctionCall wasn't set (i.e., an unexpected function declaration).
+     * @param {String} [debugHash] - If set, only return the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
+     * @param {Branch} [branchAbove] - post-branchify branch that comes before stepNode (used to help find function declarations), empty branch if omitted
+     * @param {Number} [level] - Number of levels of function calls stepNode is under, 0 if omitted
+     * @param {Boolean} [isFunctionCall] - If true, stepNode is a function declaration, and this branchify() call is in response to encountering a function call step node
+     * @param {Boolean} [isSequential] - If true, combine branches of children sequentially (implements .. modifier on a step node)
+     * @return {Array} Array of Branch, containing the branches at and under stepNode (does not include the steps from branchAbove). Returns null if stepNode is a function declaration but isFunctionCall wasn't set (i.e., an unexpected function declaration - very rare scenario).
      * @throws {Error} If an error occurred
      */
-    branchify(step, groups, minFrequency, noDebug, debugHash, branchAbove, level, isFunctionCall, isSequential) {
+    branchify(stepNode, groups, minFrequency, noDebug, debugHash, branchAbove, level, isFunctionCall, isSequential) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -468,116 +480,116 @@ ${outputBranchAbove(this)}
             level = 0;
         }
 
-        if(!step.isFunctionDeclaration) {
-            this.latestBranchifiedStep = step;
+        if(!stepNode.isFunctionDeclaration) {
+            this.latestBranchifiedStepNode = stepNode;
         }
 
-        isSequential = (step.isSequential && !(step instanceof StepBlock)) || isSequential; // is this step or any step above it sequential? (does not include sequential step blocks)
+        isSequential = (stepNode.isSequential && !(stepNode instanceof StepBlockNode)) || isSequential; // is this step node or any step node above it sequential? (does not include sequential step blocks)
 
         // Enforce noDebug
         if(noDebug) {
-            if(step.isDebug) {
-                utils.error(`A ~ was found, but the noDebug flag is set`, step.filename, step.lineNumber);
+            if(stepNode.isDebug) {
+                utils.error(`A ~ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
             }
-            else if(step.isOnly) {
-                utils.error(`A $ was found, but the noDebug flag is set`, step.filename, step.lineNumber);
+            else if(stepNode.isOnly) {
+                utils.error(`A $ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
             }
         }
 
         // Set this.isDebug
-        if(step.isDebug) {
+        if(stepNode.isDebug) {
             this.isDebug = true;
         }
 
+        // Initialize step corresponding to stepNode
+        let step = new Step(stepNode.id);
+        step.level = level; // needed to findFunctionDeclaration() below
+        let stepModifiers = stepNode.getMergedModifiers();
+        let varsBeingSet = stepNode.getVarsBeingSet();
+
         // ***************************************
-        // 2) Fill branchesFromThisStep with the branches that come from this step alone (and not its children)
-        //    (may be multiple branches if this step is a function call, etc.)
+        // 2) Fill branchesFromThisStepNode with the branches that come from this step node alone (and not its children)
+        //    (may be multiple branches if this step node is a function call, etc.)
         // ***************************************
 
-        let branchesFromThisStep = []; // Array of Branch
+        let branchesFromThisStepNode = []; // Array of Branch
 
-        if(step.indents == -1) {
+        if(stepNode.indents == -1) {
             // We're at the root. Ignore it.
         }
-        else if(step.isFunctionCall) {
-            let clonedStep = step.cloneForBranch();
-
-            clonedStep.level = level; // needed to findFunctionDeclaration() below
-            clonedStep.functionDeclarationInTree = this.findFunctionDeclaration(clonedStep, branchAbove);
-            clonedStep.mergeInFunctionDeclaration(clonedStep.functionDeclarationInTree); // merge top step in function declaration into this function call
-            step.functionDeclarationInTree = clonedStep.functionDeclarationInTree;
+        else if(stepNode.isFunctionCall) {
+            let functionDeclarationNode = this.findFunctionDeclaration(step, branchAbove);
+            step.functionDeclarationId = functionDeclarationNode.id;
+            stepModifiers = stepNode.getMergedModifiers(functionDeclarationNode);
 
             let isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
 
-            if(clonedStep.varsBeingSet && clonedStep.varsBeingSet.length > 0) {
+            if(varsBeingSet && varsBeingSet.length > 0) {
                 // This step is {var} = F
 
                 // Validate that F is either a code block function, or has all children being {x}='val'
-                isReplaceVarsInChildren = this.validateVarSettingFunction(clonedStep);
+                isReplaceVarsInChildren = this.validateVarSettingFunction(step);
             }
 
-            branchesFromThisStep = this.branchify(step.functionDeclarationInTree, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(new Branch([clonedStep])), level + 1, true, undefined); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            // Branchify the function declaration node
+            branchesFromThisStepNode = placeOntoBranchAbove([step], () => this.branchify(functionDeclarationNode, groups, minFrequency, noDebug, debugHash, branchAbove, level + 1, true)); // there's no isSequential because isSequential does not extend into function calls
 
-            if(branchesFromThisStep.length == 0) {
-                // If branchesFromThisStep is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
-                branchesFromThisStep = [ new Branch([clonedStep]) ];
+            if(branchesFromThisStepNode.length == 0) {
+                // If branchesFromThisStepNode is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
+                branchesFromThisStepNode = [ new Branch([step]) ];
             }
             else {
                 if(isReplaceVarsInChildren) {
                     // replace {x} in each child to {var} (where this step is {var} = F)
-                    branchesFromThisStep.forEach(branch => {
+                    branchesFromThisStepNode.forEach(branch => {
                         for(let i = 0; i < branch.steps.length; i++) { // handles mulitple levels of {var} = F
                             let s = branch.steps[i];
+                            let sNode = this.getStepNode(s.id);
+                            let sVarsBeingSet = sNode.getVarsBeingSet();
 
-                            let originalName = s.varsBeingSet[0].name;
-                            let newName = clonedStep.varsBeingSet[0].name;
+                            let originalName = sVarsBeingSet[0].name;
+                            let newName = varsBeingSet[0].name;
 
-                            s.text = s.text.replace(new RegExp(`(\\{\\s*)${originalName}(\\s*\\})`), `$1${newName}$2`);
-                            s.varsBeingSet[0].name = newName;
+                            sNode.text = sNode.text.replace(new RegExp(`(\\{\\s*)${originalName}(\\s*\\})`), `$1${newName}$2`);
 
-                            if(s.isFunctionCall) {
-                                delete s.varsBeingSet;
-                            }
-                            else {
+                            if(!sNode.isFunctionCall) {
                                 break;
                             }
                         }
                     });
-
-                    // since {var} is being set in the children directly below, remove the varBeingSet from this step
-                    delete step.varsBeingSet;
                 }
 
-                // Put clone of this step at the front of each Branch that results from expanding the function call
-                branchesFromThisStep.forEach(branch => {
-                    branch.unshift(clonedStep.cloneForBranch()); // new clone every time we unshift
+                // Put a clone of this step at the front of each Branch that results from expanding the function call
+                branchesFromThisStepNode.forEach(branch => {
+                    branch.unshift(step.clone()); // new clone every time we unshift
                 });
             }
         }
-        else if(step instanceof StepBlock && step.isSequential) { // sequential step block (with a .. on top)
+        else if(stepNode instanceof StepBlockNode && stepNode.isSequential) { // sequential step block (with a .. on top)
             // Branches from each step block member are cross joined sequentially to each other
             let branchesInThisStepBlock = [];
-            step.steps.forEach(stepInBlock => {
-                let branchesFromThisStepBlockMember = this.branchify(stepInBlock, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(new Branch([step.cloneForBranch()])), level); // there's no isSequential in branchify() because isSequential does not extend into function calls
+            stepNode.steps.forEach(s => {
+                let branchesFromThisStepBlockMember = placeOntoBranchAbove([step], () => this.branchify(s, groups, minFrequency, noDebug, debugHash, branchAbove, level, true)); // there's no isSequential because isSequential does not extend into function calls
+
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
                 }
                 else {
                     let newBranchesInThisStepBlock = [];
-                    branchesInThisStepBlock.forEach(branchInThisStepBlock => {
-                        branchesFromThisStepBlockMember.forEach(branchBelowBlockMember => {
-                            newBranchesInThisStepBlock.push(branchInThisStepBlock.mergeToEnd(branchBelowBlockMember));
+                    branchesInThisStepBlock.forEach((branchInThisStepBlock, j) => {
+                        branchesFromThisStepBlockMember.forEach((branchBelowBlockMember, k) => {
+                            newBranchesInThisStepBlock.push(branchInThisStepBlock.clone().mergeToEnd(branchBelowBlockMember.clone()));
                         });
                     });
                     branchesInThisStepBlock = newBranchesInThisStepBlock;
                 }
             });
-            branchesFromThisStep = branchesInThisStepBlock;
+            branchesFromThisStepNode = branchesInThisStepBlock;
 
             // NOTE: branchify() is not called on step blocks unless they are sequential
         }
-        else if(step.isFunctionDeclaration) {
-            // Skip over function declarations, since we are already including their corresponding function calls in branches
+        else if(stepNode.isFunctionDeclaration) {
+            // Skip over function declarations. Only function calls go into a branch.
 
             // If this function declaration was encountered unintentionally, and not in response to finding a function call, return without visiting its children
             // This is because hitting a function declaration on its own won't create any new branches
@@ -585,17 +597,12 @@ ${outputBranchAbove(this)}
                 return null;
             }
         }
-        else { // Textual steps (including manual steps), non-function-declaration code block steps, {var}='string'
-            // Generic step cloning into branchesFromThisStep
-            let branch = new Branch();
-            let clonedStep = step.cloneForBranch();
-            clonedStep.level = level;
-
-            branch.push(clonedStep);
+        else { // Textual steps, non-function-declaration code block steps, {var}='string'
+            let branch = new Branch([step]);
 
             // Set branch.groups and branch.frequency, if this a {group}= or {frequency}= step
-            if(clonedStep.varsBeingSet && clonedStep.varsBeingSet.length > 0) {
-                clonedStep.varsBeingSet.forEach(varBeingSet => {
+            if(varsBeingSet && varsBeingSet.length > 0) {
+                varsBeingSet.forEach(varBeingSet => {
                     if(varBeingSet.name == 'frequency') {
                         branch.frequency = utils.stripQuotes(varBeingSet.value);
                     }
@@ -608,55 +615,47 @@ ${outputBranchAbove(this)}
                 });
             }
 
-            branchesFromThisStep.push(branch);
+            branchesFromThisStepNode.push(branch);
         }
 
         // ***************************************
-        // 3) List the children of this step, including children that are hooks
+        // 3) List the children of this step node, including children that are hooks
         // ***************************************
 
-        let children = step.children;
+        let children = stepNode.children;
 
         if(children.length == 0) {
-            // If this step is a member of a non-sequential step block, the step block's children are this step's "children"
-            if(step.containingStepBlock && !step.containingStepBlock.isSequential) {
-                children = step.containingStepBlock.children;
+            // If this step node is a member of a non-sequential step block, the step block's children are this step node's "children"
+            if(stepNode.containingStepBlock && !stepNode.containingStepBlock.isSequential) {
+                children = stepNode.containingStepBlock.children;
             }
         }
 
-        // Check if a child is a hook
+        // Set step's hooks if a child is a hook
+
         let beforeEveryBranch = [];
         let afterEveryBranch = [];
         let beforeEveryStep = [];
         let afterEveryStep = [];
 
-        // ignore function declarations (they're handled by their corresponding function call, in the code below)
-        if(!step.isFunctionDeclaration) {
+        // Ignore function declarations (they're handled by their corresponding function call, in the code below)
+        if(!stepNode.isFunctionDeclaration) {
             children.forEach(child => {
                 setHooks(child, this);
             });
         }
 
-        // If step is a function call, look to the hooks of the function declaration as well
-        if(step.isFunctionCall) {
-            step.functionDeclarationInTree.children.forEach(child => {
+        // If stepNode is a function call, look to the hooks of the function declaration as well
+        if(stepNode.isFunctionCall) {
+            this.getStepNode(step.functionDeclarationId).children.forEach(child => {
                 setHooks(child, this);
             });
         }
 
         function setHooks(child, self) {
             if(child.isHook) {
-                /*
-                TODO: here's the implementation:
-                cloneAsFunctionCall() {
-                    let clone = this.cloneForBranch();
-                    clone.isFunctionDeclaration = false;
-                    clone.isFunctionCall = true;
-                    return clone;
-                }
-                */
-                let clonedHookStep = child.cloneAsFunctionCall();
-                clonedHookStep.level = 0;
+                let hookStep = new Step(child.id);
+                hookStep.level = 0;
 
                 if(child.children.length > 0) {
                     utils.error(`A hook cannot have children`, child.filename, child.lineNumber);
@@ -664,49 +663,49 @@ ${outputBranchAbove(this)}
 
                 let canStepText = utils.canonicalize(child.text);
                 if(canStepText == "before every branch") {
-                    beforeEveryBranch.unshift(clonedHookStep);
+                    beforeEveryBranch.unshift(hookStep);
                 }
                 else if(canStepText == "after every branch") {
-                    afterEveryBranch.push(clonedHookStep);
+                    afterEveryBranch.push(hookStep);
                 }
                 else if(canStepText == "before every step") {
-                    beforeEveryStep.unshift(clonedHookStep);
+                    beforeEveryStep.unshift(hookStep);
                 }
                 else if(canStepText == "after every step") {
-                    afterEveryStep.push(clonedHookStep);
+                    afterEveryStep.push(hookStep);
                 }
                 else if(canStepText == "before everything") {
                     if(child.indents != 0) {
                         utils.error(`A Before Everything hook must not be indented (it must be at 0 indents)`, child.filename, child.lineNumber);
                     }
 
-                    self.beforeEverything.unshift(clonedHookStep); // inserted this way so that packaged hooks get executed first
+                    self.beforeEverything.unshift(hookStep); // inserted this way so that packaged hooks get executed first
                 }
                 else if(canStepText == "after everything") {
                     if(child.indents != 0) {
                         utils.error(`An After Everything hook must not be indented (it must be at 0 indents)`, child.filename, child.lineNumber);
                     }
 
-                    self.afterEverything.push(clonedHookStep); // inserted this way so that packaged hooks get executed last
+                    self.afterEverything.push(hookStep); // inserted this way so that packaged hooks get executed last
                 }
             }
         }
 
         // ***************************************
-        // 4) Fill branchesBelow by cross joining branchesFromThisStep with the branches that come from this step's children
+        // 4) Fill branchesBelow by cross joining branchesFromThisStepNode with the branches that come from its children
         // ***************************************
 
         /**
-         * Recursively calls branchify() on children
+         * Gets branches derived from the children of stepNode (children variable)
          */
-        function getBranchesFromChildren(branchFromThisStep, self) {
+        function getBranchesFromChildren(branchFromThisStepNode, self) {
             let branchesFromChildren = []; // Array of Branch
 
             children.forEach(child => {
-                if(child instanceof StepBlock && !child.isSequential) {
-                    // If this child is a non-sequential step block, just call branchify() directly on each member step
-                    child.steps.forEach(step => {
-                        let branchesFromChild = self.branchify(step, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(branchFromThisStep), level, false, isSequential);
+                if(child instanceof StepBlockNode && !child.isSequential) {
+                    // If this child is a non-sequential step block, just call branchify() directly on each member
+                    child.steps.forEach(s => {
+                        let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => self.branchify(s, groups, minFrequency, noDebug, debugHash, branchAbove, level, false, isSequential));
                         if(branchesFromChild && branchesFromChild.length > 0) {
                             branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                         }
@@ -715,7 +714,7 @@ ${outputBranchAbove(this)}
                 }
                 else {
                     // If this child is a step, call branchify() on it normally
-                    let branchesFromChild = self.branchify(child, groups, minFrequency, noDebug, debugHash, branchAbove.mergeToEnd(branchFromThisStep), level, false, isSequential);
+                    let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => self.branchify(child, groups, minFrequency, noDebug, debugHash, branchAbove, level, false, isSequential));
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -725,40 +724,41 @@ ${outputBranchAbove(this)}
             return branchesFromChildren;
         }
 
-        let branchesBelow = []; // what we're returning - represents all branches at and below this step
+        let branchesBelow = []; // what we're returning - represents all branches at and below this step node
 
-        // If branchesFromThisStep is empty, "prime" it with an empty Branch, so that the loops below work
-        if(branchesFromThisStep.length == 0) {
-            branchesFromThisStep.push(new Branch());
+        // If branchesFromThisStepNode is empty, "prime" it with an empty Branch, so that the loops below work
+        if(branchesFromThisStepNode.length == 0) {
+            branchesFromThisStepNode.push(new Branch());
         }
 
-        if(isSequential && !(step instanceof StepBlock)) {
+        if(isSequential && !(stepNode instanceof StepBlockNode)) {
             // One big resulting branch, built as follows:
-            // One branchesFromThisStep branch, each child branch, one branchesFromThisStep branch, each child branch, etc.
+            // One branchesFromThisStepNode branch, each child branch, one branchesFromThisStepNode branch, each child branch, etc.
             let bigBranch = new Branch();
-            branchesFromThisStep.forEach(branchFromThisStep => {
-                bigBranch = bigBranch.mergeToEnd(branchFromThisStep);
+            branchesFromThisStepNode.forEach(branchFromThisStepNode => {
+                bigBranch.mergeToEnd(branchFromThisStepNode);
 
-                let branchesFromChildren = getBranchesFromChildren(branchFromThisStep, this);
+                let branchesFromChildren = getBranchesFromChildren(branchFromThisStepNode, this);
                 branchesFromChildren.forEach(branch => branch.isSkipBranch && (bigBranch.isSkipBranch = true));
                 branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, step.indents == -1);
                 branchesFromChildren.forEach(branchFromChild => {
-                    bigBranch = bigBranch.mergeToEnd(branchFromChild);
+                    bigBranch.mergeToEnd(branchFromChild);
                 });
             });
             branchesBelow = [ bigBranch ];
         }
         else {
-            branchesFromThisStep.forEach(branchFromThisStep => {
-                let branchesFromChildren = getBranchesFromChildren(branchFromThisStep, this);
+            // Cross-join between branchesFromThisStepNode and branches from children
+            branchesFromThisStepNode.forEach((branchFromThisStepNode, j) => {
+                let branchesFromChildren = getBranchesFromChildren(branchFromThisStepNode, this);
                 branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, step.indents == -1);
-                branchesFromChildren.forEach(branchFromChild => {
-                    branchesBelow.push(branchFromThisStep.mergeToEnd(branchFromChild));
+                branchesFromChildren.forEach((branchFromChild, k) => {
+                    branchesBelow.push(branchFromThisStepNode.clone().mergeToEnd(branchFromChild.clone()));
                 });
             });
 
-            if(branchesBelow.length == 0 && branchesFromThisStep.length >= 1 && branchesFromThisStep[0].steps.length > 0) {
-                branchesBelow = branchesFromThisStep;
+            if(branchesBelow.length == 0 && branchesFromThisStepNode.length >= 1 && branchesFromThisStepNode[0].steps.length > 0) {
+                branchesBelow = branchesFromThisStepNode;
             }
         }
 
@@ -780,28 +780,41 @@ ${outputBranchAbove(this)}
                             branchBelow[hookName] = [];
                         }
 
-                        branchBelow[hookName].push(s.cloneForBranch());
+                        branchBelow[hookName].push(s.clone());
                     });
                 });
             }
         }
 
         // If isNonParallel (!) is set, connect up the branches in branchesBelow
-        if(step.isNonParallel) {
+        if(stepModifiers.isNonParallel) {
             let nonParallelId = utils.randomId();
             branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);
         }
 
         return branchesBelow;
+
+        /**
+         * Temporarily places the given steps onto the end of branchAbove, executes f(), removes the temporary steps, then returns what f() returned
+         */
+        function placeOntoBranchAbove(steps, f) {
+            branchAbove.steps = branchAbove.steps.concat(steps);
+            let ret = f();
+            for(let i = 0; i < steps.length; i++) {
+                branchAbove.steps.pop();
+            }
+
+            return ret;
+        }
     }
 
     /**
      * @param {Array of Branch} branches - An array of branches that came from a step's children
-     * @param {Array} [groups] - Array of String, where each string is a group we want run (do include branches with no group or not in at least one group listed here), no group restrictions if this is undefined
-     * @param {String} [minFrequency] - Only include branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {String} [debugHash] - If set, run the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
+     * @param {Array} [groups] - Array of String, only return branches part of at least one of these groups, no group restrictions if this is undefined
+     * @param {String} [minFrequency] - Only return branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+     * @param {String} [debugHash] - If set, all branches will be returned and the caller will need to isolate the branch that matches the hash
      * @param {Boolean} [isRoot] - If true, branches are the children of the root step in the tree
-     * @return {Array of Branch} Branches from branches that are not beind removed due to $, ~, minFrequency, or groups
+     * @return {Array of Branch} Branches from branches that are not being removed due to $, ~, minFrequency, or groups
      */
     removeUnwantedBranches(branches, groups, minFrequency, debugHash, isRoot) {
         if(debugHash) {
@@ -812,7 +825,7 @@ ${outputBranchAbove(this)}
         // 1) Remove branches by $'s
         // ***************************************
 
-        // Choose the branch with the $ at the shallowest depth, choosing multiple branches if there's a tie
+        // Choose the branches with the $ at the shallowest depth (choosing multiple branches if there's a tie)
         let shortestDepth = -1;
         for(let i = 0; i < branches.length; i++) {
             let branch = branches[i];
@@ -836,27 +849,32 @@ ${outputBranchAbove(this)}
             });
         }
 
-        let directIsOnlyFound = false;
-        for(let i = 0; i < branches.length; i++) {
-            let branch = branches[i];
-            if(branch.steps[0].isOnly) {
-                // A $ was found. Now find all of them.
-                directIsOnlyFound = true;
-                branches = branches.filter(branch => branch.steps[0].isOnly);
-                break;
-            }
-        }
-        if(!directIsOnlyFound) {
-            // If a isOnly child branch exists, remove the other branches that are not isOnly
-            for(let i = 0; i < branches.length; i++) {
-                let branch = branches[i];
-                if(branch.isOnly) {
-                    // A $ was found. Now find all of them.
-                    branches = branches.filter(branch => branch.isOnly);
-                    break;
-                }
-            }
-        }
+        // If an $ exists on the top step in a branch, only choose branches with a $ on the top step
+        // let directIsOnlyFound = false;
+        // for(let i = 0; i < branches.length; i++) {
+        //     let branch = branches[i];
+        //     let stepNode = this.getStepNode(branch.steps[0].id);
+        //     if(stepNode.isOnly) {
+        //         // A $ was found. Now find all of them.
+        //         directIsOnlyFound = true;
+        //         branches = branches.filter(branch => {
+        //             let stepNode = this.getStepNode(branch.steps[0].id);
+        //             return stepNode.isOnly;
+        //         });
+        //         break;
+        //     }
+        // }
+        // if(!directIsOnlyFound) {
+        //     // If an isOnly child branch exists, remove the other branches that are not isOnly
+        //     for(let i = 0; i < branches.length; i++) {
+        //         let branch = branches[i];
+        //         if(branch.isOnly) {
+        //             // A $ was found. Now find all of them.
+        //             branches = branches.filter(branch => branch.isOnly);
+        //             break;
+        //         }
+        //     }
+        // }
 
         // ***************************************
         // 2) Remove branches by groups
@@ -890,7 +908,8 @@ ${outputBranchAbove(this)}
                 function removeBranch() {
                     if(branch.isDebug) {
                         let debugStep = findModifierDepth(branch, '~').step;
-                        utils.error(`This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.`, debugStep.filename, debugStep.lineNumber);
+                        let debugStepNode = this.getStepNode(debugStep.id);
+                        utils.error(`This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
                     }
                     else {
                         branches.splice(i, 1); // remove this branch
@@ -915,7 +934,8 @@ ${outputBranchAbove(this)}
                 else {
                     if(branch.isDebug) {
                         let debugStep = findModifierDepth(branch, '~').step;
-                        utils.error(`This step contains a ~, but is not above the frequency allowed to run (${minFrequency}). Either set its frequency higher or remove the ~.`, debugStep.filename, debugStep.lineNumber);
+                        let debugStepNode = this.getStepNode(debugStep.id);
+                        utils.error(`This step contains a ~, but is not above the frequency allowed to run (${minFrequency}). Either set its frequency higher or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
                     }
                     else {
                         branches.splice(i, 1); // remove this branch
@@ -970,25 +990,27 @@ ${outputBranchAbove(this)}
         /**
          * @param {Branch} branch - The branch to look through
          * @param {String} modifier - The modifier to look for ('~' or '$')
-         * @return {Object} Object, in format { step = the first Step in the given branch to contain modifier, depth = depth at which the modifier was found }, null if nothing found
+         * @return {Object} Object, in format { step: the first Step in the given branch to contain modifier, depth: depth at which the modifier was found }, null if nothing found
          */
         function findModifierDepth(branch, modifier) {
             for(let i = 0; i < branch.steps.length; i++) {
                 let step = branch.steps[i];
+                let stepNode = this.getStepNode(step.id);
+                let functionDeclarationNode = step.functionDeclarationId ? this.getStepNode(step.functionDeclarationId) : null;
 
                 let stepProp = null;
                 let originalStepProp = null;
                 if(modifier == '~') {
-                    stepProp = step.isDebug;
-                    originalStepProp = step.originalStepInTree.isDebug;
+                    stepProp = stepNode.isDebug;
+                    originalStepProp = functionDeclarationNode && functionDeclarationNode.isDebug;
                 }
                 else if(modifier == '$') {
-                    stepProp = step.isOnly;
-                    originalStepProp = step.originalStepInTree.isOnly;
+                    stepProp = stepNode.isOnly;
+                    originalStepProp = functionDeclarationNode && functionDeclarationNode.isOnly;
                 }
 
                 if(stepProp) {
-                    if(step.isFunctionCall) {
+                    if(stepNode.isFunctionCall) {
                         // Tie-break based on if the modifier is on the function call vs. function declaration
                         if(originalStepProp) { // modifier is on the function call
                             return {
@@ -1034,11 +1056,11 @@ ${outputBranchAbove(this)}
         }
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
-                if(this.latestBranchifiedStep) {
-                    utils.error(`Infinite loop detected`, this.latestBranchifiedStep.filename, this.latestBranchifiedStep.lineNumber);
+                if(this.latestBranchifiedStepNode) {
+                    utils.error(`Infinite loop detected`, this.latestBranchifiedStepNode.filename, this.latestBranchifiedStepNode.lineNumber);
                 }
                 else {
-                    throw new Error("Infinite loop detected"); // very rare situation (as this.latestBranchifiedStep is almost always set)
+                    throw new Error("Infinite loop detected"); // very rare situation (as this.latestBranchifiedStepNode is almost always set)
                 }
             }
             else {
@@ -1050,7 +1072,7 @@ ${outputBranchAbove(this)}
         this.branches.forEach(branch => {
             if(branch.steps[0].isSkipBelow) {
                 branch.isSkipped = true;
-                branch.appendToLog(`Branch skipped because it starts with a .s step`);
+                //branch.appendToLog(`Branch skipped because it starts with a .s step`);
             }
         });
 
@@ -1058,11 +1080,11 @@ ${outputBranchAbove(this)}
         this.branches.forEach(branch => {
             if(branch.isSkipBranch) {
                 branch.isSkipped = true;
-                branch.steps.forEach(s => {
+                /*branch.steps.forEach(s => {
                     if(s.isSkipBranch) {
                         branch.appendToLog(`Branch skipped because a $s step was encountered at ${s.filename}:${s.lineNumber}`);
                     }
-                });
+                });*/
             }
         });
 
@@ -1085,9 +1107,9 @@ ${outputBranchAbove(this)}
                     let branchesToSkip = this.findSimilarBranches(branch, indexOfSkipBelow + 1, this.branches);
                     branchesToSkip.forEach(branchToSkip => {
                         branchToSkip.isSkipped = true;
-                        branchToSkip.appendToLog(
+                        /*branchToSkip.appendToLog(
                             `Branch skipped because it is identical to an earlier branch, up to the .s step (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`
-                        );
+                        );*/
                     });
                 }
             }
@@ -1189,23 +1211,10 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Marks branches passed last time as such in this.branches
+     * Marks branches as passed if they passed last time
      * @param {String} json - A JSON representation of branches from a previous run. Same JSON that serialize() returns.
      */
     mergeBranchesFromPrevRun(json) {
-        /*
-         If a branch...
-             1) Exists in both previous and current
-                 a) Didn't pass in previous (it failed or it didn't run)
-                     It will be included in current
-                 b) Passed in previous
-                     It will be included in current, but marked to not run
-             2) Only exists in previous
-                 It will remain absent from current (tester got rid of this branch)
-             3) Only exists in current
-                 It will remain included in current (this is a new branch)
-        */
-
         let previous = JSON.parse(json);
         let prevBranches = previous.branches;
         let currBranches = this.branches;
@@ -1224,42 +1233,23 @@ ${outputBranchAbove(this)}
             for(let i = 0; i < prevBranches.length; i++) {
                 let prevBranch = prevBranches[i];
                 if(currBranch.equals(prevBranch)) {
-                    // 1) This branch exists in both previous and current
-                    if(!prevBranch.isPassed) { // failed or didn't run
-                        // 1a) Include in currBranch
-                        delete currBranch.passedLastTime;
-                    }
-                    else {
-                        // 1b) Keep in currBranch, set passedLastTime
+                    if(prevBranch.isPassed) { // failed or didn't run
                         currBranch.passedLastTime = true;
                     }
 
                     // Clean state
-                    delete currBranch.isPassed;
-                    delete currBranch.isFailed;
                     delete currBranch.isSkipped;
 
                     found = true;
                     break;
                 }
             }
-
-            if(!found) {
-                // 3) This branch only exists in current
-                // Keep in currBranch, clean state
-                delete currBranch.passedLastTime;
-                delete currBranch.isPassed;
-                delete currBranch.isFailed;
-                delete currBranch.isSkipped;
-            }
         });
-
-        // 2) As for branches that only exist in previous, they already don't exist in current, so we're good
     }
 
     /**
-     * Get a count on the number of branches within this.branches
-     * @param {Boolean} [runnableOnly] - If true, only count branches that are set to run (i.e., those that passed last time don't count, if we're doing a -skipPassed)
+     * Counts various types of branches
+     * @param {Boolean} [runnableOnly] - If true, only count branches that are set to run (i.e., those that passed last time don't count, if we're doing a --skip-passed)
      * @param {Boolean} [completeOnly] - If true, only count branches that are complete (passed, failed, or skipped)
      * @param {Boolean} [passedOnly] - If true, only count branches that have passed
      * @param {Boolean} [failedOnly] - If true, only count branches that have failed
@@ -1298,9 +1288,9 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Get a count on the number of steps within this.branches. Does not include steps in hooks.
-     * @param {Boolean} [runnableOnly] - If true, do not include branches that passed previously, or steps at or below a .S
-     * @param {Boolean} [completeOnly] - If true, only include steps that are complete (passed, failed, or skipped over)
+     * Counts various types of steps. Does not include steps in hooks.
+     * @param {Boolean} [runnableOnly] - If true, do not include branches that passed previously, or steps at or below a .s
+     * @param {Boolean} [completeOnly] - If true, only include steps that are complete (passed, failed, or skipped)
      * @param {Boolean} [failedOnly] - If true, only include steps that are complete and have failed
      * @return {Number} Total number of steps
      */
@@ -1315,8 +1305,9 @@ ${outputBranchAbove(this)}
 
             for(let j = 0; j < branch.steps.length; j++) {
                 let step = branch.steps[j];
+                let stepNode = this.getStepNode(step.id);
 
-                if(runnableOnly && step.isSkipBelow) {
+                if(runnableOnly && stepNode.isSkipBelow) {
                     break; // go to next branch
                 }
 
@@ -1345,7 +1336,7 @@ ${outputBranchAbove(this)}
             let branch = this.branches[i];
             if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {
                 if(branch.nonParallelId) {
-                    // If a branch's nonParallelId is set, check if a previous branch with that id is still executing by another thread
+                    // If a branch's nonParallelId is set, check if a previous branch with that id is still running
                     let found = false;
                     for(let j = 0; j < this.branches.length; j++) {
                         let b = this.branches[j];
@@ -1440,7 +1431,8 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Returns and/or advances to the next step in the given branch (after the currently running step), or null if no steps are left, the next step is a .s, or the branch already failed/skipped
+     * Returns the next step in the given branch (after the currently running step), or null if no steps are left, the next step is a .s, or the branch already failed/skipped
+     * Advances to the next step if advance is set
      * NOTE: This is the only function that's allowed to change Step.isRunning
      * @param {Branch} branch - The branch to look in
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step

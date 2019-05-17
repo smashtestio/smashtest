@@ -75,7 +75,6 @@ Running tests
             - https currently doesn't work - if you use it it acts like http
         - --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
         - --selenium-server=http://localhost:4444/wd/hub
-        - --screenshots=false (default is true)
         - --skip-passed or -s
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.
                 - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
@@ -89,6 +88,7 @@ Running tests
                 - -s/-skipPassed with no filename
                     - Uses latest report from <current dir>/reports that didn't have a ~ (~ reports have "debug" at the end of their filenames)
                     - If one isn't found, uses report.html in the current directory
+        - --step-data=<all/fail/none>
         - --version/-v
     - Config file, config.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
