@@ -7,6 +7,25 @@ const Branch = require('../../branch.js');
 const Step = require('../../step.js');
 const Comparer = require('../../packages/js/comparer.js');
 
+function mergeStepsWithStepNodes(tree, branches) {
+    branches.forEach(branch => {
+        mergeStepsArrWithStepNodes(tree, branch.steps);
+        branch.beforeEveryBranch && mergeStepsArrWithStepNodes(tree, branch.beforeEveryBranch);
+        branch.afterEveryBranch && mergeStepsArrWithStepNodes(tree, branch.afterEveryBranch);
+        branch.beforeEveryStep && mergeStepsArrWithStepNodes(tree, branch.beforeEveryStep);
+        branch.afterEveryStep && mergeStepsArrWithStepNodes(tree, branch.afterEveryStep);
+    });
+}
+
+function mergeStepsArrWithStepNodes(tree, steps) {
+    for(let i = 0; i < steps.length; i++) {
+        steps[i] = Object.assign(steps[i], tree.getStepNode(steps[i].id));
+        if(steps[i].functionDeclarationId) {
+            steps[i].codeBlock = tree.getStepNode(steps[i].functionDeclarationId).codeBlock;
+        }
+    }
+}
+
 describe("Tree", () => {
     describe("parseIn()", () => {
         context("generic tests", () => {
@@ -3345,22 +3364,6 @@ Trace:
     });
 
     describe("branchify()", () => {
-        function mergeStepsWithStepNodes(tree, branches) {
-            branches.forEach(branch => {
-                mergeStepsArrWithStepNodes(tree, branch.steps);
-                branch.beforeEveryBranch && mergeStepsArrWithStepNodes(tree, branch.beforeEveryBranch);
-                branch.afterEveryBranch && mergeStepsArrWithStepNodes(tree, branch.afterEveryBranch);
-                branch.beforeEveryStep && mergeStepsArrWithStepNodes(tree, branch.beforeEveryStep);
-                branch.afterEveryStep && mergeStepsArrWithStepNodes(tree, branch.afterEveryStep);
-            });
-        }
-
-        function mergeStepsArrWithStepNodes(tree, steps) {
-            for(let i = 0; i < steps.length; i++) {
-                steps[i] = Object.assign(steps[i], tree.getStepNode(steps[i].id));
-            }
-        }
-
         context("generic tests", () => {
             it("handles an empty tree", () => {
                 let tree = new Tree();
@@ -4699,7 +4702,7 @@ On special cart page
                 ]);
             });
 
-            it.only("allows access to a function declared within a function", () => {
+            it("allows access to a function declared within a function", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 F
@@ -4714,14 +4717,18 @@ F
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches[0].steps[0].text).to.equal("F");
-                expect(branches[0].steps[1].text).to.equal("G");
-                expect(branches[0].steps[2].text).to.equal("H");
-                expect(branches[0].steps[3].text).to.equal("One");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'F' },
+                            { text: 'G' },
+                            { text: 'H' },
+                            { text: 'One' }
+                        ]
+                    }
+                ]);
 
                 tree = new Tree();
                 tree.parseIn(`
@@ -4737,14 +4744,18 @@ F
                 `, "file.txt");
 
                 branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches[0].steps[0].text).to.equal("F");
-                expect(branches[0].steps[1].text).to.equal("G");
-                expect(branches[0].steps[2].text).to.equal("H");
-                expect(branches[0].steps[3].text).to.equal("One");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'F' },
+                            { text: 'G' },
+                            { text: 'H' },
+                            { text: 'One' }
+                        ]
+                    }
+                ]);
             });
 
             it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", () => {
@@ -4767,17 +4778,21 @@ A
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(7);
-
-                expect(branches[0].steps[0].text).to.equal("A");
-                expect(branches[0].steps[1].text).to.equal("F");
-                expect(branches[0].steps[2].text).to.equal("F");
-                expect(branches[0].steps[3].text).to.equal("F");
-                expect(branches[0].steps[4].text).to.equal("Specific");
-                expect(branches[0].steps[5].text).to.equal("F");
-                expect(branches[0].steps[6].text).to.equal("Generic");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'A' },
+                            { text: 'F' },
+                            { text: 'F' },
+                            { text: 'F' },
+                            { text: 'Specific' },
+                            { text: 'F' },
+                            { text: 'Generic' }
+                        ]
+                    }
+                ]);
             });
 
             it("calls a private function it has access to", () => {
@@ -4793,13 +4808,15 @@ F
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "F" }, { text: "Private" }, { text: "A" } ]
+                        steps: [
+                            { text: 'F' },
+                            { text: 'Private' },
+                            { text: 'A' }
+                        ]
                     }
                 ]);
             });
@@ -4821,14 +4838,18 @@ Start browser
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches[0].steps[0].text).to.equal("Start browser");
-                expect(branches[0].steps[1].text).to.equal("Starting browser");
-                expect(branches[0].steps[2].text).to.equal("Nav to page");
-                expect(branches[0].steps[3].text).to.equal("Generic nav to page");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'Start browser' },
+                            { text: 'Starting browser' },
+                            { text: 'Nav to page' },
+                            { text: 'Generic nav to page' }
+                        ]
+                    }
+                ]);
             });
 
             it("handles a function declaration that ends in a *", () => {
@@ -4847,12 +4868,16 @@ My big function
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(2);
-
-                expect(branches[0].steps[0].text).to.equal("My big function");
-                expect(branches[0].steps[1].text).to.equal("A");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'My big function' },
+                            { text: 'A' }
+                        ]
+                    }
+                ]);
             });
 
             it("handles a function declaration and function call that ends in a *", () => {
@@ -4872,14 +4897,18 @@ My big function
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches[0].steps[0].text).to.equal("My big function");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("My big *");
-                expect(branches[0].steps[3].text).to.equal("C");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'My big function' },
+                            { text: 'A' },
+                            { text: 'My big *' },
+                            { text: 'C' }
+                        ]
+                    }
+                ]);
             });
 
             it("handles a function declaration and function call that ends in a *, with variables", () => {
@@ -4899,14 +4928,18 @@ My big 'foobar' function
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches[0].steps[0].text).to.equal("My big 'foobar' function");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("My big {{v}} *");
-                expect(branches[0].steps[3].text).to.equal("C");
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: 'My big \'foobar\' function' },
+                            { text: 'A' },
+                            { text: 'My big {{v}} *' },
+                            { text: 'C' }
+                        ]
+                    }
+                ]);
             });
 
             it("doesn't expand functions under a -s", () => {
@@ -4926,27 +4959,13 @@ B
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(4);
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "C" }
-                ]);
-
-                expect(branches[1].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "D" }
-                ]);
-
-                expect(branches[2].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "G" }, { text: "C" }
-                ]);
-
-                expect(branches[3].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "G" }, { text: "D" }
+                Comparer.expect(branches).to.match([
+                    { steps: [ { text: "A" }, { text: "C" } ] },
+                    { steps: [ { text: "A" }, { text: "D" } ] },
+                    { steps: [ { text: "B" }, { text: "G" }, { text: "C" } ] },
+                    { steps: [ { text: "B" }, { text: "G" }, { text: "D" } ] },
                 ]);
             });
 
@@ -4971,27 +4990,13 @@ B
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(4);
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(4);
-                expect(branches[3].steps).to.have.lengthOf(4);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" }
-                ]);
-
-                expect(branches[1].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" }
-                ]);
-
-                expect(branches[2].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" }
-                ]);
-
-                expect(branches[3].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" }
+                Comparer.expect(branches).to.match([
+                    { steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ] },
+                    { steps: [ { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" } ] },
+                    { steps: [ { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" } ] },
+                    { steps: [ { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" } ] },
                 ]);
             });
 
@@ -5016,27 +5021,13 @@ B
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(4);
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(4);
-                expect(branches[3].steps).to.have.lengthOf(4);
-
-                expect(branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" }
-                ]);
-
-                expect(branches[1].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" }
-                ]);
-
-                expect(branches[2].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" }
-                ]);
-
-                expect(branches[3].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" }
+                Comparer.expect(branches).to.match([
+                    { steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ] },
+                    { steps: [ { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" } ] },
+                    { steps: [ { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" } ] },
+                    { steps: [ { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" } ] },
                 ]);
             });
         });
@@ -5057,15 +5048,9 @@ B
     {a}='4'
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(2);
-                expect(branches[3].steps).to.have.lengthOf(2);
-                expect(branches[4].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -5155,15 +5140,9 @@ B
     {a}='4'
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(3);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(3);
-                expect(branches[4].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
@@ -5272,22 +5251,23 @@ B
 }
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             {
                                 text: "{var} = F",
                                 isFunctionCall: true,
-                                level: 0,
-                                codeBlock: '\n    code block'
+                                level: 0
                             }
                         ]
                     }
                 ]);
+
+                Comparer.expect(tree.getStepNode(branches[0].steps[0].functionDeclarationId)).to.match({
+                    codeBlock: '\n    code block'
+                });
             });
 
             it("branchifies {var} = F ..", () => {
@@ -5302,21 +5282,25 @@ B
     {x}='3'
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(9);
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: "{var} = F" },
+                            { text: "{var}='1'" },
+                            { text: "A" },
 
-                expect(branches[0].steps[0].text).to.equal("{var} = F");
-                expect(branches[0].steps[1].text).to.equal("{var}='1'");
-                expect(branches[0].steps[2].text).to.equal("A");
+                            { text: "{var} = F" },
+                            { text: "{var}='2'" },
+                            { text: "A" },
 
-                expect(branches[0].steps[3].text).to.equal("{var} = F");
-                expect(branches[0].steps[4].text).to.equal("{var}='2'");
-                expect(branches[0].steps[5].text).to.equal("A");
-
-                expect(branches[0].steps[6].text).to.equal("{var} = F");
-                expect(branches[0].steps[7].text).to.equal("{var}='3'");
-                expect(branches[0].steps[8].text).to.equal("A");
+                            { text: "{var} = F" },
+                            { text: "{var}='3'" },
+                            { text: "A" },
+                        ]
+                    }
+                ]);
             });
 
             it("branchifies {var} = F under a .. step", () => {
@@ -5332,23 +5316,27 @@ S - ..
     {x}='3'
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(10);
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: "S" },
 
-                expect(branches[0].steps[0].text).to.equal("S");
+                            { text: "{var} = F" },
+                            { text: "{var}='1'" },
+                            { text: "A" },
 
-                expect(branches[0].steps[1].text).to.equal("{var} = F");
-                expect(branches[0].steps[2].text).to.equal("{var}='1'");
-                expect(branches[0].steps[3].text).to.equal("A");
+                            { text: "{var} = F" },
+                            { text: "{var}='2'" },
+                            { text: "A" },
 
-                expect(branches[0].steps[4].text).to.equal("{var} = F");
-                expect(branches[0].steps[5].text).to.equal("{var}='2'");
-                expect(branches[0].steps[6].text).to.equal("A");
-
-                expect(branches[0].steps[7].text).to.equal("{var} = F");
-                expect(branches[0].steps[8].text).to.equal("{var}='3'");
-                expect(branches[0].steps[9].text).to.equal("A");
+                            { text: "{var} = F" },
+                            { text: "{var}='3'" },
+                            { text: "A" },
+                        ]
+                    }
+                ]);
             });
 
             it("branchifies {var} = F .. that has more {var} = F inside of it", () => {
@@ -5372,32 +5360,37 @@ S - ..
 }
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(17);
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: "{var} = F" },
+                            { text: "{var}='1'" },
+                            { text: "{var2}='0'" },
 
-                expect(branches[0].steps[0].text).to.equal("{var} = F");
-                expect(branches[0].steps[1].text).to.equal("{var}='1'");
-                expect(branches[0].steps[2].text).to.equal("{var2}='0'");
+                            { text: "{var} = F" },
+                            { text: "{var}=F2" },
+                            { text: "{var}='2'" },
+                            { text: "{var2}='0'" },
 
-                expect(branches[0].steps[3].text).to.equal("{var} = F");
-                expect(branches[0].steps[4].text).to.equal("{var}=F2");
-                expect(branches[0].steps[5].text).to.equal("{var}='2'");
-                expect(branches[0].steps[6].text).to.equal("{var2}='0'");
+                            { text: "{var} = F" },
+                            { text: "{var}=F2" },
+                            { text: "{var}='3'" },
+                            { text: "{var2}='0'" },
 
-                expect(branches[0].steps[7].text).to.equal("{var} = F");
-                expect(branches[0].steps[8].text).to.equal("{var}=F2");
-                expect(branches[0].steps[9].text).to.equal("{var}='3'");
-                expect(branches[0].steps[10].text).to.equal("{var2}='0'");
+                            { text: "{var} = F" },
+                            { text: "{var}='4'" },
+                            { text: "{var2}='0'" },
 
-                expect(branches[0].steps[11].text).to.equal("{var} = F");
-                expect(branches[0].steps[12].text).to.equal("{var}='4'");
-                expect(branches[0].steps[13].text).to.equal("{var2}='0'");
+                            { text: "{var} = F" },
+                            { text: "{var}=F3" },
+                            { text: "{var2}='0'" },
+                        ]
+                    }
+                ]);
 
-                expect(branches[0].steps[14].text).to.equal("{var} = F");
-                expect(branches[0].steps[15].text).to.equal("{var}=F3");
-                expect(branches[0].steps[15].codeBlock).to.equal("\n    return '5';");
-                expect(branches[0].steps[16].text).to.equal("{var2}='0'");
+                expect(tree.getStepNode(branches[0].steps[15].functionDeclarationId).codeBlock).to.equal("\n    return '5';");
             });
 
             it("branchifies {var} = F that has more {var} = F inside of it", () => {
@@ -5421,36 +5414,49 @@ S - ..
 }
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(4);
-                expect(branches[3].steps).to.have.lengthOf(3);
-                expect(branches[4].steps).to.have.lengthOf(3);
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: "{var} = F" },
+                            { text: "{var}='1'" },
+                            { text: "{var2}='0'" }
+                        ]
+                    },
+                    {
+                        steps: [
+                            { text: "{var} = F" },
+                            { text: "{var}=F2" },
+                            { text: "{var}='2'" },
+                            { text: "{var2}='0'" }
+                        ]
+                    },
+                    {
+                        steps: [
+                            { text: "{var} = F" },
+                            { text: "{var}=F2" },
+                            { text: "{var}='3'" },
+                            { text: "{var2}='0'" }
+                        ]
+                    },
+                    {
+                        steps: [
+                            { text: "{var} = F" },
+                            { text: "{var}='4'" },
+                            { text: "{var2}='0'" }
+                        ]
+                    },
+                    {
+                        steps: [
+                            { text: "{var} = F" },
+                            { text: "{var}=F3" },
+                            { text: "{var2}='0'" }
+                        ]
+                    }
+                ]);
 
-                expect(branches[0].steps[0].text).to.equal("{var} = F");
-                expect(branches[0].steps[1].text).to.equal("{var}='1'");
-                expect(branches[0].steps[2].text).to.equal("{var2}='0'");
-
-                expect(branches[1].steps[0].text).to.equal("{var} = F");
-                expect(branches[1].steps[1].text).to.equal("{var}=F2");
-                expect(branches[1].steps[2].text).to.equal("{var}='2'");
-                expect(branches[1].steps[3].text).to.equal("{var2}='0'");
-
-                expect(branches[2].steps[0].text).to.equal("{var} = F");
-                expect(branches[2].steps[1].text).to.equal("{var}=F2");
-                expect(branches[2].steps[2].text).to.equal("{var}='3'");
-                expect(branches[2].steps[3].text).to.equal("{var2}='0'");
-
-                expect(branches[3].steps[0].text).to.equal("{var} = F");
-                expect(branches[3].steps[1].text).to.equal("{var}='4'");
-                expect(branches[3].steps[2].text).to.equal("{var2}='0'");
-
-                expect(branches[4].steps[0].text).to.equal("{var} = F");
-                expect(branches[4].steps[1].text).to.equal("{var}=F3");
-                expect(branches[4].steps[1].codeBlock).to.equal("\n    return '5';");
-                expect(branches[4].steps[2].text).to.equal("{var2}='0'");
+                expect(tree.getStepNode(branches[4].steps[1].functionDeclarationId).codeBlock).to.equal("\n    return '5';");
             });
 
             it("rejects {var} = F if F has a code block, but also has children", () => {
@@ -5514,35 +5520,12 @@ B -
 C -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
-                    {
-                        steps: [
-                            {
-                                text: "A",
-                                level: 0
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "B",
-                                level: 0
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "C",
-                                level: 0
-                            }
-                        ]
-                    }
+                Comparer.expect(branches).to.match([
+                    { steps: [ { text: "A", level: 0 } ] },
+                    { steps: [ { text: "B", level: 0 } ] },
+                    { steps: [ { text: "C", level: 0 } ] },
                 ]);
             });
 
@@ -5559,100 +5542,48 @@ C -
         F -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(6);
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(3);
-                expect(branches[2].steps).to.have.lengthOf(2);
-                expect(branches[3].steps).to.have.lengthOf(3);
-                expect(branches[4].steps).to.have.lengthOf(2);
-                expect(branches[5].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0
-                            },
-                            {
-                                text: "D",
-                                level: 0
-                            }
+                            { text: "A", level: 0 },
+                            { text: "D", level: 0 },
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0
-                            },
-                            {
-                                text: "E",
-                                level: 0
-                            },
-                            {
-                                text: "F",
-                                level: 0
-                            }
+                            { text: "A", level: 0 },
+                            { text: "E", level: 0 },
+                            { text: "F", level: 0 },
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "B",
-                                level: 0
-                            },
-                            {
-                                text: "D",
-                                level: 0
-                            }
+                            { text: "B", level: 0 },
+                            { text: "D", level: 0 },
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "B",
-                                level: 0
-                            },
-                            {
-                                text: "E",
-                                level: 0
-                            },
-                            {
-                                text: "F",
-                                level: 0
-                            }
+                            { text: "B", level: 0 },
+                            { text: "E", level: 0 },
+                            { text: "F", level: 0 },
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "C",
-                                level: 0
-                            },
-                            {
-                                text: "D",
-                                level: 0
-                            }
+                            { text: "C", level: 0 },
+                            { text: "D", level: 0 },
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "C",
-                                level: 0
-                            },
-                            {
-                                text: "E",
-                                level: 0
-                            },
-                            {
-                                text: "F",
-                                level: 0
-                            }
+                            { text: "C", level: 0 },
+                            { text: "E", level: 0 },
+                            { text: "F", level: 0 },
                         ]
-                    }
+                    },
                 ]);
             });
 
@@ -5668,78 +5599,37 @@ B -
         E -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(4);
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(3);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0
-                            },
-                            {
-                                text: "C",
-                                level: 0
-                            },
-                            {
-                                text: "E",
-                                level: 0
-                            }
+                            { text: "A", level: 0 },
+                            { text: "C", level: 0 },
+                            { text: "E", level: 0 },
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0
-                            },
-                            {
-                                text: "D",
-                                level: 0
-                            },
-                            {
-                                text: "E",
-                                level: 0
-                            }
+                            { text: "A", level: 0 },
+                            { text: "D", level: 0 },
+                            { text: "E", level: 0 },
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "B",
-                                level: 0
-                            },
-                            {
-                                text: "C",
-                                level: 0
-                            },
-                            {
-                                text: "E",
-                                level: 0
-                            }
+                            { text: "B", level: 0 },
+                            { text: "C", level: 0 },
+                            { text: "E", level: 0 },
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "B",
-                                level: 0
-                            },
-                            {
-                                text: "D",
-                                level: 0
-                            },
-                            {
-                                text: "E",
-                                level: 0
-                            }
+                            { text: "B", level: 0 },
+                            { text: "D", level: 0 },
+                            { text: "E", level: 0 },
                         ]
-                    }
+                    },
                 ]);
             });
         });
@@ -5751,18 +5641,12 @@ B -
 A - ..
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: true
-                            }
+                            { text: "A", level: 0, isSequential: true }
                         ]
                     }
                 ]);
@@ -5777,33 +5661,15 @@ A - ..
     D -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: true },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -5821,45 +5687,16 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(5);
-
-                // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
-                expect(branches[0].steps[0].text).to.equal("F");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("B");
-                expect(branches[0].steps[3].text).to.equal("F");
-                expect(branches[0].steps[4].text).to.equal("C");
-
-                expect(branches).to.containSubset([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "C",
-                                level: 1,
-                                isSequential: undefined
-                            }
+                            { text: "F", level: 0, isSequential: true },
+                            { text: "A", level: 1, isSequential: undefined },
+                            { text: "B", level: 1, isSequential: undefined },
+                            { text: "F", level: 0, isSequential: true },
+                            { text: "C", level: 1, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -5882,95 +5719,25 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(13);
-
-                // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
-                expect(branches[0].steps[0].text).to.equal("F");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("B");
-                expect(branches[0].steps[3].text).to.equal("D");
-                expect(branches[0].steps[4].text).to.equal("E");
-                expect(branches[0].steps[5].text).to.equal("G");
-                expect(branches[0].steps[6].text).to.equal("H");
-
-                expect(branches[0].steps[7].text).to.equal("F");
-                expect(branches[0].steps[8].text).to.equal("C");
-                expect(branches[0].steps[9].text).to.equal("D");
-                expect(branches[0].steps[10].text).to.equal("E");
-                expect(branches[0].steps[11].text).to.equal("G");
-                expect(branches[0].steps[12].text).to.equal("H");
-
-
-                expect(branches).to.containSubset([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "C",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "F", level: 0, isSequential: true },
+                            { text: "A", level: 1, isSequential: undefined },
+                            { text: "B", level: 1, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "G", level: 0, isSequential: undefined },
+                            { text: "H", level: 0, isSequential: undefined },
+
+                            { text: "F", level: 0, isSequential: true },
+                            { text: "C", level: 1, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "G", level: 0, isSequential: undefined },
+                            { text: "H", level: 0, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -5993,53 +5760,19 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(8);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "F", level: 0, isSequential: true },
+                            { text: "A", level: 1, isSequential: undefined },
+                            { text: "B", level: 1, isSequential: undefined },
+                            { text: "C", level: 1, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "G", level: 0, isSequential: undefined },
+                            { text: "H", level: 0, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -6061,48 +5794,18 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(7);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "F", level: 0, isSequential: true },
+                            { text: "A", level: 1, isSequential: undefined },
+                            { text: "B", level: 1, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "G", level: 0, isSequential: undefined },
+                            { text: "H", level: 0, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -6128,112 +5831,28 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(16);
-
-                // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
-                expect(branches[0].steps[0].text).to.equal("F");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("B");
-                expect(branches[0].steps[3].text).to.equal("I");
-                expect(branches[0].steps[4].text).to.equal("D");
-                expect(branches[0].steps[5].text).to.equal("E");
-                expect(branches[0].steps[6].text).to.equal("G");
-                expect(branches[0].steps[7].text).to.equal("H");
-
-                expect(branches[0].steps[8].text).to.equal("F");
-                expect(branches[0].steps[9].text).to.equal("A");
-                expect(branches[0].steps[10].text).to.equal("C");
-                expect(branches[0].steps[11].text).to.equal("I");
-                expect(branches[0].steps[12].text).to.equal("D");
-                expect(branches[0].steps[13].text).to.equal("E");
-                expect(branches[0].steps[14].text).to.equal("G");
-                expect(branches[0].steps[15].text).to.equal("H");
-
-                expect(branches).to.containSubset([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 2,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 2,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "F", level: 0, isSequential: true },
+                            { text: "A", level: 1, isSequential: undefined },
+                            { text: "B", level: 2, isSequential: undefined },
+                            { text: "I", level: 1, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "G", level: 0, isSequential: undefined },
+                            { text: "H", level: 0, isSequential: undefined },
+
+                            { text: "F", level: 0, isSequential: true },
+                            { text: "A", level: 1, isSequential: undefined },
+                            { text: "C", level: 2, isSequential: undefined },
+                            { text: "I", level: 1, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "G", level: 0, isSequential: undefined },
+                            { text: "H", level: 0, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -6248,33 +5867,15 @@ S .. -
     C -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "S",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "S", level: 0, isSequential: true },
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -6292,57 +5893,18 @@ S .. -
         D -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(7);
-
-                // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
-                expect(branches[0].steps[0].text).to.equal("S");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("D");
-                expect(branches[0].steps[3].text).to.equal("B");
-                expect(branches[0].steps[4].text).to.equal("D");
-                expect(branches[0].steps[5].text).to.equal("C");
-                expect(branches[0].steps[6].text).to.equal("D");
-
-                expect(branches).to.containSubset([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "S",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "S", level: 0, isSequential: true },
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -6369,109 +5931,26 @@ S .. -
     H -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(15);
-
-                // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
-                expect(branches[0].steps[0].text).to.equal("S");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("I");
-
-                expect(branches[0].steps[3].text).to.equal("B");
-                expect(branches[0].steps[4].text).to.equal("D");
-                expect(branches[0].steps[5].text).to.equal("I");
-
-                expect(branches[0].steps[6].text).to.equal("B");
-                expect(branches[0].steps[7].text).to.equal("E");
-                expect(branches[0].steps[8].text).to.equal("I");
-
-                expect(branches[0].steps[9].text).to.equal("B");
-                expect(branches[0].steps[10].text).to.equal("G");
-                expect(branches[0].steps[11].text).to.equal("I");
-
-                expect(branches[0].steps[12].text).to.equal("C");
-                expect(branches[0].steps[13].text).to.equal("H");
-                expect(branches[0].steps[14].text).to.equal("I");
-
-                expect(branches).to.containSubset([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "S",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "S", level: 0, isSequential: true },
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "I", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "D", level: 1, isSequential: undefined },
+                            { text: "I", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "E", level: 1, isSequential: undefined },
+                            { text: "I", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "G", level: 1, isSequential: undefined },
+                            { text: "I", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "H", level: 1, isSequential: undefined },
+                            { text: "I", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6489,57 +5968,18 @@ S .. -
         D -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(7);
-
-                // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
-                expect(branches[0].steps[0].text).to.equal("S");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("C");
-                expect(branches[0].steps[3].text).to.equal("D");
-                expect(branches[0].steps[4].text).to.equal("B");
-                expect(branches[0].steps[5].text).to.equal("C");
-                expect(branches[0].steps[6].text).to.equal("D");
-
-                expect(branches).to.containSubset([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "S",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "S", level: 0, isSequential: true },
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6559,82 +5999,22 @@ S .. -
             E -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(11);
-
-                // We need to do this because containSubsetInOrder() doesn't like duplicate array values (so we're using containSubset() instead)
-                expect(branches[0].steps[0].text).to.equal("S");
-                expect(branches[0].steps[1].text).to.equal("A");
-                expect(branches[0].steps[2].text).to.equal("C");
-                expect(branches[0].steps[3].text).to.equal("E");
-                expect(branches[0].steps[4].text).to.equal("D");
-                expect(branches[0].steps[5].text).to.equal("E");
-
-                expect(branches[0].steps[6].text).to.equal("B");
-                expect(branches[0].steps[7].text).to.equal("C");
-                expect(branches[0].steps[8].text).to.equal("E");
-                expect(branches[0].steps[9].text).to.equal("D");
-                expect(branches[0].steps[10].text).to.equal("E");
-
-                expect(branches).to.containSubset([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "S",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "S", level: 0, isSequential: true },
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6651,43 +6031,17 @@ S .. -
     E -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(6);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "S",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "S", level: 0, isSequential: true },
+                            { text: "A", level: 0, isSequential: true },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6704,28 +6058,14 @@ A - ..
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 1,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: true },
+                            { text: "F", level: 0, isSequential: undefined },
+                            { text: "B", level: 1, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6742,28 +6082,14 @@ B -
 C -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6781,38 +6107,19 @@ C -
 D -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined }
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6830,38 +6137,16 @@ C -
         E -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(5);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6880,63 +6165,24 @@ C -
     F -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(5);
-                expect(branches[1].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined },
+                            { text: "E", level: 0, isSequential: undefined }
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "F", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -6958,43 +6204,17 @@ C
     I -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(6);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 1,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "G", level: 1, isSequential: undefined },
+                            { text: "H", level: 1, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "I", level: 1, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -7013,41 +6233,21 @@ B -
     E -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(5);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: true
-                            },
-                            {
-                                text: "C",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "C", level: 1, isSequential: undefined },
+                            { text: "D", level: 1, isSequential: undefined },
+                            { text: "E", level: 1, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
+
+                expect(tree.getStepNode(branches[0].steps[0].functionDeclarationId).isSequential).to.be.true;
             });
 
             it("branchifies a function declaration under a .. step block", () => {
@@ -7064,33 +6264,15 @@ B -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "F",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 1,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "F", level: 0, isSequential: undefined },
+                            { text: "C", level: 1, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -7114,164 +6296,45 @@ C
     K -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(4);
-                expect(branches[0].steps).to.have.lengthOf(6);
-                expect(branches[1].steps).to.have.lengthOf(6);
-                expect(branches[2].steps).to.have.lengthOf(5);
-                expect(branches[3].steps).to.have.lengthOf(5);
-
-                expect(branches[0].steps[0].text).to.equal("A");
-                expect(branches[0].steps[1].text).to.equal("G");
-                expect(branches[0].steps[2].text).to.equal("H");
-                expect(branches[0].steps[3].text).to.equal("B");
-                expect(branches[0].steps[4].text).to.equal("C");
-                expect(branches[0].steps[5].text).to.equal("I");
-
-                expect(branches[1].steps[0].text).to.equal("A");
-                expect(branches[1].steps[1].text).to.equal("G");
-                expect(branches[1].steps[2].text).to.equal("H");
-                expect(branches[1].steps[3].text).to.equal("B");
-                expect(branches[1].steps[4].text).to.equal("C");
-                expect(branches[1].steps[5].text).to.equal("K");
-
-                expect(branches[2].steps[0].text).to.equal("A");
-                expect(branches[2].steps[1].text).to.equal("J");
-                expect(branches[2].steps[2].text).to.equal("B");
-                expect(branches[2].steps[3].text).to.equal("C");
-                expect(branches[2].steps[4].text).to.equal("I");
-
-                expect(branches[3].steps[0].text).to.equal("A");
-                expect(branches[3].steps[1].text).to.equal("J");
-                expect(branches[3].steps[2].text).to.equal("B");
-                expect(branches[3].steps[3].text).to.equal("C");
-                expect(branches[3].steps[4].text).to.equal("K");
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 1,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "G", level: 1, isSequential: undefined },
+                            { text: "H", level: 1, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "I", level: 1, isSequential: undefined }
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "G",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "H",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "K",
-                                level: 1,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "G", level: 1, isSequential: undefined },
+                            { text: "H", level: 1, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "K", level: 1, isSequential: undefined }
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "J",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "I",
-                                level: 1,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "J", level: 1, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "I", level: 1, isSequential: undefined }
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "J",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "K",
-                                level: 1,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "J", level: 1, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "K", level: 1, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -7301,120 +6364,9 @@ C
     K -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(12);
-                expect(branches[0].steps).to.have.lengthOf(7);
-                expect(branches[1].steps).to.have.lengthOf(8);
-                expect(branches[2].steps).to.have.lengthOf(8);
-                expect(branches[3].steps).to.have.lengthOf(7);
-                expect(branches[4].steps).to.have.lengthOf(8);
-                expect(branches[5].steps).to.have.lengthOf(8);
-                expect(branches[6].steps).to.have.lengthOf(6);
-                expect(branches[7].steps).to.have.lengthOf(7);
-                expect(branches[8].steps).to.have.lengthOf(7);
-                expect(branches[9].steps).to.have.lengthOf(6);
-                expect(branches[10].steps).to.have.lengthOf(7);
-                expect(branches[11].steps).to.have.lengthOf(7);
-
-                expect(branches[0].steps[0].text).to.equal("A");
-                expect(branches[0].steps[1].text).to.equal("G");
-                expect(branches[0].steps[2].text).to.equal("H");
-                expect(branches[0].steps[3].text).to.equal("B");
-                expect(branches[0].steps[4].text).to.equal("C");
-                expect(branches[0].steps[5].text).to.equal("I");
-                expect(branches[0].steps[6].text).to.equal("L");
-
-                expect(branches[1].steps[0].text).to.equal("A");
-                expect(branches[1].steps[1].text).to.equal("G");
-                expect(branches[1].steps[2].text).to.equal("H");
-                expect(branches[1].steps[3].text).to.equal("B");
-                expect(branches[1].steps[4].text).to.equal("C");
-                expect(branches[1].steps[5].text).to.equal("I");
-                expect(branches[1].steps[6].text).to.equal("M");
-                expect(branches[1].steps[7].text).to.equal("N");
-
-                expect(branches[2].steps[0].text).to.equal("A");
-                expect(branches[2].steps[1].text).to.equal("G");
-                expect(branches[2].steps[2].text).to.equal("H");
-                expect(branches[2].steps[3].text).to.equal("B");
-                expect(branches[2].steps[4].text).to.equal("C");
-                expect(branches[2].steps[5].text).to.equal("I");
-                expect(branches[2].steps[6].text).to.equal("M");
-                expect(branches[2].steps[7].text).to.equal("O");
-
-                expect(branches[3].steps[0].text).to.equal("A");
-                expect(branches[3].steps[1].text).to.equal("G");
-                expect(branches[3].steps[2].text).to.equal("H");
-                expect(branches[3].steps[3].text).to.equal("B");
-                expect(branches[3].steps[4].text).to.equal("C");
-                expect(branches[3].steps[5].text).to.equal("K");
-                expect(branches[3].steps[6].text).to.equal("L");
-
-                expect(branches[4].steps[0].text).to.equal("A");
-                expect(branches[4].steps[1].text).to.equal("G");
-                expect(branches[4].steps[2].text).to.equal("H");
-                expect(branches[4].steps[3].text).to.equal("B");
-                expect(branches[4].steps[4].text).to.equal("C");
-                expect(branches[4].steps[5].text).to.equal("K");
-                expect(branches[4].steps[6].text).to.equal("M");
-                expect(branches[4].steps[7].text).to.equal("N");
-
-                expect(branches[5].steps[0].text).to.equal("A");
-                expect(branches[5].steps[1].text).to.equal("G");
-                expect(branches[5].steps[2].text).to.equal("H");
-                expect(branches[5].steps[3].text).to.equal("B");
-                expect(branches[5].steps[4].text).to.equal("C");
-                expect(branches[5].steps[5].text).to.equal("K");
-                expect(branches[5].steps[6].text).to.equal("M");
-                expect(branches[5].steps[7].text).to.equal("O");
-
-                expect(branches[6].steps[0].text).to.equal("A");
-                expect(branches[6].steps[1].text).to.equal("J");
-                expect(branches[6].steps[2].text).to.equal("B");
-                expect(branches[6].steps[3].text).to.equal("C");
-                expect(branches[6].steps[4].text).to.equal("I");
-                expect(branches[6].steps[5].text).to.equal("L");
-
-                expect(branches[7].steps[0].text).to.equal("A");
-                expect(branches[7].steps[1].text).to.equal("J");
-                expect(branches[7].steps[2].text).to.equal("B");
-                expect(branches[7].steps[3].text).to.equal("C");
-                expect(branches[7].steps[4].text).to.equal("I");
-                expect(branches[7].steps[5].text).to.equal("M");
-                expect(branches[7].steps[6].text).to.equal("N");
-
-                expect(branches[8].steps[0].text).to.equal("A");
-                expect(branches[8].steps[1].text).to.equal("J");
-                expect(branches[8].steps[2].text).to.equal("B");
-                expect(branches[8].steps[3].text).to.equal("C");
-                expect(branches[8].steps[4].text).to.equal("I");
-                expect(branches[8].steps[5].text).to.equal("M");
-                expect(branches[8].steps[6].text).to.equal("O");
-
-                expect(branches[9].steps[0].text).to.equal("A");
-                expect(branches[9].steps[1].text).to.equal("J");
-                expect(branches[9].steps[2].text).to.equal("B");
-                expect(branches[9].steps[3].text).to.equal("C");
-                expect(branches[9].steps[4].text).to.equal("K");
-                expect(branches[9].steps[5].text).to.equal("L");
-
-                expect(branches[10].steps[0].text).to.equal("A");
-                expect(branches[10].steps[1].text).to.equal("J");
-                expect(branches[10].steps[2].text).to.equal("B");
-                expect(branches[10].steps[3].text).to.equal("C");
-                expect(branches[10].steps[4].text).to.equal("K");
-                expect(branches[10].steps[5].text).to.equal("M");
-                expect(branches[10].steps[6].text).to.equal("N");
-
-                expect(branches[11].steps[0].text).to.equal("A");
-                expect(branches[11].steps[1].text).to.equal("J");
-                expect(branches[11].steps[2].text).to.equal("B");
-                expect(branches[11].steps[3].text).to.equal("C");
-                expect(branches[11].steps[4].text).to.equal("K");
-                expect(branches[11].steps[5].text).to.equal("M");
-                expect(branches[11].steps[6].text).to.equal("O");
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
                             { text: "A", level: 0, isSequential: undefined },
@@ -7563,33 +6515,15 @@ B -
     D -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -7611,80 +6545,25 @@ B -
         F -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(5);
-                expect(branches[1].steps).to.have.lengthOf(5);
-
-                expect(branches[0].steps[0].text).to.equal("A");
-                expect(branches[0].steps[1].text).to.equal("B");
-                expect(branches[0].steps[2].text).to.equal("C");
-                expect(branches[0].steps[3].text).to.equal("E");
-                expect(branches[0].steps[4].text).to.equal("D");
-
-                expect(branches[1].steps[0].text).to.equal("A");
-                expect(branches[1].steps[1].text).to.equal("B");
-                expect(branches[1].steps[2].text).to.equal("C");
-                expect(branches[1].steps[3].text).to.equal("F");
-                expect(branches[1].steps[4].text).to.equal("D");
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "E",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "E", level: 1, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined }
                         ]
                     },
                     {
                         steps: [
-                            {
-                                text: "A",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "B",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "C",
-                                level: 0,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "F",
-                                level: 1,
-                                isSequential: undefined
-                            },
-                            {
-                                text: "D",
-                                level: 0,
-                                isSequential: undefined
-                            }
+                            { text: "A", level: 0, isSequential: undefined },
+                            { text: "B", level: 0, isSequential: undefined },
+                            { text: "C", level: 0, isSequential: undefined },
+                            { text: "F", level: 1, isSequential: undefined },
+                            { text: "D", level: 0, isSequential: undefined }
                         ]
                     }
                 ]);
@@ -7707,18 +6586,9 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryBranch).to.equal(undefined);
-                expect(branches[1].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[2].beforeEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryBranch: undefined,
@@ -7754,12 +6624,9 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[0].beforeEveryBranch).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryBranch: [
@@ -7782,16 +6649,9 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryBranch).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryBranch: [
@@ -7822,16 +6682,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-
-                expect(branches[0].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryBranch).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         beforeEveryBranch: [
@@ -7862,18 +6715,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[2].beforeEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryBranch: [
@@ -7909,16 +6753,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         beforeEveryBranch: [
@@ -7948,16 +6785,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         beforeEveryBranch: [
@@ -8006,18 +6836,9 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryBranch).to.equal(undefined);
-                expect(branches[1].afterEveryBranch).to.have.lengthOf(1);
-                expect(branches[2].afterEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryBranch: undefined,
@@ -8053,12 +6874,9 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         afterEveryBranch: [
@@ -8081,16 +6899,9 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].afterEveryBranch).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         afterEveryBranch: [
@@ -8121,16 +6932,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-
-                expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].afterEveryBranch).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         afterEveryBranch: [
@@ -8158,12 +6962,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F" } ],
                         afterEveryBranch: [
@@ -8188,18 +6989,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].afterEveryBranch).to.have.lengthOf(1);
-                expect(branches[2].afterEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         afterEveryBranch: [
@@ -8235,16 +7027,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].afterEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         afterEveryBranch: [
@@ -8274,16 +7059,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryBranch).to.have.lengthOf(1);
-                expect(branches[1].afterEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         afterEveryBranch: [
@@ -8350,22 +7128,9 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryBranch).to.equal(undefined);
-                expect(branches[1].afterEveryBranch).to.have.lengthOf(3);
-                expect(branches[2].afterEveryBranch).to.equal(undefined);
-
-                expect(branches[0].beforeEveryBranch).to.equal(undefined);
-                expect(branches[1].beforeEveryBranch).to.have.lengthOf(3);
-                expect(branches[2].beforeEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         afterEveryBranch: undefined,
@@ -8452,36 +7217,9 @@ G -
     P -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(8);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[0].afterEveryBranch).to.have.lengthOf(3);
-
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[1].afterEveryBranch).to.have.lengthOf(3);
-
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[2].afterEveryBranch).to.have.lengthOf(1);
-
-                expect(branches[3].steps).to.have.lengthOf(2);
-                expect(branches[3].afterEveryBranch).to.have.lengthOf(2);
-
-                expect(branches[4].steps).to.have.lengthOf(2);
-                expect(branches[4].afterEveryBranch).to.have.lengthOf(2);
-
-                expect(branches[5].steps).to.have.lengthOf(3);
-                expect(branches[5].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[5].afterEveryBranch).to.have.lengthOf(2);
-
-                expect(branches[6].steps).to.have.lengthOf(5);
-                expect(branches[6].beforeEveryBranch).to.have.lengthOf(1);
-                expect(branches[6].afterEveryBranch).to.have.lengthOf(2);
-
-                expect(branches[7].steps).to.have.lengthOf(2);
-                expect(branches[7].afterEveryBranch).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ],
                         afterEveryBranch: [
@@ -8562,18 +7300,9 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryStep).to.equal(undefined);
-                expect(branches[1].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[2].beforeEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryBranch: undefined,
@@ -8609,12 +7338,9 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[0].beforeEveryStep).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryStep: [
@@ -8637,16 +7363,9 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryStep).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         beforeEveryStep: [
@@ -8677,16 +7396,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-
-                expect(branches[0].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryStep).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         beforeEveryStep: [
@@ -8717,18 +7429,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[2].beforeEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryStep: [
@@ -8764,16 +7467,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         beforeEveryStep: [
@@ -8803,16 +7499,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[1].beforeEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         beforeEveryStep: [
@@ -8861,18 +7550,9 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryStep).to.equal(undefined);
-                expect(branches[1].afterEveryStep).to.have.lengthOf(1);
-                expect(branches[2].afterEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         beforeEveryBranch: undefined,
@@ -8908,12 +7588,9 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[0].afterEveryStep).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         afterEveryStep: [
@@ -8936,16 +7613,9 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryStep).to.have.lengthOf(1);
-                expect(branches[1].afterEveryStep).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         afterEveryStep: [
@@ -8976,16 +7646,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-
-                expect(branches[0].afterEveryStep).to.have.lengthOf(1);
-                expect(branches[1].afterEveryStep).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         afterEveryStep: [
@@ -9016,18 +7679,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryStep).to.have.lengthOf(1);
-                expect(branches[1].afterEveryStep).to.have.lengthOf(1);
-                expect(branches[2].afterEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         afterEveryStep: [
@@ -9063,16 +7717,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryStep).to.have.lengthOf(1);
-                expect(branches[1].afterEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         afterEveryStep: [
@@ -9102,16 +7749,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryStep).to.have.lengthOf(1);
-                expect(branches[1].afterEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         afterEveryStep: [
@@ -9178,22 +7818,9 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(2);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(1);
-
-                expect(branches[0].afterEveryStep).to.equal(undefined);
-                expect(branches[1].afterEveryStep).to.have.lengthOf(3);
-                expect(branches[2].afterEveryStep).to.equal(undefined);
-
-                expect(branches[0].beforeEveryStep).to.equal(undefined);
-                expect(branches[1].beforeEveryStep).to.have.lengthOf(3);
-                expect(branches[2].beforeEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         afterEveryStep: undefined,
@@ -9280,36 +7907,9 @@ G -
     P -
                 `);
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(8);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[0].afterEveryStep).to.have.lengthOf(3);
-
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[1].afterEveryStep).to.have.lengthOf(3);
-
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[2].afterEveryStep).to.have.lengthOf(1);
-
-                expect(branches[3].steps).to.have.lengthOf(2);
-                expect(branches[3].afterEveryStep).to.have.lengthOf(2);
-
-                expect(branches[4].steps).to.have.lengthOf(2);
-                expect(branches[4].afterEveryStep).to.have.lengthOf(2);
-
-                expect(branches[5].steps).to.have.lengthOf(3);
-                expect(branches[5].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[5].afterEveryStep).to.have.lengthOf(2);
-
-                expect(branches[6].steps).to.have.lengthOf(5);
-                expect(branches[6].beforeEveryStep).to.have.lengthOf(1);
-                expect(branches[6].afterEveryStep).to.have.lengthOf(2);
-
-                expect(branches[7].steps).to.have.lengthOf(2);
-                expect(branches[7].afterEveryStep).to.equal(undefined);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ],
                         afterEveryStep: [
@@ -9387,17 +7987,15 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(tree.beforeEverything).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                mergeStepsWithStepNodes(tree, branches);
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
                 ]);
 
-                expect(tree.beforeEverything).to.containSubsetInOrder([
+                mergeStepsArrWithStepNodes(tree, tree.beforeEverything);
+                Comparer.expect(tree.beforeEverything).to.match([
                     { text: "Before Everything", level: 0, codeBlock: "\n    B" }
                 ]);
             });
@@ -9411,9 +8009,11 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                expect(branches).to.have.lengthOf(0);
+                mergeStepsWithStepNodes(tree, branches);
+                Comparer.expect(branches).to.match([]);
 
-                expect(tree.beforeEverything).to.containSubsetInOrder([
+                mergeStepsArrWithStepNodes(tree, tree.beforeEverything);
+                Comparer.expect(tree.beforeEverything).to.match([
                     { text: "Before Everything", level: 0, codeBlock: "" }
                 ]);
             });
@@ -9434,19 +8034,15 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                expect(branches).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.have.lengthOf(1);
-
-                expect(tree.beforeEverything).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                mergeStepsWithStepNodes(tree, branches);
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
                 ]);
 
-                expect(tree.beforeEverything).to.containSubsetInOrder([
+                mergeStepsArrWithStepNodes(tree, tree.beforeEverything);
+                Comparer.expect(tree.beforeEverything).to.match([
                     { text: "Before Everything", level: 0, codeBlock: "\n    C" },
                     { text: "Before Everything", level: 0, codeBlock: "\n    B" }
                 ]);
@@ -9495,17 +8091,15 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(tree.afterEverything).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                mergeStepsWithStepNodes(tree, branches);
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
                 ]);
 
-                expect(tree.afterEverything).to.containSubsetInOrder([
+                mergeStepsArrWithStepNodes(tree, tree.afterEverything);
+                Comparer.expect(tree.afterEverything).to.match([
                     { text: "After Everything", level: 0, codeBlock: "\n    B" }
                 ]);
             });
@@ -9519,9 +8113,11 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                expect(branches).to.have.lengthOf(0);
+                mergeStepsWithStepNodes(tree, branches);
+                Comparer.expect(branches).to.match([]);
 
-                expect(tree.afterEverything).to.containSubsetInOrder([
+                mergeStepsArrWithStepNodes(tree, tree.afterEverything);
+                Comparer.expect(tree.afterEverything).to.match([
                     { text: "After Everything", level: 0, codeBlock: "" }
                 ]);
             });
@@ -9542,17 +8138,15 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(1);
-                expect(tree.afterEverything).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                mergeStepsWithStepNodes(tree, branches);
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
                 ]);
 
-                expect(tree.afterEverything).to.containSubsetInOrder([
+                mergeStepsArrWithStepNodes(tree, tree.afterEverything);
+                Comparer.expect(tree.afterEverything).to.match([
                     { text: "After Everything", level: 0, codeBlock: "\n    B" },
                     { text: "After Everything", level: 0, codeBlock: "\n    C" }
                 ]);
@@ -9607,13 +8201,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "D" } ],
                         isOnly: true,
@@ -9645,11 +8235,9 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ],
                         isOnly: true,
@@ -9681,14 +8269,9 @@ J -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(3);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(2);
-                expect(branches[2].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ],
                         isOnly: true,
@@ -9739,18 +8322,9 @@ $ M -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(7);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(3);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(3);
-                expect(branches[4].steps).to.have.lengthOf(3);
-                expect(branches[5].steps).to.have.lengthOf(2);
-                expect(branches[6].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ],
                         isOnly: true,
@@ -9803,13 +8377,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F" }, { text: "A" }, { text: "B" } ],
                         isOnly: true,
@@ -9840,12 +8410,9 @@ $ K -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ],
                         isOnly: true,
@@ -9871,12 +8438,9 @@ K -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ],
                         isOnly: true,
@@ -9900,12 +8464,9 @@ $ * F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ],
                         isOnly: true,
@@ -9929,12 +8490,9 @@ $ * F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ],
                         isOnly: true,
@@ -9962,12 +8520,9 @@ K -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-
-                expect(branches[0].steps).to.have.lengthOf(6);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" }, { text: "D" }, { text: "W" } ],
                         isOnly: true,
@@ -9992,13 +8547,9 @@ $ G .. -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "D" }, { text: "E" } ],
                         isOnly: true,
@@ -10025,13 +8576,9 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" } ],
                         isOnly: true,
@@ -10060,11 +8607,9 @@ F -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         isOnly: undefined,
@@ -10086,11 +8631,9 @@ F -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         isOnly: undefined,
@@ -10117,11 +8660,9 @@ J -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "G" }, { text: "H" } ],
                         isOnly: undefined,
@@ -10148,11 +8689,9 @@ J -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "G" }, { text: "H" } ],
                         isOnly: undefined,
@@ -10174,11 +8713,9 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "B" }, { text: "F" }, { text: "K" } ],
                         isOnly: undefined,
@@ -10200,11 +8737,9 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "B" }, { text: "F" }, { text: "K" } ],
                         isOnly: undefined,
@@ -10226,11 +8761,9 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "B" }, { text: "F" }, { text: "K" } ],
                         isOnly: undefined,
@@ -10257,11 +8790,9 @@ J -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "G" }, { text: "H" } ],
                         isOnly: undefined,
@@ -10283,11 +8814,9 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "F" }, { text: "K" } ],
                         isOnly: undefined,
@@ -10309,11 +8838,9 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(3);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "F" }, { text: "K" } ],
                         isOnly: undefined,
@@ -10333,11 +8860,9 @@ C -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "D" } ],
                         isOnly: undefined,
@@ -10359,11 +8884,9 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F" }, { text: "A" } ],
                         isOnly: undefined,
@@ -10382,11 +8905,9 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         isOnly: undefined,
@@ -10404,11 +8925,9 @@ B -
                 `, "file.txt");
 
                 branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
                         isOnly: undefined,
@@ -10437,11 +8956,9 @@ J -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "G" }, { text: "H" } ],
                         isOnly: undefined,
@@ -10466,11 +8983,9 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "F" }, { text: "B" }, { text: "C" }, { text: "X" } ],
                         isOnly: undefined,
@@ -10498,11 +9013,9 @@ I -
                 `);
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ],
                         isOnly: true,
@@ -10528,11 +9041,9 @@ I -
                 `);
 
                 branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ],
                         isOnly: true,
@@ -10554,10 +9065,11 @@ D -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" },  { text: "B" } ],
+                        steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='high'" } ],
                         frequency: 'high'
                     },
                     {
@@ -10589,8 +9101,9 @@ E -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='high'" }, { text: "C" } ],
                         frequency: 'high'
@@ -10627,8 +9140,9 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" },  { text: "B" }, { text: "C" }, { text: "{frequency}='high'" } ],
                         frequency: 'high'
@@ -10663,8 +9177,9 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" },  { text: "{frequency}='high'" }, { text: "B" }, { text: "{frequency}='low'" }, { text: "C" } ],
                         frequency: 'low'
@@ -10692,10 +9207,9 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "low");
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
                         frequency: 'high'
@@ -10739,10 +9253,9 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, undefined);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
                         frequency: 'high'
@@ -10786,10 +9299,9 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "med");
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
                         frequency: 'high'
@@ -10829,10 +9341,9 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "high");
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
                         frequency: 'high'
@@ -10867,17 +9378,9 @@ A -
                     tree.branchify(tree.root, undefined, "high");
                 }, "This step contains a ~, but is not above the frequency allowed to run (high). Either set its frequency higher or remove the ~. [file.txt:7]");
 
-                assert.doesNotThrow(() => {
-                    tree.branchify(tree.root, undefined, "med");
-                });
-
-                assert.doesNotThrow(() => {
-                    tree.branchify(tree.root, undefined, "low");
-                });
-
-                assert.doesNotThrow(() => {
-                    tree.branchify(tree.root, undefined, undefined);
-                });
+                tree.branchify(tree.root, undefined, "med");
+                tree.branchify(tree.root, undefined, "low");
+                tree.branchify(tree.root, undefined, undefined);
             });
         });
 
@@ -10899,15 +9402,9 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(3);
-                expect(branches[1].steps).to.have.lengthOf(3);
-                expect(branches[2].steps).to.have.lengthOf(3);
-                expect(branches[3].steps).to.have.lengthOf(3);
-                expect(branches[4].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" } ],
                         groups: [ 'first' ]
@@ -10952,15 +9449,9 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(4);
-                expect(branches[3].steps).to.have.lengthOf(4);
-                expect(branches[4].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
                         groups: [ 'first', 'second' ]
@@ -11005,15 +9496,9 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(4);
-                expect(branches[3].steps).to.have.lengthOf(4);
-                expect(branches[4].steps).to.have.lengthOf(1);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
                         groups: [ 'first', 'second' ]
@@ -11058,12 +9543,9 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, ["first"]);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(2);
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
                         groups: [ 'first', 'second' ]
@@ -11099,15 +9581,9 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, ["first", "sixth"]);
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(5);
-                expect(branches[0].steps).to.have.lengthOf(4);
-                expect(branches[1].steps).to.have.lengthOf(4);
-                expect(branches[2].steps).to.have.lengthOf(5);
-                expect(branches[3].steps).to.have.lengthOf(5);
-                expect(branches[4].steps).to.have.lengthOf(4);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
                         groups: [ 'first', 'second' ]
@@ -11126,7 +9602,7 @@ G -
                     },
                     {
                         steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "{group}='sixth'" }, { text: "L" } ],
-                        groups: [ 'sixth' ]
+                        groups: [ 'third', 'sixth' ]
                     }
                 ]);
             });
@@ -11158,9 +9634,7 @@ A -
                     tree.branchify(tree.root, ["one", "three", "four"]);
                 }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:7]");
 
-                assert.doesNotThrow(() => {
-                    tree.branchify(tree.root, ["two"]);
-                });
+                tree.branchify(tree.root, ["two"]);
             });
         });
 
@@ -11193,11 +9667,9 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, ["first", "sixth"], "med");
+                mergeStepsWithStepNodes(tree, branches);
 
-                expect(branches).to.have.lengthOf(1);
-                expect(branches[0].steps).to.have.lengthOf(6);
-
-                expect(branches).to.containSubsetInOrder([
+                Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" }, { text: "K" }, { text: "{frequency}='high'" } ],
                         groups: [ 'third', 'sixth' ],
@@ -11224,8 +9696,9 @@ D -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.containSubsetInOrder([
+                Comparer.expect(tree.branches).to.match([
                     {
                         steps: [ { text: "C" }, { text: "{frequency}='high', {var}='foo'" } ],
                         frequency: 'high'
@@ -11255,9 +9728,10 @@ D -
                 `, "file.txt");
 
                 tree.generateBranches();
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(4);
-                expect(tree.branches).to.containSubset([
+                Comparer.expect(tree.branches).to.match([
+                    '$anyOrder',
                     {
                         steps: [ { text: "A" } ]
                     },
@@ -11285,29 +9759,28 @@ D -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(4);
-
-                expect(tree.branches).to.containSubsetInOrder([
+                Comparer.expect(tree.branches).to.match([
                     {
                         steps: [ { text: "A" } ],
                         isSkipped: undefined,
-                        log: undefined
+                        //log: undefined
                     },
                     {
                         steps: [ { text: "B" } ],
                         isSkipped: true,
-                        log: [ { text: "Branch skipped because it starts with a .s step" } ]
+                        //log: [ { text: "Branch skipped because it starts with a .s step" } ]
                     },
                     {
                         steps: [ { text: "C" } ],
                         isSkipped: true,
-                        log: [ { text: "Branch skipped because it starts with a .s step" } ]
+                        //log: [ { text: "Branch skipped because it starts with a .s step" } ]
                     },
                     {
                         steps: [ { text: "D" } ],
                         isSkipped: undefined,
-                        log: undefined
+                        //log: undefined
                     }
                 ]);
             });
@@ -11322,26 +9795,28 @@ A -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.undefined;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                Comparer.expect(tree.branches).to.match([
                     {
-                        text: "A",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "B",
-                        isSkipped: true
-                    },
-                    {
-                        text: "C",
-                        isSkipped: true
-                    },
-                    {
-                        text: "D",
-                        isSkipped: true
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "B",
+                                isSkipped: true
+                            },
+                            {
+                                text: "C",
+                                isSkipped: true
+                            },
+                            {
+                                text: "D",
+                                isSkipped: true
+                            }
+                        ]
                     }
                 ]);
             });
@@ -11356,26 +9831,28 @@ A -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.undefined;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                Comparer.expect(tree.branches).to.match([
                     {
-                        text: "A",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "B",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "C",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "D",
-                        isSkipped: true
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "B",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "C",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "D",
+                                isSkipped: true
+                            }
+                        ]
                     }
                 ]);
             });
@@ -11400,132 +9877,132 @@ I -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(8);
-
-                expect(tree.branches[0].isSkipped).to.be.undefined;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                Comparer.expect(tree.branches).to.match([
                     {
-                        text: "A",
-                        isSkipped: undefined
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "B",
+                                isSkipped: true
+                            },
+                            {
+                                text: "E",
+                                isSkipped: true
+                            },
+                            {
+                                text: "F",
+                                isSkipped: true
+                            }
+                        ]
                     },
                     {
-                        text: "B",
-                        isSkipped: true
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "B",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "G",
+                                isSkipped: undefined
+                            }
+                        ]
                     },
                     {
-                        text: "E",
-                        isSkipped: true
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "B",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "H",
+                                isSkipped: undefined
+                            }
+                        ]
                     },
                     {
-                        text: "F",
-                        isSkipped: true
-                    }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.true;
-                expect(tree.branches[1].log[0].text).to.equal("Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:7)");
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    {
-                        text: "A",
-                        isSkipped: undefined
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "C",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "E",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "F",
+                                isSkipped: undefined
+                            }
+                        ]
                     },
                     {
-                        text: "B",
-                        isSkipped: undefined
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "C",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "G",
+                                isSkipped: undefined
+                            }
+                        ]
                     },
                     {
-                        text: "G",
-                        isSkipped: undefined
-                    }
-                ]);
-
-                expect(tree.branches[2].isSkipped).to.be.true;
-                expect(tree.branches[2].log[0].text).to.equal("Branch skipped because it is identical to an earlier branch, up to the .s step (ends at file.txt:7)");
-                expect(tree.branches[2].steps).to.containSubsetInOrder([
-                    {
-                        text: "A",
-                        isSkipped: undefined
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "C",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "H",
+                                isSkipped: undefined
+                            }
+                        ]
                     },
                     {
-                        text: "B",
-                        isSkipped: undefined
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "D",
+                                isSkipped: undefined
+                            }
+                        ]
                     },
                     {
-                        text: "H",
-                        isSkipped: undefined
-                    }
-                ]);
-
-                expect(tree.branches[3].isSkipped).to.be.undefined;
-                expect(tree.branches[3].steps).to.containSubsetInOrder([
-                    {
-                        text: "A",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "C",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "E",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "F",
-                        isSkipped: undefined
-                    }
-                ]);
-
-                expect(tree.branches[4].isSkipped).to.be.undefined;
-                expect(tree.branches[4].steps).to.containSubsetInOrder([
-                    {
-                        text: "A",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "C",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "G",
-                        isSkipped: undefined
-                    }
-                ]);
-
-                expect(tree.branches[5].isSkipped).to.be.undefined;
-                expect(tree.branches[5].steps).to.containSubsetInOrder([
-                    {
-                        text: "A",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "C",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "H",
-                        isSkipped: undefined
-                    }
-                ]);
-
-                expect(tree.branches[6].isSkipped).to.be.undefined;
-                expect(tree.branches[6].steps).to.containSubsetInOrder([
-                    {
-                        text: "A",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "D",
-                        isSkipped: undefined
-                    }
-                ]);
-
-                expect(tree.branches[7].isSkipped).to.be.undefined;
-                expect(tree.branches[7].steps).to.containSubsetInOrder([
-                    {
-                        text: "I",
-                        isSkipped: undefined
+                        steps: [
+                            {
+                                text: "I",
+                                isSkipped: undefined
+                            }
+                        ]
                     }
                 ]);
             });
@@ -11540,36 +10017,40 @@ A -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches[0].isSkipped).to.be.undefined;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
+                Comparer.expect(tree.branches).to.match([
                     {
-                        text: "A",
-                        isSkipped: undefined
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "B",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "C",
+                                isSkipped: true
+                            }
+                        ]
                     },
                     {
-                        text: "B",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "C",
-                        isSkipped: true
-                    }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.undefined;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    {
-                        text: "A",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "B",
-                        isSkipped: undefined
-                    },
-                    {
-                        text: "D",
-                        isSkipped: undefined
+                        steps: [
+                            {
+                                text: "A",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "B",
+                                isSkipped: undefined
+                            },
+                            {
+                                text: "D",
+                                isSkipped: undefined
+                            }
+                        ]
                     }
                 ]);
             });
@@ -11594,39 +10075,14 @@ H -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(5);
-                expect(tree.branches[0].steps).to.have.lengthOf(2);
-                expect(tree.branches[1].steps).to.have.lengthOf(3);
-                expect(tree.branches[2].steps).to.have.lengthOf(3);
-                expect(tree.branches[3].steps).to.have.lengthOf(1);
-                expect(tree.branches[4].steps).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.undefined;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "B" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.true;
-                expect(tree.branches[1].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:5");
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "C" }, { text: "D" }
-                ]);
-
-                expect(tree.branches[2].isSkipped).to.be.true;
-                expect(tree.branches[2].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:5");
-                expect(tree.branches[2].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "C" }, { text: "E" }
-                ]);
-
-                expect(tree.branches[3].isSkipped).to.be.undefined;
-                expect(tree.branches[3].steps).to.containSubsetInOrder([
-                    { text: "G" }
-                ]);
-
-                expect(tree.branches[4].isSkipped).to.be.undefined;
-                expect(tree.branches[4].steps).to.containSubsetInOrder([
-                    { text: "H" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "A" }, { text: "B" } ], isSkipped: undefined },
+                    { steps: [ { text: "A" }, { text: "C" }, { text: "D" } ], isSkipped: true },
+                    { steps: [ { text: "A" }, { text: "C" }, { text: "E" } ], isSkipped: true },
+                    { steps: [ { text: "G" } ], isSkipped: undefined },
+                    { steps: [ { text: "H" } ], isSkipped: undefined },
                 ]);
             });
 
@@ -11648,41 +10104,14 @@ H -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(5);
-                expect(tree.branches[0].steps).to.have.lengthOf(2);
-                expect(tree.branches[1].steps).to.have.lengthOf(3);
-                expect(tree.branches[2].steps).to.have.lengthOf(3);
-                expect(tree.branches[3].steps).to.have.lengthOf(1);
-                expect(tree.branches[4].steps).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.undefined;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "B" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.true;
-                expect(tree.branches[1].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:5");
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "C" }, { text: "D" }
-                ]);
-
-                expect(tree.branches[2].isSkipped).to.be.true;
-                expect(tree.branches[2].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:5");
-                expect(tree.branches[2].log[1].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:9");
-                expect(tree.branches[2].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "C" }, { text: "E" }
-                ]);
-
-                expect(tree.branches[3].isSkipped).to.be.true;
-                expect(tree.branches[3].log[0].text).to.be.equal("Branch skipped because a $s step was encountered at file.txt:11");
-                expect(tree.branches[3].steps).to.containSubsetInOrder([
-                    { text: "G" }
-                ]);
-
-                expect(tree.branches[4].isSkipped).to.be.undefined;
-                expect(tree.branches[4].steps).to.containSubsetInOrder([
-                    { text: "H" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "A" }, { text: "B" } ], isSkipped: undefined },
+                    { steps: [ { text: "A" }, { text: "C" }, { text: "D" } ], isSkipped: true },
+                    { steps: [ { text: "A" }, { text: "C" }, { text: "E" } ], isSkipped: true },
+                    { steps: [ { text: "G" } ], isSkipped: true },
+                    { steps: [ { text: "H" } ], isSkipped: undefined },
                 ]);
             });
 
@@ -11699,61 +10128,18 @@ C - $s
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(9);
-                expect(tree.branches[0].steps).to.have.lengthOf(2);
-                expect(tree.branches[1].steps).to.have.lengthOf(2);
-                expect(tree.branches[2].steps).to.have.lengthOf(2);
-                expect(tree.branches[3].steps).to.have.lengthOf(2);
-                expect(tree.branches[4].steps).to.have.lengthOf(2);
-                expect(tree.branches[5].steps).to.have.lengthOf(2);
-                expect(tree.branches[6].steps).to.have.lengthOf(2);
-                expect(tree.branches[7].steps).to.have.lengthOf(2);
-                expect(tree.branches[8].steps).to.have.lengthOf(2);
-
-                expect(tree.branches[0].isSkipped).to.be.true;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "D" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.undefined;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "E" }
-                ]);
-
-                expect(tree.branches[2].isSkipped).to.be.undefined;
-                expect(tree.branches[2].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "F" }
-                ]);
-
-                expect(tree.branches[3].isSkipped).to.be.true;
-                expect(tree.branches[3].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "D" }
-                ]);
-
-                expect(tree.branches[4].isSkipped).to.be.true;
-                expect(tree.branches[4].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "E" }
-                ]);
-
-                expect(tree.branches[5].isSkipped).to.be.true;
-                expect(tree.branches[5].steps).to.containSubsetInOrder([
-                    { text: "B" }, { text: "F" }
-                ]);
-
-                expect(tree.branches[6].isSkipped).to.be.true;
-                expect(tree.branches[6].steps).to.containSubsetInOrder([
-                    { text: "C" }, { text: "D" }
-                ]);
-
-                expect(tree.branches[7].isSkipped).to.be.true;
-                expect(tree.branches[7].steps).to.containSubsetInOrder([
-                    { text: "C" }, { text: "E" }
-                ]);
-
-                expect(tree.branches[8].isSkipped).to.be.true;
-                expect(tree.branches[8].steps).to.containSubsetInOrder([
-                    { text: "C" }, { text: "F" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "A" }, { text: "D" } ], isSkipped: true },
+                    { steps: [ { text: "A" }, { text: "E" } ], isSkipped: undefined },
+                    { steps: [ { text: "A" }, { text: "F" } ], isSkipped: undefined },
+                    { steps: [ { text: "B" }, { text: "D" } ], isSkipped: true },
+                    { steps: [ { text: "B" }, { text: "E" } ], isSkipped: true },
+                    { steps: [ { text: "B" }, { text: "F" } ], isSkipped: true },
+                    { steps: [ { text: "C" }, { text: "D" } ], isSkipped: true },
+                    { steps: [ { text: "C" }, { text: "E" } ], isSkipped: true },
+                    { steps: [ { text: "C" }, { text: "F" } ], isSkipped: true },
                 ]);
             });
 
@@ -11770,19 +10156,11 @@ F
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(2);
-                expect(tree.branches[0].steps).to.have.lengthOf(3);
-                expect(tree.branches[1].steps).to.have.lengthOf(2);
-
-                expect(tree.branches[0].isSkipped).to.be.true;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "F" }, { text: "A" }, { text: "B" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.undefined;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "F" }, { text: "C" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
+                    { steps: [ { text: "F" }, { text: "C" } ], isSkipped: undefined },
                 ]);
             });
 
@@ -11799,19 +10177,11 @@ C -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(2);
-                expect(tree.branches[0].steps).to.have.lengthOf(3);
-                expect(tree.branches[1].steps).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.true;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "F" }, { text: "A" }, { text: "B" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.undefined;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "C" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
+                    { steps: [ { text: "C" } ], isSkipped: undefined },
                 ]);
             });
 
@@ -11828,19 +10198,11 @@ C -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(2);
-                expect(tree.branches[0].steps).to.have.lengthOf(3);
-                expect(tree.branches[1].steps).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.true;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "F" }, { text: "A" }, { text: "B" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.undefined;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "C" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
+                    { steps: [ { text: "C" } ], isSkipped: undefined },
                 ]);
             });
 
@@ -11857,19 +10219,11 @@ C -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(2);
-                expect(tree.branches[0].steps).to.have.lengthOf(3);
-                expect(tree.branches[1].steps).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.true;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "F" }, { text: "A" }, { text: "B" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.undefined;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "C" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
+                    { steps: [ { text: "C" } ], isSkipped: undefined },
                 ]);
             });
 
@@ -11890,31 +10244,13 @@ $s K -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(4);
-                expect(tree.branches[0].steps).to.have.lengthOf(4);
-                expect(tree.branches[1].steps).to.have.lengthOf(3);
-                expect(tree.branches[2].steps).to.have.lengthOf(4);
-                expect(tree.branches[3].steps).to.have.lengthOf(3);
-
-                expect(tree.branches[0].isSkipped).to.be.true;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "J" }, { text: "F" }, { text: "A" }, { text: "B" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.undefined;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "J" }, { text: "F" }, { text: "C" }
-                ]);
-
-                expect(tree.branches[2].isSkipped).to.be.true;
-                expect(tree.branches[2].steps).to.containSubsetInOrder([
-                    { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" }
-                ]);
-
-                expect(tree.branches[3].isSkipped).to.be.true;
-                expect(tree.branches[3].steps).to.containSubsetInOrder([
-                    { text: "K" }, { text: "F" }, { text: "C" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "J" }, { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
+                    { steps: [ { text: "J" }, { text: "F" }, { text: "C" } ], isSkipped: undefined },
+                    { steps: [ { text: "K" }, { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
+                    { steps: [ { text: "K" }, { text: "F" }, { text: "C" } ], isSkipped: true },
                 ]);
             });
 
@@ -11933,25 +10269,12 @@ J -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(3);
-                expect(tree.branches[0].steps).to.have.lengthOf(3);
-                expect(tree.branches[1].steps).to.have.lengthOf(3);
-                expect(tree.branches[2].steps).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.true;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "B" }, { text: "C" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.true;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "G" }, { text: "H" }, { text: "I" }
-                ]);
-
-                expect(tree.branches[2].isSkipped).to.be.undefined;
-                expect(tree.branches[2].steps).to.containSubsetInOrder([
-                    { text: "J" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "A" }, { text: "B" }, { text: "C" } ], isSkipped: true },
+                    { steps: [ { text: "G" }, { text: "H" }, { text: "I" } ], isSkipped: true },
+                    { steps: [ { text: "J" } ], isSkipped: undefined },
                 ]);
             });
 
@@ -11970,25 +10293,12 @@ F -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(3);
-                expect(tree.branches[0].steps).to.have.lengthOf(4);
-                expect(tree.branches[1].steps).to.have.lengthOf(4);
-                expect(tree.branches[2].steps).to.have.lengthOf(1);
-
-                expect(tree.branches[0].isSkipped).to.be.true;
-                expect(tree.branches[0].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" }
-                ]);
-
-                expect(tree.branches[1].isSkipped).to.be.true;
-                expect(tree.branches[1].steps).to.containSubsetInOrder([
-                    { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" }
-                ]);
-
-                expect(tree.branches[2].isSkipped).to.be.undefined;
-                expect(tree.branches[2].steps).to.containSubsetInOrder([
-                    { text: "F" }
+                Comparer.expect(tree.branches).to.match([
+                    { steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" } ], isSkipped: true },
+                    { steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ], isSkipped: true },
+                    { steps: [ { text: "F" } ], isSkipped: undefined },
                 ]);
             });
 
@@ -12028,10 +10338,9 @@ H -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, "30cb5a00b9b3401c1a038b06e19f1d21");
+                mergeStepsWithStepNodes(tree, tree.branches);
 
-                expect(tree.branches).to.have.lengthOf(1);
-                expect(tree.branches[0].steps).to.have.lengthOf(3);
-                expect(tree.branches).to.containSubsetInOrder([
+                Comparer.expect(tree.branches).to.match([
                     {
                         steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isAfterDebug: true }  ]
                     }
@@ -12210,13 +10519,12 @@ K-1 -
 
     `, "file.txt");
 
-                //assert.throws(() => {
                 var start = new Date().getTime();
-                    tree.generateBranches();
+                tree.generateBranches();
                 var end = new Date().getTime();
-                console.log("generateBranches() took " + (end - start) + " ms");
 
-                //}, "Infinite loop detected");
+                console.log("generateBranches() took " + (end - start) + " ms");
+                console.log("Size of tree: " + tree.serialize().length/(1024 * 1024) + " MB");
             });
         });
     });

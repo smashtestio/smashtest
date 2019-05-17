@@ -7,12 +7,8 @@ const utils = require('./utils.js');
  * Represents a single branch containing steps
  */
 class Branch {
-    constructor(steps) {
+    constructor() {
         this.steps = [];                    // array of Step that are part of this Branch
-
-        if(steps) {
-            steps.forEach(s => this.push(s));
-        }
 
         /*
         OPTIONAL
@@ -49,23 +45,43 @@ class Branch {
     }
 
     /**
-     * Pushes the given Step to the end of this Branch
+     * Pushes the given step to the end of this branch
+     * @param {Step} step - The step to push onto the end of this branch
+     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
      */
-    push(step) {
+    push(step, stepNodeLookup) {
         this.steps.push(step);
-        step.isSkipBranch && (this.isSkipBranch = true);
-        step.isOnly && (this.isOnly = true);
-        step.isDebug && (this.isDebug = true);
+        this.mergeModifiers(step, stepNodeLookup);
     }
 
     /**
-     * Pushes the given Step to the front of this Branch
+     * Pushes the given step to the front of this branch
+     * @param {Step} step - The step to push onto the end of this branch
+     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
      */
-    unshift(step) {
+    unshift(step, stepNodeLookup) {
         this.steps.unshift(step);
-        step.isSkipBranch && (this.isSkipBranch = true);
-        step.isOnly && (this.isOnly = true);
-        step.isDebug && (this.isDebug = true);
+        this.mergeModifiers(step, stepNodeLookup);
+    }
+
+    /**
+     * Combines the modifiers of the given step with the modifiers of this branch
+     * @param {Step} step - The step to push onto the end of this branch
+     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
+     */
+    mergeModifiers(step, stepNodeLookup) {
+        let stepNode = stepNodeLookup(step.id);
+        let functionDeclarationNode = stepNodeLookup(step.functionDeclarationId);
+
+        if(stepNode.isSkipBranch || (functionDeclarationNode && functionDeclarationNode.isSkipBranch)) {
+            this.isSkipBranch = true;
+        }
+        if(stepNode.isOnly || (functionDeclarationNode && functionDeclarationNode.isOnly)) {
+            this.isOnly = true;
+        }
+        if(stepNode.isDebug || (functionDeclarationNode && functionDeclarationNode.isDebug)) {
+            this.isDebug = true;
+        }
     }
 
     /**

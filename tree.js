@@ -296,17 +296,16 @@ class Tree {
         branchAbove.steps.push(functionCall);
 
         let functionCallNode = this.getStepNode(functionCall.id);
-        let functionCallText = functionCallNode.text;
+        let functionCallNodeToMatch = functionCallNode;
 
         // If the functionCall ends in a *, find out what text was used for the * in branchAbove
         if(functionCallNode.text.trim().endsWith('*')) {
             for(let i = branchAbove.steps.length - 2; i >= 0; i--) {
-                let stepAbove = branchAbove.steps[i];
-                let stepAboveNode = this.getStepNode(stepAbove.id);
-                let stepAboveFunctionDeclarationNode = stepAboveNode.functionDeclarationId;
-
-                if(stepAboveFunctionDeclarationNode && functionCallNode.isFunctionMatch(stepAboveFunctionDeclarationNode)) {
-                    functionCallText = stepAboveNode.text;
+                let s = branchAbove.steps[i];
+                let sNode = this.getStepNode(s.id);
+                let sFunctionDeclarationNode = this.getStepNode(s.functionDeclarationId);
+                if(sFunctionDeclarationNode && functionCallNode.isFunctionMatch(sFunctionDeclarationNode)) {
+                    functionCallNodeToMatch = sNode;
                     break;
                 }
             }
@@ -317,7 +316,7 @@ class Tree {
         // This prevents an F within a *F from infinitely recursing.
         let untouchables = [];
         for(let s = functionCallNode; s.indents != -1; s = s.parent || s.containingStepBlock.parent) {
-            if(s.isFunctionDeclaration && functionCallNode.isFunctionMatch(s)) {
+            if(s.isFunctionDeclaration && functionCallNodeToMatch.isFunctionMatch(s)) {
                 untouchables.push(s);
             }
         }
@@ -355,7 +354,7 @@ class Tree {
             function searchAmongSiblings(siblings) {
                 for(let i = 0; i < siblings.length; i++) {
                     let sibling = siblings[i];
-                    if(sibling.isFunctionDeclaration && functionCallNode.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
+                    if(sibling.isFunctionDeclaration && functionCallNodeToMatch.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
                         if(sibling.isPrivateFunctionDeclaration && currStep.level > functionCall.level) {
                             continue; // ignore private functions that are inaccessible
                         }
@@ -473,7 +472,7 @@ ${outputBranchAbove(this)}
         // ***************************************
 
         if(typeof branchAbove == 'undefined') {
-            branchAbove = new Branch();
+            branchAbove = new Branch;
         }
 
         if(typeof level == 'undefined') {
@@ -536,7 +535,9 @@ ${outputBranchAbove(this)}
 
             if(branchesFromThisStepNode.length == 0) {
                 // If branchesFromThisStepNode is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
-                branchesFromThisStepNode = [ new Branch([step]) ];
+                let branch = new Branch;
+                branch.push(step, this.getStepNode.bind(this));
+                branchesFromThisStepNode = [ branch ];
             }
             else {
                 if(isReplaceVarsInChildren) {
@@ -561,7 +562,7 @@ ${outputBranchAbove(this)}
 
                 // Put a clone of this step at the front of each Branch that results from expanding the function call
                 branchesFromThisStepNode.forEach(branch => {
-                    branch.unshift(step.clone()); // new clone every time we unshift
+                    branch.unshift(step.clone(), this.getStepNode.bind(this)); // new clone every time we unshift
                 });
             }
         }
@@ -576,8 +577,8 @@ ${outputBranchAbove(this)}
                 }
                 else {
                     let newBranchesInThisStepBlock = [];
-                    branchesInThisStepBlock.forEach((branchInThisStepBlock, j) => {
-                        branchesFromThisStepBlockMember.forEach((branchBelowBlockMember, k) => {
+                    branchesInThisStepBlock.forEach(branchInThisStepBlock => {
+                        branchesFromThisStepBlockMember.forEach(branchBelowBlockMember => {
                             newBranchesInThisStepBlock.push(branchInThisStepBlock.clone().mergeToEnd(branchBelowBlockMember.clone()));
                         });
                     });
@@ -598,7 +599,8 @@ ${outputBranchAbove(this)}
             }
         }
         else { // Textual steps, non-function-declaration code block steps, {var}='string'
-            let branch = new Branch([step]);
+            let branch = new Branch;
+            branch.push(step, this.getStepNode.bind(this));
 
             // Set branch.groups and branch.frequency, if this a {group}= or {frequency}= step
             if(varsBeingSet && varsBeingSet.length > 0) {
@@ -728,19 +730,19 @@ ${outputBranchAbove(this)}
 
         // If branchesFromThisStepNode is empty, "prime" it with an empty Branch, so that the loops below work
         if(branchesFromThisStepNode.length == 0) {
-            branchesFromThisStepNode.push(new Branch());
+            branchesFromThisStepNode.push(new Branch);
         }
 
         if(isSequential && !(stepNode instanceof StepBlockNode)) {
             // One big resulting branch, built as follows:
             // One branchesFromThisStepNode branch, each child branch, one branchesFromThisStepNode branch, each child branch, etc.
-            let bigBranch = new Branch();
+            let bigBranch = new Branch;
             branchesFromThisStepNode.forEach(branchFromThisStepNode => {
                 bigBranch.mergeToEnd(branchFromThisStepNode);
 
                 let branchesFromChildren = getBranchesFromChildren(branchFromThisStepNode, this);
                 branchesFromChildren.forEach(branch => branch.isSkipBranch && (bigBranch.isSkipBranch = true));
-                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, step.indents == -1);
+                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, stepNode.indents == -1);
                 branchesFromChildren.forEach(branchFromChild => {
                     bigBranch.mergeToEnd(branchFromChild);
                 });
@@ -749,10 +751,10 @@ ${outputBranchAbove(this)}
         }
         else {
             // Cross-join between branchesFromThisStepNode and branches from children
-            branchesFromThisStepNode.forEach((branchFromThisStepNode, j) => {
+            branchesFromThisStepNode.forEach(branchFromThisStepNode => {
                 let branchesFromChildren = getBranchesFromChildren(branchFromThisStepNode, this);
-                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, step.indents == -1);
-                branchesFromChildren.forEach((branchFromChild, k) => {
+                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, stepNode.indents == -1);
+                branchesFromChildren.forEach(branchFromChild => {
                     branchesBelow.push(branchFromThisStepNode.clone().mergeToEnd(branchFromChild.clone()));
                 });
             });
@@ -780,7 +782,7 @@ ${outputBranchAbove(this)}
                             branchBelow[hookName] = [];
                         }
 
-                        branchBelow[hookName].push(s.clone());
+                        branchBelow[hookName].push(s.clone(), this.getStepNode.bind(this));
                     });
                 });
             }
@@ -831,7 +833,7 @@ ${outputBranchAbove(this)}
             let branch = branches[i];
             if(branch.isOnly) {
                 // A $ was found
-                let o = findModifierDepth(branch, '$');
+                let o = findModifierDepth(branch, '$', this);
                 if(o.depth < shortestDepth || shortestDepth == -1) {
                     shortestDepth = o.depth;
                 }
@@ -839,7 +841,7 @@ ${outputBranchAbove(this)}
         }
         if(shortestDepth != -1) {
             branches = branches.filter(branch => {
-                let o = findModifierDepth(branch, '$');
+                let o = findModifierDepth(branch, '$', this);
                 if(!o) {
                     return false;
                 }
@@ -848,33 +850,6 @@ ${outputBranchAbove(this)}
                 }
             });
         }
-
-        // If an $ exists on the top step in a branch, only choose branches with a $ on the top step
-        // let directIsOnlyFound = false;
-        // for(let i = 0; i < branches.length; i++) {
-        //     let branch = branches[i];
-        //     let stepNode = this.getStepNode(branch.steps[0].id);
-        //     if(stepNode.isOnly) {
-        //         // A $ was found. Now find all of them.
-        //         directIsOnlyFound = true;
-        //         branches = branches.filter(branch => {
-        //             let stepNode = this.getStepNode(branch.steps[0].id);
-        //             return stepNode.isOnly;
-        //         });
-        //         break;
-        //     }
-        // }
-        // if(!directIsOnlyFound) {
-        //     // If an isOnly child branch exists, remove the other branches that are not isOnly
-        //     for(let i = 0; i < branches.length; i++) {
-        //         let branch = branches[i];
-        //         if(branch.isOnly) {
-        //             // A $ was found. Now find all of them.
-        //             branches = branches.filter(branch => branch.isOnly);
-        //             break;
-        //         }
-        //     }
-        // }
 
         // ***************************************
         // 2) Remove branches by groups
@@ -885,7 +860,7 @@ ${outputBranchAbove(this)}
                 let branch = branches[i];
 
                 if(!branch.groups) {
-                    removeBranch();
+                    removeBranch(this);
                     continue;
                 }
 
@@ -902,13 +877,13 @@ ${outputBranchAbove(this)}
                     i++;
                 }
                 else {
-                    removeBranch();
+                    removeBranch(this);
                 }
 
-                function removeBranch() {
+                function removeBranch(self) {
                     if(branch.isDebug) {
-                        let debugStep = findModifierDepth(branch, '~').step;
-                        let debugStepNode = this.getStepNode(debugStep.id);
+                        let debugStep = findModifierDepth(branch, '~', self).step;
+                        let debugStepNode = self.getStepNode(debugStep.id);
                         utils.error(`This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
                     }
                     else {
@@ -933,7 +908,7 @@ ${outputBranchAbove(this)}
                 }
                 else {
                     if(branch.isDebug) {
-                        let debugStep = findModifierDepth(branch, '~').step;
+                        let debugStep = findModifierDepth(branch, '~', this).step;
                         let debugStepNode = this.getStepNode(debugStep.id);
                         utils.error(`This step contains a ~, but is not above the frequency allowed to run (${minFrequency}). Either set its frequency higher or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
                     }
@@ -974,7 +949,7 @@ ${outputBranchAbove(this)}
             let branch = branches[i];
             if(branch.isDebug) {
                 // A ~ was found
-                let o = findModifierDepth(branch, '~');
+                let o = findModifierDepth(branch, '~', this);
                 if(o.depth < shortestDepth || shortestDepth == -1) {
                     shortestDepth = o.depth;
                     branchFound = branch;
@@ -990,47 +965,45 @@ ${outputBranchAbove(this)}
         /**
          * @param {Branch} branch - The branch to look through
          * @param {String} modifier - The modifier to look for ('~' or '$')
+         * @param {Tree} self - This tree
          * @return {Object} Object, in format { step: the first Step in the given branch to contain modifier, depth: depth at which the modifier was found }, null if nothing found
          */
-        function findModifierDepth(branch, modifier) {
+        function findModifierDepth(branch, modifier, self) {
             for(let i = 0; i < branch.steps.length; i++) {
                 let step = branch.steps[i];
-                let stepNode = this.getStepNode(step.id);
-                let functionDeclarationNode = step.functionDeclarationId ? this.getStepNode(step.functionDeclarationId) : null;
+                let stepNode = self.getStepNode(step.id);
 
-                let stepProp = null;
-                let originalStepProp = null;
+                let setOnOriginal = null;
+                let setOnFunctionDeclaration = null;
+
                 if(modifier == '~') {
-                    stepProp = stepNode.isDebug;
-                    originalStepProp = functionDeclarationNode && functionDeclarationNode.isDebug;
+                    setOnOriginal = stepNode.isDebug;
                 }
                 else if(modifier == '$') {
-                    stepProp = stepNode.isOnly;
-                    originalStepProp = functionDeclarationNode && functionDeclarationNode.isOnly;
+                    setOnOriginal = stepNode.isOnly;
                 }
 
-                if(stepProp) {
-                    if(stepNode.isFunctionCall) {
-                        // Tie-break based on if the modifier is on the function call vs. function declaration
-                        if(originalStepProp) { // modifier is on the function call
-                            return {
-                                step: step,
-                                depth: i
-                            };
-                        }
-                        else { // modifier is slightly deeper, at the function declaration (so add .5 to the depth)
-                            return {
-                                step: step,
-                                depth: i + 0.5
-                            };
-                        }
+                let functionDeclarationNode = step.functionDeclarationId ? self.getStepNode(step.functionDeclarationId) : null;
+                if(functionDeclarationNode) {
+                    if(modifier == '~') {
+                        setOnFunctionDeclaration = functionDeclarationNode.isDebug;
                     }
-                    else {
-                        return {
-                            step: step,
-                            depth: i
-                        };
+                    else if(modifier == '$') {
+                        setOnFunctionDeclaration = functionDeclarationNode.isOnly;
                     }
+                }
+
+                if(setOnOriginal) {
+                    return {
+                        step: step,
+                        depth: i
+                    };
+                }
+                else if(setOnFunctionDeclaration) {
+                    return {
+                        step: step,
+                        depth: i + 0.5
+                    };
                 }
             }
 
@@ -1070,9 +1043,19 @@ ${outputBranchAbove(this)}
 
         // Marks branches with a first step of .s as skipped
         this.branches.forEach(branch => {
-            if(branch.steps[0].isSkipBelow) {
+            let firstStep = branch.steps[0];
+            let firstStepNode = this.getStepNode(firstStep.id);
+            if(firstStepNode.isSkipBelow) {
                 branch.isSkipped = true;
                 //branch.appendToLog(`Branch skipped because it starts with a .s step`);
+            }
+
+            if(firstStep.functionDeclarationId) {
+                let functionDeclarationNode = this.getStepNode(firstStep.functionDeclarationId);
+                if(functionDeclarationNode.isSkipBelow) {
+                    branch.isSkipped = true;
+                    //branch.appendToLog(`Branch skipped because it starts with a .s step`);
+                }
             }
         });
 
@@ -1094,9 +1077,18 @@ ${outputBranchAbove(this)}
                 let indexOfSkipBelow = -1;
                 for(let i = 0; i < branch.steps.length; i++) {
                     let s = branch.steps[i];
-                    if(s.isSkipBelow) {
+                    let sNode = this.getStepNode(s.id);
+
+                    if(sNode.isSkipBelow) {
                         indexOfSkipBelow = i;
                     }
+                    if(s.functionDeclarationId) {
+                        let sFunctionDeclarationNode = this.getStepNode(s.functionDeclarationId);
+                        if(sFunctionDeclarationNode.isSkipBelow) {
+                            indexOfSkipBelow = i;
+                        }
+                    }
+
                     if(indexOfSkipBelow != -1) {
                         s.isSkipped = true;
                     }
@@ -1147,7 +1139,7 @@ ${outputBranchAbove(this)}
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
 
         // Updates hashes of all branches
-        this.branches.forEach(branch => branch.updateHash());
+        this.branches.forEach(branch => branch.updateHash(this.getStepNode.bind(this)));
 
         // Choose branch by debugHash, if one is set
         if(debugHash) {
@@ -1376,7 +1368,7 @@ ${outputBranchAbove(this)}
     findSimilarBranches(branch, n, branches) {
         let foundBranches = [];
         branches.forEach(b => {
-            if(branch !== b && branch.equals(b, n)) {
+            if(branch !== b && branch.equals(b, this.getStepNode.bind(this), n)) {
                 foundBranches.push(b);
             }
         });
