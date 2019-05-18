@@ -45,6 +45,7 @@ class Tree {
     }
 
     /**
+     * Creates a new StepNode, assigns it an id, and inserts it into this.stepNodeIndex
      * @return {StepNode} A new StepNode
      */
     newStepNode() {
@@ -52,6 +53,13 @@ class Tree {
         this.stepNodeIndex[stepNode.id] = stepNode;
         this.stepNodeCount++;
         return stepNode;
+    }
+
+    /**
+     * Removes the StepNode with the given id from this.stepNodeIndex
+     */
+    deleteStepNode(id) {
+        delete this.stepNodeIndex[id];
     }
 
     /**
@@ -249,6 +257,7 @@ class Tree {
                 continue;
             }
             else if(lines[i].text == '') {
+                this.deleteStepNode(lines[i].id);
                 lines.splice(i, 1);
             }
             else if(lines[i].text == '..') {
@@ -257,6 +266,7 @@ class Tree {
                     utils.error(`A .. line must be followed by a step block`, filename, lines[i].lineNumber);
                 }
                 else {
+                    this.deleteStepNode(lines[i].id);
                     lines.splice(i, 1);
                 }
             }
@@ -1186,8 +1196,6 @@ ${outputBranchAbove(this)}
             isDebug: this.isDebug,
 
             branches: this.branches,
-            beforeEverything: this.beforeEverything,
-            afterEverything: this.afterEverything,
 
             reportTemplates: this.reportTemplates,
 

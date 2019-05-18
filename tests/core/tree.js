@@ -7,19 +7,26 @@ const Branch = require('../../branch.js');
 const Step = require('../../step.js');
 const Comparer = require('../../packages/js/comparer.js');
 
-function mergeStepsWithStepNodes(tree, branches) {
+function mergeStepNodesInTree(tree) {
+    mergeStepNodesInBranches(tree, tree.branches);
+    tree.beforeEverything && mergeStepNodes(tree, tree.beforeEverything);
+    tree.afterEverything && mergeStepNodes(tree, tree.afterEverything);
+}
+
+function mergeStepNodesInBranches(tree, branches) {
     branches.forEach(branch => {
-        mergeStepsArrWithStepNodes(tree, branch.steps);
-        branch.beforeEveryBranch && mergeStepsArrWithStepNodes(tree, branch.beforeEveryBranch);
-        branch.afterEveryBranch && mergeStepsArrWithStepNodes(tree, branch.afterEveryBranch);
-        branch.beforeEveryStep && mergeStepsArrWithStepNodes(tree, branch.beforeEveryStep);
-        branch.afterEveryStep && mergeStepsArrWithStepNodes(tree, branch.afterEveryStep);
+        mergeStepNodes(tree, branch.steps);
+        branch.beforeEveryBranch && mergeStepNodes(tree, branch.beforeEveryBranch);
+        branch.afterEveryBranch && mergeStepNodes(tree, branch.afterEveryBranch);
+        branch.beforeEveryStep && mergeStepNodes(tree, branch.beforeEveryStep);
+        branch.afterEveryStep && mergeStepNodes(tree, branch.afterEveryStep);
     });
 }
 
-function mergeStepsArrWithStepNodes(tree, steps) {
+function mergeStepNodes(tree, steps) {
     for(let i = 0; i < steps.length; i++) {
-        steps[i] = Object.assign(steps[i], tree.stepNodeIndex[steps[i].id]);
+        let stepNode = tree.stepNodeIndex[steps[i].id];
+        steps[i] = Object.assign(steps[i], stepNode);
         if(steps[i].fid) {
             steps[i].codeBlock = tree.stepNodeIndex[steps[i].fid].codeBlock;
         }
@@ -3479,7 +3486,7 @@ A -
                     }
                 ]);
 
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3520,7 +3527,7 @@ H -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3576,7 +3583,7 @@ H -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3632,7 +3639,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 expect(branches[0].nonParallelId).to.equal(undefined);
                 let nonParallelId = branches[1].nonParallelId;
@@ -3675,7 +3682,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 expect(branches[0].nonParallelId).to.equal(undefined);
                 let nonParallelId = branches[1].nonParallelId;
@@ -3718,7 +3725,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 let nonParallelId0 = branches[0].nonParallelId;
                 expect(nonParallelId0).to.have.lengthOf.above(0);
@@ -3826,7 +3833,7 @@ A -
                 `, "file2.txt", true);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3846,8 +3853,8 @@ A -
                     }
                 ]);
 
-                mergeStepsArrWithStepNodes(tree, tree.beforeEverything);
-                mergeStepsArrWithStepNodes(tree, tree.afterEverything);
+                mergeStepNodes(tree, tree.beforeEverything);
+                mergeStepNodes(tree, tree.afterEverything);
 
                 Comparer.expect(tree).to.match({
                     beforeEverything: [
@@ -3871,7 +3878,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3898,7 +3905,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3933,7 +3940,7 @@ F -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3962,7 +3969,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4023,7 +4030,7 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4043,7 +4050,7 @@ B -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4084,7 +4091,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4132,7 +4139,7 @@ A
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4154,7 +4161,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4217,7 +4224,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4316,7 +4323,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4486,7 +4493,7 @@ FC
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4578,7 +4585,7 @@ FA
                 // A call to FA makes FB accessible to its children
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4620,7 +4627,7 @@ A
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4675,7 +4682,7 @@ F
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4702,7 +4709,7 @@ Start browser
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4736,7 +4743,7 @@ Start browser
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4772,7 +4779,7 @@ On special cart page
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4804,7 +4811,7 @@ F
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4831,7 +4838,7 @@ F
                 `, "file.txt");
 
                 branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4865,7 +4872,7 @@ A
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4895,7 +4902,7 @@ F
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4925,7 +4932,7 @@ Start browser
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4955,7 +4962,7 @@ My big function
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -4984,7 +4991,7 @@ My big function
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5015,7 +5022,7 @@ My big 'foobar' function
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5046,7 +5053,7 @@ B
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     { steps: [ { text: "A" }, { text: "C" } ] },
@@ -5077,7 +5084,7 @@ B
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     { steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ] },
@@ -5108,7 +5115,7 @@ B
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     { steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ] },
@@ -5135,7 +5142,7 @@ B
     {a}='4'
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5227,7 +5234,7 @@ B
     {a}='4'
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5338,7 +5345,7 @@ B
 }
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5369,7 +5376,7 @@ B
     {x}='3'
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5403,7 +5410,7 @@ S - ..
     {x}='3'
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5447,7 +5454,7 @@ S - ..
 }
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5501,7 +5508,7 @@ S - ..
 }
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5607,7 +5614,7 @@ B -
 C -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     { steps: [ { text: "A", level: 0 } ] },
@@ -5629,7 +5636,7 @@ C -
         F -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5686,7 +5693,7 @@ B -
         E -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5728,7 +5735,7 @@ B -
 A - ..
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5748,7 +5755,7 @@ A - ..
     D -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5774,7 +5781,7 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5806,7 +5813,7 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5842,7 +5849,7 @@ F
 
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5873,7 +5880,7 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5907,7 +5914,7 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5944,7 +5951,7 @@ F ..
 
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -5980,7 +5987,7 @@ S .. -
     C -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6006,7 +6013,7 @@ S .. -
         D -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6044,7 +6051,7 @@ S .. -
     H -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6081,7 +6088,7 @@ S .. -
         D -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6112,7 +6119,7 @@ S .. -
             E -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6144,7 +6151,7 @@ S .. -
     E -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6171,7 +6178,7 @@ A - ..
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6195,7 +6202,7 @@ B -
 C -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6220,7 +6227,7 @@ C -
 D -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6250,7 +6257,7 @@ C -
         E -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6278,7 +6285,7 @@ C -
     F -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6317,7 +6324,7 @@ C
     I -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6346,7 +6353,7 @@ B -
     E -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6377,7 +6384,7 @@ B -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6409,7 +6416,7 @@ C
     K -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6477,7 +6484,7 @@ C
     K -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6628,7 +6635,7 @@ B -
     D -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6658,7 +6665,7 @@ B -
         F -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6699,7 +6706,7 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6737,7 +6744,7 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6762,7 +6769,7 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6795,7 +6802,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6828,7 +6835,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6866,7 +6873,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6898,7 +6905,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6949,7 +6956,7 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -6987,7 +6994,7 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7012,7 +7019,7 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7045,7 +7052,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7075,7 +7082,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7102,7 +7109,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7140,7 +7147,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7172,7 +7179,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7241,7 +7248,7 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7330,7 +7337,7 @@ G -
     P -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7413,7 +7420,7 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7451,7 +7458,7 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7476,7 +7483,7 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7509,7 +7516,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7542,7 +7549,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7580,7 +7587,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7612,7 +7619,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7663,7 +7670,7 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7701,7 +7708,7 @@ A -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7726,7 +7733,7 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7759,7 +7766,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7792,7 +7799,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7830,7 +7837,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7862,7 +7869,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -7931,7 +7938,7 @@ E -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8020,7 +8027,7 @@ G -
     P -
                 `);
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8100,14 +8107,14 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
                 Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
                 ]);
 
-                mergeStepsArrWithStepNodes(tree, tree.beforeEverything);
+                mergeStepNodes(tree, tree.beforeEverything);
                 Comparer.expect(tree.beforeEverything).to.match([
                     { text: "Before Everything", level: 0, codeBlock: "\n    B" }
                 ]);
@@ -8122,10 +8129,10 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
                 Comparer.expect(branches).to.match([]);
 
-                mergeStepsArrWithStepNodes(tree, tree.beforeEverything);
+                mergeStepNodes(tree, tree.beforeEverything);
                 Comparer.expect(tree.beforeEverything).to.match([
                     { text: "Before Everything", level: 0, codeBlock: "" }
                 ]);
@@ -8147,14 +8154,14 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
                 Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
                 ]);
 
-                mergeStepsArrWithStepNodes(tree, tree.beforeEverything);
+                mergeStepNodes(tree, tree.beforeEverything);
                 Comparer.expect(tree.beforeEverything).to.match([
                     { text: "Before Everything", level: 0, codeBlock: "\n    C" },
                     { text: "Before Everything", level: 0, codeBlock: "\n    B" }
@@ -8204,14 +8211,14 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
                 Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
                 ]);
 
-                mergeStepsArrWithStepNodes(tree, tree.afterEverything);
+                mergeStepNodes(tree, tree.afterEverything);
                 Comparer.expect(tree.afterEverything).to.match([
                     { text: "After Everything", level: 0, codeBlock: "\n    B" }
                 ]);
@@ -8226,10 +8233,10 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
                 Comparer.expect(branches).to.match([]);
 
-                mergeStepsArrWithStepNodes(tree, tree.afterEverything);
+                mergeStepNodes(tree, tree.afterEverything);
                 Comparer.expect(tree.afterEverything).to.match([
                     { text: "After Everything", level: 0, codeBlock: "" }
                 ]);
@@ -8251,14 +8258,14 @@ A -
 
                 let branches = tree.branchify(tree.root);
 
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
                 Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" } ]
                     }
                 ]);
 
-                mergeStepsArrWithStepNodes(tree, tree.afterEverything);
+                mergeStepNodes(tree, tree.afterEverything);
                 Comparer.expect(tree.afterEverything).to.match([
                     { text: "After Everything", level: 0, codeBlock: "\n    B" },
                     { text: "After Everything", level: 0, codeBlock: "\n    C" }
@@ -8314,7 +8321,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8348,7 +8355,7 @@ G -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8382,7 +8389,7 @@ J -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8435,7 +8442,7 @@ $ M -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8490,7 +8497,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8523,7 +8530,7 @@ $ K -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8551,7 +8558,7 @@ K -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8577,7 +8584,7 @@ $ * F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8603,7 +8610,7 @@ $ * F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8633,7 +8640,7 @@ K -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8660,7 +8667,7 @@ $ G .. -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8689,7 +8696,7 @@ C -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8720,7 +8727,7 @@ F -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8744,7 +8751,7 @@ F -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8773,7 +8780,7 @@ J -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8802,7 +8809,7 @@ J -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8826,7 +8833,7 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8850,7 +8857,7 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8874,7 +8881,7 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8903,7 +8910,7 @@ J -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8927,7 +8934,7 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8951,7 +8958,7 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8973,7 +8980,7 @@ C -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -8997,7 +9004,7 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9018,7 +9025,7 @@ B -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9038,7 +9045,7 @@ B -
                 `, "file.txt");
 
                 branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9069,7 +9076,7 @@ J -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9096,7 +9103,7 @@ F
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9126,7 +9133,7 @@ I -
                 `);
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9154,7 +9161,7 @@ I -
                 `);
 
                 branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9178,7 +9185,7 @@ D -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9214,7 +9221,7 @@ E -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9253,7 +9260,7 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9290,7 +9297,7 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9320,7 +9327,7 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "low");
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9366,7 +9373,7 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, undefined);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9412,7 +9419,7 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "med");
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9454,7 +9461,7 @@ A -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "high");
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9515,7 +9522,7 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9562,7 +9569,7 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9609,7 +9616,7 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9656,7 +9663,7 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, ["first"]);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9694,7 +9701,7 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, ["first", "sixth"]);
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9780,7 +9787,7 @@ G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, ["first", "sixth"], "med");
-                mergeStepsWithStepNodes(tree, branches);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -9809,7 +9816,7 @@ D -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     {
@@ -9841,7 +9848,7 @@ D -
                 `, "file.txt");
 
                 tree.generateBranches();
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     '$anyOrder',
@@ -9872,7 +9879,7 @@ D -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     {
@@ -9908,7 +9915,7 @@ A -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     {
@@ -9944,7 +9951,7 @@ A -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     {
@@ -9990,7 +9997,7 @@ I -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     {
@@ -10130,7 +10137,7 @@ A -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     {
@@ -10188,7 +10195,7 @@ H -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "A" }, { text: "B" } ], isSkipped: undefined },
@@ -10217,7 +10224,7 @@ H -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "A" }, { text: "B" } ], isSkipped: undefined },
@@ -10241,7 +10248,7 @@ C - $s
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "A" }, { text: "D" } ], isSkipped: true },
@@ -10269,7 +10276,7 @@ F
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
@@ -10290,7 +10297,7 @@ C -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
@@ -10311,7 +10318,7 @@ C -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
@@ -10332,7 +10339,7 @@ C -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
@@ -10357,7 +10364,7 @@ $s K -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "J" }, { text: "F" }, { text: "A" }, { text: "B" } ], isSkipped: true },
@@ -10382,7 +10389,7 @@ J -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "A" }, { text: "B" }, { text: "C" } ], isSkipped: true },
@@ -10406,7 +10413,7 @@ F -
                 `);
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     { steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" } ], isSkipped: true },
@@ -10451,7 +10458,7 @@ H -
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, "30cb5a00b9b3401c1a038b06e19f1d21");
-                mergeStepsWithStepNodes(tree, tree.branches);
+                mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
                     {
@@ -10640,9 +10647,9 @@ K-1 -
             });
         });
     });
-return;
+
     describe("serialize()", () => {
-        it.only("outputs json for an empty tree", () => {
+        it("outputs json for an empty tree", () => {
             let tree = new Tree();
 
             tree.generateBranches();
@@ -10652,8 +10659,6 @@ return;
 
             Comparer.expect(obj).to.match({
                 branches: [],
-                beforeEverything: [],
-                afterEverything: [],
                 isDebug: true,
                 elapsed: "DATE"
             });
@@ -10661,8 +10666,8 @@ return;
 
         it("outputs json for all branches", () => {
             let tree = new Tree();
-            tree.parseIn(`
-A -
+            tree.parseIn(
+`A -
     B -
     C -
 `);
@@ -10671,9 +10676,16 @@ A -
             tree.isDebug = true;
             tree.elapsed = "DATE";
             tree.branches[0].passedLastTime = true;
-            let obj = tree.serialize();
+            let obj = JSON.parse(tree.serialize());
 
-            expect(obj).to.containSubsetInOrder({
+            mergeStepNodesInTree(obj);
+            Comparer.expect(obj).to.match({
+                stepNodeIndex: {
+                    1: { text: "A" },
+                    2: { text: "B" },
+                    3: { text: "C" }
+                },
+                isDebug: true,
                 branches: [
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
@@ -10683,14 +10695,11 @@ A -
                         steps: [ { text: "A" }, { text: "C" } ]
                     }
                 ],
-                beforeEverything: [],
-                afterEverything: [],
-                isDebug: true,
                 elapsed: "DATE"
             });
         });
 
-        it("outputs json for all branches and hooks", () => {
+        it("doesn't serialize hooks", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10727,50 +10736,30 @@ A -
 `);
 
             tree.generateBranches(undefined, undefined, undefined, undefined, true);
-            let obj = tree.serialize();
+            let obj = JSON.parse(tree.serialize());
 
-            expect(obj.branches[0].beforeEveryBranch).to.have.lengthOf(1);
-            expect(obj.branches[0].afterEveryBranch).to.have.lengthOf(1);
-            expect(obj.branches[0].beforeEveryStep).to.have.lengthOf(1);
-            expect(obj.branches[0].afterEveryStep).to.have.lengthOf(1);
-
-            expect(obj.beforeEverything).to.have.lengthOf(2);
-            expect(obj.afterEverything).to.have.lengthOf(1);
-
-            expect(obj).to.containSubsetInOrder({
+            mergeStepNodesInTree(obj);
+            Comparer.expect(obj).to.match({
                 branches: [
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
-                        beforeEveryBranch: [
-                            { text: "Before Every Branch", codeBlock: "\n            J" }
-                        ],
-                        afterEveryBranch: [
-                            { text: "After Every Branch", codeBlock: "\n            D" }
-                        ],
-                        beforeEveryStep: [
-                            { text: "Before Every Step", codeBlock: "\n            K" }
-                        ],
-                        afterEveryStep: [
-                            { text: "After Every Step", codeBlock: "\n            F" }
-                        ]
+                        beforeEveryBranch: undefined,
+                        afterEveryBranch: undefined,
+                        beforeEveryStep: undefined,
+                        afterEveryStep: undefined
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" } ]
                     }
                 ],
-                beforeEverything: [
-                    { text: "Before Everything", codeBlock: "\n    H" },
-                    { text: "Before Everything", codeBlock: "\n    G" }
-                ],
-                afterEverything: [
-                    { text: "After Everything", codeBlock: "\n    I" }
-                ]
+                beforeEverything: undefined,
+                afterEverything: undefined
             });
         });
     });
 
     describe("mergeBranchesFromPrevRun()", () => {
-        it("merges empty previous branches into empty current branches", () => {
+        it.only("merges empty previous branches into empty current branches", () => {
             let prevTree = new Tree();
             let currTree = new Tree();
 
