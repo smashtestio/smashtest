@@ -10742,7 +10742,7 @@ K-1 -
             });
         });
 
-        it("doesn't output uncalled step nodes", () => {
+        it("doesn't output used step nodes", () => {
             let tree = new Tree();
             tree.parseIn(
 `F
