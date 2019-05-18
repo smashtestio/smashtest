@@ -55,23 +55,41 @@ class Tree {
     }
 
     /**
+     * Gets a modifier value for a step
      * @param {Step} step - A step
      * @param {String} modifierName - The name of a modifier (key in StepNode)
-     * @return {Boolean} True if the given modifier is set on either step's StepNode or on its function declaration's StepNode (if it has one), false otherwise
+     * @return {Boolean} True if the given modifier is set on either step's StepNode or on its corresponding function declaration's StepNode (if step is a function call), false otherwise
      */
     getModifier(step, modifierName) {
         let stepNode = this.stepNodeIndex[step.id];
-        if(!stepNode) {
-            return false;
-        }
-        else if(stepNode[modifierName]) {
+        if(stepNode[modifierName]) {
             return true;
         }
-        else if(stepNode.hasOwnProperty('functionDeclarationId') && this.stepNodeIndex[stepNode.functionDeclarationId][modifierName]) {
+        else if(stepNode.hasOwnProperty('fid') && this.stepNodeIndex[stepNode.fid][modifierName]) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Gets the code block associated with a step
+     * @param {Step} step - A step
+     * @returns {String} The code block associated with this step (either from its StepNode, or if it's a function call, from its corresponding function declaration's StepNode), '' if no code blocks found
+     */
+    getCodeBlock(step) {
+        let stepNode = this.stepNodeIndex[step.id];
+        if(stepNode.hasCodeBlock()) {
+            return stepNode.codeBlock;
+        }
+        else if(stepNode.hasOwnProperty('fid')) {
+            let functionDeclarationNode = this.stepNodeIndex[stepNode.fid];
+            if(functionDeclarationNode.hasCodeBlock()) {
+                return functionDeclarationNode.codeBlock;
+            }
+        }
+
+        return '';
     }
 
     /**
@@ -316,7 +334,7 @@ class Tree {
             for(let i = branchAbove.steps.length - 2; i >= 0; i--) {
                 let s = branchAbove.steps[i];
                 let sNode = this.stepNodeIndex[s.id];
-                let sFunctionDeclarationNode = this.stepNodeIndex[s.functionDeclarationId];
+                let sFunctionDeclarationNode = this.stepNodeIndex[s.fid];
                 if(sFunctionDeclarationNode && functionCallNode.isFunctionMatch(sFunctionDeclarationNode)) {
                     functionCallNodeToMatch = sNode;
                     break;
@@ -352,7 +370,7 @@ class Tree {
                 let currStepNodeAbove = this.stepNodeIndex[currStepAbove.id];
 
                 if(currStepNodeAbove && currStepNodeAbove.isFunctionCall) {
-                    parent = this.stepNodeIndex[currStepAbove.functionDeclarationId];
+                    parent = this.stepNodeIndex[currStepAbove.fid];
                     if(parent) {
                         siblings = parent.children;
                         foundDeclarationNode = searchAmongSiblings(siblings);
@@ -397,7 +415,7 @@ ${outputBranchAbove(this)}
 
     /**
      * Validates that F from step {var} = F is either a code block function or in {x}='val' format (see below)
-     * @param {Step} step - The step {var} = F, with step.functionDeclarationId already set to F
+     * @param {Step} step - The step {var} = F, with step.fid already set to F
      * @return {Boolean} true if F is in {x}='val' format, false if F is a code block function
      * @throws {Error} If F is not the right format
      */
@@ -425,7 +443,7 @@ ${outputBranchAbove(this)}
         */
 
         let stepNode = this.stepNodeIndex[step.id];
-        let functionDeclarationNode = this.stepNodeIndex[step.functionDeclarationId];
+        let functionDeclarationNode = this.stepNodeIndex[step.fid];
 
         if(functionDeclarationNode.hasCodeBlock()) {
             if(functionDeclarationNode.children.length > 0) {
@@ -531,7 +549,7 @@ ${outputBranchAbove(this)}
         }
         else if(stepNode.isFunctionCall) {
             functionDeclarationNode = this.findFunctionDeclaration(step, branchAbove);
-            step.functionDeclarationId = functionDeclarationNode.id;
+            step.fid = functionDeclarationNode.id;
 
             let isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
 
@@ -661,7 +679,7 @@ ${outputBranchAbove(this)}
 
         // If stepNode is a function call, look to the hooks of the function declaration as well
         if(stepNode.isFunctionCall) {
-            this.stepNodeIndex[step.functionDeclarationId].children.forEach(child => {
+            this.stepNodeIndex[step.fid].children.forEach(child => {
                 setHooks(child, this);
             });
         }
@@ -801,7 +819,7 @@ ${outputBranchAbove(this)}
         }
 
         // If isNonParallel (!) is set, connect up the branches in branchesBelow
-        if(this.getModifier(step, 'isNonParallel')) {
+        if(step.id && this.getModifier(step, 'isNonParallel')) {
             let nonParallelId = utils.randomId();
             branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);
         }
@@ -995,7 +1013,7 @@ ${outputBranchAbove(this)}
                     setOnOriginal = stepNode.isOnly;
                 }
 
-                let functionDeclarationNode = step.functionDeclarationId ? self.stepNodeIndex[step.functionDeclarationId] : null;
+                let functionDeclarationNode = step.fid ? self.stepNodeIndex[step.fid] : null;
                 if(functionDeclarationNode) {
                     if(modifier == '~') {
                         setOnFunctionDeclaration = functionDeclarationNode.isDebug;

@@ -12,7 +12,7 @@ class Step {
         /*
         OPTIONAL
 
-        this.functionDeclarationId = -1;      // id of StepNode that corresponds to the function declaration, if this step is a function call
+        this.fid = -1;                        // id of StepNode that corresponds to the function declaration, if this step is a function call
 
         this.level = 0;                       // number of function calls deep this step is within its branch
 
@@ -74,6 +74,7 @@ class Step {
     serializeObj() {
         return utils.removeUndefineds({
             id: this.id,
+            fid: this.fid,
 
             level: this.level,
 

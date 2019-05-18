@@ -258,9 +258,9 @@ describe("Branch", () => {
             expect(branch1.equals(branch2, stepNodes)).to.equal(false);
 
             delete stepNodes[1].codeBlock;
-            steps[1].functionDeclarationId = 6;
+            steps[1].fid = 6;
             delete stepNodes[4].codeBlock;
-            steps[4].functionDeclarationId = 7;
+            steps[4].fid = 7;
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
@@ -276,9 +276,9 @@ describe("Branch", () => {
             expect(branch1.equals(branch2, stepNodes)).to.equal(true);
 
             delete stepNodes[1].codeBlock;
-            steps[1].functionDeclarationId = 6;
+            steps[1].fid = 6;
             delete stepNodes[4].codeBlock;
-            steps[4].functionDeclarationId = 6;
+            steps[4].fid = 6;
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 

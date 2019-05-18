@@ -9,7 +9,7 @@ describe("Step", () => {
         it("returns a serialized object", () => {
             let s = new Step(1);
 
-            s.functionDeclarationId = 6;
+            s.fid = 6;
             s.level = 1;
 
             s.isPassed = true;
@@ -28,8 +28,9 @@ describe("Step", () => {
 
             Comparer.expect(o).to.match({
                 $exact: true,
-                
+
                 id: 1,
+                fid: 6,
                 level: 1,
 
                 isPassed: true,

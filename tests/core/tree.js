@@ -20,8 +20,8 @@ function mergeStepsWithStepNodes(tree, branches) {
 function mergeStepsArrWithStepNodes(tree, steps) {
     for(let i = 0; i < steps.length; i++) {
         steps[i] = Object.assign(steps[i], tree.stepNodeIndex[steps[i].id]);
-        if(steps[i].functionDeclarationId) {
-            steps[i].codeBlock = tree.stepNodeIndex[steps[i].functionDeclarationId].codeBlock;
+        if(steps[i].fid) {
+            steps[i].codeBlock = tree.stepNodeIndex[steps[i].fid].codeBlock;
         }
     }
 }
@@ -3228,7 +3228,7 @@ Trace:
 `);
 
             let functionCall = new Step(tree.root.children[0].id);
-            functionCall.functionDeclarationId = tree.root.children[1].id;
+            functionCall.fid = tree.root.children[1].id;
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
@@ -3249,7 +3249,7 @@ Trace:
 `);
 
             let functionCall = new Step(tree.root.children[0].id);
-            functionCall.functionDeclarationId = tree.root.children[1].id;
+            functionCall.fid = tree.root.children[1].id;
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(true);
         });
 
@@ -3264,7 +3264,7 @@ Trace:
 `);
 
             let functionCall = new Step(tree.root.children[0].id);
-            functionCall.functionDeclarationId = tree.root.children[1].id;
+            functionCall.fid = tree.root.children[1].id;
             expect(tree.validateVarSettingFunction(functionCall)).to.equal(false);
         });
 
@@ -3277,7 +3277,7 @@ Trace:
 `, "file.txt");
 
             let functionCall = new Step(tree.root.children[0].id);
-            functionCall.functionDeclarationId = tree.root.children[1].id;
+            functionCall.fid = tree.root.children[1].id;
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
             }, "You cannot use an empty function [file.txt:2]");
@@ -3297,7 +3297,7 @@ Trace:
 `, "file.txt");
 
             let functionCall = new Step(tree.root.children[0].id);
-            functionCall.functionDeclarationId = tree.root.children[1].id;
+            functionCall.fid = tree.root.children[1].id;
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
@@ -3314,7 +3314,7 @@ Trace:
 `, "file.txt");
 
             functionCall = new Step(tree.root.children[0].id);
-            functionCall.functionDeclarationId = tree.root.children[1].id;
+            functionCall.fid = tree.root.children[1].id;
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
@@ -3333,7 +3333,7 @@ Trace:
 `, "file.txt");
 
             let functionCall = new Step(tree.root.children[0].id);
-            functionCall.functionDeclarationId = tree.root.children[1].id;
+            functionCall.fid = tree.root.children[1].id;
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
@@ -3355,7 +3355,7 @@ Trace:
 `, "file.txt");
 
             let functionCall = new Step(tree.root.children[0].id);
-            functionCall.functionDeclarationId = tree.root.children[1].id;
+            functionCall.fid = tree.root.children[1].id;
 
             assert.throws(() => {
                 tree.validateVarSettingFunction(functionCall);
@@ -3794,7 +3794,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             }
                         ]
                     }
@@ -3821,7 +3821,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -3829,7 +3829,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     }
@@ -3885,7 +3885,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -3893,7 +3893,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "B",
@@ -3901,7 +3901,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     },
@@ -3912,7 +3912,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "C",
@@ -3920,7 +3920,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     }
@@ -4007,7 +4007,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4015,7 +4015,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "B",
@@ -4023,7 +4023,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     }
@@ -4077,7 +4077,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4085,7 +4085,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "B",
@@ -4093,7 +4093,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "C",
@@ -4101,7 +4101,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "D",
@@ -4109,7 +4109,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     }
@@ -4140,7 +4140,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4148,7 +4148,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "B",
@@ -4156,7 +4156,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "C",
@@ -4164,7 +4164,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "D",
@@ -4172,7 +4172,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     },
@@ -4183,7 +4183,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "E",
@@ -4191,7 +4191,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "C",
@@ -4199,7 +4199,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "D",
@@ -4207,7 +4207,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     }
@@ -4239,7 +4239,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4247,7 +4247,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "B",
@@ -4255,7 +4255,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "C",
@@ -4263,7 +4263,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "D",
@@ -4271,7 +4271,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     },
@@ -4282,7 +4282,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "A",
@@ -4290,7 +4290,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "B",
@@ -4298,7 +4298,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "G",
@@ -4306,7 +4306,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     },
@@ -4317,7 +4317,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "E",
@@ -4325,7 +4325,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "C",
@@ -4333,7 +4333,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "D",
@@ -4341,7 +4341,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     },
@@ -4352,7 +4352,7 @@ F
                                 isFunctionCall: true,
                                 isFunctionDeclaration: undefined,
                                 level: 0,
-                                functionDeclarationId: { $typeof: 'number' }
+                                fid: { $typeof: 'number' }
                             },
                             {
                                 text: "E",
@@ -4360,7 +4360,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 1,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             },
                             {
                                 text: "G",
@@ -4368,7 +4368,7 @@ F
                                 isFunctionDeclaration: undefined,
                                 isTextualStep: true,
                                 level: 0,
-                                functionDeclarationId: undefined
+                                fid: undefined
                             }
                         ]
                     }
@@ -5265,7 +5265,7 @@ B
                     }
                 ]);
 
-                Comparer.expect(tree.stepNodeIndex[branches[0].steps[0].functionDeclarationId]).to.match({
+                Comparer.expect(tree.stepNodeIndex[branches[0].steps[0].fid]).to.match({
                     codeBlock: '\n    code block'
                 });
             });
@@ -5390,7 +5390,7 @@ S - ..
                     }
                 ]);
 
-                expect(tree.stepNodeIndex[branches[0].steps[15].functionDeclarationId].codeBlock).to.equal("\n    return '5';");
+                expect(tree.stepNodeIndex[branches[0].steps[15].fid].codeBlock).to.equal("\n    return '5';");
             });
 
             it("branchifies {var} = F that has more {var} = F inside of it", () => {
@@ -5456,7 +5456,7 @@ S - ..
                     }
                 ]);
 
-                expect(tree.stepNodeIndex[branches[4].steps[1].functionDeclarationId].codeBlock).to.equal("\n    return '5';");
+                expect(tree.stepNodeIndex[branches[4].steps[1].fid].codeBlock).to.equal("\n    return '5';");
             });
 
             it("rejects {var} = F if F has a code block, but also has children", () => {
@@ -6273,7 +6273,7 @@ B -
                     }
                 ]);
 
-                expect(tree.stepNodeIndex[branches[0].steps[0].functionDeclarationId].isSequential).to.be.true;
+                expect(tree.stepNodeIndex[branches[0].steps[0].fid].isSequential).to.be.true;
             });
 
             it("branchifies a function declaration under a .. step block", () => {
@@ -10553,7 +10553,7 @@ K-1 -
             });
         });
     });
-
+return;
     describe("serialize()", () => {
         it.only("outputs json for an empty tree", () => {
             let tree = new Tree();

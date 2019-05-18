@@ -71,7 +71,7 @@ class Branch {
      */
     mergeModifiers(step, stepNodeIndex) {
         let stepNode = stepNodeIndex[step.id];
-        let functionDeclarationNode = stepNodeIndex[step.functionDeclarationId] || {};
+        let functionDeclarationNode = stepNodeIndex[step.fid] || {};
 
         if(stepNode.isSkipBranch || functionDeclarationNode.isSkipBranch) {
             this.isSkipBranch = true;
@@ -226,7 +226,7 @@ class Branch {
                  }
              }
              else {
-                 if(this.steps[i].functionDeclarationId != branch.steps[i].functionDeclarationId) {
+                 if(this.steps[i].fid != branch.steps[i].fid) {
                      return false;
                  }
              }
