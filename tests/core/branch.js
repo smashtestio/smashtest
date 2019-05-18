@@ -383,6 +383,27 @@ describe("Branch", () => {
                 $exact: true,
 
                 isPassed: true,
+                passedLastTime: undefined,
+                steps: [
+                    { id: 0 }, { id: 1 }
+                ]
+            });
+        });
+
+        it("returns a serialized object for a branch that passed last time", () => {
+            let b = new Branch();
+
+            b.nonParallelId = 4;
+            b.passedLastTime = true;
+            b.steps = [ new Step(0), new Step(1) ];
+
+            let o = b.serializeObj();
+
+            Comparer.expect(o).to.match({
+                $exact: true,
+
+                isPassed: true,
+                passedLastTime: undefined,
                 steps: [
                     { id: 0 }, { id: 1 }
                 ]

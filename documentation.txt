@@ -74,6 +74,7 @@ Running tests
                 - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
             - https currently doesn't work - if you use it it acts like http
         - --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
+        - --screenshots=<true/false>
         - --selenium-server=http://localhost:4444/wd/hub
         - --skip-passed or -s
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.

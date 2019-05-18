@@ -3641,11 +3641,7 @@ G -
                 let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
-                expect(branches[0].nonParallelId).to.equal(undefined);
                 let nonParallelId = branches[1].nonParallelId;
-                expect(nonParallelId).to.have.lengthOf.above(0);
-                expect(branches[2].nonParallelId).to.equal(nonParallelId);
-                expect(branches[3].nonParallelId).to.equal(undefined);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3653,10 +3649,12 @@ G -
                         nonParallelId: undefined
                     },
                     {
-                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ]
+                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
+                        nonParallelId: nonParallelId
                     },
                     {
-                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ]
+                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
+                        nonParallelId: nonParallelId
                     },
                     {
                         steps: [ { text: "G" } ],
@@ -3684,11 +3682,7 @@ G -
                 let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
-                expect(branches[0].nonParallelId).to.equal(undefined);
                 let nonParallelId = branches[1].nonParallelId;
-                expect(nonParallelId).to.have.lengthOf.above(0);
-                expect(branches[2].nonParallelId).to.equal(nonParallelId);
-                expect(branches[3].nonParallelId).to.equal(undefined);
 
                 Comparer.expect(branches).to.match([
                     {
@@ -3696,10 +3690,12 @@ G -
                         nonParallelId: undefined
                     },
                     {
-                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ]
+                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
+                        nonParallelId: nonParallelId
                     },
                     {
-                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ]
+                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
+                        nonParallelId: nonParallelId
                     },
                     {
                         steps: [ { text: "G" } ],
@@ -3728,22 +3724,21 @@ G -
                 mergeStepNodesInBranches(tree, branches);
 
                 let nonParallelId0 = branches[0].nonParallelId;
-                expect(nonParallelId0).to.have.lengthOf.above(0);
                 let nonParallelId1 = branches[1].nonParallelId;
-                expect(nonParallelId1).to.have.lengthOf.above(0);
                 expect(nonParallelId0).to.not.equal(nonParallelId1);
-                expect(branches[2].nonParallelId).to.equal(nonParallelId1);
-                expect(branches[3].nonParallelId).to.equal(undefined);
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "B" } ]
+                        steps: [ { text: "A" }, { text: "B" } ],
+                        nonParallelId: nonParallelId0
                     },
                     {
-                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ]
+                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
+                        nonParallelId: nonParallelId1
                     },
                     {
-                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ]
+                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
+                        nonParallelId: nonParallelId1
                     },
                     {
                         steps: [ { text: "G" } ],
@@ -10758,141 +10753,139 @@ A -
         });
     });
 
-    describe("mergeBranchesFromPrevRun()", () => {
-        it.only("merges empty previous branches into empty current branches", () => {
+    describe("markPassedFromPrevRun()", () => {
+        it("merges empty previous branches into empty current branches", () => {
             let prevTree = new Tree();
             let currTree = new Tree();
 
             currTree.generateBranches();
             prevTree.generateBranches();
-            let prevObj = prevTree.serialize();
-            let prevJson = JSON.stringify(prevObj);
+            let prevJson = prevTree.serialize();
 
-            currTree.mergeBranchesFromPrevRun(prevJson);
+            currTree.markPassedFromPrevRun(prevJson);
 
-            expect(currTree.branches).to.have.lengthOf(0);
-            expect(currTree.branches).to.containSubsetInOrder([]);
+            Comparer.expect(currTree).to.match({ branches: [] });
         });
 
         it("handles a merge", () => {
              let currTree = new Tree();
 
              currTree.branches = [ new Branch(), new Branch(), new Branch(), new Branch(), new Branch(), new Branch() ];
-             currTree.branches[0].steps = [ new Step(), new Step(), new Step() ];
-             currTree.branches[1].steps = [ new Step(), new Step(), new Step() ];
-             currTree.branches[2].steps = [ new Step(), new Step(), new Step() ];
-             currTree.branches[3].steps = [ new Step(), new Step(), new Step() ];
-             currTree.branches[4].steps = [ new Step(), new Step(), new Step() ];
-             currTree.branches[5].steps = [ new Step(), new Step(), new Step() ];
 
-             currTree.branches[0].steps[0].text = "1A clone-1 step-1";
-             currTree.branches[0].steps[1].text = "1A clone-1 step-2";
-             currTree.branches[0].steps[2].text = "1A clone-1 step-3";
+             currTree.branches[0].steps = [ new Step(1),  new Step(2),  new Step(3) ];
+             currTree.branches[1].steps = [ new Step(4),  new Step(5),  new Step(6) ];
+             currTree.branches[2].steps = [ new Step(7),  new Step(8),  new Step(9) ];
+             currTree.branches[3].steps = [ new Step(10), new Step(11), new Step(12) ];
+             currTree.branches[4].steps = [ new Step(13), new Step(14), new Step(15) ];
+             currTree.branches[5].steps = [ new Step(16), new Step(17), new Step(18) ];
 
-             currTree.branches[1].steps[0].text = "1A clone-2 step-1";
-             currTree.branches[1].steps[1].text = "1A clone-2 step-2";
-             currTree.branches[1].steps[2].text = "1A clone-2 step-3";
+             currTree.newStepNode().text = "1A clone-1 step-1";
+             currTree.newStepNode().text = "1A clone-1 step-2";
+             currTree.newStepNode().text = "1A clone-1 step-3";
 
-             currTree.branches[2].steps[0].text = "1B clone-1 step-1";
-             currTree.branches[2].steps[1].text = "1B clone-1 step-2";
-             currTree.branches[2].steps[2].text = "1B clone-1 step-3";
+             currTree.newStepNode().text = "1A clone-2 step-1";
+             currTree.newStepNode().text = "1A clone-2 step-2";
+             currTree.newStepNode().text = "1A clone-2 step-3";
 
-             currTree.branches[3].steps[0].text = "3 clone-1 step-1";
-             currTree.branches[3].steps[1].text = "3 clone-1 step-2";
-             currTree.branches[3].steps[2].text = "3 clone-1 step-3";
-             currTree.branches[3].isPassed = true;
+             currTree.newStepNode().text = "1B clone-1 step-1";
+             currTree.newStepNode().text = "1B clone-1 step-2";
+             currTree.newStepNode().text = "1B clone-1 step-3";
 
-             currTree.branches[4].steps[0].text = "3 clone-2 step-1";
-             currTree.branches[4].steps[1].text = "3 clone-2 step-2";
-             currTree.branches[4].steps[2].text = "3 clone-2 step-3";
-             currTree.branches[4].isFailed = true;
-             currTree.branches[4].passedLastTime = true;
+             currTree.newStepNode().text = "3 clone-1 step-1";
+             currTree.newStepNode().text = "3 clone-1 step-2";
+             currTree.newStepNode().text = "3 clone-1 step-3";
 
-             currTree.branches[5].steps[0].text = "3 clone-3 step-1";
-             currTree.branches[5].steps[1].text = "3 clone-3 step-2";
-             currTree.branches[5].steps[2].text = "3 clone-3 step-3";
+             currTree.newStepNode().text = "3 clone-2 step-1";
+             currTree.newStepNode().text = "3 clone-2 step-2";
+             currTree.newStepNode().text = "3 clone-2 step-3";
+
+             currTree.newStepNode().text = "3 clone-3 step-1";
+             currTree.newStepNode().text = "3 clone-3 step-2";
+             currTree.newStepNode().text = "3 clone-3 step-3";
 
              let prevTree = new Tree();
 
              prevTree.branches = [ new Branch(), new Branch(), new Branch(), new Branch(), new Branch(), new Branch() ];
-             prevTree.branches[0].steps = [ new Step(), new Step(), new Step() ];
-             prevTree.branches[1].steps = [ new Step(), new Step(), new Step() ];
-             prevTree.branches[2].steps = [ new Step(), new Step(), new Step() ];
-             prevTree.branches[3].steps = [ new Step(), new Step(), new Step() ];
-             prevTree.branches[4].steps = [ new Step(), new Step(), new Step() ];
-             prevTree.branches[5].steps = [ new Step(), new Step(), new Step() ];
 
-             prevTree.branches[0].steps[0].text = "1A clone-1 step-1";
-             prevTree.branches[0].steps[1].text = "1A clone-1 step-2";
-             prevTree.branches[0].steps[2].text = "1A clone-1 step-3";
+             prevTree.branches[0].steps = [ new Step(1),  new Step(2),  new Step(3) ];
+             prevTree.branches[1].steps = [ new Step(4),  new Step(5),  new Step(6) ];
+             prevTree.branches[2].steps = [ new Step(7),  new Step(8),  new Step(9) ];
+             prevTree.branches[3].steps = [ new Step(10), new Step(11), new Step(12) ];
+             prevTree.branches[4].steps = [ new Step(13), new Step(14), new Step(15) ];
+             prevTree.branches[5].steps = [ new Step(16), new Step(17), new Step(18) ];
 
-             prevTree.branches[1].steps[0].text = "1A clone-2 step-1";
-             prevTree.branches[1].steps[1].text = "1A clone-2 step-2";
-             prevTree.branches[1].steps[2].text = "1A clone-2 step-3";
+             prevTree.newStepNode().text = "1A clone-1 step-1";
+             prevTree.newStepNode().text = "1A clone-1 step-2";
+             prevTree.newStepNode().text = "1A clone-1 step-3";
+
+             prevTree.newStepNode().text = "1A clone-2 step-1";
+             prevTree.newStepNode().text = "1A clone-2 step-2";
+             prevTree.newStepNode().text = "1A clone-2 step-3";
              prevTree.branches[1].isFailed = true;
 
-             prevTree.branches[2].steps[0].text = "1B clone-1 step-1";
-             prevTree.branches[2].steps[1].text = "1B clone-1 step-2";
-             prevTree.branches[2].steps[2].text = "1B clone-1 step-3";
+             prevTree.newStepNode().text = "1B clone-1 step-1";
+             prevTree.newStepNode().text = "1B clone-1 step-2";
+             prevTree.newStepNode().text = "1B clone-1 step-3";
              prevTree.branches[2].isPassed = true;
 
-             prevTree.branches[3].steps[0].text = "2 clone-1 step-1";
-             prevTree.branches[3].steps[1].text = "2 clone-1 step-2";
-             prevTree.branches[3].steps[2].text = "2 clone-1 step-3";
+             prevTree.newStepNode().text = "2 clone-1 step-1";
+             prevTree.newStepNode().text = "2 clone-1 step-2";
+             prevTree.newStepNode().text = "2 clone-1 step-3";
              prevTree.branches[3].isFailed = true;
 
-             prevTree.branches[4].steps[0].text = "2 clone-2 step-1";
-             prevTree.branches[4].steps[1].text = "2 clone-2 step-2";
-             prevTree.branches[4].steps[2].text = "2 clone-2 step-3";
+             prevTree.newStepNode().text = "2 clone-2 step-1";
+             prevTree.newStepNode().text = "2 clone-2 step-2";
+             prevTree.newStepNode().text = "2 clone-2 step-3";
              prevTree.branches[4].isPassed = true;
 
-             prevTree.branches[5].steps[0].text = "2 clone-3 step-1";
-             prevTree.branches[5].steps[1].text = "2 clone-3 step-2";
-             prevTree.branches[5].steps[2].text = "2 clone-3 step-3";
+             prevTree.newStepNode().text = "2 clone-3 step-1";
+             prevTree.newStepNode().text = "2 clone-3 step-2";
+             prevTree.newStepNode().text = "2 clone-3 step-3";
 
-             let prevObj = prevTree.serialize();
-             let prevJson = JSON.stringify(prevObj);
-             currTree.mergeBranchesFromPrevRun(prevJson);
+             let prevJson = prevTree.serialize();
+             currTree.markPassedFromPrevRun(prevJson);
 
-             expect(currTree.branches).to.have.lengthOf(6);
-             expect(currTree.branches).to.containSubsetInOrder([
-                 {
-                     steps: [ { text: "1A clone-1 step-1" }, { text: "1A clone-1 step-2" }, { text: "1A clone-1 step-3" } ],
-                     passedLastTime: undefined,
-                     isPassed: undefined,
-                     isFailed: undefined
-                 },
-                 {
-                     steps: [ { text: "1A clone-2 step-1" }, { text: "1A clone-2 step-2" }, { text: "1A clone-2 step-3" } ],
-                     passedLastTime: undefined,
-                     isPassed: undefined,
-                     isFailed: undefined
-                 },
-                 {
-                     steps: [ { text: "1B clone-1 step-1" }, { text: "1B clone-1 step-2" }, { text: "1B clone-1 step-3" } ],
-                     passedLastTime: true,
-                     isPassed: undefined,
-                     isFailed: undefined
-                 },
-                 {
-                     steps: [ { text: "3 clone-1 step-1" }, { text: "3 clone-1 step-2" }, { text: "3 clone-1 step-3" } ],
-                     passedLastTime: undefined,
-                     isPassed: undefined,
-                     isFailed: undefined
-                 },
-                 {
-                     steps: [ { text: "3 clone-2 step-1" }, { text: "3 clone-2 step-2" }, { text: "3 clone-2 step-3" } ],
-                     passedLastTime: undefined,
-                     isPassed: undefined,
-                     isFailed: undefined
-                 },
-                 {
-                     steps: [ { text: "3 clone-3 step-1" }, { text: "3 clone-3 step-2" }, { text: "3 clone-3 step-3" } ],
-                     passedLastTime: undefined,
-                     isPassed: undefined,
-                     isFailed: undefined
-                 }
-             ]);
+             mergeStepNodesInTree(currTree);
+             Comparer.expect(currTree).to.match({
+                 branches: [
+                     {
+                         steps: [ { text: "1A clone-1 step-1" }, { text: "1A clone-1 step-2" }, { text: "1A clone-1 step-3" } ],
+                         passedLastTime: undefined,
+                         isPassed: undefined,
+                         isFailed: undefined
+                     },
+                     {
+                         steps: [ { text: "1A clone-2 step-1" }, { text: "1A clone-2 step-2" }, { text: "1A clone-2 step-3" } ],
+                         passedLastTime: undefined,
+                         isPassed: undefined,
+                         isFailed: undefined
+                     },
+                     {
+                         steps: [ { text: "1B clone-1 step-1" }, { text: "1B clone-1 step-2" }, { text: "1B clone-1 step-3" } ],
+                         passedLastTime: true,
+                         isPassed: undefined,
+                         isFailed: undefined
+                     },
+                     {
+                         steps: [ { text: "3 clone-1 step-1" }, { text: "3 clone-1 step-2" }, { text: "3 clone-1 step-3" } ],
+                         passedLastTime: undefined,
+                         isPassed: undefined,
+                         isFailed: undefined
+                     },
+                     {
+                         steps: [ { text: "3 clone-2 step-1" }, { text: "3 clone-2 step-2" }, { text: "3 clone-2 step-3" } ],
+                         passedLastTime: true,
+                         isPassed: undefined,
+                         isFailed: undefined
+                     },
+                     {
+                         steps: [ { text: "3 clone-3 step-1" }, { text: "3 clone-3 step-2" }, { text: "3 clone-3 step-3" } ],
+                         passedLastTime: undefined,
+                         isPassed: undefined,
+                         isFailed: undefined
+                     }
+                 ]
+             });
         });
     });
 
@@ -11350,52 +11343,72 @@ G -
 `, "file.txt");
 
             tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            let b = null;
 
-            expect(tree.nextBranch()).to.containSubsetInOrder({
+            b = tree.nextBranch();
+            mergeStepNodes(tree, b.steps);
+            Comparer.expect(b).to.match({
                 steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
             });
 
-            expect(tree.nextBranch()).to.containSubsetInOrder({
+            b = tree.nextBranch();
+            mergeStepNodes(tree, b.steps);
+            Comparer.expect(b).to.match({
                 steps: [ { text: "F" } ]
             });
 
-            expect(tree.nextBranch()).to.containSubsetInOrder({
+            b = tree.nextBranch();
+            mergeStepNodes(tree, b.steps);
+            Comparer.expect(b).to.match({
                 steps: [ { text: "G" } ]
             });
 
-            expect(tree.nextBranch()).to.equal(null);
+            b = tree.nextBranch();
+            Comparer.expect(b).to.match(null);
 
             delete tree.branches[0].isRunning;
             tree.branches[0].isSkipped = true;
 
-            expect(tree.nextBranch()).to.containSubsetInOrder({
+            b = tree.nextBranch();
+            mergeStepNodes(tree, b.steps);
+            Comparer.expect(b).to.match({
                 steps: [ { text: "A" }, { text: "B" }, { text: "D" } ]
             });
 
-            expect(tree.nextBranch()).to.equal(null);
+            b = tree.nextBranch();
+            Comparer.expect(b).to.match(null);
 
             delete tree.branches[1].isRunning;
             tree.branches[1].isFailed = true;
 
-            expect(tree.nextBranch()).to.containSubsetInOrder({
+            b = tree.nextBranch();
+            mergeStepNodes(tree, b.steps);
+            Comparer.expect(b).to.match({
                 steps: [ { text: "A" }, { text: "B" }, { text: "E" } ]
             });
 
-            expect(tree.nextBranch()).to.equal(null);
-            expect(tree.nextBranch()).to.equal(null);
+            b = tree.nextBranch();
+            Comparer.expect(b).to.match(null);
+
+            b = tree.nextBranch();
+            Comparer.expect(b).to.match(null);
 
             delete tree.branches[2].isRunning;
             delete tree.branches[3].isRunning;
             tree.branches[2].isFailed = true;
             tree.branches[3].isPassed = true;
 
-            expect(tree.nextBranch()).to.equal(null);
+            b = tree.nextBranch();
+            Comparer.expect(b).to.match(null);
 
             delete tree.branches[4].isRunning;
             tree.branches[4].isPassed = true;
 
-            expect(tree.nextBranch()).to.equal(null);
-            expect(tree.nextBranch()).to.equal(null);
+            b = tree.nextBranch();
+            Comparer.expect(b).to.match(null);
+
+            b = tree.nextBranch();
+            Comparer.expect(b).to.match(null);
         });
 
         it("finds a branch not yet taken, skipping over those with a running branch with the same nonParallelId", () => {
@@ -11418,7 +11431,9 @@ G -
             tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isRunning = true;
 
-            expect(tree.nextBranch()).to.containSubsetInOrder({
+            let b = tree.nextBranch();
+            mergeStepNodes(tree, b.steps);
+            Comparer.expect(b).to.match({
                 steps: [ { text: "F" } ]
             });
         });
@@ -11466,59 +11481,54 @@ A - !
             let branch1 = new Branch();
             let branch2 = new Branch();
 
-            branches = [ branch1, branch2 ];
+            tree.branches = [ branch1, branch2 ];
 
-            let similarBranches = tree.findSimilarBranches(branch1, 1, branches);
-            expect(similarBranches).to.have.lengthOf(1);
-            expect(similarBranches).to.containSubsetInOrder([
-                {
-                    steps: []
-                }
+            let similarBranches = tree.findSimilarBranches(branch1, 1);
+            Comparer.expect(similarBranches).to.match([
+                { steps: [] }
             ]);
         });
 
         it("finds similar branches", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let A = 1; tree.stepNodeIndex[A].text = "A";
+            let B = 2; tree.stepNodeIndex[B].text = "B";
+            let C = 3; tree.stepNodeIndex[C].text = "C";
+            let D = 4; tree.stepNodeIndex[D].text = "D";
 
             let branch1 = new Branch();
             let branch2 = new Branch();
             let branch3 = new Branch();
             let branch4 = new Branch();
 
-            branch1.steps.push(stepA.cloneForBranch());
-            branch1.steps.push(stepB.cloneForBranch());
-            branch1.steps.push(stepC.cloneForBranch());
-            branch1.steps.push(stepD.cloneForBranch());
+            branch1.steps.push(new Step(A));
+            branch1.steps.push(new Step(B));
+            branch1.steps.push(new Step(C));
+            branch1.steps.push(new Step(D));
 
-            branch2.steps.push(stepA.cloneForBranch());
-            branch2.steps.push(stepB.cloneForBranch());
-            branch2.steps.push(stepD.cloneForBranch());
+            branch2.steps.push(new Step(A));
+            branch2.steps.push(new Step(B));
+            branch2.steps.push(new Step(D));
 
-            branch3.steps.push(stepA.cloneForBranch());
-            branch3.steps.push(stepB.cloneForBranch());
-            branch3.steps.push(stepC.cloneForBranch());
+            branch3.steps.push(new Step(A));
+            branch3.steps.push(new Step(B));
+            branch3.steps.push(new Step(C));
 
-            branch4.steps.push(stepC.cloneForBranch());
-            branch4.steps.push(stepB.cloneForBranch());
-            branch4.steps.push(stepA.cloneForBranch());
+            branch4.steps.push(new Step(C));
+            branch4.steps.push(new Step(B));
+            branch4.steps.push(new Step(A));
 
-            branches = [ branch1, branch2, branch3, branch4 ];
+            tree.branches = [ branch1, branch2, branch3, branch4 ];
 
-            let similarBranches = tree.findSimilarBranches(branch1, 1, branches);
-            expect(similarBranches).to.have.lengthOf(2);
-            expect(similarBranches).to.containSubsetInOrder([
+            let similarBranches = tree.findSimilarBranches(branch1, 1);
+            mergeStepNodesInBranches(tree, tree.branches);
+            Comparer.expect(similarBranches).to.match([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "D" } ]
                 },
@@ -11527,9 +11537,9 @@ A - !
                 }
             ]);
 
-            similarBranches = tree.findSimilarBranches(branch1, 2, branches);
-            expect(similarBranches).to.have.lengthOf(2);
-            expect(similarBranches).to.containSubsetInOrder([
+            similarBranches = tree.findSimilarBranches(branch1, 2);
+            mergeStepNodesInBranches(tree, tree.branches);
+            Comparer.expect(similarBranches).to.match([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "D" } ]
                 },
@@ -11538,20 +11548,21 @@ A - !
                 }
             ]);
 
-            similarBranches = tree.findSimilarBranches(branch1, 3, branches);
-            expect(similarBranches).to.have.lengthOf(1);
-            expect(similarBranches).to.containSubsetInOrder([
+            similarBranches = tree.findSimilarBranches(branch1, 3);
+            mergeStepNodesInBranches(tree, tree.branches);
+            Comparer.expect(similarBranches).to.match([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "C" } ]
                 }
             ]);
 
-            similarBranches = tree.findSimilarBranches(branch1, 4, branches);
-            expect(similarBranches).to.have.lengthOf(0);
+            similarBranches = tree.findSimilarBranches(branch1, 4);
+            mergeStepNodesInBranches(tree, tree.branches);
+            Comparer.expect(similarBranches).to.match([]);
 
-            similarBranches = tree.findSimilarBranches(branch3, 3, branches);
-            expect(similarBranches).to.have.lengthOf(1);
-            expect(similarBranches).to.containSubsetInOrder([
+            similarBranches = tree.findSimilarBranches(branch3, 3);
+            mergeStepNodesInBranches(tree, tree.branches);
+            Comparer.expect(similarBranches).to.match([
                 {
                     steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" } ]
                 }
@@ -11563,18 +11574,12 @@ A - !
         it("marks a step passed", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepB = new Step(2);
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
 
@@ -11582,12 +11587,12 @@ A - !
 
             tree.markStep(stepA, branch, true);
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isPassed: true, isRunning: true },
-                    { text: "B", isPassed: undefined },
-                    { text: "C", isPassed: undefined },
-                    { text: "D", isPassed: undefined }
+                    { id: 1, isPassed: true, isRunning: true },
+                    { id: 2, isPassed: undefined },
+                    { id: 3, isPassed: undefined },
+                    { id: 4, isPassed: undefined }
                 ],
                 isPassed: undefined,
                 isFailed: undefined
@@ -11597,20 +11602,16 @@ A - !
         it("marks a branch passed when the last step is passed", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isPassed = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isPassed = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
+            let stepC = new Step(3);
             stepC.isPassed = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             let branch = new Branch();
@@ -11619,12 +11620,12 @@ A - !
 
             tree.markStep(stepD, branch, true);
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isPassed: true },
-                    { text: "B", isPassed: true },
-                    { text: "C", isPassed: true },
-                    { text: "D", isPassed: true, isRunning: true }
+                    { id: 1, isPassed: true },
+                    { id: 2, isPassed: true },
+                    { id: 3, isPassed: true },
+                    { id: 4, isPassed: true, isRunning: true }
                 ],
                 isPassed: true,
                 isFailed: undefined
@@ -11634,20 +11635,16 @@ A - !
         it("marks a branch failed when the last step is passed", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isPassed = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isFailed = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
+            let stepC = new Step(3);
             stepC.isPassed = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             let branch = new Branch();
@@ -11656,12 +11653,12 @@ A - !
 
             tree.markStep(stepD, branch, true);
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isPassed: true },
-                    { text: "B", isFailed: true },
-                    { text: "C", isPassed: true },
-                    { text: "D", isPassed: true, isRunning: true }
+                    { id: 1, isPassed: true },
+                    { id: 2, isFailed: true },
+                    { id: 3, isPassed: true },
+                    { id: 4, isPassed: true, isRunning: true }
                 ],
                 isPassed: undefined,
                 isFailed: true
@@ -11671,18 +11668,12 @@ A - !
         it("marks a step failed and sets its error", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepB = new Step(2);
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
 
@@ -11690,12 +11681,12 @@ A - !
 
             tree.markStep(stepA, branch, false, new Error("foobar"));
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isFailed: true, isRunning: true },
-                    { text: "B", isFailed: undefined },
-                    { text: "C", isFailed: undefined },
-                    { text: "D", isFailed: undefined }
+                    { id: 1, isFailed: true, isRunning: true },
+                    { id: 2, isFailed: undefined },
+                    { id: 3, isFailed: undefined },
+                    { id: 4, isFailed: undefined }
                 ],
                 isPassed: undefined,
                 isFailed: undefined
@@ -11707,20 +11698,16 @@ A - !
         it("marks a branch failed when the last step is failed", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isPassed = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isPassed = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
+            let stepC = new Step(3);
             stepC.isPassed = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             let branch = new Branch();
@@ -11729,12 +11716,12 @@ A - !
 
             tree.markStep(stepD, branch, false, new Error("foobar"));
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isFailed: undefined },
-                    { text: "B", isFailed: undefined },
-                    { text: "C", isFailed: undefined },
-                    { text: "D", isFailed: true, isRunning: true }
+                    { id: 1, isFailed: undefined },
+                    { id: 2, isFailed: undefined },
+                    { id: 3, isFailed: undefined },
+                    { id: 4, isFailed: true, isRunning: true }
                 ],
                 isPassed: undefined,
                 isFailed: true
@@ -11746,20 +11733,16 @@ A - !
         it("marks a branch failed before we reach the last step", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isPassed = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isPassed = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
+            let stepC = new Step(3);
             stepC.isRunning = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
 
             let branch = new Branch();
 
@@ -11767,12 +11750,12 @@ A - !
 
             tree.markStep(stepC, branch, false, new Error("foobar"), true);
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isFailed: undefined },
-                    { text: "B", isFailed: undefined },
-                    { text: "C", isFailed: true, isRunning: true },
-                    { text: "D", isFailed: undefined }
+                    { id: 1, isFailed: undefined },
+                    { id: 2, isFailed: undefined },
+                    { id: 3, isFailed: true, isRunning: true },
+                    { id: 4, isFailed: undefined }
                 ],
                 isPassed: undefined,
                 isFailed: true
@@ -11786,18 +11769,12 @@ A - !
         it("marks a step skipped", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepB = new Step(2);
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
 
@@ -11805,12 +11782,12 @@ A - !
 
             tree.markStepSkipped(stepA, branch);
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isSkipped: true, isRunning: true },
-                    { text: "B", isSkipped: undefined },
-                    { text: "C", isSkipped: undefined },
-                    { text: "D", isSkipped: undefined }
+                    { id: 1, isSkipped: true, isRunning: true },
+                    { id: 2, isSkipped: undefined },
+                    { id: 3, isSkipped: undefined },
+                    { id: 4, isSkipped: undefined }
                 ],
                 isPassed: undefined,
                 isFailed: undefined
@@ -11820,20 +11797,16 @@ A - !
         it("marks a branch passed when the last step is skipped", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isPassed = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isSkipped = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
+            let stepC = new Step(3);
             stepC.isPassed = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             let branch = new Branch();
@@ -11842,12 +11815,12 @@ A - !
 
             tree.markStepSkipped(stepD, branch);
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isSkipped: undefined },
-                    { text: "B", isSkipped: true },
-                    { text: "C", isSkipped: undefined },
-                    { text: "D", isSkipped: true, isRunning: true }
+                    { id: 1, isSkipped: undefined },
+                    { id: 2, isSkipped: true },
+                    { id: 3, isSkipped: undefined },
+                    { id: 4, isSkipped: true, isRunning: true }
                 ],
                 isPassed: true,
                 isFailed: undefined
@@ -11857,20 +11830,16 @@ A - !
         it("handles no branch passed in", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            let stepA = new Step(1);
             stepA.isPassed = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isSkipped = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
+            let stepC = new Step(3);
             stepC.isPassed = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             let branch = new Branch();
@@ -11879,12 +11848,12 @@ A - !
 
             tree.markStepSkipped(stepD);
 
-            expect(branch).to.containSubsetInOrder({
+            Comparer.expect(branch).to.match({
                 steps: [
-                    { text: "A", isSkipped: undefined },
-                    { text: "B", isSkipped: true },
-                    { text: "C", isSkipped: undefined },
-                    { text: "D", isSkipped: true, isRunning: true }
+                    { id: 1, isSkipped: undefined },
+                    { id: 2, isSkipped: true },
+                    { id: 3, isSkipped: undefined },
+                    { id: 4, isSkipped: true, isRunning: true }
                 ],
                 isPassed: undefined,
                 isFailed: undefined
@@ -11900,36 +11869,35 @@ A - !
 
             branch.isFailed = true;
 
-            expect(tree.nextStep(branch, false, false)).to.equal(null);
+            expect(tree.nextStep(branch, false)).to.equal(null);
 
             delete branch.isFailed;
             branch.isSkipped = true;
 
-            expect(tree.nextStep(branch, false, false)).to.equal(null);
+            expect(tree.nextStep(branch, false)).to.equal(null);
         });
 
         it("returns the first step if nothing is running yet, without advancing", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepA = new Step(1);
+            let stepB = new Step(2);
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, false, false)).to.containSubsetInOrder({
-                text: "A",
+            let s = tree.nextStep(branch, false);
+            Comparer.expect(s).to.match({
+                id: 1,
                 isRunning: undefined
             });
         });
@@ -11937,31 +11905,31 @@ A - !
         it("returns the next step if one is currently running, without advancing", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepB = new Step(2);
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, false, false)).to.containSubsetInOrder({
-                text: "B",
+            let s = tree.nextStep(branch, false, false);
+            Comparer.expect(s).to.match({
+                id: 2,
                 isRunning: undefined
             });
 
-            expect(stepA).to.containSubsetInOrder({
-                text: "A",
+            Comparer.expect(stepA).to.match({
+                id: 1,
                 isRunning: true
             });
         });
@@ -11969,17 +11937,16 @@ A - !
         it("returns null if the last step is currently running, without advancing", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepA = new Step(1);
+            let stepB = new Step(2);
+            let stepC = new Step(3);
 
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             let branch = new Branch();
@@ -11987,10 +11954,11 @@ A - !
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, false, false)).to.equal(null);
+            let s = tree.nextStep(branch, false);
+            Comparer.expect(s).to.match(null);
 
-            expect(stepD).to.containSubsetInOrder({
-                text: "D",
+            Comparer.expect(stepD).to.match({
+                id: 4,
                 isRunning: true
             });
         });
@@ -11998,25 +11966,24 @@ A - !
         it("returns the first step if nothing is running yet, with advancing", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepA = new Step(1);
+            let stepB = new Step(2);
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, true, false)).to.containSubsetInOrder({
-                text: "A",
+            let s = tree.nextStep(branch, true);
+            Comparer.expect(s).to.match({
+                id: 1,
                 isRunning: true
             });
         });
@@ -12024,31 +11991,31 @@ A - !
         it("returns the next step if one is currently running, with advancing", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepB = new Step(2);
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, true, false)).to.containSubsetInOrder({
-                text: "B",
+            let s = tree.nextStep(branch, true);
+            Comparer.expect(s).to.match({
+                id: 2,
                 isRunning: true
             });
 
-            expect(stepA).to.containSubsetInOrder({
-                text: "A",
+            Comparer.expect(stepA).to.match({
+                id: 1,
                 isRunning: undefined
             });
         });
@@ -12056,17 +12023,16 @@ A - !
         it("returns null if the last step is currently running, with advancing", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepA = new Step(1);
+            let stepB = new Step(2);
+            let stepC = new Step(3);
 
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             let branch = new Branch();
@@ -12074,10 +12040,11 @@ A - !
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, true, false)).to.equal(null);
+            let s = tree.nextStep(branch, true);
+            Comparer.expect(s).to.match(null);
 
-            expect(stepD).to.containSubsetInOrder({
-                text: "D",
+            Comparer.expect(stepD).to.match({
+                id: 4,
                 isRunning: undefined
             });
         });
@@ -12085,21 +12052,22 @@ A - !
         it("ends the branch if the next step is a .s", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isPassed = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isPassed = true;
             stepB.isRunning = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
-            stepC.isSkipBelow = true;
+            let stepC = new Step(3);
+            tree.stepNodeIndex[3].isSkipBelow = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
 
             let branch1 = new Branch();
             let branch2 = new Branch();
@@ -12107,21 +12075,22 @@ A - !
             let branch4 = new Branch();
 
             branch1.steps = [ stepA, stepB, stepC, stepD ];
-            branch2.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch() ];
-            branch3.steps = [ stepA.cloneForBranch(), stepB.cloneForBranch(), stepC.cloneForBranch(), stepB.cloneForBranch() ];
-            branch4.steps = [ stepD.cloneForBranch(), stepB.cloneForBranch() ];
+            branch2.steps = [ stepA.clone(), stepB.clone(), stepC.clone() ];
+            branch3.steps = [ stepA.clone(), stepB.clone(), stepC.clone(), stepB.clone() ];
+            branch4.steps = [ stepD.clone(), stepB.clone() ];
 
             tree.branches = [ branch2, branch1, branch3, branch4 ];
 
-            expect(tree.nextStep(branch1, true, false)).to.equal(null);
+            let s = tree.nextStep(branch1, true);
+            Comparer.expect(s).to.match(null);
 
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
+            Comparer.expect(stepB).to.match({
+                id: 2,
                 isRunning: undefined
             });
 
-            expect(stepC).to.containSubsetInOrder({
-                text: "C",
+            Comparer.expect(stepC).to.match({
+                id: 3,
                 isRunning: undefined
             });
 
@@ -12135,27 +12104,27 @@ A - !
         it("clears isRunning on all steps in the branch if the branch completed already", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isPassed = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isPassed = true;
             stepB.isRunning = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch1 = new Branch();
             branch1.steps = [ stepA, stepB, stepC, stepD ];
             branch1.isPassed = true;
             tree.branches = [ branch1 ];
 
-            expect(tree.nextStep(branch1, true, true)).to.equal(null);
+            expect(tree.nextStep(branch1, true)).to.equal(null);
 
             expect(stepA.isRunning).to.equal(undefined);
             expect(stepB.isRunning).to.equal(undefined);
@@ -12167,47 +12136,48 @@ A - !
         it("skips over a step that is already skipped", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isPassed = true;
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isSkipped = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, true)).to.containSubsetInOrder({
-                text: "C",
+            let s = tree.nextStep(branch, true);
+            Comparer.expect(s).to.match({
+                id: 3,
                 isSkipped: undefined,
                 isRunning: true
             });
 
-            expect(stepA).to.containSubsetInOrder({
-                text: "A",
+            Comparer.expect(stepA).to.match({
+                id: 1,
                 isPassed: true,
                 isSkipped: undefined,
                 isRunning: undefined
             });
 
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
+            Comparer.expect(stepB).to.match({
+                id: 2,
                 isSkipped: true,
                 isRunning: undefined
             });
 
-            expect(stepC).to.containSubsetInOrder({
-                text: "C",
+            Comparer.expect(stepC).to.match({
+                id: 3,
                 isSkipped: undefined,
                 isRunning: true
             });
@@ -12216,47 +12186,48 @@ A - !
         it("skips over a step that has -s", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isPassed = true;
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isSkip = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, true)).to.containSubsetInOrder({
-                text: "C",
+            let s = tree.nextStep(branch, true);
+            Comparer.expect(s).to.match({
+                id: 3,
                 isSkipped: undefined,
                 isRunning: true
             });
 
-            expect(stepA).to.containSubsetInOrder({
-                text: "A",
+            Comparer.expect(stepA).to.match({
+                id: 1,
                 isPassed: true,
                 isSkipped: undefined,
                 isRunning: undefined
             });
 
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
+            Comparer.expect(stepB).to.match({
+                id: 2,
                 isSkipped: true,
                 isRunning: undefined
             });
 
-            expect(stepC).to.containSubsetInOrder({
-                text: "C",
+            Comparer.expect(stepC).to.match({
+                id: 3,
                 isSkipped: undefined,
                 isRunning: true
             });
@@ -12265,37 +12236,37 @@ A - !
         it("skips over a first step that has -s", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isSkip = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
-
-            let stepC = new Step();
-            stepC.text = "C";
-
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepB = new Step(2);
+            let stepC = new Step(3);
+            let stepD = new Step(4);
 
             let branch = new Branch();
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, true)).to.containSubsetInOrder({
-                text: "B",
+            let s = tree.nextStep(branch, true);
+            Comparer.expect(s).to.match({
+                id: 2,
                 isRunning: true
             });
 
-            expect(stepA).to.containSubsetInOrder({
-                text: "A",
+            Comparer.expect(stepA).to.match({
+                id: 1,
                 isSkipped: true,
                 isRunning: undefined
             });
 
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
+            Comparer.expect(stepB).to.match({
+                id: 2,
                 isSkipped: undefined,
                 isRunning: true
             });
@@ -12304,52 +12275,54 @@ A - !
         it("skips over multiple steps that have -s", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isPassed = true;
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isSkip = true;
 
-            let stepC = new Step();
-            stepC.text = "C";
+            let stepC = new Step(3);
             stepC.isSkip = true;
 
-            let stepD = new Step();
-            stepD.text = "D";
+            let stepD = new Step(4);
 
             let branch = new Branch();
             branch.steps = [ stepA, stepB, stepC, stepD ];
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, true)).to.containSubsetInOrder({
-                text: "D",
+            let s = tree.nextStep(branch, true);
+            Comparer.expect(s).to.match({
+                id: 4,
                 isRunning: true
             });
 
-            expect(stepA).to.containSubsetInOrder({
-                text: "A",
+            Comparer.expect(stepA).to.match({
+                id: 1,
                 isPassed: true,
                 isRunning: undefined
             });
 
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
+            Comparer.expect(stepB).to.match({
+                id: 2,
                 isSkipped: true,
                 isRunning: undefined
             });
 
-            expect(stepC).to.containSubsetInOrder({
-                text: "C",
+            Comparer.expect(stepC).to.match({
+                id: 3,
                 isSkipped: true,
                 isRunning: undefined
             });
 
-            expect(stepD).to.containSubsetInOrder({
-                text: "D",
+            Comparer.expect(stepD).to.match({
+                id: 4,
                 isSkipped: undefined,
                 isRunning: true
             });
@@ -12358,13 +12331,16 @@ A - !
         it("skips over a last step that has -s", () => {
             let tree = new Tree();
 
-            let stepA = new Step();
-            stepA.text = "A";
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+            tree.newStepNode();
+
+            let stepA = new Step(1);
             stepA.isPassed = true;
             stepA.isRunning = true;
 
-            let stepB = new Step();
-            stepB.text = "B";
+            let stepB = new Step(2);
             stepB.isSkip = true;
 
             let branch = new Branch();
@@ -12372,16 +12348,17 @@ A - !
 
             tree.branches = [ branch ];
 
-            expect(tree.nextStep(branch, true)).to.equal(null);
+            let s = tree.nextStep(branch, true);
+            Comparer.expect(s).to.match(null);
 
-            expect(stepA).to.containSubsetInOrder({
-                text: "A",
+            Comparer.expect(stepA).to.match({
+                id: 1,
                 isPassed: true,
                 isRunning: undefined
             });
 
-            expect(stepB).to.containSubsetInOrder({
-                text: "B",
+            Comparer.expect(stepB).to.match({
+                id: 2,
                 isSkipped: true,
                 isRunning: undefined
             });

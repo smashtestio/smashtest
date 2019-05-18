@@ -176,7 +176,7 @@ class Reporter {
         buffer = this.extractBranchesJson(buffer);
 
         let json = JSON.parse(JSON.stringify(buffer));
-        this.tree.mergeBranchesFromPrevRun(json);
+        this.tree.markPassedFromPrevRun(json);
     }
 
     /**

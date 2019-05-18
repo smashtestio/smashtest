@@ -830,7 +830,7 @@ ${outputBranchAbove(this)}
 
         // If isNonParallel (!) is set, connect up the branches in branchesBelow
         if(step.id && this.getModifier(step, 'isNonParallel')) {
-            let nonParallelId = utils.randomId();
+            let nonParallelId = step.id;
             branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);
         }
 
@@ -1119,7 +1119,7 @@ ${outputBranchAbove(this)}
 
                 // Mark all similar branches as skipped
                 if(indexOfSkipBelow != -1) {
-                    let branchesToSkip = this.findSimilarBranches(branch, indexOfSkipBelow + 1, this.branches);
+                    let branchesToSkip = this.findSimilarBranches(branch, indexOfSkipBelow + 1);
                     branchesToSkip.forEach(branchToSkip => {
                         branchToSkip.isSkipped = true;
                         /*branchToSkip.appendToLog(
@@ -1224,10 +1224,10 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Marks branches as passed if they passed last time
+     * Marks branches as passed if they passed in a previous run
      * @param {String} json - A JSON representation of branches from a previous run. Same JSON that serialize() returns.
      */
-    mergeBranchesFromPrevRun(json) {
+    markPassedFromPrevRun(json) {
         let previous = JSON.parse(json);
         let prevBranches = previous.branches;
         let currBranches = this.branches;
@@ -1245,7 +1245,7 @@ ${outputBranchAbove(this)}
             let found = false;
             for(let i = 0; i < prevBranches.length; i++) {
                 let prevBranch = prevBranches[i];
-                if(currBranch.equals(prevBranch)) {
+                if(currBranch.equals(prevBranch, this.stepNodeIndex)) {
                     if(prevBranch.isPassed) { // failed or didn't run
                         currBranch.passedLastTime = true;
                     }
@@ -1346,7 +1346,7 @@ ${outputBranchAbove(this)}
         let branchNotYetTaken = null;
         for(let i = 0; i < this.branches.length; i++) {
             let branch = this.branches[i];
-            if(!branch.isRunning && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {
+            if(!branch.isCompleteOrRunning()) {
                 if(branch.nonParallelId) {
                     // If a branch's nonParallelId is set, check if a previous branch with that id is still running
                     let found = false;
@@ -1382,12 +1382,11 @@ ${outputBranchAbove(this)}
      * Finds all other branches whose first N steps are the same as the first N steps of a given branch
      * @param {Branch} branch - The given branch
      * @param {Number} n - The number of steps to look at
-     * @param {Array} branches - The pool of branches to look in
      * @return {Array} Array of Branch - branches whose first N steps are the same as the given's branch's first N steps
      */
-    findSimilarBranches(branch, n, branches) {
+    findSimilarBranches(branch, n) {
         let foundBranches = [];
-        branches.forEach(b => {
+        this.branches.forEach(b => {
             if(branch !== b && branch.equals(b, this.stepNodeIndex, n)) {
                 foundBranches.push(b);
             }

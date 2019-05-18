@@ -142,6 +142,7 @@ Options
   --report=<true/false>           Whether or not to output a report. Default is true.
   --report-domain=<url>           Domain and port where report server should run (http://domain:port format)
   --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
+  --screenshots=<true/false>      Whether or not to take screenshots. Default is true.
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
   --skip-passed or -s             Do not run branches that passed last time. Just carry them over
                                     into new report.
