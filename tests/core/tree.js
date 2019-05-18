@@ -5119,6 +5119,54 @@ B
                     { steps: [ { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" } ] },
                 ]);
             });
+
+            it("marks function declarations that are called at least once", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+
+* F
+    A -
+
+* G
+    B -
+                `);
+
+                tree.branchify(tree.root);
+
+                Comparer.expect(tree.root).to.match({
+                    children: [
+                        {
+                            text: "F",
+                            isFunctionDeclaration: undefined,
+                            used: true
+
+                        },
+                        {
+                            text: "F",
+                            isFunctionDeclaration: true,
+                            used: true,
+                            children: [
+                                {
+                                    text: "A",
+                                    used: true
+                                }
+                            ]
+                        },
+                        {
+                            text: "G",
+                            isFunctionDeclaration: true,
+                            used: undefined,
+                            children: [
+                                {
+                                    text: "B",
+                                    used: undefined
+                                }
+                            ]
+                        }
+                    ]
+                });
+            });
         });
 
         context("{vars}", () => {
@@ -10691,6 +10739,37 @@ K-1 -
                     }
                 ],
                 elapsed: "DATE"
+            });
+        });
+
+        it("doesn't output uncalled step nodes", () => {
+            let tree = new Tree();
+            tree.parseIn(
+`F
+
+* F
+    A -
+
+* G
+    B -
+    `);
+
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            let obj = JSON.parse(tree.serialize());
+
+            mergeStepNodesInTree(obj);
+            Comparer.expect(obj).to.match({
+                stepNodeIndex: {
+                    $exact: true,
+                    1: { text: "F" },
+                    3: { text: "F" },
+                    4: { text: "A" }
+                },
+                branches: [
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ]
+                    }
+                ]
             });
         });
 

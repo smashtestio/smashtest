@@ -640,9 +640,9 @@ ${outputBranchAbove(this)}
         else if(stepNode.isFunctionDeclaration) {
             // Skip over function declarations. Only function calls go into a branch.
 
-            // If this function declaration was encountered unintentionally, and not in response to finding a function call, return without visiting its children
-            // This is because hitting a function declaration on its own won't create any new branches
             if(!isFunctionCall) {
+                // If this function declaration was encountered unintentionally, and not in response to finding a function call, return without visiting its children
+                // This is because hitting a function declaration on its own won't create any new branches
                 return null;
             }
         }
@@ -667,6 +667,8 @@ ${outputBranchAbove(this)}
 
             branchesFromThisStepNode.push(branch);
         }
+
+        stepNode.used = true;
 
         // ***************************************
         // 3) List the children of this step node, including children that are hooks
@@ -1200,7 +1202,7 @@ ${outputBranchAbove(this)}
      */
     serialize() {
         return JSON.stringify(utils.removeUndefineds({
-            stepNodeIndex: this.stepNodeIndex,
+            stepNodeIndex: removeUncalledStepNodes(this.stepNodeIndex),
             isDebug: this.isDebug,
 
             branches: this.branches,
@@ -1229,6 +1231,20 @@ ${outputBranchAbove(this)}
                 return v;
             }
         });
+
+        function removeUncalledStepNodes(stepNodeIndex) {
+            let o = {};
+            for(let key in stepNodeIndex) {
+                if(stepNodeIndex.hasOwnProperty(key)) {
+                    let stepNode = stepNodeIndex[key];
+                    if(stepNode.used) {
+                        o[key] = stepNode;
+                    }
+                }
+            }
+
+            return o;
+        }
     }
 
     /**

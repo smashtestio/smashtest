@@ -49,6 +49,8 @@ class StepNode {
         this.isPackaged = false;              // true if this step is from a package file
 
         this.containingStepBlock = {};        // the StepBlock that contains this Step
+
+        this.used = false;                    // set to true if this step node is used in a branch at least once
         */
     }
 
