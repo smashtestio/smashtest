@@ -1,5 +1,4 @@
 const chai = require('chai');
-const chaiSubset = require('chai-subset');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
@@ -8,8 +7,6 @@ const {Builder, By, Key, until} = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const ElementFinder = require('../../packages/js/elementfinder.js');
 const Comparer = require('../../packages/js/comparer.js');
-
-chai.use(chaiSubset);
 
 const HEADLESS = true;
 

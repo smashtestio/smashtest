@@ -170,18 +170,18 @@ class Runner {
     }
 
     /**
-     * Runs the given step in the context of the first RunInstance in this.runInstances, then pauses
+     * Runs the given text in the context of the first RunInstance in this.runInstances, then pauses
      * Call only when already paused
-     * @param {Step} step - The step to run
+     * @param {String} text - The step text to run
      * @return {Promise} Promise that gets resolved with a Branch of steps that were run, once done executing
-     * @throws {Error} Any errors that may occur during a branchify() of the given step, or if this Runner isn't paused
+     * @throws {Error} If a parse error of text occurs, or if this Runner isn't paused
      */
-    async injectStep(step) {
+    async inject(text) {
         if(!this.isPaused) {
             utils.error("Must be paused to run a step");
         }
 
-        let branchRan = await this.runInstances[0].injectStep(step);
+        let branchRan = await this.runInstances[0].inject(text);
 
         return branchRan;
     }
@@ -216,19 +216,16 @@ class Runner {
     }
 
     /**
-     * @return {Object} Object representing this runner, but without variables, runInstances, tree, reporter, or other complex objects (that may have circular references)
+     * @return {String} JSON representation of this runner, only containing the most necessary stuff for a report
      */
     serialize() {
-        let obj = {};
-        const BLACKLIST = [ 'persistent', 'globalInit', 'runInstances', 'tree', 'reporter' ];
+        return JSON.stringify(utils.removeUndefineds({
+            reportDomain: this.reportDomain,
 
-        for(let property in this) {
-            if(this.hasOwnProperty(property) && BLACKLIST.indexOf(property) == -1) {
-                obj[property] = this[property];
-            }
-        }
-
-        return obj;
+            isPaused: this.isPaused,
+            isStopped: this.isStopped,
+            isComplete: this.isComplete
+        }));
     }
 
     /**

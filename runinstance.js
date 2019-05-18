@@ -25,7 +25,7 @@ class RunInstance {
         this.localStack = [];                           // Array of objects, where each object stores local vars
         this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
 
-        this.stepsRan = new Branch();                   // record of all steps ran by this RunInstance
+        this.stepsRan = new Branch();               // record of all steps ran by this RunInstance, for inject()
     }
 
     /**
@@ -56,7 +56,7 @@ class RunInstance {
 
             this.currBranch.timeStarted = new Date();
 
-            // reset variable state
+            // Reset variable state
             this.global = {};
             Object.assign(this.global, this.runner.globalInit);
             this.local = {};
@@ -133,18 +133,22 @@ class RunInstance {
      * @throws {Error} If an error is thrown inside the step and error.fatal is set to true
      */
     async runStep(step, branch, overrideDebug) {
-        if(step.isBeforeDebug && !overrideDebug) {
+        let stepNode = this.tree.stepNodeIndex[step.id];
+
+        if(this.tree.getModifier(step, 'isBeforeDebug') && !overrideDebug) {
             this.setPause(true);
             return;
         }
 
         if(this.runner.consoleOutput) {
-            console.log(`Start:     ${chalk.gray(step.line.trim())}     ${step.filename ? chalk.gray(`[${step.filename}:${step.lineNumber}]`) : ``}`);
+            console.log(`Start:     ${chalk.gray(stepNode.text.trim())}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
         }
 
         step.timeStarted = new Date();
 
-        this.stepsRan.steps.push(step);
+        if(this.tree.isDebug) {
+            this.stepsRan.steps.push(step);
+        }
 
         // Reset state
         delete step.isPassed;
@@ -166,7 +170,7 @@ class RunInstance {
             }
         }
 
-        if(!step.isFailed) { // A Before Every Step hook did not fail the step and we did not stop
+        if(!step.isFailed) { // A Before Every Step hook didn't fail this step and we didn't stop
             // Find the previous step
             let prevStep = null;
             let index = branch.steps.indexOf(step);
@@ -176,7 +180,8 @@ class RunInstance {
 
             // Handle the stack for {{local vars}}
             if(prevStep) {
-                let prevStepWasACodeBlockFunc = prevStep.isFunctionCall && prevStep.hasCodeBlock();
+                let prevStepNode = this.tree.stepNodeIndex[prevStep.id];
+                let prevStepWasACodeBlockFunc = prevStepNode.isFunctionCall && this.tree.hasCodeBlock(prevStep);
 
                 // Check change of step.level between this step and the previous one, push/pop this.localStack accordingly
                 if(step.level > prevStep.level) { // NOTE: when step.level > prevStep.level, step.level is always prevStep.level + 1
@@ -205,17 +210,20 @@ class RunInstance {
 
             // Execute the step
             try {
+                let varsBeingSet = stepNode.getVarsBeingSet();
+
                 // Passing inputs into function calls
-                if(step.isFunctionCall) {
-                    this.appendToLog(`Calling function at ${step.originalStepInTree.functionDeclarationInTree.filename}:${step.originalStepInTree.functionDeclarationInTree.lineNumber}`, step);
+                if(stepNode.isFunctionCall) {
+                    let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
+                    this.appendToLog(`Calling function at ${functionDeclarationNode.filename}:${functionDeclarationNode.lineNumber}`, step);
 
                     // Set {vars} based on function declaration signature and function call signature
 
-                    let varList = step.functionDeclarationText.match(Constants.VAR);
+                    let varList = functionDeclarationNode.text.match(Constants.VAR);
                     if(varList) {
-                        let inputList = step.text.match(Constants.FUNCTION_INPUT);
+                        let inputList = stepNode.text.match(Constants.FUNCTION_INPUT);
                         if(inputList) {
-                            if(step.varsBeingSet && step.varsBeingSet.length > 0) {
+                            if(varsBeingSet && varsBeingSet.length > 0) {
                                 // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
                                 inputList.shift();
                             }
@@ -250,9 +258,9 @@ class RunInstance {
                 }
 
                 // Step is {var}='str' [, {var2}='str', etc.]
-                if(!step.isFunctionCall && !step.hasCodeBlock() && step.varsBeingSet && step.varsBeingSet.length > 0) {
-                    for(let i = 0; i < step.varsBeingSet.length; i++) {
-                        let varBeingSet = step.varsBeingSet[i];
+                if(!stepNode.isFunctionCall && !this.tree.hasCodeBlock(step) && varsBeingSet && varsBeingSet.length > 0) {
+                    for(let i = 0; i < varsBeingSet.length; i++) {
+                        let varBeingSet = varsBeingSet[i];
                         let value = utils.stripQuotes(varBeingSet.value);
                         value = this.replaceVars(value);
                         this.setVarBeingSet(varBeingSet, value);
@@ -267,23 +275,23 @@ class RunInstance {
                 }
 
                 // Step has a code block to execute
-                if(step.hasCodeBlock()) {
-                    if(step.isFunctionCall) {
+                if(this.tree.hasCodeBlock(step)) {
+                    if(stepNode.isFunctionCall) {
                         // Push existing local let context to stack, create fresh local let context
                         this.pushLocalStack();
                     }
 
                     inCodeBlock = true;
 
-                    let retVal = await this.evalCodeBlock(step.codeBlock, step.text, this.getLineNumberOffset(step), step);
+                    let retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getLineNumberOffset(step), step);
 
                     inCodeBlock = false;
 
                     // Step is {var} = Func or Text { code block }
                     // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
-                    if(step.varsBeingSet && step.varsBeingSet.length == 1) {
+                    if(varsBeingSet && varsBeingSet.length == 1) {
                         // Grab return value from code and assign it to {var}
-                        this.setVarBeingSet(step.varsBeingSet[0], retVal);
+                        this.setVarBeingSet(varsBeingSet[0], retVal);
                     }
 
                     // If this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
@@ -340,7 +348,7 @@ class RunInstance {
 
             let isGreen = step.isPassed;
             console.log("End:       " +
-                (isGreen ? chalk.green(step.line.trim()) : chalk.red(step.line.trim()) ) +
+                (isGreen ? chalk.green(stepNode.text.trim()) : chalk.red(stepNode.text.trim()) ) +
                 "    " +
                 (step.isPassed ? chalk.green(` passed`) : ``) +
                 (step.isFailed ? chalk.red(` failed`) : ``) +
@@ -350,7 +358,7 @@ class RunInstance {
 
             if(step.error) {
                 console.log(
-                    chalk.red.bold(step.line.trim()) +
+                    chalk.red.bold(stepNode.text.trim()) +
                     "    " +
                     (step.error.filename ?
                         chalk.gray(`[${step.error.filename}:${step.error.lineNumber}]`) :
@@ -362,7 +370,7 @@ class RunInstance {
             }
         }
 
-        if(step.isAfterDebug && !overrideDebug) {
+        if(this.tree.getModifier(step, 'isAfterDebug') && !overrideDebug) {
             this.setPause(true);
             return;
         }
@@ -376,8 +384,11 @@ class RunInstance {
      * @return {Boolean} True if the run was a success, false if there was a failure
      */
     async runHookStep(step, stepToGetError, branchToGetError) {
+        let stepNode = this.tree.stepNodeIndex[step.id];
+        let codeBlock = this.tree.getCodeBlock(step);
+
         try {
-            await this.evalCodeBlock(step.codeBlock, step.text, step.lineNumber, stepToGetError || branchToGetError);
+            await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.lineNumber, stepToGetError || branchToGetError);
         }
         catch(e) {
             this.fillErrorFromStep(e, step, true);
@@ -494,23 +505,28 @@ class RunInstance {
     }
 
     /**
-     * Runs the given step, then pauses again
+     * Runs the given step text, then pauses again
      * Only call if already paused
      * Stops execution upon the first failure, ignores $ and ~
-     * @param {Step} step - The step to run
+     * @param {String} text - The step text to run
      * @return {Promise} Promise that gets resolved with a Branch of steps that were run, once done executing
      * @throws {Error} Any errors that may occur during a branchify() of the given step
      */
-    async injectStep(step) {
+    async inject(text) {
+        this.tree.parseIn(text);
+        let keys = Object.keys(this.tree.stepNodeIndex);
+        let stepNode = this.tree.stepNodeIndex[keys[keys.length - 1]];
+
         let branchAbove = this.stepsRan;
         if(!branchAbove || branchAbove.steps.length == 0) {
             // Create a fake, empty step
-            let tempStep = new Step();
+            let tempStep = this.tree.newStepNode();
             tempStep.parent = this.tree.root;
-            branchAbove = new Branch([ tempStep.cloneForBranch() ]);
+            branchAbove = new Branch;
+            branchAbove.push(new Step(tempStep.id), this.tree.stepNodeIndex);
         }
 
-        let branchesToRun = this.tree.branchify(step, undefined, undefined, undefined, undefined, branchAbove); // branchify so that if step is an already-defined function call, it will work
+        let branchesToRun = this.tree.branchify(stepNode, undefined, undefined, undefined, undefined, branchAbove); // branchify so that if step is an already-defined function call, it will work
         let stepsToRun = branchesToRun[0];
 
         for(let i = 0; i < stepsToRun.steps.length; i++) {
@@ -616,7 +632,7 @@ class RunInstance {
             return null;
         }
 
-        return this.currStep.text;
+        return this.tree.stepNodeIndex[this.currStep.id].text;
     }
 
     /**
@@ -885,14 +901,16 @@ class RunInstance {
                     break; // you cannot look outside a function's scope for a local var
                 }
 
-                if(s.varsBeingSet) {
-                    for(let j = 0; j < s.varsBeingSet.length; j++) {
-                        let varBeingSet = s.varsBeingSet[j];
+                let sNode = this.tree.stepNodeIndex[s.id];
+                let varsBeingSet = sNode.getVarsBeingSet();
+                if(varsBeingSet) {
+                    for(let j = 0; j < varsBeingSet.length; j++) {
+                        let varBeingSet = varsBeingSet[j];
                         if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
                             let value = null;
-                            if(s.hasCodeBlock()) {
+                            if(this.tree.hasCodeBlock(s)) {
                                 // {varname}=Function (w/ code block)
-                                value = this.evalCodeBlock(s.codeBlock, s.text, s.lineNumber, s, true);
+                                value = this.evalCodeBlock(this.tree.getCodeBlock(s), sNode.text, sNode.lineNumber, s, true);
 
                                 // Note: {varname}=Function without code block, where another {varname}= is further below, had its varBeingSet removed already
                             }
@@ -905,7 +923,7 @@ class RunInstance {
                                 value = this.replaceVars(value, true); // recursive call, start at original step passed in
                             }
 
-                            this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${s.filename}:${s.lineNumber}`, step || branch);
+                            this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${sNode.filename}:${sNode.lineNumber}`, step || branch);
                             return value;
                         }
                     }
@@ -1026,18 +1044,21 @@ class RunInstance {
      * Takes an Error caught from the execution of a step and adds filename and lineNumber parameters to it
      */
     fillErrorFromStep(error, step, inCodeBlock) {
-        error.filename = step.filename;
-        error.lineNumber = step.lineNumber;
+        let stepNode = this.tree.stepNodeIndex[step.id];
+
+        error.filename = stepNode.filename;
+        error.lineNumber = stepNode.lineNumber;
 
         // If error occurred in a function's code block, we should reference the function declaration's line, not the function call's line
         // (except for hooks and packaged code blocks)
-        if(step.isFunctionCall && inCodeBlock && !step.isHook && !step.isPackaged) {
-            error.filename = step.originalStepInTree.functionDeclarationInTree.filename;
-            error.lineNumber = step.originalStepInTree.functionDeclarationInTree.lineNumber;
+        if(stepNode.isFunctionCall && inCodeBlock && !this.tree.getModifier(step, 'isHook') && !this.tree.getModifier(step, 'isPackaged')) {
+            let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
+            error.filename = functionDeclarationNode.filename;
+            error.lineNumber = functionDeclarationNode.lineNumber;
         }
 
         // If error occurred in a code block, set the lineNumber to be that from the stack trace rather than the first line of the code block
-        if(inCodeBlock && !step.isPackaged) {
+        if(inCodeBlock && !this.tree.getModifier(step, 'isPackaged')) {
             let matches = error.stack.toString().match(/at CodeBlock[^\n]+<anonymous>:[0-9]+/g);
             if(matches) {
                 matches = matches[0].match(/([0-9]+)$/g);
@@ -1052,11 +1073,13 @@ class RunInstance {
      * @return {Number} The line number offset for evalCodeBlock(), based on the given step
      */
     getLineNumberOffset(step) {
-        if(step.isFunctionCall && !step.isHook) {
-            return step.originalStepInTree.functionDeclarationInTree.lineNumber;
+        let stepNode = this.tree.stepNodeIndex[step.id];
+        if(stepNode.isFunctionCall && !this.tree.getModifier(step, 'isHook')) {
+            let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
+            return functionDeclarationNode.lineNumber;
         }
         else {
-            return step.lineNumber;
+            return stepNode.lineNumber;
         }
     }
 

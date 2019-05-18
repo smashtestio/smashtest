@@ -101,6 +101,14 @@ class Tree {
     }
 
     /**
+     * @param {Step} step - A step
+     * @return {Boolean} True if step or its corresponding function declaration has a step block, false otherwise
+     */
+    hasCodeBlock(step) {
+        return this.getCodeBlock(step) !=  '';
+    }
+
+    /**
      * Parses a string and adds it onto root
      * @param {String} buffer - Contents of a test file
      * @param {String} filename - Name of the test file

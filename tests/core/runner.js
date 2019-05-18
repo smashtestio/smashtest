@@ -1,14 +1,13 @@
 const chai = require('chai');
-const chaiSubset = require('chai-subset');
 const chaiAsPromised = require("chai-as-promised");
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
 const Tree = require('../../tree.js');
 const Runner = require('../../runner.js');
+const Comparer = require('../../packages/js/comparer.js');
 const utils = require('../../utils.js');
 
-chai.use(chaiSubset);
 chai.use(chaiAsPromised);
 
 describe("Runner", () => {
@@ -1173,12 +1172,12 @@ A {
         });
     });
 
-    describe("injectStep()", () => {
+    describe("inject()", () => {
         it("throws error if not paused", async () => {
             let tree = new Tree();
             let runner = new Runner();
             runner.init(tree, undefined, true);
-            await expect(runner.injectStep({})).to.be.rejectedWith("Must be paused to run a step");
+            await expect(runner.inject(``)).to.be.rejectedWith("Must be paused to run a step");
         });
 
         it("injects a step and runs it, then pauses again", async () => {
@@ -1207,13 +1206,10 @@ A {
             expect(runner.ranStepC).to.be.undefined;
             expect(runner.ranInjectedStep).to.be.undefined;
 
-            let t = new Tree();
-            t.parseIn(`
+            await runner.inject(`
 Step to Inject {
     runInstance.runner.ranInjectedStep = !runInstance.runner.ranInjectedStep;
 }`);
-
-            await runner.injectStep(t.root.children[0]);
 
             expect(runner.isPaused).to.be.true;
             expect(runner.ranStepA).to.be.true;
@@ -1229,15 +1225,15 @@ Step to Inject {
             let runner = new Runner();
             runner.init(tree, undefined, true);
 
-            runner.flags = [ 'one', 'two' ];
-            runner.skipPassed = true;
-            runner.maxInstances = 10;
+            runner.persistent = { a: 1, b: 2 };
+            runner.isPaused = true;
 
-            let obj = runner.serialize();
+            let json = runner.serialize();
+            let obj = JSON.parse(json);
 
-            expect(obj.flags).to.eql([ 'one', 'two' ]);
-            expect(obj.skipPassed).to.be.true;
-            expect(obj.maxInstances).to.equal(10);
+            Comparer.expect(obj).to.match({
+                isPaused: true
+            });
         });
     });
 });

@@ -146,7 +146,7 @@ Options
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
   --skip-passed or -s             Do not run branches that passed last time. Just carry them over
                                     into new report.
-  --step-data=<all/fail/none>     Keep step data for all steps, failed step, or no steps. Default is all.
+  --step-data=<all/fail/none>     Keep step data for all steps, failed step, or no steps. Default is fail.
   --version or -v                 Output the version of SmashTEST
 `);
                 process.exit();
@@ -643,11 +643,10 @@ async function runServer() {
                                 utils.error("Cannot define a function declaration or hook here");
                             }
 
-                            let t = new Tree();
-
                             if(codeBlockStep === null) {
-                                let step = t.parseLine(input);
-                                if(step.hasCodeBlock()) {
+                                let stepNode = new StepNode(0);
+                                stepNode.parseLine(input);
+                                if(stepNode.hasCodeBlock()) {
                                     // Continue inputting lines until a } is inputted
                                     codeBlockStep = input;
                                     return;
@@ -658,10 +657,8 @@ async function runServer() {
                                 codeBlockStep = null;
                             }
 
-                            t.parseIn(input);
-
                             console.log("");
-                            await runner.injectStep(t.root.children[0]);
+                            await runner.inject(input);
 
                             break;
                     }
