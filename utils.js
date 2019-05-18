@@ -117,7 +117,7 @@ exports.unescape = (str) => {
  */
 exports.printBranches = (tree, branches) => {
     branches.forEach((b, i) => {
-        console.log(b.output(tree.getStepNode, "Branch " + i));
+        console.log(b.output(tree.stepNodeIndex, "Branch " + i));
     });
 }
 

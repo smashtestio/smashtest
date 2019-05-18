@@ -135,8 +135,8 @@ describe("Branch", () => {
 
     describe("output()", () => {
         it("outputs the right text", () => {
-            let stepNodes = [ new StepNode(1), new StepNode(2), new StepNode(3) ];
-            let steps = [ new Step(1), new Step(2), new Step(3) ];
+            let stepNodes = [ new StepNode(0), new StepNode(1), new StepNode(2) ];
+            let steps = [ new Step(0), new Step(1), new Step(2) ];
 
             stepNodes[0].text = "A";
             steps[0].level = 0;
@@ -151,7 +151,7 @@ describe("Branch", () => {
             let branch = new Branch;
             branch.steps = steps;
 
-            expect(branch.output((id) => stepNodes[id-1], "Foo")).to.equal(`Foo
+            expect(branch.output(stepNodes, "Foo")).to.equal(`Foo
     A
         B
             C
@@ -166,10 +166,8 @@ describe("Branch", () => {
         let branch1 = null;
         let branch2 = null;
 
-        let f = (id) => stepNodes[id-1];
-
         beforeEach(() => {
-            for(let i = 1; i <= 6; i++) {
+            for(let i = 0; i < 6; i++) {
                 stepNodes.push(new StepNode(i));
                 steps.push(new Step(i));
             }
@@ -197,35 +195,35 @@ describe("Branch", () => {
         });
 
         it("finds two empty branches to be equal", () => {
-            expect(branch1.equals(branch2, ()=>{})).to.equal(true);
-            expect(branch1.equals(branch2, ()=>{}, 1)).to.equal(true);
+            expect(branch1.equals(branch2, {})).to.equal(true);
+            expect(branch1.equals(branch2, {}, 1)).to.equal(true);
         });
 
         it("finds two equal branches to be equal", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
-            expect(branch1.equals(branch2, f)).to.equal(true);
-            expect(branch1.equals(branch2, f, 3)).to.equal(true);
-            expect(branch1.equals(branch2, f, 2)).to.equal(true);
-            expect(branch1.equals(branch2, f, 1)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes, 3)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes, 2)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes, 1)).to.equal(true);
         });
 
         it("finds two differently-sized branches to be not equal", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 5);
 
-            expect(branch1.equals(branch2, f)).to.equal(false);
-            expect(branch1.equals(branch2, f, 3)).to.equal(false);
-            expect(branch1.equals(branch2, f, 4)).to.equal(false);
+            expect(branch1.equals(branch2, stepNodes)).to.equal(false);
+            expect(branch1.equals(branch2, stepNodes, 3)).to.equal(false);
+            expect(branch1.equals(branch2, stepNodes, 4)).to.equal(false);
         });
 
         it("finds two differently-sized branches to be equal if the first N steps are the same", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 5);
 
-            expect(branch1.equals(branch2, f, 1)).to.equal(true);
-            expect(branch1.equals(branch2, f, 2)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes, 1)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes, 2)).to.equal(true);
         });
 
         it("finds two branches with different steps to be not equal", () => {
@@ -233,8 +231,8 @@ describe("Branch", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
-            expect(branch1.equals(branch2, f)).to.equal(false);
-            expect(branch1.equals(branch2, f, 2)).to.equal(false);
+            expect(branch1.equals(branch2, stepNodes)).to.equal(false);
+            expect(branch1.equals(branch2, stepNodes, 2)).to.equal(false);
         });
 
         it("finds two branches with different steps to be equal if the first N steps are the same", () => {
@@ -242,7 +240,7 @@ describe("Branch", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
-            expect(branch1.equals(branch2, f, 1)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes, 1)).to.equal(true);
         });
 
         it("finds two branches with the same steps but different code blocks to not be equal", () => {
@@ -250,14 +248,14 @@ describe("Branch", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
-            expect(branch1.equals(branch2, f)).to.equal(false);
+            expect(branch1.equals(branch2, stepNodes)).to.equal(false);
 
             stepNodes[1].codeBlock = 'foo';
             stepNodes[4].codeBlock = 'bar';
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
-            expect(branch1.equals(branch2, f)).to.equal(false);
+            expect(branch1.equals(branch2, stepNodes)).to.equal(false);
 
             delete stepNodes[1].codeBlock;
             steps[1].functionDeclarationId = 6;
@@ -266,7 +264,7 @@ describe("Branch", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
-            expect(branch1.equals(branch2, f)).to.equal(false);
+            expect(branch1.equals(branch2, stepNodes)).to.equal(false);
         });
 
         it("finds two branches with the same steps and the same code blocks to be equal", () => {
@@ -275,7 +273,7 @@ describe("Branch", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
-            expect(branch1.equals(branch2, f)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes)).to.equal(true);
 
             delete stepNodes[1].codeBlock;
             steps[1].functionDeclarationId = 6;
@@ -284,14 +282,14 @@ describe("Branch", () => {
             branch1.steps = steps.slice(0, 3);
             branch2.steps = steps.slice(3, 6);
 
-            expect(branch1.equals(branch2, f)).to.equal(true);
+            expect(branch1.equals(branch2, stepNodes)).to.equal(true);
         });
     });
 
     describe("updateHash()", () => {
         it("generates the hash for the branch", () => {
-            let stepNodes = [ new StepNode(1), new StepNode(2), new StepNode(3) ];
-            let steps = [ new Step(1), new Step(2), new Step(3) ];
+            let stepNodes = [ new StepNode(0), new StepNode(1), new StepNode(2) ];
+            let steps = [ new Step(0), new Step(1), new Step(2) ];
 
             stepNodes[0].text = "A";
             stepNodes[1].text = "B";
@@ -300,7 +298,7 @@ describe("Branch", () => {
             let branch = new Branch();
             branch.steps = steps;
 
-            branch.updateHash((id) => stepNodes[id-1]);
+            branch.updateHash(stepNodes);
             expect(branch.hash).to.equal("40c53c58fdafacc83cfff6ee3d2f6d69");
         });
     });
@@ -309,7 +307,6 @@ describe("Branch", () => {
         it("marks a branch passed when all steps passed", () => {
             let stepNodes = [];
             let steps = [];
-            let f = (id) => stepNodes[id-1];
 
             for(let i = 1; i <= 4; i++) {
                 stepNodes.push(new StepNode(i));
@@ -342,7 +339,6 @@ describe("Branch", () => {
         it("marks a branch failed when one of the steps failed", () => {
             let stepNodes = [];
             let steps = [];
-            let f = (id) => stepNodes[id-1];
 
             for(let i = 1; i <= 4; i++) {
                 stepNodes.push(new StepNode(i));
@@ -379,7 +375,7 @@ describe("Branch", () => {
 
             b.nonParallelId = 4;
             b.isPassed = true;
-            b.steps = [ new Step(1), new Step(2) ];
+            b.steps = [ new Step(0), new Step(1) ];
 
             let o = b.serializeObj();
 
@@ -388,7 +384,7 @@ describe("Branch", () => {
 
                 isPassed: true,
                 steps: [
-                    { id: 1 }, { id: 2 }
+                    { id: 0 }, { id: 1 }
                 ]
             });
         });

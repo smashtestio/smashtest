@@ -19,9 +19,9 @@ function mergeStepsWithStepNodes(tree, branches) {
 
 function mergeStepsArrWithStepNodes(tree, steps) {
     for(let i = 0; i < steps.length; i++) {
-        steps[i] = Object.assign(steps[i], tree.getStepNode(steps[i].id));
+        steps[i] = Object.assign(steps[i], tree.stepNodeIndex[steps[i].id]);
         if(steps[i].functionDeclarationId) {
-            steps[i].codeBlock = tree.getStepNode(steps[i].functionDeclarationId).codeBlock;
+            steps[i].codeBlock = tree.stepNodeIndex[steps[i].functionDeclarationId].codeBlock;
         }
     }
 }
@@ -5265,7 +5265,7 @@ B
                     }
                 ]);
 
-                Comparer.expect(tree.getStepNode(branches[0].steps[0].functionDeclarationId)).to.match({
+                Comparer.expect(tree.stepNodeIndex[branches[0].steps[0].functionDeclarationId]).to.match({
                     codeBlock: '\n    code block'
                 });
             });
@@ -5390,7 +5390,7 @@ S - ..
                     }
                 ]);
 
-                expect(tree.getStepNode(branches[0].steps[15].functionDeclarationId).codeBlock).to.equal("\n    return '5';");
+                expect(tree.stepNodeIndex[branches[0].steps[15].functionDeclarationId].codeBlock).to.equal("\n    return '5';");
             });
 
             it("branchifies {var} = F that has more {var} = F inside of it", () => {
@@ -5456,7 +5456,7 @@ S - ..
                     }
                 ]);
 
-                expect(tree.getStepNode(branches[4].steps[1].functionDeclarationId).codeBlock).to.equal("\n    return '5';");
+                expect(tree.stepNodeIndex[branches[4].steps[1].functionDeclarationId].codeBlock).to.equal("\n    return '5';");
             });
 
             it("rejects {var} = F if F has a code block, but also has children", () => {
@@ -5738,6 +5738,32 @@ F ..
                             { text: "E", level: 0, isSequential: undefined },
                             { text: "G", level: 0, isSequential: undefined },
                             { text: "H", level: 0, isSequential: undefined },
+                        ]
+                    }
+                ]);
+            });
+
+            it("branchifies a .. step on a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+
+* F ..
+    A -
+        B -
+    C -
+
+                `);
+                let branches = tree.branchify(tree.root);
+                mergeStepsWithStepNodes(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: "F", level: 0, isSequential: undefined },
+                            { text: "A", level: 1, isSequential: undefined },
+                            { text: "B", level: 1, isSequential: undefined },
+                            { text: "C", level: 1, isSequential: undefined },
                         ]
                     }
                 ]);
@@ -6247,7 +6273,7 @@ B -
                     }
                 ]);
 
-                expect(tree.getStepNode(branches[0].steps[0].functionDeclarationId).isSequential).to.be.true;
+                expect(tree.stepNodeIndex[branches[0].steps[0].functionDeclarationId].isSequential).to.be.true;
             });
 
             it("branchifies a function declaration under a .. step block", () => {
@@ -10398,12 +10424,11 @@ A
                     tree.generateBranches();
                 }, /Infinite loop detected \[file\.txt:(5|8)\]/);
             });
+        });
 
-            // NOTE: this just freezes up the executable
-            // Unlike the infinite loop which causes an immediate stack size exception, this doesn't blow up stack size (and no exception is thrown) but runs really long
-            // This many branches are unlikely in normal usage, though
-            it.skip("throws an exception when there are too many branches", function() {
-                this.timeout(60000);
+        context("performance", () => {
+            it.skip("handles a very large number of branches and steps", function() {
+                this.timeout(120000);
                 let tree = new Tree();
                 // Each group is another power of 10 worth of branches
                 tree.parseIn(`
@@ -10674,19 +10699,6 @@ A -
         });
 
         it("handles a merge", () => {
-            /*
-             * If a branch...
-             *     1) Exists in both previous and current
-             *         a) Didn't pass in previous (it failed or it didn't run)
-             *             It will be included in current, with a clean execution state
-             *         b) Passed in previous
-             *             It will be included in current, but marked to not run and will carry over its execution state from previous
-             *     2) Only exists in previous
-             *         It will remain absent from current (tester got rid of this branch)
-             *     3) Only exists in current
-             *         It will remain included in current, with a clean execution state (this is a new branch)
-             */
-
              let currTree = new Tree();
 
              currTree.branches = [ new Branch(), new Branch(), new Branch(), new Branch(), new Branch(), new Branch() ];

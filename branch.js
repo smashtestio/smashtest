@@ -47,39 +47,40 @@ class Branch {
     /**
      * Pushes the given step to the end of this branch
      * @param {Step} step - The step to push onto the end of this branch
-     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
+     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
      */
-    push(step, stepNodeLookup) {
+    push(step, stepNodeIndex) {
         this.steps.push(step);
-        this.mergeModifiers(step, stepNodeLookup);
+        this.mergeModifiers(step, stepNodeIndex);
     }
 
     /**
      * Pushes the given step to the front of this branch
      * @param {Step} step - The step to push onto the end of this branch
-     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
+     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
      */
-    unshift(step, stepNodeLookup) {
+    unshift(step, stepNodeIndex) {
         this.steps.unshift(step);
-        this.mergeModifiers(step, stepNodeLookup);
+        this.mergeModifiers(step, stepNodeIndex);
     }
 
     /**
      * Combines the modifiers of the given step with the modifiers of this branch
      * @param {Step} step - The step to push onto the end of this branch
-     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
-     */
-    mergeModifiers(step, stepNodeLookup) {
-        let stepNode = stepNodeLookup(step.id);
-        let functionDeclarationNode = stepNodeLookup(step.functionDeclarationId);
 
-        if(stepNode.isSkipBranch || (functionDeclarationNode && functionDeclarationNode.isSkipBranch)) {
+     */
+    mergeModifiers(step, stepNodeIndex) {
+        let stepNode = stepNodeIndex[step.id];
+        let functionDeclarationNode = stepNodeIndex[step.functionDeclarationId];
+        let modifiers = stepNode.getMergedModifiers(functionDeclarationNode);
+
+        if(modifiers.isSkipBranch) {
             this.isSkipBranch = true;
         }
-        if(stepNode.isOnly || (functionDeclarationNode && functionDeclarationNode.isOnly)) {
+        if(modifiers.isOnly) {
             this.isOnly = true;
         }
-        if(stepNode.isDebug || (functionDeclarationNode && functionDeclarationNode.isDebug)) {
+        if(modifiers.isDebug) {
             this.isDebug = true;
         }
     }
@@ -145,12 +146,12 @@ class Branch {
     }
 
     /**
-     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
+     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
      * @param {String} [branchName] - The name of this branch
      * @param {Number} [startIndent] - How many indents to put before the output, 0 if omitted
      * @return {String} The string representation of this branch
      */
-    output(stepNodeLookup, branchName, startIndent) {
+    output(stepNodeIndex, branchName, startIndent) {
         if(typeof startIndent == 'undefined') {
             startIndent = 0;
         }
@@ -158,7 +159,7 @@ class Branch {
         let output = spaces(startIndent) + branchName + '\n';
 
         this.steps.forEach(step => {
-            let stepNode = stepNodeLookup(step.id);
+            let stepNode = stepNodeIndex[step.id];
             output += spaces(step.level + startIndent + 1) + stepNode.text + '\n';
         });
 
@@ -176,13 +177,13 @@ class Branch {
     }
 
     /**
-     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
+     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
      * @return {String} A short string representation of this branch
      */
-    quickOutput(stepNodeLookup) {
+    quickOutput(stepNodeIndex) {
         let output = '';
         this.steps.forEach(step => {
-            let stepNode = stepNodeLookup(step.id);
+            let stepNode = stepNodeIndex[step.id];
             output += stepNode.text + ' ';
         });
         return output;
@@ -192,11 +193,11 @@ class Branch {
      * Returns whether or not this branch equals another
      * Does not take hooks into account
      * @param {Branch} branch - The branch we're comparing to this one
-     * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
+     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
      * @param {Number} [n] - Only compare the first N steps, no limit if omitted
      * @return {Boolean} true if the given branch's steps are equal to this brach's steps, false otherwise
      */
-     equals(branch, stepNodeLookup, n) {
+     equals(branch, stepNodeIndex, n) {
          let thisLen = this.steps.length;
          let branchLen = branch.steps.length;
          if(typeof n != 'undefined') {
@@ -213,8 +214,8 @@ class Branch {
          }
 
          for(let i = 0; i < thisLen; i++) {
-             let stepNodeA = stepNodeLookup(this.steps[i].id);
-             let stepNodeB = stepNodeLookup(branch.steps[i].id);
+             let stepNodeA = stepNodeIndex[this.steps[i].id];
+             let stepNodeB = stepNodeIndex[branch.steps[i].id];
 
              if(getCanonicalStepText(stepNodeA) != getCanonicalStepText(stepNodeB)) {
                  return false;
@@ -257,12 +258,12 @@ class Branch {
 
      /**
       * Updates the hash of this branch
-      * @param {Function} stepNodeLookup - A function that takes in an id and returns the corresponding StepNode
+      * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
       */
-     updateHash(stepNodeLookup) {
+     updateHash(stepNodeIndex) {
          let combinedStr = '';
          this.steps.forEach(step => {
-             let stepNode = stepNodeLookup(step.id);
+             let stepNode = stepNodeIndex[step.id];
              combinedStr += utils.canonicalize(stepNode.text) + '\n';
          });
          this.hash = md5(combinedStr);
