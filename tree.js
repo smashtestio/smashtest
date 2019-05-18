@@ -65,7 +65,7 @@ class Tree {
         if(stepNode[modifierName]) {
             return true;
         }
-        else if(stepNode.hasOwnProperty('fid') && this.stepNodeIndex[stepNode.fid][modifierName]) {
+        else if(step.hasOwnProperty('fid') && this.stepNodeIndex[step.fid][modifierName]) {
             return true;
         }
 
@@ -82,8 +82,8 @@ class Tree {
         if(stepNode.hasCodeBlock()) {
             return stepNode.codeBlock;
         }
-        else if(stepNode.hasOwnProperty('fid')) {
-            let functionDeclarationNode = this.stepNodeIndex[stepNode.fid];
+        else if(step.hasOwnProperty('fid')) {
+            let functionDeclarationNode = this.stepNodeIndex[step.fid];
             if(functionDeclarationNode.hasCodeBlock()) {
                 return functionDeclarationNode.codeBlock;
             }

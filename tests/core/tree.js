@@ -27,6 +27,93 @@ function mergeStepsArrWithStepNodes(tree, steps) {
 }
 
 describe("Tree", () => {
+    describe("newStepNode()", () => {
+        it("creates a new step node", () => {
+            let tree = new Tree();
+            let stepNode = tree.newStepNode();
+            expect(stepNode.id).to.equal(1);
+            expect(tree.stepNodeIndex[1] === stepNode).to.be.true;
+
+            stepNode = tree.newStepNode();
+            expect(stepNode.id).to.equal(2);
+            expect(tree.stepNodeIndex[2] === stepNode).to.be.true;
+        });
+    });
+
+    describe("getModifier()", () => {
+        let tree = null;
+        let sn1 = null;
+        let sn2 = null;
+
+        let s1 = null;
+        let s2 = null;
+
+        beforeEach(() => {
+            tree = new Tree();
+            sn1 = tree.newStepNode();
+            sn2 = tree.newStepNode();
+
+            s1 = new Step(1);
+            s2 = new Step(2);
+
+            s1.fid = 2;
+        });
+
+        it("gets a modifier not set on a step node or its function declaration", () => {
+            expect(tree.getModifier(s1, 'isDebug')).to.be.false;
+        });
+
+        it("gets a modifier only set on a step node", () => {
+            sn1.isDebug = true;
+            expect(tree.getModifier(s1, 'isDebug')).to.be.true;
+        });
+
+        it("gets a modifier only set on a function declaration", () => {
+            sn2.isDebug = true;
+            expect(tree.getModifier(s1, 'isDebug')).to.be.true;
+        });
+
+        it("gets a modifier set on both a step node or its function declaration", () => {
+            sn1.isDebug = true;
+            sn2.isDebug = true;
+            expect(tree.getModifier(s1, 'isDebug')).to.be.true;
+        });
+    });
+
+    describe("getCodeBlock()", () => {
+        let tree = null;
+        let sn1 = null;
+        let sn2 = null;
+
+        let s1 = null;
+        let s2 = null;
+
+        beforeEach(() => {
+            tree = new Tree();
+            sn1 = tree.newStepNode();
+            sn2 = tree.newStepNode();
+
+            s1 = new Step(1);
+            s2 = new Step(2);
+
+            s1.fid = 2;
+        });
+
+        it("gets a code block set on a step node", () => {
+            sn1.codeBlock = 'foobar';
+            expect(tree.getCodeBlock(s1)).to.equal('foobar');
+        });
+
+        it("gets a code block set on a function declaration", () => {
+            sn2.codeBlock = 'foobar';
+            expect(tree.getCodeBlock(s1)).to.equal('foobar');
+        });
+
+        it("returns an empty string if no code blocks were found", () => {
+            expect(tree.getCodeBlock(s1)).to.equal('');
+        });
+    });
+
     describe("parseIn()", () => {
         context("generic tests", () => {
             it("parses empty input", () => {
