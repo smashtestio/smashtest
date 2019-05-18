@@ -10555,15 +10555,15 @@ K-1 -
     });
 
     describe("serialize()", () => {
-        it("outputs json for an empty tree", () => {
+        it.only("outputs json for an empty tree", () => {
             let tree = new Tree();
 
             tree.generateBranches();
             tree.isDebug = true;
             tree.elapsed = "DATE";
-            let obj = tree.serialize();
+            let obj = JSON.parse(tree.serialize());
 
-            expect(obj).to.containSubsetInOrder({
+            Comparer.expect(obj).to.match({
                 branches: [],
                 beforeEverything: [],
                 afterEverything: [],

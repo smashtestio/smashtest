@@ -55,7 +55,8 @@ class Tree {
     }
 
     /**
-     * @return {Object} An object containing a merge (OR'ing) of the modifiers associated with the given step and its function declaration (if it has one)
+     * @param {Step} [step] - A step
+     * @return {Object} An object containing a merge (OR'ing) of the modifiers of the given step's StepNode and its function declaration StepNode (if it has one)
      */
     getMergedModifiers(step) {
         if(!step) {

@@ -365,52 +365,24 @@ class StepNode {
     }
 
     /**
-     * @param {StepNode} functionDeclarationNode - The function declaration that corresponds to this step
+     * @param {StepNode} [functionDeclarationNode] - The function declaration that corresponds to this step
      * @return {Object} An object containing a merge (OR'ing) of this StepNode's modifiers and functionDeclarationNode's modifiers
      */
     getMergedModifiers(functionDeclarationNode) {
         let o = {};
-        functionDeclarationNode = functionDeclarationNode || {};
 
-        let isSkip = this.isSkip || functionDeclarationNode.isSkip;
-        isSkip && (o.isSkip = isSkip);
-
-        let isSkipBelow = this.isSkipBelow || functionDeclarationNode.isSkipBelow;
-        isSkipBelow && (o.isSkipBelow = isSkipBelow);
-
-        let isSkipBranch = this.isSkipBranch || functionDeclarationNode.isSkipBranch;
-        isSkipBranch && (o.isSkipBranch = isSkipBranch);
-
-        let isDebug = this.isDebug || functionDeclarationNode.isDebug;
-        isDebug && (o.isDebug = isDebug);
-
-        let isBeforeDebug = this.isBeforeDebug || functionDeclarationNode.isBeforeDebug;
-        isBeforeDebug && (o.isBeforeDebug = isBeforeDebug);
-
-        let isAfterDebug = this.isAfterDebug || functionDeclarationNode.isAfterDebug;
-        isAfterDebug && (o.isAfterDebug = isAfterDebug);
-
-        let isOnly = this.isOnly || functionDeclarationNode.isOnly;
-        isOnly && (o.isOnly = isOnly);
-
-        let isNonParallel = this.isNonParallel || functionDeclarationNode.isNonParallel;
-        isNonParallel && (o.isNonParallel = isNonParallel);
-
-        let isSequential = this.isSequential || functionDeclarationNode.isSequential;
-        isSequential && (o.isSequential = isSequential);
-
-        let isCollapsed = this.isCollapsed || functionDeclarationNode.isCollapsed;
-        isCollapsed && (o.isCollapsed = isCollapsed);
-
-        // we don't need to merge isHidden
-
-        let isHook = this.isHook || functionDeclarationNode.isHook;
-        isHook && (o.isHook = isHook);
-
-        let isPackaged = this.isPackaged || functionDeclarationNode.isPackaged;
-        isPackaged && (o.isPackaged = isPackaged);
+        copyFrom(this);
+        functionDeclarationNode && copyFrom(functionDeclarationNode);
 
         return o;
+
+        function copyFrom(obj) {
+            for(let key in obj) {
+                if(obj.hasOwnProperty(key) && typeof obj[key] == 'boolean' && obj[key]) {
+                    o[key] = true;
+                }
+            }
+        }
     }
 
     /**
