@@ -71,16 +71,15 @@ class Branch {
      */
     mergeModifiers(step, stepNodeIndex) {
         let stepNode = stepNodeIndex[step.id];
-        let functionDeclarationNode = stepNodeIndex[step.functionDeclarationId];
-        let modifiers = stepNode.getMergedModifiers(functionDeclarationNode);
+        let functionDeclarationNode = stepNodeIndex[step.functionDeclarationId] || {};
 
-        if(modifiers.isSkipBranch) {
+        if(stepNode.isSkipBranch || functionDeclarationNode.isSkipBranch) {
             this.isSkipBranch = true;
         }
-        if(modifiers.isOnly) {
+        if(stepNode.isOnly || functionDeclarationNode.isOnly) {
             this.isOnly = true;
         }
-        if(modifiers.isDebug) {
+        if(stepNode.isDebug || functionDeclarationNode.isDebug) {
             this.isDebug = true;
         }
     }

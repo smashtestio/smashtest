@@ -365,27 +365,6 @@ class StepNode {
     }
 
     /**
-     * @param {StepNode} [functionDeclarationNode] - The function declaration that corresponds to this step
-     * @return {Object} An object containing a merge (OR'ing) of this StepNode's modifiers and functionDeclarationNode's modifiers
-     */
-    getMergedModifiers(functionDeclarationNode) {
-        let o = {};
-
-        copyFrom(this);
-        functionDeclarationNode && copyFrom(functionDeclarationNode);
-
-        return o;
-
-        function copyFrom(obj) {
-            for(let key in obj) {
-                if(obj.hasOwnProperty(key) && typeof obj[key] == 'boolean' && obj[key]) {
-                    o[key] = true;
-                }
-            }
-        }
-    }
-
-    /**
      * @return {Object} An Object representing this step node, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serializeObj() {

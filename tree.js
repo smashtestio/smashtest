@@ -55,25 +55,23 @@ class Tree {
     }
 
     /**
-     * @param {Step} [step] - A step
-     * @return {Object} An object containing a merge (OR'ing) of the modifiers of the given step's StepNode and its function declaration StepNode (if it has one)
+     * @param {Step} step - A step
+     * @param {String} modifierName - The name of a modifier (key in StepNode)
+     * @return {Boolean} True if the given modifier is set on either step's StepNode or on its function declaration's StepNode (if it has one), false otherwise
      */
-    getMergedModifiers(step) {
-        if(!step) {
-            return {};
-        }
-
+    getMergedModifier(step, modifierName) {
         let stepNode = this.stepNodeIndex[step.id];
-
         if(!stepNode) {
-            return {};
+            return false;
+        }
+        else if(stepNode[modifierName]) {
+            return true;
+        }
+        else if(stepNode.hasOwnProperty('functionDeclarationId') && this.stepNodeIndex[stepNode.functionDeclarationId][modifierName]) {
+            return true;
         }
 
-        if(stepNode.hasOwnProperty('functionDeclarationId')) {
-            return stepNode.getMergedModifiers(step.functionDeclarationId);
-        }
-
-        return stepNode;
+        return false;
     }
 
     /**
@@ -803,7 +801,7 @@ ${outputBranchAbove(this)}
         }
 
         // If isNonParallel (!) is set, connect up the branches in branchesBelow
-        if(this.getMergedModifiers(step).isNonParallel) {
+        if(this.getMergedModifier(step, 'isNonParallel')) {
             let nonParallelId = utils.randomId();
             branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);
         }
@@ -1059,7 +1057,7 @@ ${outputBranchAbove(this)}
         this.branches.forEach(branch => {
             let firstStep = branch.steps[0];
             let firstStepNode = this.stepNodeIndex[firstStep.id];
-            if(this.getMergedModifiers(firstStep).isSkipBelow) {
+            if(this.getMergedModifier(firstStep, 'isSkipBelow')) {
                 branch.isSkipped = true;
                 //branch.appendToLog(`Branch skipped because it starts with a .s step`);
             }
@@ -1070,7 +1068,7 @@ ${outputBranchAbove(this)}
             if(branch.isSkipBranch) {
                 branch.isSkipped = true;
                 /*branch.steps.forEach(s => {
-                    if(this.getMergedModifiers(s).isSkipBranch) {
+                    if(this.getMergedModifier(s, 'isSkipBranch')) {
                         branch.appendToLog(`Branch skipped because a $s step was encountered at ${s.filename}:${s.lineNumber}`);
                     }
                 });*/
@@ -1083,7 +1081,7 @@ ${outputBranchAbove(this)}
                 let indexOfSkipBelow = -1;
                 for(let i = 0; i < branch.steps.length; i++) {
                     let s = branch.steps[i];
-                    if(this.getMergedModifiers(s).isSkipBelow) {
+                    if(this.getMergedModifier(s, 'isSkipBelow')) {
                         indexOfSkipBelow = i;
                     }
                     if(indexOfSkipBelow != -1) {
@@ -1295,7 +1293,7 @@ ${outputBranchAbove(this)}
             for(let j = 0; j < branch.steps.length; j++) {
                 let step = branch.steps[j];
 
-                if(runnableOnly && this.getMergedModifiers(step).isSkipBelow) {
+                if(runnableOnly && this.getMergedModifier(step, 'isSkipBelow')) {
                     break; // go to next branch
                 }
 
@@ -1464,7 +1462,7 @@ ${outputBranchAbove(this)}
         }
 
         // End the branch if next step is a .s
-        if(nextStep && this.getMergedModifiers(nextStep).isSkipBelow) {
+        if(nextStep && this.getMergedModifier(nextStep, 'isSkipBelow')) {
             if(advance) {
                 delete nextStep.isRunning;
                 branch.finishOffBranch();
