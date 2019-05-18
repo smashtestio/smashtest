@@ -10882,6 +10882,8 @@ A -
              currTree.newStepNode().text = "3 clone-3 step-2";
              currTree.newStepNode().text = "3 clone-3 step-3";
 
+             currTree.branches.forEach(branch => branch.updateHash(currTree.stepNodeIndex));
+
              let prevTree = new Tree();
 
              prevTree.branches = [ new Branch(), new Branch(), new Branch(), new Branch(), new Branch(), new Branch() ];
@@ -10921,6 +10923,8 @@ A -
              prevTree.newStepNode().text = "2 clone-3 step-2";
              prevTree.newStepNode().text = "2 clone-3 step-3";
 
+             prevTree.branches.forEach(branch => branch.updateHash(prevTree.stepNodeIndex));
+
              let prevJson = prevTree.serialize();
              currTree.markPassedFromPrevRun(prevJson);
 
@@ -10953,7 +10957,7 @@ A -
                      },
                      {
                          steps: [ { text: "3 clone-2 step-1" }, { text: "3 clone-2 step-2" }, { text: "3 clone-2 step-3" } ],
-                         passedLastTime: true,
+                         passedLastTime: undefined,
                          isPassed: undefined,
                          isFailed: undefined
                      },

@@ -1252,8 +1252,9 @@ ${outputBranchAbove(this)}
      * @param {String} json - A JSON representation of branches from a previous run. Same JSON that serialize() returns.
      */
     markPassedFromPrevRun(json) {
-        let previous = JSON.parse(json);
-        let prevBranches = previous.branches;
+        let previousTree = JSON.parse(json);
+
+        let prevBranches = previousTree.branches;
         let currBranches = this.branches;
 
         if(!prevBranches) {
@@ -1269,7 +1270,7 @@ ${outputBranchAbove(this)}
             let found = false;
             for(let i = 0; i < prevBranches.length; i++) {
                 let prevBranch = prevBranches[i];
-                if(currBranch.equals(prevBranch, this.stepNodeIndex)) {
+                if(currBranch.hash == prevBranch.hash) {
                     if(prevBranch.isPassed) { // failed or didn't run
                         currBranch.passedLastTime = true;
                     }
