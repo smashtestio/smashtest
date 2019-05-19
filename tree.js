@@ -35,7 +35,7 @@ class Tree {
         this.failed = 0;                     // total number of failed branches in this tree
         this.skipped = 0;                    // total number of skipped branches in this tree
         this.complete = 0;                   // total number of complete branches in this tree (passed, failed, or skipped)
-        this.totalToRun = 0;                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a -skipPassed)
+        this.totalToRun = 0;                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a --skip-passed)
         this.totalInReport = 0;              // total number of branches in this tree
         this.totalPassedInReport = 0;        // total number of passed branches in this tree (including the ones that passed last time)
 
@@ -389,13 +389,11 @@ class Tree {
 
                 if(currStepNodeAbove && currStepNodeAbove.isFunctionCall) {
                     parent = this.stepNodeIndex[currStepAbove.fid];
-                    if(parent) {
-                        siblings = parent.children;
-                        foundDeclarationNode = searchAmongSiblings(siblings);
-                        if(foundDeclarationNode) {
-                            branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
-                            return foundDeclarationNode;
-                        }
+                    siblings = parent.children;
+                    foundDeclarationNode = searchAmongSiblings(siblings);
+                    if(foundDeclarationNode) {
+                        branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
+                        return foundDeclarationNode;
                     }
                 }
             }
@@ -502,7 +500,7 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Converts step and its children into branches. Expands function calls, step blocks, etc.
+     * Converts the given step node and its children into branches. Expands function calls, step blocks, etc.
      * @param {Step} stepNode - StepNode to convert to branches (NOTE: do not set step to a StepBlockNode unless it's a sequential StepBlockNode)
      * @param {Array} [groups] - Array of String, only return branches part of at least one of these groups, no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only return branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined

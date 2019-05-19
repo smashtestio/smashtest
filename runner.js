@@ -199,7 +199,7 @@ class Runner {
 
     /**
      * Creates a single empty RunInstance and pauses it
-     * Will be used by -repl
+     * Will be used by --repl
      */
     createEmptyRunner() {
         this.runInstances = [ new RunInstance(this) ];

@@ -862,10 +862,10 @@ class RunInstance {
             variableFullLookahead = `{${varname}:}`;
         }
 
-        let endsInStar = varname.trim().endsWith(':');
+        let isLookaheadVar = varname.trim().endsWith(':');
         varname = varname.replace(/\:\s*$/, ''); // strip the : off the end
 
-        if(!endsInStar || lookAnywhere) {
+        if(!isLookaheadVar || lookAnywhere) { // look to the existing value
             // Return the value of the var immediately
             let value = null;
             if(isLocal) {
@@ -884,55 +884,54 @@ class RunInstance {
             }
         }
 
-        if(endsInStar || lookAnywhere) { // this is a look-down variable
-            // Go down the branch looking for {varname}= or {{varname}}=
-            let branch = this.currBranch;
-            let step = this.currStep;
+        // If we got to this point, look down the branch looking for {varname}= or {{varname}}=
 
-            if(!branch) {
-                branch = new Branch(); // temp branch that's going to be a container for the step
-                branch.steps.push(step);
+        let branch = this.currBranch;
+        let step = this.currStep;
+
+        if(!branch) {
+            branch = new Branch(); // temp branch that's going to be a container for the step
+            branch.steps.push(step);
+        }
+
+        let index = branch.steps.indexOf(step);
+        for(let i = index; i < branch.steps.length; i++) {
+            let s = branch.steps[i];
+            if(isLocal && s.level < step.level) {
+                break; // you cannot look outside a function's scope for a local var
             }
 
-            let index = branch.steps.indexOf(step);
-            for(let i = index; i < branch.steps.length; i++) {
-                let s = branch.steps[i];
-                if(isLocal && s.level < step.level) {
-                    break; // you cannot look outside a function's scope for a local var
-                }
+            let sNode = this.tree.stepNodeIndex[s.id];
+            let varsBeingSet = sNode.getVarsBeingSet();
+            if(varsBeingSet) {
+                for(let j = 0; j < varsBeingSet.length; j++) {
+                    let varBeingSet = varsBeingSet[j];
+                    if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
+                        let value = null;
+                        if(this.tree.hasCodeBlock(s)) {
+                            // {varname}=Function (w/ code block)
+                            value = this.evalCodeBlock(this.tree.getCodeBlock(s), sNode.text, sNode.lineNumber, s, true);
 
-                let sNode = this.tree.stepNodeIndex[s.id];
-                let varsBeingSet = sNode.getVarsBeingSet();
-                if(varsBeingSet) {
-                    for(let j = 0; j < varsBeingSet.length; j++) {
-                        let varBeingSet = varsBeingSet[j];
-                        if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
-                            let value = null;
-                            if(this.tree.hasCodeBlock(s)) {
-                                // {varname}=Function (w/ code block)
-                                value = this.evalCodeBlock(this.tree.getCodeBlock(s), sNode.text, sNode.lineNumber, s, true);
-
-                                // Note: {varname}=Function without code block, where another {varname}= is further below, had its varBeingSet removed already
-                            }
-                            else {
-                                // {varname}='string'
-                                value = utils.stripQuotes(varBeingSet.value);
-                            }
-
-                            if(['string', 'boolean', 'number'].indexOf(typeof value) != -1) { // only if value is a string, boolean, or number
-                                value = this.replaceVars(value, true); // recursive call, start at original step passed in
-                            }
-
-                            this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${sNode.filename}:${sNode.lineNumber}`, step || branch);
-                            return value;
+                            // Note: {varname}=Function without code block, where another {varname}= is further below, had its varBeingSet removed already
                         }
+                        else {
+                            // {varname}='string'
+                            value = utils.stripQuotes(varBeingSet.value);
+                        }
+
+                        if(['string', 'boolean', 'number'].indexOf(typeof value) != -1) { // only if value is a string, boolean, or number
+                            value = this.replaceVars(value, true); // recursive call, start at original step passed in
+                        }
+
+                        this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${sNode.filename}:${sNode.lineNumber}`, step || branch);
+                        return value;
                     }
                 }
             }
-
-            // Not found
-            utils.error(`The variable ${variableFull} is never set, but is needed for this step`);
         }
+
+        // Not found
+        utils.error(`The variable ${variableFull} is never set, but is needed for this step`);
     }
 
     /**

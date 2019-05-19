@@ -122,17 +122,6 @@ exports.printBranches = (tree, branches) => {
 }
 
 /**
- * @return {String} A random string of characters
- */
-exports.randomId = () => {
-    let id = '';
-    for(let i = 0; i < 4; i++) {
-        id += Math.random().toString(36).substr(2, 34);
-    }
-    return id;
-}
-
-/**
  * @return {String} text, but in a canonical format (trimmed, all lowercase, and all whitespace replaced with a single space)
  */
 exports.canonicalize = (text) => {
@@ -181,7 +170,7 @@ exports.numIndents = (line, filename, lineNumber) => {
 }
 
 /**
- * Call during big tasks so as not to hog the event loop
+ * Call during big tasks in async code so as not to hog the event loop
  */
 exports.breather = async () => {
     await new Promise(r => setTimeout(r, 0));
