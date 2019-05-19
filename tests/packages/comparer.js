@@ -29,12 +29,28 @@ describe("Comparer", () => {
             expect(expected).to.eql( { one: "foobar2" } );
         });
 
+        it("handles multiple levels of arrays and objects", () => {
+            let actual = [ {one: 1}, {two: 2} ];
+            let expected = [ {one: 1}, {two: 3} ];
+
+            assert.throws(() => {
+                Comparer.expect(actual).to.match(expected);
+            }, `[
+    {
+        one: 1
+    },
+    {
+        two: 2  -->  not 3
+    }
+]`);
+        });
+
         it("handles actual object that contain multiple references to the same object when a json clone is made", () => {
             let a = [ 6 ];
             let actual = [ { shared: a }, { shared: a } ];
             let expected = [ { shared: [ 6 ] }, { shared: [ 6 ] } ];
 
-            Comparer.expect(actual, true).to.match(expected);
+            Comparer.expect(actual, undefined, undefined, true).to.match(expected);
         });
 
         it("handles actual objects with circular references", () => {
@@ -424,6 +440,33 @@ describe("Comparer", () => {
     null,  -->  not expected
     false,  -->  not expected
     undefined  -->  not expected
+]`);
+            });
+
+            it("actual=simple array, expected=same simple array, but with undefineds", () => {
+                let obj = Comparer.comparison([ 1, 2 ], [ 1, 2, undefined ]);
+                expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2,
+    undefined
+]`);
+            });
+
+            it("actual=simple array with explicit undefineds, expected=same simple array, but without undefineds", () => {
+                let obj = Comparer.comparison([ 1, 2, undefined ], [ 1, 2 ]);
+                expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2,
+    undefined  -->  not expected
+]`);
+            });
+
+            it("actual=simple array with explicit undefineds, expected=same simple array, with undefineds", () => {
+                let obj = Comparer.comparison([ 1, 2, undefined ], [ 1, 2, undefined ]);
+                expect(Comparer.print(obj)).to.equal(`[
+    1,
+    2,
+    undefined
 ]`);
             });
 

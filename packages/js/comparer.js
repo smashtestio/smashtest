@@ -15,9 +15,6 @@ class ComparerNode {
 }
 
 class Comparer {
-    constructor() {
-    }
-
     /**
      * Compares the actual object against the expected object
      * Usage: expect(actualObj, errorStart, errorEnd, jsonClone).to.match(expectedObj)
@@ -370,7 +367,7 @@ class Comparer {
             }
         }
         else { // expected is a primitive (also handles functions, undefineds, and other constructs whose typeof isn't object)
-            if(actual !== expected || (actual && actual.$undefined && expected !== undefined)) {
+            if(actual !== expected) {
                 errors.push(`not ${JSON.stringify(expected)}`);
             }
         }
