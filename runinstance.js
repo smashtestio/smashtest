@@ -156,6 +156,10 @@ class RunInstance {
         delete step.isSkipped;
         delete step.error;
 
+        let isPassed = null;
+        let finishBranchNow = null;
+        let error = null;
+
         // Execute Before Every Step hooks
         if(branch.beforeEveryStep) {
             for(let i = 0; i < branch.beforeEveryStep.length; i++) {
@@ -165,12 +169,13 @@ class RunInstance {
                     return;
                 }
                 else if(step.isFailed) {
+                    isPassed = false;
                     break;
                 }
             }
         }
 
-        if(!step.isFailed) { // A Before Every Step hook didn't fail this step and we didn't stop
+        if(isPassed !== false) { // A Before Every Step hook didn't fail this step and we didn't stop
             // Find the previous step
             let prevStep = null;
             let index = branch.steps.indexOf(step);
@@ -205,7 +210,6 @@ class RunInstance {
             }
             this.localsPassedIntoFunc = {};
 
-            let error = undefined;
             let inCodeBlock = false;
 
             // Execute the step
@@ -282,9 +286,7 @@ class RunInstance {
                     }
 
                     inCodeBlock = true;
-
                     let retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getLineNumberOffset(step), step);
-
                     inCodeBlock = false;
 
                     // Step is {var} = Func or Text { code block }
@@ -312,16 +314,14 @@ class RunInstance {
             }
 
             // Marks the step as passed/failed, sets the step's error and log
-            let isPassed = !error;
-            let finishBranchNow = false;
+            isPassed = !error;
+            finishBranchNow = false;
             if(!isPassed) {
                 finishBranchNow = true;
                 if(error.continue || this.runner.pauseOnFail) { // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
                     finishBranchNow = false;
                 }
             }
-
-            this.tree.markStep(step, branch, isPassed, error, finishBranchNow);
         }
 
         // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)
@@ -332,8 +332,13 @@ class RunInstance {
                 if(this.isStopped) {
                     return;
                 }
+                else if(step.isFailed) {
+                    isPassed = false;
+                }
             }
         }
+
+        this.tree.markStep(step, branch, isPassed, error, finishBranchNow);
 
         // Pause if pauseOnFail is set and the step failed
         if(this.runner.pauseOnFail && step.isFailed) {
@@ -397,14 +402,14 @@ class RunInstance {
                 this.tree.markStep(stepToGetError, null, false, stepToGetError.error ? undefined : e); // do not set stepToGetError.error if it's already set
 
                 if(branchToGetError) {
-                    branchToGetError.markBranch(false);
+                    branchToGetError.markBranch('fail', undefined, this.tree.stepData);
                 }
             }
             else if(branchToGetError) {
                 if(branchToGetError.error) { // do not set branchToGetError.error if it's already set
                     e = undefined;
                 }
-                branchToGetError.markBranch(false, e);
+                branchToGetError.markBranch('fail', e, this.tree.stepData);
             }
 
             return false;

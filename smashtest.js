@@ -132,6 +132,7 @@ Options
                                     true if true/false omitted
   --help or -?                    Open this help prompt
   --max-instances=<N>             Do not run more than N branches simultaneously
+  --max-report-size=<N>           Stop running if report reaches this size, in MB. Default is 1024 MB.
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
   --no-debug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
   --p:<name>="<value>"            Set the persistent variable with the given name to the given value
@@ -151,6 +152,10 @@ Options
 
             case "max-instances":
                 runner.maxInstances = value;
+                break;
+
+            case "max-report-size":
+                reporter.maxSize = value * 1048576;
                 break;
 
             case "min-frequency":
@@ -203,6 +208,13 @@ Options
                 else {
                     runner.skipPassed = true;
                 }
+                break;
+
+            case "step-data":
+                if(!value.match(/all|fail|none/)) {
+                    utils.error("step-data must be all, fail, or none");
+                }
+                tree.stepData = value;
                 break;
 
             case "version":

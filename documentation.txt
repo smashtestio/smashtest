@@ -58,6 +58,10 @@ Running tests
             - 5 if omitted
             - If you're hitting a selenium grid, set this high enough so as to max out the available slots (capabilities)
                 - Tests will block on Open browser if a capability isn't available yet
+        - --max-report-size=<N>
+            - Stops running tests if report size > this amount
+            - In MB, default is 1024 MB
+            - Set to 0 for no limit
         - --min-frequency=med
             - med if omitted
         - --no-debug
@@ -90,6 +94,7 @@ Running tests
                     - Uses latest report from <current dir>/reports that didn't have a ~ (~ reports have "debug" at the end of their filenames)
                     - If one isn't found, uses report.html in the current directory
         - --step-data=<all/fail/none>
+            - 'fail' by default, unless debugging, in which case 'all' by default
         - --version/-v
     - Config file, config.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.

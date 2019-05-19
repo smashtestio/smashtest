@@ -295,19 +295,25 @@ class Branch {
 
      /**
       * Marks this branch as passed or failed
+      * @param {Boolean} state - 'pass' to pass, 'fail' to fail, 'skip' to skip
+      * @param {Error} [error] - The Error object that caused the branch to fail (if an error occurred in a Step, that error should go into that Step, not here)
+      * @param {String} [stepData] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
       */
-     markBranch(isPassed, error) {
-         if(isPassed) {
+     markBranch(state, error, stepData) {
+         // Reset state
+         delete this.isPassed;
+         delete this.isFailed;
+         delete this.isRunning;
+         delete this.isSkipped;
+
+         if(state == 'pass') {
              this.isPassed = true;
-             delete this.isFailed;
-             delete this.isRunning;
-             delete this.isSkipped;
          }
-         else {
+         else if(state == 'fail') {
              this.isFailed = true;
-             delete this.isPassed;
-             delete this.isRunning;
-             delete this.isSkipped;
+         }
+         else if(state == 'skip') {
+             this.isSkipped = true;
          }
 
          if(error) {
@@ -315,21 +321,47 @@ class Branch {
              this.error.msg = error.message.toString();
              this.error.stackTrace = error.stack.toString();
          }
+
+         if(stepData == 'none') {
+             clearDataOfSteps(this);
+         }
+         else if(stepData == 'fail') {
+             if(state != 'fail') {
+                 clearDataOfSteps(this);
+             }
+         }
+
+         function clearDataOfSteps(self) {
+             self.steps = self.steps.map(step => {
+                 // The data we want to keep
+                 return utils.removeUndefineds({
+                     id: step.id,
+                     fid: step.fid,
+                     level: step.level,
+
+                     isFailed: step.isFailed,
+                     isSkipped: step.isSkipped,
+                     isRunning: step.isRunning
+                     // omitting isPassed (it will be implied)
+                 });
+             });
+         }
      }
 
      /**
       * Marks this branch passed if all steps passed, failed if at least one step failed
+      * @param {String} [stepData] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
       */
-     finishOffBranch() {
+     finishOffBranch(stepData) {
          for(let i = 0; i < this.steps.length; i++) {
              let step = this.steps[i];
              if(step.isFailed) {
-                 this.markBranch(false);
+                 this.markBranch('fail', undefined, stepData);
                  return;
              }
          }
 
-         this.markBranch(true);
+         this.markBranch('pass', undefined, stepData);
      }
 
      /**

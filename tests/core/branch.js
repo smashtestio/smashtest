@@ -303,6 +303,137 @@ describe("Branch", () => {
         });
     });
 
+    describe("markBranch()", () => {
+        let branch = null;
+
+        beforeEach(() => {
+            branch = new Branch;
+
+            branch.steps = [];
+            branch.steps.push(new Step(1));
+            branch.steps.push(new Step(2));
+            branch.steps.push(new Step(3));
+
+            branch.steps[0].appendToLog('foobar');
+            branch.steps[1].appendToLog('foobar');
+            branch.steps[2].appendToLog('foobar');
+        });
+
+        context("passing a branch", () => {
+            it("doesn't clear step data if stepData is set to 'all'", () => {
+                branch.markBranch('pass', null, 'all');
+
+                expect(branch.isPassed).to.be.true;
+                expect(branch.isFailed).to.be.undefined;
+                expect(branch.isSkipped).to.be.undefined;
+
+                expect(branch.steps[0].log[0].text).to.equal('foobar');
+                expect(branch.steps[1].log[0].text).to.equal('foobar');
+                expect(branch.steps[2].log[0].text).to.equal('foobar');
+            });
+
+            it("clears step data if stepData is set to 'fail'", () => {
+                branch.markBranch('pass', null, 'fail');
+
+                expect(branch.isPassed).to.be.true;
+                expect(branch.isFailed).to.be.undefined;
+                expect(branch.isSkipped).to.be.undefined;
+
+                expect(branch.steps[0].log).to.be.undefined;
+                expect(branch.steps[1].log).to.be.undefined;
+                expect(branch.steps[2].log).to.be.undefined;
+            });
+
+            it("clears step data if stepData is set to 'none'", () => {
+                branch.markBranch('pass', null, 'none');
+
+                expect(branch.isPassed).to.be.true;
+                expect(branch.isFailed).to.be.undefined;
+                expect(branch.isSkipped).to.be.undefined;
+
+                expect(branch.steps[0].log).to.be.undefined;
+                expect(branch.steps[1].log).to.be.undefined;
+                expect(branch.steps[2].log).to.be.undefined;
+            });
+        });
+
+        context("failing a branch", () => {
+            it("doesn't clear step data if stepData is set to 'all'", () => {
+                branch.markBranch('fail', new Error('oops'), 'all');
+
+                expect(branch.isPassed).to.be.undefined;
+                expect(branch.isFailed).to.be.true;
+                expect(branch.isSkipped).to.be.undefined;
+
+                expect(branch.steps[0].log[0].text).to.equal('foobar');
+                expect(branch.steps[1].log[0].text).to.equal('foobar');
+                expect(branch.steps[2].log[0].text).to.equal('foobar');
+            });
+
+            it("doesn't clear step data if stepData is set to 'fail'", () => {
+                branch.markBranch('fail', new Error('oops'), 'fail');
+
+                expect(branch.isPassed).to.be.undefined;
+                expect(branch.isFailed).to.be.true;
+                expect(branch.isSkipped).to.be.undefined;
+
+                expect(branch.steps[0].log[0].text).to.equal('foobar');
+                expect(branch.steps[1].log[0].text).to.equal('foobar');
+                expect(branch.steps[2].log[0].text).to.equal('foobar');
+            });
+
+            it("clears step data if stepData is set to 'none'", () => {
+                branch.markBranch('fail', new Error('oops'), 'none');
+
+                expect(branch.isPassed).to.be.undefined;
+                expect(branch.isFailed).to.be.true;
+                expect(branch.isSkipped).to.be.undefined;
+
+                expect(branch.steps[0].log).to.be.undefined;
+                expect(branch.steps[1].log).to.be.undefined;
+                expect(branch.steps[2].log).to.be.undefined;
+            });
+        });
+
+        context("skipping a branch", () => {
+            it("doesn't clear step data if stepData is set to 'all'", () => {
+                branch.markBranch('skip', null, 'all');
+
+                expect(branch.isPassed).to.be.undefined;
+                expect(branch.isFailed).to.be.undefined;
+                expect(branch.isSkipped).to.be.true;
+
+                expect(branch.steps[0].log[0].text).to.equal('foobar');
+                expect(branch.steps[1].log[0].text).to.equal('foobar');
+                expect(branch.steps[2].log[0].text).to.equal('foobar');
+            });
+
+            it("clears step data if stepData is set to 'fail'", () => {
+                branch.markBranch('skip', null, 'fail');
+
+                expect(branch.isPassed).to.be.undefined;
+                expect(branch.isFailed).to.be.undefined;
+                expect(branch.isSkipped).to.be.true;
+
+                expect(branch.steps[0].log).to.be.undefined;
+                expect(branch.steps[1].log).to.be.undefined;
+                expect(branch.steps[2].log).to.be.undefined;
+            });
+
+            it("clears step data if stepData is set to 'none'", () => {
+                branch.markBranch('skip', null, 'none');
+
+                expect(branch.isPassed).to.be.undefined;
+                expect(branch.isFailed).to.be.undefined;
+                expect(branch.isSkipped).to.be.true;
+
+                expect(branch.steps[0].log).to.be.undefined;
+                expect(branch.steps[1].log).to.be.undefined;
+                expect(branch.steps[2].log).to.be.undefined;
+            });
+        });
+    });
+
     describe("finishOffBranch()", () => {
         it("marks a branch passed when all steps passed", () => {
             let stepNodes = [];

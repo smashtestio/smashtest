@@ -22,6 +22,8 @@ class Tree {
 
         this.latestBranchifiedStepNode = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
 
+        this.stepData = null;                // Keep step data for all steps, failed steps only, or no steps ('all', 'fail', or 'none')
+
         /*
         OPTIONAL
 
@@ -1193,6 +1195,11 @@ ${outputBranchAbove(this)}
                 utils.error(`Couldn't find the branch with the given hash`);
             }
         }
+
+        // Set this.stepData to its default
+        if(!this.stepData) {
+            this.stepData = this.isDebug ? 'all' : 'fail';
+        }
     }
 
     /**
@@ -1460,7 +1467,7 @@ ${outputBranchAbove(this)}
 
         // If this is the very last step in the branch, mark the branch as passed/failed
         if(branch && (finishBranchNow || branch.steps.indexOf(step) + 1 == branch.steps.length)) {
-            branch.finishOffBranch();
+            branch.finishOffBranch(this.stepData);
         }
     }
 
@@ -1473,7 +1480,7 @@ ${outputBranchAbove(this)}
         delete step.isFailed;
 
         if(branch && branch.steps.indexOf(step) + 1 == branch.steps.length) {
-            branch.finishOffBranch();
+            branch.finishOffBranch(this.stepData);
         }
     }
 
@@ -1526,7 +1533,7 @@ ${outputBranchAbove(this)}
         if(nextStep && this.getModifier(nextStep, 'isSkipBelow')) {
             if(advance) {
                 delete nextStep.isRunning;
-                branch.finishOffBranch();
+                branch.finishOffBranch(this.stepData);
             }
 
             return null;
