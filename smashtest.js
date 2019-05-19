@@ -52,9 +52,7 @@ async function exit(forcedStop, exitCode) {
             await runner.stop();
 
             // sleep for 1 sec to give reports a chance to get the final state of the tree before the server goes down
-            await new Promise((resolve, reject) => {
-                setTimeout(() => { resolve(); }, 1000);
-            });
+            await new Promise(r => setTimeout(() => r, 1000));
 
             process.exit(exitCode);
         }
@@ -424,23 +422,8 @@ async function runServer() {
             }
             else {
                 // --skip-passed with no filename
-                // Use last report from /reports that doesn't have debug.html in its name
-                // If one isn't found, use report.html in same directory
-
-                let filenames = await new Promise((resolve, reject) => {
-                    glob('reports/!(*debug.html)', async(err, filenames) => {
-                        err ? reject(err) : resolve(filenames);
-                    });
-                });
-
-                if(filenames && filenames.length > 0) {
-                    filenames.sort();
-                    filenames.reverse();
-                    await reporter.mergeInLastReport(filenames[0]);
-                }
-                else {
-                    await reporter.mergeInLastReport("report.html");
-                }
+                // Use report.html in same directory
+                await reporter.mergeInLastReport("report.html");
             }
         }
 
@@ -514,9 +497,7 @@ async function runServer() {
                     runner.consoleOutput = true;
 
                     // Make the first step a ~ step. Start the runner, which will immediately pause before the first step.
-                    tree.branches = tree.branches.slice(0, 1);
-                    tree.branches[0].steps[0].isDebug = true;
-                    tree.isDebug = true;
+                    tree.debugFirstStep();
                     isBranchComplete = await runner.run();
                 }
             }

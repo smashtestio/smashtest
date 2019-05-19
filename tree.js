@@ -1421,6 +1421,19 @@ ${outputBranchAbove(this)}
     }
 
     /**
+     * Removes all branches except the first one, marks the first step as before debug
+     */
+    debugFirstStep() {
+        this.branches = this.branches.slice(0, 1);
+        this.isDebug = true;
+        if(this.branches[0].steps.length > 0) {
+            let firstStepNode = this.stepNodeIndex[this.branches[0].steps[0].id];
+            firstStepNode.isDebug = true;
+            firstStepNode.isBeforeDebug = true;
+        }
+    }
+
+    /**
      * Marks the given step in the given branch as passed or failed (but does not clear step.isRunning)
      * Passes or fails the branch if step is the last step, or if finishBranchNow is set
      * @param {Step} step - The Step to mark
