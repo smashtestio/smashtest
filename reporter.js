@@ -27,6 +27,12 @@ class Reporter {
      * Starts the reporter, which generates and writes to disk a new report once every REPORT_GENERATE_FREQUENCY ms
      */
     async start() {
+        // No reports for debug runs
+        if(this.tree.isDebug) {
+            this.stopped = true;
+            return;
+        }
+
         // Load template
         let buffers = await readFiles(['report-template.html'] , {encoding: 'utf8'});
         if(!buffers || !buffers[0]) {
@@ -43,12 +49,14 @@ class Reporter {
      * Stops the timer set by start()
      */
     async stop() {
-        this.stopped = true;
-        if(this.timer) {
-            clearTimeout(this.timer);
-            this.timer = null;
+        if(!this.stopped) {
+            this.stopped = true;
+            if(this.timer) {
+                clearTimeout(this.timer);
+                this.timer = null;
+            }
+            await this.write(); // one final time, to encompass last-second changes
         }
-        await this.write(); // one final time, to encompass last-second changes
     }
 
     /**
@@ -61,7 +69,7 @@ class Reporter {
 
         if(!this.stopped) {
             let REPORT_GENERATE_FREQUENCY = this.size < 300000000 ? 60000 : 300000; // if file size < 300 MB, every min, otherwise every 5 mins
-            this.timer = setTimeout(() => { this.write(); }, REPORT_GENERATE_FREQUENCY);
+            this.timer = setTimeout(() => this.write(), REPORT_GENERATE_FREQUENCY);
         }
     }
 

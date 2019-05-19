@@ -52,7 +52,7 @@ async function exit(forcedStop, exitCode) {
             await runner.stop();
 
             // sleep for 1 sec to give reports a chance to get the final state of the tree before the server goes down
-            await new Promise(r => setTimeout(() => r, 1000));
+            await new Promise(r => setTimeout(() => r(), 1000));
 
             process.exit(exitCode);
         }
@@ -525,7 +525,7 @@ async function runServer() {
                     prevStep = runner.getLastStep();
 
                     if(nextStep) {
-                        console.log(`Next step: [ ${chalk.gray(nextStep.line.trim())} ]`);
+                        console.log(`Next step: [ ${chalk.gray(tree.stepNodeIndex[nextStep.id].text.trim())} ]`);
                         console.log(chalk.gray("enter = run next, p = run previous, s = skip, r = resume, x = exit, or enter step to run it"));
                     }
                     else if(prevStep) {
@@ -628,7 +628,7 @@ async function runServer() {
                                 let stepNode = new StepNode(0);
                                 stepNode.parseLine(input);
                                 if(stepNode.hasCodeBlock()) {
-                                    // Continue inputting lines until a } is inputted
+                                    // A code block has started. Continue inputting lines until a } is inputted.
                                     codeBlockStep = input;
                                     return;
                                 }
@@ -677,7 +677,7 @@ async function runServer() {
              */
             function activateProgressBarTimer() {
                 const UPDATE_PROGRESS_BAR_FREQUENCY = 250; // ms
-                timer = setTimeout(() => { updateProgressBar(); }, UPDATE_PROGRESS_BAR_FREQUENCY);
+                timer = setTimeout(() => updateProgressBar(), UPDATE_PROGRESS_BAR_FREQUENCY);
             }
 
             /**

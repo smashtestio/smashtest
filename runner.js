@@ -123,14 +123,10 @@ class Runner {
             utils.error("Must be paused to run a step");
         }
 
-        await this.startReporter();
-
         let isBranchComplete = await this.runInstances[0].runOneStep();
         if(isBranchComplete) {
             await this.runAfterEverything();
         }
-
-        await this.stopReporter();
 
         return isBranchComplete;
     }
@@ -145,14 +141,10 @@ class Runner {
             utils.error("Must be paused to skip a step");
         }
 
-        await this.startReporter();
-
         let isBranchComplete = await this.runInstances[0].skipOneStep();
         if(isBranchComplete) {
             await this.runAfterEverything();
         }
-
-        await this.stopReporter();
 
         return isBranchComplete;
     }
