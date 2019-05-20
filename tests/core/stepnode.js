@@ -1104,7 +1104,7 @@ describe("StepNode", () => {
         });
     });
 
-    describe("serializeObj()", () => {
+    describe("serialize()", () => {
         it("returns a serialized object", () => {
             let s = new StepNode(1);
             s.text = "Foobar";
@@ -1114,7 +1114,7 @@ describe("StepNode", () => {
             s.parent = null;
             s.children = [ new StepNode(2), new StepNode(3) ];
 
-            let o = s.serializeObj();
+            let o = s.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,

@@ -10686,19 +10686,19 @@ K-1 -
                 var end = new Date().getTime();
 
                 console.log("generateBranches() took " + (end - start) + " ms");
-                console.log("Size of tree: " + tree.serialize().length/(1024 * 1024) + " MB");
+                console.log("Size of tree: " + JSON.stringify(tree.serialize()).length/(1024 * 1024) + " MB");
             });
         });
     });
 
     describe("serialize()", () => {
-        it("outputs json for an empty tree", () => {
+        it("outputs a serialized object for an empty tree", () => {
             let tree = new Tree();
 
             tree.generateBranches();
             tree.isDebug = true;
             tree.elapsed = "DATE";
-            let obj = JSON.parse(tree.serialize());
+            let obj = tree.serialize();
 
             Comparer.expect(obj).to.match({
                 branches: [],
@@ -10707,7 +10707,7 @@ K-1 -
             });
         });
 
-        it("outputs json for all branches", () => {
+        it("outputs a serialized object for all branches", () => {
             let tree = new Tree();
             tree.parseIn(
 `A -
@@ -10719,7 +10719,7 @@ K-1 -
             tree.isDebug = true;
             tree.elapsed = "DATE";
             tree.branches[0].passedLastTime = true;
-            let obj = JSON.parse(tree.serialize());
+            let obj = tree.serialize();
 
             mergeStepNodesInTree(obj);
             Comparer.expect(obj).to.match({
@@ -10755,7 +10755,7 @@ K-1 -
     `);
 
             tree.generateBranches(undefined, undefined, undefined, undefined, true);
-            let obj = JSON.parse(tree.serialize());
+            let obj = tree.serialize();
 
             mergeStepNodesInTree(obj);
             Comparer.expect(obj).to.match({
@@ -10810,7 +10810,7 @@ A -
 `);
 
             tree.generateBranches(undefined, undefined, undefined, undefined, true);
-            let obj = JSON.parse(tree.serialize());
+            let obj = tree.serialize();
 
             mergeStepNodesInTree(obj);
             Comparer.expect(obj).to.match({
@@ -10832,6 +10832,25 @@ A -
         });
     });
 
+    describe("serializeSnapshot()", () => {
+        it("outputs a snapshot for an empty tree", () => {
+
+        });
+
+        it("outputs a snapshot with no prevSnapshot", () => {
+            // ensure it's limited to n
+        });
+
+        it("outputs a snapshot with a prevSnapshot", () => {
+            // ensure branches in both snapshot and prevSnapshot get included only once
+            // ensure all branches from prevSnapshot get included, even if they're no longer running
+        });
+
+        it("has good performance", () => {
+
+        });
+    });
+
     describe("markPassedFromPrevRun()", () => {
         it("merges empty previous branches into empty current branches", () => {
             let prevTree = new Tree();
@@ -10839,9 +10858,9 @@ A -
 
             currTree.generateBranches();
             prevTree.generateBranches();
-            let prevJson = prevTree.serialize();
+            prevTree = prevTree.serialize();
 
-            currTree.markPassedFromPrevRun(prevJson);
+            currTree.markPassedFromPrevRun(prevTree);
 
             Comparer.expect(currTree).to.match({ branches: [] });
         });
@@ -10925,8 +10944,8 @@ A -
 
              prevTree.branches.forEach(branch => branch.updateHash(prevTree.stepNodeIndex));
 
-             let prevJson = prevTree.serialize();
-             currTree.markPassedFromPrevRun(prevJson);
+             prevTree = prevTree.serialize();
+             currTree.markPassedFromPrevRun(prevTree);
 
              mergeStepNodesInTree(currTree);
              Comparer.expect(currTree).to.match({

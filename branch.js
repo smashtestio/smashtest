@@ -384,7 +384,7 @@ class Branch {
      /**
       * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
       */
-     serializeObj() {
+     serialize() {
          return utils.removeUndefineds({
              steps: this.steps,
 

@@ -5,7 +5,7 @@ const Step = require('../../step.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 describe("Step", () => {
-    describe("serializeObj", () => {
+    describe("serialize()", () => {
         it("returns a serialized object", () => {
             let s = new Step(1);
 
@@ -24,7 +24,7 @@ describe("Step", () => {
             s.reportTemplateIndex = 9;
             s.reportView = { one: 'one', two: 'two' };
 
-            let o = s.serializeObj();
+            let o = s.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,

@@ -500,7 +500,7 @@ describe("Branch", () => {
         });
     });
 
-    describe("serializeObj", () => {
+    describe("serialize()", () => {
         it("returns a serialized object", () => {
             let b = new Branch();
 
@@ -508,7 +508,7 @@ describe("Branch", () => {
             b.isPassed = true;
             b.steps = [ new Step(0), new Step(1) ];
 
-            let o = b.serializeObj();
+            let o = b.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,
@@ -528,7 +528,7 @@ describe("Branch", () => {
             b.passedLastTime = true;
             b.steps = [ new Step(0), new Step(1) ];
 
-            let o = b.serializeObj();
+            let o = b.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,

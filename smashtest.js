@@ -23,7 +23,7 @@ let isReport = true;
 const yellowChalk = chalk.hex("#ffb347");
 const hRule = chalk.gray("─".repeat(process.stdout.columns));
 
-const CONFIG_FILENAME = 'smashtest-config.json';
+const CONFIG_FILENAME = 'smashtest.json';
 
 const PROGRESS_BAR_ON = true;
 let fullRun = false;

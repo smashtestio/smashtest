@@ -48,22 +48,20 @@ exports.log = (obj) => {
 }
 
 /**
- * @return {String} str, but with html-sensitive chars escaped to html entities
+ * @return {String} str, but with ` and & escaped to &#96; and &amp;
  */
-exports.escapeHtml = (str) => {
+exports.escapeBackticks = (str) => {
     return str
         .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+        .replace(/`/g, "&#96;");
 }
 
 /**
- * @return {String} str, but with html entities unescaped to their actual chars
+ * @return {String} str, but with &#96; and &amp; unescaped to ` and &
  */
-exports.unescapeHtml = (str) => {
+exports.unescapeBackticks = (str) => {
     return str
-        .replace(/&gt;/g, ">")
-        .replace(/&lt;/g, "<")
+        .replace(/&#96;/g, "`")
         .replace(/&amp;/g, "&");
 }
 

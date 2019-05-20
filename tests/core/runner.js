@@ -1220,7 +1220,7 @@ Step to Inject {
     });
 
     describe("serialize()", () => {
-        it("serializes a Runner to JSON", async () => {
+        it("returns a serialized object", async () => {
             let tree = new Tree();
             let runner = new Runner();
             runner.init(tree, true);
@@ -1228,11 +1228,11 @@ Step to Inject {
             runner.persistent = { a: 1, b: 2 };
             runner.isPaused = true;
 
-            let json = runner.serialize();
-            let obj = JSON.parse(json);
+            let obj = runner.serialize();
 
             Comparer.expect(obj).to.match({
-                isPaused: true
+                isPaused: true,
+                persistent: undefined
             });
         });
     });

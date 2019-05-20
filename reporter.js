@@ -6,7 +6,8 @@ const chalk = require('chalk');
 const getPort = require('get-port');
 const WebSocket = require('ws');
 
-const DEFAULT_FILENAME = 'smashtest-report.html';
+const REPORT_FILENAME = 'smashtest.html';
+const REPORT_DATA_FILENAME = 'smashtest-data.js';
 
 /**
  * Generates a report on the status of the tree and runner
@@ -16,12 +17,10 @@ class Reporter {
         this.tree = tree;               // the Tree object to report on
         this.runner = runner;           // the Runner object to report on
 
-        this.serializedTree = '';       // serialized version of this.tree
-        this.branchUpdates = [];        // references to branches in this.tree.branches that were updated after this.serializedTree was generated
-
         this.reportTemplate = "";       // template for html reports
         this.reportTime = null;         // Date when the report was generated
-        this.reportPath = process.cwd() + "/" + DEFAULT_FILENAME; // absolute path of where to read/write report html file
+        this.reportPath = process.cwd() + "/" + REPORT_FILENAME; // absolute path of where to read/write report html file
+        this.reportDataPath = process.cwd() + "/" + REPORT_DATA_FILENAME; // absolute path of where to read/write report data js file
 
         this.maxSize = 1073741824;      // maximum permissible size of report, in bytes, no limit if 0 (1 GB default)
         this.size = 0;                  // size of report, in bytes
@@ -43,7 +42,7 @@ class Reporter {
         // Load template
         let buffers = await readFiles(['report-template.html'] , {encoding: 'utf8'});
         if(!buffers || !buffers[0]) {
-            utils.error("report-template.html not found in this directory");
+            utils.error(`report-template.html not found`);
         }
         this.reportTemplate = buffers[0];
 
@@ -73,7 +72,7 @@ class Reporter {
     }
 
     /**
-     * Writes the report to disk and serialized tree to websockets, and continues doing so periodically
+     * Generates and writes report and report data to disk. Notifies all connected websockets. Continues doing so periodically.
      */
     async writeFull() {
         if(this.stopped) {
@@ -83,17 +82,14 @@ class Reporter {
         // Update state
         this.tree.updateCounts();
         this.reportTime = new Date();
-        this.serializedTree = this.tree.serialize();
 
         // Render report html
-        let view = {
-            tree: utils.escapeHtml(this.serializedTree),
-            runner: utils.escapeHtml(this.runner.serialize()),
-            reportTime: JSON.stringify(this.reportTime),
+        let reportData = 'var reportData=`' + utils.escapeBackticks({
+            tree: this.tree.serialize(),
+            runner: this.runner.serialize(),
+            reportTime: this.reportTime,
             reportDomain: this.reportDomain || ""
-        }
-
-        let reportData = mustache.render(this.reportTemplate, view);
+        }) + '`;';
 
         // Check if report is above max size
         this.size = reportData.length;
@@ -101,21 +97,20 @@ class Reporter {
             utils.error(`Maximum report size exceeded (report size = ${(this.size/1048576).toFixed(3)} MB, max size = ${this.maxSize/1048576} MB)`);
         }
 
-        // Write report to disk
-        await new Promise((res, rej) => fs.writeFile(this.reportPath, reportData, err => err ? rej(err) : res()));
+        // Write report and report data to disk
+        await Promise.all([
+            new Promise((res, rej) => fs.writeFile(this.reportPath, this.reportTemplate, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(this.reportDataPath, reportData, err => err ? rej(err) : res()))
+        ]);
 
-        // TODO
-        // Write serialized tree to all connected websockets
-
-
-
-
-
-
+        // Notify all connected websockets that new data is available on disk
+        this.wsServer.clients.forEach(client => {
+            client.send(JSON.stringify({ dataUpdate: true }));
+        });
 
         // Have this function get called again in a certain amount of time
         if(!this.stopped) {
-            // We generate/write the report less often the larger it gets, since it takes longer to do so
+            // As the report data gets bigger, it takes longer to generate/write. So we generate/write it less often.
             let time = 0;
             if(this.size < 20971520) {           // < 20 MB
                 time = 20000;                    // 20 secs
@@ -132,7 +127,7 @@ class Reporter {
     }
 
     /**
-     * Writes a snapshot of the serialized tree to websockets, and continues doing so periodically
+     * Sends a snapshot of the tree to all connected websockets. Continues doing so periodically.
      */
     async writeSnapshot() {
         if(this.stopped) {
@@ -141,15 +136,12 @@ class Reporter {
 
         // Update state
         this.tree.updateCounts();
-        // TODO: this.tree.serializeSnapshot()?
 
-
-
-
-
-
-
-
+        // Send snapshot to all connected websockets
+        let snapshot = this.tree.serializeSnapshot();
+        this.wsServer.clients.forEach(client => {
+            client.send(JSON.stringify(snapshot));
+        });
 
         // Have this function get called again in a certain amount of time
         if(!this.stopped) {
@@ -159,42 +151,43 @@ class Reporter {
     }
 
     /**
-     * Reads in the given report html file, extracts json, merges it with tree
+     * Reads in the given report data file (usually smashtest-data.js) and marks passed branches as passed in this.tree
      * @param {String} [filename] - The relative filename to use, uses default report filename if omitted
      */
     async mergeInLastReport(filename) {
-        let lastReportPath = process.cwd() + "/" + (filename || DEFAULT_FILENAME);
-        console.log(`Including passed branches from: ${chalk.gray(lastReportPath)}`);
+        filename = filename || REPORT_DATA_FILENAME;
+        let lastReportDataPath = process.cwd() + "/" + filename;
+        console.log(`Including passed branches from: ${chalk.gray(lastReportDataPath)}`);
         console.log("");
 
         let fileBuffers = null;
         try {
-            fileBuffers = await readFiles([ filename ], {encoding: 'utf8'});
+            fileBuffers = await readFiles([ lastReportDataPath ], {encoding: 'utf8'});
         }
         catch(e) {
             utils.error(`The file '${filename}' could not be found`);
         }
 
         let buffer = fileBuffers[0];
-        buffer = this.extractTreeJson(buffer);
+        buffer = this.extractTree(buffer);
         this.tree.markPassedFromPrevRun(buffer);
     }
 
     /**
-     * Extracts the report json from the given html report
-     * @param {String} reportData - The raw html report
-     * @return {String} The json object extracted from reportData
-     * @throws {Error} If there was a problem extracting, or if the JSON is invalid
+     * Extracts the report data json from the given report data file
+     * @param {String} reportData - The raw report data file contents
+     * @return {Object} The js object extracted from reportData
+     * @throws {Error} If there was a problem extracting, or if the file contents is invalid
      */
-    extractTreeJson(reportData) {
+    extractTree(reportData) {
         const errMsg = "Error parsing the report from last time. Please try another file or do not use -s or --skip-passed.";
 
-        let matches = htmlReport.match(/<div id="tree">([^<]*)<\/div>/);
+        let matches = htmlReport.match(/^[^`]*`(.*)`;$/);
         if(matches) {
             let content = matches[1];
-            content = utils.unescapeHtml(content);
+            content = utils.unescapeBackticks(content);
             try {
-                JSON.parse(content);
+                content = JSON.parse(content);
             }
             catch(e) {
                 utils.error(errMsg);
@@ -246,9 +239,6 @@ class Reporter {
                     if(!message.origin || (message.origin != this.reportPath && !message.origin.startsWith(this.reportDomain))) {
                         throw new Error(`Invalid filename param`);
                     }
-
-                    // Dump current serialized tree
-                    ws.send(this.serializedTree);
                 }
                 catch(e) {
                     ws.send(e);

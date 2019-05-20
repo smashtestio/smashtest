@@ -2442,5 +2442,26 @@ describe("Comparer", () => {
     six: 6
 <end>}`);
         });
+
+        it.skip("comparing JSON.stringify() and Comparer.print() performance at serializing large objects", function() {
+            this.timeout(120000);
+
+            let obj = { arr: [] };
+            for(let i = 0; i < 10000; i++) {
+                obj.arr.push({x: '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'});
+            }
+
+            let start = new Date().getTime();
+            let serialized = JSON.stringify(obj);
+            let end = new Date().getTime();
+
+            console.log(`JSON.stringify(): time = ${end - start} ms, size = ${serialized.length/(1024 * 1024)} MB`);
+
+            start = new Date().getTime();
+            serialized = Comparer.print(obj);
+            end = new Date().getTime();
+
+            console.log(`Comparer.print(): time = ${end - start} ms, size = ${serialized.length/(1024 * 1024)} MB`);
+        });
     });
 });

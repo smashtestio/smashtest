@@ -199,14 +199,14 @@ class Runner {
     }
 
     /**
-     * @return {String} JSON representation of this runner, only containing the most necessary stuff for a report
+     * @return {Object} An Object representing this runner, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        return JSON.stringify(utils.removeUndefineds({
+        return utils.removeUndefineds({
             isPaused: this.isPaused,
             isStopped: this.isStopped,
             isComplete: this.isComplete
-        }));
+        });
     }
 
     /**

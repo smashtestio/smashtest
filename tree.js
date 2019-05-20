@@ -1203,17 +1203,10 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * @return {String} JSON representation of this tree, only containing the most necessary stuff for a report
+     * Attaches counts to the given object
      */
-    serialize() {
-        return JSON.stringify(utils.removeUndefineds({
-            stepNodeIndex: removeUncalledStepNodes(this.stepNodeIndex),
-            isDebug: this.isDebug,
-
-            branches: this.branches,
-
-            reportTemplates: this.reportTemplates,
-
+    attachCounts(obj) {
+        return Object.assign(obj, {
             elapsed: this.elapsed,
             timeStarted: this.timeStarted,
             timeEnded: this.timeEnded,
@@ -1228,22 +1221,33 @@ ${outputBranchAbove(this)}
 
             totalStepsComplete: this.totalStepsComplete,
             totalSteps: this.totalSteps
-        }), (k, v) => {
-            if(v instanceof Branch || v instanceof StepNode || v instanceof Step) {
-                return v.serializeObj();
-            }
-            else {
-                return v;
-            }
         });
+    }
 
-        function removeUncalledStepNodes(stepNodeIndex) {
+    /**
+     * @return {Object} An Object representing this tree, but able to be converted to JSON and only containing the most necessary stuff for a report
+     */
+    serialize() {
+        return utils.removeUndefineds(this.attachCounts({
+            stepNodeIndex: keepAndSerializeCalledStepNodes(this.stepNodeIndex),
+            isDebug: this.isDebug,
+
+            branches: this.branches.map(branch => {
+                branch = branch.serialize();
+                branch.steps = branch.steps.map(step => step.serialize());
+                return branch;
+            }),
+
+            reportTemplates: this.reportTemplates,
+        }));
+
+        function keepAndSerializeCalledStepNodes(stepNodeIndex) {
             let o = {};
             for(let key in stepNodeIndex) {
                 if(stepNodeIndex.hasOwnProperty(key)) {
                     let stepNode = stepNodeIndex[key];
                     if(stepNode.used) {
-                        o[key] = stepNode;
+                        o[key] = stepNode.serialize();
                     }
                 }
             }
@@ -1253,12 +1257,61 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Marks branches as passed if they passed in a previous run
-     * @param {String} json - A JSON representation of branches from a previous run. Same JSON that serialize() returns.
+     * @param {Number} n - Number of currently-running branches to serialize
+     * @param {Object} [prevSnapshot] - The previous snapshot returned by this function
+     * @return {Object} An object representing a snapshot of the current state of certain branches in this tree
+     *     {Array} returnedObj.branches - contains n currently-running branches, as well as all the branches from prevSnapshot (used to update the branches a report is currently showing)
+     *     returnedObj also contains all the updated counts from this tree
      */
-    markPassedFromPrevRun(json) {
-        let previousTree = JSON.parse(json);
+    serializeSnapshot(n, prevSnapshot) {
+        let snapshot = {
+            branches: []
+        };
 
+        for(let i = 0; i < this.branches.length; i++) {
+            let b = this.branches[i];
+            if(b.isRunning) {
+                snapshot.branches.push(b.serialize());
+                if(snapshot.branches.length > n) {
+                    break;
+                }
+            }
+        }
+
+        // Include branches from prevSnapshot
+        if(prevSnapshot) {
+            prevSnapshot.branches.forEach(prevBranch => {
+                // Did we already include prevBranch in snapshot?
+                let alreadyIncluded = false;
+                for(let i = 0; i < snapshot.branches.length; i++) {
+                    let b = snapshot.branches[i];
+                    if(b.hash == prevBranch.hash) {
+                        alreadyIncluded = true;
+                        break;
+                    }
+                }
+
+                if(!alreadyIncluded) {
+                    // Find prevBranch in this tree
+                    for(let i = 0; i < this.branches.length; i++) {
+                        let b = this.branches[i];
+                        if(b.hash == prevBranch.hash) {
+                            snapshot.branches.push(b.serialize());
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+
+        return this.attachCounts(snapshot);
+    }
+
+    /**
+     * Marks branches as passed if they passed in a previous run
+     * @param {Tree} previousTree - A Tree from a completed previous run. Same object that serialize() returns.
+     */
+    markPassedFromPrevRun(previousTree) {
         let prevBranches = previousTree.branches;
         let currBranches = this.branches;
 

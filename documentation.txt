@@ -89,21 +89,22 @@ Running tests
             - Helpful for when you are typing out new tests (or updating existing ones) and only want to run whatever's new
             - Format
                 - -s/--skip-passed=filename or "filename"
-                    - filename of report that constitutes last run
+                    - filename of smashtest-data.js that constitutes last run
                 - -s/--skip-passed with no filename
-                    - Uses smashtest-report.html in the current directory
+                    - Uses smashtest-data.js in the current directory
         - --step-data=<all/fail/none>
             - 'fail' by default, unless debugging, in which case 'all' by default
         - --version/-v
-    - Config file, smashtest-config.json, in the same dir as you're running the command will set flags, but command-line flags will override
+    - Config file, smashtest.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
     - If you need more memory, use node --max-old-space-size=8192 (find out what this is for npm apps)
 
 Reports
     - Where to find the report
-        - smashtest-report.html in directory where smashtest run
+        - smashtest.html in directory where smashtest run
             - Live updates. Click a step/branch to pause live updates.
             - Not for debug runs
+        - smashtest-data.js in same directory contains test results data for report
     - Pass/fail
         - Steps
             - A step passes is no errors are thrown inside of it

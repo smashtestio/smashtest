@@ -33,15 +33,15 @@ describe("Utils", () => {
         });
     });
 
-    describe("escapeHtml()", () => {
-        it("escapes html", () => {
-            expect(utils.escapeHtml("foo<>&amp;\"'bar")).to.equal("foo&lt;&gt;&amp;amp;\"'bar");
+    describe("escapeBackticks()", () => {
+        it("escapes backticks", () => {
+            expect(utils.escapeBackticks("foo`&amp;\"'b`a`r\`")).to.equal("foo&#96;&amp;amp;\"'b&#96;a&#96;r&#96;");
         });
     });
 
-    describe("unescapeHtml()", () => {
-        it("unescapes html", () => {
-            expect(utils.unescapeHtml("foo&lt;&gt;&amp;amp;\"'bar")).to.equal("foo<>&amp;\"'bar");
+    describe("unescapeBackticks()", () => {
+        it("unescapes backticks", () => {
+            expect(utils.unescapeBackticks("foo&#96;&amp;amp;\"'b&#96;a&#96;r&#96;")).to.equal("foo`&amp;\"'b`a`r\`");
         });
     });
 
