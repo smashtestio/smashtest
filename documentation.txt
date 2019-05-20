@@ -62,6 +62,7 @@ Running tests
             - Stops running tests if report size > this amount
             - In MB, default is 1024 MB
             - Set to 0 for no limit
+            - Does not include screenshots or any other external data. Just the html report file.
         - --min-frequency=med
             - med if omitted
         - --no-debug
@@ -87,28 +88,22 @@ Running tests
             - For fixing problems in your tests that cause them to break, without having to rerun the whole entire suite again
             - Helpful for when you are typing out new tests (or updating existing ones) and only want to run whatever's new
             - Format
-                - -s/-skipPassed=filename or "filename"
+                - -s/--skip-passed=filename or "filename"
                     - filename of report that constitutes last run
-                - -s/-skipPassed with no filename
-                    - Uses latest report from <current dir>/reports that didn't have a ~ (~ reports have "debug" at the end of their filenames)
-                    - If one isn't found, uses report.html in the current directory
+                - -s/--skip-passed with no filename
+                    - Uses smashtest-report.html in the current directory
         - --step-data=<all/fail/none>
             - 'fail' by default, unless debugging, in which case 'all' by default
         - --version/-v
-    - Config file, config.json, in the same dir as you're running the command will set flags, but command-line flags will override
+    - Config file, smashtest-config.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
     - If you need more memory, use node --max-old-space-size=8192 (find out what this is for npm apps)
 
 Reports
     - Where to find the report
-        - report.html in directory where smashtest run
+        - smashtest-report.html in directory where smashtest run
             - Live updates. Click a step/branch to pause live updates.
-        - dates/
-            - Snapshots, not live
-            - _debug.html for debug runs
-        - localhost:9000 (if 9000 isn't taken)
-            - Live updates
-            - Not recommended since this endpoint dies when smashtest ends. Use report.html instead (see console output for absolute path).
+            - Not for debug runs
     - Pass/fail
         - Steps
             - A step passes is no errors are thrown inside of it

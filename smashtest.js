@@ -23,6 +23,8 @@ let isReport = true;
 const yellowChalk = chalk.hex("#ffb347");
 const hRule = chalk.gray("─".repeat(process.stdout.columns));
 
+const CONFIG_FILENAME = 'smashtest-config.json';
+
 const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
@@ -274,7 +276,7 @@ function plural(count) {
 
         // Open config file, if there is one
         try {
-            fileBuffers = await readFiles(["config.json"], {encoding: 'utf8'});
+            fileBuffers = await readFiles([ CONFIG_FILENAME ], {encoding: 'utf8'});
         }
         catch(e) {} // it's ok if there's no config file
 
@@ -284,7 +286,7 @@ function plural(count) {
                 config = JSON.parse(fileBuffers[0]);
             }
             catch(e) {
-                utils.error("Syntax error in config.json");
+                utils.error(`Syntax error in ${CONFIG_FILENAME}`);
             }
 
             for(name in config) {
@@ -375,16 +377,7 @@ function plural(count) {
 
         // --skip-passed
         if(runner.skipPassed) {
-            let buffer = null;
-            if(typeof runner.skipPassed == 'string') {
-                // --skip-passed='filename of report that constitutes last run'
-                await reporter.mergeInLastReport(runner.skipPassed);
-            }
-            else {
-                // --skip-passed with no filename
-                // Use report.html in same directory
-                await reporter.mergeInLastReport("report.html");
-            }
+            await reporter.mergeInLastReport(runner.skipPassed);
         }
 
         let elapsed = 0;
