@@ -134,14 +134,14 @@ Branch 6 -
 
             let runner = new Runner();
             runner.init(tree, true);
-            runner.maxInstances = 6;
+            runner.maxParallel = 6;
             await runner.run();
 
             expect(tree.elapsed).to.be.above(15);
             expect(tree.elapsed).to.be.below(35);
         });
 
-        it("runs multiple run instances in parallel where maxInstances limits the number of simultaneous run instances", async () => {
+        it("runs multiple run instances in parallel where maxParallel limits the number of simultaneous run instances", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Branch 1 -
@@ -173,14 +173,14 @@ Branch 6 -
 
             let runner = new Runner();
             runner.init(tree, true);
-            runner.maxInstances = 2;
+            runner.maxParallel = 2;
             await runner.run();
 
             expect(tree.elapsed).to.be.above(55);
             expect(tree.elapsed).to.be.below(85);
         });
 
-        it("runs multiple run instances in parallel where maxInstances is 1", async () => {
+        it("runs multiple run instances in parallel where maxParallel is 1", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Branch 1 -
@@ -203,7 +203,7 @@ Branch 3 -
 
             let runner = new Runner();
             runner.init(tree, true);
-            runner.maxInstances = 1;
+            runner.maxParallel = 1;
             await runner.run();
 
             expect(tree.elapsed).to.be.above(55);
@@ -254,7 +254,7 @@ Branch Group 2 - !
 
             let runner = new Runner();
             runner.init(tree, true);
-            runner.maxInstances = 2;
+            runner.maxParallel = 2;
             runner.numArr = [];
             await runner.run();
 
@@ -276,7 +276,7 @@ Failing branch -
 
             let runner = new Runner();
             runner.init(tree, true);
-            runner.maxInstances = 1;
+            runner.maxParallel = 1;
             await runner.run();
 
             expect(tree.branches[0].isPassed).to.be.true;

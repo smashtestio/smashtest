@@ -10838,12 +10838,27 @@ A -
         });
 
         it("outputs a snapshot with no prevSnapshot", () => {
-            // ensure it's limited to n
+
         });
 
-        it("outputs a snapshot with a prevSnapshot", () => {
-            // ensure branches in both snapshot and prevSnapshot get included only once
-            // ensure all branches from prevSnapshot get included, even if they're no longer running
+        it("limits results to n", () => {
+
+        });
+
+        it("includes a branch in snapshot if it's in prevSnapshot and if it's still running", () => {
+
+        });
+
+        it("includes a branch in snapshot if it's in prevSnapshot and if it's no longer running", () => {
+
+        });
+
+        it("only includes a branch once if it exists in both prevSnapshot and is one of the top n currently running", () => {
+
+        });
+
+        it("doesn't include a branch in snapshot if it wasn't running in prevSnapshot", () => {
+
         });
 
         it("has good performance", () => {

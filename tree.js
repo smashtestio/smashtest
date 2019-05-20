@@ -1281,23 +1281,25 @@ ${outputBranchAbove(this)}
         // Include branches from prevSnapshot
         if(prevSnapshot) {
             prevSnapshot.branches.forEach(prevBranch => {
-                // Did we already include prevBranch in snapshot?
-                let alreadyIncluded = false;
-                for(let i = 0; i < snapshot.branches.length; i++) {
-                    let b = snapshot.branches[i];
-                    if(b.hash == prevBranch.hash) {
-                        alreadyIncluded = true;
-                        break;
-                    }
-                }
-
-                if(!alreadyIncluded) {
-                    // Find prevBranch in this tree
-                    for(let i = 0; i < this.branches.length; i++) {
-                        let b = this.branches[i];
+                if(prevBranch.isRunning) { // only include a branch from prevSnapshot if it was running back then
+                    // Did we already include prevBranch in snapshot?
+                    let alreadyIncluded = false;
+                    for(let i = 0; i < snapshot.branches.length; i++) {
+                        let b = snapshot.branches[i];
                         if(b.hash == prevBranch.hash) {
-                            snapshot.branches.push(b.serialize());
+                            alreadyIncluded = true;
                             break;
+                        }
+                    }
+
+                    if(!alreadyIncluded) {
+                        // Find prevBranch in this tree
+                        for(let i = 0; i < this.branches.length; i++) {
+                            let b = this.branches[i];
+                            if(b.hash == prevBranch.hash) {
+                                snapshot.branches.push(b.serialize());
+                                break;
+                            }
                         }
                     }
                 }

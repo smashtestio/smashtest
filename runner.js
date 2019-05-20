@@ -12,11 +12,11 @@ class Runner {
         this.tree = null;                // The tree to run (just parsed in)
         this.reporter = null;            // The Reporter to use
 
-        this.flags = {};                 // Flags passed in through the command line (e.g., -maxInstances=7 -noDebug -groups="one two" --> {maxInstances: '7', noDebug: '', groups: 'one two'})
+        this.flags = {};                 // Flags passed in through the command line (e.g., -maxParallel=7 -noDebug -groups="one two" --> {maxParallel: '7', noDebug: '', groups: 'one two'})
 
         this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
         this.groups = undefined;         // Array of string. Only run branches that are a part of one of these groups, no restrictions if this is undefined.
-        this.maxInstances = 5;           // The maximum number of simultaneous branches to run
+        this.maxParallel = 5;           // The maximum number of simultaneous branches to run
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
         this.random = true;              // If true, randomize the order of branches
@@ -46,14 +46,14 @@ class Runner {
 
     /**
      * Starts or resumes running the branches from this.tree
-     * Parallelizes runs to up to this.maxInstances simultaneously running tests
+     * Parallelizes runs to up to this.maxParallel simultaneously running tests
      * @return {Promise} Promise that gets resolved with true if completed, false otherwise
      */
     async run() {
         this.tree.timeStarted = new Date();
         await this.startReporter();
 
-        let numInstances = Math.min(this.maxInstances, this.tree.branches.length);
+        let numInstances = Math.min(this.maxParallel, this.tree.branches.length);
 
         // If isDebug is set on any step, pauseOnFail will be set
         if(this.tree.isDebug) {

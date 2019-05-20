@@ -54,7 +54,7 @@ Running tests
         - --headless=<true/false>
             - Overrides default headless behavior (headless unless debugging), true if true/false omitted
         - --help/-?
-        - --max-instances=5
+        - --max-parallel=5
             - 5 if omitted
             - If you're hitting a selenium grid, set this high enough so as to max out the available slots (capabilities)
                 - Tests will block on Open browser if a capability isn't available yet

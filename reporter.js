@@ -84,12 +84,12 @@ class Reporter {
         this.reportTime = new Date();
 
         // Render report html
-        let reportData = 'var reportData=`' + utils.escapeBackticks({
+        let reportData = 'onReportData(`' + utils.escapeBackticks({
             tree: this.tree.serialize(),
             runner: this.runner.serialize(),
             reportTime: this.reportTime,
             reportDomain: this.reportDomain || ""
-        }) + '`;';
+        }) + '`);';
 
         // Check if report is above max size
         this.size = reportData.length;
@@ -182,7 +182,7 @@ class Reporter {
     extractTree(reportData) {
         const errMsg = "Error parsing the report from last time. Please try another file or do not use -s or --skip-passed.";
 
-        let matches = htmlReport.match(/^[^`]*`(.*)`;$/);
+        let matches = htmlReport.match(/^[^`]*`(.*)`[^`]*$/);
         if(matches) {
             let content = matches[1];
             content = utils.unescapeBackticks(content);

@@ -134,7 +134,7 @@ Options
   --headless=<true/false>         Overrides default headless behavior (headless unless debugging),
                                     true if true/false omitted
   --help or -?                    Open this help prompt
-  --max-instances=<N>             Do not run more than N branches simultaneously
+  --max-parallel=<N>              Do not run more than N branches simultaneously
   --max-report-size=<N>           Stop running if report reaches this size, in MB. Default is 1024 MB.
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
   --no-debug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
@@ -153,8 +153,8 @@ Options
 `);
                 process.exit();
 
-            case "max-instances":
-                runner.maxInstances = value;
+            case "max-parallel":
+                runner.maxParallel = value;
                 break;
 
             case "max-report-size":
