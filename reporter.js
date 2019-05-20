@@ -47,7 +47,9 @@ class Reporter {
         }
         this.reportTemplate = buffers[0];
 
+        // Kick off write functions
         await this.writeFull();
+        await this.writeSnapshot();
     }
 
     /**
@@ -74,6 +76,10 @@ class Reporter {
      * Writes the report to disk and serialized tree to websockets, and continues doing so periodically
      */
     async writeFull() {
+        if(this.stopped) {
+            return;
+        }
+
         // Update state
         this.tree.updateCounts();
         this.reportTime = new Date();
@@ -126,10 +132,16 @@ class Reporter {
     }
 
     /**
-     * Writes a limited snapshot of the serialized tree to websockets, and continues doing so periodically
+     * Writes a snapshot of the serialized tree to websockets, and continues doing so periodically
      */
     async writeSnapshot() {
+        if(this.stopped) {
+            return;
+        }
 
+        // Update state
+        this.tree.updateCounts();
+        // TODO: this.tree.serializeSnapshot()?
 
 
 
