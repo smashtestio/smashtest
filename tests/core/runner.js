@@ -15,7 +15,7 @@ describe("Runner", () => {
         it("runs an empty tree", async () => {
             let tree = new Tree();
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
         });
 
@@ -33,7 +33,7 @@ A -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             let isComplete = await runner.run();
 
             expect(runner.ranStepC).to.be.true;
@@ -55,7 +55,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             let isComplete = await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -94,7 +94,7 @@ F {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(runner.ranStepC).to.be.true;
@@ -133,7 +133,7 @@ Branch 6 -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             runner.maxInstances = 6;
             await runner.run();
 
@@ -172,7 +172,7 @@ Branch 6 -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             runner.maxInstances = 2;
             await runner.run();
 
@@ -202,7 +202,7 @@ Branch 3 -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             runner.maxInstances = 1;
             await runner.run();
 
@@ -253,7 +253,7 @@ Branch Group 2 - !
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             runner.maxInstances = 2;
             runner.numArr = [];
             await runner.run();
@@ -275,7 +275,7 @@ Failing branch -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             runner.maxInstances = 1;
             await runner.run();
 
@@ -301,7 +301,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             let isComplete = await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -338,7 +338,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             let isComplete = await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -405,7 +405,7 @@ C
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             runner.count = 1;
             await runner.run();
 
@@ -450,7 +450,7 @@ C
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             runner.count = 1;
 
             await runner.run();
@@ -488,7 +488,7 @@ A
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
 
             await runner.run();
 
@@ -531,7 +531,7 @@ A
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
 
             await runner.run();
 
@@ -574,7 +574,7 @@ A
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
 
             await runner.run();
 
@@ -613,7 +613,7 @@ A
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
 
             await runner.run();
 
@@ -652,7 +652,7 @@ A
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
 
             await runner.run();
 
@@ -676,7 +676,7 @@ Wait 20 ms {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(tree.elapsed).to.be.above(15);
@@ -708,7 +708,7 @@ Wait 20 ms {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(tree.elapsed).to.be.above(15);
@@ -724,7 +724,7 @@ A -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
             expect(tree.elapsed).to.equal(-1);
 
@@ -743,7 +743,7 @@ A -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             await expect(runner.run()).to.be.rejectedWith("Cannot run a stopped runner");
@@ -773,7 +773,7 @@ Branch 3 -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             let promise = runner.run();
 
             // do a stop() after 10 ms
@@ -820,7 +820,7 @@ Branch 3 -
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             let promise = runner.run();
 
             // do a stop() after 10 ms
@@ -858,7 +858,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -914,7 +914,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -959,7 +959,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -997,7 +997,7 @@ A {
         it("throws error if not paused", async () => {
             let tree = new Tree();
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await expect(runner.runOneStep()).to.be.rejectedWith("Must be paused to run a step");
         });
     });
@@ -1022,7 +1022,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -1081,7 +1081,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -1127,7 +1127,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -1167,7 +1167,7 @@ A {
         it("throws error if not paused", async () => {
             let tree = new Tree();
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await expect(runner.skipOneStep()).to.be.rejectedWith("Must be paused to skip a step");
         });
     });
@@ -1176,7 +1176,7 @@ A {
         it("throws error if not paused", async () => {
             let tree = new Tree();
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await expect(runner.inject(``)).to.be.rejectedWith("Must be paused to run a step");
         });
 
@@ -1197,7 +1197,7 @@ A {
 `, "file.txt");
 
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
             await runner.run();
 
             expect(runner.isPaused).to.be.true;
@@ -1223,7 +1223,7 @@ Step to Inject {
         it("serializes a Runner to JSON", async () => {
             let tree = new Tree();
             let runner = new Runner();
-            runner.init(tree, undefined, true);
+            runner.init(tree, true);
 
             runner.persistent = { a: 1, b: 2 };
             runner.isPaused = true;

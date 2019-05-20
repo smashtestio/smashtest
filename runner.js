@@ -20,11 +20,7 @@ class Runner {
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
         this.random = true;              // If true, randomize the order of branches
-        this.repl = false;               // If true, run the REPL immediately
-        this.report = true;              // If true, output a report
-        this.reportDomain = undefined;   // http(s)://domain:port where to run the report server
-        this.reportServer = true;        // If true, run a report server
-        this.skipPassed = undefined;     // If true, don't run and carry over branches that passed last time
+        this.skipPassed = undefined;     // If true, carry over branches that passed last time
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
         this.consoleOutput = false;      // If true, output debug info to console
@@ -41,15 +37,10 @@ class Runner {
     /**
      * Initializes the runner with a tree and reporter
      * @param {Tree} tree - The tree to use
-     * @param {Reporter} reporter - The reporter to use
      * @param {Boolean} [noRandom] - If true, does not randomly sort branches
      */
-    init(tree, reporter, noRandom) {
-        if(this.report) {
-            this.reporter = reporter;
-        }
+    init(tree, noRandom) {
         this.tree = tree;
-
         this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash, noRandom || this.random);
     }
 
@@ -212,8 +203,6 @@ class Runner {
      */
     serialize() {
         return JSON.stringify(utils.removeUndefineds({
-            reportDomain: this.reportDomain,
-
             isPaused: this.isPaused,
             isStopped: this.isStopped,
             isComplete: this.isComplete

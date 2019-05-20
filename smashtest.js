@@ -4,8 +4,6 @@ const utils = require('./utils');
 const chalk = require('chalk');
 const progress = require('cli-progress');
 const repl = require('repl');
-const getPort = require('get-port');
-const express = require('express');
 
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
@@ -18,6 +16,9 @@ const Reporter = require('./reporter.js');
 let tree = new Tree();
 let runner = new Runner();
 let reporter = new Reporter(tree, runner);
+
+let isRepl = false;
+let isReport = true;
 
 const yellowChalk = chalk.hex("#ffb347");
 const hRule = chalk.gray("─".repeat(process.stdout.columns));
@@ -139,7 +140,7 @@ Options
   --random=<true/false>           Whether or not to randomize the order of branches. Default is true.
   --repl or -r                    Open the REPL (drive SmashTEST from command line)
   --report=<true/false>           Whether or not to output a report. Default is true.
-  --report-domain=<url>           Domain and port where report server should run (http://domain:port format)
+  --report-domain=<url>           Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
   --screenshots=<true/false>      Whether or not to take screenshots. Default is true.
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
@@ -179,25 +180,22 @@ Options
 
             case "repl":
             case "r":
-                runner.repl = true;
+                isRepl = true;
                 break;
 
             case "report":
-                runner.report = (value == 'true');
+                isReport = (value == 'true');
                 break;
 
             case "report-domain":
-                if(!value.match(/^https?/)) { // add an http:// if one is missing
-                    value = "http://" + value;
+                if(!value.match(/^[^\/\: ]+(\:[0-9]+)?$/)) {
+                    utils.error("Invalid report-domain (must be domain or domain:port)");
                 }
-                if(!value.match(/^https?\:\/\/[^\/ ]+(\:[0-9]+)?$/)) {
-                    utils.error("Invalid report-domain");
-                }
-                runner.reportDomain = value;
+                reporter.reportDomain = value;
                 break;
 
             case "report-server":
-                runner.reportServer = (value == 'true');
+                reporter.isReportServer = (value == 'true');
                 break;
 
             case "skip-passed":
@@ -265,67 +263,6 @@ function plural(count) {
     }
 }
 
-/**
- * Runs HTTP server
- */
-async function runServer() {
-    try {
-        if(!runner.reportServer) {
-            return;
-        }
-
-        // Set port and fill reportDomain
-        let port = null;
-        if(runner.reportDomain) {
-            let matches = runner.reportDomain.match(/\:([0-9]+)/);
-            if(matches && matches[1]) { // reportDomain has a domain and port
-                port = parseInt(matches[1]);
-            }
-            else { // reportDomain only has a domain
-                port = await getPort({port: getPort.makeRange(9000,9999)}); // avoid 8000's, since that's where localhost apps tend to be run
-                runner.reportDomain += ":" + port;
-            }
-        }
-        else { // reportDomain has nothing
-            port = await getPort({port: getPort.makeRange(9000,9999)});
-            runner.reportDomain = "http://localhost:" + port;
-        }
-
-        reporter.domain = runner.reportDomain;
-
-        const server = express();
-
-        server.use(function(req, res, next) {
-            let isLocalHost = runner.reportDomain.match(/^https?\:\/\/(localhost|127\.0\.0\.1)/);
-            res.header("Access-Control-Allow-Origin", isLocalHost ? null : runner.reportDomain);
-            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-            next();
-        });
-
-        server.get('/', (req, res) => {
-            if(reporter.reportPath) {
-                res.sendFile(reporter.reportPath);
-            }
-        });
-
-        server.get('/state', (req, res) => {
-            if(req.query.file && (reporter.reportPath == req.query.file || req.query.file.startsWith(runner.reportDomain))) { // only send back data for the report that's currently running (or the report server)
-                res.json(reporter.generateStateObj());
-            }
-            else {
-                res.status(400).json({error: "Invalid file param"});
-            }
-        });
-
-        server.listen(port, () => {
-            //console.log(`Running on port ${port}`);
-        });
-    }
-    catch(e) {
-        onError(e);
-    }
-}
-
 (async() => {
     try {
         // ***************************************
@@ -375,7 +312,7 @@ async function runServer() {
             }
         }
 
-        if(filenames.length == 0 && !runner.repl) {
+        if(filenames.length == 0 && !isRepl) {
             let smashFiles = await new Promise((resolve, reject) => {
                 glob('*.smash', (err, smashFiles) => { // if no filenames passed in, just choose all the .smash files
                     err ? reject(err) : resolve(smashFiles);
@@ -419,13 +356,24 @@ async function runServer() {
         //  Init the runner, build the tree
         // ***************************************
 
-        runner.init(tree, reporter);
+        // Generate branches
+        runner.init(tree);
 
-        if(tree.branches.length == 0 && !runner.repl) {
+        // No reporter for debug runs
+        if(tree.isDebug) {
+            isReport = false;
+        }
+
+        // Link the reporter to the runner, if we're doing a report
+        if(isReport) {
+            runner.reporter = reporter;
+        }
+
+        if(tree.branches.length == 0 && !isRepl) {
             utils.error("0 branches generated from given files");
         }
 
-        // Build the tree
+        // --skip-passed
         if(runner.skipPassed) {
             let buffer = null;
             if(typeof runner.skipPassed == 'string') {
@@ -452,8 +400,8 @@ async function runServer() {
         function outputCompleteMessage() {
             console.log(``);
             console.log(yellowChalk("Run complete"));
-            console.log(`${tree.complete} branch${plural(tree.complete)} ran` + (runner.report ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``));
-            if(runner.report) {
+            console.log(`${tree.complete} branch${plural(tree.complete)} ran` + (isReport ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``));
+            if(isReport) {
                 console.log(`Report at: ` + chalk.gray.italic(reporter.reportPath));
             }
 
@@ -473,37 +421,35 @@ async function runServer() {
         }
 
         // Output header that contains number of branches to run and live report location
-        if(!runner.repl) {
+        if(!isRepl) {
             if(tree.totalToRun == 0 && runner.skipPassed) {
                 console.log("No branches left to run. All branches have passed last time.");
                 outputCompleteMessage(true);
                 return;
             }
 
-            console.log(`${tree.totalToRun} branch${plural(tree.totalToRun)} to run` + (runner.report ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
-            if(runner.report) {
+            console.log(`${tree.totalToRun} branch${plural(tree.totalToRun)} to run` + (isReport ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
+            if(isReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reporter.reportPath));
             }
 
             console.log(``);
         }
 
-        runServer(); // sync call to start server in background
-
-        if(tree.isDebug || runner.repl) {
+        if(tree.isDebug || isRepl) {
             // ***************************************
             //  REPL
             // ***************************************
             let isBranchComplete = false;
 
-            if(runner.repl) {
+            if(isRepl) {
                 if(tree.totalToRun == 0) {
                     // Create an empty, paused runner
                     runner.createEmptyRunner();
                     runner.consoleOutput = true;
                 }
                 else if(tree.totalToRun > 1) {
-                    utils.error(`There are ${tree.totalToRun} branch${plural(tree.totalToRun)} to run but you can only have 1 to run -repl. Try isolating a branch with ~.`);
+                    utils.error(`There are ${tree.totalToRun} branch${plural(tree.totalToRun)} to run but you can only have 1 to run --repl. Try isolating a branch with ~.`);
                 }
                 else {
                     runner.consoleOutput = true;
@@ -553,7 +499,7 @@ async function runServer() {
 
                 let replServer = repl.start({
                     prompt: chalk.gray("> "),
-                    completer: (line) => {
+                    completer: line => {
                         process.stdout.write("    "); // enter a tab made up of 4 spaces
                         return []; // no autocomplete on tab
                     },
@@ -602,7 +548,7 @@ async function runServer() {
                     switch(input.toLowerCase().trim()) {
                         case "":
                             console.log("");
-                            if(runner.repl && (isBranchComplete || tree.branches == 0)) {
+                            if(isRepl && (isBranchComplete || tree.branches == 0)) {
                                 // this is an empty repl, so exit
                                 exit(false);
                             }
@@ -679,6 +625,11 @@ async function runServer() {
                 progressBar.start(tree.totalSteps, tree.totalStepsComplete);
 
                 activateProgressBarTimer();
+            }
+
+            // Run server
+            if(isReport) {
+                reporter.runServer(); // sync call to start server in background
             }
 
             // Run

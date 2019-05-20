@@ -571,8 +571,8 @@
             <div id="reportTime">
                 {{{reportTime}}}
             </div>
-            <div id="domain">
-                {{{domain}}}
+            <div id="reportDomain">
+                {{{reportDomain}}}
             </div>
         </div>
 
@@ -680,7 +680,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     this.state.reportTime = document.getElementById("reportTime").innerHTML;
 
                     // Parse in domain
-                    this.state.domain = document.getElementById("domain").innerHTML;
+                    this.state.reportDomain = document.getElementById("reportDomain").innerHTML;
 
                     // Bindings
                     this.setUpdateLoop = this.setUpdateLoop.bind(this);
@@ -740,7 +740,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 updateData() {
                     let self = this;
                     return new Promise((resolve, reject) => {
-                        if(this.state.domain) {
+                        if(this.state.reportDomain) {
                             let xhr = new XMLHttpRequest();
                             xhr.addEventListener("load", () => {
                                 let preState = null
@@ -770,7 +770,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                 resolve(); // fail silently
                             });
 
-                            xhr.open("GET", `${this.state.domain}/state?file=${encodeURIComponent(window.location.href.replace(/file\:\/\//, ''))}`);
+                            xhr.open("GET", `${this.state.reportDomain}/state?file=${encodeURIComponent(window.location.href.replace(/file\:\/\//, ''))}`);
                             xhr.send();
                         }
                         else {
