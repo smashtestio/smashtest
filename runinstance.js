@@ -65,7 +65,6 @@ class RunInstance {
             // Execute Before Every Branch steps, if they didn't run already
             // NOTE: pauses can only happen if there's one branch in total
             if(this.currBranch.beforeEveryBranch && !wasPaused) {
-                let continueToNextBranch = false;
                 for(let i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
                     let s = this.currBranch.beforeEveryBranch[i];
 
@@ -74,25 +73,10 @@ class RunInstance {
                         return;
                     }
                     else if(this.currBranch.isFailed) {
-                        // runHookStep() already marked the branch as a failure, so now just run all
-                        // After Every Branch hooks and advance to the next branch
-                        await this.runAfterEveryBranch();
-
-                        this.currBranch.timeEnded = new Date();
-                        if(this.currBranch.elapsed != -1) { // measure elapsed only if this RunInstance has never been paused
-                            this.currBranch.elapsed = this.currBranch.timeEnded - this.currBranch.timeStarted;
-                        }
-                        // NOTE: else is probably unreachable because a branch auto-completes as failed if a Before Every Branch error occurs (and pauses are only allowed when there 1 branch)
-
-                        this.currBranch = this.tree.nextBranch();
-
-                        continueToNextBranch = true;
+                        // runHookStep() already marked the branch as a failure, so now just run all After Every Branch hooks
+                        // and advance to the next branch
                         break;
                     }
-                }
-
-                if(continueToNextBranch) {
-                    continue;
                 }
             }
 
