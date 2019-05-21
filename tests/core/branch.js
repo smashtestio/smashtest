@@ -508,7 +508,7 @@ describe("Branch", () => {
             b.isPassed = true;
             b.steps = [ new Step(0), new Step(1) ];
 
-            let o = JSON.parse(b.serialize());
+            let o = b.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,
@@ -525,11 +525,10 @@ describe("Branch", () => {
             let b = new Branch();
 
             b.nonParallelId = 4;
-            b.isPassed = true;
             b.passedLastTime = true;
             b.steps = [ new Step(0), new Step(1) ];
 
-            let o = JSON.parse(b.serialize());
+            let o = b.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,

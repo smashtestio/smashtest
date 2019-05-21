@@ -14,9 +14,7 @@ describe("Step", () => {
 
             s.isPassed = true;
 
-            s.error = new Error('oops');
-            s.error.msg = s.error.message;
-
+            s.error = new Error("oops");
             s.log = [ { text: 'log1' }, { text: 'log2' } ];
 
             s.elapsed = 65;
@@ -26,7 +24,7 @@ describe("Step", () => {
             s.reportTemplateIndex = 9;
             s.reportView = { one: 'one', two: 'two' };
 
-            let o = JSON.parse(s.serialize());
+            let o = s.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,
@@ -37,13 +35,13 @@ describe("Step", () => {
 
                 isPassed: true,
 
-                error: { msg: 'oops' },
-                log: JSON.stringify( [ { text: 'log1' }, { text: 'log2' } ] ),
+                error: { message: 'oops' },
+                log: [ { text: 'log1' }, { text: 'log2' } ],
 
                 elapsed: 65,
 
                 reportTemplateIndex: 9,
-                reportView: JSON.stringify( { one: 'one', two: 'two' } )
+                reportView: { one: 'one', two: 'two' }
             });
         });
     });

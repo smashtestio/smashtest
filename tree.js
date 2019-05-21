@@ -14,7 +14,7 @@ class Tree {
         this.root = new StepNode();          // the root Step of the tree (parsed version of the text that got inputted)
         this.stepNodeIndex = {};             // object where keys are ids and values are references to StepNodes under this.root
         this.stepNodeCount = 0;              // number of StepNodes under this.root, used to generate StepNode ids
-        this.debugMode = false;              // true if at least one step has isDebug (~) set
+        this.isDebug = false;                // true if at least one step has isDebug (~) set
 
         this.branches = [];                  // Array of Branch, generated from this.root
         this.beforeEverything = [];          // Array of Step, the steps to execute before all branches
@@ -544,9 +544,9 @@ ${outputBranchAbove(this)}
             }
         }
 
-        // Set this.debugMode
+        // Set this.isDebug
         if(stepNode.isDebug) {
-            this.debugMode = true;
+            this.isDebug = true;
         }
 
         // Initialize step corresponding to stepNode
@@ -1184,7 +1184,7 @@ ${outputBranchAbove(this)}
                     let lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
                     lastStep.isDebug = true;
                     lastStep.isAfterDebug = true;
-                    this.debugMode = true;
+                    this.isDebug = true;
 
                     found = true;
                     break;
@@ -1198,55 +1198,18 @@ ${outputBranchAbove(this)}
 
         // Set this.stepData to its default
         if(!this.stepData) {
-            this.stepData = this.debugMode ? 'all' : 'fail';
+            this.stepData = this.isDebug ? 'all' : 'fail';
         }
     }
 
     /**
-     * @return {Array of String} Keys to include when serializing this object
+     * Attaches counts to the given object
      */
-    static getSerializableKeys() {
-        return [
-            'stepNodeIndex',
-            'debugMode',
-
-            'branches',
-
-            'reportTemplates',
-
-            'elapsed',
-
-            'passed',
-            'failed',
-            'skipped',
-            'complete',
-            'totalToRun',
-            'totalInReport',
-            'totalPassedInReport',
-
-            'totalStepsComplete',
-            'totalSteps',
-        ].concat(Branch.getSerializableKeys())
-        .concat(StepNode.getSerializableKeys());
-    }
-
-    /**
-     * @return {String} JSON representing this object, but only containing the most necessary stuff for a report
-     */
-    serialize() {
-        return JSON.stringify(this, (k, v) => utils.isSerializable(k, v, Tree.getSerializableKeys));
-    }
-
-    /**
-     * @param {Number} [n] - Number of currently-running branches to serialize, no limit if omitted
-     * @param {String} [prevSnapshot] - The previous snapshot returned by this function
-     * @return {String} JSON representing a snapshot of the current state of certain branches in this tree
-     *     {Array} returnedObj.branches - contains n currently-running branches, as well as all the branches from prevSnapshot (used to update the branches a report is currently showing)
-     *     returnedObj also contains all the updated counts from this tree
-     */
-    serializeSnapshot(n, prevSnapshot) {
-        let snapshot = {
-            branches: [],
+    attachCounts(obj) {
+        return Object.assign(obj, {
+            elapsed: this.elapsed,
+            timeStarted: this.timeStarted,
+            timeEnded: this.timeEnded,
 
             passed: this.passed,
             failed: this.failed,
@@ -1258,12 +1221,56 @@ ${outputBranchAbove(this)}
 
             totalStepsComplete: this.totalStepsComplete,
             totalSteps: this.totalSteps
+        });
+    }
+
+    /**
+     * @return {Object} An Object representing this tree, but able to be converted to JSON and only containing the most necessary stuff for a report
+     */
+    serialize() {
+        return this.attachCounts({
+            stepNodeIndex: serializeUsedStepNodes(this.stepNodeIndex),
+            isDebug: this.isDebug,
+
+            branches: this.branches.map(branch => branch.serialize()),
+
+            reportTemplates: this.reportTemplates
+        });
+
+        /**
+         * Only keeps step nodes that are actually used at least once
+         */
+        function serializeUsedStepNodes(stepNodeIndex) {
+            let o = {};
+            for(let key in stepNodeIndex) {
+                if(stepNodeIndex.hasOwnProperty(key)) {
+                    let stepNode = stepNodeIndex[key];
+                    if(stepNode.used) {
+                        o[key] = stepNode.serialize();
+                    }
+                }
+            }
+
+            return o;
+        }
+    }
+
+    /**
+     * @param {Number} [n] - Number of currently-running branches to serialize, no limit if omitted
+     * @param {Object} [prevSnapshot] - The previous snapshot returned by this function
+     * @return {Object} An object representing a snapshot of the current state of certain branches in this tree
+     *     {Array} returnedObj.branches - contains n currently-running branches, as well as all the branches from prevSnapshot (used to update the branches a report is currently showing)
+     *     returnedObj also contains all the updated counts from this tree
+     */
+    serializeSnapshot(n, prevSnapshot) {
+        let snapshot = {
+            branches: []
         };
 
         for(let i = 0; i < this.branches.length; i++) {
             let b = this.branches[i];
             if(b.isRunning) {
-                snapshot.branches.push(b);
+                snapshot.branches.push(b.serialize());
                 if(typeof n != 'undefined' && snapshot.branches.length >= n) {
                     break;
                 }
@@ -1272,7 +1279,6 @@ ${outputBranchAbove(this)}
 
         // Include branches from prevSnapshot
         if(prevSnapshot) {
-            prevSnapshot = JSON.parse(prevSnapshot);
             prevSnapshot.branches.forEach(prevBranch => {
                 if(prevBranch.isRunning) { // only include a branch from prevSnapshot if it was running back then
                     // Did we already include prevBranch in snapshot?
@@ -1290,7 +1296,7 @@ ${outputBranchAbove(this)}
                         for(let i = 0; i < this.branches.length; i++) {
                             let b = this.branches[i];
                             if(b.hash == prevBranch.hash) {
-                                snapshot.branches.push(b);
+                                snapshot.branches.push(b.serialize());
                                 break;
                             }
                         }
@@ -1299,7 +1305,7 @@ ${outputBranchAbove(this)}
             });
         }
 
-        return JSON.stringify(snapshot, (k, v) => utils.isSerializable(k, v, Tree.getSerializableKeys, undefined, [snapshot]));
+        return this.attachCounts(snapshot);
     }
 
     /**
@@ -1326,7 +1332,6 @@ ${outputBranchAbove(this)}
                 if(currBranch.hash == prevBranch.hash) {
                     if(prevBranch.isPassed) { // failed or didn't run
                         currBranch.passedLastTime = true;
-                        currBranch.passed = true;
                     }
 
                     // Clean state
@@ -1479,7 +1484,7 @@ ${outputBranchAbove(this)}
      */
     debugFirstStep() {
         this.branches = this.branches.slice(0, 1);
-        this.debugMode = true;
+        this.isDebug = true;
         if(this.branches[0].steps.length > 0) {
             let firstStepNode = this.stepNodeIndex[this.branches[0].steps[0].id];
             firstStepNode.isDebug = true;

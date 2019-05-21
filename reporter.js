@@ -72,26 +72,6 @@ class Reporter {
     }
 
     /**
-     * @return {Array of String} Keys to include when serializing this object
-     */
-    static getSerializableKeys() {
-        return [
-            'tree',
-            'runner',
-            'reportTime',
-            'reportDomain'
-        ].concat(Tree.getSerializableKeys())
-        .concat(Runner.getSerializableKeys());
-    }
-
-    /**
-     * @return {String} JSON representing this object, but only containing the most necessary stuff for a report
-     */
-    serialize() {
-        return JSON.stringify(this, (k, v) => utils.isSerializable(k, v, Reporter.getSerializableKeys));
-    }
-
-    /**
      * Generates and writes report and report data to disk. Notifies all connected websockets. Continues doing so periodically.
      */
     async writeFull() {
@@ -104,7 +84,12 @@ class Reporter {
         this.reportTime = new Date();
 
         // Render report html
-        let reportData = 'onReportData(`' + utils.escapeBackticks(this.serialize()) + '`);';
+        let reportData = 'onReportData(`' + utils.escapeBackticks({
+            tree: this.tree.serialize(),
+            runner: this.runner.serialize(),
+            reportTime: this.reportTime,
+            reportDomain: this.reportDomain || ""
+        }) + '`);';
 
         // Check if report is above max size
         this.size = reportData.length;

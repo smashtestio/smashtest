@@ -1113,9 +1113,8 @@ describe("StepNode", () => {
             s.isTextualStep = true;
             s.parent = null;
             s.children = [ new StepNode(2), new StepNode(3) ];
-            s.used = true;
 
-            let o = JSON.parse(s.serialize());
+            let o = s.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,

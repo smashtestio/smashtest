@@ -1,11 +1,5 @@
 const util = require('util');
 const Constants = require('./constants.js');
-const Reporter = require('./reporter.js');
-const Runner = require('./runner.js');
-const Tree = require('./tree.js');
-const Branch = require('./branch.js');
-const Step = require('./step.js');
-const StepNode = require('./stepnode.js');
 
 /**
  * @return {String} str but without leading whitespace and quotes ' or ", returns str if there are no quotes
@@ -193,37 +187,14 @@ exports.removeUndefineds = (obj) => {
 }
 
 /**
- * @param {String} k - A key
- * @param {Anything} v - A value
- * @param {Function} getSerializableKeys - A function that returns an array of strings that list the serializable keys
- * @param {Function} [getFullSerializableKeys] - A function that returns an array of strings that list keys under which everything is serializable
- * @param {Array of Object} [allowed] - Object that are allowed to be serialized
- * @return v if it's serializable, undefined if not
+ * @param {Object} destination - The object to receive properties
+ * @param {Object} source - The object whose properties to copy
+ * @param {Array of String} props - The properties to copy over
  */
-exports.isSerializable = (k, v, getSerializableKeys, getFullSerializableKeys, allowed) => {
-    if(allowed && allowed.includes(v)) {
-        return v;
-    }
-    else if(v instanceof Reporter || v instanceof Runner || v instanceof Tree || v instanceof Branch || v instanceof Step || v instanceof Error) {
-        return v;
-    }
-    else if(v instanceof StepNode) {
-        if(v.used) {
-            return v;
+exports.copyProps = (destination, source, props) => {
+    props.forEach(prop => {
+        if(typeof source[prop] != 'undefined') {
+            destination[prop] = source[prop];
         }
-        else {
-            return undefined;
-        }
-    }
-    else {
-        if(getFullSerializableKeys && getFullSerializableKeys().includes(k)) {
-            return JSON.stringify(v);
-        }
-        else if(getSerializableKeys().includes(k)) {
-            return v;
-        }
-        else {
-            return undefined;
-        }
-    }
+    });
 };

@@ -367,37 +367,24 @@ class StepNode {
     }
 
     /**
-     * @return {Array of String} Keys to include when serializing this object
-     */
-    static getSerializableKeys() {
-        return [
-            'id',
-
-            'text',
-
-            'filename',
-            'lineNumber',
-
-            'isCollapsed',
-            'isHidden'
-        ];
-    }
-
-    /**
-     * @return {Array of String} Keys whose values should be fully turned into json when serializing this object
-     */
-    static getFullSerializableKeys() {
-        return [
-            'frontModifiers',
-            'backModifiers',
-        ];
-    }
-
-    /**
-     * @return {String} JSON representing this object, but only containing the most necessary stuff for a report
+     * @return {Object} An Object representing this step node, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        return JSON.stringify(this, (k, v) => utils.isSerializable(k, v, StepNode.getSerializableKeys, StepNode.getFullSerializableKeys));
+        let o = {
+            id: this.id
+        };
+
+        utils.copyProps(o, this, [
+            'text',
+            'filename',
+            'lineNumber',
+            'frontModifiers',
+            'backModifiers',
+            'isCollapsed',
+            'isHidden'
+        ]);
+
+        return o;
     }
 }
 module.exports = StepNode;
