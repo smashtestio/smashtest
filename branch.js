@@ -386,7 +386,7 @@ class Branch {
       */
      serialize() {
          return utils.removeUndefineds({
-             steps: this.steps,
+             steps: this.steps.map(step => step.serialize()),
 
              isPassed: this.isPassed || this.passedLastTime,
              isFailed: this.isFailed,

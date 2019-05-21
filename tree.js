@@ -1229,19 +1229,19 @@ ${outputBranchAbove(this)}
      */
     serialize() {
         return utils.removeUndefineds(this.attachCounts({
-            stepNodeIndex: keepAndSerializeCalledStepNodes(this.stepNodeIndex),
+            stepNodeIndex: serializeUsedStepNodes(this.stepNodeIndex),
             isDebug: this.isDebug,
 
-            branches: this.branches.map(branch => {
-                branch = branch.serialize();
-                branch.steps = branch.steps.map(step => step.serialize());
-                return branch;
-            }),
+            branches: [],
+            branches: this.branches.map(branch => branch.serialize()),
 
-            reportTemplates: this.reportTemplates,
+            reportTemplates: this.reportTemplates
         }));
 
-        function keepAndSerializeCalledStepNodes(stepNodeIndex) {
+        /**
+         * Only keeps step nodes that are actually used at least once
+         */
+        function serializeUsedStepNodes(stepNodeIndex) {
             let o = {};
             for(let key in stepNodeIndex) {
                 if(stepNodeIndex.hasOwnProperty(key)) {
@@ -1257,7 +1257,7 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * @param {Number} n - Number of currently-running branches to serialize
+     * @param {Number} [n] - Number of currently-running branches to serialize, no limit if omitted
      * @param {Object} [prevSnapshot] - The previous snapshot returned by this function
      * @return {Object} An object representing a snapshot of the current state of certain branches in this tree
      *     {Array} returnedObj.branches - contains n currently-running branches, as well as all the branches from prevSnapshot (used to update the branches a report is currently showing)
@@ -1272,7 +1272,7 @@ ${outputBranchAbove(this)}
             let b = this.branches[i];
             if(b.isRunning) {
                 snapshot.branches.push(b.serialize());
-                if(snapshot.branches.length > n) {
+                if(typeof n != 'undefined' && snapshot.branches.length >= n) {
                     break;
                 }
             }
@@ -1293,7 +1293,7 @@ ${outputBranchAbove(this)}
                     }
 
                     if(!alreadyIncluded) {
-                        // Find prevBranch in this tree
+                        // Find prevBranch's equivalent in this tree and put it into snapshot
                         for(let i = 0; i < this.branches.length; i++) {
                             let b = this.branches[i];
                             if(b.hash == prevBranch.hash) {

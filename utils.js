@@ -178,6 +178,10 @@ exports.breather = async () => {
  * Removes undefined properties of the given object
  */
 exports.removeUndefineds = (obj) => {
-    Object.keys(obj).forEach(key => obj[key] === undefined && delete obj[key]);
+    for(let key in obj) {
+        if(obj.hasOwnProperty(key) && obj[key] === undefined) {
+            delete obj[key];
+        }
+    }
     return obj;
 }

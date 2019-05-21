@@ -10645,39 +10645,6 @@ K-1 -
                     //     H-7 -
                     //     I-7 -
                     //     K-7 -
-                    //
-                    //         A-8 -
-                    //         B-8 -
-                    //         C-8 -
-                    //         D-8 -
-                    //         E-8 -
-                    //         F-8 -
-                    //         G-8 -
-                    //         H-8 -
-                    //         I-8 -
-                    //         K-8 -
-                    //
-                    //             A-9 -
-                    //             B-9 -
-                    //             C-9 -
-                    //             D-9 -
-                    //             E-9 -
-                    //             F-9 -
-                    //             G-9 -
-                    //             H-9 -
-                    //             I-9 -
-                    //             K-9 -
-                    //
-                    //                 A-10 -
-                    //                 B-10 -
-                    //                 C-10 -
-                    //                 D-10 -
-                    //                 E-10 -
-                    //                 F-10 -
-                    //                 G-10 -
-                    //                 H-10 -
-                    //                 I-10 -
-                    //                 K-10 -
 
     `, "file.txt");
 
@@ -10685,8 +10652,8 @@ K-1 -
                 tree.generateBranches();
                 var end = new Date().getTime();
 
-                console.log("generateBranches() took " + (end - start) + " ms");
-                console.log("Size of tree: " + JSON.stringify(tree.serialize()).length/(1024 * 1024) + " MB");
+                console.log("generateBranches() took  " + (end - start) + " ms");
+                console.log("Size of serialized tree: " + JSON.stringify(tree.serialize()).length/(1024 * 1024) + " MB");
             });
         });
     });
@@ -10834,35 +10801,290 @@ A -
 
     describe("serializeSnapshot()", () => {
         it("outputs a snapshot for an empty tree", () => {
-
+            let tree = new Tree();
+            let snapshot = tree.serializeSnapshot();
+            Comparer.expect(snapshot).to.match({
+                branches: []
+            });
         });
 
         it("outputs a snapshot with no prevSnapshot", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
 
+C -
+    D -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.branches[1].isRunning = true;
+
+            let snapshot = tree.serializeSnapshot();
+
+            mergeStepNodesInBranches(tree, snapshot.branches);
+            Comparer.expect(snapshot).to.match({
+                branches: [
+                    {
+                        steps: [ { text: 'C' }, { text: 'D' } ],
+                        hash: { $typeof: 'string' }
+                    }
+                ]
+            });
         });
 
-        it("limits results to n", () => {
+        it("outputs counts", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
 
+C -
+    D -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.updateCounts();
+
+            let snapshot = tree.serializeSnapshot();
+
+            Comparer.expect(snapshot).to.match({
+                totalStepsComplete: 0,
+                totalSteps: 4
+            });
+        });
+
+        it("limits new results to n", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+C -
+    D -
+
+E -
+    F -
+
+G -
+    H -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.branches[1].isRunning = true;
+            tree.branches[2].isRunning = true;
+            tree.branches[3].isRunning = true;
+
+            let snapshot = tree.serializeSnapshot(2);
+
+            mergeStepNodesInBranches(tree, snapshot.branches);
+            Comparer.expect(snapshot).to.match({
+                branches: [
+                    {
+                        steps: [ { text: 'C' }, { text: 'D' } ],
+                        hash: { $typeof: 'string' }
+                    },
+                    {
+                        steps: [ { text: 'E' }, { text: 'F' } ],
+                        hash: { $typeof: 'string' }
+                    }
+                ]
+            });
         });
 
         it("includes a branch in snapshot if it's in prevSnapshot and if it's still running", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
 
+C -
+    D -
+
+E -
+    F -
+
+G -
+    H -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.branches[1].isRunning = true;
+            tree.branches[2].isRunning = true;
+            tree.branches[3].isRunning = true;
+
+            let prevSnapshot = tree.serializeSnapshot();
+            let snapshot = tree.serializeSnapshot(undefined, prevSnapshot);
+
+            mergeStepNodesInBranches(tree, snapshot.branches);
+            Comparer.expect(snapshot).to.match({
+                branches: [
+                    {
+                        steps: [ { text: 'C' }, { text: 'D' } ],
+                        hash: { $typeof: 'string' }
+                    },
+                    {
+                        steps: [ { text: 'E' }, { text: 'F' } ],
+                        hash: { $typeof: 'string' }
+                    },
+                    {
+                        steps: [ { text: 'G' }, { text: 'H' } ],
+                        hash: { $typeof: 'string' }
+                    }
+                ]
+            });
         });
 
         it("includes a branch in snapshot if it's in prevSnapshot and if it's no longer running", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
 
+C -
+    D -
+
+E -
+    F -
+
+G -
+    H -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.branches[1].isRunning = true;
+            tree.branches[2].isRunning = true;
+            tree.branches[3].isRunning = true;
+
+            let prevSnapshot = tree.serializeSnapshot();
+
+            delete tree.branches[2].isRunning;
+            delete tree.branches[3].isRunning;
+
+            let snapshot = tree.serializeSnapshot(undefined, prevSnapshot);
+
+            mergeStepNodesInBranches(tree, snapshot.branches);
+            Comparer.expect(snapshot).to.match({
+                branches: [
+                    {
+                        steps: [ { text: 'C' }, { text: 'D' } ],
+                        hash: { $typeof: 'string' }
+                    },
+                    {
+                        steps: [ { text: 'E' }, { text: 'F' } ],
+                        hash: { $typeof: 'string' }
+                    },
+                    {
+                        steps: [ { text: 'G' }, { text: 'H' } ],
+                        hash: { $typeof: 'string' }
+                    }
+                ]
+            });
         });
 
         it("only includes a branch once if it exists in both prevSnapshot and is one of the top n currently running", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
 
+C -
+    D -
+
+E -
+    F -
+
+G -
+    H -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.branches[1].isRunning = true;
+            tree.branches[2].isRunning = true;
+            tree.branches[3].isRunning = true;
+
+            let prevSnapshot = tree.serializeSnapshot(2);
+            let snapshot = tree.serializeSnapshot(2, prevSnapshot);
+
+            mergeStepNodesInBranches(tree, snapshot.branches);
+            Comparer.expect(snapshot).to.match({
+                branches: [
+                    {
+                        steps: [ { text: 'C' }, { text: 'D' } ],
+                        hash: { $typeof: 'string' }
+                    },
+                    {
+                        steps: [ { text: 'E' }, { text: 'F' } ],
+                        hash: { $typeof: 'string' }
+                    }
+                ]
+            });
         });
 
         it("doesn't include a branch in snapshot if it wasn't running in prevSnapshot", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
 
+C -
+    D -
+
+E -
+    F -
+
+G -
+    H -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.branches[0].isRunning = true;
+            tree.branches[1].isRunning = true;
+            tree.branches[2].isRunning = true;
+            tree.branches[3].isRunning = true;
+
+            let snapshot1 = tree.serializeSnapshot(); // includes all 4 branches, branches 0-3 are running
+
+            delete tree.branches[0].isRunning;
+            delete tree.branches[1].isRunning;
+
+            let snapshot2 = tree.serializeSnapshot(undefined, snapshot1); // includes all 4 branches, branches 2-3 are running
+
+            delete tree.branches[2].isRunning;
+
+            let snapshot3 = tree.serializeSnapshot(undefined, snapshot2); // includes branches 2-3, branch 3 is running
+
+            mergeStepNodesInBranches(tree, snapshot3.branches);
+            Comparer.expect(snapshot3).to.match({
+                branches: [
+                    {
+                        steps: [ { text: 'G' }, { text: 'H' } ],
+                        hash: { $typeof: 'string' }
+                    },
+                    {
+                        steps: [ { text: 'E' }, { text: 'F' } ],
+                        hash: { $typeof: 'string' }
+                    }
+                ]
+            });
         });
 
-        it("has good performance", () => {
+        it.skip("has good performance", function() {
+            this.timeout(120000);
 
+            let tree = new Tree();
+            for(let i = 0; i < 500000; i++) {
+                let branch = new Branch;
+                branch.isRunning = true;
+                branch.steps = [ new Step(1234567890) ];
+
+                tree.branches.push(branch);
+            }
+
+            let prevSnapshot = tree.serializeSnapshot(100);
+
+            var start = new Date().getTime();
+            let snapshot = tree.serializeSnapshot(100, prevSnapshot);
+            var end = new Date().getTime();
+
+            console.log("serializeSnapshot() took " + (end - start) + " ms");
+            console.log("Size of snapshot:        " + JSON.stringify(snapshot).length/(1024 * 1024) + " MB");
+            console.log("Size of tree:            " + JSON.stringify(tree).length/(1024 * 1024) + " MB");
+            console.log("Size of serialized tree: " + JSON.stringify(tree.serialize()).length/(1024 * 1024) + " MB");
         });
     });
 
