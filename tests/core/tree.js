@@ -10624,17 +10624,17 @@ K-1 -
                 I-5 -
                 K-5 -
 
-                    // A-6 -
-                    // B-6 -
-                    // C-6 -
-                    // D-6 -
-                    // E-6 -
-                    // F-6 -
-                    // G-6 -
-                    // H-6 -
-                    // I-6 -
-                    // K-6 -
-                    //
+                    A-6 -
+                    B-6 -
+                    C-6 -
+                    D-6 -
+                    E-6 -
+                    F-6 -
+                    G-6 -
+                    H-6 -
+                    I-6 -
+                    K-6 -
+
                     //     A-7 -
                     //     B-7 -
                     //     C-7 -
@@ -10724,7 +10724,7 @@ K-1 -
             tree.generateBranches(undefined, undefined, undefined, undefined, true);
             let obj = tree.serialize();
 
-            mergeStepNodesInTree(obj);
+            mergeStepNodesInBranches(tree, obj.branches);
             Comparer.expect(obj).to.match({
                 stepNodeIndex: {
                     $exact: true,
@@ -10779,7 +10779,7 @@ A -
             tree.generateBranches(undefined, undefined, undefined, undefined, true);
             let obj = tree.serialize();
 
-            mergeStepNodesInTree(obj);
+            mergeStepNodesInBranches(tree, obj.branches);
             Comparer.expect(obj).to.match({
                 branches: [
                     {
@@ -10796,6 +10796,34 @@ A -
                 beforeEverything: undefined,
                 afterEverything: undefined
             });
+        });
+
+        it.skip("has good performance", function() {
+            this.timeout(6000000);
+
+            let tree = new Tree();
+            for(let i = 0; i < 3000000; i++) {
+                let branch = new Branch;
+                branch.isRunning = true;
+                branch.steps = [ new Step(1234567890) ];
+
+                tree.branches.push(branch);
+            }
+
+            var start = new Date().getTime();
+            let serializedTree = tree.serialize();
+            var end = new Date().getTime();
+
+            console.log("serialize() took " + (end - start) + " ms");
+
+            var start = new Date().getTime();
+            let stringifiedTree = JSON.stringify(tree);
+            var end = new Date().getTime();
+
+            console.log("stringify() took " + (end - start) + " ms");
+
+            console.log("Size of serialized tree:  " + JSON.stringify(serializedTree).length/(1024 * 1024) + " MB");
+            console.log("Size of stringified tree: " + stringifiedTree.length/(1024 * 1024) + " MB");
         });
     });
 
@@ -11064,10 +11092,10 @@ G -
         });
 
         it.skip("has good performance", function() {
-            this.timeout(120000);
+            this.timeout(6000000);
 
             let tree = new Tree();
-            for(let i = 0; i < 500000; i++) {
+            for(let i = 0; i < 4000000; i++) {
                 let branch = new Branch;
                 branch.isRunning = true;
                 branch.steps = [ new Step(1234567890) ];

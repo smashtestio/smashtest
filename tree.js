@@ -1228,15 +1228,14 @@ ${outputBranchAbove(this)}
      * @return {Object} An Object representing this tree, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        return utils.removeUndefineds(this.attachCounts({
+        return this.attachCounts({
             stepNodeIndex: serializeUsedStepNodes(this.stepNodeIndex),
             isDebug: this.isDebug,
 
-            branches: [],
             branches: this.branches.map(branch => branch.serialize()),
 
             reportTemplates: this.reportTemplates
-        }));
+        });
 
         /**
          * Only keeps step nodes that are actually used at least once

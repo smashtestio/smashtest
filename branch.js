@@ -385,21 +385,26 @@ class Branch {
       * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
       */
      serialize() {
-         return utils.removeUndefineds({
-             steps: this.steps.map(step => step.serialize()),
+         let o = {
+             steps: this.steps.map(step => step.serialize())
+         };
 
-             isPassed: this.isPassed || this.passedLastTime,
-             isFailed: this.isFailed,
-             isSkipped: this.isSkipped,
-             isRunning: this.isRunning,
+         (this.isPassed || this.passedLastTime) && (o.isPassed = true);
 
-             error: this.error,
-             log: this.log,
+         utils.copyProps(o, this, [
+             'isFailed',
+             'isSkipped',
+             'isRunning',
 
-             elapsed: this.elapsed,
+             'error',
+             'log',
 
-             hash: this.hash
-         });
+             'elapsed',
+
+             'hash'
+         ]);
+
+         return o;
      }
 }
 module.exports = Branch;

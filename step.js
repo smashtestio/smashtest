@@ -72,25 +72,28 @@ class Step {
      * @return {Object} An Object representing this step, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        return utils.removeUndefineds({
+        let o = {
             id: this.id,
             fid: this.fid,
+            level: this.level
+        };
 
-            level: this.level,
+        utils.copyProps(o, this, [
+            'isPassed',
+            'isFailed',
+            'isSkipped',
+            'isRunning',
 
-            isPassed: this.isPassed,
-            isFailed: this.isFailed,
-            isSkipped: this.isSkipped,
-            isRunning: this.isRunning,
+            'error',
+            'log',
 
-            error: this.error,
-            log: this.log,
+            'elapsed',
 
-            elapsed: this.elapsed,
+            'reportTemplateIndex',
+            'reportView'
+        ]);
 
-            reportTemplateIndex: this.reportTemplateIndex,
-            reportView: this.reportView
-        });
+        return o;
     }
 }
 module.exports = Step;

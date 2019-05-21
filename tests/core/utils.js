@@ -162,4 +162,30 @@ describe("Utils", () => {
             });
         });
     });
+
+    describe("copyProps()", () => {
+        it("copies properies", () => {
+            let source = {
+                one: 1,
+                two: '2',
+                three: 0,
+                four: undefined,
+                five: null,
+                six: 6
+            };
+
+            let destination = {
+                two: 222
+            };
+
+            utils.copyProps(destination, source, ['one', 'two', 'three', 'four', 'five'])
+
+            expect(destination).to.eql({
+                one: 1,
+                two: '2',
+                three: 0,
+                five: null
+            });
+        });
+    });
 });

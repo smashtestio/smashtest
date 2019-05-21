@@ -370,20 +370,21 @@ class StepNode {
      * @return {Object} An Object representing this step node, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        return utils.removeUndefineds({
-            id: this.id,
+        let o = {
+            id: this.id
+        };
 
-            text: this.text,
+        utils.copyProps(o, this, [
+            'text',
+            'filename',
+            'lineNumber',
+            'frontModifiers',
+            'backModifiers',
+            'isCollapsed',
+            'isHidden'
+        ]);
 
-            filename: this.filename,
-            lineNumber: this.lineNumber,
-
-            frontModifiers: this.frontModifiers,
-            backModifiers: this.backModifiers,
-
-            isCollapsed: this.isCollapsed,
-            isHidden: this.isHidden
-        });
+        return o;
     }
 }
 module.exports = StepNode;

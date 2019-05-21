@@ -185,3 +185,16 @@ exports.removeUndefineds = (obj) => {
     }
     return obj;
 }
+
+/**
+ * @param {Object} destination - The object to receive properties
+ * @param {Object} source - The object whose properties to copy
+ * @param {Array of String} props - The properties to copy over
+ */
+exports.copyProps = (destination, source, props) => {
+    props.forEach(prop => {
+        if(typeof source[prop] != 'undefined') {
+            destination[prop] = source[prop];
+        }
+    });
+};
