@@ -362,7 +362,7 @@ function plural(count) {
         runner.init(tree);
 
         // No reporter for debug runs
-        if(tree.isDebug) {
+        if(tree.debugMode) {
             isReport = false;
         }
 
@@ -421,7 +421,7 @@ function plural(count) {
                 return;
             }
 
-            console.log(`${tree.totalToRun} branch${plural(tree.totalToRun)} to run` + (isReport ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
+            console.log(`${tree.totalToRun} branch${plural(tree.totalToRun)} to run` + (isReport ? ` | ${tree.totalInReport} branch${plural(tree.totalInReport)} in report` : ``) + (tree.debugMode ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
             if(isReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reporter.reportPath));
             }
@@ -429,7 +429,7 @@ function plural(count) {
             console.log(``);
         }
 
-        if(tree.isDebug || isRepl) {
+        if(tree.debugMode || isRepl) {
             // ***************************************
             //  REPL
             // ***************************************

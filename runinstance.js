@@ -130,7 +130,7 @@ class RunInstance {
 
         step.timeStarted = new Date();
 
-        if(this.tree.isDebug) {
+        if(this.tree.debugMode) {
             this.stepsRan.steps.push(step);
         }
 

@@ -69,31 +69,43 @@ class Step {
     }
 
     /**
-     * @return {Object} An Object representing this step, but able to be converted to JSON and only containing the most necessary stuff for a report
+     * @return {Array of String} Keys to include when serializing this object
      */
-    serialize() {
-        let o = {
-            id: this.id,
-            fid: this.fid,
-            level: this.level
-        };
+    static getSerializableKeys() {
+        return [
+            'id',
+            'fid',
+            'level',
 
-        utils.copyProps(o, this, [
             'isPassed',
             'isFailed',
             'isSkipped',
             'isRunning',
 
-            'error',
-            'log',
-
             'elapsed',
 
-            'reportTemplateIndex',
-            'reportView'
-        ]);
+            'msg',
+            'stackTrace',
 
-        return o;
+            'reportTemplateIndex'
+        ];
+    }
+
+    /**
+     * @return {Array of String} Keys whose values should be fully turned into json when serializing this object
+     */
+    static getFullSerializableKeys() {
+        return [
+            'log',
+            'reportView'
+        ];
+    }
+
+    /**
+     * @return {String} JSON representing this object, but only containing the most necessary stuff for a report
+     */
+    serialize() {
+        return JSON.stringify(this, (k, v) => utils.isSerializable(k, v, Step.getSerializableKeys, Step.getFullSerializableKeys));
     }
 }
 module.exports = Step;

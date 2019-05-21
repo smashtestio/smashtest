@@ -1,7 +1,9 @@
 const clonedeep = require('lodash/clonedeep');
 const md5 = require('md5');
-const Constants = require('./constants.js');
 const utils = require('./utils.js');
+const Constants = require('./constants.js');
+const Step = require('./step.js');
+const StepNode = require('./stepnode.js');
 
 /**
  * Represents a single branch containing steps
@@ -382,16 +384,13 @@ class Branch {
      }
 
      /**
-      * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
+      * @return {Array of String} Keys to include when serializing this object
       */
-     serialize() {
-         let o = {
-             steps: this.steps.map(step => step.serialize())
-         };
+     static getSerializableKeys() {
+         return [
+             'steps',
 
-         (this.isPassed || this.passedLastTime) && (o.isPassed = true);
-
-         utils.copyProps(o, this, [
+             'isPassed',
              'isFailed',
              'isSkipped',
              'isRunning',
@@ -402,9 +401,14 @@ class Branch {
              'elapsed',
 
              'hash'
-         ]);
+         ].concat(Step.getSerializableKeys());
+     }
 
-         return o;
+     /**
+      * @return {String} JSON representing this object, but only containing the most necessary stuff for a report
+      */
+     serialize() {
+         return JSON.stringify(this, (k, v) => utils.isSerializable(k, v, Branch.getSerializableKeys));
      }
 }
 module.exports = Branch;

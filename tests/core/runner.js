@@ -1228,7 +1228,7 @@ Step to Inject {
             runner.persistent = { a: 1, b: 2 };
             runner.isPaused = true;
 
-            let obj = runner.serialize();
+            let obj = JSON.parse(runner.serialize());
 
             Comparer.expect(obj).to.match({
                 isPaused: true,

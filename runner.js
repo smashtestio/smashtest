@@ -56,7 +56,7 @@ class Runner {
         let numInstances = Math.min(this.maxParallel, this.tree.branches.length);
 
         // If isDebug is set on any step, pauseOnFail will be set
-        if(this.tree.isDebug) {
+        if(this.tree.debugMode) {
             this.pauseOnFail = true;
         }
 
@@ -199,14 +199,21 @@ class Runner {
     }
 
     /**
-     * @return {Object} An Object representing this runner, but able to be converted to JSON and only containing the most necessary stuff for a report
+     * @return {Array of String} Keys to include when serializing this object
+     */
+    static getSerializableKeys() {
+        return [
+            'isPaused',
+            'isStopped',
+            'isComplete'
+        ];
+    }
+
+    /**
+     * @return {String} JSON representing this object, but only containing the most necessary stuff for a report
      */
     serialize() {
-        return utils.removeUndefineds({
-            isPaused: this.isPaused,
-            isStopped: this.isStopped,
-            isComplete: this.isComplete
-        });
+        return JSON.stringify(this, (k, v) => utils.isSerializable(k, v, Runner.getSerializableKeys));
     }
 
     /**
