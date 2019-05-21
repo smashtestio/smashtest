@@ -112,14 +112,11 @@ class Reporter {
         if(!this.stopped) {
             // As the report data gets bigger, it takes longer to generate/write. So we generate/write it less often.
             let time = 0;
-            if(this.size < 20971520) {           // < 20 MB
-                time = 20000;                    // 20 secs
+            if(this.size < 52428800) {           // < 50 MB
+                time = 20000;                    // every 20 secs
             }
-            else if(this.size < 314572800) {     // < 300 MB
-                time = 60000;                    // 1 min
-            }
-            else {                               // >= 300 MB
-                time = 300000;                   // 5 mins
+            else {                               // >= 50 MB
+                time = 60000;                    // every 1 min
             }
 
             this.timerFull = setTimeout(() => this.writeFull(), time);
@@ -145,7 +142,7 @@ class Reporter {
 
         // Have this function get called again in a certain amount of time
         if(!this.stopped) {
-            let time = 250; // 250 ms
+            let time = 500; // every 500 ms
             this.timerSnapshot = setTimeout(() => this.writeSnapshot(), time);
         }
     }

@@ -10802,7 +10802,7 @@ A -
             this.timeout(6000000);
 
             let tree = new Tree();
-            for(let i = 0; i < 3000000; i++) {
+            for(let i = 0; i < 1500000; i++) {
                 let branch = new Branch;
                 branch.isRunning = true;
                 branch.steps = [ new Step(1234567890) ];
@@ -11095,7 +11095,7 @@ G -
             this.timeout(6000000);
 
             let tree = new Tree();
-            for(let i = 0; i < 4000000; i++) {
+            for(let i = 0; i < 3000000; i++) {
                 let branch = new Branch;
                 branch.isRunning = true;
                 branch.steps = [ new Step(1234567890) ];
