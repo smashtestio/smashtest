@@ -11975,293 +11975,34 @@ A - !
         });
     });
 
-    describe("markStep()", () => {
-        it("marks a step passed", () => {
+    describe("markHookStep()", () => {
+        it("marks a hook step passed", () => {
             let tree = new Tree();
+            let step = new Step(1);
 
-            let stepA = new Step(1);
-            stepA.isRunning = true;
+            tree.markHookStep('pass', step);
 
-            let stepB = new Step(2);
-            let stepC = new Step(3);
-            let stepD = new Step(4);
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStep(stepA, branch, true);
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isPassed: true, isRunning: true },
-                    { id: 2, isPassed: undefined },
-                    { id: 3, isPassed: undefined },
-                    { id: 4, isPassed: undefined }
-                ],
-                isPassed: undefined,
-                isFailed: undefined
-            });
-        });
-
-        it("marks a branch passed when the last step is passed", () => {
-            let tree = new Tree();
-
-            let stepA = new Step(1);
-            stepA.isPassed = true;
-
-            let stepB = new Step(2);
-            stepB.isPassed = true;
-
-            let stepC = new Step(3);
-            stepC.isPassed = true;
-
-            let stepD = new Step(4);
-            stepD.isRunning = true;
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStep(stepD, branch, true);
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isPassed: true },
-                    { id: 2, isPassed: true },
-                    { id: 3, isPassed: true },
-                    { id: 4, isPassed: true, isRunning: true }
-                ],
+            Comparer.expect(step).to.match({
                 isPassed: true,
-                isFailed: undefined
+                isFailed: undefined,
+                isSkipped: undefined
             });
         });
 
-        it("marks a branch failed when the last step is passed", () => {
+        it("marks a hook step failed and sets its error", () => {
             let tree = new Tree();
+            let step = new Step(1);
 
-            let stepA = new Step(1);
-            stepA.isPassed = true;
+            tree.markHookStep('fail', step, new Error('oops'));
 
-            let stepB = new Step(2);
-            stepB.isFailed = true;
-
-            let stepC = new Step(3);
-            stepC.isPassed = true;
-
-            let stepD = new Step(4);
-            stepD.isRunning = true;
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStep(stepD, branch, true);
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isPassed: true },
-                    { id: 2, isFailed: true },
-                    { id: 3, isPassed: true },
-                    { id: 4, isPassed: true, isRunning: true }
-                ],
+            Comparer.expect(step).to.match({
                 isPassed: undefined,
-                isFailed: true
-            });
-        });
-
-        it("marks a step failed and sets its error", () => {
-            let tree = new Tree();
-
-            let stepA = new Step(1);
-            stepA.isRunning = true;
-
-            let stepB = new Step(2);
-            let stepC = new Step(3);
-            let stepD = new Step(4);
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStep(stepA, branch, false, new Error("foobar"));
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isFailed: true, isRunning: true },
-                    { id: 2, isFailed: undefined },
-                    { id: 3, isFailed: undefined },
-                    { id: 4, isFailed: undefined }
-                ],
-                isPassed: undefined,
-                isFailed: undefined
-            });
-
-            expect(stepA.error.message).to.equal("foobar");
-        });
-
-        it("marks a branch failed when the last step is failed", () => {
-            let tree = new Tree();
-
-            let stepA = new Step(1);
-            stepA.isPassed = true;
-
-            let stepB = new Step(2);
-            stepB.isPassed = true;
-
-            let stepC = new Step(3);
-            stepC.isPassed = true;
-
-            let stepD = new Step(4);
-            stepD.isRunning = true;
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStep(stepD, branch, false, new Error("foobar"));
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isFailed: undefined },
-                    { id: 2, isFailed: undefined },
-                    { id: 3, isFailed: undefined },
-                    { id: 4, isFailed: true, isRunning: true }
-                ],
-                isPassed: undefined,
-                isFailed: true
-            });
-
-            expect(stepD.error.message).to.equal("foobar");
-        });
-
-        it("marks a branch failed before we reach the last step", () => {
-            let tree = new Tree();
-
-            let stepA = new Step(1);
-            stepA.isPassed = true;
-
-            let stepB = new Step(2);
-            stepB.isPassed = true;
-
-            let stepC = new Step(3);
-            stepC.isRunning = true;
-
-            let stepD = new Step(4);
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStep(stepC, branch, false, new Error("foobar"), true);
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isFailed: undefined },
-                    { id: 2, isFailed: undefined },
-                    { id: 3, isFailed: true, isRunning: true },
-                    { id: 4, isFailed: undefined }
-                ],
-                isPassed: undefined,
-                isFailed: true
-            });
-
-            expect(stepC.error.message).to.equal("foobar");
-        });
-    });
-
-    describe("markStepSkipped()", () => {
-        it("marks a step skipped", () => {
-            let tree = new Tree();
-
-            let stepA = new Step(1);
-            stepA.isRunning = true;
-
-            let stepB = new Step(2);
-            let stepC = new Step(3);
-            let stepD = new Step(4);
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStepSkipped(stepA, branch);
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isSkipped: true, isRunning: true },
-                    { id: 2, isSkipped: undefined },
-                    { id: 3, isSkipped: undefined },
-                    { id: 4, isSkipped: undefined }
-                ],
-                isPassed: undefined,
-                isFailed: undefined
-            });
-        });
-
-        it("marks a branch passed when the last step is skipped", () => {
-            let tree = new Tree();
-
-            let stepA = new Step(1);
-            stepA.isPassed = true;
-
-            let stepB = new Step(2);
-            stepB.isSkipped = true;
-
-            let stepC = new Step(3);
-            stepC.isPassed = true;
-
-            let stepD = new Step(4);
-            stepD.isRunning = true;
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStepSkipped(stepD, branch);
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isSkipped: undefined },
-                    { id: 2, isSkipped: true },
-                    { id: 3, isSkipped: undefined },
-                    { id: 4, isSkipped: true, isRunning: true }
-                ],
-                isPassed: true,
-                isFailed: undefined
-            });
-        });
-
-        it("handles no branch passed in", () => {
-            let tree = new Tree();
-
-            let stepA = new Step(1);
-            stepA.isPassed = true;
-
-            let stepB = new Step(2);
-            stepB.isSkipped = true;
-
-            let stepC = new Step(3);
-            stepC.isPassed = true;
-
-            let stepD = new Step(4);
-            stepD.isRunning = true;
-
-            let branch = new Branch();
-
-            branch.steps = [ stepA, stepB, stepC, stepD ];
-
-            tree.markStepSkipped(stepD);
-
-            Comparer.expect(branch).to.match({
-                steps: [
-                    { id: 1, isSkipped: undefined },
-                    { id: 2, isSkipped: true },
-                    { id: 3, isSkipped: undefined },
-                    { id: 4, isSkipped: true, isRunning: true }
-                ],
-                isPassed: undefined,
-                isFailed: undefined
+                isFailed: true,
+                isSkipped: undefined,
+                error: {
+                    msg: 'oops',
+                    stackTrace: { $typeof: 'string' }
+                }
             });
         });
     });

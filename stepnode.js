@@ -90,7 +90,7 @@ class StepNode {
         }
 
         // Parsed parts of the line
-        this.text = matches[5];
+        this.text = matches[5].trim();
         if(matches[4]) {
             this.isFunctionDeclaration = true;
             if(matches[4].trim() == '**') {
@@ -378,8 +378,6 @@ class StepNode {
             'text',
             'filename',
             'lineNumber',
-            'frontModifiers',
-            'backModifiers',
             'isCollapsed',
             'isHidden'
         ]);

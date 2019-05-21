@@ -1105,7 +1105,7 @@ A - {
 
             it("sets step.elapsed to how long it took step to execute", async () => {
                 let tree = new Tree();
-                tree.stepData = 'all';
+                tree.stepDataMode = 'all';
                 tree.parseIn(`
 Wait 20ms {
     await new Promise((resolve, reject) => {
@@ -1166,7 +1166,7 @@ F
 
             it("executes a function call with {{variables}} in its function declaration, passing in 'strings'", async () => {
                 let tree = new Tree();
-                tree.stepData = 'all';
+                tree.stepDataMode = 'all';
                 tree.parseIn(`
 My 'foo' Function 'bar'
 
@@ -1197,7 +1197,7 @@ My 'foo' Function 'bar'
 
             it("executes a function call with {{variables}} in its function declaration, passing in \"strings\"", async () => {
                 let tree = new Tree();
-                tree.stepData = 'all';
+                tree.stepDataMode = 'all';
                 tree.parseIn(`
 "foo" My "bar"  Function 'blah\\n'
 
@@ -1257,7 +1257,7 @@ My {A} Function { b }
 
             it("executes a function call with {{variables}} in its function declaration, passing in {variables} set to js objects", async () => {
                 let tree = new Tree();
-                tree.stepData = 'all';
+                tree.stepDataMode = 'all';
                 tree.parseIn(`
 Set vars {
     setGlobal("A", {foo:"bar"});
@@ -2252,7 +2252,7 @@ My 'foo' Function 'bar' other text
 
             it("executes a {{var}} = 'string' step", async () => {
                 let tree = new Tree();
-                tree.stepData = 'all';
+                tree.stepDataMode = 'all';
                 tree.parseIn(`
 {{var1}} = 'foobar'
                 `, "file.txt");
@@ -2350,7 +2350,7 @@ My 'foo' Function 'bar' other text
 
             it("executes a {var1} = '{var2} {{var2}} [something]' step", async () => {
                 let tree = new Tree();
-                tree.stepData = 'all';
+                tree.stepDataMode = 'all';
                 tree.parseIn(`
 ..
 {var1} = 'foobar'
@@ -3822,7 +3822,7 @@ My function
         context("errors and logs", () => {
             it("executes a step that logs", async () => {
                 let tree = new Tree();
-                tree.stepData = 'all';
+                tree.stepDataMode = 'all';
                 tree.parseIn(`
 My function
     Something else {
@@ -4104,7 +4104,7 @@ My function
 
             it("marks a step as passed when it passes", async () => {
                 let tree = new Tree();
-                tree.stepData = 'all';
+                tree.stepDataMode = 'all';
                 tree.parseIn(`
 My function
 
@@ -7382,7 +7382,7 @@ My function
 
         it("step can be a function call that's in the tree, but if there is no current branch", async () => {
             let tree = new Tree();
-            tree.stepData = 'all';
+            tree.stepDataMode = 'all';
             tree.parseIn(`
 * My function
     {var1}='foo'

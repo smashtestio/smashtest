@@ -22,7 +22,7 @@ class Tree {
 
         this.latestBranchifiedStepNode = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
 
-        this.stepData = null;                // Keep step data for all steps, failed steps only, or no steps ('all', 'fail', or 'none')
+        this.stepDataMode = null;            // Keep step data for all steps, failed steps only, or no steps ('all', 'fail', or 'none')
 
         /*
         OPTIONAL
@@ -1196,9 +1196,9 @@ ${outputBranchAbove(this)}
             }
         }
 
-        // Set this.stepData to its default
-        if(!this.stepData) {
-            this.stepData = this.isDebug ? 'all' : 'fail';
+        // Set this.stepDataMode to its default
+        if(!this.stepDataMode) {
+            this.stepDataMode = this.isDebug ? 'all' : 'fail';
         }
     }
 
@@ -1493,48 +1493,28 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Marks the given step in the given branch as passed or failed (but does not clear step.isRunning)
-     * Passes or fails the branch if step is the last step, or if finishBranchNow is set
+     * Marks the given hook step has pass/fail/skip
+     * @param {String} state - 'pass' to pass, 'fail' to fail
      * @param {Step} step - The Step to mark
-     * @param {Branch} [branch] - The Branch that contains the step, if any
-     * @param {Boolean} isPassed - If true, marks the step as passed, if false, marks the step as failed
      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
-     * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
      */
-    markStep(step, branch, isPassed, error, finishBranchNow) {
-        if(isPassed) {
+    markHookStep(state, step, error) {
+        // Reset state
+        delete step.isPassed;
+        delete step.isFailed;
+        delete step.isSkipped;
+
+        if(state == 'pass') {
             step.isPassed = true;
-            delete step.isFailed;
-            delete step.isSkipped;
         }
-        else {
+        else if(state == 'fail') {
             step.isFailed = true;
-            delete step.isPassed;
-            delete step.isSkipped;
         }
 
         if(error) {
             step.error = error;
             step.error.msg = error.message.toString();
             step.error.stackTrace = error.stack.toString();
-        }
-
-        // If this is the very last step in the branch, mark the branch as passed/failed
-        if(branch && (finishBranchNow || branch.steps.indexOf(step) + 1 == branch.steps.length)) {
-            branch.finishOffBranch(this.stepData);
-        }
-    }
-
-    /**
-     * Marks the given step as skipped, finishes off the branch if it was the last step
-     */
-    markStepSkipped(step, branch) {
-        step.isSkipped = true;
-        delete step.isPassed;
-        delete step.isFailed;
-
-        if(branch && branch.steps.indexOf(step) + 1 == branch.steps.length) {
-            branch.finishOffBranch(this.stepData);
         }
     }
 
@@ -1587,7 +1567,7 @@ ${outputBranchAbove(this)}
         if(nextStep && this.getModifier(nextStep, 'isSkipBelow')) {
             if(advance) {
                 delete nextStep.isRunning;
-                branch.finishOffBranch(this.stepData);
+                branch.finishOffBranch(this.stepDataMode);
             }
 
             return null;
@@ -1595,7 +1575,7 @@ ${outputBranchAbove(this)}
 
         // If the next step is a -s or is already skipped, mark it as skipped and advance again
         if(advance && nextStep && (nextStep.isSkip || nextStep.isSkipped)) {
-            this.markStepSkipped(nextStep, branch);
+            branch.markStep('skip', nextStep, undefined, undefined, this.stepDataMode);
             return this.nextStep(branch, advance);
         }
 

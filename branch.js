@@ -295,11 +295,11 @@ class Branch {
 
      /**
       * Marks this branch as passed or failed
-      * @param {Boolean} state - 'pass' to pass, 'fail' to fail, 'skip' to skip
+      * @param {String} state - 'pass' to pass, 'fail' to fail, 'skip' to skip
       * @param {Error} [error] - The Error object that caused the branch to fail (if an error occurred in a Step, that error should go into that Step, not here)
-      * @param {String} [stepData] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
+      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
       */
-     markBranch(state, error, stepData) {
+     markBranch(state, error, stepDataMode) {
          // Reset state
          delete this.isPassed;
          delete this.isFailed;
@@ -322,46 +322,96 @@ class Branch {
              this.error.stackTrace = error.stack.toString();
          }
 
-         if(stepData == 'none') {
+         if(stepDataMode == 'none') {
              clearDataOfSteps(this);
          }
-         else if(stepData == 'fail') {
+         else if(stepDataMode == 'fail') {
              if(state != 'fail') {
                  clearDataOfSteps(this);
              }
          }
 
          function clearDataOfSteps(self) {
-             self.steps = self.steps.map(step => {
-                 // The data we want to keep
-                 return utils.removeUndefineds({
-                     id: step.id,
-                     fid: step.fid,
-                     level: step.level,
+             for(let i = 0; i < self.steps.length; i++) {
+                 let step = self.steps[i];
 
-                     isFailed: step.isFailed,
-                     isSkipped: step.isSkipped,
-                     isRunning: step.isRunning
-                     // omitting isPassed (it will be implied)
-                 });
-             });
+                 // Save the properties of step we want to keep
+                 let id = step.id;
+                 let fid = step.fid;
+                 let level = step.level;
+                 let isFailed = step.isFailed;
+                 let isSkipped = step.isSkipped;
+                 let isRunning = step.isRunning;
+                 // omitting isPassed (it will be implied by the branch passing)
+
+                 // Clear out step
+                 for(let key in step) {
+                     delete step[key];
+                 }
+
+                 // Restore properties of step we want to keep
+                 step.id = id;
+                 fid && (step.fid = fid);
+                 level && (step.level = fid);
+
+                 isFailed && (step.isFailed = true);
+                 isSkipped && (step.isSkipped = true);
+                 isRunning && (step.isRunning = true);
+             }
+         }
+     }
+
+     /**
+      * Marks the given step as passed or failed (but does not clear step.isRunning)
+      * Passes or fails the branch if step is the last step, or if finishBranchNow is set
+      * @param {String} state - 'pass' to pass, 'fail' to fail, 'skip' to skip
+      * @param {Step} step - The Step to mark
+      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
+      * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
+      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
+      */
+     markStep(state, step, error, finishBranchNow, stepDataMode) {
+         // Reset state
+         delete step.isPassed;
+         delete step.isFailed;
+         delete step.isSkipped;
+
+         if(state == 'pass') {
+             step.isPassed = true;
+         }
+         else if(state == 'fail') {
+             step.isFailed = true;
+         }
+         else if(state == 'skip') {
+             step.isSkipped = true;
+         }
+
+         if(error) {
+             step.error = error;
+             step.error.msg = error.message.toString();
+             step.error.stackTrace = error.stack.toString();
+         }
+
+         // If this is the very last step in this branch, mark this branch as passed/failed
+         if(finishBranchNow || this.steps.indexOf(step) + 1 == this.steps.length) {
+             this.finishOffBranch(stepDataMode);
          }
      }
 
      /**
       * Marks this branch passed if all steps passed, failed if at least one step failed
-      * @param {String} [stepData] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
+      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
       */
-     finishOffBranch(stepData) {
+     finishOffBranch(stepDataMode) {
          for(let i = 0; i < this.steps.length; i++) {
              let step = this.steps[i];
              if(step.isFailed) {
-                 this.markBranch('fail', undefined, stepData);
+                 this.markBranch('fail', undefined, stepDataMode);
                  return;
              }
          }
 
-         this.markBranch('pass', undefined, stepData);
+         this.markBranch('pass', undefined, stepDataMode);
      }
 
      /**

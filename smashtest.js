@@ -214,7 +214,7 @@ Options
                 if(!value.match(/all|fail|none/)) {
                     utils.error("step-data must be all, fail, or none");
                 }
-                tree.stepData = value;
+                tree.stepDataMode = value;
                 break;
 
             case "version":

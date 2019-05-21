@@ -88,7 +88,7 @@ class Reporter {
             tree: this.tree.serialize(),
             runner: this.runner.serialize(),
             reportTime: this.reportTime,
-            reportDomain: this.reportDomain || ""
+            reportDomain: this.reportDomain
         }) + '`);';
 
         // Check if report is above max size

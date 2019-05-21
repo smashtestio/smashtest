@@ -264,9 +264,9 @@
                 overflow-x: hidden;
             }
 
-            .progress-bar .filled-bar.paused {
+            /*.progress-bar .filled-bar.paused {
                 background-color: rgb(70,70,70);
-            }
+            }*/
 
             .progress-bar .filled-bar-text {
                 position: relative;
@@ -559,6 +559,10 @@
     <body>
         <div id="root"></div>
 
+        <div id="report-data-container">
+            <script src="smashtest-data.js"></script>
+        </div>
+
         <script type="text/babel">
             // Tooltips
 
@@ -613,19 +617,27 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             }
 
             /**
-             * Returns the text of the given step with modifiers attached
+             * Called when a new report data file is loaded
              */
-            function stepText(step) {
-                return (step.frontModifiers ? step.frontModifiers.join(' ') + ' ' : '') +
-                step.text.trim() +
-                (step.backModifiers ? ' ' + step.backModifiers.join(' ') : '')
+            function onReportData(data) {
+                reportData = JSON.parse(this.unescapeBackticks(data));
+                if(app) {
+                    app.setState(reportData);
+                }
             }
 
             // React Components
 
+            let app = null;
+            let reportData = null;
+
             class App extends React.Component {
                 constructor() {
                     super();
+
+                    // This app
+                    this.me = null; // app's dom element
+                    app = this; // global var referencing this app
 
                     // State
                     this.state = {
@@ -636,83 +648,63 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         port: null,
                         live: true
                     };
-                    this.preState = null; // latest data to come from api, held in this variable if updates are paused on a preview
-                    this.slowPoll = false; // if true, don't poll the api as frequently since it's down
+                    this.latestBranches = []; // if we're paused on a preview, incoming snapshots will be combined and stored here
 
-                    // App's DOM element
-                    this.me = null;
-
-                    // Parse in tree
-                    let treeContent = document.getElementById("tree").innerHTML;
-                    let treeJSON = this.unescapeHtml(treeContent);
-                    if(!treeJSON.startsWith("\{\{\{")) {
-                        this.state.tree = JSON.parse(treeJSON);
-                        this.uncollapseSteps(this.state.tree);
+                    if(reportData) {
+                        this.uncollapseSteps(reportData.tree);
+                        this.setState(reportData);
                     }
-
-                    // Parse in runner
-                    let runnerContent = document.getElementById("runner").innerHTML;
-                    let runnerJSON = this.unescapeHtml(runnerContent);
-                    if(!runnerJSON.startsWith("\{\{\{")) {
-                        this.state.runner = JSON.parse(runnerJSON);
-                    }
-
-                    // Parse in reportTime
-                    this.state.reportTime = document.getElementById("reportTime").innerHTML;
-
-                    // Parse in domain
-                    this.state.reportDomain = document.getElementById("reportDomain").innerHTML;
 
                     // Bindings
-                    this.setUpdateLoop = this.setUpdateLoop.bind(this);
+                    this.openConnection = this.openConnection.bind(this);
                     this.setLive = this.setLive.bind(this);
                     this.updateData = this.updateData.bind(this);
                     this.updateState = this.updateState.bind(this);
                     this.uncollapseSteps = this.uncollapseSteps.bind(this);
-                    this.unescapeHtml = this.unescapeHtml.bind(this);
+                    this.unescapeBackticks = this.unescapeBackticks.bind(this);
+                    this.stepNode = this.stepNode.bind(this);
                     this.setPreview = this.setPreview.bind(this);
                     this.handleKeyDown = this.handleKeyDown.bind(this);
                     this.handleKeyUp = this.handleKeyUp.bind(this);
-                    this.isModifierActive = this.isModifierActive.bind(this);
+                    this.isKeyModifierActive = this.isKeyModifierActive.bind(this);
                     this.showNotification = this.showNotification.bind(this);
                     this.copyToClipboard = this.copyToClipboard.bind(this);
                 }
 
                 componentDidMount() {
-                    if(window.location.href.match(/^https?\:\/\/|report\.html$/)) { // dated reports from reports/ do not update themselves
-                        this.setUpdateLoop();
-                    }
-                    else {
-                        this.setState( { live: false } );
-                    }
-
+                    this.openConnection();
                     this.me.focus(); // focus on myself, so I can start getting keyboard commands
                 }
+
+
+
+
+
+
+
+
+
+
 
                 /**
                  * Starts the loop that polls the api for data updates
                  */
-                setUpdateLoop() {
-                    // Start update loop
-                    const UPDATE_FREQUENCY = 500; // in ms
-                    const UPDATE_FREQUENCY_SLOW = 5000; // in ms
-                    setTimeout(() => {
-                        this.updateData().finally(this.setUpdateLoop);
-                    }, this.slowPoll ? UPDATE_FREQUENCY_SLOW : UPDATE_FREQUENCY);
+                openConnection() {
+                    // Opens websocket that will receive state updates
+
+
+
+
+
+
+
                 }
 
                 /**
-                 * Sets the report to either live or not live mode
+                 * Sets mode to live or not live
                  */
                 setLive(isLive) {
-                    if(isLive) {
-                        this.slowPoll = false;
-                        this.setState( { live: true } );
-                    }
-                    else {
-                        this.slowPoll = true;
-                        this.setState( { live: false } );
-                    }
+                    this.setState( { live: isLive } );
                 }
 
                 /**
@@ -799,14 +791,29 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     });
                 }
 
+
+
+
+
+
+
+
+
+
                 /**
-                 * Converts the html entities in str into their actual chars
+                 * @return {String} str, but with &#96; and &amp; unescaped to ` and &
                  */
-                unescapeHtml(str) {
+                unescapeBackticks(str) {
                     return str
-                        .replace(/&gt;/g, ">")
-                        .replace(/&lt;/g, "<")
+                        .replace(/&#96;/g, "`")
                         .replace(/&amp;/g, "&");
+                }
+
+                /**
+                 * Returns the step node of the given step
+                 */
+                stepNode(step) {
+                    return this.state.tree.stepNodeIndex[step.id];
                 }
 
                 /**
@@ -843,7 +850,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                  * Handles a key down event
                  */
                 handleKeyDown(event) {
-                    if(this.isModifierActive(event)) {
+                    if(this.isKeyModifierActive(event)) {
                         return;
                     }
 
@@ -936,7 +943,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                  * Handles a key up event
                  */
                 handleKeyUp(event) {
-                    if(this.isModifierActive(event)) {
+                    if(this.isKeyModifierActive(event)) {
                         return;
                     }
 
@@ -950,9 +957,9 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 /**
-                 * Returns true if a modifier, such as Shift or Control, is currently active
+                 * Returns true if a keyboard modifier, such as Shift or Control, is currently active
                  */
-                isModifierActive(event) {
+                isKeyModifierActive(event) {
                     return event.getModifierState("Shift") ||
                         event.getModifierState("Alt") ||
                         event.getModifierState("Control") ||
@@ -1000,7 +1007,12 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         <div className="main" tabIndex="0" onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp} ref={elem => this.me = elem}>
                             <div id="notification"><span className="notification-text"></span></div>
                             <TreePane data={this.state} setPreview={this.setPreview}/>
-                            <PreviewPane previewedItem={this.state.previewedItem} setPreview={this.setPreview} live={this.state.live}/>
+                            <PreviewPane
+                                previewedItem={this.state.previewedItem}
+                                setPreview={this.setPreview}
+                                stepNodeIndex={this.state.tree.stepNodeIndex}
+                                live={this.state.live}
+                            />
                         </div>
                     );
                 }
@@ -1017,7 +1029,12 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     <div className={className}>
                         <TreeHeader data={props.data}/>
                         <TreeErrors data={props.data}/>
-                        <BranchListing branches={props.data.tree.branches} setPreview={props.setPreview} previewedItem={props.data.previewedItem}/>
+                        <BranchListing
+                            branches={props.data.tree.branches}
+                            stepNodeIndex={props.data.tree.stepNodeIndex}
+                            setPreview={props.setPreview}
+                            previewedItem={props.data.previewedItem}
+                        />
                     </div>
                 );
             }
@@ -1072,11 +1089,11 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                     return (
                         <div className="tree-header">
-                            <div className="header">{/*this.props.data.live ? "Live " : ""*/}SmashTEST Report</div>
+                            <div className="header">SmashTEST Report</div>
                             <div className="tree-header-container">
                                 {
                                     !this.props.data.runner.isComplete && !this.props.data.runner.isStopped ?
-                                    <ProgressBar decimal={this.props.data.tree.totalStepsComplete / this.props.data.tree.totalSteps} paused={/*this.props.data.runner.isPaused ||*/ this.props.data.previewedItem}/> :
+                                    <ProgressBar decimal={this.props.data.tree.totalStepsComplete / this.props.data.tree.totalSteps} paused={this.props.data.previewedItem}/> :
                                     ""
                                 }
                                 <div className="runner-status-msg tree-header-item">
@@ -1515,7 +1532,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                     step={this.props.step}
                                     hasLevels={this.props.hasLevels}
                                 />
-                                {stepText(this.props.step)}
+                                {stepNode(this.props.step).text}
                                 {pill}
                             </span>
                             <span className="location">[{this.props.step.filename}:{this.props.step.lineNumber}]</span>
@@ -1678,7 +1695,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         previewedItemText = `Branch ${this.props.previewedItem.props.branch.hash}`;
                     }
                     else {
-                        previewedItemText = stepText(previewedItem);
+                        previewedItemText = stepNode(previewedItem).text;
                     }
 
                     let postPreviewedItemText = "";

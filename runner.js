@@ -202,11 +202,12 @@ class Runner {
      * @return {Object} An Object representing this runner, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        return utils.removeUndefineds({
-            isPaused: this.isPaused,
-            isStopped: this.isStopped,
-            isComplete: this.isComplete
-        });
+        let o = {};
+        this.isPaused && (o.isPaused = true);
+        this.isStopped && (o.isStopped = true);
+        this.isComplete && (o.isComplete = true);
+        
+        return o;
     }
 
     /**

@@ -175,18 +175,6 @@ exports.breather = async () => {
 }
 
 /**
- * Removes undefined properties of the given object
- */
-exports.removeUndefineds = (obj) => {
-    for(let key in obj) {
-        if(obj.hasOwnProperty(key) && obj[key] === undefined) {
-            delete obj[key];
-        }
-    }
-    return obj;
-}
-
-/**
  * @param {Object} destination - The object to receive properties
  * @param {Object} source - The object whose properties to copy
  * @param {Array of String} props - The properties to copy over

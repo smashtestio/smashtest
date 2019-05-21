@@ -306,6 +306,8 @@ class RunInstance {
                     finishBranchNow = false;
                 }
             }
+
+            branch.markStep(isPassed ? 'pass' : 'fail', step, error, finishBranchNow, this.tree.stepDataMode);
         }
 
         // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)
@@ -316,13 +318,8 @@ class RunInstance {
                 if(this.isStopped) {
                     return;
                 }
-                else if(step.isFailed) {
-                    isPassed = false;
-                }
             }
         }
-
-        this.tree.markStep(step, branch, isPassed, error, finishBranchNow);
 
         // Pause if pauseOnFail is set and the step failed
         if(this.runner.pauseOnFail && step.isFailed) {
@@ -383,17 +380,17 @@ class RunInstance {
             this.fillErrorFromStep(e, step, true);
 
             if(stepToGetError) {
-                this.tree.markStep(stepToGetError, null, false, stepToGetError.error ? undefined : e); // do not set stepToGetError.error if it's already set
+                this.tree.markHookStep('fail', stepToGetError, stepToGetError.error ? undefined : e); // do not set stepToGetError.error if it's already set
 
                 if(branchToGetError) {
-                    branchToGetError.markBranch('fail', undefined, this.tree.stepData);
+                    branchToGetError.markBranch('fail', undefined, this.tree.stepDataMode);
                 }
             }
             else if(branchToGetError) {
                 if(branchToGetError.error) { // do not set branchToGetError.error if it's already set
                     e = undefined;
                 }
-                branchToGetError.markBranch('fail', e, this.tree.stepData);
+                branchToGetError.markBranch('fail', e, this.tree.stepDataMode);
             }
 
             return false;
@@ -441,7 +438,7 @@ class RunInstance {
             this.toNextReadyStep(); // move to the next not-yet-completed step
 
             if(this.currStep) { // if we still have a currStep and didn't fall off the end of the branch
-                this.tree.markStepSkipped(this.currStep, this.currBranch); // mark the current step as skipped
+                this.currBranch.markStep('skip', this.currStep, undefined, undefined, this.tree.stepDataMode); // mark the current step as skipped
                 this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
 
                 this.setPause(true);
