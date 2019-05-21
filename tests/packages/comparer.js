@@ -294,6 +294,14 @@ describe("Comparer", () => {
 ]`);
             });
 
+            it("actual=[nulls], expected=[objs]", () => {
+                let obj = Comparer.comparison([null, null], [{x:1}, {x:2}]);
+                expect(Comparer.print(obj)).to.equal(`[
+    null,  -->  not an object
+    null  -->  not an object
+]`);
+            });
+
             it("actual=function, expected=function with same body", () => {
                 let obj = Comparer.comparison(() => {return 1;}, () => {return 1;});
                 expect(Comparer.print(obj)).to.equal(`[Function]  -->  not undefined`);

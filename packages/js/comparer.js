@@ -84,7 +84,7 @@ class Comparer {
                     for(let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
                         let expectedItem = expected[expectedIndex];
                         if(['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
-                            if(anyOrder || subset) {
+                            if(subset || anyOrder) {
                                 // corresponding actual item can be anywhere
                                 let actualClone = this.clone(actual);
                                 let found = false;
@@ -338,7 +338,7 @@ class Comparer {
                 // If there are non-$ keys in expected, then expected is a plain object that needs to be a subset of the actual object
                 let expectedKeys = Object.keys(expected).filter(key => RESERVED_KEYWORDS.indexOf(key) == -1);
                 if(exact || expectedKeys.length > 0) {
-                    if(typeof actual != 'object') {
+                    if(typeof actual != 'object' || actual === null) {
                         errors.push(`not an object`);
                     }
                     else {
@@ -586,7 +586,6 @@ class Comparer {
          */
         function outputBlockErrors() {
             let filteredErrors = errors.filter(error => error.blockError);
-
             if(filteredErrors.length == 0) {
                 return '';
             }
