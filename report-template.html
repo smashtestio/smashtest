@@ -565,7 +565,7 @@
         <div id="root"></div>
 
         <div id="report-data-container">
-            <script src="smashtest-data.js"></script>
+            <script id="report-data-script" src="smashtest-data.js"></script>
         </div>
 
         <script type="text/babel">
@@ -627,7 +627,9 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             //  Report data
             // ***************************************
 
-            let reportData = null;
+            let reportData = null;      // Object representing the report data (ui is rendered against this)
+            let updatedBranches = [];   // Array of Branch containing branches from reportData that have since been updated server-side
+                                        // (but the updates cannot be applied to reportData yet because we're paused on a preview)
 
             /**
              * Called when a new report data file is loaded
@@ -671,18 +673,15 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         port: null,
                         live: true
                     };
-                    this.latestBranches = []; // if we're paused on a preview, incoming snapshots will be combined and stored here
+                    this.socket = null; // websocket to report server
 
                     if(reportData) {
                         this.updateReportData();
                     }
 
                     // Bindings
-                    this.updateReportData = this.updateReportData.bind(this);
                     this.openConnection = this.openConnection.bind(this);
-                    this.setLive = this.setLive.bind(this);
-                    this.updateData = this.updateData.bind(this);
-                    this.updateState = this.updateState.bind(this);
+                    this.updateReportData = this.updateReportData.bind(this);
                     this.initCollapsing = this.initCollapsing.bind(this);
                     this.stepNode = this.stepNode.bind(this);
                     this.getModifier = this.getModifier.bind(this);
@@ -700,111 +699,101 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 /**
+                 * Opens websocket that will receive state updates
+                 */
+                openConnection() {
+                    const WS_RETRY_FREQ = 5000; // 5 secs
+                    this.socket = new WebSocket(`ws://localhost:${this.state.port}`);
+
+                    socket.addEventListener('open', (event) => {
+                        let origin = '';
+                        if(window.location.href.match(/^file:\/\//)) { // local html file
+                            origin = encodeURIComponent(window.location.href.replace(/file:\/\//, ''));
+                        }
+                        else { // at site with a domain:port
+                            origin = window.location.host + (window.location.port ? `:${window.location.port}` : ``);
+                        }
+
+                        socket.send(`{ origin: ${origin} }`);
+                    });
+
+                    socket.addEventListener('message', (event) => {
+                        let message = JSON.parse(event.data);
+                        if(message.dataUpdate) { // update report data from file
+                            let container = document.getElementById('report-data-container');
+                            let scriptElem = document.getElementById('report-data-script');
+                            container.removeChild(scriptElem);
+
+                            scriptElem = document.createElement('script');
+                            scriptElem.id = 'report-data-script';
+                            scriptElem.setAttribute('src', 'smashtest-data.js');
+
+                            container.appendChild(scriptElem);
+                        }
+                        else if(message.branches) { // this is a snapshot update
+                            let tree = this.state.tree;
+
+                            // Update counts
+                            tree.elapsed = message.elapsed;
+                            tree.timeStarted = message.timeStarted;
+                            tree.timeEnded = message.timeEnded;
+
+                            tree.passed = message.passed;
+                            tree.failed = message.failed;
+                            tree.skipped = message.skipped;
+                            tree.complete = message.complete;
+                            tree.totalToRun = message.totalToRun;
+                            tree.totalInReport = message.totalInReport;
+                            tree.totalPassedInReport = message.totalPassedInReport;
+
+                            tree.totalStepsComplete = message.totalStepsComplete;
+                            tree.totalSteps = message.totalSteps;
+
+                            // Update branches
+                            if(this.state.previewedItem) { // updates currently paused
+                                // Insert snapshots into updatedBranches
+
+
+
+
+
+
+                            }
+                            else { // updates not paused
+                                // Update reportData directly
+
+
+
+
+
+
+
+                            }
+                        }
+                    });
+
+                    socket.addEventListener('error', (event) => {
+                        console.log(event);
+
+                        // Retry connecting after a few secs
+                        setTimeout(() => this.openConnection(), WS_RETRY_FREQ);
+                    });
+
+                    socket.addEventListener('close', (event) => {
+                        console.log('Websocket to report server closed');
+
+                        // Retry connecting after a few secs
+                        setTimeout(() => this.openConnection(), WS_RETRY_FREQ);
+                    });
+                }
+
+                /**
                  * Called when reportData is set to new report data
                  */
                 updateReportData() {
                     this.initCollapsing(reportData.tree.branches);
                     this.setState(reportData);
                 }
-
-
-
-
-
-
-
-
-
-
-
-                /**
-                 * Starts the loop that polls the api for data updates
-                 */
-                openConnection() {
-                    // Opens websocket that will receive state updates
-
-
-
-
-
-
-
-                }
-
-                /**
-                 * Sets mode to live or not live
-                 */
-                setLive(isLive) {
-                    this.setState( { live: isLive } );
-                }
-
-                /**
-                 * Called when new data has been pulled from the api and the UI might need to get updated
-                 */
-                updateData() {
-                    let self = this;
-                    return new Promise((resolve, reject) => {
-                        if(this.state.reportDomain) {
-                            let xhr = new XMLHttpRequest();
-                            xhr.addEventListener("load", () => {
-                                let preState = null
-                                try {
-                                    preState = JSON.parse(xhr.response);
-                                }
-                                catch(e) {
-                                    this.setLive(false);
-                                    resolve(); // fail silently
-                                    return;
-                                }
-
-                                if(!preState) {
-                                    this.setLive(false);
-                                    resolve(); // fail silently
-                                    return;
-                                }
-
-                                this.setLive(true);
-                                self.preState = preState;
-                                self.updateState();
-                                resolve();
-                            });
-                            xhr.addEventListener("error", () => {
-                                this.setLive(false);
-                                self.updateState();
-                                resolve(); // fail silently
-                            });
-
-                            xhr.open("GET", `${this.state.reportDomain}/state?file=${encodeURIComponent(window.location.href.replace(/file\:\/\//, ''))}`);
-                            xhr.send();
-                        }
-                        else {
-                            resolve();
-                        }
-                    });
-                }
-
-                /**
-                 * Updates this.state with the latest data pulled down from the api, if updates aren't currently paused on a preview
-                 * @param {Boolean} [force] - If true, updates the state regardless of whether updates are currently paused on a preview
-                 */
-                updateState(force) {
-                    if((!this.state.previewedItem || force) && this.preState) {
-                        this.initCollapsing(this.preState.tree);
-                        this.setState({
-                            tree: this.preState.tree,
-                            runner: this.preState.runner,
-                            reportTime: this.preState.reportTime
-                        });
-                    }
-                }
-
-
-
-
-
-
-
-
 
                 /**
                  * Initializes collapse-related UI properties in branches (step.collapse, step.collapseHide, and step.hasChildren)
@@ -885,7 +874,17 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     }
 
                     if(noPreview) {
-                        this.updateState(true);
+                        // TODO:
+                        // When becoming unpaused, merge updatedBranches into reportData, set updatedBranches = [], then call setState()
+
+
+
+
+
+
+
+
+
                     }
                 }
 
