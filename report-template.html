@@ -628,7 +628,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             // ***************************************
 
             let reportData = null;      // Object representing the report data (ui is rendered against this)
-            let updatedBranches = [];   // Array of Branch containing branches from reportData that have since been updated server-side
+            let branchSnapshots = [];   // Array of Branch containing branches from reportData that have since been updated server-side
                                         // (but the updates cannot be applied to reportData yet because we're paused on a preview)
 
             /**
@@ -682,6 +682,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     // Bindings
                     this.openConnection = this.openConnection.bind(this);
                     this.updateReportData = this.updateReportData.bind(this);
+                    this.copyBranches = this.copyBranches.bind(this);
                     this.initCollapsing = this.initCollapsing.bind(this);
                     this.stepNode = this.stepNode.bind(this);
                     this.getModifier = this.getModifier.bind(this);
@@ -751,23 +752,11 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                             // Update branches
                             if(this.state.previewedItem) { // updates currently paused
-                                // Insert snapshots into updatedBranches
-
-
-
-
-
-
+                                copyBranches(branchSnapshots, message.branches);
                             }
                             else { // updates not paused
-                                // Update reportData directly
-
-
-
-
-
-
-
+                                copyBranches(reportData.tree.branches, message.branches);
+                                this.updateReportData();
                             }
                         }
                     });
@@ -793,6 +782,25 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 updateReportData() {
                     this.initCollapsing(reportData.tree.branches);
                     this.setState(reportData);
+                }
+
+                /**
+                 * Copies branches from sourceBranches to destination branches, overwriting existing ones if their hashes match
+                 */
+                copyBranches(destinationBranches, sourceBranches) {
+                    sourceBranches.forEach(branch => {
+                        let found = false;
+                        for(let i = 0; i < destinationBranches.length; i++) {
+                            if(destinationBranches[i].hash == branch.hash) {
+                                destinationBranches[i] = branch;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if(!found) {
+                            destinationBranches.push(branch);
+                        }
+                    });
                 }
 
                 /**
@@ -873,18 +881,11 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         });
                     }
 
-                    if(noPreview) {
-                        // TODO:
-                        // When becoming unpaused, merge updatedBranches into reportData, set updatedBranches = [], then call setState()
-
-
-
-
-
-
-
-
-
+                    if(noPreview) { // we're resuming updates
+                        // Dump into reportData branch snapshots that have been piling up during the pause
+                        copyBranches(reportData.tree.branches, branchSnapshots);
+                        branchSnapshots = [];
+                        this.updateReportData();
                     }
                 }
 
