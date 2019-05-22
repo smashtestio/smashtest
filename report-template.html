@@ -144,6 +144,10 @@
                 animation: blinker 2s linear infinite;
             }
 
+            .updates-paused .branch-indicator.running {
+                background-color: orange;
+            }
+
             @keyframes blinker {
                 50% {
                     opacity: 0.3;
@@ -289,6 +293,7 @@
                 animation: blinker 2s linear infinite;
             }
 
+            .updates-paused .running-item,
             .running-item-no-anim,
             .orange-item {
                 color: orange;
@@ -564,7 +569,9 @@
         </div>
 
         <script type="text/babel">
-            // Tooltips
+            // ***************************************
+            //  Tooltips
+            // ***************************************
 
             let tippyOptions = {
                 placement: "right",
@@ -616,20 +623,36 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 tippy(".branch-indicator.notrunyet", tippyOptions);
             }
 
+            // ***************************************
+            //  Report data
+            // ***************************************
+
+            let reportData = null;
+
             /**
              * Called when a new report data file is loaded
              */
             function onReportData(data) {
-                reportData = JSON.parse(this.unescapeBackticks(data));
+                reportData = JSON.parse(unescapeBackticks(data));
                 if(app) {
-                    app.setState(reportData);
+                    app.updateReportData();
                 }
             }
 
-            // React Components
+            /**
+             * @return {String} str, but with &#96; and &amp; unescaped to ` and &
+             */
+            function unescapeBackticks(str) {
+                return str
+                    .replace(/&#96;/g, "`")
+                    .replace(/&amp;/g, "&");
+            }
+
+            // ***************************************
+            //  React components
+            // ***************************************
 
             let app = null;
-            let reportData = null;
 
             class App extends React.Component {
                 constructor() {
@@ -651,18 +674,18 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     this.latestBranches = []; // if we're paused on a preview, incoming snapshots will be combined and stored here
 
                     if(reportData) {
-                        this.uncollapseSteps(reportData.tree);
-                        this.setState(reportData);
+                        this.updateReportData();
                     }
 
                     // Bindings
+                    this.updateReportData = this.updateReportData.bind(this);
                     this.openConnection = this.openConnection.bind(this);
                     this.setLive = this.setLive.bind(this);
                     this.updateData = this.updateData.bind(this);
                     this.updateState = this.updateState.bind(this);
-                    this.uncollapseSteps = this.uncollapseSteps.bind(this);
-                    this.unescapeBackticks = this.unescapeBackticks.bind(this);
+                    this.initCollapsing = this.initCollapsing.bind(this);
                     this.stepNode = this.stepNode.bind(this);
+                    this.getModifier = this.getModifier.bind(this);
                     this.setPreview = this.setPreview.bind(this);
                     this.handleKeyDown = this.handleKeyDown.bind(this);
                     this.handleKeyUp = this.handleKeyUp.bind(this);
@@ -674,6 +697,14 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 componentDidMount() {
                     this.openConnection();
                     this.me.focus(); // focus on myself, so I can start getting keyboard commands
+                }
+
+                /**
+                 * Called when reportData is set to new report data
+                 */
+                updateReportData() {
+                    this.initCollapsing(reportData.tree.branches);
+                    this.setState(reportData);
                 }
 
 
@@ -758,7 +789,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                  */
                 updateState(force) {
                     if((!this.state.previewedItem || force) && this.preState) {
-                        this.uncollapseSteps(this.preState.tree);
+                        this.initCollapsing(this.preState.tree);
                         this.setState({
                             tree: this.preState.tree,
                             runner: this.preState.runner,
@@ -767,23 +798,35 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     }
                 }
 
-                /**
-                 * Uncollapse steps in the given tree if they have a step underneath that is running or is failed
-                 */
-                uncollapseSteps(tree) {
-                    tree.branches.forEach(branch => {
-                        branch.steps.forEach((step, index) => {
-                            if(step.isCollapsed && !step.collapseHide) {
-                                // If a step is currently running or is failed, set its isCollapsed = false
-                                for(let i = index + 1; i < branch.steps.length; i++) {
-                                    let s = branch.steps[i];
-                                    if(s.level <= step.level) {
-                                        break;
-                                    }
 
-                                    if(s.isRunning || s.isFailed) {
-                                        step.isCollapsed = false;
-                                        break;
+
+
+
+
+
+
+
+                /**
+                 * Initializes collapse-related UI properties in branches (step.collapse, step.collapseHide, and step.hasChildren)
+                 * Uncollapses steps if they have a step underneath that is running or is failed
+                 */
+                initCollapsing(branches) {
+                    branches.forEach(branch => {
+                        branch.steps.forEach((step, index) => {
+                            if(this.getModifier(step, 'isCollapsed')) {
+                                step.collapse = true;
+                                if(!step.collapseHide) {
+                                    // If a step is currently running or is failed, set its collapse = false
+                                    for(let i = index + 1; i < branch.steps.length; i++) {
+                                        let s = branch.steps[i];
+                                        if(s.level <= step.level) {
+                                            break;
+                                        }
+
+                                        if(s.isRunning || s.isFailed) {
+                                            step.collapse = false;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -791,29 +834,29 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     });
                 }
 
-
-
-
-
-
-
-
-
-
-                /**
-                 * @return {String} str, but with &#96; and &amp; unescaped to ` and &
-                 */
-                unescapeBackticks(str) {
-                    return str
-                        .replace(/&#96;/g, "`")
-                        .replace(/&amp;/g, "&");
-                }
-
                 /**
                  * Returns the step node of the given step
                  */
                 stepNode(step) {
                     return this.state.tree.stepNodeIndex[step.id];
+                }
+
+                /**
+                 * Gets a modifier value for a step
+                 * @param {Step} step - A step
+                 * @param {String} modifierName - The name of a modifier (key in StepNode)
+                 * @return {Boolean} True if the given modifier is set on either step's StepNode or on its corresponding function declaration's StepNode (if step is a function call), false otherwise
+                 */
+                getModifier(step, modifierName) {
+                    let stepNode = this.state.tree.stepNodeIndex[step.id];
+                    if(stepNode[modifierName]) {
+                        return true;
+                    }
+                    else if(step.hasOwnProperty('fid') && this.state.tree.stepNodeIndex[step.fid][modifierName]) {
+                        return true;
+                    }
+
+                    return false;
                 }
 
                 /**
@@ -1003,15 +1046,23 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 render() {
+                    let className = "main ";
+                    this.state.previewedItem && (className += "updates-paused ");
+
                     return (
-                        <div className="main" tabIndex="0" onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp} ref={elem => this.me = elem}>
+                        <div className={className} tabIndex="0" onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp} ref={elem => this.me = elem}>
                             <div id="notification"><span className="notification-text"></span></div>
-                            <TreePane data={this.state} setPreview={this.setPreview}/>
+                            <TreePane
+                                data={this.state}
+                                setPreview={this.setPreview}
+                                getModifier={this.getModifier}
+                            />
                             <PreviewPane
                                 previewedItem={this.state.previewedItem}
                                 setPreview={this.setPreview}
                                 stepNodeIndex={this.state.tree.stepNodeIndex}
                                 live={this.state.live}
+                                reportTemplates={this.state.tree.reportTemplates}
                             />
                         </div>
                     );
@@ -1034,6 +1085,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             stepNodeIndex={props.data.tree.stepNodeIndex}
                             setPreview={props.setPreview}
                             previewedItem={props.data.previewedItem}
+                            getModifier={props.getModifier}
                         />
                     </div>
                 );
@@ -1179,12 +1231,10 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 let errors =
                     props.data.tree.beforeEverything
                     .concat(props.data.tree.afterEverything)
-                    .filter(hook => {
-                        return hook.error;
-                    })
-                    .map((hook, index) => {
+                    .filter(hook => hook.error)
+                    .map(hook => {
                         return (
-                            <div className="stacktrace" key={index}>
+                            <div className="stacktrace" key={hook.id}>
                                 {formatStackTrace(hook.error)}
                             </div>
                         );
@@ -1204,21 +1254,22 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             }
 
             function BranchListing(props) {
-                let branchesRunning = props.branches
-                    .filter(branch => branch.isRunning)
-                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
-                let branchesFailed = props.branches
-                    .filter(branch => branch.isFailed)
-                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
-                let branchesPassed = props.branches
-                    .filter(branch => branch.isPassed)
-                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
-                let branchesSkipped = props.branches
-                    .filter(branch => branch.isSkipped)
-                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
-                let branchesNotRunYet = props.branches
-                    .filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped)
-                    .map(branch => <Branch key={branch.hash} branch={branch} setPreview={props.setPreview} previewedItem={props.previewedItem}/>);
+                function mapToBranchElems(branches) {
+                    return branches.map(branch => <Branch
+                        key={branch.hash}
+                        branch={branch}
+                        stepNodeIndex={props.stepNodeIndex}
+                        setPreview={props.setPreview}
+                        previewedItem={props.previewedItem}
+                        getModifier={props.getModifier}
+                    />);
+                }
+
+                let branchesRunning = mapToBranchElems(props.branches.filter(branch => branch.isRunning));
+                let branchesFailed = mapToBranchElems(props.branches.filter(branch => branch.isFailed));
+                let branchesPassed = mapToBranchElems(props.branches.filter(branch => branch.isPassed));
+                let branchesSkipped = mapToBranchElems(props.branches.filter(branch => branch.isSkipped));
+                let branchesNotRunYet = mapToBranchElems(props.branches.filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped));
 
                 return (
                     <div className="branch-listing">
@@ -1283,34 +1334,6 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     this.updateCollapsing = this.updateCollapsing.bind(this);
                 }
 
-                /**
-                 * Speeds up React in large reports by only rendering branches that need to be rendered
-                 */
-                shouldComponentUpdate(nextProps, nextState) {
-                    if(this.state.hovered != nextState.hovered) { // hover state changed
-                        return true;
-                    }
-                    else if(!nextProps.previewedItem) { // nothing will be previewed (need to update whole tree, in case we were running and something changed)
-                        return true;
-                    }
-                    else if(this.props.previewedItem && this.props.previewedItem === this) { // this branch was previewed
-                        return true;
-                    }
-                    else if(nextProps.previewedItem && nextProps.previewedItem === this) { // this branch will be previewed
-                        return true;
-                    }
-                    else if(this.props.previewedItem && this.props.previewedItem.props.step &&
-                        this.props.branch.steps.includes(this.props.previewedItem.props.step)) { // a step under this branch was previewed
-                        return true;
-                    }
-                    else if(nextProps.previewedItem && nextProps.previewedItem.props.step &&
-                        this.props.branch.steps.includes(nextProps.previewedItem.props.step)) { // a step under this branch will be previewed
-                        return true;
-                    }
-
-                    return false;
-                }
-
                 hoverStateOn() {
                     this.setState({
                         hovered: true
@@ -1328,8 +1351,8 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 /**
-                 * Updates the collapsed/uncollapsed state of lines based on what's running and what has errors.
-                 * Chooses the lines that will be hidden by a collapse.
+                 * Updates the collapsed/uncollapsed state of steps based on what's running and what has errors.
+                 * Chooses the lines that will be hidden by a collapse
                  */
                 updateCollapsing() {
                     let branch = this.props.branch;
@@ -1347,14 +1370,14 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             if(s.level <= step.level) {
                                 break;
                             }
-                            else if(!s.isHidden) {
+                            else if(!this.props.getModifier(s, 'isHidden')) {
                                 step.hasChildren = true;
                                 break;
                             }
                         }
 
-                        // If a step has isCollapsed set, collapse all the steps underneath it
-                        if(step.isCollapsed && !step.collapseHide) {
+                        // If a step has collapse set, collapse all the steps underneath it
+                        if(step.collapse && !step.collapseHide) {
                             for(let i = index + 1; i < branch.steps.length; i++) {
                                 let s = branch.steps[i];
                                 if(s.level <= step.level) {
@@ -1404,11 +1427,14 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     this.updateCollapsing();
 
                     let lines = branch.steps
-                        .filter(step => !step.isHidden || step.isFailed)
+                        .filter(step => {
+                            return !this.props.getModifier(step, 'isHidden') || step.isFailed;
+                        })
                         .map((step, index) =>
                             step.collapseHide ? '' : // do this here and not in filter() in order to preserve line numbering
                             <Line
                                 step={step}
+                                stepNode={this.props.stepNodeIndex[step.id]}
                                 branch={branch}
                                 index={index+1}
                                 key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step)}
@@ -1497,7 +1523,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         contentClassName += "running running-item";
                         pill = <span className="pill running">RUNNING</span>;
                     }
-                    else if(this.props.step.isPassed) {
+                    else if(this.props.step.isPassed || this.props.branch.isPassed) { // if a step is missing isPassed, but its branch passed, it is implied that the step passed
                         contentClassName += "passed-item";
                     }
                     else if(this.props.step.isFailed) {
@@ -1532,10 +1558,10 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                     step={this.props.step}
                                     hasLevels={this.props.hasLevels}
                                 />
-                                {stepNode(this.props.step).text}
+                                {this.props.stepNode.text}
                                 {pill}
                             </span>
-                            <span className="location">[{this.props.step.filename}:{this.props.step.lineNumber}]</span>
+                            <span className="location">[{this.props.stepNode.filename}:{this.props.stepNode.lineNumber}]</span>
                             {error}
                         </span>
                     );
@@ -1557,7 +1583,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 toggleCollapse(e) {
-                    this.props.step.isCollapsed = !this.props.step.isCollapsed;
+                    this.props.step.collapse = !this.props.step.collapse;
                 }
 
                 render() {
@@ -1581,7 +1607,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     let placeholderElem = <span className="collapse-placeholder"/>;
 
                     if(this.props.step.hasChildren) {
-                        if(this.props.step.isCollapsed === true) {
+                        if(this.props.step.collapse === true) {
                             return plusElem;
                         }
                         else {
@@ -1611,7 +1637,13 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 render() {
                     if(this.props.previewedItem) {
                         return (
-                            <Preview previewedItem={this.props.previewedItem} setPreview={this.props.setPreview} live={this.props.live}/>
+                            <Preview
+                                previewedItem={this.props.previewedItem}
+                                setPreview={this.props.setPreview}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                live={this.props.live}
+                                reportTemplates={this.props.reportTemplates}
+                            />
                         );
                     }
                     else {
@@ -1640,36 +1672,37 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 render() {
-                    let previewedItem = this.props.previewedItem.props.step || this.props.previewedItem.props.branch;
-                    let isBranch = previewedItem.hasOwnProperty("steps");
+                    let previewedObj = this.props.previewedItem.props.step || this.props.previewedItem.props.branch;
+                    let stepNodeIndex = this.props.stepNodeIndex;
+                    let isBranch = previewedObj.hasOwnProperty("steps");
 
                     let headerClassName = "header preview-name ";
                     let previewStateClassName = "";
                     let previewStateText = "";
-                    if(previewedItem.isRunning) {
+                    if(previewedObj.isRunning) {
                         headerClassName += "running-item-no-anim";
                         previewStateClassName += "running-item";
                         previewStateText = "Currently running";
                     }
-                    else if(previewedItem.isPassed) {
+                    else if(previewedObj.isPassed || this.props.previewedItem.props.branch.isPassed) { // if a step is missing isPassed, but its branch passed, it is implied that the step passed
                         const className = "passed-item";
                         headerClassName += className;
                         previewStateClassName += className;
 
                         previewStateText = "Passed";
                     }
-                    else if(previewedItem.isFailed) {
+                    else if(previewedObj.isFailed) {
                         const className = "failed-item";
                         headerClassName += className;
                         previewStateClassName += className;
 
                         previewStateText = "Failed";
 
-                        if(previewedItem.error && previewedItem.error.continue) {
+                        if(previewedObj.error && previewedObj.error.continue) {
                             previewStateText += ", but continued branch";
                         }
                     }
-                    else if(previewedItem.isSkipped) {
+                    else if(previewedObj.isSkipped) {
                         const className = "skipped-item";
                         headerClassName += className;
                         previewStateClassName += className;
@@ -1683,7 +1716,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     }
 
                     let elapsedText = "";
-                    let elapsed = previewedItem.elapsed;
+                    let elapsed = previewedObj.elapsed;
                     if(typeof elapsed != "undefined" && elapsed != -1) {
                         elapsedText = `(${formatElapsed(elapsed)})`;
                     }
@@ -1692,18 +1725,21 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                     let previewedItemText = "";
                     if(isBranch) {
-                        previewedItemText = `Branch ${this.props.previewedItem.props.branch.hash}`;
+                        previewedItemText = `Branch ${previewedObj.hash}`;
                     }
                     else {
-                        previewedItemText = stepNode(previewedItem).text;
+                        previewedItemText = stepNodeIndex[previewedObj.id].text;
                     }
 
                     let postPreviewedItemText = "";
                     if(isBranch) {
-                        postPreviewedItemText = `[${previewedItem.steps[previewedItem.steps.length - 1].filename}:${previewedItem.steps[previewedItem.steps.length - 1].lineNumber}] ${elapsedText}`;
+                        let lastStep = previewedObj.steps[previewedObj.steps.length - 1];
+                        let lastStepNode = stepNodeIndex[lastStep.id];
+                        postPreviewedItemText = `[${lastStepNode.filename}:${lastStepNode.lineNumber}] ${elapsedText}`;
                     }
                     else {
-                        postPreviewedItemText = `[${previewedItem.filename}:${previewedItem.lineNumber}] ${elapsedText}`;
+                        let stepNode = stepNodeIndex[previewedObj.id];
+                        postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}] ${elapsedText}`;
                     }
 
                     return (
@@ -1737,21 +1773,21 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                 }
                             </div>
 
-                            <PreviewError previewedItem={previewedItem}/>
-                            {isBranch ? "" : <PreviewDetails previewedItem={previewedItem}/>}
-                            <PreviewLogs previewedItem={previewedItem}/>
+                            <PreviewError previewedObj={this.props.previewedObj}/>
+                            {isBranch ? "" : <PreviewDetails previewedObj={this.props.previewedObj} reportTemplates={this.props.reportTemplates}/>}
+                            <PreviewLogs previewedObj={this.props.previewedObj}/>
                         </div>
                     );
                 }
             }
 
             function PreviewError(props) {
-                if(props.previewedItem.error) {
+                if(props.previewedObj.error) {
                     return (
                         <div className="preview-section preview-error">
                             <div className="header">Error</div>
                             <div className="stacktrace">
-                                {formatStackTrace(props.previewedItem.error)}
+                                {formatStackTrace(props.previewedObj.error)}
                             </div>
                         </div>
                     );
@@ -1775,8 +1811,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 updateScripts() {
-                    // Since <script> scripts aren't executed when they're injected into the DOM by React, we have to do a workaround
-                    // Execute <script> tags with class details-init-js
+                    // Execute <script> elements with class details-init-js (this method is a workaround to get scripts to execute)
                     let oldScriptElem = document.querySelector(".details-init-js");
                     if(oldScriptElem) {
                         let oldScriptText = oldScriptElem.innerText;
@@ -1790,12 +1825,21 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 render() {
+                    // Replace {{{template tags}}} in report template with values in view
+                    let reportTemplate = this.props.reportTemplates[this.props.previewedObj.reportTemplateIndex];
+                    let reportView = this.props.previewedObj.reportView;
+                    for(let key in reportView) {
+                        if(reportView.hasOwnProperty(key)) {
+                            reportTemplate.replace(new RegExp(`\{\{\{\s*${key}\s*\}\}\}`, `g`), reportView[key]);
+                        }
+                    }
+
                     return (
                         <div className="preview-section preview-details">
                             <div className="header">Details</div>
                             {
-                                this.props.previewedItem.htmlReport ?
-                                <div className="step-report" dangerouslySetInnerHTML={ {__html: this.props.previewedItem.htmlReport} }>
+                                reportTemplate ?
+                                <div className="step-report" dangerouslySetInnerHTML={ {__html: reportTemplate} }>
                                 </div> :
                                 <div className="none-indicator">
                                     None
@@ -1807,7 +1851,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             }
 
             function PreviewLogs(props) {
-                let logs = props.previewedItem.log;
+                let logs = props.previewedObj.log;
                 if(logs) {
                     logs = logs.map((logItem, index) => <div className="log-line" key={index}>{logItem.text}</div>);
                 }
