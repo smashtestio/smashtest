@@ -217,7 +217,7 @@
                 font-size: 13px;
             }
 
-            .line:hover .location {
+            .line.active .location {
                 color: rgb(90,90,90);
             }
 
@@ -605,7 +605,8 @@ right = expand
 space = toggle before/after
 esc   = close preview
 h     = copy hash
-c     = copy debug command <span class="keystroke-command">smashtest -d=hash</span>
+d     = copy debug command <span class="keystroke-command">smashtest -d=hash</span>
+c     = copy text of branch
                 `);
                 let tippyOptionsKeystrokes = Object.assign({}, tippyOptions);
                 Object.assign(tippyOptionsKeystrokes, { followCursor: false, placement: "bottom", maxWidth: 1000 } );
@@ -636,7 +637,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             /**
              * Called when a new report data file is loaded
              */
-            function onReportData(data) {
+            async function onReportData(data) {
                 app.onReportData(JSON.parse(unescapeBackticks(data)));
             }
 
@@ -712,6 +713,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                     scriptElem = document.createElement('script');
                     scriptElem.id = 'report-data-script';
+                    scriptElem.setAttribute('async', '');
                     scriptElem.setAttribute('src', 'smashtest-data.js');
 
                     container.appendChild(scriptElem);
@@ -720,7 +722,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 /**
                  * Called when a new report data file is loaded
                  */
-                onReportData(data) {
+                async onReportData(data) {
                     this.state.tree = data.tree;
                     this.initCollapsing(data.tree.branches);
                     this.setState(data);
@@ -963,7 +965,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             this.showNotification(`Copied <span class="copied-text">${hash}</span> to clipboard`);
                         }
                     }
-                    else if(charStr == 'C') {
+                    else if(charStr == 'D') {
                         if(this.state.previewedItem) {
                             let hash = this.state.previewedItem.props.branch.hash;
                             //let filename = this.state.previewedItem.props.branch.steps[0].filename;
@@ -971,6 +973,18 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             let command = `smashtest -d=${hash}`;
                             this.copyToClipboard(command);
                             this.showNotification(`Copied  <span class="copied-text">${command}</span> to clipboard`);
+                        }
+                    }
+                    else if(charStr == 'C') {
+                        if(this.state.previewedItem) {
+                            let branch = this.state.previewedItem.me.closest('.branch');
+                            let visibleLines = branch.querySelectorAll('.line .step-text');
+                            let text = '';
+
+                            visibleLines.forEach(line => text += line.innerText + '\n');
+
+                            this.copyToClipboard(text);
+                            this.showNotification(`Copied text of branch to clipboard`);
                         }
                     }
                     else if(event.key == 'Escape') { // esc key
@@ -1339,6 +1353,8 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         hovered: false
                     };
 
+                    this.me = null; // this element
+
                     this.hoverStateOn = this.hoverStateOn.bind(this);
                     this.hoverStateOff = this.hoverStateOff.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
@@ -1464,7 +1480,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     }
 
                     return (
-                        <div className={branchClassName}>
+                        <div className={branchClassName} ref={elem => this.me = elem}>
                             <div
                                 className={indicatorClassName}
                                 onMouseOver={this.hoverStateOn}
@@ -1488,6 +1504,9 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             class Line extends React.Component {
                 constructor() {
                     super();
+
+                    this.me = null; // this element
+
                     this.toggleActiveState = this.toggleActiveState.bind(this);
                 }
 
@@ -1569,11 +1588,13 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                     step={this.props.step}
                                     hasLevels={this.props.hasLevels}
                                 />
-                                {
-                                    (this.props.stepNode.frontModifiers ? this.props.stepNode.frontModifiers.filter(mod => ['-'].includes(mod)).join(' ') + ' ' : '') +
-                                    this.props.stepNode.text +
-                                    (this.props.stepNode.backModifiers ? ' ' + this.props.stepNode.backModifiers.filter(mod => ['-'].includes(mod)).join(' ') : '')
-                                }
+                                <span className="step-text">
+                                    {
+                                        (this.props.stepNode.frontModifiers ? this.props.stepNode.frontModifiers.filter(mod => ['-'].includes(mod)).join(' ') + ' ' : '') +
+                                        this.props.stepNode.text +
+                                        (this.props.stepNode.backModifiers ? ' ' + this.props.stepNode.backModifiers.filter(mod => ['-'].includes(mod)).join(' ') : '')
+                                    }
+                                </span>
                                 {pill}
                             </span>
                             <span className="location">[{this.props.stepNode.filename}:{this.props.stepNode.lineNumber}]</span>
@@ -1583,7 +1604,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     lineElem = this.surroundByVerticalLineContainers(lineElem, this.props.step.level);
 
                     return (
-                        <div className={lineClassName} onMouseDown={this.toggleActiveState}>
+                        <div className={lineClassName} onMouseDown={this.toggleActiveState} ref={elem => this.me = elem}>
                             {getIndexElem(index)}
                             {lineElem}
                         </div>
