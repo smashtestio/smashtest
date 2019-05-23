@@ -10876,8 +10876,10 @@ C -
             let snapshot = tree.serializeSnapshot();
 
             Comparer.expect(snapshot).to.match({
-                totalStepsComplete: 0,
-                totalSteps: 4
+                counts: {
+                    totalStepsComplete: 0,
+                    totalSteps: 4
+                }
             });
         });
 
@@ -12000,8 +12002,8 @@ A - !
                 isFailed: true,
                 isSkipped: undefined,
                 error: {
-                    msg: 'oops',
-                    stackTrace: { $typeof: 'string' }
+                    message: 'oops',
+                    stack: { $typeof: 'string' }
                 }
             });
         });
@@ -12528,16 +12530,17 @@ B -
             tree.generateBranches(undefined, undefined, undefined, undefined, true);
             tree.initCounts();
 
-            expect(tree.passed).to.equal(0);
-            expect(tree.failed).to.equal(0);
-            expect(tree.skipped).to.equal(0);
-            expect(tree.complete).to.equal(0);
-            expect(tree.totalToRun).to.equal(4);
-            expect(tree.totalInReport).to.equal(4);
-            expect(tree.totalPassedInReport).to.equal(0);
+            expect(tree.counts.running).to.equal(0);
+            expect(tree.counts.passed).to.equal(0);
+            expect(tree.counts.failed).to.equal(0);
+            expect(tree.counts.skipped).to.equal(0);
+            expect(tree.counts.complete).to.equal(0);
+            expect(tree.counts.totalToRun).to.equal(4);
+            expect(tree.counts.totalInReport).to.equal(4);
+            expect(tree.counts.totalPassedInReport).to.equal(0);
 
-            expect(tree.totalStepsComplete).to.equal(0);
-            expect(tree.totalSteps).to.equal(8);
+            expect(tree.counts.totalStepsComplete).to.equal(0);
+            expect(tree.counts.totalSteps).to.equal(8);
         });
     });
 
@@ -12564,18 +12567,21 @@ B -
 
             tree.branches[2].passedLastTime = true;
 
+            tree.branches[3].isRunning = true;
+
             tree.updateCounts();
 
-            expect(tree.passed).to.equal(1);
-            expect(tree.failed).to.equal(1);
-            expect(tree.skipped).to.equal(0);
-            expect(tree.complete).to.equal(2);
-            expect(tree.totalToRun).to.equal(3);
-            expect(tree.totalInReport).to.equal(4);
-            expect(tree.totalPassedInReport).to.equal(2);
+            expect(tree.counts.running).to.equal(1);
+            expect(tree.counts.passed).to.equal(1);
+            expect(tree.counts.failed).to.equal(1);
+            expect(tree.counts.skipped).to.equal(0);
+            expect(tree.counts.complete).to.equal(2);
+            expect(tree.counts.totalToRun).to.equal(3);
+            expect(tree.counts.totalInReport).to.equal(4);
+            expect(tree.counts.totalPassedInReport).to.equal(2);
 
-            expect(tree.totalStepsComplete).to.equal(4);
-            expect(tree.totalSteps).to.equal(6);
+            expect(tree.counts.totalStepsComplete).to.equal(4);
+            expect(tree.counts.totalSteps).to.equal(6);
         });
     });
 });

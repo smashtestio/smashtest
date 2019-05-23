@@ -860,6 +860,20 @@ describe("ElementFinder", function() {
 
             });
         });
+
+        context("performance", () => {
+            it("handles very large DOMs", () => {
+
+            });
+
+            it("handles very large EFs", () => {
+
+            });
+
+            it("handles finding a very large number of elements", () => {
+
+            });
+        });
     });
 
     describe("find()", () => {

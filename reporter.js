@@ -29,6 +29,8 @@ class Reporter {
         this.reportDomain = null;       // domain:port where report server's api is available
         this.wsServer = null;           // websocket server object
 
+        this.prevSnapshot = null;       // previous snapshot sent over websockets
+
         this.timerFull = null;          // timer that goes off when it's time to do a full write
         this.timerSnapshot = null;      // timer that goes off when it's time to do a snapshot write
 
@@ -45,6 +47,11 @@ class Reporter {
             utils.error(`report-template.html not found`);
         }
         this.reportTemplate = buffers[0];
+
+        // Start server
+        if(this.isReportServer) {
+            await this.startServer();
+        }
 
         // Kick off write functions
         await this.writeFull();
@@ -72,24 +79,67 @@ class Reporter {
     }
 
     /**
+     * Starts WebSocket server
+     */
+    async startServer() {
+        // Set port and fill reportDomain
+        let port = null;
+        let portConfig = {port: getPort.makeRange(9000,9999)}; // avoid 8000's, since that's where localhost apps tend to be run
+        if(this.reportDomain) {
+            let matches = this.reportDomain.match(/\:([0-9]+)/);
+            if(matches && matches[1]) { // reportDomain has a domain and port
+                port = parseInt(matches[1]);
+            }
+            else { // reportDomain only has a domain
+                port = await getPort(portConfig);
+                this.reportDomain += ":" + port;
+            }
+        }
+        else { // reportDomain has nothing
+            port = await getPort(portConfig);
+            this.reportDomain = `localhost:${port}`;
+        }
+
+        this.wsServer = new WebSocket.Server({ port: port });
+        //console.log(`Report server running on port ${port}`);
+
+        this.wsServer.on('connection', (ws) => {
+            ws.on('message', (message) => {
+                const ERR_MSG = `Invalid filename param`;
+                try {
+                    // message must be { origin: absolute filename or domain:port of client }
+                    message = JSON.parse(message);
+
+                    if(!message.origin) {
+                        throw new Error(ERR_MSG);
+                    }
+
+                    // Validate that the client is either the current report html file or a page on the reportDomain origin
+                    if(message.origin != this.reportPath && !message.origin.startsWith(this.reportDomain)) {
+                        throw new Error(ERR_MSG);
+                    }
+                }
+                catch(e) {
+                    ws.send(e.toString());
+                    ws.close();
+                }
+            });
+        });
+    }
+
+    /**
      * Generates and writes report and report data to disk. Notifies all connected websockets. Continues doing so periodically.
      */
     async writeFull() {
-        if(this.stopped) {
-            return;
-        }
-
-        // Update state
-        this.tree.updateCounts();
         this.reportTime = new Date();
 
         // Render report html
-        let reportData = 'onReportData(`' + utils.escapeBackticks({
+        let reportData = 'onReportData(`' + utils.escapeBackticks(utils.escape(JSON.stringify({
             tree: this.tree.serialize(),
             runner: this.runner.serialize(),
             reportTime: this.reportTime,
             reportDomain: this.reportDomain
-        }) + '`);';
+        }))) + '`);';
 
         // Check if report is above max size
         this.size = reportData.length;
@@ -105,7 +155,7 @@ class Reporter {
 
         // Notify all connected websockets that new data is available on disk
         this.wsServer.clients.forEach(client => {
-            client.send(JSON.stringify({ dataUpdate: true }));
+            client.send(`{ "dataUpdate": true }`);
         });
 
         // Have this function get called again in a certain amount of time
@@ -127,17 +177,17 @@ class Reporter {
      * Sends a snapshot of the tree to all connected websockets. Continues doing so periodically.
      */
     async writeSnapshot() {
-        if(this.stopped) {
-            return;
-        }
-
-        // Update state
-        this.tree.updateCounts();
-
         // Send snapshot to all connected websockets
-        let snapshot = this.tree.serializeSnapshot();
+        let snapshot = JSON.stringify({
+            snapshot: true,
+            tree: this.tree.serializeSnapshot(20, this.prevSnapshot ? this.prevSnapshot.tree : undefined),
+            runner: this.runner.serialize()
+        });
+
+        this.prevSnapshot = JSON.parse(snapshot);
+
         this.wsServer.clients.forEach(client => {
-            client.send(JSON.stringify(snapshot));
+            client.send(snapshot);
         });
 
         // Have this function get called again in a certain amount of time
@@ -195,54 +245,6 @@ class Reporter {
         else {
             utils.error(errMsg);
         }
-    }
-
-    /**
-     * Runs WebSocket server
-     */
-    async runServer() {
-        if(!this.isReportServer) {
-            return;
-        }
-
-        // Set port and fill reportDomain
-        let port = null;
-        let portConfig = {port: getPort.makeRange(9000,9999)}; // avoid 8000's, since that's where localhost apps tend to be run
-        if(this.reportDomain) {
-            let matches = this.reportDomain.match(/\:([0-9]+)/);
-            if(matches && matches[1]) { // reportDomain has a domain and port
-                port = parseInt(matches[1]);
-            }
-            else { // reportDomain only has a domain
-                port = await getPort(portConfig);
-                this.reportDomain += ":" + port;
-            }
-        }
-        else { // reportDomain has nothing
-            port = await getPort(portConfig);
-            this.reportDomain = "ws://localhost:" + port;
-        }
-
-        this.wsServer = new WebSocket.Server({ port: port });
-        //console.log(`Report server running on port ${port}`);
-
-        wsServer.on('connection', (ws) => {
-            ws.on('message', (message) => {
-                try {
-                    // message must be { origin: absolute filename or domain:port of client }
-                    message = JSON.parse(message);
-
-                    // Validate that the client is either the current report html file or a page on the reportDomain origin
-                    if(!message.origin || (message.origin != this.reportPath && !message.origin.startsWith(this.reportDomain))) {
-                        throw new Error(`Invalid filename param`);
-                    }
-                }
-                catch(e) {
-                    ws.send(e);
-                    ws.close();
-                }
-            });
-        });
     }
 }
 module.exports = Reporter;

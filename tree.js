@@ -33,16 +33,18 @@ class Tree {
         this.timeStarted = {};               // Date object (time) of when this tree started being executed
         this.timeEnded = {};                 // Date object (time) of when this tree ended execution
 
-        this.passed = 0;                     // total number of passed branches in this tree (excluding the ones that passed last time)
-        this.failed = 0;                     // total number of failed branches in this tree
-        this.skipped = 0;                    // total number of skipped branches in this tree
-        this.complete = 0;                   // total number of complete branches in this tree (passed, failed, or skipped)
-        this.totalToRun = 0;                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a --skip-passed)
-        this.totalInReport = 0;              // total number of branches in this tree
-        this.totalPassedInReport = 0;        // total number of passed branches in this tree (including the ones that passed last time)
+        this.counts = {
+            passed = 0,                     // total number of passed branches in this tree (excluding the ones that passed last time)
+            failed = 0,                     // total number of failed branches in this tree
+            skipped = 0,                    // total number of skipped branches in this tree
+            complete = 0,                   // total number of complete branches in this tree (passed, failed, or skipped)
+            totalToRun = 0,                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a --skip-passed)
+            totalInReport = 0,              // total number of branches in this tree
+            totalPassedInReport = 0,        // total number of passed branches in this tree (including the ones that passed last time)
 
-        this.totalStepsComplete = 0;         // total number of complete steps in this tree (out of the steps that will be in the next run)
-        this.totalSteps = = 0;               // total number of steps in this tree that will be in the next run
+            totalStepsComplete = 0,         // total number of complete steps in this tree (out of the steps that will be in the next run)
+            totalSteps = 0                  // total number of steps in this tree that will be in the next run
+        }
         */
     }
 
@@ -618,7 +620,7 @@ ${outputBranchAbove(this)}
             // Branches from each step block member are cross joined sequentially to each other
             let branchesInThisStepBlock = [];
             stepNode.steps.forEach(s => {
-                let branchesFromThisStepBlockMember = placeOntoBranchAbove([step], () => this.branchify(s, groups, minFrequency, noDebug, debugHash, branchAbove, level, true)); // there's no isSequential because isSequential does not extend into function calls
+                let branchesFromThisStepBlockMember = this.branchify(s, groups, minFrequency, noDebug, debugHash, branchAbove, level, true); // there's no isSequential because isSequential does not extend into function calls
 
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
@@ -1206,21 +1208,14 @@ ${outputBranchAbove(this)}
      * Attaches counts to the given object
      */
     attachCounts(obj) {
+        this.updateCounts();
+
         return Object.assign(obj, {
             elapsed: this.elapsed,
             timeStarted: this.timeStarted,
             timeEnded: this.timeEnded,
 
-            passed: this.passed,
-            failed: this.failed,
-            skipped: this.skipped,
-            complete: this.complete,
-            totalToRun: this.totalToRun,
-            totalInReport: this.totalInReport,
-            totalPassedInReport: this.totalPassedInReport,
-
-            totalStepsComplete: this.totalStepsComplete,
-            totalSteps: this.totalSteps
+            counts: this.counts
         });
     }
 
@@ -1351,9 +1346,10 @@ ${outputBranchAbove(this)}
      * @param {Boolean} [passedOnly] - If true, only count branches that have passed
      * @param {Boolean} [failedOnly] - If true, only count branches that have failed
      * @param {Boolean} [skippedOnly] - If true, only count branches that have skipped
+     * @param {Boolean} [runningOnly] - If true, only count branches that are currently running
      * @return {Number} Number of branches
      */
-    getBranchCount(runnableOnly, completeOnly, passedOnly, failedOnly, skippedOnly) {
+    getBranchCount(runnableOnly, completeOnly, passedOnly, failedOnly, skippedOnly, runningOnly) {
         let count = 0;
         for(let i = 0; i < this.branches.length; i++) {
             let branch = this.branches[i];
@@ -1375,6 +1371,10 @@ ${outputBranchAbove(this)}
             }
 
             if(skippedOnly && !branch.isSkipped) {
+                continue;
+            }
+
+            if(runningOnly && !branch.isRunning) {
                 continue;
             }
 
@@ -1512,9 +1512,7 @@ ${outputBranchAbove(this)}
         }
 
         if(error) {
-            step.error = error;
-            step.error.msg = error.message.toString();
-            step.error.stackTrace = error.stack.toString();
+            step.error = utils.serializeError(error);
         }
     }
 
@@ -1586,36 +1584,42 @@ ${outputBranchAbove(this)}
      * Initializes the counts (prior to a run)
      */
     initCounts() {
-        // Branch counts
-        this.passed = 0;
-        this.failed = 0;
-        this.skipped = 0;
-        this.complete = 0;
-        this.totalToRun = this.getBranchCount(true, false);
-        this.totalInReport = this.getBranchCount(false, false);
-        this.totalPassedInReport = this.getBranchCount(false, true, true, false, false);
+        this.counts = {
+            // Branch counts
+            running: 0,
+            passed: 0,
+            failed: 0,
+            skipped: 0,
+            complete: 0,
+            totalToRun: this.getBranchCount(true, false),
+            totalInReport: this.getBranchCount(false, false),
+            totalPassedInReport: this.getBranchCount(false, true, true, false, false),
 
-        // Step counts
-        this.totalStepsComplete = 0;
-        this.totalSteps = this.getStepCount(true, false, false);
+            // Step counts
+            totalStepsComplete: 0,
+            totalSteps: this.getStepCount(true, false, false)
+        };
     }
 
     /**
      * Updates the counts
      */
     updateCounts() {
-        // Update branch counts
-        this.passed = this.getBranchCount(true, true, true, false, false);
-        this.failed = this.getBranchCount(true, true, false, true, false);
-        this.skipped = this.getBranchCount(true, true, false, false, true);
-        this.complete = this.getBranchCount(true, true);
-        this.totalToRun = this.getBranchCount(true, false);
-        this.totalInReport = this.getBranchCount(false, false);
-        this.totalPassedInReport = this.getBranchCount(false, true, true, false, false);
+        this.counts = {
+            // Update branch counts
+            running: this.getBranchCount(false, false, false, false, false, true),
+            passed: this.getBranchCount(true, true, true, false, false),
+            failed: this.getBranchCount(true, true, false, true, false),
+            skipped: this.getBranchCount(true, true, false, false, true),
+            complete: this.getBranchCount(true, true),
+            totalToRun: this.getBranchCount(true, false),
+            totalInReport: this.getBranchCount(false, false),
+            totalPassedInReport: this.getBranchCount(false, true, true, false, false),
 
-        // Update step counts
-        this.totalStepsComplete = this.getStepCount(true, true, false);
-        this.totalSteps = this.getStepCount(true, false, false);
+            // Update step counts
+            totalStepsComplete: this.getStepCount(true, true, false),
+            totalSteps: this.getStepCount(true, false, false)
+        };
     }
 }
 module.exports = Tree;

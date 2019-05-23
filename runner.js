@@ -203,10 +203,9 @@ class Runner {
      */
     serialize() {
         let o = {};
-        this.isPaused && (o.isPaused = true);
         this.isStopped && (o.isStopped = true);
         this.isComplete && (o.isComplete = true);
-        
+
         return o;
     }
 

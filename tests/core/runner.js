@@ -1226,12 +1226,12 @@ Step to Inject {
             runner.init(tree, true);
 
             runner.persistent = { a: 1, b: 2 };
-            runner.isPaused = true;
+            runner.isComplete = true;
 
             let obj = runner.serialize();
 
             Comparer.expect(obj).to.match({
-                isPaused: true,
+                isComplete: true,
                 persistent: undefined
             });
         });

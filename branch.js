@@ -33,7 +33,7 @@ class Branch {
         this.isSkipped = false;             // true if this branch was skipped after an attempted run
         this.isRunning = false;             // true if this branch is currently running
 
-        this.error = {};                    // If this branch failed, this is the Error that was thrown (only for failure that occurs within the branch but not within a particular step)
+        this.error = {};                    // If this branch failed, this represents the error that was thrown (only for failure that occurs within the branch but not within a particular step)
         this.log = [];                      // Array of objects that represent the logs of this branch (logs related to the branch but not to a particular step)
 
         this.elapsed = 0;                   // number of ms it took this step to execute
@@ -317,9 +317,7 @@ class Branch {
          }
 
          if(error) {
-             this.error = error;
-             this.error.msg = error.message.toString();
-             this.error.stackTrace = error.stack.toString();
+             this.error = utils.serializeError(error);
          }
 
          if(stepDataMode == 'none') {
@@ -352,7 +350,7 @@ class Branch {
                  // Restore properties of step we want to keep
                  step.id = id;
                  fid && (step.fid = fid);
-                 level && (step.level = fid);
+                 level && (step.level = level);
 
                  isFailed && (step.isFailed = true);
                  isSkipped && (step.isSkipped = true);
@@ -387,9 +385,7 @@ class Branch {
          }
 
          if(error) {
-             step.error = error;
-             step.error.msg = error.message.toString();
-             step.error.stackTrace = error.stack.toString();
+             step.error = utils.serializeError(error);
          }
 
          // If this is the very last step in this branch, mark this branch as passed/failed

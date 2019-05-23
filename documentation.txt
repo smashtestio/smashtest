@@ -119,8 +119,8 @@ Reports
         - Error.fatal
             - If set, the error will bubble all the way up to the console and will end test execution immediately
         - Timeouts are set by each step on a case-by-case basis
-        - Best practice: if a step fails, search the report for other instances of that step (by step text or filename:lineNumber which is hidden but searchable).
-            If it always fails regardless of browser, for instance, the browser isn't the culprit.
+        - Best practice: if a branch fails, look at the other failed branches in the same group in the report. These branches all failed
+            on the same step text + filename + line number combination. If it always fails regardless of browser, for instance, the browser isn't the culprit.
     - Reading stack traces in errors
         - Error of step = filename and line number in filename
         - Stack trace = at CodeBlock_for_[NAME OF CODE BLOCK FUNCTION] (eval at ...), <anonymous>:[LINE NUMBER]:[COL NUMBER])

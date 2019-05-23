@@ -29,6 +29,7 @@
 
             .main {
                 outline: 0;
+                height: 100%;
             }
 
             .header {
@@ -565,7 +566,6 @@
         <div id="root"></div>
 
         <div id="report-data-container">
-            <script id="report-data-script" src="smashtest-data.js"></script>
         </div>
 
         <script type="text/babel">
@@ -627,18 +627,14 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             //  Report data
             // ***************************************
 
-            let reportData = null;      // Object representing the report data (ui is rendered against this)
-            let branchSnapshots = [];   // Array of Branch containing branches from reportData that have since been updated server-side
-                                        // (but the updates cannot be applied to reportData yet because we're paused on a preview)
+            let branchSnapshots = [];   // Array containing branches that have been updated server-side
+                                        // (but the updates cannot be applied to state yet because we're paused on a preview)
 
             /**
              * Called when a new report data file is loaded
              */
             function onReportData(data) {
-                reportData = JSON.parse(unescapeBackticks(data));
-                if(app) {
-                    app.updateReportData();
-                }
+                app.onReportData(JSON.parse(unescapeBackticks(data)));
             }
 
             /**
@@ -661,27 +657,26 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     super();
 
                     // This app
-                    this.me = null; // app's dom element
                     app = this; // global var referencing this app
+                    this.me = null; // app's dom element
 
                     // State
                     this.state = {
                         tree: null,
                         runner: null,
                         reportTime: null,
-                        previewedItem: null,
-                        port: null,
-                        live: true
+                        reportDomain: null,
+                        live: true,
+                        previewedItem: null
                     };
                     this.socket = null; // websocket to report server
 
-                    if(reportData) {
-                        this.updateReportData();
-                    }
+                    this.reloadReportData();
 
                     // Bindings
+                    this.onReportData = this.onReportData.bind(this);
                     this.openConnection = this.openConnection.bind(this);
-                    this.updateReportData = this.updateReportData.bind(this);
+                    this.reloadReportData = this.reloadReportData.bind(this);
                     this.copyBranches = this.copyBranches.bind(this);
                     this.initCollapsing = this.initCollapsing.bind(this);
                     this.stepNode = this.stepNode.bind(this);
@@ -695,104 +690,112 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 componentDidMount() {
-                    this.openConnection();
                     this.me.focus(); // focus on myself, so I can start getting keyboard commands
                 }
 
                 /**
-                 * Opens websocket that will receive state updates
+                 * Called when a new report data file is loaded
                  */
-                openConnection() {
-                    const WS_RETRY_FREQ = 5000; // 5 secs
-                    this.socket = new WebSocket(`ws://localhost:${this.state.port}`);
+                onReportData(data) {
+                    this.state.tree = data.tree;
+                    this.initCollapsing(data.tree.branches);
+                    this.setState(data);
 
-                    socket.addEventListener('open', (event) => {
+                    this.openConnection(data.reportDomain);
+                }
+
+                /**
+                 * Opens websocket that will receive state updates
+                 * @param {String} reportDomain - domain:port of report server
+                 */
+                openConnection(reportDomain) {
+                    if(this.socket) {
+                        return; // socket is already open
+                    }
+
+                    const WS_RETRY_FREQ = 5000; // 5 secs
+                    this.socket = new WebSocket(`ws://${reportDomain}`);
+
+                    this.socket.addEventListener('open', (event) => {
                         let origin = '';
                         if(window.location.href.match(/^file:\/\//)) { // local html file
-                            origin = encodeURIComponent(window.location.href.replace(/file:\/\//, ''));
+                            origin = window.location.href.replace(/file:\/\//, '');
                         }
                         else { // at site with a domain:port
                             origin = window.location.host + (window.location.port ? `:${window.location.port}` : ``);
                         }
 
-                        socket.send(`{ origin: ${origin} }`);
+                        this.socket.send(`{ "origin": "${origin}" }`);
                     });
 
-                    socket.addEventListener('message', (event) => {
+                    this.socket.addEventListener('message', (event) => {
                         let message = JSON.parse(event.data);
                         if(message.dataUpdate) { // update report data from file
-                            let container = document.getElementById('report-data-container');
-                            let scriptElem = document.getElementById('report-data-script');
-                            container.removeChild(scriptElem);
-
-                            scriptElem = document.createElement('script');
-                            scriptElem.id = 'report-data-script';
-                            scriptElem.setAttribute('src', 'smashtest-data.js');
-
-                            container.appendChild(scriptElem);
+                            this.reloadReportData();
                         }
-                        else if(message.branches) { // this is a snapshot update
-                            let tree = this.state.tree;
-
+                        else if(message.snapshot) { // this is a snapshot update
                             // Update counts
-                            tree.elapsed = message.elapsed;
-                            tree.timeStarted = message.timeStarted;
-                            tree.timeEnded = message.timeEnded;
-
-                            tree.passed = message.passed;
-                            tree.failed = message.failed;
-                            tree.skipped = message.skipped;
-                            tree.complete = message.complete;
-                            tree.totalToRun = message.totalToRun;
-                            tree.totalInReport = message.totalInReport;
-                            tree.totalPassedInReport = message.totalPassedInReport;
-
-                            tree.totalStepsComplete = message.totalStepsComplete;
-                            tree.totalSteps = message.totalSteps;
+                            this.state.tree.counts = message.tree.counts;
+                            this.state.tree.elapsed = message.tree.elapsed;
+                            this.state.tree.timeStarted = message.tree.timeStarted;
+                            this.state.tree.timeEnded = message.tree.timeEnded;
 
                             // Update branches
                             if(this.state.previewedItem) { // updates currently paused
-                                copyBranches(branchSnapshots, message.branches);
+                                this.copyBranches(branchSnapshots, message.tree.branches);
                             }
                             else { // updates not paused
-                                copyBranches(reportData.tree.branches, message.branches);
-                                this.updateReportData();
+                                this.copyBranches(this.state.tree.branches, message.tree.branches);
                             }
+
+                            this.setState({
+                                tree: this.state.tree,
+                                runner: message.runner
+                            });
                         }
                     });
 
-                    socket.addEventListener('error', (event) => {
-                        console.log(event);
+                    /*this.socket.addEventListener('error', (event) => {
+                        //console.log(event);
+                    });*/
+
+                    this.socket.addEventListener('close', (event) => {
+                        this.socket = null;
+                        //console.log('Websocket to report server closed');
 
                         // Retry connecting after a few secs
-                        setTimeout(() => this.openConnection(), WS_RETRY_FREQ);
-                    });
-
-                    socket.addEventListener('close', (event) => {
-                        console.log('Websocket to report server closed');
-
-                        // Retry connecting after a few secs
-                        setTimeout(() => this.openConnection(), WS_RETRY_FREQ);
+                        setTimeout(() => this.openConnection(this.state.reportDomain), WS_RETRY_FREQ);
                     });
                 }
 
                 /**
-                 * Called when reportData is set to new report data
+                 * Reloads report data by creating a new script tag which loads the script containing the data
                  */
-                updateReportData() {
-                    this.initCollapsing(reportData.tree.branches);
-                    this.setState(reportData);
+                reloadReportData() {
+                    let container = document.getElementById('report-data-container');
+                    let scriptElem = document.getElementById('report-data-script');
+                    if(scriptElem) {
+                        container.removeChild(scriptElem);
+                    }
+
+                    scriptElem = document.createElement('script');
+                    scriptElem.id = 'report-data-script';
+                    scriptElem.setAttribute('src', 'smashtest-data.js');
+
+                    container.appendChild(scriptElem);
                 }
 
                 /**
                  * Copies branches from sourceBranches to destination branches, overwriting existing ones if their hashes match
                  */
                 copyBranches(destinationBranches, sourceBranches) {
-                    sourceBranches.forEach(branch => {
+                    this.initCollapsing(sourceBranches);
+                    
+                    sourceBranches.forEach(sourceBranch => {
                         let found = false;
                         for(let i = 0; i < destinationBranches.length; i++) {
-                            if(destinationBranches[i].hash == branch.hash) {
-                                destinationBranches[i] = branch;
+                            if(destinationBranches[i].hash == sourceBranch.hash) {
+                                destinationBranches[i] = sourceBranch;
                                 found = true;
                                 break;
                             }
@@ -804,7 +807,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 /**
-                 * Initializes collapse-related UI properties in branches (step.collapse, step.collapseHide, and step.hasChildren)
+                 * Initializes collapse property for each step in the given branches
                  * Uncollapses steps if they have a step underneath that is running or is failed
                  */
                 initCollapsing(branches) {
@@ -812,18 +815,17 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         branch.steps.forEach((step, index) => {
                             if(this.getModifier(step, 'isCollapsed')) {
                                 step.collapse = true;
-                                if(!step.collapseHide) {
-                                    // If a step is currently running or is failed, set its collapse = false
-                                    for(let i = index + 1; i < branch.steps.length; i++) {
-                                        let s = branch.steps[i];
-                                        if(s.level <= step.level) {
-                                            break;
-                                        }
 
-                                        if(s.isRunning || s.isFailed) {
-                                            step.collapse = false;
-                                            break;
-                                        }
+                                // If a step under this step is currently running or is failed, set this step's collapse = false
+                                for(let i = index + 1; i < branch.steps.length; i++) {
+                                    let s = branch.steps[i];
+                                    if((s.level || 0) <= (step.level || 0)) {
+                                        break;
+                                    }
+
+                                    if(s.isRunning || s.isFailed) {
+                                        step.collapse = false;
+                                        break;
                                     }
                                 }
                             }
@@ -865,28 +867,23 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     let noPreview = !previewedItem;
 
                     if(force) {
-                        this.setState({
-                            previewedItem: previewedItem
-                        });
+                        this.state.previewedItem = previewedItem;
                     }
                     else if(this.state.previewedItem === previewedItem) { // toggle off
                         noPreview = true;
-                        this.setState({
-                            previewedItem: null
-                        });
+                        this.state.previewedItem = null;
                     }
                     else { // toggle on
-                        this.setState({
-                            previewedItem: previewedItem
-                        });
+                        this.state.previewedItem = previewedItem;
                     }
 
                     if(noPreview) { // we're resuming updates
-                        // Dump into reportData branch snapshots that have been piling up during the pause
-                        copyBranches(reportData.tree.branches, branchSnapshots);
+                        // Dump into this.state.tree.branches the branch snapshots that have been piling up during the pause
+                        this.copyBranches(this.state.tree.branches, branchSnapshots);
                         branchSnapshots = [];
-                        this.updateReportData();
                     }
+
+                    this.setState(this.state);
                 }
 
                 /**
@@ -1057,13 +1054,16 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                 setPreview={this.setPreview}
                                 getModifier={this.getModifier}
                             />
-                            <PreviewPane
-                                previewedItem={this.state.previewedItem}
-                                setPreview={this.setPreview}
-                                stepNodeIndex={this.state.tree.stepNodeIndex}
-                                live={this.state.live}
-                                reportTemplates={this.state.tree.reportTemplates}
-                            />
+                            {
+                                this.state.tree ?
+                                <PreviewPane
+                                    previewedItem={this.state.previewedItem}
+                                    setPreview={this.setPreview}
+                                    stepNodeIndex={this.state.tree.stepNodeIndex}
+                                    live={this.state.live}
+                                    reportTemplates={this.state.tree.reportTemplates}
+                                /> : ''
+                            }
                         </div>
                     );
                 }
@@ -1127,17 +1127,12 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     else if(this.props.data.runner.isComplete) {
                         runnerStatusElem = <span>Run completed {elapsedText}</span>;
                     }
-                    else if(this.props.data.runner.isPaused) {
-                        runnerStatusElem = <span>Run paused</span>;
-                    }
                     else { // currently running
                         runnerStatusElem = <span className="running-item">Currently running</span>;
                     }
 
-                    let totalRunning = 0;
-                    this.props.data.tree.branches.forEach(branch => branch.isRunning && totalRunning++);
-
-                    let totalNotRunYet = this.props.data.tree.totalToRun - this.props.data.tree.complete - totalRunning;
+                    let counts = this.props.data.tree.counts;
+                    let totalNotRunYet = counts.totalToRun - counts.complete - counts.running;
 
                     return (
                         <div className="tree-header">
@@ -1145,7 +1140,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             <div className="tree-header-container">
                                 {
                                     !this.props.data.runner.isComplete && !this.props.data.runner.isStopped ?
-                                    <ProgressBar decimal={this.props.data.tree.totalStepsComplete / this.props.data.tree.totalSteps} paused={this.props.data.previewedItem}/> :
+                                    <ProgressBar decimal={counts.totalStepsComplete / counts.totalSteps} paused={this.props.data.previewedItem}/> :
                                     ""
                                 }
                                 <div className="runner-status-msg tree-header-item">
@@ -1156,23 +1151,23 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                 </div>
                                 <div className="counts tree-header-item">
                                     {
-                                        totalRunning > 0 ?
-                                        <span><span className="running-count count running-item" onClick={() => this.scrollToBranchList("branch-list-running")}> {totalRunning} running</span> | </span> :
+                                        counts.running > 0 ?
+                                        <span><span className="running-count count running-item" onClick={() => this.scrollToBranchList("branch-list-running")}> {counts.running} running</span> | </span> :
                                         ""
                                     }
                                     {
-                                        this.props.data.tree.passed > 0 ?
-                                        <span><span className="passed-count count passed-item" onClick={() => this.scrollToBranchList("branch-list-passed")}> {this.props.data.tree.totalPassedInReport} passed</span> | </span> :
+                                        counts.passed > 0 ?
+                                        <span><span className="passed-count count passed-item" onClick={() => this.scrollToBranchList("branch-list-passed")}> {counts.totalPassedInReport} passed</span> | </span> :
                                         ""
                                     }
                                     {
-                                        this.props.data.tree.failed > 0 ?
-                                        <span><span className="failed-count count failed-item" onClick={() => this.scrollToBranchList("branch-list-failed")}> {this.props.data.tree.failed} failed</span> | </span> :
+                                        counts.failed > 0 ?
+                                        <span><span className="failed-count count failed-item" onClick={() => this.scrollToBranchList("branch-list-failed")}> {counts.failed} failed</span> | </span> :
                                         ""
                                     }
                                     {
-                                        this.props.data.tree.skipped > 0 ?
-                                        <span><span className="skipped-count count skipped-item" onClick={() => this.scrollToBranchList("branch-list-skipped")}> {this.props.data.tree.skipped} skipped</span> | </span> :
+                                        counts.skipped > 0 ?
+                                        <span><span className="skipped-count count skipped-item" onClick={() => this.scrollToBranchList("branch-list-skipped")}> {counts.skipped} skipped</span> | </span> :
                                         ""
                                     }
                                     {
@@ -1180,7 +1175,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                         <span><span className="notrunyet-count count notrunyet-item" onClick={() => this.scrollToBranchList("branch-list-notyetrun")}> {totalNotRunYet} not run yet</span> | </span> :
                                         ""
                                     }
-                                    <span className="total-count notrunyet-item"> {this.props.data.tree.totalInReport} total branches</span>
+                                    <span className="total-count notrunyet-item"> {counts.totalInReport} total branches</span>
                                 </div>
 
                                 {
@@ -1229,8 +1224,8 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
             function TreeErrors(props) {
                 let errors =
-                    props.data.tree.beforeEverything
-                    .concat(props.data.tree.afterEverything)
+                    (props.data.tree.beforeEverything || [])
+                    .concat(props.data.tree.afterEverything || [])
                     .filter(hook => hook.error)
                     .map(hook => {
                         return (
@@ -1351,8 +1346,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 /**
-                 * Updates the collapsed/uncollapsed state of steps based on what's running and what has errors.
-                 * Chooses the lines that will be hidden by a collapse
+                 * Recalculates the collapseHide and hasChildren properties of each step
                  */
                 updateCollapsing() {
                     let branch = this.props.branch;
@@ -1367,7 +1361,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         // Set hasChildren for step
                         for(let i = index + 1; i < branch.steps.length; i++) {
                             let s = branch.steps[i];
-                            if(s.level <= step.level) {
+                            if((s.level || 0) <= (step.level || 0)) {
                                 break;
                             }
                             else if(!this.props.getModifier(s, 'isHidden')) {
@@ -1380,7 +1374,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         if(step.collapse && !step.collapseHide) {
                             for(let i = index + 1; i < branch.steps.length; i++) {
                                 let s = branch.steps[i];
-                                if(s.level <= step.level) {
+                                if((s.level || 0) <= (step.level || 0)) {
                                     break;
                                 }
 
@@ -1482,6 +1476,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 surroundByVerticalLineContainers(elem, n) {
+                    !n && (n = 0);
                     for(let i = 0; i < n; i++) {
                         elem = this.surroundByVerticalLineContainer(elem);
                     }
@@ -1558,7 +1553,11 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                     step={this.props.step}
                                     hasLevels={this.props.hasLevels}
                                 />
-                                {this.props.stepNode.text}
+                                {
+                                    (this.props.stepNode.frontModifiers ? this.props.stepNode.frontModifiers.filter(mod => ['-'].includes(mod)).join(' ') + ' ' : '') +
+                                    this.props.stepNode.text +
+                                    (this.props.stepNode.backModifiers ? ' ' + this.props.stepNode.backModifiers.filter(mod => ['-'].includes(mod)).join(' ') : '')
+                                }
                                 {pill}
                             </span>
                             <span className="location">[{this.props.stepNode.filename}:{this.props.stepNode.lineNumber}]</span>
@@ -1773,9 +1772,9 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                 }
                             </div>
 
-                            <PreviewError previewedObj={this.props.previewedObj}/>
-                            {isBranch ? "" : <PreviewDetails previewedObj={this.props.previewedObj} reportTemplates={this.props.reportTemplates}/>}
-                            <PreviewLogs previewedObj={this.props.previewedObj}/>
+                            <PreviewError previewedObj={previewedObj}/>
+                            {isBranch ? "" : <PreviewDetails previewedObj={previewedObj} reportTemplates={this.props.reportTemplates}/>}
+                            <PreviewLogs previewedObj={previewedObj}/>
                         </div>
                     );
                 }
@@ -1826,11 +1825,14 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                 render() {
                     // Replace {{{template tags}}} in report template with values in view
-                    let reportTemplate = this.props.reportTemplates[this.props.previewedObj.reportTemplateIndex];
-                    let reportView = this.props.previewedObj.reportView;
-                    for(let key in reportView) {
-                        if(reportView.hasOwnProperty(key)) {
-                            reportTemplate.replace(new RegExp(`\{\{\{\s*${key}\s*\}\}\}`, `g`), reportView[key]);
+                    let reportTemplate = "";
+                    if(this.props.reportTemplates) {
+                        reportTemplate = this.props.reportTemplates[this.props.previewedObj.reportTemplateIndex];
+                        let reportView = this.props.previewedObj.reportView;
+                        for(let key in reportView) {
+                            if(reportView.hasOwnProperty(key)) {
+                                reportTemplate.replace(new RegExp(`\{\{\{\s*${key}\s*\}\}\}`, `g`), reportView[key]);
+                            }
                         }
                     }
 
@@ -1898,14 +1900,14 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
              * Injects [filename:lineNumber] into the given Error's stack trace, and returns it
              */
             function formatStackTrace(error) {
-                return error.stackTrace.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
+                return error.stack.replace(/\\n/, `   [${error.filename}:${error.lineNumber}]\n`);
             }
 
             /**
              * Injects [filename:lineNumber] into the given Error's message, and returns it
              */
             function formatErrorMsg(error) {
-                return error.msg + `   [${error.filename}:${error.lineNumber}]`;
+                return error.message + `   [${error.filename}:${error.lineNumber}]`;
             }
 
             /**

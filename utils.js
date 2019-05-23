@@ -186,3 +186,15 @@ exports.copyProps = (destination, source, props) => {
         }
     });
 };
+
+/**
+ * @return {Object} Converts Error into a simple js object
+ */
+exports.serializeError = (error) => {
+    return {
+        message: error.message.toString(),
+        stack: error.stack.toString(),
+        filename: error.filename,
+        lineNumber: error.lineNumber
+    };
+}

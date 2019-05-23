@@ -378,6 +378,8 @@ class StepNode {
             'text',
             'filename',
             'lineNumber',
+            'frontModifiers',
+            'backModifiers',
             'isCollapsed',
             'isHidden'
         ]);

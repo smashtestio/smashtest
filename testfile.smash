@@ -1,9 +1,22 @@
 - Test -
 
-    Open Chrome
-    Open Firefox ~
+    // Open Chrome
+    // Open Firefox
+    //
+    //     Mobile
+    //     Desktop
+    //
+    //         Wait '1' seconds
 
-        Mobile
-        Desktop
-
-            Wait '1' seconds
+    Over 10 steps -
+        ..
+        Two -
+        Three -
+        Four -
+        Five -
+        Six -
+        Seven -
+        Eight -
+        Nine -
+        Ten -
+        Eleven -
