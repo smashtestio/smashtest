@@ -140,12 +140,13 @@
                 background-color: gray;
             }
 
-            .branch-indicator.running {
+            .updates-live .branch-indicator.running {
                 background-color: orange;
                 animation: blinker 2s linear infinite;
             }
 
-            .updates-paused .branch-indicator.running {
+            .updates-paused .branch-indicator.running,
+            .updates-disconnected .branch-indicator.running {
                 background-color: orange;
             }
 
@@ -289,12 +290,13 @@
                 color: gray;
             }
 
-            .running-item {
+            .updates-live .running-item {
                 color: orange;
                 animation: blinker 2s linear infinite;
             }
 
             .updates-paused .running-item,
+            .updates-disconnected .running-item,
             .running-item-no-anim,
             .orange-item {
                 color: orange;
@@ -460,7 +462,7 @@
                 font-size: 13px;
             }
 
-            .preview-pane .msg.updates-paused {
+            .preview-pane .updates-paused-msg {
                 background-color: rgb(90,90,90);
                 border: 1px solid rgb(90,90,90);
                 padding: 1px 7px;
@@ -468,6 +470,10 @@
                 display: inline-block;
                 color: rgb(45,45,45);
                 font-size: 0.75em;
+            }
+
+            .updates-disconnected .preview-pane .updates-paused-msg {
+                display: none;
             }
 
             .preview-pane .preview-divider {
@@ -627,9 +633,6 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
             //  Report data
             // ***************************************
 
-            let branchSnapshots = [];   // Array containing branches that have been updated server-side
-                                        // (but the updates cannot be applied to state yet because we're paused on a preview)
-
             /**
              * Called when a new report data file is loaded
              */
@@ -666,17 +669,21 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         runner: null,
                         reportTime: null,
                         reportDomain: null,
-                        live: true,
                         previewedItem: null
                     };
-                    this.socket = null; // websocket to report server
+
+                    this.socket = null;             // websocket to report server
+
+                    this.newDataAvailable = false;  // True if new report data is available on disk
+                    this.branchSnapshots = [];      // Array containing branches that have been updated server-side
+                                                    // (but the updates cannot be applied to state yet because we're paused on a preview)
 
                     this.reloadReportData();
 
                     // Bindings
+                    this.reloadReportData = this.reloadReportData.bind(this);
                     this.onReportData = this.onReportData.bind(this);
                     this.openConnection = this.openConnection.bind(this);
-                    this.reloadReportData = this.reloadReportData.bind(this);
                     this.copyBranches = this.copyBranches.bind(this);
                     this.initCollapsing = this.initCollapsing.bind(this);
                     this.stepNode = this.stepNode.bind(this);
@@ -691,6 +698,23 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                 componentDidMount() {
                     this.me.focus(); // focus on myself, so I can start getting keyboard commands
+                }
+
+                /**
+                 * Reloads report data by creating a new script tag which loads the script containing the data
+                 */
+                reloadReportData() {
+                    let container = document.getElementById('report-data-container');
+                    let scriptElem = document.getElementById('report-data-script');
+                    if(scriptElem) {
+                        container.removeChild(scriptElem);
+                    }
+
+                    scriptElem = document.createElement('script');
+                    scriptElem.id = 'report-data-script';
+                    scriptElem.setAttribute('src', 'smashtest-data.js');
+
+                    container.appendChild(scriptElem);
                 }
 
                 /**
@@ -731,7 +755,11 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                     this.socket.addEventListener('message', (event) => {
                         let message = JSON.parse(event.data);
                         if(message.dataUpdate) { // update report data from file
-                            this.reloadReportData();
+                            this.newDataAvailable = true;
+                            if(!this.state.previewedItem) { // updates not paused
+                                this.branchSnapshots = []; // clear out since all snapshots that came before this message are obsoleted by the new data on disk
+                                this.reloadReportData();
+                            }
                         }
                         else if(message.snapshot) { // this is a snapshot update
                             // Update counts
@@ -742,7 +770,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                             // Update branches
                             if(this.state.previewedItem) { // updates currently paused
-                                this.copyBranches(branchSnapshots, message.tree.branches);
+                                this.copyBranches(this.branchSnapshots, message.tree.branches);
                             }
                             else { // updates not paused
                                 this.copyBranches(this.state.tree.branches, message.tree.branches);
@@ -761,6 +789,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                     this.socket.addEventListener('close', (event) => {
                         this.socket = null;
+                        this.setState(this.state); // re-render app post-socket closure
                         //console.log('Websocket to report server closed');
 
                         // Retry connecting after a few secs
@@ -769,28 +798,11 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                 }
 
                 /**
-                 * Reloads report data by creating a new script tag which loads the script containing the data
-                 */
-                reloadReportData() {
-                    let container = document.getElementById('report-data-container');
-                    let scriptElem = document.getElementById('report-data-script');
-                    if(scriptElem) {
-                        container.removeChild(scriptElem);
-                    }
-
-                    scriptElem = document.createElement('script');
-                    scriptElem.id = 'report-data-script';
-                    scriptElem.setAttribute('src', 'smashtest-data.js');
-
-                    container.appendChild(scriptElem);
-                }
-
-                /**
                  * Copies branches from sourceBranches to destination branches, overwriting existing ones if their hashes match
                  */
                 copyBranches(destinationBranches, sourceBranches) {
                     this.initCollapsing(sourceBranches);
-                    
+
                     sourceBranches.forEach(sourceBranch => {
                         let found = false;
                         for(let i = 0; i < destinationBranches.length; i++) {
@@ -801,7 +813,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             }
                         }
                         if(!found) {
-                            destinationBranches.push(branch);
+                            destinationBranches.push(sourceBranch);
                         }
                     });
                 }
@@ -879,8 +891,13 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                     if(noPreview) { // we're resuming updates
                         // Dump into this.state.tree.branches the branch snapshots that have been piling up during the pause
-                        this.copyBranches(this.state.tree.branches, branchSnapshots);
-                        branchSnapshots = [];
+                        this.copyBranches(this.state.tree.branches, this.branchSnapshots);
+                        this.branchSnapshots = [];
+
+                        if(this.newDataAvailable) {
+                            this.newDataAvailable = false;
+                            this.reloadReportData();
+                        }
                     }
 
                     this.setState(this.state);
@@ -1034,7 +1051,7 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                         try {
                             return document.execCommand("copy");
                         }
-                        catch (e) {
+                        catch(e) {
                         }
                         finally {
                             document.body.removeChild(textarea);
@@ -1044,7 +1061,15 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
 
                 render() {
                     let className = "main ";
-                    this.state.previewedItem && (className += "updates-paused ");
+                    if(!this.socket) {
+                        className += "updates-disconnected ";
+                    }
+                    else if(this.state.previewedItem) {
+                        className += "updates-paused ";
+                    }
+                    else {
+                        className += "updates-live ";
+                    }
 
                     return (
                         <div className={className} tabIndex="0" onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp} ref={elem => this.me = elem}>
@@ -1060,7 +1085,6 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                     previewedItem={this.state.previewedItem}
                                     setPreview={this.setPreview}
                                     stepNodeIndex={this.state.tree.stepNodeIndex}
-                                    live={this.state.live}
                                     reportTemplates={this.state.tree.reportTemplates}
                                 /> : ''
                             }
@@ -1177,14 +1201,6 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                     }
                                     <span className="total-count notrunyet-item"> {counts.totalInReport} total branches</span>
                                 </div>
-
-                                {
-                                    !this.props.data.live ?
-                                    <div className="msg">
-                                        This report is a snapshot from a completed run.
-                                    </div> :
-                                    ""
-                                }
                             </div>
                         </div>
                     );
@@ -1640,7 +1656,6 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                                 previewedItem={this.props.previewedItem}
                                 setPreview={this.props.setPreview}
                                 stepNodeIndex={this.props.stepNodeIndex}
-                                live={this.props.live}
                                 reportTemplates={this.props.reportTemplates}
                             />
                         );
@@ -1763,13 +1778,9 @@ c     = copy debug command <span class="keystroke-command">smashtest -d=hash</sp
                             </div>
 
                             <div className="preview-divider">
-                                {
-                                    this.props.live ?
-                                    <div className="msg updates-paused">
-                                        Live updates paused. Close this preview to resume live updates.
-                                    </div> :
-                                    ''
-                                }
+                                <div className="msg updates-paused-msg">
+                                    Live updates paused. Close this preview to resume live updates.
+                                </div>
                             </div>
 
                             <PreviewError previewedObj={previewedObj}/>

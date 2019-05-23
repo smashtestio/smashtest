@@ -74,7 +74,9 @@ class Reporter {
                 this.timerSnapshot = null;
             }
 
-            await this.writeFull(); // one final time, to encompass the last batch of changes
+            // Send updates one final time, to encompass the last batch of changes
+            await this.writeSnapshot();
+            await this.writeFull();
         }
     }
 
