@@ -2,22 +2,6 @@
     <head>
     </head>
     <body>
-        <div id="container">
-            <script id="script-elem" src="scr1.js"></script>
-        </div>
         <h1>Test page for elements</h1>
-        <a onclick="replaceMe()">Click Me</a>
-        <script>
-            function replaceMe() {
-                let container = document.getElementById('container');
-                let scriptElem = document.getElementById('script-elem');
-                container.removeChild(scriptElem);
-
-                scriptElem = document.createElement('script');
-                scriptElem.setAttribute('src', 'scr2.js');
-
-                container.appendChild(scriptElem);
-            }
-        </script>
     </body>
 </html>

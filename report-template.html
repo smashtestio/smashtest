@@ -108,13 +108,46 @@
                 position: relative;
             }
 
+            .branch:last-of-type {
+                margin-bottom: 0;
+            }
+
             .branch.active {
                 background-color: rgb(45,45,45);
             }
 
             .branch.hover {
                 background-color: rgb(45,45,45);
-                /*background-color: rgb(70,70,70);*/
+            }
+
+            .branch-grouping {
+                margin-left: 8px;
+                position: relative;
+            }
+
+            .branch-group-indicator {
+                display: inline-block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 8px;
+                height: 100%;
+                min-width: 8px;
+                border: 0;
+                margin: 0;
+                padding: 0;
+                border-radius: 3px;
+                z-index: 3;
+                background-color: rgb(70,70,70);
+            }
+
+            .branch-group-contents {
+                display: inline-block;
+                width: 100%;
+                border: 0;
+                margin: 0;
+                padding-left: 10px;
+                padding-right: 0;
             }
 
             .branch-indicator {
@@ -185,7 +218,6 @@
                 overflow-x: auto;
                 overflow-y: hidden;
                 padding-right: 20px;
-                /*padding: 1px 20px 1px 0;*/
             }
 
             .line::-webkit-scrollbar {
@@ -198,7 +230,6 @@
 
             .line:hover {
                 background-color: rgb(45,45,45);
-                /*background-color: rgb(70,70,70);*/
             }
 
             .line .line-container {
@@ -628,6 +659,12 @@ c     = copy text of branch
 
                 tippyOptions.content = wrapTippyContent("Branch not run yet");
                 tippy(".branch-indicator.notrunyet", tippyOptions);
+
+                let elems = document.querySelectorAll(".branch-group-indicator");
+                elems.forEach(elem => {
+                    tippyOptions.content = wrapTippyContent(elem.getAttribute("data-tooltip"));
+                    tippy(elem, tippyOptions);
+                });
             }
 
             // ***************************************
@@ -698,6 +735,7 @@ c     = copy text of branch
                 }
 
                 componentDidMount() {
+                    attachTreePaneTooltips();
                     this.me.focus(); // focus on myself, so I can start getting keyboard commands
                 }
 
@@ -1074,6 +1112,8 @@ c     = copy text of branch
                 }
 
                 render() {
+                    attachTreePaneTooltips();
+
                     let className = "main ";
                     if(!this.socket) {
                         className += "updates-disconnected ";
@@ -1311,7 +1351,9 @@ c     = copy text of branch
                             branchesFailed.length > 0 ? (
                                 <div className="branch-list" id="branch-list-failed">
                                     <div className="header">Failed branches</div>
-                                    {branchesFailed}
+                                    <BranchGrouping>
+                                        {branchesFailed}
+                                    </BranchGrouping>
                                 </div>
                             ) : ""
                         }
@@ -1344,6 +1386,16 @@ c     = copy text of branch
                         }
                     </div>
                 );
+            }
+
+            function BranchGrouping(props) {
+                return <div className="branch-grouping">
+                    <div className="branch-group-indicator" data-tooltip="Branches that failed on <step text> <filename>:<lineNumber>">
+                    </div>
+                    <div className="branch-group-contents">
+                        {props.children}
+                    </div>
+                </div>
             }
 
             class Branch extends React.Component {
@@ -1960,8 +2012,6 @@ c     = copy text of branch
                     });
                 }
             }
-
-            attachTreePaneTooltips();
         </script>
     </body>
 </html>

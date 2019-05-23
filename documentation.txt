@@ -162,7 +162,8 @@ Textual steps (-)
         Recommended to put the - before the step for these (looks like a heading in the report)
     - Textual steps can also be comments you want to appear at a certain point in the report.
         Recommended to use - after the step for these.
-    - Also -s
+    - The '-' is outputted to the report
+    - -s is also a textual step
 
 UI Testing
     - Open Chrome/Open Firefox/Open Safari/Open IE/Open Edge
