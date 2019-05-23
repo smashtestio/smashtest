@@ -120,9 +120,14 @@
                 background-color: rgb(45,45,45);
             }
 
-            .branch-grouping {
-                margin-left: 8px;
+            .branch-group {
+                margin-left: -8px;
+                margin-bottom: 30px;
                 position: relative;
+            }
+
+            .branch-group:last-of-type {
+                margin-bottom: 0;
             }
 
             .branch-group-indicator {
@@ -130,13 +135,13 @@
                 position: absolute;
                 top: 0;
                 left: 0;
-                width: 8px;
+                width: 12px;
                 height: 100%;
-                min-width: 8px;
+                min-width: 12px;
                 border: 0;
                 margin: 0;
                 padding: 0;
-                border-radius: 3px;
+                border-radius: 0 3px 3px 0;
                 z-index: 3;
                 background-color: rgb(70,70,70);
             }
@@ -146,7 +151,7 @@
                 width: 100%;
                 border: 0;
                 margin: 0;
-                padding-left: 10px;
+                padding-left: 12px;
                 padding-right: 0;
             }
 
@@ -279,6 +284,12 @@
                 padding: 5px;
                 white-space: pre;
                 line-height: 1.7;
+            }
+
+            .tooltip-text.branch-group-tooltip {
+                padding: 2px 6px;
+                display: inline-block;
+                text-align: right;
             }
 
             .tree-header-item {
@@ -619,8 +630,8 @@
                 arrowType: "sharp"
             };
 
-            function wrapTippyContent(content) {
-                return `<span class='tooltip-text'>${content}</span>`;
+            function wrapTippyContent(content, classes) {
+                return `<span class='tooltip-text ${classes || ''}'>${content}</span>`;
             }
 
             function wrapTippyContentForKeystrokes(content) {
@@ -662,7 +673,7 @@ c     = copy text of branch
 
                 let elems = document.querySelectorAll(".branch-group-indicator");
                 elems.forEach(elem => {
-                    tippyOptions.content = wrapTippyContent(elem.getAttribute("data-tooltip"));
+                    tippyOptions.content = wrapTippyContent(elem.getAttribute("data-tooltip"), "branch-group-tooltip");
                     tippy(elem, tippyOptions);
                 });
             }
@@ -1112,8 +1123,6 @@ c     = copy text of branch
                 }
 
                 render() {
-                    attachTreePaneTooltips();
-
                     let className = "main ";
                     if(!this.socket) {
                         className += "updates-disconnected ";
@@ -1330,8 +1339,45 @@ c     = copy text of branch
                     />);
                 }
 
+                // Failed branches
+                let failedBranches = props.branches.filter(branch => branch.isFailed);
+                let failedBranchesObj = {}; // contains mapping of a string that uniquely identifies a branch group (group key) to the branches in that group
+                failedBranches.forEach(b => {
+                    let lastFailedStep = null;
+                    for(let i = b.steps.length - 1; i >= 0; i--) {
+                        if(b.steps[i].isFailed) {
+                            lastFailedStep = b.steps[i];
+                            break;
+                        }
+                    }
+                    if(lastFailedStep) {
+                        let lastFailedStepNode = props.stepNodeIndex[lastFailedStep.id];
+                        let groupKey = lastFailedStepNode.text;
+
+                        let lastFailedFunctionDeclaration = lastFailedStep.fid ? props.stepNodeIndex[lastFailedStep.fid] : null;
+                        if(lastFailedFunctionDeclaration) {
+                            groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
+                        }
+
+                        if(!failedBranchesObj.hasOwnProperty(groupKey)) {
+                            failedBranchesObj[groupKey] = [];
+                        }
+
+                        failedBranchesObj[groupKey].push(b);
+                    }
+                });
+
+                let failedBranchGroups = [];
+                Object.keys(failedBranchesObj).forEach(groupKey => {
+                    failedBranchGroups.push(
+                        <BranchGroup groupkey={groupKey} key={groupKey}>
+                            {mapToBranchElems(failedBranchesObj[groupKey])}
+                        </BranchGroup>
+                    );
+                });
+
+                // All other branch types
                 let branchesRunning = mapToBranchElems(props.branches.filter(branch => branch.isRunning));
-                let branchesFailed = mapToBranchElems(props.branches.filter(branch => branch.isFailed));
                 let branchesPassed = mapToBranchElems(props.branches.filter(branch => branch.isPassed));
                 let branchesSkipped = mapToBranchElems(props.branches.filter(branch => branch.isSkipped));
                 let branchesNotRunYet = mapToBranchElems(props.branches.filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped));
@@ -1348,12 +1394,10 @@ c     = copy text of branch
                         }
 
                         {
-                            branchesFailed.length > 0 ? (
+                            failedBranchGroups.length > 0 ? (
                                 <div className="branch-list" id="branch-list-failed">
                                     <div className="header">Failed branches</div>
-                                    <BranchGrouping>
-                                        {branchesFailed}
-                                    </BranchGrouping>
+                                    {failedBranchGroups}
                                 </div>
                             ) : ""
                         }
@@ -1388,9 +1432,10 @@ c     = copy text of branch
                 );
             }
 
-            function BranchGrouping(props) {
-                return <div className="branch-grouping">
-                    <div className="branch-group-indicator" data-tooltip="Branches that failed on <step text> <filename>:<lineNumber>">
+            function BranchGroup(props) {
+                let tooltip = `Branches that failed on<br><i>${props.groupkey}</i>`;
+                return <div className="branch-group">
+                    <div className="branch-group-indicator" data-tooltip={tooltip}>
                     </div>
                     <div className="branch-group-contents">
                         {props.children}
@@ -1411,6 +1456,10 @@ c     = copy text of branch
                     this.hoverStateOff = this.hoverStateOff.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
                     this.updateCollapsing = this.updateCollapsing.bind(this);
+                }
+
+                componentDidMount() {
+                    attachTreePaneTooltips();
                 }
 
                 hoverStateOn() {
@@ -1537,7 +1586,7 @@ c     = copy text of branch
                                 className={indicatorClassName}
                                 onMouseOver={this.hoverStateOn}
                                 onMouseOut={this.hoverStateOff}
-                                onClick={this.toggleActiveState}
+                                onMouseDown={this.toggleActiveState}
                             >
                             </div>
                             <div className="branch-contents">

@@ -7,7 +7,7 @@ const Constants = require('./constants.js');
  */
 class StepNode {
     constructor(id) {
-        this.id = id;                         // number that uniquely identifiers this step node
+        this.id = id;                         // number that uniquely identifiers this step node (must be > 0)
 
         this.indents = -1;                    // number of indents before this step's text, where an indent consists of SPACES_PER_INDENT spaces
 

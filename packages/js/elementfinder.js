@@ -406,7 +406,7 @@ class ElementFinder {
             } ],
 
             'selector': [ (elems, input) => {
-                // Handles iframe/iframe/selector
+
             } ],
 
             'xpath': [ (elems, input) => {

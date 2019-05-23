@@ -1,22 +1,14 @@
-- Test -
+Desktop
+Mobile
 
-    // Open Chrome
-    // Open Firefox
-    //
-    //     Mobile
-    //     Desktop
-    //
-    //         Wait '1' seconds
+    Bad step
 
-    Over 10 steps -
-        ..
-        Two -
-        Three -
-        Four -
-        Five -
-        Six -
-        Seven -
-        Eight -
-        Nine -
-        Ten -
-        Eleven -
+* Desktop
+    * Bad step {
+        throw new Error("desktop oops");
+    }
+
+* Mobile
+    * Bad step {
+        throw new Error("mobile oops");
+    }

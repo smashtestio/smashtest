@@ -579,10 +579,6 @@ describe("ElementFinder", function() {
             it.skip("finds elements based on text that spans multiple elements", () => {
 
             });
-
-            it.skip("searches across all iframes", () => {
-
-            });
         });
 
         context("ordinal EFs", () => {
@@ -591,10 +587,6 @@ describe("ElementFinder", function() {
             });
 
             it.skip("doesn't find elements based on an ord", () => {
-
-            });
-
-            it.skip("searches across all iframes", () => {
 
             });
         });
@@ -624,10 +616,6 @@ describe("ElementFinder", function() {
 
             });
 
-            it.skip("searches across all iframes", () => {
-
-            });
-
             it.skip("handles the 'not' keyword", () => {
 
             });
@@ -643,18 +631,6 @@ describe("ElementFinder", function() {
             });
 
             it.skip("interprets an item as a selector if a corresponding property does not exist", () => {
-
-            });
-
-            it.skip("can access elements within iframes with the / operator", () => {
-
-            });
-
-            it.skip("can access elements within mulitple nested layers of iframes with the / operator", () => {
-
-            });
-
-            it.skip("searches across all iframes", () => {
 
             });
         });

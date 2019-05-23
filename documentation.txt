@@ -197,7 +197,6 @@ ElementFinders
         - Not recommended to put selectors or xpaths into the text of a step.
             Set a property to that selector, then use the property's name inside the step.
             You'll be thankful later when reading your code or report.
-    - Searches among all iframes
     - Properties (in order of match attempt)
         - Can start with "not"
         - 'text'
@@ -230,7 +229,6 @@ ElementFinders
                 - has 'selector' (matches this selector or has a child that matches)
                 - position 'N' (same as ord)
         - .css.selector
-            - selectorOfIframe/selectorOfIframe/selectorOfElement
     - Special
         - Keyword
             - any order|subset
