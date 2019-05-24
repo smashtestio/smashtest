@@ -10740,7 +10740,7 @@ K-1 -
             });
         });
 
-        it("doesn't serialize hooks", () => {
+        it("serializes everything hooks, doesn't serialize branch and step hooks", () => {
             let tree = new Tree();
             tree.parseIn(`
 A -
@@ -10780,21 +10780,32 @@ A -
             let obj = tree.serialize();
 
             mergeStepNodesInBranches(tree, obj.branches);
+            mergeStepNodes(tree, obj.beforeEverything);
+            mergeStepNodes(tree, obj.afterEverything);
             Comparer.expect(obj).to.match({
                 branches: [
                     {
-                        steps: [ { text: "A" }, { text: "B" } ],
+                        steps: [
+                            { text: "A" }, { text: "B" }
+                        ],
                         beforeEveryBranch: undefined,
                         afterEveryBranch: undefined,
                         beforeEveryStep: undefined,
                         afterEveryStep: undefined
                     },
                     {
-                        steps: [ { text: "A" }, { text: "C" } ]
+                        steps: [
+                            { text: "A" }, { text: "C" }
+                        ]
                     }
                 ],
-                beforeEverything: undefined,
-                afterEverything: undefined
+                beforeEverything: [
+                    { text: "Before Everything", codeBlock: "\n    H" },
+                    { text: "Before Everything", codeBlock: "\n    G" }
+                ],
+                afterEverything: [
+                    { text: "After Everything", codeBlock: "\n    I" }
+                ]
             });
         });
 

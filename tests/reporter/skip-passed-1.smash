@@ -1,0 +1,29 @@
+Pass, pass 1 {
+}
+
+Pass, pass 2 {
+}
+
+Pass, fail 3 {
+}
+
+Fail, fail {
+    throw new Error("oops");
+}
+
+Fail, pass {
+    throw new Error("oops");
+}
+
+Fail, pass {
+    throw new Error("oops");
+}
+
+Skip, pass 6 .s {
+}
+
+Skip, skip 7 .s {
+}
+
+Skip, fail 8 .s {
+}

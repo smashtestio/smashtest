@@ -2,12 +2,12 @@ Ignored branch 1 -
 
 Ignored branch 2 -
 
-$ Branch chosen by $ -
+$ Branch chosen by isOnly -
     Step 1 -
 
 Ignored branch 3 -
 
-$ Branches chosen by $ -
+$ Branches chosen by isOnly -
     Branch 1 -
     Branch 2 -
 

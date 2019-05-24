@@ -378,7 +378,7 @@ function plural(count) {
 
         // --skip-passed
         if(runner.skipPassed) {
-            await reporter.mergeInLastReport(runner.skipPassed);
+            await reporter.mergeInLastReport(runner.skipPassed === true ? undefined : runner.skipPassed);
         }
 
         let elapsed = 0;

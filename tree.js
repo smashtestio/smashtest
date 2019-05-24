@@ -1230,6 +1230,8 @@ ${outputBranchAbove(this)}
             isDebug: this.isDebug,
 
             branches: this.branches.map(branch => branch.serialize()),
+            beforeEverything: this.beforeEverything.map(branch => branch.serialize()),
+            afterEverything: this.afterEverything.map(branch => branch.serialize()),
 
             reportTemplates: this.reportTemplates
         });
@@ -1330,9 +1332,6 @@ ${outputBranchAbove(this)}
                     if(prevBranch.isPassed) { // failed or didn't run
                         currBranch.passedLastTime = true;
                     }
-
-                    // Clean state
-                    delete currBranch.isSkipped;
 
                     found = true;
                     break;

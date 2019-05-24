@@ -107,11 +107,16 @@ class Reporter {
 
         this.wsServer.on('connection', (ws) => {
             ws.on('message', (message) => {
-                const ERR_MSG = `Invalid filename param`;
+                const ERR_MSG = `Invalid origin`;
                 let isError = false;
                 try {
                     // message must be { origin: absolute filename or domain:port of client }
-                    message = JSON.parse(message);
+                    try {
+                        message = JSON.parse(message);
+                    }
+                    catch(e) {
+                        throw new Error(ERR_MSG);
+                    }
 
                     if(!message.origin) {
                         throw new Error(ERR_MSG);
@@ -220,27 +225,29 @@ class Reporter {
             fileBuffers = await readFiles([ lastReportDataPath ], {encoding: 'utf8'});
         }
         catch(e) {
-            utils.error(`The file '${filename}' could not be found`);
+            utils.error(`The file '${filename}' could not be found. Make sure the path is relative.`);
         }
 
         let buffer = fileBuffers[0];
-        buffer = this.extractTree(buffer);
-        this.tree.markPassedFromPrevRun(buffer);
+        buffer = this.extractReportData(buffer);
+        this.tree.markPassedFromPrevRun(buffer.tree);
     }
 
     /**
-     * Extracts the report data json from the given report data file
+     * Extracts the report data from the given file contents
      * @param {String} reportData - The raw report data file contents
      * @return {Object} The js object extracted from reportData
      * @throws {Error} If there was a problem extracting, or if the file contents is invalid
      */
-    extractTree(reportData) {
+    extractReportData(reportData) {
         const errMsg = "Error parsing the report from last time. Please try another file or do not use -s or --skip-passed.";
 
-        let matches = htmlReport.match(/^[^`]*`(.*)`[^`]*$/);
+        let matches = reportData.match(/^[^`]*`(.*)`[^`]*$/);
         if(matches) {
             let content = matches[1];
             content = utils.unescapeBackticks(content);
+            content = utils.unescape(content);
+
             try {
                 content = JSON.parse(content);
             }
