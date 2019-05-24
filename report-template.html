@@ -1690,7 +1690,7 @@ c     = copy text of branch
                     this.hoverStateOn = this.hoverStateOn.bind(this);
                     this.hoverStateOff = this.hoverStateOff.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
-                    this.updateCollapsing = this.updateCollapsing.bind(this);
+                    this.initCollapsing = this.initCollapsing.bind(this);
                 }
 
                 componentDidMount() {
@@ -1714,21 +1714,22 @@ c     = copy text of branch
                 }
 
                 /**
-                 * Sets the collapseInit property of the branch.
-                 * Sets the collapse, collapseHide, and hasChildren properties of each step.
+                 * Sets the collapseInit property of the branch
+                 * Sets the collapse, collapseHide, and hasChildren properties of each step
                  *
                  * collapseInit = true if collapse properties have been initialized on the steps inside this branch
                  * collapse = true if this step is currently collapsed, false if uncollapsed, undefined if there's no collapse icon
                  * collapseHide = true if this step should be hidden because of a collapsed parent
                  * hasChildren = true if this step has children (that would be hidden if this step were to be collapsed)
                  */
-                updateCollapsing() {
+                initCollapsing() {
                     let branch = this.props.branch;
 
-                    // Set collapseInit and collapse properties
+                    // Set collapseInit, collapse, and hasChildren
                     if(!branch.collapseInit) {
                         branch.collapseInit = true;
                         branch.steps.forEach((step, index) => {
+                            // Set step.collapse
                             if(this.props.getModifier(step, 'isCollapsed')) {
                                 step.collapse = true;
 
@@ -1745,28 +1746,24 @@ c     = copy text of branch
                                     }
                                 }
                             }
+
+                            // Set step.hasChildren
+                            for(let i = index + 1; i < branch.steps.length; i++) {
+                                let s = branch.steps[i];
+                                if((s.level || 0) <= (step.level || 0)) {
+                                    break;
+                                }
+                                else if(!this.props.getModifier(s, 'isHidden')) {
+                                    step.hasChildren = true;
+                                    break;
+                                }
+                            }
                         });
                     }
 
-                    // Reset collapseHide and hasChildren properties
-                    branch.steps.forEach(step => {
-                        delete step.collapseHide;
-                        delete step.hasChildren;
-                    });
-
+                    // Set step.collapseHide
+                    branch.steps.forEach(step => delete step.collapseHide);
                     branch.steps.forEach((step, index) => {
-                        // Set hasChildren for step
-                        for(let i = index + 1; i < branch.steps.length; i++) {
-                            let s = branch.steps[i];
-                            if((s.level || 0) <= (step.level || 0)) {
-                                break;
-                            }
-                            else if(!this.props.getModifier(s, 'isHidden')) {
-                                step.hasChildren = true;
-                                break;
-                            }
-                        }
-
                         // If a step has collapse set, collapse all the steps underneath it
                         if(step.collapse && !step.collapseHide) {
                             for(let i = index + 1; i < branch.steps.length; i++) {
@@ -1815,7 +1812,7 @@ c     = copy text of branch
                     let hasLevels = false;
                     branch.steps.forEach(step => step.level > 0 ? hasLevels = true : null);
 
-                    this.updateCollapsing();
+                    this.initCollapsing();
 
                     let lines = branch.steps
                         .filter(step => {
