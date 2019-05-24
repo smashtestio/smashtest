@@ -1690,7 +1690,7 @@ c     = copy text of branch
                     this.hoverStateOn = this.hoverStateOn.bind(this);
                     this.hoverStateOff = this.hoverStateOff.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
-                    this.initCollapsing = this.initCollapsing.bind(this);
+                    this.updateCollapsing = this.updateCollapsing.bind(this);
                 }
 
                 componentDidMount() {
@@ -1722,7 +1722,7 @@ c     = copy text of branch
                  * collapseHide = true if this step should be hidden because of a collapsed parent
                  * hasChildren = true if this step has children (that would be hidden if this step were to be collapsed)
                  */
-                initCollapsing() {
+                updateCollapsing() {
                     let branch = this.props.branch;
 
                     // Set collapseInit, collapse, and hasChildren
@@ -1812,7 +1812,7 @@ c     = copy text of branch
                     let hasLevels = false;
                     branch.steps.forEach(step => step.level > 0 ? hasLevels = true : null);
 
-                    this.initCollapsing();
+                    this.updateCollapsing();
 
                     let lines = branch.steps
                         .filter(step => {
