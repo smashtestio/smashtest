@@ -33,7 +33,7 @@ exports.hasQuotes = (str) => {
  */
 exports.error = (msg, filename, lineNumber) => {
     if(filename || lineNumber) {
-        throw new Error(`${msg} [${filename}:${lineNumber}]`);
+        throw new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`);
     }
     else {
         throw new Error(msg);

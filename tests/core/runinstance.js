@@ -7455,7 +7455,24 @@ My function
 
             await runInstance.run();
 
-            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function 'Some unknown function' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
+            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
+        });
+
+        it("can handle two function calls that cannot be found", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    ~ B -
+`, "file.txt");
+
+            let runner = new Runner();
+            runner.init(tree, true);
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.run();
+
+            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
+            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
         });
 
         it("the RunInstance can flawlessly resume from a pause, after an injected step has run", async () => {

@@ -108,6 +108,7 @@ class Reporter {
         this.wsServer.on('connection', (ws) => {
             ws.on('message', (message) => {
                 const ERR_MSG = `Invalid filename param`;
+                let isError = false;
                 try {
                     // message must be { origin: absolute filename or domain:port of client }
                     message = JSON.parse(message);
@@ -124,6 +125,11 @@ class Reporter {
                 catch(e) {
                     ws.send(e.toString());
                     ws.close();
+                    isError = true;
+                }
+
+                if(!isError) {
+                    ws.send(`{ "dataUpdate": true }`);
                 }
             });
         });

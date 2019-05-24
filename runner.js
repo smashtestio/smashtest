@@ -1,4 +1,5 @@
 const RunInstance = require('./runinstance.js');
+const Tree = require('./tree.js');
 const utils = require('./utils.js');
 
 /**
@@ -193,6 +194,7 @@ class Runner {
      * Will be used by --repl
      */
     createEmptyRunner() {
+        this.tree = new Tree();
         this.runInstances = [ new RunInstance(this) ];
         this.runInstances[0].isPaused = true;
         this.isPaused = true;

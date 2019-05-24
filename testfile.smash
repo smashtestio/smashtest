@@ -1,14 +1,21 @@
-Desktop
-Mobile
+// Desktop
+// Mobile
+//
+//     Bad step
+//
+// * Desktop
+//     * Bad step {
+//         throw new Error("desktop oops");
+//     }
+//
+// * Mobile
+//     * Bad step {
+//         throw new Error("mobile oops");
+//     }
 
-    Bad step
+One -
+    ~ Two -
+        Three -
 
-* Desktop
-    * Bad step {
-        throw new Error("desktop oops");
-    }
-
-* Mobile
-    * Bad step {
-        throw new Error("mobile oops");
-    }
+Four -
+    Five -

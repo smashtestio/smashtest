@@ -393,11 +393,13 @@ class Tree {
 
                 if(currStepNodeAbove && currStepNodeAbove.isFunctionCall) {
                     parent = this.stepNodeIndex[currStepAbove.fid];
-                    siblings = parent.children;
-                    foundDeclarationNode = searchAmongSiblings(siblings);
-                    if(foundDeclarationNode) {
-                        branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
-                        return foundDeclarationNode;
+                    if(parent) {
+                        siblings = parent.children;
+                        foundDeclarationNode = searchAmongSiblings(siblings);
+                        if(foundDeclarationNode) {
+                            branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
+                            return foundDeclarationNode;
+                        }
                     }
                 }
             }
@@ -418,7 +420,7 @@ class Tree {
             }
         }
 
-        utils.error(`The function '${functionCallNode.getFunctionCallText()}' cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+        utils.error(`The function \`${functionCallNode.getFunctionCallText()}\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
 
 Trace:
 ${outputBranchAbove(this)}

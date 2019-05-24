@@ -8,6 +8,7 @@ const repl = require('repl');
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
+const StepNode = require('./stepnode.js');
 
 // ***************************************
 //  Globals
@@ -361,8 +362,8 @@ function plural(count) {
         // Generate branches
         runner.init(tree);
 
-        // No reporter for debug runs
-        if(tree.isDebug) {
+        // No reporter for debug or repl runs
+        if(tree.isDebug || isRepl) {
             isReport = false;
         }
 

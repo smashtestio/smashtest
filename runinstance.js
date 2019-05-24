@@ -505,7 +505,7 @@ class RunInstance {
 
         let branchAbove = this.stepsRan;
         if(!branchAbove || branchAbove.steps.length == 0) {
-            // Create a fake, empty step
+            // Create a fake, empty step that connects to the tree
             let tempStep = this.tree.newStepNode();
             tempStep.parent = this.tree.root;
             branchAbove = new Branch;
