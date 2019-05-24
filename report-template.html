@@ -535,6 +535,10 @@
             }
 
             .preview-pane .updates-paused-msg {
+                display: none;
+            }
+
+            .updates-paused .preview-pane .updates-paused-msg {
                 background-color: rgb(90,90,90);
                 border: 1px solid rgb(90,90,90);
                 padding: 1px 7px;
@@ -542,10 +546,6 @@
                 display: inline-block;
                 color: rgb(45,45,45);
                 font-size: 0.75em;
-            }
-
-            .updates-disconnected .preview-pane .updates-paused-msg {
-                display: none;
             }
 
             .preview-pane .preview-divider {
@@ -734,13 +734,18 @@ c     = copy text of branch
 
             let app = null;
 
+            const BRANCHES_LIMIT = 20;               // default number of branches to show in a branch list
+            const MORE_BRANCHES = 10;                // number of additional branches to show when more button clicked
+            const BRANCHES_IN_BRANCH_GRP_LIMIT = 1;  // default number of branches to show in a grouped branch list
+            const MORE_BRANCHES_IN_BRANCH_GRP = 3;   // number of additional branches to show when more button clicked in a grouped branch list
+
             class App extends React.Component {
                 constructor() {
                     super();
 
                     // This app
-                    app = this; // global var referencing this app
-                    this.me = null; // app's dom element
+                    app = this;                     // global var referencing this app
+                    this.me = null;                 // app's dom element
 
                     // State
                     this.state = {
@@ -753,8 +758,9 @@ c     = copy text of branch
                     };
 
                     this.socket = null;             // websocket to report server
+                    this.socketOpen = false;        // true if websocket is open
 
-                    this.newDataAvailable = false;  // True if new report data is available on disk
+                    this.newDataAvailable = false;  // true if new report data is available on disk
                     this.branchSnapshots = [];      // Array containing branches that have been updated server-side
                                                     // (but the updates cannot be applied to state yet because we're paused on a preview)
 
@@ -776,11 +782,12 @@ c     = copy text of branch
                     this.isKeyModifierActive = this.isKeyModifierActive.bind(this);
                     this.showNotification = this.showNotification.bind(this);
                     this.copyToClipboard = this.copyToClipboard.bind(this);
+                    this.focusMe = this.focusMe.bind(this);
                 }
 
                 componentDidMount() {
                     attachTreePaneTooltips();
-                    this.me.focus(); // focus on myself, so I can start getting keyboard commands
+                    this.focusMe(); // focus on myself, so I can start getting keyboard commands
                 }
 
                 /**
@@ -825,6 +832,8 @@ c     = copy text of branch
                     this.socket = new WebSocket(`ws://${reportDomain}`);
 
                     this.socket.addEventListener('open', (event) => {
+                        this.socketOpen = true;
+
                         let origin = '';
                         if(window.location.href.match(/^file:\/\//)) { // local html file
                             origin = window.location.href.replace(/file:\/\//, '');
@@ -867,14 +876,13 @@ c     = copy text of branch
                         }
                     });
 
-                    /*this.socket.addEventListener('error', (event) => {
-                        //console.log(event);
-                    });*/
-
                     this.socket.addEventListener('close', (event) => {
+                        if(this.socketOpen) {
+                            this.setState(this.state); // if socket was open before, re-render app post-socket closure
+                        }
+
                         this.socket = null;
-                        this.setState(this.state); // re-render app post-socket closure
-                        //console.log('Websocket to report server closed');
+                        this.socketOpen = false;
 
                         // Retry connecting after a few secs
                         setTimeout(() => this.openConnection(this.state.reportDomain), WS_RETRY_FREQ);
@@ -990,17 +998,19 @@ c     = copy text of branch
                 /**
                  * Gets the limit for the given key (limit = number of branches to display for a particular group of branches)
                  * @param {String} key - The key representing the group of branches
-                 * @param {Number} initLimit - What to initialize the limit to if it hasn't been set yet
+                 * @param {Boolean} [isGrouped] - If true, key is for a grouped branch list
                  * @return {Number} The limit for the given key
                  */
-                getLimit(key, initLimit) {
-                    if(!this.state.limitMap.hasOwnProperty(key)) {
-                        this.state.limitMap[key] = initLimit;
-                        this.setState({ limitMap: this.state.limitMap });
-                        return initLimit;
+                getLimit(key, isGrouped) {
+                    let limit = this.state.limitMap[key];
+                    if(limit) {
+                        return limit;
+                    }
+                    else if(isGrouped) {
+                        return BRANCHES_IN_BRANCH_GRP_LIMIT;
                     }
                     else {
-                        return this.state.limitMap[key];
+                        return BRANCHES_LIMIT;
                     }
                 }
 
@@ -1157,7 +1167,7 @@ c     = copy text of branch
                     let notificationText = notification.querySelector(".notification-text");
                     notificationText.innerHTML = msg;
                     notification.classList.add("show");
-                    this.me.focus();
+                    this.focusMe();
                     setTimeout(() => notification.classList.remove("show"), NOTIFICATION_TIMEOUT);
                 }
 
@@ -1182,9 +1192,18 @@ c     = copy text of branch
                     }
                 }
 
+                /**
+                 * Brings focus to the app
+                 */
+                focusMe() {
+                    if(this.me) {
+                        this.me.focus();
+                    }
+                }
+
                 render() {
                     let className = "main ";
-                    if(!this.socket) {
+                    if(!this.socket || this.socket.readyState != this.socket.OPEN) {
                         className += "updates-disconnected ";
                     }
                     else if(this.state.previewedItem) {
@@ -1203,6 +1222,7 @@ c     = copy text of branch
                                 getModifier={this.getModifier}
                                 getLimit={this.getLimit}
                                 setLimit={this.setLimit}
+                                focusMe={this.focusMe}
                             />
                             {
                                 this.state.tree ?
@@ -1218,28 +1238,35 @@ c     = copy text of branch
                 }
             }
 
-            function TreePane(props) {
-                if(!props.data.tree) {
-                    return "";
+            class TreePane extends React.Component {
+                constructor() {
+                    super();
                 }
 
-                let className = `pane tree-pane ${!props.data.previewedItem ? `full` : ``}`;
+                render() {
+                    if(!this.props.data.tree) {
+                        return "";
+                    }
 
-                return (
-                    <div className={className}>
-                        <TreeHeader data={props.data}/>
-                        <TreeErrors data={props.data}/>
-                        <BranchListing
-                            branches={props.data.tree.branches}
-                            stepNodeIndex={props.data.tree.stepNodeIndex}
-                            setPreview={props.setPreview}
-                            previewedItem={props.data.previewedItem}
-                            getModifier={props.getModifier}
-                            getLimit={props.getLimit}
-                            setLimit={props.setLimit}
-                        />
-                    </div>
-                );
+                    let className = `pane tree-pane ${!this.props.data.previewedItem ? `full` : ``}`;
+
+                    return (
+                        <div className={className}>
+                            <TreeHeader data={this.props.data}/>
+                            <TreeErrors data={this.props.data}/>
+                            <BranchTable
+                                branches={this.props.data.tree.branches}
+                                stepNodeIndex={this.props.data.tree.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.data.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                                focusMe={this.props.focusMe}
+                            />
+                        </div>
+                    );
+                }
             }
 
             class TreeHeader extends React.Component {
@@ -1365,271 +1392,302 @@ c     = copy text of branch
                 }
             }
 
-            function TreeErrors(props) {
-                let errors =
-                    (props.data.tree.beforeEverything || [])
-                    .concat(props.data.tree.afterEverything || [])
-                    .filter(hook => hook.error)
-                    .map(hook => {
+            class TreeErrors extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    let errors =
+                        (this.props.data.tree.beforeEverything || [])
+                        .concat(this.props.data.tree.afterEverything || [])
+                        .filter(hook => hook.error)
+                        .map(hook => {
+                            return (
+                                <div className="stacktrace" key={hook.id}>
+                                    {formatStackTrace(hook.error)}
+                                </div>
+                            );
+                        });
+
+                    if(errors.length > 0) {
                         return (
-                            <div className="stacktrace" key={hook.id}>
-                                {formatStackTrace(hook.error)}
+                            <div className="tree-errors">
+                                <div className="header failed-item">Hook errors</div>
+                                {errors}
                             </div>
                         );
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            }
+
+            class BranchTable extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    let branchesRunning = this.props.branches.filter(branch => branch.isRunning);
+                    let branchesFailed = this.props.branches.filter(branch => branch.isFailed);
+                    let branchesPassed = this.props.branches.filter(branch => branch.isPassed);
+                    let branchesSkipped = this.props.branches.filter(branch => branch.isSkipped);
+                    let branchesNotRunYet = this.props.branches.filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped);
+
+                    // Failed branches
+                    let failedBranchMapping = {}; // contains mapping of a string that uniquely identifies a branch group (group key) to an array of branches in that group
+                    branchesFailed.forEach(b => {
+                        let lastFailedStep = null;
+                        for(let i = b.steps.length - 1; i >= 0; i--) {
+                            if(b.steps[i].isFailed) {
+                                lastFailedStep = b.steps[i];
+                                break;
+                            }
+                        }
+                        if(lastFailedStep) {
+                            let lastFailedStepNode = this.props.stepNodeIndex[lastFailedStep.id];
+                            let groupKey = lastFailedStepNode.text;
+
+                            let lastFailedFunctionDeclaration = lastFailedStep.fid ? this.props.stepNodeIndex[lastFailedStep.fid] : null;
+                            if(lastFailedFunctionDeclaration) {
+                                groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
+                            }
+
+                            if(!failedBranchMapping.hasOwnProperty(groupKey)) {
+                                failedBranchMapping[groupKey] = [];
+                            }
+
+                            failedBranchMapping[groupKey].push(b);
+                        }
                     });
 
-                if(errors.length > 0) {
                     return (
-                        <div className="tree-errors">
-                            <div className="header failed-item">Hook errors</div>
-                            {errors}
+                        <div className="branch-table">
+                            <BranchList
+                                idName="branch-list-running"
+                                header="Branches currently running"
+                                moreLabel="More currently running branches"
+                                lengthText={branchesRunning.length}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                                focusMe={this.props.focusMe}
+                            >
+                                {branchesRunning}
+                            </BranchList>
+
+                            <GroupedBranchList
+                                idName="branch-list-failed"
+                                header="Failed branches"
+                                moreLabel="More failed branches"
+                                lengthText={branchesFailed.length}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                                focusMe={this.props.focusMe}
+                            >
+                                {failedBranchMapping}
+                            </GroupedBranchList>
+
+                            <BranchList
+                                idName="branch-list-passed"
+                                header="Passed branches"
+                                moreLabel="More passed branches"
+                                lengthText={branchesPassed.length}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                                focusMe={this.props.focusMe}
+                            >
+                                {branchesPassed}
+                            </BranchList>
+
+                            <BranchList
+                                idName="branch-list-skipped"
+                                header="Skipped branches"
+                                moreLabel="More skipped branches"
+                                lengthText={branchesSkipped.length}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                                focusMe={this.props.focusMe}
+                            >
+                                {branchesSkipped}
+                            </BranchList>
+
+                            <BranchList
+                                idName="branch-list-notrunyet"
+                                header="Branches not run yet"
+                                moreLabel="More branches not run yet"
+                                lengthText={branchesNotRunYet.length}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                                focusMe={this.props.focusMe}
+                            >
+                                {branchesNotRunYet}
+                            </BranchList>
                         </div>
                     );
                 }
-                else {
-                    return "";
+            }
+
+            class BranchList extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    if(this.props.children.length == 0) {
+                        return "";
+                    }
+                    else {
+                        let limit = this.props.getLimit(this.props.idName);
+                        let children = this.props.children.filter((child, index) => index < limit);
+                        let numNotShown = this.props.children.length - limit;
+
+                        return (
+                            <div className="branch-list" id={this.props.idName}>
+                                <div className="header">{this.props.header} ({this.props.lengthText})</div>
+                                {
+                                    children.map(branch => (
+                                        <Branch
+                                            key={branch.hash}
+                                            branch={branch}
+                                            stepNodeIndex={this.props.stepNodeIndex}
+                                            setPreview={this.props.setPreview}
+                                            previewedItem={this.props.previewedItem}
+                                            getModifier={this.props.getModifier}
+                                        />
+                                    ))
+                                }
+                                {
+                                    numNotShown > 0 ?
+                                    <ShowMore
+                                        moreLabel={`${this.props.moreLabel} (${numNotShown})`}
+                                        limitKey={this.props.idName}
+                                        setLimit={this.props.setLimit}
+                                        nextLimit={limit + MORE_BRANCHES}
+                                    /> :
+                                    ''
+                                }
+                            </div>
+                        );
+                    }
                 }
             }
 
-            function BranchListing(props) {
-                let branchesRunning = props.branches.filter(branch => branch.isRunning);
-                let branchesFailed = props.branches.filter(branch => branch.isFailed);
-                let branchesPassed = props.branches.filter(branch => branch.isPassed);
-                let branchesSkipped = props.branches.filter(branch => branch.isSkipped);
-                let branchesNotRunYet = props.branches.filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped);
+            class GroupedBranchList extends React.Component {
+                constructor() {
+                    super();
+                }
 
-                // Failed branches
-                let failedBranchMapping = {}; // contains mapping of a string that uniquely identifies a branch group (group key) to an array of branches in that group
-                branchesFailed.forEach(b => {
-                    let lastFailedStep = null;
-                    for(let i = b.steps.length - 1; i >= 0; i--) {
-                        if(b.steps[i].isFailed) {
-                            lastFailedStep = b.steps[i];
-                            break;
-                        }
+                render() {
+                    let keys = Object.keys(this.props.children);
+
+                    if(keys.length == 0) {
+                        return "";
                     }
-                    if(lastFailedStep) {
-                        let lastFailedStepNode = props.stepNodeIndex[lastFailedStep.id];
-                        let groupKey = lastFailedStepNode.text;
+                    else {
+                        let limit = this.props.getLimit(this.props.idName);
+                        let children = keys.filter((groupKey, index) => index < limit);
+                        let numNotShown = keys.length - limit;
 
-                        let lastFailedFunctionDeclaration = lastFailedStep.fid ? props.stepNodeIndex[lastFailedStep.fid] : null;
-                        if(lastFailedFunctionDeclaration) {
-                            groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
-                        }
-
-                        if(!failedBranchMapping.hasOwnProperty(groupKey)) {
-                            failedBranchMapping[groupKey] = [];
-                        }
-
-                        failedBranchMapping[groupKey].push(b);
+                        return (
+                            <div className="branch-list" id={this.props.idName}>
+                                <div className="header">{this.props.header} ({this.props.lengthText})</div>
+                                {
+                                    children.map(groupKey => (
+                                        <BranchGroup
+                                            groupKey={groupKey}
+                                            key={groupKey}
+                                            stepNodeIndex={this.props.stepNodeIndex}
+                                            setPreview={this.props.setPreview}
+                                            previewedItem={this.props.previewedItem}
+                                            getModifier={this.props.getModifier}
+                                            getLimit={this.props.getLimit}
+                                            setLimit={this.props.setLimit}
+                                        >
+                                            {this.props.children[groupKey]}
+                                        </BranchGroup>
+                                    ))
+                                }
+                                {
+                                    numNotShown > 0 ?
+                                    <ShowMore
+                                        moreLabel={`${this.props.moreLabel} (${numNotShown})`}
+                                        limitKey={this.props.idName}
+                                        setLimit={this.props.setLimit}
+                                        nextLimit={limit + MORE_BRANCHES}
+                                    /> :
+                                    ''
+                                }
+                            </div>
+                        );
                     }
-                });
-
-                return (
-                    <div className="branch-listing">
-                        <BranchList
-                            idName="branch-list-running"
-                            header="Branches currently running"
-                            moreLabel="More currently running branches"
-                            lengthText={branchesRunning.length}
-                            stepNodeIndex={props.stepNodeIndex}
-                            setPreview={props.setPreview}
-                            previewedItem={props.previewedItem}
-                            getModifier={props.getModifier}
-                            getLimit={props.getLimit}
-                            setLimit={props.setLimit}
-                        >
-                            {branchesRunning}
-                        </BranchList>
-
-                        <GroupedBranchList
-                            idName="branch-list-failed"
-                            header="Failed branches"
-                            moreLabel="More failed branches"
-                            lengthText={branchesFailed.length}
-                            stepNodeIndex={props.stepNodeIndex}
-                            setPreview={props.setPreview}
-                            previewedItem={props.previewedItem}
-                            getModifier={props.getModifier}
-                            getLimit={props.getLimit}
-                            setLimit={props.setLimit}
-                        >
-                            {failedBranchMapping}
-                        </GroupedBranchList>
-
-                        <BranchList
-                            idName="branch-list-passed"
-                            header="Passed branches"
-                            moreLabel="More passed branches"
-                            lengthText={branchesPassed.length}
-                            stepNodeIndex={props.stepNodeIndex}
-                            setPreview={props.setPreview}
-                            previewedItem={props.previewedItem}
-                            getModifier={props.getModifier}
-                            getLimit={props.getLimit}
-                            setLimit={props.setLimit}
-                        >
-                            {branchesPassed}
-                        </BranchList>
-
-                        <BranchList
-                            idName="branch-list-skipped"
-                            header="Skipped branches"
-                            moreLabel="More skipped branches"
-                            lengthText={branchesSkipped.length}
-                            stepNodeIndex={props.stepNodeIndex}
-                            setPreview={props.setPreview}
-                            previewedItem={props.previewedItem}
-                            getModifier={props.getModifier}
-                            getLimit={props.getLimit}
-                            setLimit={props.setLimit}
-                        >
-                            {branchesSkipped}
-                        </BranchList>
-
-                        <BranchList
-                            idName="branch-list-notrunyet"
-                            header="Branches not run yet"
-                            moreLabel="More branches not run yet"
-                            lengthText={branchesNotRunYet.length}
-                            stepNodeIndex={props.stepNodeIndex}
-                            setPreview={props.setPreview}
-                            previewedItem={props.previewedItem}
-                            getModifier={props.getModifier}
-                            getLimit={props.getLimit}
-                            setLimit={props.setLimit}
-                        >
-                            {branchesNotRunYet}
-                        </BranchList>
-                    </div>
-                );
+                }
             }
 
-            const BRANCHES_LIMIT = 20;               // default number of branches to show in a branch list
-            const MORE_BRANCHES = 10;                // number of additional branches to show when more button clicked
-            const BRANCHES_IN_BRANCH_GRP_LIMIT = 1;  // default number of branches to show in a grouped branch list
-            const MORE_BRANCHES_IN_BRANCH_GRP = 3;   // number of additional branches to show when more button clicked in a grouped branch list
-
-            function BranchList(props) {
-                if(props.children.length == 0) {
-                    return "";
+            class BranchGroup extends React.Component {
+                constructor() {
+                    super();
                 }
-                else {
-                    let limit = props.getLimit(props.idName, BRANCHES_LIMIT);
-                    let children = props.children.filter((child, index) => index < limit);
-                    let numNotShown = props.children.length - limit;
+
+                render() {
+                    let tooltip = `Branches that failed on<br><i>${this.props.groupKey}</i>`;
+
+                    let limit = this.props.getLimit(this.props.groupKey, true);
+                    let children = this.props.children.filter((child, index) => index < limit);
+                    let numNotShown = this.props.children.length - limit;
 
                     return (
-                        <div className="branch-list" id={props.idName}>
-                            <div className="header">{props.header} ({props.lengthText})</div>
-                            {
-                                children.map(branch => (
-                                    <Branch
-                                        key={branch.hash}
-                                        branch={branch}
-                                        stepNodeIndex={props.stepNodeIndex}
-                                        setPreview={props.setPreview}
-                                        previewedItem={props.previewedItem}
-                                        getModifier={props.getModifier}
-                                    />
-                                ))
-                            }
+                        <div className="branch-group">
+                            <div className="branch-group-indicator" data-tooltip={tooltip}>
+                            </div>
+                            <div className="branch-group-contents">
+                                {
+                                    children.map(branch => (
+                                        <Branch
+                                            key={branch.hash}
+                                            branch={branch}
+                                            stepNodeIndex={this.props.stepNodeIndex}
+                                            setPreview={this.props.setPreview}
+                                            previewedItem={this.props.previewedItem}
+                                            getModifier={this.props.getModifier}
+                                        />
+                                    ))
+                                }
+                            </div>
                             {
                                 numNotShown > 0 ?
                                 <ShowMore
-                                    moreLabel={`${props.moreLabel} (${numNotShown})`}
-                                    limitKey={props.idName}
-                                    setLimit={props.setLimit}
-                                    nextLimit={limit + MORE_BRANCHES}
+                                    moreLabel={`Similar failures (${numNotShown})`}
+                                    limitKey={this.props.groupKey}
+                                    setLimit={this.props.setLimit}
+                                    nextLimit={limit + MORE_BRANCHES_IN_BRANCH_GRP}
                                 /> :
                                 ''
                             }
                         </div>
                     );
                 }
-            }
-
-            function GroupedBranchList(props) {
-                if(props.children.length == 0) {
-                    return "";
-                }
-                else {
-                    let limit = props.getLimit(props.idName, BRANCHES_LIMIT);
-                    let keys = Object.keys(props.children);
-                    let children = keys.filter((groupKey, index) => index < limit);
-                    let numNotShown = keys.length - limit;
-
-                    return (
-                        <div className="branch-list" id={props.idName}>
-                            <div className="header">{props.header} ({props.lengthText})</div>
-                            {
-                                children.map(groupKey => (
-                                    <BranchGroup
-                                        groupKey={groupKey}
-                                        key={groupKey}
-                                        stepNodeIndex={props.stepNodeIndex}
-                                        setPreview={props.setPreview}
-                                        previewedItem={props.previewedItem}
-                                        getModifier={props.getModifier}
-                                        getLimit={props.getLimit}
-                                        setLimit={props.setLimit}
-                                    >
-                                        {props.children[groupKey]}
-                                    </BranchGroup>
-                                ))
-                            }
-                            {
-                                numNotShown > 0 ?
-                                <ShowMore
-                                    moreLabel={`${props.moreLabel} (${numNotShown})`}
-                                    limitKey={props.idName}
-                                    setLimit={props.setLimit}
-                                    nextLimit={limit + MORE_BRANCHES}
-                                /> :
-                                ''
-                            }
-                        </div>
-                    );
-                }
-            }
-
-            function BranchGroup(props) {
-                let tooltip = `Branches that failed on<br><i>${props.groupKey}</i>`;
-
-                let limit = props.getLimit(props.groupKey, BRANCHES_IN_BRANCH_GRP_LIMIT);
-                let children = props.children.filter((child, index) => index < limit);
-                let numNotShown = props.children.length - limit;
-
-                return (
-                    <div className="branch-group">
-                        <div className="branch-group-indicator" data-tooltip={tooltip}>
-                        </div>
-                        <div className="branch-group-contents">
-                            {
-                                children.map(branch => (
-                                    <Branch
-                                        key={branch.hash}
-                                        branch={branch}
-                                        stepNodeIndex={props.stepNodeIndex}
-                                        setPreview={props.setPreview}
-                                        previewedItem={props.previewedItem}
-                                        getModifier={props.getModifier}
-                                    />
-                                ))
-                            }
-                        </div>
-                        {
-                            numNotShown > 0 ?
-                            <ShowMore
-                                moreLabel={`Similar failures (${numNotShown})`}
-                                limitKey={props.groupKey}
-                                setLimit={props.setLimit}
-                                nextLimit={limit + MORE_BRANCHES_IN_BRANCH_GRP}
-                            /> :
-                            ''
-                        }
-                    </div>
-                );
             }
 
             class ShowMore extends React.Component {
@@ -1644,7 +1702,7 @@ c     = copy text of branch
 
                 render() {
                     return (
-                        <span className="show-more" onClick={this.handleClick}>
+                        <span className="show-more" onMouseDown={this.handleClick}>
                             <div className="label">
                                 {this.props.moreLabel}
                             </div>
@@ -2004,11 +2062,17 @@ c     = copy text of branch
                 }
             }
 
-            function NoPreview(props) {
-                return (
-                    <div className="pane preview-pane hidden">
-                    </div>
-                );
+            class NoPreview extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    return (
+                        <div className="pane preview-pane hidden">
+                        </div>
+                    );
+                }
             }
 
             class Preview extends React.Component {
@@ -2127,19 +2191,25 @@ c     = copy text of branch
                 }
             }
 
-            function PreviewError(props) {
-                if(props.previewedObj.error) {
-                    return (
-                        <div className="preview-section preview-error">
-                            <div className="header">Error</div>
-                            <div className="stacktrace">
-                                {formatStackTrace(props.previewedObj.error)}
-                            </div>
-                        </div>
-                    );
+            class PreviewError extends React.Component {
+                constructor() {
+                    super();
                 }
-                else {
-                    return "";
+
+                render() {
+                    if(this.props.previewedObj.error) {
+                        return (
+                            <div className="preview-section preview-error">
+                                <div className="header">Error</div>
+                                <div className="stacktrace">
+                                    {formatStackTrace(this.props.previewedObj.error)}
+                                </div>
+                            </div>
+                        );
+                    }
+                    else {
+                        return "";
+                    }
                 }
             }
 
@@ -2199,26 +2269,32 @@ c     = copy text of branch
                 }
             }
 
-            function PreviewLogs(props) {
-                let logs = props.previewedObj.log;
-                if(logs) {
-                    logs = logs.map((logItem, index) => <div className="log-line" key={index}>{logItem.text}</div>);
+            class PreviewLogs extends React.Component {
+                constructor() {
+                    super();
                 }
 
-                return (
-                    <div className="preview-section preview-logs">
-                        <div className="header">Logs</div>
-                        {
-                            logs ?
-                            <div className="logs">
-                                {logs}
-                            </div> :
-                            <div className="none-indicator">
-                                None
-                            </div>
-                        }
-                    </div>
-                );
+                render() {
+                    let logs = this.props.previewedObj.log;
+                    if(logs) {
+                        logs = logs.map((logItem, index) => <div className="log-line" key={index}>{logItem.text}</div>);
+                    }
+
+                    return (
+                        <div className="preview-section preview-logs">
+                            <div className="header">Logs</div>
+                            {
+                                logs ?
+                                <div className="logs">
+                                    {logs}
+                                </div> :
+                                <div className="none-indicator">
+                                    None
+                                </div>
+                            }
+                        </div>
+                    );
+                }
             }
 
             ReactDOM.render(
