@@ -1331,16 +1331,12 @@ c     = copy text of branch
             class ProgressBar extends React.Component {
                 constructor() {
                     super();
-                    this.state = {
-                        showPercentage: true
-                    };
+                    this.showPercentage = false;
                 }
 
                 componentDidUpdate() {
                     if(this.filledBarText.scrollWidth > this.filledBar.offsetWidth) { // text doesn't have room
-                        this.setState({
-                            showPercentage: false
-                        });
+                        this.showPercentage = true;
                     }
                 }
 
@@ -1351,7 +1347,7 @@ c     = copy text of branch
                         <div className="progress-bar tree-header-item">
                             <div className={filledBarClass} style={ {width: percentageText} } ref={(elem) => {this.filledBar = elem} }>
                                 <div className="filled-bar-text" ref={(elem) => {this.filledBarText = elem}}>
-                                    {this.state.showPercentage ? percentageText : ""}
+                                    {this.showPercentage ? percentageText : ""}
                                 </div>
                             </div>
                         </div>
@@ -1413,21 +1409,23 @@ c     = copy text of branch
                                 break;
                             }
                         }
-                        if(lastFailedStep) {
-                            let lastFailedStepNode = this.props.stepNodeIndex[lastFailedStep.id];
-                            let groupKey = lastFailedStepNode.text;
-
-                            let lastFailedFunctionDeclaration = lastFailedStep.fid ? this.props.stepNodeIndex[lastFailedStep.fid] : null;
-                            if(lastFailedFunctionDeclaration) {
-                                groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
-                            }
-
-                            if(!failedBranchMapping.hasOwnProperty(groupKey)) {
-                                failedBranchMapping[groupKey] = [];
-                            }
-
-                            failedBranchMapping[groupKey].push(b);
+                        if(!lastFailedStep) {
+                            lastFailedStep = b.steps[0];
                         }
+
+                        let lastFailedStepNode = this.props.stepNodeIndex[lastFailedStep.id];
+                        let groupKey = lastFailedStepNode.text;
+
+                        let lastFailedFunctionDeclaration = lastFailedStep.fid ? this.props.stepNodeIndex[lastFailedStep.fid] : null;
+                        if(lastFailedFunctionDeclaration) {
+                            groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
+                        }
+
+                        if(!failedBranchMapping.hasOwnProperty(groupKey)) {
+                            failedBranchMapping[groupKey] = [];
+                        }
+
+                        failedBranchMapping[groupKey].push(b);
                     });
 
                     return (

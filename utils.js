@@ -2,7 +2,7 @@ const util = require('util');
 const Constants = require('./constants.js');
 
 /**
- * @return {String} str but without leading whitespace and quotes ' or ", returns str if there are no quotes
+ * @return {String} str but without leading whitespace and quotes ('', "", []), returns str if there are no quotes
  */
 exports.stripQuotes = (str) => {
     if(exports.hasQuotes(str)) {
@@ -21,10 +21,10 @@ exports.stripBrackets = (str) => {
 }
 
 /**
- * @return {Boolean} true if str is in 'quotes' or "quotes", false otherwise
+ * @return {Boolean} true if str is in 'quotes', "quotes", or [quotes], false otherwise
  */
 exports.hasQuotes = (str) => {
-    return str.trim().match(Constants.STRING_LITERAL_WHOLE) != null;
+    return str.trim().match(/^'.*'$|^".*"$|^\[.*\]$/) != null;
 }
 
 /**
