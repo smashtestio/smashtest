@@ -771,7 +771,6 @@ c     = copy text of branch
                     this.onReportData = this.onReportData.bind(this);
                     this.openConnection = this.openConnection.bind(this);
                     this.copyBranches = this.copyBranches.bind(this);
-                    this.initCollapsing = this.initCollapsing.bind(this);
                     this.stepNode = this.stepNode.bind(this);
                     this.getModifier = this.getModifier.bind(this);
                     this.setPreview = this.setPreview.bind(this);
@@ -813,7 +812,6 @@ c     = copy text of branch
                  */
                 async onReportData(data) {
                     this.state.tree = data.tree;
-                    this.initCollapsing(data.tree.branches);
                     this.setState(data);
 
                     this.openConnection(data.reportDomain);
@@ -893,8 +891,6 @@ c     = copy text of branch
                  * Copies branches from sourceBranches to destination branches, overwriting existing ones if their hashes match
                  */
                 copyBranches(destinationBranches, sourceBranches) {
-                    this.initCollapsing(sourceBranches);
-
                     sourceBranches.forEach(sourceBranch => {
                         let found = false;
                         for(let i = 0; i < destinationBranches.length; i++) {
@@ -907,33 +903,6 @@ c     = copy text of branch
                         if(!found) {
                             destinationBranches.push(sourceBranch);
                         }
-                    });
-                }
-
-                /**
-                 * Initializes collapse property for each step in the given branches
-                 * Uncollapses steps if they have a step underneath that is running or is failed
-                 */
-                initCollapsing(branches) {
-                    branches.forEach(branch => {
-                        branch.steps.forEach((step, index) => {
-                            if(this.getModifier(step, 'isCollapsed')) {
-                                step.collapse = true;
-
-                                // If a step under this step is currently running or is failed, set this step's collapse = false
-                                for(let i = index + 1; i < branch.steps.length; i++) {
-                                    let s = branch.steps[i];
-                                    if((s.level || 0) <= (step.level || 0)) {
-                                        break;
-                                    }
-
-                                    if(s.isRunning || s.isFailed) {
-                                        step.collapse = false;
-                                        break;
-                                    }
-                                }
-                            }
-                        });
                     });
                 }
 
@@ -1745,12 +1714,41 @@ c     = copy text of branch
                 }
 
                 /**
-                 * Recalculates the collapseHide and hasChildren properties of each step
+                 * Sets the collapseInit property of the branch.
+                 * Sets the collapse, collapseHide, and hasChildren properties of each step.
+                 *
+                 * collapseInit = true if collapse properties have been initialized on the steps inside this branch
+                 * collapse = true if this step is currently collapsed, false if uncollapsed, undefined if there's no collapse icon
+                 * collapseHide = true if this step should be hidden because of a collapsed parent
+                 * hasChildren = true if this step has children (that would be hidden if this step were to be collapsed)
                  */
                 updateCollapsing() {
                     let branch = this.props.branch;
 
-                    // Reset collapse vars
+                    // Set collapseInit and collapse properties
+                    if(!branch.collapseInit) {
+                        branch.collapseInit = true;
+                        branch.steps.forEach((step, index) => {
+                            if(this.props.getModifier(step, 'isCollapsed')) {
+                                step.collapse = true;
+
+                                // If a step under this step is currently running or is failed, set this step's collapse = false
+                                for(let i = index + 1; i < branch.steps.length; i++) {
+                                    let s = branch.steps[i];
+                                    if((s.level || 0) <= (step.level || 0)) {
+                                        break;
+                                    }
+
+                                    if(s.isRunning || s.isFailed) {
+                                        step.collapse = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    // Reset collapseHide and hasChildren properties
                     branch.steps.forEach(step => {
                         delete step.collapseHide;
                         delete step.hasChildren;
