@@ -128,8 +128,6 @@ class RunInstance {
             console.log(`Start:     ${chalk.gray(stepNode.text.trim())}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
         }
 
-        step.timeStarted = new Date();
-
         if(this.tree.isDebug) {
             this.stepsRan.steps.push(step);
         }
@@ -160,6 +158,8 @@ class RunInstance {
         }
 
         if(isPassed !== false) { // A Before Every Step hook didn't fail this step and we didn't stop
+            step.timeStarted = new Date();
+
             // Find the previous step
             let prevStep = null;
             let index = branch.steps.indexOf(step);
@@ -307,6 +307,9 @@ class RunInstance {
                 }
             }
 
+            step.timeEnded = new Date();
+            step.elapsed = step.timeEnded - step.timeStarted;
+
             branch.markStep(isPassed ? 'pass' : 'fail', step, error, finishBranchNow, this.tree.stepDataMode);
         }
 
@@ -325,9 +328,6 @@ class RunInstance {
         if(this.runner.pauseOnFail && step.isFailed) {
             this.setPause(true);
         }
-
-        step.timeEnded = new Date();
-        step.elapsed = step.timeEnded - step.timeStarted;
 
         if(this.runner.consoleOutput) {
             let seconds = step.elapsed/1000;

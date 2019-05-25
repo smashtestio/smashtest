@@ -4983,7 +4983,7 @@ First step {
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[0].elapsed).to.equal(undefined);
+                expect(tree.branches[0].steps[0].elapsed).to.be.at.least(0);
 
                 expect(runInstance.beforeEveryStep1Ran).to.equal(true);
                 expect(runInstance.beforeEveryStep2Ran).to.equal(true);

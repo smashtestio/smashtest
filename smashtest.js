@@ -54,10 +54,6 @@ async function exit(forcedStop, exitCode) {
     if(runner) {
         try {
             await runner.stop();
-
-            // sleep for 1 sec to give reports a chance to get the final state of the tree before the server goes down
-            await new Promise(r => setTimeout(() => r(), 1000));
-
             process.exit(exitCode);
         }
         catch(e) {
@@ -136,19 +132,16 @@ Options
                                     true if true/false omitted
   --help or -?                    Open this help prompt
   --max-parallel=<N>              Do not run more than N branches simultaneously
-  --max-report-size=<N>           Stop running if report reaches this size, in MB. Default is 1024 MB.
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
   --no-debug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
   --p:<name>="<value>"            Set the persistent variable with the given name to the given value
   --random=<true/false>           Whether or not to randomize the order of branches. Default is true.
   --repl or -r                    Open the REPL (drive SmashTEST from command line)
-  --report=<true/false>           Whether or not to output a report. Default is true.
   --report-domain=<url>           Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
   --screenshots=<true/false>      Whether or not to take screenshots. Default is true.
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
-  --skip-passed or -s             Do not run branches that passed last time. Just carry them over
-                                    into new report.
+  --skip-passed or -s             Do not run branches that passed last time. Just carry them over into new report.
   --step-data=<all/fail/none>     Keep step data for all steps, failed step, or no steps. Default is fail.
   --version or -v                 Output the version of SmashTEST
 `);
@@ -156,10 +149,6 @@ Options
 
             case "max-parallel":
                 runner.maxParallel = value;
-                break;
-
-            case "max-report-size":
-                reporter.maxSize = value * 1048576;
                 break;
 
             case "min-frequency":
@@ -184,10 +173,6 @@ Options
             case "repl":
             case "r":
                 isRepl = true;
-                break;
-
-            case "report":
-                isReport = (value == 'true');
                 break;
 
             case "report-domain":
@@ -378,7 +363,7 @@ function plural(count) {
 
         // --skip-passed
         if(runner.skipPassed) {
-            await reporter.mergeInLastReport(runner.skipPassed === true ? undefined : runner.skipPassed);
+            await reporter.markPassedFromPrevRun(runner.skipPassed === true ? undefined : runner.skipPassed);
         }
 
         let elapsed = 0;

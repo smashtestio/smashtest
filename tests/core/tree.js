@@ -5,6 +5,7 @@ const utils = require('../../utils.js');
 const Tree = require('../../tree.js');
 const Branch = require('../../branch.js');
 const Step = require('../../step.js');
+const StepNode = require('../../stepnode.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 function mergeStepNodesInTree(tree) {
@@ -10709,6 +10710,43 @@ K-1 -
             });
         });
 
+        it("doesn't serialize more branches per type than the given max", () => {
+            let tree = new Tree();
+            tree.parseIn(
+`A -
+    B -
+
+C -
+    D -
+
+E -
+    F -
+
+G -
+    H -
+`);
+
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.branches[0].isPassed = true;
+            tree.branches[1].isPassed = true;
+            tree.branches[2].isFailed = true;
+            tree.branches[3].isFailed = true;
+            let obj = tree.serialize(1);
+
+            mergeStepNodesInTree(obj);
+            Comparer.expect(obj).to.match({
+                branches: [
+                    {
+                        steps: [ { text: "E" }, { text: "F" } ]
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "B" } ],
+                        isPassed: true
+                    }
+                ]
+            });
+        });
+
         it("doesn't output used step nodes", () => {
             let tree = new Tree();
             tree.parseIn(
@@ -10813,16 +10851,20 @@ A -
             this.timeout(6000000);
 
             let tree = new Tree();
-            for(let i = 0; i < 1500000; i++) {
+
+            const id = 1234567890;
+            tree.stepNodeIndex = { [id]: new StepNode(id) };
+
+            for(let i = 0; i < 3000000; i++) {
                 let branch = new Branch;
                 branch.isRunning = true;
-                branch.steps = [ new Step(1234567890) ];
+                branch.steps = [ new Step(id) ];
 
                 tree.branches.push(branch);
             }
 
             var start = new Date().getTime();
-            let serializedTree = tree.serialize();
+            let serializedTree = tree.serialize(); // NOTE: also try putting a max value into serialize(), e.g., 500
             var end = new Date().getTime();
 
             console.log("serialize() took " + (end - start) + " ms");
@@ -11108,10 +11150,14 @@ G -
             this.timeout(6000000);
 
             let tree = new Tree();
+
+            const id = 1234567890;
+            tree.stepNodeIndex = { [id]: new StepNode(id) };
+
             for(let i = 0; i < 3000000; i++) {
                 let branch = new Branch;
                 branch.isRunning = true;
-                branch.steps = [ new Step(1234567890) ];
+                branch.steps = [ new Step(id) ];
 
                 tree.branches.push(branch);
             }
@@ -11129,6 +11175,67 @@ G -
         });
     });
 
+    describe("serializePassed()", () => {
+        it("serializes no passed branches", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+C -
+    D -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+
+            let str = tree.serializePassed();
+            expect(str).to.equal("");
+        });
+
+        it("serializes passed branches", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    B -
+
+C -
+    D -
+
+E -
+    F -
+            `);
+            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.branches[0].isPassed = true;
+            tree.branches[2].isPassed = true;
+
+            let str = tree.serializePassed();
+            expect(str).to.equal("dd8c6a395b5dd36c56d23275028f526c\ne98a4e7d9412619ad47978530320e0f7\n");
+        });
+
+        it.skip("has good performance", function() {
+            this.timeout(6000000);
+
+            let tree = new Tree();
+
+            const id = 1234567890;
+            tree.stepNodeIndex = { [id]: new StepNode(id) };
+
+            for(let i = 0; i < 3000000; i++) {
+                let branch = new Branch;
+                branch.isRunning = true;
+                branch.steps = [ new Step(id) ];
+
+                tree.branches.push(branch);
+            }
+
+            var start = new Date().getTime();
+            let str = tree.serializePassed();
+            var end = new Date().getTime();
+
+            console.log("serializePassed() took " + (end - start) + " ms");
+            console.log("Size of output:        " + str.length/(1024 * 1024) + " MB");
+        });
+    });
+
     describe("markPassedFromPrevRun()", () => {
         it("merges empty previous branches into empty current branches", () => {
             let prevTree = new Tree();
@@ -11136,9 +11243,9 @@ G -
 
             currTree.generateBranches();
             prevTree.generateBranches();
-            prevTree = prevTree.serialize();
+            let previous = prevTree.serializePassed();
 
-            currTree.markPassedFromPrevRun(prevTree);
+            currTree.markPassedFromPrevRun(previous);
 
             Comparer.expect(currTree).to.match({ branches: [] });
         });
@@ -11222,8 +11329,8 @@ G -
 
              prevTree.branches.forEach(branch => branch.updateHash(prevTree.stepNodeIndex));
 
-             prevTree = prevTree.serialize();
-             currTree.markPassedFromPrevRun(prevTree);
+             let previous = prevTree.serializePassed();
+             currTree.markPassedFromPrevRun(previous);
 
              mergeStepNodesInTree(currTree);
              Comparer.expect(currTree).to.match({

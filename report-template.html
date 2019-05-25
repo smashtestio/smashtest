@@ -715,8 +715,8 @@ c     = copy text of branch
             /**
              * Called when a new report data file is loaded
              */
-            async function onReportData(data) {
-                app.onReportData(JSON.parse(unescapeBackticks(data)));
+            function onReportData(data) {
+                app.onReportData(data);
             }
 
             /**
@@ -770,7 +770,7 @@ c     = copy text of branch
                     this.reloadReportData = this.reloadReportData.bind(this);
                     this.onReportData = this.onReportData.bind(this);
                     this.openConnection = this.openConnection.bind(this);
-                    this.copyBranches = this.copyBranches.bind(this);
+                    this.copyBranchSnapshots = this.copyBranchSnapshots.bind(this);
                     this.stepNode = this.stepNode.bind(this);
                     this.getModifier = this.getModifier.bind(this);
                     this.setPreview = this.setPreview.bind(this);
@@ -786,6 +786,7 @@ c     = copy text of branch
 
                 componentDidMount() {
                     attachTreePaneTooltips();
+                    this.reloadReportData();
                     this.focusMe(); // focus on myself, so I can start getting keyboard commands
                 }
 
@@ -810,7 +811,9 @@ c     = copy text of branch
                 /**
                  * Called when a new report data file is loaded
                  */
-                async onReportData(data) {
+                onReportData(data) {
+                    data = JSON.parse(unescapeBackticks(data));
+
                     this.state.tree = data.tree;
                     this.setState(data);
 
@@ -822,8 +825,8 @@ c     = copy text of branch
                  * @param {String} reportDomain - domain:port of report server
                  */
                 openConnection(reportDomain) {
-                    if(this.socket) {
-                        return; // socket is already open
+                    if(this.socket || !this.state.reportDomain) { // socket is already open or there's no report domain (due to lack of report server)
+                        return;
                     }
 
                     const WS_RETRY_FREQ = 5000; // 5 secs
@@ -861,10 +864,10 @@ c     = copy text of branch
 
                             // Update branches
                             if(this.state.previewedItem) { // updates currently paused
-                                this.copyBranches(this.branchSnapshots, message.tree.branches);
+                                this.copyBranchSnapshots(this.branchSnapshots, message.tree.branches);
                             }
                             else { // updates not paused
-                                this.copyBranches(this.state.tree.branches, message.tree.branches);
+                                this.copyBranchSnapshots(this.state.tree.branches, message.tree.branches);
                             }
 
                             this.setState({
@@ -888,9 +891,18 @@ c     = copy text of branch
                 }
 
                 /**
-                 * Copies branches from sourceBranches to destination branches, overwriting existing ones if their hashes match
+                 * Copies branch snapshots from sourceBranches to destination branches, overwriting existing ones if their hashes match
                  */
-                copyBranches(destinationBranches, sourceBranches) {
+                copyBranchSnapshots(destinationBranches, sourceBranches) {
+                    // Remove all running branches from destinationBranches (to prevent interference from running branches from the last report data reload)
+                    destinationBranches.forEach(b => {
+                        if(b.isRunning) {
+                            delete b.isRunning;
+                            b.steps.forEach(s => delete s.isRunning);
+                        }
+                    });
+
+                    // Replace each destination branch with the corresponding source branch (or just copy in the source branch if it's new)
                     sourceBranches.forEach(sourceBranch => {
                         let found = false;
                         for(let i = 0; i < destinationBranches.length; i++) {
@@ -952,7 +964,7 @@ c     = copy text of branch
 
                     if(noPreview) { // we're resuming updates
                         // Dump into this.state.tree.branches the branch snapshots that have been piling up during the pause
-                        this.copyBranches(this.state.tree.branches, this.branchSnapshots);
+                        this.copyBranchSnapshots(this.state.tree.branches, this.branchSnapshots);
                         this.branchSnapshots = [];
 
                         if(this.newDataAvailable) {
@@ -1225,6 +1237,7 @@ c     = copy text of branch
                             <BranchTable
                                 branches={this.props.data.tree.branches}
                                 stepNodeIndex={this.props.data.tree.stepNodeIndex}
+                                counts={this.props.data.tree.counts}
                                 setPreview={this.props.setPreview}
                                 previewedItem={this.props.data.previewedItem}
                                 getModifier={this.props.getModifier}
@@ -1317,7 +1330,7 @@ c     = copy text of branch
                                     }
                                     {
                                         totalNotRunYet > 0 ?
-                                        <span><span className="notrunyet-count count notrunyet-item" onClick={() => this.scrollToBranchList("branch-list-notyetrun")}> {totalNotRunYet} not run yet</span> | </span> :
+                                        <span><span className="notrunyet-count count notrunyet-item" onClick={() => this.scrollToBranchList("branch-list-notrunyet")}> {totalNotRunYet} not run yet</span> | </span> :
                                         ""
                                     }
                                     <span className="total-count notrunyet-item"> {counts.totalInReport} total branches</span>
@@ -1331,23 +1344,18 @@ c     = copy text of branch
             class ProgressBar extends React.Component {
                 constructor() {
                     super();
-                    this.showPercentage = false;
-                }
-
-                componentDidUpdate() {
-                    if(this.filledBarText.scrollWidth > this.filledBar.offsetWidth) { // text doesn't have room
-                        this.showPercentage = true;
-                    }
                 }
 
                 render() {
-                    let percentageText = (Math.floor(this.props.decimal * 100)) + "%";
+                    let decimal = this.props.decimal >= 0.01 ? this.props.decimal : 0.01;
+
+                    let percentageText = (Math.floor(decimal * 100)) + "%";
                     let filledBarClass = `filled-bar ${this.props.paused ? "paused" : ""}`;
                     return (
                         <div className="progress-bar tree-header-item">
                             <div className={filledBarClass} style={ {width: percentageText} } ref={(elem) => {this.filledBar = elem} }>
                                 <div className="filled-bar-text" ref={(elem) => {this.filledBarText = elem}}>
-                                    {this.showPercentage ? percentageText : ""}
+                                    {this.props.decimal > 0.05 ? percentageText : ""}
                                 </div>
                             </div>
                         </div>
@@ -1432,6 +1440,7 @@ c     = copy text of branch
                         <div className="branch-table">
                             <BranchList
                                 idName="branch-list-running"
+                                key="branch-list-running"
                                 header="Branches currently running"
                                 moreLabel="More currently running branches"
                                 lengthText={branchesRunning.length}
@@ -1447,9 +1456,10 @@ c     = copy text of branch
 
                             <GroupedBranchList
                                 idName="branch-list-failed"
+                                key="branch-list-failed"
                                 header="Failed branches"
                                 moreLabel="More failed branches"
-                                lengthText={branchesFailed.length}
+                                lengthText={this.props.counts.failed}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
                                 previewedItem={this.props.previewedItem}
@@ -1462,9 +1472,10 @@ c     = copy text of branch
 
                             <BranchList
                                 idName="branch-list-passed"
+                                key="branch-list-passed"
                                 header="Passed branches"
                                 moreLabel="More passed branches"
-                                lengthText={branchesPassed.length}
+                                lengthText={this.props.counts.passed}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
                                 previewedItem={this.props.previewedItem}
@@ -1477,9 +1488,10 @@ c     = copy text of branch
 
                             <BranchList
                                 idName="branch-list-skipped"
+                                key="branch-list-skipped"
                                 header="Skipped branches"
                                 moreLabel="More skipped branches"
-                                lengthText={branchesSkipped.length}
+                                lengthText={this.props.counts.skipped}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
                                 previewedItem={this.props.previewedItem}
@@ -1492,9 +1504,10 @@ c     = copy text of branch
 
                             <BranchList
                                 idName="branch-list-notrunyet"
+                                key="branch-list-notrunyet"
                                 header="Branches not run yet"
                                 moreLabel="More branches not run yet"
-                                lengthText={branchesNotRunYet.length}
+                                lengthText={this.props.counts.totalToRun - this.props.counts.complete}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
                                 previewedItem={this.props.previewedItem}

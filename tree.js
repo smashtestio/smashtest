@@ -1222,14 +1222,27 @@ ${outputBranchAbove(this)}
     }
 
     /**
+     * @param {Number} [max] - Maximum number of branches to serialize per type (passed, failed, etc.), no limit if omitted
      * @return {Object} An Object representing this tree, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
-    serialize() {
+    serialize(max) {
+        let branchesRunning = this.branches.filter(branch => branch.isRunning).filter(keepBranch);
+        let branchesFailed = this.branches.filter(branch => branch.isFailed).filter(keepBranch);
+        let branchesPassed = this.branches.filter(branch => branch.isPassed || branch.passedLastTime).filter(keepBranch);
+        let branchesSkipped = this.branches.filter(branch => branch.isSkipped).filter(keepBranch);
+        let branchesNotRunYet = this.branches.filter(branch => !branch.isCompleteOrRunning()).filter(keepBranch);
+
+        let branches = branchesRunning
+            .concat(branchesFailed)
+            .concat(branchesPassed)
+            .concat(branchesSkipped)
+            .concat(branchesNotRunYet);
+
         return this.attachCounts({
             stepNodeIndex: serializeUsedStepNodes(this.stepNodeIndex),
             isDebug: this.isDebug,
 
-            branches: this.branches.map(branch => branch.serialize()),
+            branches: branches.map(branch => branch.serialize()),
             beforeEverything: this.beforeEverything.map(branch => branch.serialize()),
             afterEverything: this.afterEverything.map(branch => branch.serialize()),
 
@@ -1237,7 +1250,7 @@ ${outputBranchAbove(this)}
         });
 
         /**
-         * Only keeps step nodes that are actually used at least once
+         * @return {Object} stepNodeIndex, but only with step nodes that are actually used at least once
          */
         function serializeUsedStepNodes(stepNodeIndex) {
             let o = {};
@@ -1252,16 +1265,20 @@ ${outputBranchAbove(this)}
 
             return o;
         }
+
+        function keepBranch(branch, index) {
+            return max ? index < max : true;
+        }
     }
 
     /**
-     * @param {Number} [n] - Number of currently-running branches to serialize, no limit if omitted
+     * @param {Number} [max] - Maximum number of currently-running branches to serialize, no limit if omitted
      * @param {Object} [prevSnapshot] - The previous snapshot returned by this function
      * @return {Object} An object representing a snapshot of the current state of certain branches in this tree
      *     {Array} returnedObj.branches - contains n currently-running branches, as well as all the branches from prevSnapshot (used to update the branches a report is currently showing)
      *     returnedObj also contains all the updated counts from this tree
      */
-    serializeSnapshot(n, prevSnapshot) {
+    serializeSnapshot(max, prevSnapshot) {
         let snapshot = {
             branches: []
         };
@@ -1270,7 +1287,7 @@ ${outputBranchAbove(this)}
             let b = this.branches[i];
             if(b.isRunning) {
                 snapshot.branches.push(b.serialize());
-                if(typeof n != 'undefined' && snapshot.branches.length >= n) {
+                if(typeof max != 'undefined' && snapshot.branches.length >= max) {
                     break;
                 }
             }
@@ -1308,31 +1325,31 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Marks branches as passed if they passed in a previous run
-     * @param {Tree} previousTree - A Tree from a completed previous run. Same object that serialize() returns.
+     * @return {String} A string containing the hashes of all passed branches, separated by newlines
      */
-    markPassedFromPrevRun(previousTree) {
-        let prevBranches = previousTree.branches;
-        let currBranches = this.branches;
+    serializePassed() {
+        let str = '';
+        this.branches.forEach(branch => branch.isPassed && (str += branch.hash + '\n'));
+        return str;
+    }
 
-        if(!prevBranches) {
+    /**
+     * Marks branches as passed if they passed in a previous run
+     * @param {String} previous - A list of hashes of passed branches from a completed previous run. Same string that serializePassed() returns.
+     */
+    markPassedFromPrevRun(previous) {
+        let prevHashes = previous.split('\n');
+        if(prevHashes.length == 0) {
             return;
         }
+        prevHashes.splice(prevHashes.length - 1, 1); // remove last item, which is a blank line
 
-        if(prevBranches.length == 0 && currBranches.length == 0) {
-            return;
-        }
-
-        currBranches.forEach(currBranch => {
-            // Find an equal branch in prevBranches
+        this.branches.forEach(branch => {
+            // Find an equal branch in prevHashes
             let found = false;
-            for(let i = 0; i < prevBranches.length; i++) {
-                let prevBranch = prevBranches[i];
-                if(currBranch.hash == prevBranch.hash) {
-                    if(prevBranch.isPassed) { // failed or didn't run
-                        currBranch.passedLastTime = true;
-                    }
-
+            for(let i = 0; i < prevHashes.length; i++) {
+                if(branch.hash == prevHashes[i]) {
+                    branch.passedLastTime = true;
                     found = true;
                     break;
                 }
