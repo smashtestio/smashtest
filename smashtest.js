@@ -54,7 +54,7 @@ async function exit(forcedStop, exitCode) {
     if(runner) {
         try {
             await runner.stop();
-            //await new Promise((res, rej) => setTimeout(res, 1000));
+            await new Promise((res, rej) => setTimeout(res, 1000));
             process.exit(exitCode);
         }
         catch(e) {
