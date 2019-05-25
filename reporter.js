@@ -20,11 +20,6 @@ class Reporter {
 
         this.reportTemplate = "";       // template for html reports
         this.reportTime = null;         // Date when the report was generated
-        this.reportPath = process.cwd() + "/" + REPORT_FILENAME; // absolute path of where to read/write report html file
-        this.reportDataPath = process.cwd() + "/" + REPORT_DATA_FILENAME; // absolute path of where to read/write report data js file
-        this.passedDataPath = process.cwd() + "/" + PASSED_DATA_FILENAME; // absolute path of where to read/write passed data file
-
-        this.reportDataSize = 0;        // size of report data, in bytes
 
         this.isReportServer = true;     // whether or not to run the report server
         this.reportDomain = null;       // domain:port where report server's api is available
@@ -36,6 +31,13 @@ class Reporter {
         this.timerSnapshot = null;      // timer that goes off when it's time to do a snapshot write
 
         this.stopped = false;           // true if this Reporter has been stopped
+    }
+
+    /**
+     * @return {String} The absolute path of the report html file
+     */
+    getFullReportPath() {
+        return process.cwd() + "/" + REPORT_FILENAME;
     }
 
     /**
@@ -128,7 +130,7 @@ class Reporter {
                     }
 
                     // Validate that the client is either the current report html file or a page on the reportDomain origin
-                    if(message.origin != this.reportPath && !message.origin.startsWith(this.reportDomain)) {
+                    if(message.origin != this.getFullReportPath() && !message.origin.startsWith(this.reportDomain)) {
                         throw new Error(ERR_MSG);
                     }
                 }
@@ -161,16 +163,14 @@ class Reporter {
             reportDomain: this.reportDomain
         })) + '`);';
 
-        this.reportDataSize = reportData.length;
-
         // Generate passed data file
         let passedData = this.tree.serializePassed();
 
         // Write report, report data, and passed data to disk
         await Promise.all([
-            new Promise((res, rej) => fs.writeFile(this.reportPath, this.reportTemplate, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(this.reportDataPath, reportData, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(this.passedDataPath, passedData, err => err ? rej(err) : res()))
+            new Promise((res, rej) => fs.writeFile(REPORT_FILENAME, this.reportTemplate, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(REPORT_DATA_FILENAME, reportData, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(PASSED_DATA_FILENAME, passedData, err => err ? rej(err) : res()))
         ]);
 
         // Notify all connected websockets that new data is available on disk
@@ -180,9 +180,15 @@ class Reporter {
             });
         }
 
-        // Have this function get called again in 30 secs
+        // Have this function get called again in a certain period of time
         if(!this.stopped) {
-            this.timerFull = setTimeout(() => this.writeFull(), 30000);
+            // The more branches there are, the longer it takes to serialize, the less often this function should get called
+            if(this.tree.branches.length > 100000) {
+                this.timerFull = setTimeout(() => this.writeFull(), 300000); // every 5 mins
+            }
+            else {
+                this.timerFull = setTimeout(() => this.writeFull(), 30000); // every 30 secs
+            }
         }
     }
 
@@ -191,10 +197,12 @@ class Reporter {
      */
     async writeSnapshot() {
         if(this.wsServer && this.wsServer.clients.size > 0) {
+            const MAX_CURRENTLY_RUNNING_IN_SNAPSHOT = 20;
+
             // Send snapshot to all connected websockets
             let snapshot = JSON.stringify({
                 snapshot: true,
-                tree: this.tree.serializeSnapshot(20, this.prevSnapshot ? this.prevSnapshot.tree : undefined),
+                tree: this.tree.serializeSnapshot(MAX_CURRENTLY_RUNNING_IN_SNAPSHOT, this.prevSnapshot ? this.prevSnapshot.tree : undefined),
                 runner: this.runner.serialize()
             });
 
@@ -205,9 +213,15 @@ class Reporter {
             });
         }
 
-        // Have this function get called again in 500 ms
+        // Have this function get called again in a certain period of time
         if(!this.stopped) {
-            this.timerSnapshot = setTimeout(() => this.writeSnapshot(), 500); // 500 ms
+            // The more branches there are, the longer it takes to serialize, the less often this function should get called
+            if(this.tree.branches.length > 100000) {
+                this.timerSnapshot = setTimeout(() => this.writeSnapshot(), 5000); // every 5 secs
+            }
+            else {
+                this.timerSnapshot = setTimeout(() => this.writeSnapshot(), 500); // every 500 ms
+            }
         }
     }
 
@@ -217,16 +231,15 @@ class Reporter {
      */
     async markPassedFromPrevRun(filename) {
         filename = filename || PASSED_DATA_FILENAME;
-        let passedDataFullPath = process.cwd() + "/" + filename;
-        console.log(`Including passed branches from: ${chalk.gray(passedDataFullPath)}`);
+        console.log(`Including passed branches from: ${chalk.gray(filename)}`);
         console.log("");
 
         let fileBuffers = null;
         try {
-            fileBuffers = await readFiles([ passedDataFullPath ], {encoding: 'utf8'});
+            fileBuffers = await readFiles([ filename ], {encoding: 'utf8'});
         }
         catch(e) {
-            utils.error(`The file '${filename}' could not be found. Make sure the path is relative.`);
+            utils.error(`The file '${filename}' could not be found`);
         }
 
         this.tree.markPassedFromPrevRun(fileBuffers[0]);

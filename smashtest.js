@@ -4,6 +4,7 @@ const utils = require('./utils');
 const chalk = require('chalk');
 const progress = require('cli-progress');
 const repl = require('repl');
+const readline = require('readline');
 
 const Tree = require('./tree.js');
 const Runner = require('./runner.js');
@@ -48,12 +49,12 @@ async function exit(forcedStop, exitCode) {
         console.log("");
     }
 
-    //console.log(hRule);
     restoreCursor();
 
     if(runner) {
         try {
             await runner.stop();
+            //await new Promise((res, rej) => setTimeout(res, 1000));
             process.exit(exitCode);
         }
         catch(e) {
@@ -345,7 +346,10 @@ function plural(count) {
         // ***************************************
 
         // Generate branches
+        process.stdout.write("Generating branches...\x1B[?25l");
         runner.init(tree);
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0);
 
         // No reporter for debug or repl runs
         if(tree.isDebug || isRepl) {
@@ -381,7 +385,7 @@ function plural(count) {
             console.log(yellowChalk("Run complete"));
             console.log(`${tree.counts.complete} branch${plural(tree.counts.complete)} ran` + (isReport ? ` | ${tree.counts.totalInReport} branch${plural(tree.counts.totalInReport)} in report` : ``));
             if(isReport) {
-                console.log(`Report at: ` + chalk.gray.italic(reporter.reportPath));
+                console.log(`Report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
             }
 
             let failingHooks = tree.beforeEverything.concat(tree.afterEverything).filter(s => s.error);
@@ -409,7 +413,7 @@ function plural(count) {
 
             console.log(`${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` + (isReport ? ` | ${tree.counts.totalInReport} branch${plural(tree.counts.totalInReport)} in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
             if(isReport) {
-                console.log(`Live report at: ` + chalk.gray.italic(reporter.reportPath));
+                console.log(`Live report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
             }
 
             console.log(``);
@@ -613,14 +617,14 @@ function plural(count) {
              * Activates the progress bar timer
              */
             function activateProgressBarTimer() {
-                const UPDATE_PROGRESS_BAR_FREQUENCY = 250; // ms
+                const UPDATE_PROGRESS_BAR_FREQUENCY = 500; // ms
                 timer = setTimeout(() => updateProgressBar(), UPDATE_PROGRESS_BAR_FREQUENCY);
             }
 
             /**
              * Called when the progress bar needs to be updated
              */
-            function updateProgressBar(forceComplete) {
+            async function updateProgressBar(forceComplete) {
                 if(runner.isStopped) {
                     return;
                 }

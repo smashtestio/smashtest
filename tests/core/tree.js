@@ -11202,13 +11202,17 @@ C -
 
 E -
     F -
+
+G -
+    H -
             `);
             tree.generateBranches(undefined, undefined, undefined, undefined, true);
             tree.branches[0].isPassed = true;
             tree.branches[2].isPassed = true;
+            tree.branches[3].passedLastTime = true;
 
             let str = tree.serializePassed();
-            expect(str).to.equal("dd8c6a395b5dd36c56d23275028f526c\ne98a4e7d9412619ad47978530320e0f7\n");
+            expect(str).to.equal("dd8c6a395b5dd36c56d23275028f526c\ne98a4e7d9412619ad47978530320e0f7\nc48cfa4fb9be8441e077bb92428441f5\n");
         });
 
         it.skip("has good performance", function() {

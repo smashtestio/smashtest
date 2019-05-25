@@ -34,6 +34,7 @@ class Tree {
         this.timeEnded = {};                 // Date object (time) of when this tree ended execution
 
         this.counts = {
+            running = 0,                    // total number of branches currently running
             passed = 0,                     // total number of passed branches in this tree (excluding the ones that passed last time)
             failed = 0,                     // total number of failed branches in this tree
             skipped = 0,                    // total number of skipped branches in this tree
@@ -1329,7 +1330,7 @@ ${outputBranchAbove(this)}
      */
     serializePassed() {
         let str = '';
-        this.branches.forEach(branch => branch.isPassed && (str += branch.hash + '\n'));
+        this.branches.forEach(branch => (branch.isPassed || branch.passedLastTime) && (str += branch.hash + '\n'));
         return str;
     }
 

@@ -92,6 +92,7 @@ Running tests
     - Config file, smashtest.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
     - If you need more memory, use node --max-old-space-size=8192 (find out what this is for npm apps)
+        - Use this to speed up execution too
 
 Reports
     - Where to find the report
@@ -125,7 +126,7 @@ Reports
         The only real way to name a test is to concatenate the steps together, as tests are detailed and many of them differ by
         just one step. When you name a test, you're really just providing a crude summary of one of the steps towards the end.
         Really, naming is useless and only slows you down.
-    - Due to performance constraints, report is limited to 500 branches of each type (passed, failed, etc.)
+    - Due to performance constraints, report is limited to 500 branches of each type (passed, failed, etc.), and currently running is limited to 20
     - Any custom html file can load up smashtest-data.js and format a report. So you can create a custom report.
 
 Modifiers

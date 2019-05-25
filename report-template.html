@@ -1443,7 +1443,7 @@ c     = copy text of branch
                                 key="branch-list-running"
                                 header="Branches currently running"
                                 moreLabel="More currently running branches"
-                                lengthText={branchesRunning.length}
+                                lengthText={this.props.counts.running}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
                                 previewedItem={this.props.previewedItem}
@@ -1702,6 +1702,7 @@ c     = copy text of branch
                     this.hoverStateOff = this.hoverStateOff.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
                     this.updateCollapsing = this.updateCollapsing.bind(this);
+                    this.getRunState = this.getRunState.bind(this);
                 }
 
                 componentDidMount() {
@@ -1789,27 +1790,31 @@ c     = copy text of branch
                     });
                 }
 
+                /**
+                 * @return {String} The state of the given step or branch
+                 */
+                getRunState(o) {
+                    if(o.isRunning) {
+                        return "running";
+                    }
+                    else if(o.isFailed) {
+                        return "failed";
+                    }
+                    else if(o.isPassed) {
+                        return "passed";
+                    }
+                    else if(o.isSkipped) {
+                        return "skipped";
+                    }
+                    else {
+                        return "notrunyet";
+                    }
+                }
+
                 render() {
                     let branch = this.props.branch;
                     let previewedItem = this.props.previewedItem;
-
-                    let indicatorClassName = "branch-indicator ";
-
-                    if(branch.isRunning) {
-                        indicatorClassName += "running";
-                    }
-                    else if(branch.isFailed) {
-                        indicatorClassName += "failed";
-                    }
-                    else if(branch.isPassed) {
-                        indicatorClassName += "passed";
-                    }
-                    else if(branch.isSkipped) {
-                        indicatorClassName += "skipped";
-                    }
-                    else {
-                        indicatorClassName += "notrunyet";
-                    }
+                    let indicatorClassName = "branch-indicator " + this.getRunState(branch);
 
                     let error = "";
                     if(branch.error) {
@@ -1836,7 +1841,7 @@ c     = copy text of branch
                                 stepNode={this.props.stepNodeIndex[step.id]}
                                 branch={branch}
                                 index={index+1}
-                                key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step)}
+                                key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step) + ' ' + this.getRunState(step)}
                                 lastIndex={branch.steps.length - 1}
                                 setPreview={this.props.setPreview}
                                 previewedItem={previewedItem}
