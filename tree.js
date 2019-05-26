@@ -1223,8 +1223,10 @@ ${outputBranchAbove(this)}
     }
 
     /**
+     * Generates an object that represents this tree, but able to be converted to JSON and only containing the most necessary stuff for a report
+     * Updates counts
      * @param {Number} [max] - Maximum number of branches to serialize per type (passed, failed, etc.), no limit if omitted
-     * @return {Object} An Object representing this tree, but able to be converted to JSON and only containing the most necessary stuff for a report
+     * @return {Object} An Object representing this tree
      */
     serialize(max) {
         let branchesRunning = this.branches.filter(branch => branch.isRunning).filter(keepBranch);
@@ -1273,9 +1275,11 @@ ${outputBranchAbove(this)}
     }
 
     /**
+     * Generates an object representing a snapshot of currently-running branches in this tree
+     * Updates counts
      * @param {Number} [max] - Maximum number of currently-running branches to serialize, no limit if omitted
      * @param {Object} [prevSnapshot] - The previous snapshot returned by this function
-     * @return {Object} An object representing a snapshot of the current state of certain branches in this tree
+     * @return {Object} An object representing a snapshot of currently-running branches in this tree
      *     {Array} returnedObj.branches - contains n currently-running branches, as well as all the branches from prevSnapshot (used to update the branches a report is currently showing)
      *     returnedObj also contains all the updated counts from this tree
      */

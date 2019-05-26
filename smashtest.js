@@ -354,7 +354,7 @@ function plural(count) {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
 
-        setSigint();
+        setSigint(); // attach SIGINT (Ctrl + C) handler after runner.init(), so user can Ctrl + C out of a long branchify operation via the default SIGINT handler
 
         // No reporter for debug or repl runs
         if(tree.isDebug || isRepl) {
@@ -634,7 +634,6 @@ function plural(count) {
                     return;
                 }
 
-                tree.updateCounts();
                 updateElapsed();
 
                 progressBar.stop();
