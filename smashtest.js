@@ -617,8 +617,8 @@ function plural(count) {
              * Activates the progress bar timer
              */
             function activateProgressBarTimer() {
-                const UPDATE_PROGRESS_BAR_FREQUENCY = 500; // ms
-                timer = setTimeout(() => updateProgressBar(), UPDATE_PROGRESS_BAR_FREQUENCY);
+                let timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
+                timer = setTimeout(() => updateProgressBar(), timeout);
             }
 
             /**

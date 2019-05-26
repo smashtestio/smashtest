@@ -183,12 +183,8 @@ class Reporter {
         // Have this function get called again in a certain period of time
         if(!this.stopped) {
             // The more branches there are, the longer it takes to serialize, the less often this function should get called
-            if(this.tree.branches.length > 100000) {
-                this.timerFull = setTimeout(() => this.writeFull(), 300000); // every 5 mins
-            }
-            else {
-                this.timerFull = setTimeout(() => this.writeFull(), 30000); // every 30 secs
-            }
+            let timeout = this.tree.branches.length <= 100000 ? 30000 : 300000; // every 30 secs or 5 mins
+            this.timerFull = setTimeout(() => this.writeFull(), timeout);
         }
     }
 
@@ -216,12 +212,8 @@ class Reporter {
         // Have this function get called again in a certain period of time
         if(!this.stopped) {
             // The more branches there are, the longer it takes to serialize, the less often this function should get called
-            if(this.tree.branches.length > 100000) {
-                this.timerSnapshot = setTimeout(() => this.writeSnapshot(), 5000); // every 5 secs
-            }
-            else {
-                this.timerSnapshot = setTimeout(() => this.writeSnapshot(), 500); // every 500 ms
-            }
+            let timeout = this.tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
+            this.timerSnapshot = setTimeout(() => this.writeSnapshot(), timeout);
         }
     }
 
