@@ -1205,6 +1205,8 @@ ${outputBranchAbove(this)}
         if(!this.stepDataMode) {
             this.stepDataMode = this.isDebug ? 'all' : 'fail';
         }
+
+        this.initCounts();
     }
 
     /**

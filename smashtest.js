@@ -376,7 +376,6 @@ function plural(count) {
         }
 
         let elapsed = 0;
-        tree.initCounts();
 
         // ***************************************
         //  Output initial counts and other messages
@@ -405,7 +404,6 @@ function plural(count) {
             }
 
             console.log(``);
-            //console.log(hRule);
         }
 
         // Output header that contains number of branches to run and live report location
