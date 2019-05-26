@@ -865,6 +865,12 @@ c     = copy text of branch
                             // Update branches
                             if(this.state.previewedItem) { // updates currently paused
                                 this.copyBranchSnapshots(this.branchSnapshots, message.tree.branches);
+
+                                // Cap the size of branchSnapshots
+                                const BRANCH_SNAPSHOT_MAX = 500;
+                                if(this.branchSnapshots.length > BRANCH_SNAPSHOT_MAX) {
+                                    this.branchSnapshots = this.branchSnapshots.slice(0, BRANCH_SNAPSHOT_MAX);
+                                }
                             }
                             else { // updates not paused
                                 this.copyBranchSnapshots(this.state.tree.branches, message.tree.branches);
@@ -892,6 +898,7 @@ c     = copy text of branch
 
                 /**
                  * Copies branch snapshots from sourceBranches to destination branches, overwriting existing ones if their hashes match
+                 * Existing running branches in destinationBranches are cleared out first
                  */
                 copyBranchSnapshots(destinationBranches, sourceBranches) {
                     // Remove all running branches from destinationBranches (to prevent interference from running branches from the last report data reload)
@@ -907,8 +914,8 @@ c     = copy text of branch
                         let found = false;
                         for(let i = 0; i < destinationBranches.length; i++) {
                             if(destinationBranches[i].hash == sourceBranch.hash) {
-                                destinationBranches[i] = sourceBranch;
                                 found = true;
+                                destinationBranches[i] = sourceBranch;
                                 break;
                             }
                         }
@@ -929,11 +936,14 @@ c     = copy text of branch
                  * Gets a modifier value for a step
                  * @param {Step} step - A step
                  * @param {String} modifierName - The name of a modifier (key in StepNode)
-                 * @return {Boolean} True if the given modifier is set on either step's StepNode or on its corresponding function declaration's StepNode (if step is a function call), false otherwise
+                 * @return {Boolean} True if the given modifier is set on either step's StepNode or on its corresponding function declaration's StepNode (if step is a function call), false if the modifier isn't set or no step node was found
                  */
                 getModifier(step, modifierName) {
                     let stepNode = this.state.tree.stepNodeIndex[step.id];
-                    if(stepNode[modifierName]) {
+                    if(!stepNode) {
+                        return false
+                    }
+                    else if(stepNode[modifierName]) {
                         return true;
                     }
                     else if(step.hasOwnProperty('fid') && this.state.tree.stepNodeIndex[step.fid][modifierName]) {
@@ -967,13 +977,15 @@ c     = copy text of branch
                         this.copyBranchSnapshots(this.state.tree.branches, this.branchSnapshots);
                         this.branchSnapshots = [];
 
+                        this.setState({ tree: this.state.tree });
+
                         if(this.newDataAvailable) {
                             this.newDataAvailable = false;
                             this.reloadReportData();
                         }
                     }
 
-                    this.setState(this.state);
+                    this.setState({ previewedItem: this.state.previewedItem });
                 }
 
                 /**
@@ -1422,18 +1434,20 @@ c     = copy text of branch
                         }
 
                         let lastFailedStepNode = this.props.stepNodeIndex[lastFailedStep.id];
-                        let groupKey = lastFailedStepNode.text;
+                        if(lastFailedStepNode) {
+                            let groupKey = lastFailedStepNode.text;
 
-                        let lastFailedFunctionDeclaration = lastFailedStep.fid ? this.props.stepNodeIndex[lastFailedStep.fid] : null;
-                        if(lastFailedFunctionDeclaration) {
-                            groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
+                            let lastFailedFunctionDeclaration = lastFailedStep.fid ? this.props.stepNodeIndex[lastFailedStep.fid] : null;
+                            if(lastFailedFunctionDeclaration) {
+                                groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
+                            }
+
+                            if(!failedBranchMapping.hasOwnProperty(groupKey)) {
+                                failedBranchMapping[groupKey] = [];
+                            }
+
+                            failedBranchMapping[groupKey].push(b);
                         }
-
-                        if(!failedBranchMapping.hasOwnProperty(groupKey)) {
-                            failedBranchMapping[groupKey] = [];
-                        }
-
-                        failedBranchMapping[groupKey].push(b);
                     });
 
                     return (
@@ -1910,6 +1924,10 @@ c     = copy text of branch
                 }
 
                 render() {
+                    if(!this.props.stepNode) {
+                        return "";
+                    }
+
                     // Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch (so they're all the same length)
                     let index = this.props.index;
                     let indexDigits = index.toString().length;
@@ -2147,18 +2165,23 @@ c     = copy text of branch
                         previewedItemText = `Branch ${previewedObj.hash}`;
                     }
                     else {
-                        previewedItemText = stepNodeIndex[previewedObj.id].text;
+                        let sn = stepNodeIndex[previewedObj.id];
+                        previewedItemText = sn ? sn.text : '';
                     }
 
                     let postPreviewedItemText = "";
                     if(isBranch) {
                         let lastStep = previewedObj.steps[previewedObj.steps.length - 1];
                         let lastStepNode = stepNodeIndex[lastStep.id];
-                        postPreviewedItemText = `[${lastStepNode.filename}:${lastStepNode.lineNumber}] ${elapsedText}`;
+                        if(lastStepNode) {
+                            postPreviewedItemText = `[${lastStepNode.filename}:${lastStepNode.lineNumber}] ${elapsedText}`;
+                        }
                     }
                     else {
                         let stepNode = stepNodeIndex[previewedObj.id];
-                        postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}] ${elapsedText}`;
+                        if(stepNode) {
+                            postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}] ${elapsedText}`;
+                        }
                     }
 
                     return (
