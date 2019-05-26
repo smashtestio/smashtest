@@ -406,98 +406,771 @@ describe("ElementFinder", function() {
                 });
             });
 
-            it.skip("selector with 'not' keyword", () => {
+            it("selector with 'not' keyword", () => {
+                let ef = new ElementFinder(`not div.class1 .class2`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `not div.class1 .class2`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `div.class1 .class2`,
+                            not: true
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("ordinal", () => {
+            it("ordinal", () => {
+                let ef = new ElementFinder(`4th`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `4th`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: 4,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("no counter equates to a counter of 1", () => {
+            it("no counter equates to a counter of 1", () => {
+                let ef = new ElementFinder(`something`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 }
+                });
             });
 
-            it.skip("N counter", () => {
+            it("N counter", () => {
+                let ef = new ElementFinder(`4 x something`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 4, max: 4 }
+                });
+
+                ef = new ElementFinder(`4x something`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 4, max: 4 }
+                });
             });
 
-            it.skip("N- counter", () => {
+            it("N- counter", () => {
+                let ef = new ElementFinder(`4- x something`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 4, max: undefined }
+                });
+
+                ef = new ElementFinder(`4-x something`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 4, max: undefined }
+                });
             });
 
-            it.skip("N+ counter", () => {
+            it("N+ counter", () => {
+                let ef = new ElementFinder(`4+ x something`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 4, max: undefined }
+                });
+
+                ef = new ElementFinder(`4+x something`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 4, max: undefined }
+                });
             });
 
-            it.skip("N-M counter", () => {
+            it("N-M counter", () => {
+                let ef = new ElementFinder(`22-77 x something`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 22, max: 77 }
+                });
+
+                ef = new ElementFinder(`22-77x something`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 22, max: 77 }
+                });
             });
 
-            it.skip("comment at the end of a line", () => {
+            it("comment at the end of a line", () => {
+                let ef = new ElementFinder(`.class1 // comment`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `.class1`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `.class1`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("comment on its own line", () => {
+            it("comment on its own line", () => {
+                let ef = new ElementFinder(`
+                    // comment
+                    .class1
+                    // comment
+                `);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `.class1`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `.class1`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("multiple items separated by commas", () => {
+            it("multiple items separated by commas", () => {
+                let ef = new ElementFinder(`div.class1 .class2, 'piece of text', contains "other text", not selected`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `div.class1 .class2`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `div.class1 .class2`,
+                            not: false
+                        },
+                        {
+                            prop: `'piece of text'`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `piece of text`,
+                            not: false
+                        },
+                        {
+                            prop: `contains "other text"`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `other text`,
+                            not: false
+                        },
+                        {
+                            prop: `not selected`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: undefined,
+                            not: true
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("multiple items separated by commas with extra whitespace everywhere", () => {
+            it("multiple items separated by commas with extra whitespace everywhere", () => {
+                let ef = new ElementFinder(`    div.class1 .class2  , 'piece of text'    , contains "other text", not selected    `);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `div.class1 .class2`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `div.class1 .class2`,
+                            not: false
+                        },
+                        {
+                            prop: `'piece of text'`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `piece of text`,
+                            not: false
+                        },
+                        {
+                            prop: `contains "other text"`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `other text`,
+                            not: false
+                        },
+                        {
+                            prop: `not selected`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: undefined,
+                            not: true
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("multiple items separated by commas, including selectors with quotes inside", () => {
-                // input[attr='quote'].div[attr='quote'], double quotes too
+            it("multiple items separated by commas, including selectors with quotes inside", () => {
+                let ef = new ElementFinder(`input[attr='quote'] p[attr="quote"], 'piece of text', contains "other text", not selected`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `input[attr='quote'] p[attr="quote"]`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `input[attr='quote'] p[attr="quote"]`,
+                            not: false
+                        },
+                        {
+                            prop: `'piece of text'`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `piece of text`,
+                            not: false
+                        },
+                        {
+                            prop: `contains "other text"`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `other text`,
+                            not: false
+                        },
+                        {
+                            prop: `not selected`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: undefined,
+                            not: true
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("handles 'text' containing commas and escaped quotes", () => {
+            it("handles 'text' containing commas and escaped quotes", () => {
+                let ef = new ElementFinder(`'quote1,2\\'3"4'`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `'quote1,2\\'3"4'`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `quote1,2'3"4`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("handles a selector containing quotes and commas", () => {
-                // e.g., input[name='foo,bar']
+            it("handles a selector containing quotes and commas", () => {
+                let ef = new ElementFinder(`input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4'], input[attr="1,2'3\\"4"].div[attr="1,2\\'3\\"4"], 'piece of text', contains "other text", not selected`);
+
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4']`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4']`,
+                            not: false
+                        },
+                        {
+                            prop: `input[attr="1,2'3\\"4"].div[attr="1,2\\'3\\"4"]`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `input[attr="1,2'3\\"4"].div[attr="1,2\\'3\\"4"]`,
+                            not: false
+                        },
+                        {
+                            prop: `'piece of text'`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `piece of text`,
+                            not: false
+                        },
+                        {
+                            prop: `contains "other text"`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `other text`,
+                            not: false
+                        },
+                        {
+                            prop: `not selected`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: undefined,
+                            not: true
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("handles a defined property with 'input text' containing commas and escaped quotes", () => {
+            it("handles a defined property with 'input text' containing commas and escaped quotes", () => {
+                let ef = new ElementFinder(`contains 'quote1,2\\'3"4'`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `contains 'quote1,2\\'3"4'`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `quote1,2'3"4`,
+                            not: false
+                        }
+                    ]
+                });
             });
 
-            it.skip("handles a defined property with 'input text' containing a selector, which contains quotes and commas", () => {
+            it("handles a defined property with 'input text' containing a selector, which contains quotes and commas", () => {
+                let ef = new ElementFinder(`selector 'input[attr="quote1,2\\'3\\"4\\'"]'`);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `selector 'input[attr="quote1,2\\'3\\"4\\'"]'`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `input[attr="quote1,2'3"4'"]`,
+                            not: false
+                        }
+                    ]
+                });
             });
         });
 
-        context("multi-line EF", () => {
-            it.skip("one level of children", () => {
+        context.only("multi-line EF", () => {
+            it("one level of children", () => {
+                let ef = new ElementFinder(`
+                    one
+                        two
+                `);
 
+                Comparer.expect(ef).to.match({
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `one`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `one`,
+                            not: false
+                        }
+                    ],
+
+                    parent: undefined,
+                    children: [
+                        {
+                            counter: { min: 1, max: 1 },
+                            props: [
+                                {
+                                    prop: `two`,
+                                    defs: [ { $typeof: 'function' } ],
+                                    input: `two`,
+                                    not: false
+                                }
+                            ],
+
+                            parent: { props: [ { prop: `one` } ] },
+                            children: [],
+
+                            matchMe: false,
+                            isElemArray: false,
+                            isAnyOrder: false,
+                            isSubset: false
+                        }
+                    ],
+
+                    matchMe: false,
+                    isElemArray: false,
+                    isAnyOrder: false,
+                    isSubset: false
+                });
             });
 
-            it.skip("multiple levels of children", () => {
+            it("multiple levels of children", () => {
+                let ef = new ElementFinder(`
+                    one
+                        two
+                            three
+                            four
+                        five
 
+                        six
+                            seven
+                                eight
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [
+                                {
+                                    props: [ { prop: `three` } ],
+                                    parent: {},
+                                    children: []
+                                },
+                                {
+                                    props: [ { prop: `four` } ],
+                                    parent: {},
+                                    children: []
+                                }
+                            ]
+                        },
+                        {
+                            props: [ { prop: `five` } ],
+                            parent: {},
+                            children: []
+                        },
+                        {
+                            props: [ { prop: `six` } ],
+                            parent: {},
+                            children: [
+                                {
+                                    props: [ { prop: `seven` } ],
+                                    parent: {},
+                                    children: [
+                                        {
+                                            props: [ { prop: `eight` } ],
+                                            parent: {},
+                                            children: []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                });
             });
 
-            it.skip("first lines blank", () => {
+            it("first lines blank", () => {
+                let ef = new ElementFinder(`
 
+
+                    one
+                        two
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: []
+                        }
+                    ]
+                });
             });
 
-            it.skip("everything indented multiple times", () => {
+            it("everything indented multiple times", () => {
+                let ef = new ElementFinder(`
 
+
+                    one
+                        two
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: []
+                        }
+                    ]
+                });
             });
 
-            it.skip("'any order' keyword", () => {
+            it("no indentation on the first line", () => {
+                let ef = new ElementFinder(`one
+    two
+                `);
 
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: []
+                        }
+                    ]
+                });
             });
 
-            it.skip("'subset' keyword", () => {
+            it("'any order' keyword", () => {
+                let ef = new ElementFinder(`
+                    one
+                        any order
+                        two
+                        three
+                `);
 
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        }
+                    ],
+                    isAnyOrder: true
+                });
+
+                ef = new ElementFinder(`
+                    one
+
+                        any order
+
+                        two
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        }
+                    ],
+                    isAnyOrder: true
+                });
+
+                ef = new ElementFinder(`
+                    one
+                        two
+                        any order
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        }
+                    ],
+                    isAnyOrder: true
+                });
             });
 
-            it.skip("doesn't recognize the 'any order' keyword if there are other things on its line", () => {
+            it("'subset' keyword", () => {
+                let ef = new ElementFinder(`
+                    one
+                        subset
+                        two
+                        three
+                `);
 
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        }
+                    ],
+                    isSubset: true
+                });
+
+                ef = new ElementFinder(`
+                    one
+
+                        subset
+
+                        two
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        }
+                    ],
+                    isSubset: true
+                });
+
+                ef = new ElementFinder(`
+                    one
+                        two
+                        subset
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        }
+                    ],
+                    isSubset: true
+                });
+            });
+
+            it("doesn't recognize the 'any order' keyword if there are other things on its line", () => {
+                let ef = new ElementFinder(`
+                    one
+                        subset
+                        two
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        }
+                    ],
+                    isSubset: true
+                });
+
+
+
+
+
+                
             });
 
             it.skip("doesn't recognize the 'subset' keyword if there are other things on its line", () => {

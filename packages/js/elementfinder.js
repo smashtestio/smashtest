@@ -74,6 +74,7 @@ class ElementFinder {
             if(line.trim() != '') {
                 parentLine = line;
                 parentLineNumber = i + 1;
+                i++;
                 break;
             }
         }
@@ -87,17 +88,16 @@ class ElementFinder {
             let line = lines[i];
             let lineNumber = i + this.lineNumberOffset + 1;
 
-            if(line.trim() == 0) {
+            if(line.trim() == '') {
                 continue;
             }
 
             let indents = utils.numIndents(line, filename, lineNumber) - baseIndent;
-
             if(indents < 0) {
                 utils.error(`ElementFinder cannot have a line that's indented left of the first line`, filename, lineNumber);
             }
             else if(indents == 0) {
-                if(this.parent) {
+                if(!this.parent) {
                     utils.error(`ElementFinder cannot have more than one line at indent 0`, filename, lineNumber);
                 }
             }
@@ -114,7 +114,10 @@ class ElementFinder {
         }
 
         childStrs.forEach(str => {
-            this.children.push(new ElementFinder(str, definedProps, logger, this, i + this.lineNumberOffset));
+            let childEF = new ElementFinder(str, definedProps, this.logger, this, i + this.lineNumberOffset);
+            if(!childEF.empty) {
+                this.children.push(childEF);
+            }
         });
 
         // Parse parentLine
@@ -127,6 +130,7 @@ class ElementFinder {
             if(parentLine == 'any order') { // 'any order' keyword
                 if(this.parent) {
                     this.parent.isAnyOrder = true;
+                    this.empty = true;
                 }
                 else {
                     utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber);
@@ -135,6 +139,7 @@ class ElementFinder {
             else if(parentLine == 'subset') { // 'subset' keyword
                 if(this.parent) {
                     this.parent.isSubset = true;
+                    this.empty = true;
                 }
                 else {
                     utils.error(`The 'subset' keyword must have a parent element`, filename, parentLineNumber);
@@ -204,7 +209,7 @@ class ElementFinder {
                         matches = propStr.match(Constants.QUOTED_STRING_LITERAL_WHOLE);
                         if(matches) {
                             canonPropStr = `contains`;
-                            input = utils.stripQuotes(propStr);
+                            input = utils.unescape(utils.stripQuotes(propStr));
                         }
                         else {
                             // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
