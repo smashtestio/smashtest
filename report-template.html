@@ -760,7 +760,7 @@ c     = copy text of branch
                     this.socket = null;             // websocket to report server
                     this.socketOpen = false;        // true if websocket is open
 
-                    this.newDataAvailable = false;  // true if new report data is available on disk
+                    this.newDataAvailable = false;  // true if new report data is available on disk but hasn't been loaded yet (because we're paused on a preview)
                     this.branchSnapshots = [];      // Array containing branches that have been updated server-side
                                                     // (but the updates cannot be applied to state yet because we're paused on a preview)
 
@@ -813,19 +813,17 @@ c     = copy text of branch
                  */
                 onReportData(data) {
                     data = JSON.parse(unescapeBackticks(data));
-
-                    this.state.tree = data.tree;
+                    this.branchSnapshots = [];
                     this.setState(data);
-
                     this.openConnection(data.reportDomain);
                 }
 
                 /**
                  * Opens websocket that will receive state updates
-                 * @param {String} reportDomain - domain:port of report server
+                 * @param {String} [reportDomain] - domain:port of report server
                  */
                 openConnection(reportDomain) {
-                    if(this.socket || !this.state.reportDomain) { // socket is already open or there's no report domain (due to lack of report server)
+                    if(this.socket || !reportDomain) { // socket is already open or there's no report domain (due to lack of report server)
                         return;
                     }
 
@@ -849,9 +847,10 @@ c     = copy text of branch
                     this.socket.addEventListener('message', (event) => {
                         let message = JSON.parse(event.data);
                         if(message.dataUpdate) { // update report data from file
-                            this.newDataAvailable = true;
-                            if(!this.state.previewedItem) { // updates not paused
-                                this.branchSnapshots = []; // clear out since all snapshots that came before this message are obsoleted by the new data on disk
+                            if(this.state.previewedItem) { // updates paused
+                                this.newDataAvailable = true;
+                            }
+                            else { // updates not paused
                                 this.reloadReportData();
                             }
                         }
@@ -898,7 +897,7 @@ c     = copy text of branch
 
                 /**
                  * Copies branch snapshots from sourceBranches to destination branches, overwriting existing ones if their hashes match
-                 * Existing running branches in destinationBranches are cleared out first
+                 * Clears isRunning on all of destinationBranches, then applies sourceBranches
                  */
                 copyBranchSnapshots(destinationBranches, sourceBranches) {
                     // Remove all running branches from destinationBranches (to prevent interference from running branches from the last report data reload)
@@ -972,20 +971,22 @@ c     = copy text of branch
                         this.state.previewedItem = previewedItem;
                     }
 
+                    this.setState({ previewedItem: this.state.previewedItem });
+
                     if(noPreview) { // we're resuming updates
                         // Dump into this.state.tree.branches the branch snapshots that have been piling up during the pause
-                        this.copyBranchSnapshots(this.state.tree.branches, this.branchSnapshots);
-                        this.branchSnapshots = [];
+                        if(this.branchSnapshots.length > 0) {
+                            this.copyBranchSnapshots(this.state.tree.branches, this.branchSnapshots);
+                            this.branchSnapshots = [];
+                            this.setState({ tree: this.state.tree });
+                        }
 
-                        this.setState({ tree: this.state.tree });
-
+                        // If new report data became available during the pause, load it
                         if(this.newDataAvailable) {
                             this.newDataAvailable = false;
                             this.reloadReportData();
                         }
                     }
-
-                    this.setState({ previewedItem: this.state.previewedItem });
                 }
 
                 /**

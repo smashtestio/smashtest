@@ -42,7 +42,7 @@ class Runner {
      */
     init(tree, noRandom) {
         this.tree = tree;
-        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash, noRandom || this.random);
+        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash, noRandom || !this.random);
     }
 
     /**
