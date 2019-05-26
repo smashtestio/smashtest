@@ -39,17 +39,13 @@ class ElementFinder {
 
     /**
      * Parses the given string into this EF
-     * Same params as in constructor
+     * Same params as in constructor, but both params are mandatory
      * @return This object
      * @throws {Error} If there is a parse error
      */
     parseIn(str, definedProps) {
         if(!str || !str.trim()) {
             throw new Error(`Cannot create an empty ElementFinder`);
-        }
-
-        if(!definedProps) {
-            definedProps = {};
         }
 
         let lines = str.split(/\n/);
@@ -79,11 +75,134 @@ class ElementFinder {
             }
         }
 
-        let baseIndent = utils.numIndents(parentLine);
         let filename = 'line';
+        let baseIndent = utils.numIndents(parentLine, filename, parentLineNumber);
 
-        // Split into children
-        let childStrs = [];
+        // Parse parentLine
+        parentLine = parentLine.trim();
+        if(parentLine[0] == '*') { // Element Array
+            this.isElemArray = true;
+            parentLine = parentLine.substr(1).trim(); // drop the *
+        }
+
+        if(parentLine == 'any order' && !this.isElemArray) { // 'any order' keyword
+            if(this.parent) {
+                this.parent.isAnyOrder = true;
+                this.empty = true;
+            }
+            else {
+                utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber);
+            }
+        }
+        else if(parentLine == 'subset' && !this.isElemArray) { // 'subset' keyword
+            if(this.parent) {
+                this.parent.isSubset = true;
+                this.empty = true;
+            }
+            else {
+                utils.error(`The 'subset' keyword must have a parent element`, filename, parentLineNumber);
+            }
+        }
+        else {
+            // Check for counter
+            const COUNTER_REGEX = /^([0-9]+)(\s*([\-\+])(\s*([0-9]+))?)?\s*x\s+/;
+            let matches = parentLine.match(COUNTER_REGEX);
+            if(matches) {
+                parentLine = parentLine.replace(COUNTER_REGEX, ''); // remove counter
+
+                let min = matches[1];
+                let middle = matches[3];
+                let max = matches[5];
+
+                if(middle == '-') {
+                    if(typeof max == 'undefined') { // N-
+                        this.counter = { min: parseInt(min) };
+                    }
+                    else { // N-M
+                        this.counter = { min: parseInt(min), max: parseInt(max) };
+                    }
+                }
+                else if(middle == '+') { // N+
+                    this.counter = { min: parseInt(min) };
+                }
+                else { // N
+                    this.counter = { min: parseInt(min), max: parseInt(min) };
+                }
+            }
+
+            // Check for [element]
+            matches = parentLine.match(/^\[(.*)\]$/);
+            if(matches) {
+                this.matchMe = true;
+                parentLine = matches[1].trim();
+            }
+
+            // Split into comma-separated props
+            const PROP_REGEX = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g;
+            let propStrs = parentLine.match(PROP_REGEX).filter(propStr => propStr.trim() != '');
+
+            for(let i = 0; i < propStrs.length; i++) {
+                let propStr = propStrs[i].trim();
+                let prop = {};
+
+                let canonPropStr = null;
+                let input = null;
+
+                // not keyword
+                let isNot = false;
+                if(propStr.match(/^not /)) {
+                    propStr = propStr.replace(/^not /, '').trim();
+                    isNot = true;
+                }
+
+                // ords (convert to `position 'N'`)
+                const ORD_REGEX = /([0-9]+)(st|nd|rd|th)/;
+                let matches = propStr.match(ORD_REGEX);
+                if(matches) {
+                    canonPropStr = `position`;
+                    input = parseInt(matches[1]);
+                }
+                else {
+                    // 'text' (convert to `contains 'text'`)
+                    matches = propStr.match(Constants.QUOTED_STRING_LITERAL_WHOLE);
+                    if(matches) {
+                        canonPropStr = `contains`;
+                        input = utils.unescape(utils.stripQuotes(propStr));
+                    }
+                    else {
+                        // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
+                        if(!definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr)[0])) {
+                            canonPropStr = `selector`;
+                            input = propStr;
+                        }
+                    }
+                }
+
+                // Set prop based on the correct entry in definedProps
+
+                if(!canonPropStr) { // if it hasn't been set yet
+                    [canonPropStr, input] = ElementFinder.canonicalizePropStr(propStr);
+                }
+
+                if(definedProps.hasOwnProperty(canonPropStr)) {
+                    let defs = definedProps[canonPropStr];
+                    prop = {
+                        prop: (isNot ? 'not ' : '') + propStr,
+                        defs: defs,
+                        input: input,
+                        not: isNot
+                    };
+                }
+                else { // rare case (usually if someone explicitly overrides the selector prop)
+                    utils.error(`Cannot find property that matches \`${canonPropStr}\``, filename, parentLineNumber);
+                }
+
+                this.props.push(prop);
+            }
+        }
+
+        // Parse children
+        let childObjs = [];
         for(; i < lines.length; i++) {
             let line = lines[i];
             let lineNumber = i + this.lineNumberOffset + 1;
@@ -97,152 +216,26 @@ class ElementFinder {
                 utils.error(`ElementFinder cannot have a line that's indented left of the first line`, filename, lineNumber);
             }
             else if(indents == 0) {
-                if(!this.parent) {
-                    utils.error(`ElementFinder cannot have more than one line at indent 0`, filename, lineNumber);
-                }
+                utils.error(`ElementFinder cannot have more than one line at indent 0`, filename, lineNumber);
             }
             else if(indents == 1) {
-                childStrs.push(line); // a new child is formed
+                childObjs.push({str: line, lineNumber: lineNumber}); // a new child is formed
             }
             else { // indents > 1
-                if(childStrs.length == 0) {
+                if(childObjs.length == 0) {
                     utils.error(`ElementFinder cannot have a line that's indented more than once compared to the line above`, filename, lineNumber);
                 }
 
-                childStrs[childStrs.length - 1] += `\n${line}`; // string goes onto the end of the last child
+                childObjs[childObjs.length - 1].str += `\n${line}`; // string goes onto the end of the last child
             }
         }
 
-        childStrs.forEach(str => {
-            let childEF = new ElementFinder(str, definedProps, this.logger, this, i + this.lineNumberOffset);
+        childObjs.forEach(c => {
+            let childEF = new ElementFinder(c.str, definedProps, this.logger, this, c.lineNumber + this.lineNumberOffset);
             if(!childEF.empty) {
                 this.children.push(childEF);
             }
         });
-
-        // Parse parentLine
-        parentLine = parentLine.trim();
-        if(parentLine[0] == '*') { // Element Array
-            this.isElemArray = true;
-            parentLine = parentLine.substr(1).trim(); // drop the *
-        }
-        else {
-            if(parentLine == 'any order') { // 'any order' keyword
-                if(this.parent) {
-                    this.parent.isAnyOrder = true;
-                    this.empty = true;
-                }
-                else {
-                    utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber);
-                }
-            }
-            else if(parentLine == 'subset') { // 'subset' keyword
-                if(this.parent) {
-                    this.parent.isSubset = true;
-                    this.empty = true;
-                }
-                else {
-                    utils.error(`The 'subset' keyword must have a parent element`, filename, parentLineNumber);
-                }
-            }
-            else {
-                // Check for counter
-                const COUNTER_REGEX = /^([0-9]+)(\s*([\-\+])(\s*([0-9]+))?)?\s*x\s+/;
-                let matches = parentLine.match(COUNTER_REGEX);
-                if(matches) {
-                    parentLine = parentLine.replace(COUNTER_REGEX, ''); // remove counter
-
-                    let min = matches[1];
-                    let middle = matches[3];
-                    let max = matches[5];
-
-                    if(middle == '-') {
-                        if(typeof max == 'undefined') { // N-
-                            this.counter = { min: parseInt(min) };
-                        }
-                        else { // N-M
-                            this.counter = { min: parseInt(min), max: parseInt(max) };
-                        }
-                    }
-                    else if(middle == '+') { // N+
-                        this.counter = { min: parseInt(min) };
-                    }
-                    else { // N
-                        this.counter = { min: parseInt(min), max: parseInt(min) };
-                    }
-                }
-
-                // Check for [element]
-                matches = parentLine.match(/^\[(.*)\]$/);
-                if(matches) {
-                    this.matchMe = true;
-                    parentLine = matches[1].trim();
-                }
-
-                // Split into comma-separated props
-                const PROP_REGEX = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g;
-                let propStrs = parentLine.match(PROP_REGEX).filter(propStr => propStr.trim() != '');
-
-                for(let i = 0; i < propStrs.length; i++) {
-                    let propStr = propStrs[i].trim();
-                    let prop = {};
-
-                    let canonPropStr = null;
-                    let input = null;
-
-                    // not keyword
-                    let isNot = false;
-                    if(propStr.match(/^not /)) {
-                        propStr = propStr.replace(/^not /, '').trim();
-                        isNot = true;
-                    }
-
-                    // ords (convert to `position 'N'`)
-                    const ORD_REGEX = /([0-9]+)(st|nd|rd|th)/;
-                    let matches = propStr.match(ORD_REGEX);
-                    if(matches) {
-                        canonPropStr = `position`;
-                        input = parseInt(matches[1]);
-                    }
-                    else {
-                        // 'text' (convert to `contains 'text'`)
-                        matches = propStr.match(Constants.QUOTED_STRING_LITERAL_WHOLE);
-                        if(matches) {
-                            canonPropStr = `contains`;
-                            input = utils.unescape(utils.stripQuotes(propStr));
-                        }
-                        else {
-                            // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
-                            if(!definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr)[0])) {
-                                canonPropStr = `selector`;
-                                input = propStr;
-                            }
-                        }
-                    }
-
-                    // Set prop based on the correct entry in definedProps
-
-                    if(!canonPropStr) { // if it hasn't been set yet
-                        [canonPropStr, input] = ElementFinder.canonicalizePropStr(propStr);
-                    }
-
-                    if(definedProps.hasOwnProperty(canonPropStr)) {
-                        let defs = definedProps[canonPropStr];
-                        prop = {
-                            prop: (isNot ? 'not ' : '') + propStr,
-                            defs: defs,
-                            input: input,
-                            not: isNot
-                        };
-                    }
-                    else { // rare case (usually if someone explicitly overrides the selector prop)
-                        utils.error(`Cannot find property that matches \`${canonPropStr}\``, filename, parentLineNumber);
-                    }
-
-                    this.props.push(prop);
-                }
-            }
-        }
 
         return this;
     }

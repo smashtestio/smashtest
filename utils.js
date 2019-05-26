@@ -159,7 +159,7 @@ exports.numIndents = (line, filename, lineNumber) => {
         let numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
         if(numIndents - Math.floor(numIndents) != 0) {
-            exports.error(`The number of spaces at the beginning of a step must be a multiple of ${Constants.SPACES_PER_INDENT}. You have ${numSpaces} space(s).`, filename, lineNumber);
+            exports.error(`The number of spaces at the beginning of a step must be a multiple of ${Constants.SPACES_PER_INDENT}. You have ${numSpaces} space${numSpaces != 1 ? `s` : ``}.`, filename, lineNumber);
         }
         else {
             return numIndents;

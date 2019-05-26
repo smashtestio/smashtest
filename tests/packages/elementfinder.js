@@ -13,7 +13,7 @@ const HEADLESS = true;
 describe("ElementFinder", function() {
     this.driver = null;
     this.timeout(5000);
-/*
+
     before(async () => {
         this.driver = await new Builder()
             .forBrowser('chrome')
@@ -26,7 +26,7 @@ describe("ElementFinder", function() {
     after(async () => {
         await this.driver.quit();
     });
-*/
+
     describe("parseIn()", () => {
         context("empty EFs", () => {
             it("rejects an empty EF", () => {
@@ -801,7 +801,7 @@ describe("ElementFinder", function() {
             });
         });
 
-        context.only("multi-line EF", () => {
+        context("multi-line EF", () => {
             it("one level of children", () => {
                 let ef = new ElementFinder(`
                     one
@@ -1141,7 +1141,7 @@ describe("ElementFinder", function() {
             it("doesn't recognize the 'any order' keyword if there are other things on its line", () => {
                 let ef = new ElementFinder(`
                     one
-                        subset
+                        any order, .class
                         two
                         three
                 `);
@@ -1150,6 +1150,47 @@ describe("ElementFinder", function() {
                     props: [ { prop: `one` } ],
                     parent: undefined,
                     children: [
+                        {
+                            props: [ { prop: `any order` }, { prop: `.class` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        },
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isAnyOrder: false
+                        }
+                    ],
+                    isAnyOrder: false
+                });
+            });
+
+            it("doesn't recognize the 'subset' keyword if there are other things on its line", () => {
+                let ef = new ElementFinder(`
+                    one
+                        .class, subset
+                        two
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `.class` }, { prop: `subset` } ],
+                            parent: {},
+                            children: [],
+                            isSubset: false
+                        },
                         {
                             props: [ { prop: `two` } ],
                             parent: {},
@@ -1163,62 +1204,332 @@ describe("ElementFinder", function() {
                             isSubset: false
                         }
                     ],
+                    isSubset: false
+                });
+            });
+
+            it("throws an error if the 'any order' keyword doesn't have a parent element", () => {
+                assert.throws(() => {
+                    new ElementFinder(`
+                        any order
+                    `);
+                }, "The 'any order' keyword must have a parent element [line:2]");
+            });
+
+            it("throws an error if the 'subset' keyword doesn't have a parent element", () => {
+                assert.throws(() => {
+                    new ElementFinder(`
+                        subset
+                            one
+                            two
+                    `);
+                }, "The 'subset' keyword must have a parent element [line:2]");
+            });
+
+            it("element arrays", () => {
+                let ef = new ElementFinder(`
+                    * one
+                        two
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isElemArray: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isElemArray: false
+                        }
+                    ],
+                    isElemArray: true
+                });
+            });
+
+            it("'any order' keyword inside element array", () => {
+                let ef = new ElementFinder(`
+                    * one
+                        any order
+                        two
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isElemArray: false,
+                            isAnyOrder: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isElemArray: false,
+                            isAnyOrder: false
+                        }
+                    ],
+                    isElemArray: true,
+                    isAnyOrder: true
+                });
+            });
+
+            it("'subset' keyword inside element array", () => {
+                let ef = new ElementFinder(`
+                    * one
+                        subset
+                        two
+                        three
+                `);
+
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            isElemArray: false,
+                            isSubset: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            isElemArray: false,
+                            isSubset: false
+                        }
+                    ],
+                    isElemArray: true,
                     isSubset: true
                 });
-
-
-
-
-
-                
             });
 
-            it.skip("doesn't recognize the 'subset' keyword if there are other things on its line", () => {
+            it("no [child element]", () => {
+                let ef = new ElementFinder(`
+                    one
+                        two
+                        three
+                `);
 
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            matchMe: false
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            matchMe: false
+                        }
+                    ],
+                    matchMe: false
+                });
             });
 
-            it.skip("element arrays", () => {
+            it("[child element]", () => {
+                let ef = new ElementFinder(`
+                    one
+                        [two]
+                        three
+                `);
 
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            matchMe: true
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            matchMe: false
+                        }
+                    ],
+                    matchMe: false
+                });
             });
 
-            it.skip("'any order' keyword inside element array", () => {
+            it("counter x [child element]", () => {
+                let ef = new ElementFinder(`
+                    one
+                        5 x [two, two2]
+                        three
+                `);
 
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            counter: { min: 5, max: 5 },
+                            props: [ { prop: `two` }, { prop: `two2` } ],
+                            parent: {},
+                            children: [],
+                            matchMe: true
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            matchMe: false
+                        }
+                    ],
+                    matchMe: false
+                });
             });
 
-            it.skip("'subset' keyword inside element array", () => {
+            it("multiple [child elements]", () => {
+                let ef = new ElementFinder(`
+                    [one]
+                        [two]
+                        three
+                `);
 
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: [],
+                            matchMe: true
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: [],
+                            matchMe: false
+                        }
+                    ],
+                    matchMe: true
+                });
             });
 
-            it.skip("no [child element]", () => {
-                // matchMe not set anywhere
+            it("throws an error when a line is indented more than twice compared to the one above", () => {
+                assert.throws(() => {
+                    new ElementFinder(`
+                        one
+                                two
+                    `);
+                }, "ElementFinder cannot have a line that's indented more than once compared to the line above [line:3]");
+
+                assert.throws(() => {
+                    new ElementFinder(`
+                        one
+                            two
+
+                                    three
+                    `);
+                }, "ElementFinder cannot have a line that's indented more than once compared to the line above [line:5]");
             });
 
-            it.skip("[child element]", () => {
+            it("throws an error when a line is indented to the left of the top line's indent", () => {
+                assert.throws(() => {
+                    new ElementFinder(`
+                        one
+                    two
+                    `);
+                }, "ElementFinder cannot have a line that's indented left of the first line [line:3]");
 
+                assert.throws(() => {
+                    new ElementFinder(`
+                        one
+                            two
+                    three
+                    `);
+                }, "ElementFinder cannot have a line that's indented left of the first line [line:4]");
             });
 
-            it.skip("multiple [child element]", () => {
+            it("throws an error when a line is not indented by a multiple of 4", () => {
+                assert.throws(() => {
+                    new ElementFinder(`  one`);
+                }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 2 spaces. [line:1]");
 
+                assert.throws(() => {
+                    new ElementFinder(`
+one
+ two
+                    `);
+                }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space. [line:3]");
             });
 
-            it.skip("throws an error when a line is indented more than twice compared to the one above", () => {
+            it("throws an error if there is more than one line at the top indent", () => {
+                assert.throws(() => {
+                    new ElementFinder(`
+                        one
+                        two
+                    `);
+                }, "ElementFinder cannot have more than one line at indent 0 [line:3]");
 
+                assert.throws(() => {
+                    new ElementFinder(`
+                        one
+                            two
+                        three
+                    `);
+                }, "ElementFinder cannot have more than one line at indent 0 [line:4]");
             });
 
-            it.skip("throws an error when a line is indented to the left of the top line's indent", () => {
-
+            it("throws an error if the 'selector' prop isn't available but is needed", () => {
+                assert.throws(() => {
+                    new ElementFinder(`
+                        one
+                        two
+                    `, {});
+                }, "Cannot find property that matches `selector` [line:2]");
             });
 
-            it.skip("throws an error when a line is not indented by a multiple of 4", () => {
+            it("handles empty lines between normal lines", () => {
+                let ef = new ElementFinder(`
+                    one
 
-            });
+                        two
 
-            it.skip("throws an error if there is more than one line at the top indent", () => {
+                        three
+                `);
 
-            });
-
-            it.skip("handles empty lines between normal lines", () => {
-
+                Comparer.expect(ef).to.match({
+                    props: [ { prop: `one` } ],
+                    parent: undefined,
+                    children: [
+                        {
+                            props: [ { prop: `two` } ],
+                            parent: {},
+                            children: []
+                        },
+                        {
+                            props: [ { prop: `three` } ],
+                            parent: {},
+                            children: []
+                        }
+                    ]
+                });
             });
         });
     });
@@ -1425,7 +1736,11 @@ describe("ElementFinder", function() {
 
             });
 
-            it.skip("finds [child elements]", () => {
+            it.skip("finds a [child element]", () => {
+
+            });
+
+            it.skip("finds multiple [child elements]", () => {
 
             });
 
