@@ -37,11 +37,14 @@ console.log("");
 // ***************************************
 //  Exit and cleanup
 // ***************************************
-process.on('SIGINT', () => { // Ctrl + C (except when REPL is open)
-    console.log("");
-    console.log("");
-    exit(true);
-});
+
+function setSigint() {
+    process.on('SIGINT', () => { // Ctrl + C (except when REPL is open)
+        console.log("");
+        console.log("");
+        exit(true);
+    });
+}
 
 async function exit(forcedStop, exitCode) {
     if(forcedStop) {
@@ -350,6 +353,8 @@ function plural(count) {
         runner.init(tree);
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
+
+        setSigint();
 
         // No reporter for debug or repl runs
         if(tree.isDebug || isRepl) {
