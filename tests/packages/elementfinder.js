@@ -1749,6 +1749,10 @@ one
             it.skip("doesn't find [child elements]", () => {
 
             });
+
+            it.skip("only searches within the given parent element", () => {
+
+            });
         });
 
         context("element arrays", () => {
@@ -1809,20 +1813,6 @@ one
             });
 
             it.skip("rejects an incorrect matching with the 'any order' and 'subset' keywords together", () => {
-
-            });
-        });
-
-        context("element restrictions", () => {
-            it.skip("only searches within the given parent element", () => {
-
-            });
-
-            it.skip("only searches after the given element", () => {
-
-            });
-
-            it.skip("only searches within a parent element and after an element simultaneously", () => {
 
             });
         });

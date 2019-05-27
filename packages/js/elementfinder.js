@@ -244,14 +244,14 @@ class ElementFinder {
      * Finds all visible elements matching this EF at the current moment in time
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
-     * @param {WebElement} [afterElem] - Only search after this WebDriver WebElement in the DOM, no restrictions if omitted
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found, empty array if nothing found
      * @throws {Error} If an element array wasn't properly matched
      */
-    async getAll(driver, parentElem, afterElem) {
+    async getAll(driver, parentElem) {
         // TODO: inject js that does all the work
         // TODO: visible only
         // TODO: Don't forget to log stuff via this.logger (if it's set)
+        // Remember, walking the DOM recursively visits element in their order
 
         let elem = await driver.executeScript(() => {
             console.log("HELLO WORLD");
@@ -275,20 +275,19 @@ class ElementFinder {
      * Finds the first visible element matching this EF
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
-     * @param {WebElement} [afterElem] - Only search after this WebDriver WebElement in the DOM, no restrictions if omitted
      * @param {Boolean} [isContinue] - How to set Error.continue, if an Error is thrown
      * @param {Number} [timeout] - Number of ms to continue trying before giving up. If omitted or set to 0, only try once before giving up.
      * @param {Number} [pollFrequency] - How often to poll for a matching element, in ms. If omitted, polls every 500 ms.
      * @return {Promise} Promise that resolves to the WebDriver WebElement that was found
      * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched
      */
-    async find(driver, parentElem, afterElem, isContinue, timeout, pollFrequency) {
+    async find(driver, parentElem, isContinue, timeout, pollFrequency) {
         // TODO: poll and enforce timeout
         // Use this.getAll()
 
 
         /*
-        let elems = this.findElements(driver, parentElem, afterElem, isContinue, timeout, pollFrequency);
+        let elems = this.findElements(driver, parentElem, isContinue, timeout, pollFrequency);
         if(elems.length == 0) {
             throw new Error(`Element not found${!timeout ? ' in time' : ''}`);
         }
@@ -311,7 +310,7 @@ class ElementFinder {
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found, empty array if nothing found in time
      * @throws {Error} If an element array wasn't properly matched
      */
-    async findAll(driver, parentElem, afterElem, isContinue, timeout, pollFrequency) {
+    async findAll(driver, parentElem, isContinue, timeout, pollFrequency) {
         // TODO: visible only
         // TODO: Don't forget to log stuff via this.logger (if it's set)
         // Use this.getAll()
@@ -327,7 +326,7 @@ class ElementFinder {
      * Params same as in find()
      * @throws {Error} If this EF is still visible on the page after the timeout expires
      */
-    async not(driver, parentElem, afterElem, isContinue, timeout, pollFrequency) {
+    async not(driver, parentElem, isContinue, timeout, pollFrequency) {
         // Use this.getAll()
 
 
