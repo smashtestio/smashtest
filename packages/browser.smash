@@ -248,9 +248,9 @@
     * Type {{text}} into {{element}} {
         // sendkeys, you can also use unicode codes for special keys like arrows (represented as "[enter]", etc.)
         /*
-        - Enter '[nothing]', Select '[nothing]', etc. just does nothing, without an error
-            - This allows you to Enter, Select, etc. a variable, that can sometimes be set to [nothing] to signify ignoring this form field
-            - Make sure you can escape using \[nothing\]. Same thing with keys like [enter].
+        - Enter '[none]', Select '[none]', etc. just does nothing, without an error
+            - This allows you to Enter, Select, etc. a variable, that can sometimes be set to [none] to signify ignoring this form field
+            - Make sure you can escape using \[none\]. Same thing with keys like [enter].
         */
 
 
@@ -261,9 +261,18 @@
 
     }
 
+    * Clear {{element}} {
+        // clears the given element, a text input or a textarea
+
+
+
+
+
+    }
+
     * Set {{element}} to {{value}} {
         // can be textbox, dropdown, etc. (anything with a value)
-        // support [nothing]
+        // support [none]
 
 
 
@@ -292,7 +301,7 @@
 
     * Select {{value}} from {{element}} {
         // dropdown, where value is exact text, or nearest text with a warning logged (via log())
-        // support [nothing]
+        // support [none]
 
 
 

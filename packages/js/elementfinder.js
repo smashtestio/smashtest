@@ -256,6 +256,12 @@ class ElementFinder {
         let elem = await driver.executeScript(() => {
             console.log("HELLO WORLD");
             return document.querySelector('h1');
+
+
+
+
+
+
         });
 
         console.log(elem);
@@ -278,7 +284,7 @@ class ElementFinder {
      */
     async find(driver, parentElem, afterElem, isContinue, timeout, pollFrequency) {
         // TODO: poll and enforce timeout
-
+        // Use this.getAll()
 
 
         /*
@@ -307,8 +313,8 @@ class ElementFinder {
      */
     async findAll(driver, parentElem, afterElem, isContinue, timeout, pollFrequency) {
         // TODO: visible only
-        // TODO: Don't forget to log stuff via this.logger
-
+        // TODO: Don't forget to log stuff via this.logger (if it's set)
+        // Use this.getAll()
 
 
 
@@ -322,7 +328,7 @@ class ElementFinder {
      * @throws {Error} If this EF is still visible on the page after the timeout expires
      */
     async not(driver, parentElem, afterElem, isContinue, timeout, pollFrequency) {
-
+        // Use this.getAll()
 
 
 
