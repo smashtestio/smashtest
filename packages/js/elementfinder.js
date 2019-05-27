@@ -263,9 +263,7 @@ class ElementFinder {
      */
     async getAll(driver, parentElem) {
         // TODO: inject js that does all the work
-        // TODO: visible only
         // TODO: Don't forget to log stuff via this.logger (if it's set)
-        // Remember, walking the DOM recursively visits element in their order
 
         let elem = await driver.executeScript(() => {
             console.log("HELLO WORLD");
