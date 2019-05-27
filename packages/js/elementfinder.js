@@ -5,7 +5,7 @@ class ElementFinder {
     /**
      * Constructs this EF, which represents a single line in an EF (and links to its child EFs)
      * @param {String} str - The string to parse, may contain multiple lines representing an element and its children
-     * @param {Object} [definedProps] - An object containing a map of prop names to arrays of ElementFinders or functions (the prop matches if at least one of these EFs or functions match)
+     * @param {Object} [definedProps] - An object containing a map of prop names to arrays of ElementFinders or functions (the prop matches if at least one of these EFs/functions match)
      * @param {Function} [logger] - The function used to log, takes in one parameter that is the string to log
      * @param {ElementFinder} [parent] - The ElementFinder that's the parent of this one, none if ommitted
      * @param {Number} [lineNumberOffset] - Offset line numbers by this amount (if this EF has a parent), 0 if omitted
@@ -140,6 +140,7 @@ class ElementFinder {
             // Split into comma-separated props
             const PROP_REGEX = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g;
             let propStrs = parentLine.match(PROP_REGEX).filter(propStr => propStr.trim() != '');
+            let implicitVisible = true;
 
             for(let i = 0; i < propStrs.length; i++) {
                 let propStr = propStrs[i].trim();
@@ -192,12 +193,25 @@ class ElementFinder {
                         input: input,
                         not: isNot
                     };
+
+                    if(['visible', 'any visibility'].includes(canonPropStr)) {
+                        implicitVisible = false;
+                    }
                 }
                 else { // rare case (usually if someone explicitly overrides the selector prop)
                     utils.error(`Cannot find property that matches \`${canonPropStr}\``, filename, parentLineNumber);
                 }
 
                 this.props.push(prop);
+            }
+
+            // Apply the 'visible' property, except if 'visible', 'not visible', or 'any visibility' was explicitly listed
+            if(implicitVisible) {
+                this.props.push({
+                    prop: 'visible',
+                    defs: definedProps['visible'],
+                    not: false
+                });
             }
         }
 
@@ -339,8 +353,16 @@ class ElementFinder {
      */
     static defaultProps() {
         return {
-            'enabled': [ (elems, input) => {
+            'visible': [ (elems, input) => {
 
+            } ],
+
+            'any visibility': [ (elems, input) => {
+                return elems;
+            } ],
+
+            'enabled': [ (elems, input) => {
+                // TODO: if elems is undefined, choose from all elements on the page
             } ],
 
             'disabled': [ (elems, input) => {

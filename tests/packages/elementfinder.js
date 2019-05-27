@@ -60,6 +60,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `text`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -76,7 +82,7 @@ describe("ElementFinder", function() {
             it("multiple 'text'", () => {
                 let ef = new ElementFinder(`'text1', 'text 2'`);
 
-                Comparer.expect(ef, true).to.match({
+                Comparer.expect(ef).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
@@ -90,6 +96,12 @@ describe("ElementFinder", function() {
                             defs: { $typeof: 'array' },
                             input: `text 2`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -114,6 +126,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `text`,
                             not: true
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -130,7 +148,7 @@ describe("ElementFinder", function() {
             it("multiple 'text' with 'not' keyword", () => {
                 let ef = new ElementFinder(`not 'text1', not 'text 2', 'text 3'`);
 
-                Comparer.expect(ef, true).to.match({
+                Comparer.expect(ef).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
@@ -150,6 +168,12 @@ describe("ElementFinder", function() {
                             defs: { $typeof: 'array' },
                             input: `text 3`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -165,7 +189,8 @@ describe("ElementFinder", function() {
 
             it("defined property set to an EF", () => {
                 let ef = new ElementFinder(`bold`, {
-                    bold: [ new ElementFinder(`b`) ]
+                    bold: [ new ElementFinder(`b`) ],
+                    visible: [ (elems, input) => true ]
                 });
 
                 Comparer.expect(ef).to.match({
@@ -182,6 +207,12 @@ describe("ElementFinder", function() {
                                             defs: [ { $typeof: 'function' } ],
                                             input: `b`,
                                             not: false
+                                        },
+                                        {
+                                           prop: `visible`,
+                                           defs: [ { $typeof: 'function' } ],
+                                           input: undefined,
+                                           not: false
                                         }
                                     ],
 
@@ -195,6 +226,12 @@ describe("ElementFinder", function() {
                                 }
                             ],
                             input: undefined
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -210,7 +247,8 @@ describe("ElementFinder", function() {
 
             it("defined property set to a function", () => {
                 let ef = new ElementFinder(`bold`, {
-                    bold: [ (elems, input) => true ]
+                    bold: [ (elems, input) => true ],
+                    visible: [ (elems, input) => true ]
                 });
 
                 Comparer.expect(ef).to.match({
@@ -221,6 +259,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: undefined,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -236,7 +280,8 @@ describe("ElementFinder", function() {
 
             it("defined property with 'text input'", () => {
                 let ef = new ElementFinder(`bold "foobar"`, {
-                    bold: [ (elems, input) => true ]
+                    bold: [ (elems, input) => true ],
+                    visible: [ (elems, input) => true ]
                 });
 
                 Comparer.expect(ef).to.match({
@@ -247,6 +292,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `foobar`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -262,17 +313,24 @@ describe("ElementFinder", function() {
 
             it("defined property with 'not' keyword", () => {
                 let ef = new ElementFinder(`not bold "foobar"`, {
-                    bold: [ (elems, input) => true ]
+                    bold: [ (elems, input) => true ],
+                    visible: [ (elems, input) => true ]
                 });
 
-                Comparer.expect(ef, true).to.match({
+                Comparer.expect(ef).to.match({
                     counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `not bold "foobar"`,
-                            defs: { $typeof: 'array' },
+                            defs: [ { $typeof: 'function' } ],
                             input: `foobar`,
                             not: true
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -297,6 +355,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `div.class1 .class2`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -321,6 +385,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `div.class1 .class2'`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -345,6 +415,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `div[attr='foobar']`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -369,6 +445,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `div.class1 .class2"`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -393,6 +475,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `div[attr="foobar"]`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -417,6 +505,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `div.class1 .class2`,
                             not: true
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -441,6 +535,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: 4,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -529,6 +629,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `.class1`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -557,6 +663,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `.class1`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -599,6 +711,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: undefined,
                             not: true
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -641,6 +759,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: undefined,
                             not: true
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -683,6 +807,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: undefined,
                             not: true
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -707,6 +837,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `quote1,2'3"4`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -755,6 +891,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: undefined,
                             not: true
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -779,6 +921,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `quote1,2'3"4`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ]
                 });
@@ -795,6 +943,75 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `input[attr="quote1,2'3"4'"]`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
+                        }
+                    ]
+                });
+            });
+
+            it("includes the 'visible' property only once if 'visible' is explicitly listed", () => {
+                let ef = new ElementFinder(`something, visible`);
+
+                Comparer.expect(ef).to.match({
+                    props: [
+                        {
+                            prop: `something`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `something`,
+                            not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
+                        }
+                    ]
+                });
+            });
+
+            it("includes the 'visible' property only once if 'not visible' is explicitly listed", () => {
+                let ef = new ElementFinder(`something, not visible`);
+
+                Comparer.expect(ef).to.match({
+                    props: [
+                        {
+                            prop: `something`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `something`,
+                            not: false
+                        },
+                        {
+                           prop: `not visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: true
+                        }
+                    ]
+                });
+            });
+
+            it("does not include the 'visible' property if 'any visibility' is explicitly listed", () => {
+                let ef = new ElementFinder(`something, any visibility`);
+
+                Comparer.expect(ef).to.match({
+                    props: [
+                        {
+                            prop: `something`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `something`,
+                            not: false
+                        },
+                        {
+                           prop: `any visibility`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ]
                 });
@@ -816,6 +1033,12 @@ describe("ElementFinder", function() {
                             defs: [ { $typeof: 'function' } ],
                             input: `one`,
                             not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
                         }
                     ],
 
@@ -829,10 +1052,16 @@ describe("ElementFinder", function() {
                                     defs: [ { $typeof: 'function' } ],
                                     input: `two`,
                                     not: false
+                                },
+                                {
+                                   prop: `visible`,
+                                   defs: [ { $typeof: 'function' } ],
+                                   input: undefined,
+                                   not: false
                                 }
                             ],
 
-                            parent: { props: [ { prop: `one` } ] },
+                            parent: { props: [ { prop: `one` }, { prop: `visible` } ] },
                             children: [],
 
                             matchMe: false,
@@ -863,40 +1092,40 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [
                                 {
-                                    props: [ { prop: `three` } ],
+                                    props: [ { prop: `three` }, { prop: `visible` } ],
                                     parent: {},
                                     children: []
                                 },
                                 {
-                                    props: [ { prop: `four` } ],
+                                    props: [ { prop: `four` }, { prop: `visible` } ],
                                     parent: {},
                                     children: []
                                 }
                             ]
                         },
                         {
-                            props: [ { prop: `five` } ],
+                            props: [ { prop: `five` }, { prop: `visible` } ],
                             parent: {},
                             children: []
                         },
                         {
-                            props: [ { prop: `six` } ],
+                            props: [ { prop: `six` }, { prop: `visible` } ],
                             parent: {},
                             children: [
                                 {
-                                    props: [ { prop: `seven` } ],
+                                    props: [ { prop: `seven` }, { prop: `visible` } ],
                                     parent: {},
                                     children: [
                                         {
-                                            props: [ { prop: `eight` } ],
+                                            props: [ { prop: `eight` }, { prop: `visible` } ],
                                             parent: {},
                                             children: []
                                         }
@@ -917,11 +1146,11 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: []
                         }
@@ -938,11 +1167,11 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: []
                         }
@@ -956,11 +1185,11 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: []
                         }
@@ -977,17 +1206,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
@@ -1006,17 +1235,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
@@ -1033,17 +1262,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
@@ -1062,17 +1291,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
@@ -1091,17 +1320,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
@@ -1118,17 +1347,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
@@ -1147,23 +1376,23 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `any order` }, { prop: `.class` } ],
+                            props: [ { prop: `any order` }, { prop: `.class` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
                         },
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isAnyOrder: false
@@ -1182,23 +1411,23 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `.class` }, { prop: `subset` } ],
+                            props: [ { prop: `.class` }, { prop: `subset` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
                         },
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isSubset: false
@@ -1234,17 +1463,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isElemArray: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isElemArray: false
@@ -1263,18 +1492,18 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isElemArray: false,
                             isAnyOrder: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isElemArray: false,
@@ -1295,18 +1524,18 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isElemArray: false,
                             isSubset: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             isElemArray: false,
@@ -1326,17 +1555,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             matchMe: false
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             matchMe: false
@@ -1354,17 +1583,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             matchMe: true
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             matchMe: false
@@ -1382,18 +1611,18 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
                             counter: { min: 5, max: 5 },
-                            props: [ { prop: `two` }, { prop: `two2` } ],
+                            props: [ { prop: `two` }, { prop: `two2` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             matchMe: true
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             matchMe: false
@@ -1411,17 +1640,17 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             matchMe: true
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
                             matchMe: false
@@ -1515,16 +1744,16 @@ one
                 `);
 
                 Comparer.expect(ef).to.match({
-                    props: [ { prop: `one` } ],
+                    props: [ { prop: `one` }, { prop: `visible` } ],
                     parent: undefined,
                     children: [
                         {
-                            props: [ { prop: `two` } ],
+                            props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: []
                         },
                         {
-                            props: [ { prop: `three` } ],
+                            props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: []
                         }
@@ -1939,6 +2168,30 @@ one
     });
 
     describe("defaultProps()", () => {
+        it.skip("finds elements based on 'visible'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'visible'", () => {
+
+        });
+
+        it.skip("finds elements based on 'not visible'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'not visible'", () => {
+
+        });
+
+        it.skip("finds elements based on 'any visibility'", () => {
+
+        });
+
+        it.skip("doesn't find elements based on 'any visibility'", () => {
+
+        });
+
         it.skip("finds elements based on 'enabled'", () => {
 
         });
