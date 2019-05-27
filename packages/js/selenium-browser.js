@@ -31,7 +31,7 @@ class SeleniumBrowser {
         // Set commonly-used global vars
         runInstance.g('$', browser.$);
         runInstance.g('$$', browser.$$);
-        runInstance.g('set', browser.set);
+        runInstance.g('prop', browser.prop);
         runInstance.g('str', browser.str);
 
         return browser;
@@ -275,7 +275,7 @@ class SeleniumBrowser {
      * Sets the given ElementFinder property
      * Clears the property if value is null
      */
-    set(name, value) {
+    prop(name, value) {
         if(value === null) {
             delete this.props[name];
             return;

@@ -204,9 +204,9 @@ ElementFinders
             - You should list list this one last
         - defined property
             - Setting props
-                - set('prop name', 'EF') // adds to prop definition, an element is matched if it's included in at least one definition
-                - set('prop name', (elems, input) => array of elems that match) // adds to prop definition, the input is the string passed in
-                - set('prop name', null) // clears prop completely
+                - prop('prop name', 'EF') // adds to prop definition, an element is matched if it's included in at least one definition
+                - prop('prop name', (elems, input) => array of elems that match) // adds to prop definition, the input is the string passed in
+                - prop('prop name', null) // clears prop completely
             - Built-in properties
                 - enabled|disabled|checked|unchecked|selected|focused|in focus
                 - element // matches any element

@@ -8,23 +8,23 @@ const chrome = require('selenium-webdriver/chrome');
 const ElementFinder = require('../../packages/js/elementfinder.js');
 const Comparer = require('../../packages/js/comparer.js');
 
-const HEADLESS = true;
+const HEADLESS = false;
 
 describe("ElementFinder", function() {
-    this.driver = null;
-    this.timeout(5000);
+    let driver = null;
+    this.timeout(60000);
 
     before(async () => {
-        this.driver = await new Builder()
+        driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
             .build();
 
-        await this.driver.get(`file://${__dirname}/generic-page.html`);
+        await driver.get(`file://${__dirname}/generic-page.html`);
     });
 
     after(async () => {
-        await this.driver.quit();
+        await driver.quit();
     });
 
     describe("parseIn()", () => {
@@ -1536,8 +1536,10 @@ one
 
     describe("getAll()", () => {
         context("text EFs", () => {
-            it.skip("finds elements based on innerText", () => {
-
+            it.only("finds elements based on innerText", async () => {
+                let ef = new ElementFinder(`foo`);
+                await ef.getAll(driver);
+                await new Promise((res, rej) => {});
             });
 
             it.skip("finds elements based on innerText, where the matching text is of a different case and has differing whitespace", () => {
