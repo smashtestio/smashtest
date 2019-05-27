@@ -1765,7 +1765,7 @@ one
 
     describe("getAll()", () => {
         context("text EFs", () => {
-            it.only("finds elements based on innerText", async () => {
+            it.skip("finds elements based on innerText", async () => {
                 let ef = new ElementFinder(`foo`);
                 await ef.getAll(driver);
                 await new Promise((res, rej) => {});
