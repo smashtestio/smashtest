@@ -254,6 +254,11 @@ ElementFinders
     - Errors: Output expected object with "  -->  not found on page" on some lines
     - [EF] step prints found elements to browser's console and number of elements found to regular console
     - $() and $$()
+    - When plugging a string into an EF string programatically, use str() to escape chars such as ' and " (so it doesn't interfere with quote chars part of the EF string)
+        E.g.,
+        $(`
+            contains '${str(someString)}'
+        `);
 
 API Testing
     - Tutorials on how to test APIs (using existing npm libraries in code blocks)

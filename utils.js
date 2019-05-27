@@ -69,7 +69,40 @@ exports.unescapeBackticks = (str) => {
  * @return {String} str, but with \ escaped to \\, " escaped to \", etc.
  */
 exports.escape = (str) => {
-    return exports.stripQuotes(JSON.stringify(str));
+    let newStr = '';
+    for(let i = 0; i < str.length; i++) {
+        let c = str[i];
+        switch(c) {
+            case '\\':
+                newStr += '\\\\'; break;
+            case '\"':
+                newStr += '\\\"'; break;
+            case '\'':
+                newStr += '\\\''; break;
+            case '[':
+                newStr += '\\['; break;
+            case ']':
+                newStr += '\\]'; break;
+            case '\n':
+                newStr += '\\n'; break;
+            case '\r':
+                newStr += '\\r'; break;
+            case '\t':
+                newStr += '\\t'; break;
+            case '\b':
+                newStr += '\\b'; break;
+            case '\f':
+                newStr += '\\f'; break;
+            case '\v':
+                newStr += '\\v'; break;
+            case '\0':
+                newStr += '\\0'; break;
+            default:
+                newStr += c;
+        }
+    }
+
+    return newStr;
 }
 
 /**

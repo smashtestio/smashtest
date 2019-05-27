@@ -4,6 +4,7 @@ const firefox = require('selenium-webdriver/firefox');
 const safari = require('selenium-webdriver/safari');
 const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
+const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
 
 class SeleniumBrowser {
@@ -31,6 +32,7 @@ class SeleniumBrowser {
         runInstance.g('$', browser.$);
         runInstance.g('$$', browser.$$);
         runInstance.g('prop', browser.prop);
+        runInstance.g('str', browser.str);
 
         return browser;
     }
@@ -290,6 +292,14 @@ class SeleniumBrowser {
         else {
             this.props[name] = [ value ];
         }
+    }
+
+    /**
+     * Escapes the given string for use in an EF
+     * Converts a ' to a \', " to a \", etc.
+     */
+    str(str) {
+        return utils.escape(str);
     }
 
     // /**
