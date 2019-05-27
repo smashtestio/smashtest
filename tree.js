@@ -688,6 +688,12 @@ ${outputBranchAbove(this)}
             }
         }
 
+        // Remove children that don't have a $/~, if at least one child has a $/~
+        // This is a performance optimization. Further $/~ reduction is done in removeUnwantedBranches().
+        if(children.find(c => (c.isOnly || c.isDebug) && !c.isFunctionDeclaration)) {
+            children = children.filter(c => c.isOnly || c.isDebug || c.isFunctionDeclaration);
+        }
+
         // Set step's hooks if a child is a hook
 
         let beforeEveryBranch = [];
