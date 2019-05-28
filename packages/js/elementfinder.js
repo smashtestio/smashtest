@@ -340,13 +340,20 @@ class ElementFinder {
             - matchMe
 
             Errors to attach to an EF:
-                - --> "0 found"
-                - --> "1 found, but it doesn't contain all the children below (in that order)"
-                - --> "N found, but none contain all the children below (in that order)"
-                - For an element array
-                    - For an item: --> doesn't match actual element <tagname, id, classname>
-                    - For items that were matched but beyond the end of the expected array:
-                        --> missing <tagname, id, classname>
+                - EF not found at all  --> not found (zero matches at `prop name`)
+                - EF found once on the page, but not all children match  --> "found, but doesn't contain all the children below (in that order)?"
+                    child that matches
+                    child that doesn't match  --> not found (zero matches at `prop name`)
+
+                - EF found multiple times on page, not children  --> "N found, but none contain all the children below (in that order)?"
+                    child
+                    child
+
+                - EF inside element array that doesn't match  --> doesn't match <tagname id="" class="">
+                - EF inside element array that points beyond the array of elements found  --> not found
+                - Element array that doesn't have items for all matched elements
+                    --> missing
+                    <tagname id="" class="">
         */
 
         return await driver.executeScript(() => {

@@ -427,6 +427,7 @@ function plural(count) {
             //  REPL
             // ***************************************
             let isBranchComplete = false;
+            restoreCursor();
 
             if(isRepl) {
                 if(tree.counts.totalToRun == 0) {
@@ -569,12 +570,19 @@ function plural(count) {
                             }
 
                             if(codeBlockStep === null) {
-                                let stepNode = new StepNode(0);
-                                stepNode.parseLine(input);
-                                if(stepNode.hasCodeBlock()) {
+                                if(input.trim() == '{') {
                                     // A code block has started. Continue inputting lines until a } is inputted.
-                                    codeBlockStep = input;
+                                    codeBlockStep = '(anon step) ' + input;
                                     return;
+                                }
+                                else {
+                                    let stepNode = new StepNode(0);
+                                    stepNode.parseLine(input);
+                                    if(stepNode.hasCodeBlock()) {
+                                        // A code block has started. Continue inputting lines until a } is inputted.
+                                        codeBlockStep = input;
+                                        return;
+                                    }
                                 }
                             }
                             else {
