@@ -3,32 +3,39 @@ const Constants = require('../../constants.js');
 
 class ElementFinder {
     /**
-     * Constructs this EF, which represents a single line in an EF (and links to its child EFs)
+     * Constructs this EF and its child EFs from a string
+     * An EF object represents a single line in an EF string (which may have multiple lines)
+     * Gives this EF a 'visible' prop by default, unless 'visible', 'not visible', or 'any visibility' is explicitly included
      * @param {String} str - The string to parse, may contain multiple lines representing an element and its children
-     * @param {Object} [definedProps] - An object containing a map of prop names to arrays of ElementFinders or functions (the prop matches if at least one of these EFs/functions match)
+     * @param {Object} [definedProps] - An object containing a map of prop name to array of ElementFinders or functions (the prop matches if at least one of these EFs/functions match)
      * @param {Function} [logger] - The function used to log, takes in one parameter that is the string to log
      * @param {ElementFinder} [parent] - The ElementFinder that's the parent of this one, none if ommitted
      * @param {Number} [lineNumberOffset] - Offset line numbers by this amount (if this EF has a parent), 0 if omitted
      * @throws {Error} If there is a parse error
      */
     constructor(str, definedProps, logger, parent, lineNumberOffset) {
+        this.line = '';               // The full line representing this EF
+
         this.counter = { min: 1, max: 1 };   // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
-        this.props = [];           // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
-                                   // Each object in the array has the following format:
-                                   //   { prop: 'full prop text', defs: [ EFs or functions ], input: 'input text if any', not: true or false }
-                                   //
-                                   // 'text' is converted to the prop "contains 'text'"
-                                   // a selector is converted to the prop "selector 'text'"
-                                   // an ord is converted to the prop "position 'N'"
+        this.props = [];              // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
+                                      // Each object in the array has the following format:
+                                      //   { prop: 'full prop text', defs: [ EFs or functions ], input: 'input text if any', not: true or false }
+                                      //
+                                      // 'text' is converted to the prop "contains 'text'"
+                                      // a selector is converted to the prop "selector 'text'"
+                                      // an ord is converted to the prop "position 'N'"
 
-        this.parent = parent;      // Parent EF, if one exists
-        this.children = [];        // Array of ElementFinder. The children of this EF.
+        this.parent = parent;         // Parent EF, if one exists
+        this.children = [];           // Array of ElementFinder. The children of this EF.
 
-        this.matchMe = false;      // If true, this is an [element] (enclosed in brackets)
-        this.isElemArray = false;  // If true, this is an element array
-        this.isAnyOrder = false;   // If true, this.children can be in any order
-        this.isSubset = false;     // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
+        this.matchMe = false;         // If true, this is an [element] (enclosed in brackets)
+        this.isElemArray = false;     // If true, this is an element array
+        this.isAnyOrder = false;      // If true, this.children can be in any order
+        this.isSubset = false;        // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
+
+        this.error = undefined;       // Set to an error string if there was an error finding this EF
+        this.blockErrors = undefined; // Set to an array of strings representing errors to be rendered as blocks
 
         this.logger = logger;
         this.lineNumberOffset = lineNumberOffset || 0;
@@ -80,6 +87,7 @@ class ElementFinder {
 
         // Parse parentLine
         parentLine = parentLine.trim();
+        this.line = parentLine;
         if(parentLine[0] == '*') { // Element Array
             this.isElemArray = true;
             parentLine = parentLine.substr(1).trim(); // drop the *
@@ -255,7 +263,51 @@ class ElementFinder {
     }
 
     /**
-     * Finds all visible elements matching this EF at the current moment in time
+     * @param {String} [errorStart] - String to mark the start of an error, '-->' if omitted
+     * @param {String} [errorEnd] - String to mark the end of an error, '' if omitted
+     * @param {Number} [indents] - The number of indents at this value, 0 if omitted
+     * @return {String} A prettified version of this EF and its children, including errors
+     */
+    print(errorStart, errorEnd, indents) {
+        indents = indents || 0;
+        let errorStartStr = errorStart || '-->';
+        let errorEndStr = errorEnd || '';
+
+        let spaces = '';
+        for(let i = 0; i < indents * Constants.SPACES_PER_INDENT; i++) {
+            spaces += ' ';
+        }
+
+        let nextSpaces = spaces;
+        for(let i = 0; i < Constants.SPACES_PER_INDENT; i++) {
+            nextSpaces += ' ';
+        }
+
+        let error = '';
+        if(this.error) {
+            error = `  ${errorStartStr}  ${this.error}${errorEndStr}`;
+        }
+
+        let blockErrors = '';
+        if(this.blockErrors) {
+            this.blockErrors.forEach(blockError => {
+                blockErrors += '\n' + nextSpaces + errorStartStr + '\n' + nextSpaces + blockError + '\n';
+            });
+        }
+
+        let children = '';
+        if(this.children.length > 0) {
+            children = '\n';
+            for(let i = 0; i < this.children.length; i++) {
+                children += this.children[i].print(errorStart, errorEnd, indents + 1) + (i < this.children.length - 1 ? '\n' : '');
+            }
+        }
+
+        return spaces + this.line + error + children + blockErrors;
+    }
+
+    /**
+     * Finds all elements matching this EF at the current moment in time
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found, empty array if nothing found
@@ -265,26 +317,75 @@ class ElementFinder {
         // TODO: inject js that does all the work
         // TODO: Don't forget to log stuff via this.logger (if it's set)
 
-        let elem = await driver.executeScript(() => {
-            console.log("HELLO WORLD");
-            return document.querySelector('h1');
+        /*
+            let pool = parent ? parent.querySelectorAll('*') : document.querySelectorAll('*');
+            let Es = All elements that match this EF
+                Start with pool and apply props sequentially until we're left with an array
+
+            For each e in Es
+                let pool = all elements under e
+                For each c in this.children
+                    Find first c in pool - getAll(driver, pool), where this getAll() is injected into the browser
+                    Remove all items from pool before c
+                    If pool is empty, e is bad. Remove it from Es. Try the next e.
+
+            return Es
+
+
+            Further considerations:
+            - counter
+            - isAnyOrder
+            - isSubset
+            - isElemArray
+            - matchMe
+
+            Errors to attach to an EF:
+                - --> "0 found"
+                - --> "1 found, but it doesn't contain all the children below (in that order)"
+                - --> "N found, but none contain all the children below (in that order)"
+                - For an element array
+                    - For an item: --> doesn't match actual element <tagname, id, classname>
+                    - For items that were matched but beyond the end of the expected array:
+                        --> missing <tagname, id, classname>
+        */
+
+        return await driver.executeScript(() => {
+            let ef = JSON.parse(arguments[0]);
+            let parentElem = arguments[1];
+
+            console.log(ef);
 
 
 
 
 
+            function getAll(pool) {
 
-        });
-
-        console.log(elem);
-
+            }
 
 
+        }, serializeMe(this), parentElem);
 
+        /**
+         * @return {String} This EF object, converted into JSON and with functions converted into strings
+         */
+        function serializeMe(self) {
+            return JSON.stringify(self, (k, v) => {
+                if(k == 'parent') {
+                    return undefined; // to prevent circular references
+                }
+                else if(typeof v == 'function') {
+                    return v.toString();
+                }
+                else {
+                    return v;
+                }
+            });
+        }
     }
 
     /**
-     * Finds the first visible element matching this EF
+     * Finds the first element matching this EF
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
      * @param {Boolean} [isContinue] - How to set Error.continue, if an Error is thrown
@@ -317,13 +418,12 @@ class ElementFinder {
     }
 
     /**
-     * Finds all visible elements matching this EF
+     * Finds all elements matching this EF
      * Params same as in find()
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found, empty array if nothing found in time
      * @throws {Error} If an element array wasn't properly matched
      */
     async findAll(driver, parentElem, isContinue, timeout, pollFrequency) {
-        // TODO: visible only
         // TODO: Don't forget to log stuff via this.logger (if it's set)
         // Use this.getAll()
 
@@ -334,9 +434,9 @@ class ElementFinder {
     }
 
     /**
-     * Ensures that this EF is not visible or does not exist
+     * Ensures that this EF cannot be found
      * Params same as in find()
-     * @throws {Error} If this EF is still visible on the page after the timeout expires
+     * @throws {Error} If this EF is still found after the timeout expires
      */
     async not(driver, parentElem, isContinue, timeout, pollFrequency) {
         // Use this.getAll()

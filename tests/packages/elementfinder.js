@@ -53,6 +53,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`'text'`);
 
                 Comparer.expect(ef).to.match({
+                    line: `'text'`,
                     counter: { min: 1, max: 1 },
                     props: [
                         {
@@ -83,6 +84,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`'text1', 'text 2'`);
 
                 Comparer.expect(ef).to.match({
+                    line: `'text1', 'text 2'`,
                     counter: { min: 1, max: 1 },
                     props: [
                         {
@@ -1026,6 +1028,7 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
+                    line: `one`,
                     counter: { min: 1, max: 1 },
                     props: [
                         {
@@ -1045,6 +1048,7 @@ describe("ElementFinder", function() {
                     parent: undefined,
                     children: [
                         {
+                            line: `two`,
                             counter: { min: 1, max: 1 },
                             props: [
                                 {
@@ -1763,11 +1767,194 @@ one
         });
     });
 
+    describe("print()", () => {
+        it("prints a one-line EF", () => {
+            let ef = new ElementFinder(`one`);
+
+            expect(ef.print()).to.equal(`one`);
+
+            ef = new ElementFinder(`one, two`);
+
+            expect(ef.print()).to.equal(`one, two`);
+        });
+
+        it("prints a one-line EF with an error", () => {
+            let ef = new ElementFinder(`one`);
+            ef.error = `oops`;
+
+            expect(ef.print()).to.equal(`one  -->  oops`);
+        });
+
+        it("prints a one-line EF with one block error", () => {
+            let ef = new ElementFinder(`one`);
+            ef.blockErrors = [`oops`];
+
+            expect(ef.print()).to.equal(`one
+    -->
+    oops
+`);
+        });
+
+        it("prints a one-line EF with multiple block errors", () => {
+            let ef = new ElementFinder(`one`);
+            ef.blockErrors = [`oops1`, `oops2`];
+
+            expect(ef.print()).to.equal(`one
+    -->
+    oops1
+
+    -->
+    oops2
+`);
+        });
+
+        it("prints a one-line EF with an error and multiple block errors", () => {
+            let ef = new ElementFinder(`one`);
+            ef.error = `oops`;
+            ef.blockErrors = [`oops1`, `oops2`];
+
+            expect(ef.print()).to.equal(`one  -->  oops
+    -->
+    oops1
+
+    -->
+    oops2
+`);
+        });
+
+        it("prints a multi-line EF", () => {
+            let ef = new ElementFinder(`
+                one
+                    two
+                        three
+                    four
+                    five
+            `);
+
+            expect(ef.print()).to.equal(`one
+    two
+        three
+    four
+    five`);
+        });
+
+        it("prints a multi-line EF with errors on multiple lines", () => {
+            let ef = new ElementFinder(`
+                one
+                    two
+                        three
+                    four
+                    five
+            `);
+            ef.error = `oops1`;
+            ef.children[0].error = `oops2`;
+            ef.children[0].children[0].error = `oops3`;
+            ef.children[2].error = `oops4`;
+
+            expect(ef.print()).to.equal(`one  -->  oops1
+    two  -->  oops2
+        three  -->  oops3
+    four
+    five  -->  oops4`);
+        });
+
+        it("prints a multi-line EF with a block error on multiple lines", () => {
+            let ef = new ElementFinder(`
+                one
+                    two
+                        three
+                    four
+                    five
+            `);
+            ef.blockErrors = [`oops1`];
+            ef.children[0].blockErrors = [`oops2`];
+            ef.children[0].children[0].blockErrors = [`oops3`];
+            ef.children[2].blockErrors = [`oops4`];
+
+            expect(ef.print()).to.equal(`one
+    two
+        three
+            -->
+            oops3
+
+        -->
+        oops2
+
+    four
+    five
+        -->
+        oops4
+
+    -->
+    oops1
+`);
+        });
+
+        it("prints a multi-line EF with multiple errors and multiple block errors on multiple lines", () => {
+            let ef = new ElementFinder(`
+                one
+                    two
+                        three
+                    four
+                    five
+            `);
+
+            ef.error = `error1`;
+            ef.children[0].error = `error2`;
+            ef.children[0].children[0].error = `error3`;
+            ef.children[2].error = `error4`;
+
+            ef.blockErrors = [`oops1`, `oops2`];
+            ef.children[0].blockErrors = [`oops3`, `oops4`, `oops5`];
+            ef.children[0].children[0].blockErrors = [`oops6`, `oops7`, `oops8`];
+            ef.children[2].blockErrors = [`oops9`, `oops10`];
+
+            expect(ef.print()).to.equal(`one  -->  error1
+    two  -->  error2
+        three  -->  error3
+            -->
+            oops6
+
+            -->
+            oops7
+
+            -->
+            oops8
+
+        -->
+        oops3
+
+        -->
+        oops4
+
+        -->
+        oops5
+
+    four
+    five  -->  error4
+        -->
+        oops9
+
+        -->
+        oops10
+
+    -->
+    oops1
+
+    -->
+    oops2
+`);
+        });
+    });
+
     describe("getAll()", () => {
         context("text EFs", () => {
-            it.skip("finds elements based on innerText", async () => {
-                let ef = new ElementFinder(`foo`);
-                await ef.getAll(driver);
+            it.only("finds elements based on innerText", async () => {
+                let ef = new ElementFinder(`
+                    one
+                        two
+                `);
+                await ef.getAll(driver, await driver.findElement(By.tagName('h1')));
                 await new Promise((res, rej) => {});
             });
 
