@@ -869,6 +869,7 @@ REPL
             - One line only
             - Multiple lines only if step has a code block
                 - End the code block by entering a }
+                - Type in just { to enter an anonymous step with code block (i.e., step with no name)
             - No function declarations
         - Ctrl + C to exit
         - Other options
