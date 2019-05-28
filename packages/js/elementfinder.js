@@ -314,22 +314,27 @@ class ElementFinder {
      * @throws {Error} If an element array wasn't properly matched
      */
     async getAll(driver, parentElem) {
-        // TODO: inject js that does all the work
         // TODO: Don't forget to log stuff via this.logger (if it's set)
 
         /*
-            let pool = parent ? parent.querySelectorAll('*') : document.querySelectorAll('*');
-            let Es = All elements that match this EF
-                Start with pool and apply props sequentially until we're left with an array
+            INJECTED CODE:
+                getAll(ef, parentElem - both passed in via args);
 
-            For each e in Es
-                let pool = all elements under e
-                For each c in this.children
-                    Find first c in pool - getAll(driver, pool), where this getAll() is injected into the browser
-                    Remove all items from pool before c
-                    If pool is empty, e is bad. Remove it from Es. Try the next e.
+                function getAll(ef, parentElem) {
+                    let pool = parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*');
+                    let Es = All elements that match ef (top line only, no children)
+                        Start with pool and apply props sequentially until we're left with an array
 
-            return Es
+                    For each e in Es
+                        let pool = all elements under e
+                        For each c in this.children
+                            Find first c in pool - getAll(driver, pool), where this getAll() is injected into the browser
+                            Remove all items from pool before c
+                            If pool is empty, e is bad. Remove it from Es. Try the next e.
+
+                    return Es
+                }
+
 
 
             Further considerations:
@@ -340,10 +345,10 @@ class ElementFinder {
             - matchMe
 
             Errors to attach to an EF:
-                - EF not found at all  --> not found (zero matches at `prop name`)
+                - EF not found at all  --> not found (zero matches after `prop name` applied)
                 - EF found once on the page, but not all children match  --> "found, but doesn't contain all the children below (in that order)?"
                     child that matches
-                    child that doesn't match  --> not found (zero matches at `prop name`)
+                    child that doesn't match  --> not found (zero matches after `prop name` applied)
 
                 - EF found multiple times on page, not children  --> "N found, but none contain all the children below (in that order)?"
                     child
