@@ -16,7 +16,7 @@ class ElementFinder {
     constructor(str, definedProps, logger, parent, lineNumberOffset) {
         this.line = '';               // The full line representing this EF
 
-        this.counter = { min: 1 };    // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
+        this.counter = { min: 1, max: 1 }; // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
         this.props = [];              // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
                                       // Each object in the array has the following format:

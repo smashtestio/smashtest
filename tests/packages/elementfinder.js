@@ -54,7 +54,7 @@ describe("ElementFinder", function() {
 
                 Comparer.expect(ef).to.match({
                     line: `'text'`,
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `'text'`,
@@ -85,7 +85,7 @@ describe("ElementFinder", function() {
 
                 Comparer.expect(ef).to.match({
                     line: `'text1', 'text 2'`,
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `'text1'`,
@@ -121,7 +121,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`not 'text'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `not 'text'`,
@@ -151,7 +151,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`not 'text1', not 'text 2', 'text 3'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `not 'text1'`,
@@ -196,7 +196,7 @@ describe("ElementFinder", function() {
                 });
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `bold`,
@@ -228,7 +228,7 @@ describe("ElementFinder", function() {
                 });
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `bold`,
@@ -261,7 +261,7 @@ describe("ElementFinder", function() {
                 });
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `bold "foobar"`,
@@ -294,7 +294,7 @@ describe("ElementFinder", function() {
                 });
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `not bold "foobar"`,
@@ -324,7 +324,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div.class1 .class2`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2`,
@@ -354,7 +354,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div.class1 .class2'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2'`,
@@ -384,7 +384,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div[attr='foobar']`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `div[attr='foobar']`,
@@ -414,7 +414,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div.class1 .class2"`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2"`,
@@ -444,7 +444,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div[attr="foobar"]`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `div[attr="foobar"]`,
@@ -474,7 +474,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`not div.class1 .class2`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `not div.class1 .class2`,
@@ -504,7 +504,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`4th`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `4th`,
@@ -530,11 +530,11 @@ describe("ElementFinder", function() {
                 });
             });
 
-            it("no counter equates to a counter of 1+", () => {
+            it("no counter equates to a counter of 1", () => {
                 let ef = new ElementFinder(`something`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 }
+                    counter: { min: 1, max: 1 }
                 });
             });
 
@@ -598,7 +598,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`.class1 // comment`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `.class1`,
@@ -632,7 +632,7 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `.class1`,
@@ -662,7 +662,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div.class1 .class2, 'piece of text', contains "other text", not selected`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2`,
@@ -710,7 +710,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`    div.class1 .class2  , 'piece of text'    , contains "other text", not selected    `);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2`,
@@ -758,7 +758,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`input[attr='quote'] p[attr="quote"], 'piece of text', contains "other text", not selected`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `input[attr='quote'] p[attr="quote"]`,
@@ -806,7 +806,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`'quote1,2\\'3"4'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `'quote1,2\\'3"4'`,
@@ -836,7 +836,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4'], input[attr="1,2'3\\"4"].div[attr="1,2\\'3\\"4"], 'piece of text', contains "other text", not selected`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4']`,
@@ -890,7 +890,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`contains 'quote1,2\\'3"4'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `contains 'quote1,2\\'3"4'`,
@@ -912,7 +912,7 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`selector 'input[attr="quote1,2\\'3\\"4\\'"]'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `selector 'input[attr="quote1,2\\'3\\"4\\'"]'`,
@@ -1003,7 +1003,7 @@ describe("ElementFinder", function() {
 
                 Comparer.expect(ef).to.match({
                     line: `one`,
-                    counter: { min: 1 },
+                    counter: { min: 1, max: 1 },
                     props: [
                         {
                             prop: `one`,
@@ -1023,7 +1023,7 @@ describe("ElementFinder", function() {
                     children: [
                         {
                             line: `two`,
-                            counter: { min: 1 },
+                            counter: { min: 1, max: 1 },
                             props: [
                                 {
                                     prop: `two`,
