@@ -155,22 +155,12 @@ class Branch {
             startIndent = 0;
         }
 
-        let output = spaces(startIndent) + branchName + '\n';
+        let output = utils.getIndents(startIndent) + branchName + '\n';
 
         this.steps.forEach(step => {
             let stepNode = stepNodeIndex[step.id];
-            output += spaces(step.level + startIndent + 1) + stepNode.text + '\n';
+            output += utils.getIndents(step.level + startIndent + 1) + stepNode.text + '\n';
         });
-
-        function spaces(indents) {
-            let out = '';
-            for(let i = 0; i < indents; i++) {
-                for (let j = 0; j < Constants.SPACES_PER_INDENT; j++) {
-                    out += ' ';
-                }
-            }
-            return out;
-        }
 
         return output;
     }

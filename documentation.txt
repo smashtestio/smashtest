@@ -188,6 +188,7 @@ UI Testing
 ElementFinders
     - Make this a part of the UI Testing section?
     - Method of finding and/or verifying elements on the page
+        - Finds every instance of the topmost element
     - Examples
         - Examples from elementfinder_sample4.txt
         - Show how a [] in a step's text can contain a one-line EF
@@ -257,7 +258,9 @@ ElementFinders
                 [.child]
         - Counters have to be outside of this, e.g., 4 x [.child]
         - 'next to' prop has the advantage of being used on one-line EFs inside a step
-    - Errors: Output expected object with "  -->  not found on page" on some lines
+    - If multiple lines are at the top indent, an implicit "body" EF is inserted above them all
+        - This help if you want to verify a list of things on the page but don't want to start the EF with something like "body" or "element"
+    - Errors: Output expected object with "  -->  error" on some lines
     - [EF] step prints found elements to browser's console and number of elements found to regular console
     - $() and $$()
     - When plugging a string into an EF string programatically, use str() to escape chars such as ' and " (so it doesn't interfere with quote chars part of the EF string)

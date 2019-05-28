@@ -14,18 +14,18 @@ describe("ElementFinder", function() {
     let driver = null;
     this.timeout(60000);
 
-    before(async () => {
-        driver = await new Builder()
-            .forBrowser('chrome')
-            .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
-            .build();
-
-        await driver.get(`file://${__dirname}/generic-page.html`);
-    });
-
-    after(async () => {
-        await driver.quit();
-    });
+    // before(async () => {
+    //     driver = await new Builder()
+    //         .forBrowser('chrome')
+    //         .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
+    //         .build();
+    //
+    //     await driver.get(`file://${__dirname}/generic-page.html`);
+    // });
+    //
+    // after(async () => {
+    //     await driver.quit();
+    // });
 
     describe("parseIn()", () => {
         context("empty EFs", () => {
@@ -1201,6 +1201,178 @@ describe("ElementFinder", function() {
                 });
             });
 
+            it("inserts implicit body EF if more than one line is at indent 0", () => {
+                let ef = new ElementFinder(`
+                    one
+                    two
+                `);
+
+                Comparer.expect(ef).to.match({
+                    line: `body`,
+                    props: [
+                        {
+                            prop: `body`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `body`,
+                            not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
+                        }
+                    ],
+                    parent: undefined,
+                    children: [
+                        {
+                            line: `one`,
+                            props: [
+                                {
+                                    prop: `one`,
+                                    defs: [ { $typeof: 'function' } ],
+                                    input: `one`,
+                                    not: false
+                                },
+                                {
+                                   prop: `visible`,
+                                   defs: [ { $typeof: 'function' } ],
+                                   input: undefined,
+                                   not: false
+                                }
+                            ],
+                            parent: { line: `body` },
+                            children: []
+                        },
+                        {
+                            line: `two`,
+                            props: [
+                                {
+                                    prop: `two`,
+                                    defs: [ { $typeof: 'function' } ],
+                                    input: `two`,
+                                    not: false
+                                },
+                                {
+                                   prop: `visible`,
+                                   defs: [ { $typeof: 'function' } ],
+                                   input: undefined,
+                                   not: false
+                                }
+                            ],
+                            parent: { line: `body` },
+                            children: []
+                        }
+                    ]
+                });
+
+                ef = new ElementFinder(`
+                    one
+                        two
+                    three
+
+                    four
+                `);
+
+                Comparer.expect(ef).to.match({
+                    line: `body`,
+                    props: [
+                        {
+                            prop: `body`,
+                            defs: [ { $typeof: 'function' } ],
+                            input: `body`,
+                            not: false
+                        },
+                        {
+                           prop: `visible`,
+                           defs: [ { $typeof: 'function' } ],
+                           input: undefined,
+                           not: false
+                        }
+                    ],
+                    parent: undefined,
+                    children: [
+                        {
+                            line: `one`,
+                            props: [
+                                {
+                                    prop: `one`,
+                                    defs: [ { $typeof: 'function' } ],
+                                    input: `one`,
+                                    not: false
+                                },
+                                {
+                                   prop: `visible`,
+                                   defs: [ { $typeof: 'function' } ],
+                                   input: undefined,
+                                   not: false
+                                }
+                            ],
+                            parent: { line: `body` },
+                            children: [
+                                {
+                                    line: `two`,
+                                    props: [
+                                        {
+                                            prop: `two`,
+                                            defs: [ { $typeof: 'function' } ],
+                                            input: `two`,
+                                            not: false
+                                        },
+                                        {
+                                           prop: `visible`,
+                                           defs: [ { $typeof: 'function' } ],
+                                           input: undefined,
+                                           not: false
+                                        }
+                                    ],
+                                    parent: {},
+                                    children: []
+                                }
+                            ]
+                        },
+                        {
+                            line: `three`,
+                            props: [
+                                {
+                                    prop: `three`,
+                                    defs: [ { $typeof: 'function' } ],
+                                    input: `three`,
+                                    not: false
+                                },
+                                {
+                                   prop: `visible`,
+                                   defs: [ { $typeof: 'function' } ],
+                                   input: undefined,
+                                   not: false
+                                }
+                            ],
+                            parent: { line: `body` },
+                            children: []
+                        },
+                        {
+                            line: `four`,
+                            props: [
+                                {
+                                    prop: `four`,
+                                    defs: [ { $typeof: 'function' } ],
+                                    input: `four`,
+                                    not: false
+                                },
+                                {
+                                   prop: `visible`,
+                                   defs: [ { $typeof: 'function' } ],
+                                   input: undefined,
+                                   not: false
+                                }
+                            ],
+                            parent: { line: `body` },
+                            children: []
+                        }
+                    ]
+                });
+            });
+
             it("'any order' keyword", () => {
                 let ef = new ElementFinder(`
                     one
@@ -1712,28 +1884,10 @@ one
                 }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space. [line:3]");
             });
 
-            it("throws an error if there is more than one line at the top indent", () => {
-                assert.throws(() => {
-                    new ElementFinder(`
-                        one
-                        two
-                    `);
-                }, "ElementFinder cannot have more than one line at indent 0 [line:3]");
-
-                assert.throws(() => {
-                    new ElementFinder(`
-                        one
-                            two
-                        three
-                    `);
-                }, "ElementFinder cannot have more than one line at indent 0 [line:4]");
-            });
-
             it("throws an error if the 'selector' prop isn't available but is needed", () => {
                 assert.throws(() => {
                     new ElementFinder(`
                         one
-                        two
                     `, {});
                 }, "Cannot find property that matches `selector` [line:2]");
             });
@@ -2177,6 +2331,14 @@ one
             });
 
             it.skip("doesn't find [child elements]", () => {
+
+            });
+
+            it.skip("finds counter x [child element]", () => {
+
+            });
+
+            it.skip("doesn't find counter x [child elements]", () => {
 
             });
 

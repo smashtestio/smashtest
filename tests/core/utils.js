@@ -147,6 +147,15 @@ describe("Utils", () => {
         });
     });
 
+    describe("getIndents()", () => {
+        it("returns indents", () => {
+            expect(utils.getIndents(0)).to.equal('');
+            expect(utils.getIndents(1)).to.equal('    ');
+            expect(utils.getIndents(2)).to.equal('        ');
+            expect(utils.getIndents(3)).to.equal('            ');
+        });
+    });
+
     describe("copyProps()", () => {
         it("copies properies", () => {
             let source = {

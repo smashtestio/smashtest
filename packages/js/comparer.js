@@ -488,8 +488,8 @@ class Comparer {
 
         if(this.wasSeen(value)) return '[Circular]\n';
 
-        let spaces = outputIndents(indents);
-        let nextSpaces = outputIndents(indents + 1);
+        let spaces = utils.getIndents(indents);
+        let nextSpaces = utils.getIndents(indents + 1);
         let ret = '';
         let self = this;
 
@@ -546,18 +546,6 @@ class Comparer {
         }
         else {
             return ret;
-        }
-
-        /**
-         * @return {String} A string with the given number of indents, in spaces
-         */
-        function outputIndents(num) {
-            const SPACES_PER_INDENT = 4;
-            let spaces = '';
-            for(let i = 0; i < num * SPACES_PER_INDENT; i++) {
-                spaces += ' ';
-            }
-            return spaces;
         }
 
         /**

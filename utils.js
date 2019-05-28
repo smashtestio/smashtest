@@ -201,6 +201,17 @@ exports.numIndents = (line, filename, lineNumber) => {
 }
 
 /**
+ * @return {String} n indents worth of spaces
+ */
+exports.getIndents = (n) => {
+    let spaces = '';
+    for(let i = 0; i < Constants.SPACES_PER_INDENT * n; i++) {
+        spaces += ' ';
+    }
+    return spaces;
+}
+
+/**
  * Call during big tasks in async code so as not to hog the event loop
  */
 exports.breather = async () => {

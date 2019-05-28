@@ -71,19 +71,36 @@ class ElementFinder {
         let parentLine = null;
         let parentLineNumber = null;
 
-        let i = 0;
-        for(; i < lines.length; i++) {
+        for(let i = 0; i < lines.length; i++) {
             let line = lines[i];
             if(line.trim() != '') {
                 parentLine = line;
                 parentLineNumber = i + 1;
-                i++;
                 break;
             }
         }
 
         let filename = 'line';
         let baseIndent = utils.numIndents(parentLine, filename, parentLineNumber);
+
+        // If there is more than one line at baseIndent, make this a body EF and all of str will be its children
+        for(let i = parentLineNumber; i < lines.length; i++) {
+            let line = lines[i];
+            if(line.trim() != '') {
+                let indents = utils.numIndents(line, filename, i + 1);
+                if(indents == baseIndent) {
+                    let spaces = utils.getIndents(1);
+                    lines = lines.map(line => spaces + line);
+
+                    lines.unshift(utils.getIndents(baseIndent) + 'body');
+
+                    parentLine = lines[0];
+                    parentLineNumber = 1;
+
+                    break;
+                }
+            }
+        }
 
         // Parse parentLine
         parentLine = parentLine.trim();
@@ -225,7 +242,7 @@ class ElementFinder {
 
         // Parse children
         let childObjs = [];
-        for(; i < lines.length; i++) {
+        for(let i = parentLineNumber; i < lines.length; i++) {
             let line = lines[i];
             let lineNumber = i + this.lineNumberOffset + 1;
 
@@ -237,9 +254,6 @@ class ElementFinder {
             if(indents < 0) {
                 utils.error(`ElementFinder cannot have a line that's indented left of the first line`, filename, lineNumber);
             }
-            else if(indents == 0) {
-                utils.error(`ElementFinder cannot have more than one line at indent 0`, filename, lineNumber);
-            }
             else if(indents == 1) {
                 childObjs.push({str: line, lineNumber: lineNumber}); // a new child is formed
             }
@@ -250,6 +264,7 @@ class ElementFinder {
 
                 childObjs[childObjs.length - 1].str += `\n${line}`; // string goes onto the end of the last child
             }
+            // NOTE: indents == 0 shouldn't occur
         }
 
         childObjs.forEach(c => {
@@ -273,15 +288,8 @@ class ElementFinder {
         let errorStartStr = errorStart || '-->';
         let errorEndStr = errorEnd || '';
 
-        let spaces = '';
-        for(let i = 0; i < indents * Constants.SPACES_PER_INDENT; i++) {
-            spaces += ' ';
-        }
-
-        let nextSpaces = spaces;
-        for(let i = 0; i < Constants.SPACES_PER_INDENT; i++) {
-            nextSpaces += ' ';
-        }
+        let spaces = utils.getIndents(indents);
+        let nextSpaces = utils.getIndents(indents + 1);
 
         let error = '';
         if(this.error) {
