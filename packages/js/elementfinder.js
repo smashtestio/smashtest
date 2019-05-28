@@ -35,7 +35,7 @@ class ElementFinder {
         this.isSubset = false;        // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
 
         this.error = undefined;       // Set to an error string if there was an error finding this EF
-        this.blockErrors = undefined; // Set to an array of strings representing errors to be rendered as blocks
+        this.blockErrors = undefined; // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
 
         this.logger = logger;
         this.lineNumberOffset = lineNumberOffset || 0;
@@ -291,7 +291,7 @@ class ElementFinder {
         let blockErrors = '';
         if(this.blockErrors) {
             this.blockErrors.forEach(blockError => {
-                blockErrors += '\n' + nextSpaces + errorStartStr + '\n' + nextSpaces + blockError + '\n';
+                blockErrors += '\n' + nextSpaces + errorStartStr + ' ' + blockError.header + '\n' + nextSpaces + blockError.body + errorEndStr + '\n';
             });
         }
 

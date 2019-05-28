@@ -1787,38 +1787,52 @@ one
 
         it("prints a one-line EF with one block error", () => {
             let ef = new ElementFinder(`one`);
-            ef.blockErrors = [`oops`];
+            ef.blockErrors = [ { header: `header1`, body: `body1` } ];
 
             expect(ef.print()).to.equal(`one
-    -->
-    oops
+    --> header1
+    body1
 `);
         });
 
         it("prints a one-line EF with multiple block errors", () => {
             let ef = new ElementFinder(`one`);
-            ef.blockErrors = [`oops1`, `oops2`];
+            ef.blockErrors = [ { header: `header1`, body: `body1` }, { header: `header2`, body: `body2` } ];
 
             expect(ef.print()).to.equal(`one
-    -->
-    oops1
+    --> header1
+    body1
 
-    -->
-    oops2
+    --> header2
+    body2
 `);
         });
 
         it("prints a one-line EF with an error and multiple block errors", () => {
             let ef = new ElementFinder(`one`);
             ef.error = `oops`;
-            ef.blockErrors = [`oops1`, `oops2`];
+            ef.blockErrors = [ { header: `header1`, body: `body1` }, { header: `header2`, body: `body2` } ];
 
             expect(ef.print()).to.equal(`one  -->  oops
-    -->
-    oops1
+    --> header1
+    body1
 
-    -->
-    oops2
+    --> header2
+    body2
+`);
+        });
+
+        it("prints using a custom errorStart and errorEnd", () => {
+            let ef = new ElementFinder(`one`);
+            ef.error = `oops`;
+            ef.blockErrors = [ { header: `header1`, body: `body1` }, { header: `header2`, body: `body2` } ];
+
+            expect(ef.print(`<start>`, `<end>`)).to.equal(`one  <start>  oops<end>
+    <start> header1
+    body1<end>
+
+    <start> header2
+    body2<end>
 `);
         });
 
@@ -1866,27 +1880,27 @@ one
                     four
                     five
             `);
-            ef.blockErrors = [`oops1`];
-            ef.children[0].blockErrors = [`oops2`];
-            ef.children[0].children[0].blockErrors = [`oops3`];
-            ef.children[2].blockErrors = [`oops4`];
+            ef.blockErrors = [ { header: `header1`, body: `body1` } ];
+            ef.children[0].blockErrors = [ { header: `header2`, body: `body2` } ];
+            ef.children[0].children[0].blockErrors = [ { header: `header3`, body: `body3` } ];
+            ef.children[2].blockErrors = [ { header: `header4`, body: `body4` } ];
 
             expect(ef.print()).to.equal(`one
     two
         three
-            -->
-            oops3
+            --> header3
+            body3
 
-        -->
-        oops2
+        --> header2
+        body2
 
     four
     five
-        -->
-        oops4
+        --> header4
+        body4
 
-    -->
-    oops1
+    --> header1
+    body1
 `);
         });
 
@@ -1904,52 +1918,52 @@ one
             ef.children[0].children[0].error = `error3`;
             ef.children[2].error = `error4`;
 
-            ef.blockErrors = [`oops1`, `oops2`];
-            ef.children[0].blockErrors = [`oops3`, `oops4`, `oops5`];
-            ef.children[0].children[0].blockErrors = [`oops6`, `oops7`, `oops8`];
-            ef.children[2].blockErrors = [`oops9`, `oops10`];
+            ef.blockErrors = [ { header: `header1`, body: `body1` }, { header: `header2`, body: `body2` } ];
+            ef.children[0].blockErrors = [ { header: `header3`, body: `body3` }, { header: `header4`, body: `body4` }, { header: `header5`, body: `body5` } ];
+            ef.children[0].children[0].blockErrors = [ { header: `header6`, body: `body6` }, { header: `header7`, body: `body7` }, { header: `header8`, body: `body8` } ];
+            ef.children[2].blockErrors = [ { header: `header9`, body: `body9` }, { header: `header10`, body: `body10` } ];
 
             expect(ef.print()).to.equal(`one  -->  error1
     two  -->  error2
         three  -->  error3
-            -->
-            oops6
+            --> header6
+            body6
 
-            -->
-            oops7
+            --> header7
+            body7
 
-            -->
-            oops8
+            --> header8
+            body8
 
-        -->
-        oops3
+        --> header3
+        body3
 
-        -->
-        oops4
+        --> header4
+        body4
 
-        -->
-        oops5
+        --> header5
+        body5
 
     four
     five  -->  error4
-        -->
-        oops9
+        --> header9
+        body9
 
-        -->
-        oops10
+        --> header10
+        body10
 
-    -->
-    oops1
+    --> header1
+    body1
 
-    -->
-    oops2
+    --> header2
+    body2
 `);
         });
     });
 
     describe("getAll()", () => {
         context("text EFs", () => {
-            it.only("finds elements based on innerText", async () => {
+            it.skip("finds elements based on innerText", async () => {
                 let ef = new ElementFinder(`
                     one
                         two
