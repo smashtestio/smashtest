@@ -54,29 +54,29 @@ describe("ElementFinder", function() {
 
                 Comparer.expect(ef).to.match({
                     line: `'text'`,
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `'text'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `text`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -85,35 +85,35 @@ describe("ElementFinder", function() {
 
                 Comparer.expect(ef).to.match({
                     line: `'text1', 'text 2'`,
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `'text1'`,
-                            defs: { $typeof: 'array' },
+                            def: `contains`,
                             input: `text1`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `'text 2'`,
-                            defs: { $typeof: 'array' },
+                            def: `contains`,
                             input: `text 2`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -121,29 +121,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`not 'text'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `not 'text'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `text`,
                             not: true
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -151,41 +151,41 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`not 'text1', not 'text 2', 'text 3'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `not 'text1'`,
-                            defs: { $typeof: 'array' },
+                            def: `contains`,
                             input: `text1`,
                             not: true
                         },
                         {
                             prop: `not 'text 2'`,
-                            defs: { $typeof: 'array' },
+                            def: `contains`,
                             input: `text 2`,
                             not: true
                         },
                         {
                             prop: `'text 3'`,
-                            defs: { $typeof: 'array' },
+                            def: `contains`,
                             input: `text 3`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -196,54 +196,28 @@ describe("ElementFinder", function() {
                 });
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `bold`,
-                            defs: [
-                                {
-                                    counter: { min: 1, max: 1 },
-                                    props: [
-                                        {
-                                            prop: `b`,
-                                            defs: [ { $typeof: 'function' } ],
-                                            input: `b`,
-                                            not: false
-                                        },
-                                        {
-                                           prop: `visible`,
-                                           defs: [ { $typeof: 'function' } ],
-                                           input: undefined,
-                                           not: false
-                                        }
-                                    ],
-
-                                    parent: undefined,
-                                    children: [],
-
-                                    matchMe: false,
-                                    isElemArray: false,
-                                    isAnyOrder: false,
-                                    isSubset: false
-                                }
-                            ],
+                            def: `bold`,
                             input: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -254,29 +228,29 @@ describe("ElementFinder", function() {
                 });
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `bold`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `bold`,
                             input: undefined,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -287,29 +261,29 @@ describe("ElementFinder", function() {
                 });
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `bold "foobar"`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `bold`,
                             input: `foobar`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -320,29 +294,29 @@ describe("ElementFinder", function() {
                 });
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `not bold "foobar"`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `bold`,
                             input: `foobar`,
                             not: true
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -350,29 +324,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div.class1 .class2`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `div.class1 .class2`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -380,29 +354,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div.class1 .class2'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `div.class1 .class2'`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -410,29 +384,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div[attr='foobar']`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `div[attr='foobar']`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `div[attr='foobar']`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -440,29 +414,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div.class1 .class2"`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2"`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `div.class1 .class2"`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -470,29 +444,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div[attr="foobar"]`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `div[attr="foobar"]`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `div[attr="foobar"]`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -500,29 +474,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`not div.class1 .class2`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `not div.class1 .class2`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `div.class1 .class2`,
                             not: true
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -530,37 +504,37 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`4th`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `4th`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `position`,
                             input: 4,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
-            it("no counter equates to a counter of 1", () => {
+            it("no counter equates to a counter of 1+", () => {
                 let ef = new ElementFinder(`something`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 }
+                    counter: { min: 1 }
                 });
             });
 
@@ -624,29 +598,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`.class1 // comment`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `.class1`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `.class1`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -658,29 +632,29 @@ describe("ElementFinder", function() {
                 `);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `.class1`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `.class1`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -688,47 +662,47 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`div.class1 .class2, 'piece of text', contains "other text", not selected`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `div.class1 .class2`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `'piece of text'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `piece of text`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `contains "other text"`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `other text`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `not selected`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selected`,
                             input: undefined,
                             not: true
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -736,47 +710,47 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`    div.class1 .class2  , 'piece of text'    , contains "other text", not selected    `);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `div.class1 .class2`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `div.class1 .class2`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `'piece of text'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `piece of text`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `contains "other text"`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `other text`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `not selected`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selected`,
                             input: undefined,
                             not: true
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -784,47 +758,47 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`input[attr='quote'] p[attr="quote"], 'piece of text', contains "other text", not selected`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `input[attr='quote'] p[attr="quote"]`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `input[attr='quote'] p[attr="quote"]`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `'piece of text'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `piece of text`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `contains "other text"`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `other text`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `not selected`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selected`,
                             input: undefined,
                             not: true
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -832,29 +806,29 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`'quote1,2\\'3"4'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `'quote1,2\\'3"4'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `quote1,2'3"4`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -862,53 +836,53 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4'], input[attr="1,2'3\\"4"].div[attr="1,2\\'3\\"4"], 'piece of text', contains "other text", not selected`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4']`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4']`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `input[attr="1,2'3\\"4"].div[attr="1,2\\'3\\"4"]`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `input[attr="1,2'3\\"4"].div[attr="1,2\\'3\\"4"]`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `'piece of text'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `piece of text`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `contains "other text"`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `other text`,
-                            not: false
+                            not: undefined
                         },
                         {
                             prop: `not selected`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selected`,
                             input: undefined,
                             not: true
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
                     parent: undefined,
                     children: [],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -916,19 +890,19 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`contains 'quote1,2\\'3"4'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `contains 'quote1,2\\'3"4'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `contains`,
                             input: `quote1,2'3"4`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ]
                 });
@@ -938,19 +912,19 @@ describe("ElementFinder", function() {
                 let ef = new ElementFinder(`selector 'input[attr="quote1,2\\'3\\"4\\'"]'`);
 
                 Comparer.expect(ef).to.match({
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `selector 'input[attr="quote1,2\\'3\\"4\\'"]'`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `input[attr="quote1,2'3"4'"]`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ]
                 });
@@ -963,15 +937,15 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `something`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `something`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ]
                 });
@@ -984,13 +958,13 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `something`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `something`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `not visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
                            not: true
                         }
@@ -1005,15 +979,15 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `something`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `something`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `any visibility`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `any visibility`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ]
                 });
@@ -1029,19 +1003,19 @@ describe("ElementFinder", function() {
 
                 Comparer.expect(ef).to.match({
                     line: `one`,
-                    counter: { min: 1, max: 1 },
+                    counter: { min: 1 },
                     props: [
                         {
                             prop: `one`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `one`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
 
@@ -1049,36 +1023,36 @@ describe("ElementFinder", function() {
                     children: [
                         {
                             line: `two`,
-                            counter: { min: 1, max: 1 },
+                            counter: { min: 1 },
                             props: [
                                 {
                                     prop: `two`,
-                                    defs: [ { $typeof: 'function' } ],
+                                    def: `selector`,
                                     input: `two`,
-                                    not: false
+                                    not: undefined
                                 },
                                 {
                                    prop: `visible`,
-                                   defs: [ { $typeof: 'function' } ],
+                                   def: `visible`,
                                    input: undefined,
-                                   not: false
+                                   not: undefined
                                 }
                             ],
 
                             parent: { props: [ { prop: `one` }, { prop: `visible` } ] },
                             children: [],
 
-                            matchMe: false,
-                            isElemArray: false,
-                            isAnyOrder: false,
-                            isSubset: false
+                            matchMe: undefined,
+                            isElemArray: undefined,
+                            isAnyOrder: undefined,
+                            isSubset: undefined
                         }
                     ],
 
-                    matchMe: false,
-                    isElemArray: false,
-                    isAnyOrder: false,
-                    isSubset: false
+                    matchMe: undefined,
+                    isElemArray: undefined,
+                    isAnyOrder: undefined,
+                    isSubset: undefined
                 });
             });
 
@@ -1212,15 +1186,15 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `body`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `body`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
                     parent: undefined,
@@ -1230,15 +1204,15 @@ describe("ElementFinder", function() {
                             props: [
                                 {
                                     prop: `one`,
-                                    defs: [ { $typeof: 'function' } ],
+                                    def: `selector`,
                                     input: `one`,
-                                    not: false
+                                    not: undefined
                                 },
                                 {
                                    prop: `visible`,
-                                   defs: [ { $typeof: 'function' } ],
+                                   def: `visible`,
                                    input: undefined,
-                                   not: false
+                                   not: undefined
                                 }
                             ],
                             parent: { line: `body` },
@@ -1249,15 +1223,15 @@ describe("ElementFinder", function() {
                             props: [
                                 {
                                     prop: `two`,
-                                    defs: [ { $typeof: 'function' } ],
+                                    def: `selector`,
                                     input: `two`,
-                                    not: false
+                                    not: undefined
                                 },
                                 {
                                    prop: `visible`,
-                                   defs: [ { $typeof: 'function' } ],
+                                   def: `visible`,
                                    input: undefined,
-                                   not: false
+                                   not: undefined
                                 }
                             ],
                             parent: { line: `body` },
@@ -1279,15 +1253,15 @@ describe("ElementFinder", function() {
                     props: [
                         {
                             prop: `body`,
-                            defs: [ { $typeof: 'function' } ],
+                            def: `selector`,
                             input: `body`,
-                            not: false
+                            not: undefined
                         },
                         {
                            prop: `visible`,
-                           defs: [ { $typeof: 'function' } ],
+                           def: `visible`,
                            input: undefined,
-                           not: false
+                           not: undefined
                         }
                     ],
                     parent: undefined,
@@ -1297,15 +1271,15 @@ describe("ElementFinder", function() {
                             props: [
                                 {
                                     prop: `one`,
-                                    defs: [ { $typeof: 'function' } ],
+                                    def: `selector`,
                                     input: `one`,
-                                    not: false
+                                    not: undefined
                                 },
                                 {
                                    prop: `visible`,
-                                   defs: [ { $typeof: 'function' } ],
+                                   def: `visible`,
                                    input: undefined,
-                                   not: false
+                                   not: undefined
                                 }
                             ],
                             parent: { line: `body` },
@@ -1315,15 +1289,15 @@ describe("ElementFinder", function() {
                                     props: [
                                         {
                                             prop: `two`,
-                                            defs: [ { $typeof: 'function' } ],
+                                            def: `selector`,
                                             input: `two`,
-                                            not: false
+                                            not: undefined
                                         },
                                         {
                                            prop: `visible`,
-                                           defs: [ { $typeof: 'function' } ],
+                                           def: `visible`,
                                            input: undefined,
-                                           not: false
+                                           not: undefined
                                         }
                                     ],
                                     parent: {},
@@ -1336,15 +1310,15 @@ describe("ElementFinder", function() {
                             props: [
                                 {
                                     prop: `three`,
-                                    defs: [ { $typeof: 'function' } ],
+                                    def: `selector`,
                                     input: `three`,
-                                    not: false
+                                    not: undefined
                                 },
                                 {
                                    prop: `visible`,
-                                   defs: [ { $typeof: 'function' } ],
+                                   def: `visible`,
                                    input: undefined,
-                                   not: false
+                                   not: undefined
                                 }
                             ],
                             parent: { line: `body` },
@@ -1355,15 +1329,15 @@ describe("ElementFinder", function() {
                             props: [
                                 {
                                     prop: `four`,
-                                    defs: [ { $typeof: 'function' } ],
+                                    def: `selector`,
                                     input: `four`,
-                                    not: false
+                                    not: undefined
                                 },
                                 {
                                    prop: `visible`,
-                                   defs: [ { $typeof: 'function' } ],
+                                   def: `visible`,
                                    input: undefined,
-                                   not: false
+                                   not: undefined
                                 }
                             ],
                             parent: { line: `body` },
@@ -1389,13 +1363,13 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         }
                     ],
                     isAnyOrder: true
@@ -1418,13 +1392,13 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         }
                     ],
                     isAnyOrder: true
@@ -1445,13 +1419,13 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         }
                     ],
                     isAnyOrder: true
@@ -1474,13 +1448,13 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         }
                     ],
                     isSubset: true
@@ -1503,13 +1477,13 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         }
                     ],
                     isSubset: true
@@ -1530,13 +1504,13 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         }
                     ],
                     isSubset: true
@@ -1559,22 +1533,22 @@ describe("ElementFinder", function() {
                             props: [ { prop: `any order` }, { prop: `.class` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         },
                         {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isAnyOrder: false
+                            isAnyOrder: undefined
                         }
                     ],
-                    isAnyOrder: false
+                    isAnyOrder: undefined
                 });
             });
 
@@ -1594,22 +1568,22 @@ describe("ElementFinder", function() {
                             props: [ { prop: `.class` }, { prop: `subset` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         },
                         {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isSubset: false
+                            isSubset: undefined
                         }
                     ],
-                    isSubset: false
+                    isSubset: undefined
                 });
             });
 
@@ -1646,13 +1620,13 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isElemArray: false
+                            isElemArray: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isElemArray: false
+                            isElemArray: undefined
                         }
                     ],
                     isElemArray: true
@@ -1675,15 +1649,15 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isElemArray: false,
-                            isAnyOrder: false
+                            isElemArray: undefined,
+                            isAnyOrder: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isElemArray: false,
-                            isAnyOrder: false
+                            isElemArray: undefined,
+                            isAnyOrder: undefined
                         }
                     ],
                     isElemArray: true,
@@ -1707,15 +1681,15 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isElemArray: false,
-                            isSubset: false
+                            isElemArray: undefined,
+                            isSubset: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            isElemArray: false,
-                            isSubset: false
+                            isElemArray: undefined,
+                            isSubset: undefined
                         }
                     ],
                     isElemArray: true,
@@ -1738,16 +1712,16 @@ describe("ElementFinder", function() {
                             props: [ { prop: `two` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            matchMe: false
+                            matchMe: undefined
                         },
                         {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            matchMe: false
+                            matchMe: undefined
                         }
                     ],
-                    matchMe: false
+                    matchMe: undefined
                 });
             });
 
@@ -1772,17 +1746,17 @@ describe("ElementFinder", function() {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            matchMe: false
+                            matchMe: undefined
                         }
                     ],
-                    matchMe: false
+                    matchMe: undefined
                 });
             });
 
-            it("counter x [child element]", () => {
+            it("[counter x child element]", () => {
                 let ef = new ElementFinder(`
                     one
-                        5 x [two, two2]
+                        [5 x two, two2]
                         three
                 `);
 
@@ -1801,10 +1775,10 @@ describe("ElementFinder", function() {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            matchMe: false
+                            matchMe: undefined
                         }
                     ],
-                    matchMe: false
+                    matchMe: undefined
                 });
             });
 
@@ -1829,7 +1803,7 @@ describe("ElementFinder", function() {
                             props: [ { prop: `three` }, { prop: `visible` } ],
                             parent: {},
                             children: [],
-                            matchMe: false
+                            matchMe: undefined
                         }
                     ],
                     matchMe: true
@@ -2334,11 +2308,11 @@ one
 
             });
 
-            it.skip("finds counter x [child element]", () => {
+            it.skip("finds [counter x child element]", () => {
 
             });
 
-            it.skip("doesn't find counter x [child elements]", () => {
+            it.skip("doesn't find [counter x child elements]", () => {
 
             });
 

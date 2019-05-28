@@ -16,7 +16,7 @@ class ElementFinder {
     constructor(str, definedProps, logger, parent, lineNumberOffset) {
         this.line = '';               // The full line representing this EF
 
-        this.counter = { min: 1, max: 1 };   // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
+        this.counter = { min: 1 };    // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
         this.props = [];              // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
                                       // Each object in the array has the following format:
@@ -29,6 +29,9 @@ class ElementFinder {
         this.parent = parent;         // Parent EF, if one exists
         this.children = [];           // Array of ElementFinder. The children of this EF.
 
+        /*
+        OPTIONAL
+
         this.matchMe = false;         // If true, this is an [element] (enclosed in brackets)
         this.isElemArray = false;     // If true, this is an element array
         this.isAnyOrder = false;      // If true, this.children can be in any order
@@ -36,21 +39,21 @@ class ElementFinder {
 
         this.error = undefined;       // Set to an error string if there was an error finding this EF
         this.blockErrors = undefined; // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
+        */
 
-        this.logger = logger;
-        this.lineNumberOffset = lineNumberOffset || 0;
+        logger && (this.logger = logger);
 
         // Parse str into this EF
-        this.parseIn(str, definedProps || ElementFinder.defaultProps());
+        this.parseIn(str, definedProps || ElementFinder.defaultProps(), lineNumberOffset || 0);
     }
 
     /**
      * Parses the given string into this EF
-     * Same params as in constructor, but both params are mandatory
+     * Same params as in constructor, but all params are mandatory
      * @return This object
      * @throws {Error} If there is a parse error
      */
-    parseIn(str, definedProps) {
+    parseIn(str, definedProps, lineNumberOffset) {
         if(!str || !str.trim()) {
             throw new Error(`Cannot create an empty ElementFinder`);
         }
@@ -129,9 +132,16 @@ class ElementFinder {
             }
         }
         else {
+            // Check for [element]
+            let matches = parentLine.match(/^\[(.*)\]$/);
+            if(matches) {
+                this.matchMe = true;
+                parentLine = matches[1].trim();
+            }
+
             // Check for counter
             const COUNTER_REGEX = /^([0-9]+)(\s*([\-\+])(\s*([0-9]+))?)?\s*x\s+/;
-            let matches = parentLine.match(COUNTER_REGEX);
+            matches = parentLine.match(COUNTER_REGEX);
             if(matches) {
                 parentLine = parentLine.replace(COUNTER_REGEX, ''); // remove counter
 
@@ -153,13 +163,6 @@ class ElementFinder {
                 else { // N
                     this.counter = { min: parseInt(min), max: parseInt(min) };
                 }
-            }
-
-            // Check for [element]
-            matches = parentLine.match(/^\[(.*)\]$/);
-            if(matches) {
-                this.matchMe = true;
-                parentLine = matches[1].trim();
             }
 
             // Split into comma-separated props
@@ -211,13 +214,12 @@ class ElementFinder {
                 }
 
                 if(definedProps.hasOwnProperty(canonPropStr)) {
-                    let defs = definedProps[canonPropStr];
                     prop = {
                         prop: (isNot ? 'not ' : '') + propStr,
-                        defs: defs,
-                        input: input,
-                        not: isNot
+                        def: canonPropStr
                     };
+                    input && (prop.input = input);
+                    isNot && (prop.not = true);
 
                     if(['visible', 'any visibility'].includes(canonPropStr)) {
                         implicitVisible = false;
@@ -234,8 +236,7 @@ class ElementFinder {
             if(implicitVisible) {
                 this.props.push({
                     prop: 'visible',
-                    defs: definedProps['visible'],
-                    not: false
+                    def: 'visible'
                 });
             }
         }
@@ -244,7 +245,7 @@ class ElementFinder {
         let childObjs = [];
         for(let i = parentLineNumber; i < lines.length; i++) {
             let line = lines[i];
-            let lineNumber = i + this.lineNumberOffset + 1;
+            let lineNumber = i + lineNumberOffset + 1;
 
             if(line.trim() == '') {
                 continue;
@@ -268,7 +269,7 @@ class ElementFinder {
         }
 
         childObjs.forEach(c => {
-            let childEF = new ElementFinder(c.str, definedProps, this.logger, this, c.lineNumber + this.lineNumberOffset);
+            let childEF = new ElementFinder(c.str, definedProps, this.logger, this, c.lineNumber + lineNumberOffset);
             if(!childEF.empty) {
                 this.children.push(childEF);
             }
@@ -326,17 +327,18 @@ class ElementFinder {
 
         /*
             INJECTED CODE:
-                getAll(ef, parentElem - both passed in via args);
+                // ef and parentElem are passed in via args
+                let pool = parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*');
+                return getAll(ef, pool);
 
-                function getAll(ef, parentElem) {
-                    let pool = parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*');
+                function getAll(ef, pool) {
                     let Es = All elements that match ef (top line only, no children)
                         Start with pool and apply props sequentially until we're left with an array
 
                     For each e in Es
                         let pool = all elements under e
                         For each c in this.children
-                            Find first c in pool - getAll(driver, pool), where this getAll() is injected into the browser
+                            let firstC = getAll(c, pool)[0]
                             Remove all items from pool before c
                             If pool is empty, e is bad. Remove it from Es. Try the next e.
 

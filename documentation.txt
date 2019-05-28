@@ -256,7 +256,7 @@ ElementFinders
         Example:
             .parent, 'nearby text'
                 [.child]
-        - Counters have to be outside of this, e.g., 4 x [.child]
+        - [4 x .child]
         - 'next to' prop has the advantage of being used on one-line EFs inside a step
     - If multiple lines are at the top indent, an implicit "body" EF is inserted above them all
         - This help if you want to verify a list of things on the page but don't want to start the EF with something like "body" or "element"
