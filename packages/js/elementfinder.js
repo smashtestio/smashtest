@@ -6,45 +6,54 @@ class ElementFinder {
      * Constructs this EF and its child EFs from a string
      * An EF object represents a single line in an EF string (which may have multiple lines)
      * Gives this EF a 'visible' prop by default, unless 'visible', 'not visible', or 'any visibility' is explicitly included
-     * @param {String} str - The string to parse, may contain multiple lines representing an element and its children
+     * @param {String} str - The string to parse, which may contain multiple lines representing an element and its children
      * @param {Object} [definedProps] - An object containing a map of prop name to array of ElementFinders or functions (the prop matches if at least one of these EFs/functions match)
-     * @param {Function} [logger] - The function used to log, takes in one parameter that is the string to log
+     * @param {Object} [usedDefinedProps] - Members of definedProps that are actually used by this EF and its children
+     * @param {Function} [logger] - The function used to log, which takes in as a parameter the string to log
      * @param {ElementFinder} [parent] - The ElementFinder that's the parent of this one, none if ommitted
      * @param {Number} [lineNumberOffset] - Offset line numbers by this amount (if this EF has a parent), 0 if omitted
      * @throws {Error} If there is a parse error
      */
-    constructor(str, definedProps, logger, parent, lineNumberOffset) {
-        this.line = '';               // The full line representing this EF
+    constructor(str, definedProps, usedDefinedProps, logger, parent, lineNumberOffset) {
+        this.line = '';                     // The full line representing this EF
 
-        this.counter = { min: 1, max: 1 }; // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
+        this.counter = { min: 1, max: 1 };  // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
-        this.props = [];              // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
-                                      // Each object in the array has the following format:
-                                      //   { prop: 'full prop text', defs: [ EFs or functions ], input: 'input text if any', not: true or false }
-                                      //
-                                      // 'text' is converted to the prop "contains 'text'"
-                                      // a selector is converted to the prop "selector 'text'"
-                                      // an ord is converted to the prop "position 'N'"
+        this.props = [];                    // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
+                                            // Each object in the array has the following format:
+                                            //   { prop: 'full prop text', defs: [ EFs or functions ], input: 'input text if any', not: true or false }
+                                            //
+                                            // 'text' is converted to the prop "contains 'text'"
+                                            // a selector is converted to the prop "selector 'text'"
+                                            // an ord is converted to the prop "position 'N'"
 
-        this.parent = parent;         // Parent EF, if one exists
-        this.children = [];           // Array of ElementFinder. The children of this EF.
+        this.parent = parent;               // Parent EF, if one exists
+        this.children = [];                 // Array of ElementFinder. The children of this EF.
 
         /*
         OPTIONAL
 
-        this.matchMe = false;         // If true, this is an [element] (enclosed in brackets)
-        this.isElemArray = false;     // If true, this is an element array
-        this.isAnyOrder = false;      // If true, this.children can be in any order
-        this.isSubset = false;        // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
+        this.matchMe = false;               // If true, this is an [element] (enclosed in brackets)
+        this.isElemArray = false;           // If true, this is an element array
+        this.isAnyOrder = false;            // If true, this.children can be in any order
+        this.isSubset = false;              // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
 
-        this.error = undefined;       // Set to an error string if there was an error finding this EF
-        this.blockErrors = undefined; // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
+        this.error = undefined;             // Set to an error string if there was an error finding this EF
+        this.blockErrors = undefined;       // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
+
+        this.usedDefinedProps = {};
+        this.logger = undefined;
         */
+
+        if(!usedDefinedProps) { // only create one usedDefinedProps object, and only on the top parent
+            this.usedDefinedProps = {};
+            usedDefinedProps = this.usedDefinedProps;
+        }
 
         logger && (this.logger = logger);
 
         // Parse str into this EF
-        this.parseIn(str, definedProps || ElementFinder.defaultProps(), lineNumberOffset || 0);
+        this.parseIn(str, definedProps || ElementFinder.defaultProps(), usedDefinedProps, lineNumberOffset || 0);
     }
 
     /**
@@ -53,7 +62,7 @@ class ElementFinder {
      * @return This object
      * @throws {Error} If there is a parse error
      */
-    parseIn(str, definedProps, lineNumberOffset) {
+    parseIn(str, definedProps, usedDefinedProps, lineNumberOffset) {
         if(!str || !str.trim()) {
             throw new Error(`Cannot create an empty ElementFinder`);
         }
@@ -214,6 +223,10 @@ class ElementFinder {
                 }
 
                 if(definedProps.hasOwnProperty(canonPropStr)) {
+                    if(!usedDefinedProps.hasOwnProperty(canonPropStr)) {
+                        usedDefinedProps[canonPropStr] = definedProps[canonPropStr];
+                    }
+
                     prop = {
                         prop: (isNot ? 'not ' : '') + propStr,
                         def: canonPropStr
@@ -269,7 +282,7 @@ class ElementFinder {
         }
 
         childObjs.forEach(c => {
-            let childEF = new ElementFinder(c.str, definedProps, this.logger, this, c.lineNumber + lineNumberOffset);
+            let childEF = new ElementFinder(c.str, definedProps, usedDefinedProps, this.logger, this, c.lineNumber + lineNumberOffset);
             if(!childEF.empty) {
                 this.children.push(childEF);
             }
@@ -313,6 +326,39 @@ class ElementFinder {
         }
 
         return spaces + this.line + error + children + blockErrors;
+    }
+
+    /**
+     * @return {Object} An object representing this EF and its children, ready to be fed into JSON.stringify()
+     */
+    serialize() {
+        let o = {
+            line: this.line,
+            counter: this.counter,
+            props: this.props,
+            children: []
+        };
+
+        this.matchMe && (o.matchMe = true);
+        this.isElemArray && (o.isElemArray = true);
+        this.isAnyOrder && (o.isAnyOrder = true);
+        this.isSubset && (o.isSubset = true);
+
+        this.children.forEach(child => o.children.push(child.serialize()));
+
+        return o;
+    }
+
+    /**
+     * @return {String} JSON representation of this EF, its children, and used defined props
+     * Functions are converted to strings
+     */
+    serializeJSON() {
+        return JSON.stringify({
+            ef: this.serialize(),
+            definedProps: this.usedDefinedProps
+        },
+        (k, v) => typeof v == 'function' ? v.toString() : v );
     }
 
     /**
@@ -387,23 +433,6 @@ class ElementFinder {
 
 
         }, serializeMe(this), parentElem);
-
-        /**
-         * @return {String} This EF object, converted into JSON and with functions converted into strings
-         */
-        function serializeMe(self) {
-            return JSON.stringify(self, (k, v) => {
-                if(k == 'parent') {
-                    return undefined; // to prevent circular references
-                }
-                else if(typeof v == 'function') {
-                    return v.toString();
-                }
-                else {
-                    return v;
-                }
-            });
-        }
     }
 
     /**

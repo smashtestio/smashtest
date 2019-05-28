@@ -2089,6 +2089,186 @@ one
         });
     });
 
+    describe("serialize()", () => {
+        it("serializes a one-line EF", () => {
+            let ef = new ElementFinder(`one`);
+
+            Comparer.expect(ef.serialize()).to.match({
+                line: `one`,
+                counter: { min: 1, max: 1 },
+                props: [
+                    {
+                        prop: `one`,
+                        def: `selector`,
+                        input: `one`,
+                        not: undefined
+                    },
+                    {
+                       prop: `visible`,
+                       def: `visible`,
+                       input: undefined,
+                       not: undefined
+                    }
+                ],
+                children: []
+            });
+        });
+
+        it("serializes a multi-line EF", () => {
+            let ef = new ElementFinder(`
+                one
+                    subset
+                    two
+            `);
+
+            Comparer.expect(ef.serialize()).to.match({
+                line: `one`,
+                counter: { min: 1, max: 1 },
+                props: [
+                    {
+                        prop: `one`,
+                        def: `selector`,
+                        input: `one`,
+                        not: undefined
+                    },
+                    {
+                       prop: `visible`,
+                       def: `visible`,
+                       input: undefined,
+                       not: undefined
+                    }
+                ],
+                children: [
+                    {
+                        line: `two`,
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                                prop: `two`,
+                                def: `selector`,
+                                input: `two`,
+                                not: undefined
+                            },
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            }
+                        ],
+                        children: []
+                    }
+                ],
+                isSubset: true
+            });
+        });
+    });
+
+    describe("serializeJSON()", () => {
+        it("returns a json representation of an EF", () => {
+            let ef = new ElementFinder(`one`);
+            let json = ef.serializeJSON();
+            let obj = JSON.parse(json);
+
+            Comparer.expect(obj).to.match({
+                ef: {
+                    line: `one`,
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `one`,
+                            def: `selector`,
+                            input: `one`,
+                            not: undefined
+                        },
+                        {
+                           prop: `visible`,
+                           def: `visible`,
+                           input: undefined,
+                           not: undefined
+                        }
+                    ],
+                    children: []
+                },
+                definedProps: {}
+            });
+        });
+
+        it("only includes used functions in definedProps, and converts them to strings", () => {
+            let ef = new ElementFinder(`
+                one
+                    subset
+                    'two'
+            `, {
+                'selector': [
+                    (elems, input) => input + 1,
+                    (elems, input) => input + 2
+                ],
+                'contains': [
+                    (elems, input) => input + 3
+                ],
+                'otherprop': [
+                    (elems, input) => input + 4
+                ]
+            });
+            let json = ef.serializeJSON();
+            let obj = JSON.parse(json);
+
+            Comparer.expect(obj).to.match({
+                ef: {
+                    line: `one`,
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `one`,
+                            def: `selector`,
+                            input: `one`,
+                            not: undefined
+                        },
+                        {
+                           prop: `visible`,
+                           def: `visible`,
+                           input: undefined,
+                           not: undefined
+                        }
+                    ],
+                    children: [
+                        {
+                            line: `'two'`,
+                            counter: { min: 1, max: 1 },
+                            props: [
+                                {
+                                    prop: `'two'`,
+                                    def: `contains`,
+                                    input: `two`,
+                                    not: undefined
+                                },
+                                {
+                                   prop: `visible`,
+                                   def: `visible`,
+                                   input: undefined,
+                                   not: undefined
+                                }
+                            ],
+                            children: []
+                        }
+                    ],
+                    isSubset: true
+                },
+                definedProps: {
+                    $exact: true,
+                    selector: [
+                        "(elems, input) => input + 1",
+                        "(elems, input) => input + 2"
+                    ],
+                    contains: [
+                        "(elems, input) => input + 3"
+                    ]
+                }
+            });
+        });
+    });
+
     describe("getAll()", () => {
         context("text EFs", () => {
             it.skip("finds elements based on innerText", async () => {
