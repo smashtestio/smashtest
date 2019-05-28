@@ -58,6 +58,10 @@ Running tests
             - 5 if omitted
             - If you're hitting a selenium grid, set this high enough so as to max out the available slots (capabilities)
                 - Tests will block on Open browser if a capability isn't available yet
+        - --max-screenshots=<N>
+            - 0 = don't take screenshots at all
+            - Omitting = no limit
+            - Screenshots taken but deleted after a branch passed do not count against N
         - --min-frequency=med
             - med if omitted
         - --no-debug
@@ -72,7 +76,6 @@ Running tests
                 - If omitted, localhost will be chosen
                 - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
         - --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
-        - --screenshots=<true/false>
         - --selenium-server=http://localhost:4444/wd/hub
         - --skip-passed or -s
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.

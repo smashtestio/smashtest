@@ -136,6 +136,7 @@ Options
                                     true if true/false omitted
   --help or -?                    Open this help prompt
   --max-parallel=<N>              Do not run more than N branches simultaneously
+  --max-screenshots=<N>           Do not store more than N screenshots. Set to 0 to disable screenshots.
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
   --no-debug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
   --p:<name>="<value>"            Set the persistent variable with the given name to the given value
@@ -143,7 +144,6 @@ Options
   --repl or -r                    Open the REPL (drive SmashTEST from command line)
   --report-domain=<url>           Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
-  --screenshots=<true/false>      Whether or not to take screenshots. Default is true.
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
   --skip-passed or -s             Do not run branches that passed last time. Just carry them over into new report.
   --step-data=<all/fail/none>     Keep step data for all steps, failed step, or no steps. Default is fail.
@@ -349,10 +349,18 @@ function plural(count) {
         // ***************************************
 
         // Generate branches
-        process.stdout.write("Generating branches...\x1B[?25l");
-        runner.init(tree);
-        readline.clearLine(process.stdout, 0);
-        readline.cursorTo(process.stdout, 0);
+        process.stdout.write("Generating branches...\x1B[?25l"); // temporary message + hide cursor
+        try {
+            runner.init(tree);
+        }
+        catch(e) {
+            throw e;
+        }
+        finally {
+            // Remove "Generating branches..."
+            readline.clearLine(process.stdout, 0);
+            readline.cursorTo(process.stdout, 0);
+        }
 
         setSigint(); // attach SIGINT (Ctrl + C) handler after runner.init(), so user can Ctrl + C out of a long branchify operation via the default SIGINT handler
 

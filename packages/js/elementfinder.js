@@ -402,13 +402,15 @@ class ElementFinder {
 
             Errors to attach to an EF:
                 - EF not found at all  --> not found (zero matches after `prop name` applied)
-                - EF found once on the page, but not all children match  --> "found, but doesn't contain all the children below (in that order)?"
+                - EF found once on the page, but not all children match  --> found, but doesn't contain all the children below (in that order)?
                     child that matches
                     child that doesn't match  --> not found (zero matches after `prop name` applied)
 
-                - EF found multiple times on page, not children  --> "N found, but none contain all the children below (in that order)?"
+                - EF found multiple times on page, not children  --> N found, but none contain all the children below (in that order)?
                     child
                     child
+
+                - counter x EF with not enough matches  --> only found N
 
                 - EF inside element array that doesn't match  --> doesn't match <tagname id="" class="">
                 - EF inside element array that points beyond the array of elements found  --> not found
@@ -499,6 +501,7 @@ class ElementFinder {
 
     /**
      * @return {Object} An object with all the default props to be fed into the constructor's definedProps
+     * NOTE: definedProps are injected into the browser to be executed, so don't reference anything outside each function
      */
     static defaultProps() {
         return {
