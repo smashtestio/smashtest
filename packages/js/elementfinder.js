@@ -374,31 +374,158 @@ class ElementFinder {
         /*
             INJECTED CODE:
                 // ef and parentElem are passed in via args
+
                 let pool = parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*');
-                return getAll(ef, pool);
+                let matchMeElems = [];
 
-                function getAll(ef, pool) {
-                    let Es = All elements that match ef (top line only, no children)
+                find(ef, pool);
+                If matchMeElems
+                    return matchMeElems
+                else
+                    return ef.matchedElems
+
+                function find(ef, pool) {
+                    let Es = getElemsThatMatchLine(ef, pool)
+
+                    if(!ef.isElemArray) {
+                        For each e in Es {
+                            let pool = all elements under e
+                            For each child in ef.children {
+                                let Cs = []
+                                try {
+                                    find(child, pool)
+                                    Cs = child.matchedElems
+                                }
+                                catch {
+                                    e is bad. Remove it from Es. Continue to the next e.
+                                }
+
+                                if(Cs.length < child.counter.min)
+                                    e is bad. Remove it from Es. Continue to the next e.
+
+                                Cs = take first child.counter.min from Cs
+
+                                if(!ef.isAnyOrder)
+                                    Remove all items from pool before the last elem in Cs
+
+                                if(pool is empty)
+                                    e is bad. Remove it from Es. Continue to the next e.
+                            }
+                        }
+
+
+                        if(Es.length < ef.counter.min) {
+                            set ef.error
+                            throw error
+                        }
+                        else {
+                            ef.matchedElems = Es, but no more than counter.max
+                            if(ef.matchMe)
+                                matchMeElems.push(ef.matchedElems)
+                        }
+                    }
+                    else { // ef is an element array
+                        if(ef.matchMe)
+                            matchMeElems = matchMeElems.concat(Es)
+
+                        if(!ef.isAnyOrder) {
+                            pointerE = first item in Es
+                            pointerC = first item in ef.children
+                            count = 0
+
+                            while(both pointers are still pointing at something) {
+                                if(pointerC matches pointerE) {
+                                    count++
+                                    pointerE++
+
+                                    if(pointerC.matchMe)
+                                        matchMeElems.push(pointerE)
+                                }
+                                else {
+                                    if(count isn't within pointerC.counter) {
+                                        set pointerC.error
+                                        count = 0
+                                    }
+
+                                    pointerC++
+                                }
+                            }
+
+                            if(!both pointers went off the end) {
+                                if(pointerC went off the end) {
+                                    if(!ef.isSubset) {
+                                        set ef.error for not all elements were accounted for in element array
+                                    }
+                                }
+                                else if(pointerE went off the end) {
+                                    while(pointerC is valid) {
+                                        set pointerC.error for missing element
+                                        poiterC++
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            For each child in ef.children {
+                                let count = 0
+                                For each e in Es {
+                                    if(doesElemMatchLine(child, e)) {
+                                        count++
+
+                                        if(child.matchMe)
+                                            matchMeElems.push(e)
+
+                                        remove e from Es
+                                    }
+                                }
+
+                                if(count is not within child.counter) {
+                                    set child.error
+                                }
+                            }
+
+                            if(!ef.isSubset) {
+                                if(Es.length > 0) {
+                                    set ef.blockError for each of Es still around (these elems weren't matched by the elem array)
+                                }
+                            }
+                        }
+
+                        If at least one error was set, throw error
+                    }
+
+                    function getElemsThatMatchLine(ef, pool) {
                         Start with pool and apply props sequentially until we're left with an array
+                    }
 
-                    For each e in Es
-                        let pool = all elements under e
-                        For each c in this.children
-                            let firstC = getAll(c, pool)[0]
-                            Remove all items from pool before c
-                            If pool is empty, e is bad. Remove it from Es. Try the next e.
-
-                    return Es
+                    function doesElemMatchLine(ef, domElem) {
+                        return true if domElem matches ef's top parent
+                    }
                 }
 
 
 
-            Further considerations:
-            - counter
-            - isAnyOrder
-            - isSubset
-            - isElemArray
-            - matchMe
+            Make sure these are covered in code and unit tests:
+                - !isElemArray
+                    - matchMe
+                    - counter
+                        - on ef
+                        - on a child
+                    - modifiers
+                        - none
+                        - isAnyOrder
+                        - isSubset
+                        - isAnyOrder + isSubset
+                - isElemArray
+                    - matchMe
+                    - counter
+                        - on ef
+                        - on a child
+                    - modifiers
+                        - none
+                        - isAnyOrder
+                        - isSubset
+                        - isAnyOrder + isSubset
 
             Errors to attach to an EF:
                 - EF not found at all  --> not found (zero matches after `prop name` applied)
