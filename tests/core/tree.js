@@ -3305,6 +3305,35 @@ My function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
+        it("finds the right function declaration even if it's in a different file", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* My function
+    Other file 1 -
+            `, "file1.txt");
+
+            tree.parseIn(`
+My function
+            `, "file2.txt");
+
+            tree.parseIn(`
+* My function
+    Other file 2 -
+            `, "file3.txt");
+
+            let branchAbove = new Branch();
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+
+            Comparer.expect(functionDeclaration).to.match({
+                text: "My function",
+                isFunctionDeclaration: true,
+                children: [ { text: "Other file 1" } ]
+            });
+
+            expect(functionDeclaration === tree.root.children[0]).to.equal(true);
+        });
+
         it("rejects function calls that cannot be found", () => {
             let tree = new Tree();
             tree.parseIn(`
