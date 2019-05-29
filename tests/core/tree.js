@@ -3243,6 +3243,68 @@ My function
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
         });
 
+        it("prefers function declarations in the same file as the function call", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* My function
+    Other file -
+            `, "file1.txt");
+
+            tree.parseIn(`
+My function
+
+* My function
+    Same file -
+            `, "file2.txt");
+
+            tree.parseIn(`
+* My function
+    Other file -
+            `, "file3.txt");
+
+            let branchAbove = new Branch();
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+
+            Comparer.expect(functionDeclaration).to.match({
+                text: "My function",
+                isFunctionDeclaration: true,
+                children: [ { text: "Same file" } ]
+            });
+
+            expect(functionDeclaration === tree.root.children[2]).to.equal(true);
+
+            tree = new Tree();
+            tree.parseIn(`
+* My function
+    Other file -
+            `, "file1.txt");
+
+            tree.parseIn(`
+* My function
+    Same file -
+
+My function
+            `, "file2.txt");
+
+            tree.parseIn(`
+* My function
+    Other file -
+            `, "file3.txt");
+
+            branchAbove = new Branch();
+            functionCall = new Step(tree.root.children[2].id);
+            functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+
+            Comparer.expect(functionDeclaration).to.match({
+                text: "My function",
+                isFunctionDeclaration: true,
+                children: [ { text: "Same file" } ]
+            });
+
+            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+        });
+
         it("rejects function calls that cannot be found", () => {
             let tree = new Tree();
             tree.parseIn(`
