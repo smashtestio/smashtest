@@ -127,22 +127,19 @@ Files
 Options
 
   --debug=<hash> or -d            Run the branch associated with the hash in debug mode
-  --group="<group name>"          Same as -groups, but only one group. Multiple -group's ok.
-                                    Useful for group names with spaces.
+  --group="<group>"               Same as --groups, but only one group. Multiple --group's ok.
   --groups="<group1>,<group2>"    Only run branches that are part of one of these groups
-  --g:<name>="<value>"            Set the global variable with the given name to the given value,
-                                    before each branch
-  --headless=<true/false>         Overrides default headless behavior (headless unless debugging),
-                                    true if true/false omitted
+  --g:<name>="<value>"            Sets a global variable before each branch
+  --headless=<true/false>         Overrides default headless behavior, true if <true/false> omitted
   --help or -?                    Open this help prompt
   --max-parallel=<N>              Do not run more than N branches simultaneously
   --max-screenshots=<N>           Do not store more than N screenshots. Set to 0 to disable screenshots.
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
-  --no-debug                      Fail is there are any $'s or ~'s. Useful to prevent debugging in CI.
-  --p:<name>="<value>"            Set the persistent variable with the given name to the given value
+  --no-debug                      Fail if there are any $'s or ~'s. Useful to prevent debugging in CI.
+  --p:<name>="<value>"            Set a persistent variable
   --random=<true/false>           Whether or not to randomize the order of branches. Default is true.
   --repl or -r                    Open the REPL (drive SmashTEST from command line)
-  --report-domain=<url>           Domain and port where report server should run (domain or domain:port format)
+  --report-domain=<domain>        Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
   --skip-passed or -s             Do not run branches that passed last time. Just carry them over into new report.
