@@ -18,6 +18,7 @@ Example file
     - One big example file with each type of step, etc. and // comments explaining stuff
     - Suggested flow of putting a ~ at the end of a step, ruining browser there, coming up with all permutations on all elements on
         that page and adding those steps, repeat
+    - NOTE: everything in documentation should be an example, with step names describing themselves and further documentation below if necessary
 
 Steps
     - Textual steps, packaged steps, functions
@@ -385,6 +386,7 @@ Functions
         - {{local vars}} designate parameters in a function declaration
         - Finding declaration
             - First look to siblings, then to siblings of parent, etc.
+            - When looking among siblings, always prefer function declarations in the same file as the function call
             - Match custom functions first, then primitive packaged functions
             - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
                 - Functions and {vars} declared inside a function are accessible to children of the caller step

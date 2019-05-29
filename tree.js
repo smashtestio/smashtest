@@ -407,18 +407,32 @@ class Tree {
             }
 
             function searchAmongSiblings(siblings) {
-                for(let i = 0; i < siblings.length; i++) {
-                    let sibling = siblings[i];
-                    if(sibling.isFunctionDeclaration && functionCallNodeToMatch.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
-                        if(sibling.isPrivateFunctionDeclaration && currStep.level > functionCall.level) {
-                            continue; // ignore private functions that are inaccessible
-                        }
-
-                        return sibling;
-                    }
+                // Prefer siblings in the function call's file
+                let foundSibling = search(functionCallNode.filename);
+                if(foundSibling) {
+                    return foundSibling;
+                }
+                else {
+                    return search();
                 }
 
-                return null;
+                function search(filename) {
+                    for(let i = 0; i < siblings.length; i++) {
+                        let sibling = siblings[i];
+                        if(sibling.isFunctionDeclaration && functionCallNodeToMatch.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
+                            if(sibling.isPrivateFunctionDeclaration && currStep.level > functionCall.level) {
+                                continue; // ignore private functions that are inaccessible
+                            }
+                            if(filename && sibling.filename != filename) {
+                                continue;
+                            }
+
+                            return sibling;
+                        }
+                    }
+
+                    return null;
+                }
             }
         }
 
