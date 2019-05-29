@@ -815,14 +815,14 @@ A -
                 await runInstance.run();
 
                 expect(tree.branches[0].error.message).to.equal("oops");
-                expect(tree.branches[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].error.lineNumber).to.equal(12);
+                expect(tree.branches[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].error.locator.lineNumber).to.equal(12);
                 expect(tree.branches[0].isPassed).to.be.undefined;
                 expect(tree.branches[0].isFailed).to.be.true;
 
                 expect(tree.branches[1].error.message).to.equal("oops");
-                expect(tree.branches[1].error.filename).to.equal("file.txt");
-                expect(tree.branches[1].error.lineNumber).to.equal(12);
+                expect(tree.branches[1].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[1].error.locator.lineNumber).to.equal(12);
                 expect(tree.branches[1].isPassed).to.be.undefined;
                 expect(tree.branches[1].isFailed).to.be.true;
 
@@ -866,14 +866,14 @@ A -
                 await runInstance.run();
 
                 expect(tree.branches[0].error.message).to.equal("oops");
-                expect(tree.branches[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].error.lineNumber).to.equal(16);
+                expect(tree.branches[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].error.locator.lineNumber).to.equal(16);
                 expect(tree.branches[0].isPassed).to.be.undefined;
                 expect(tree.branches[0].isFailed).to.be.true;
 
                 expect(tree.branches[1].error.message).to.equal("oops");
-                expect(tree.branches[1].error.filename).to.equal("file.txt");
-                expect(tree.branches[1].error.lineNumber).to.equal(16);
+                expect(tree.branches[1].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[1].error.locator.lineNumber).to.equal(16);
                 expect(tree.branches[1].isPassed).to.be.undefined;
                 expect(tree.branches[1].isFailed).to.be.true;
 
@@ -1700,8 +1700,8 @@ My {var} Function
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} wasn't set, but is needed for this step");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(2);
 
                 expect(tree.branches[0].error).to.equal(undefined);
             });
@@ -1780,8 +1780,8 @@ My 'so called {var :}' Function
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var :} must be set to a string");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(2);
 
                 expect(tree.branches[0].error).to.equal(undefined);
             });
@@ -1803,8 +1803,8 @@ My 'so called {var}' Function
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("The variable {var} wasn't set, but is needed for this step");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(2);
 
                 expect(tree.branches[0].error).to.equal(undefined);
             });
@@ -2734,8 +2734,8 @@ My 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token ;");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(4);
 
                 expect(tree.branches[0].error).to.equal(undefined);
             });
@@ -2757,8 +2757,8 @@ My 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token for");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(4);
 
                 expect(tree.branches[0].error).to.equal(undefined);
             });
@@ -2813,8 +2813,8 @@ My 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[1].error.message).to.contain("one is not defined");
-                expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[1].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[1].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[1].error.locator.lineNumber).to.equal(6);
 
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -2910,8 +2910,8 @@ My 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token ;");
-                expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
+                expect(tree.branches[0].steps[1].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[1].error.locator.lineNumber).to.equal(5);
 
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -2936,8 +2936,8 @@ My 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token for");
-                expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
+                expect(tree.branches[0].steps[1].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[1].error.locator.lineNumber).to.equal(5);
 
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -3165,8 +3165,8 @@ My 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[2].error.message).to.equal("The variable {{var1}} wasn't set, but is needed for this step. If it's set later in the branch, try using {{var1:}}.");
-                expect(tree.branches[0].steps[2].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[2].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[2].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[2].error.locator.lineNumber).to.equal(6);
 
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -3196,8 +3196,8 @@ My function
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[1].error.message).to.equal("The variable {{var1:}} is never set, but is needed for this step");
-                expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[1].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[1].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[1].error.locator.lineNumber).to.equal(6);
 
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -3350,8 +3350,8 @@ My function
                 await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[2].error.message).to.equal("The variable {{var1}} wasn't set, but is needed for this step. If it's set later in the branch, try using {{var1:}}.");
-                expect(tree.branches[0].steps[2].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[2].error.lineNumber).to.equal(3);
+                expect(tree.branches[0].steps[2].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[2].error.locator.lineNumber).to.equal(3);
 
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -3876,8 +3876,8 @@ Something {
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(5);
 
                 expect(tree.branches[0].error).to.equal(undefined);
             });
@@ -3907,8 +3907,8 @@ Something {
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(5);
 
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at RunInstance\.runInstance\.badFunc/)).to.equal(true);
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:5:17\)/)).to.equal(true);
@@ -3944,8 +3944,8 @@ First {
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[1].error.message).to.contain("c is not defined");
-                expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[1].error.lineNumber).to.equal(14);
+                expect(tree.branches[0].steps[1].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[1].error.locator.lineNumber).to.equal(14);
 
                 expect(!!tree.branches[0].steps[1].error.stack.match(/at RunInstance\.runInstance\.badFunc[^\n]+<anonymous>:6:9\)/)).to.equal(true);
                 expect(!!tree.branches[0].steps[1].error.stack.match(/at CodeBlock_for_Second[^\n]+<anonymous>:14:21\)/)).to.equal(true);
@@ -3975,8 +3975,8 @@ Something {
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(10);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(10);
 
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at func[^\n]+<anonymous>:6:9\)/)).to.equal(true);
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:10:5\)/)).to.equal(true);
@@ -4006,8 +4006,8 @@ tree.parseIn(`
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(2);
 
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Packaged_function[^\n]+<anonymous>:5:5\)/)).to.equal(true);
 
@@ -4032,8 +4032,8 @@ Something {
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(4);
 
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at Object\.exports\.badFunc[^\n]+badfunc\.js:4:5\)/)).to.equal(true);
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:4:8\)/)).to.equal(true);
@@ -4057,8 +4057,8 @@ Something {
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(4);
 
                 // NOTE: commented out because nyc code coverage tool minifies the js, breaking the line number reference
                 //expect(!!tree.branches[0].steps[0].error.stack.match(/at Object\.exports\.badFunc[^\n]+badfunc\.js:4:5\)/)).to.equal(true);
@@ -4089,8 +4089,8 @@ My function
                 tree.nextStep(tree.branches[0], true);
 
                 expect(tree.branches[0].steps[0].error.message).to.equal("oops");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(6);
 
                 expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
                 expect(tree.branches[0].steps[0].isFailed).to.equal(true);
@@ -4163,12 +4163,12 @@ A -
                 await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[1].error.message).to.contain("c is not defined");
-                expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[1].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[1].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[1].error.locator.lineNumber).to.equal(6);
 
                 expect(tree.branches[0].steps[2].error.message).to.contain("d is not defined");
-                expect(tree.branches[0].steps[2].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[2].error.lineNumber).to.equal(15);
+                expect(tree.branches[0].steps[2].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[2].error.locator.lineNumber).to.equal(15);
 
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
@@ -4197,8 +4197,8 @@ My function
                 tree.nextStep(tree.branches[0], true);
 
                 expect(tree.branches[0].steps[0].error.message).to.equal("oops");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(6);
 
                 expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
                 expect(tree.branches[0].steps[0].isFailed).to.equal(true);
@@ -4233,8 +4233,8 @@ My function
                 tree.nextStep(tree.branches[0], true);
 
                 expect(tree.branches[0].steps[0].error.message).to.equal("oops");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(6);
 
                 expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
                 expect(tree.branches[0].steps[0].isFailed).to.equal(true);
@@ -4524,8 +4524,8 @@ A -
                 tree.nextStep(tree.branches[0], true);
 
                 expect(tree.branches[0].steps[0].error.message).to.equal("oops");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(6);
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Before_Every_Step[^\n]+<anonymous>:6:11\)/)).to.equal(true);
 
                 expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
@@ -4558,8 +4558,8 @@ A -
                 tree.nextStep(tree.branches[0], true);
 
                 expect(tree.branches[0].steps[0].error.message).to.equal("oops");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(6);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(6);
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_After_Every_Step[^\n]+<anonymous>:6:11\)/)).to.equal(true);
 
                 expect(tree.branches[0].steps[0].isPassed).to.equal(undefined);
@@ -4609,8 +4609,8 @@ A {
                 expect(runInstance.one).to.equal("onefour");
 
                 expect(tree.branches[0].steps[0].error.message).to.equal("oops1");
-                expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
-                expect(tree.branches[0].steps[0].error.lineNumber).to.equal(11);
+                expect(tree.branches[0].steps[0].error.locator.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[0].error.locator.lineNumber).to.equal(11);
             });
 
             it("pauses when an error occurs inside a Before Every Step hook and pauseOnFail is set", async () => {
@@ -5012,8 +5012,7 @@ First step {
         it("runs a failing hook step with only a stepToGetError", async () => {
             let tree = new Tree();
             let sn = tree.newStepNode();
-            sn.filename = "file1.txt";
-            sn.lineNumber = 10;
+            sn.locator = { filename: "file1.txt", lineNumber: 10 };
             sn.codeBlock = `
                 throw new Error("foobar");
             `;
@@ -5027,15 +5026,14 @@ First step {
             let retVal = await runInstance.runHookStep(new Step(sn.id), stepToGetError);
             expect(retVal).to.equal(false);
             expect(stepToGetError.error.message).to.equal("foobar");
-            expect(stepToGetError.error.filename).to.equal("file1.txt");
-            expect(stepToGetError.error.lineNumber).to.equal(11);
+            expect(stepToGetError.error.locator.filename).to.equal("file1.txt");
+            expect(stepToGetError.error.locator.lineNumber).to.equal(11);
         });
 
         it("runs a failing hook step with only a branchToGetError", async () => {
             let tree = new Tree();
             let sn = tree.newStepNode();
-            sn.filename = "file1.txt";
-            sn.lineNumber = 10;
+            sn.locator = { filename: "file1.txt", lineNumber: 10 };
             sn.codeBlock = `
                 throw new Error("foobar");
             `;
@@ -5049,15 +5047,14 @@ First step {
             let retVal = await runInstance.runHookStep(new Step(sn.id), null, branchToGetError);
             expect(retVal).to.equal(false);
             expect(branchToGetError.error.message).to.equal("foobar");
-            expect(branchToGetError.error.filename).to.equal("file1.txt");
-            expect(branchToGetError.error.lineNumber).to.equal(11);
+            expect(branchToGetError.error.locator.filename).to.equal("file1.txt");
+            expect(branchToGetError.error.locator.lineNumber).to.equal(11);
         });
 
         it("runs a failing hook step with only a branchToGetError, but branchToGetError already has an error set", async () => {
             let tree = new Tree();
             let sn = tree.newStepNode();
-            sn.filename = "file1.txt";
-            sn.lineNumber = 10;
+            sn.locator = { filename: "file1.txt", lineNumber: 10 };
             sn.codeBlock = `
                 throw new Error("foobar");
             `;
@@ -5077,16 +5074,12 @@ First step {
         it("runs a failing hook step with both a stepToGetError and a branchToGetError", async () => {
             let tree = new Tree();
             let sn = tree.newStepNode();
-            sn.filename = "file1.txt";
-            sn.lineNumber = 10;
+            sn.locator = { filename: "file1.txt", lineNumber: 10 };
             sn.codeBlock = `
                 throw new Error("foobar");
             `;
 
             let stepToGetError = new Step();
-            stepToGetError.filename = "file2.txt";
-            stepToGetError.lineNumber = 20;
-
             let branchToGetError = new Branch();
 
             let runner = new Runner();
@@ -5098,8 +5091,8 @@ First step {
 
             expect(stepToGetError.isFailed).to.equal(true);
             expect(stepToGetError.error.message).to.equal("foobar");
-            expect(stepToGetError.error.filename).to.equal("file1.txt");
-            expect(stepToGetError.error.lineNumber).to.equal(11);
+            expect(stepToGetError.error.locator.filename).to.equal("file1.txt");
+            expect(stepToGetError.error.locator.lineNumber).to.equal(11);
 
             expect(branchToGetError.isFailed).to.equal(true);
             expect(branchToGetError.error).to.equal(undefined);
@@ -5108,8 +5101,7 @@ First step {
         it("runs a failing hook step with no stepToGetError and no branchToGetError", async () => {
             let tree = new Tree();
             let sn = tree.newStepNode();
-            sn.filename = "file1.txt";
-            sn.lineNumber = 10;
+            sn.locator = { filename: "file1.txt", lineNumber: 10 };
             sn.codeBlock = `
                 throw new Error("foobar");
             `;
@@ -7436,8 +7428,8 @@ My function
             expect(stepsRan.steps[0].isFailed).to.be.true;
 
             expect(stepsRan.steps[0].error.message).to.equal("oops");
-            expect(stepsRan.steps[0].error.filename).to.equal("file.txt");
-            expect(stepsRan.steps[0].error.lineNumber).to.equal(5);
+            expect(stepsRan.steps[0].error.locator.filename).to.equal("file.txt");
+            expect(stepsRan.steps[0].error.locator.lineNumber).to.equal(5);
 
             expect(runInstance.currStep.error).to.equal(undefined);
             expect(runInstance.currBranch.error).to.equal(undefined);

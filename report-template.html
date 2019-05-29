@@ -953,6 +953,13 @@ c     = copy text of branch
                 }
 
                 /**
+                 * @return {String} String representing this stepNode's locator
+                 */
+                getLocators(stepNode) {
+                    return stepNode.locator.filename ? `${stepNode.locator.filename}:${stepNode.locator.lineNumber}` : `line ${stepNode.locator.lineNumber}`;
+                }
+
+                /**
                  * Sets the preview in the preview pane to the given step or branch
                  * @param {Element} previewedItem - Sets the previewed item to this element (which represents a step or a branch). If that same element is already being previewed, the previewed item will be cleared. Clears the previewed item if null.
                  * @param {Boolean} [force] - If true, set the previewed item to previewedItem regardless of what the current previewed item is
@@ -1081,8 +1088,6 @@ c     = copy text of branch
                     else if(charStr == 'D') {
                         if(this.state.previewedItem) {
                             let hash = this.state.previewedItem.props.branch.hash;
-                            //let filename = this.state.previewedItem.props.branch.steps[0].filename;
-                            //let command = `smashtest ${filename} -d=${hash}`;
                             let command = `smashtest -d=${hash}`;
                             this.copyToClipboard(command);
                             this.showNotification(`Copied  <span class="copied-text">${command}</span> to clipboard`);
@@ -1216,6 +1221,7 @@ c     = copy text of branch
                                 getModifier={this.getModifier}
                                 getLimit={this.getLimit}
                                 setLimit={this.setLimit}
+                                getLocators={this.getLocators}
                             />
                             {
                                 this.state.tree ?
@@ -1224,6 +1230,7 @@ c     = copy text of branch
                                     setPreview={this.setPreview}
                                     stepNodeIndex={this.state.tree.stepNodeIndex}
                                     reportTemplates={this.state.tree.reportTemplates}
+                                    getLocators={this.props.getLocators}
                                 /> : ''
                             }
                         </div>
@@ -1256,6 +1263,7 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
+                                getLocators={this.props.getLocators}
                             />
                         </div>
                     );
@@ -1440,7 +1448,7 @@ c     = copy text of branch
 
                             let lastFailedFunctionDeclaration = lastFailedStep.fid ? this.props.stepNodeIndex[lastFailedStep.fid] : null;
                             if(lastFailedFunctionDeclaration) {
-                                groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
+                                groupKey += `<br>(function at ${this.props.getLocators(lastFailedFunctionDeclaration)})`;
                             }
 
                             if(!failedBranchMapping.hasOwnProperty(groupKey)) {
@@ -1465,6 +1473,7 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
+                                getLocators={this.props.getLocators}
                             >
                                 {branchesRunning}
                             </BranchList>
@@ -1481,6 +1490,7 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
+                                getLocators={this.props.getLocators}
                             >
                                 {failedBranchMapping}
                             </GroupedBranchList>
@@ -1497,6 +1507,7 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
+                                getLocators={this.props.getLocators}
                             >
                                 {branchesPassed}
                             </BranchList>
@@ -1513,6 +1524,7 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
+                                getLocators={this.props.getLocators}
                             >
                                 {branchesSkipped}
                             </BranchList>
@@ -1529,6 +1541,7 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
+                                getLocators={this.props.getLocators}
                             >
                                 {branchesNotRunYet}
                             </BranchList>
@@ -1563,6 +1576,7 @@ c     = copy text of branch
                                             setPreview={this.props.setPreview}
                                             previewedItem={this.props.previewedItem}
                                             getModifier={this.props.getModifier}
+                                            getLocators={this.props.getLocators}
                                         />
                                     ))
                                 }
@@ -1612,6 +1626,7 @@ c     = copy text of branch
                                             getModifier={this.props.getModifier}
                                             getLimit={this.props.getLimit}
                                             setLimit={this.props.setLimit}
+                                            getLocators={this.props.getLocators}
                                         >
                                             {this.props.children[groupKey]}
                                         </BranchGroup>
@@ -1659,6 +1674,7 @@ c     = copy text of branch
                                             setPreview={this.props.setPreview}
                                             previewedItem={this.props.previewedItem}
                                             getModifier={this.props.getModifier}
+                                            getLocators={this.props.getLocators}
                                         />
                                     ))
                                 }
@@ -1856,11 +1872,12 @@ c     = copy text of branch
                                 stepNode={this.props.stepNodeIndex[step.id]}
                                 branch={branch}
                                 index={index+1}
-                                key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step) + ' ' + this.getRunState(step)}
+                                key={branch.hash + ' ' + branch.steps.indexOf(step) + ' ' + this.getRunState(step)}
                                 lastIndex={branch.steps.length - 1}
                                 setPreview={this.props.setPreview}
                                 previewedItem={previewedItem}
                                 hasLevels={hasLevels}
+                                getLocators={this.props.getLocators}
                             />
                         );
 
@@ -1994,7 +2011,7 @@ c     = copy text of branch
                                 </span>
                                 {pill}
                             </span>
-                            <span className="location">[{this.props.stepNode.filename}:{this.props.stepNode.lineNumber}]</span>
+                            <span className="location">[{this.props.getLocators(stepNode)}]</span>
                             {error}
                         </span>
                     );
@@ -2075,6 +2092,7 @@ c     = copy text of branch
                                 setPreview={this.props.setPreview}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 reportTemplates={this.props.reportTemplates}
+                                getLocators={this.props.getLocators}
                             />
                         );
                     }
@@ -2175,13 +2193,13 @@ c     = copy text of branch
                         let lastStep = previewedObj.steps[previewedObj.steps.length - 1];
                         let lastStepNode = stepNodeIndex[lastStep.id];
                         if(lastStepNode) {
-                            postPreviewedItemText = `[${lastStepNode.filename}:${lastStepNode.lineNumber}] ${elapsedText}`;
+                            postPreviewedItemText = `[${this.props.getLocators(lastStepNode)}] ${elapsedText}`;
                         }
                     }
                     else {
                         let stepNode = stepNodeIndex[previewedObj.id];
                         if(stepNode) {
-                            postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}] ${elapsedText}`;
+                            postPreviewedItemText = `[${this.props.getLocators(stepNode)}] ${elapsedText}`;
                         }
                     }
 
@@ -2352,14 +2370,14 @@ c     = copy text of branch
              * Injects [filename:lineNumber] into the given Error's stack trace, and returns it
              */
             function formatStackTrace(error) {
-                return error.stack.replace(/\\n/, `   [${error.filename}:${error.lineNumber}]\n`);
+                return error.stack.replace(/\\n/, `   [${error.locator.filename}:${error.lineNumber}]\n`);
             }
 
             /**
              * Injects [filename:lineNumber] into the given Error's message, and returns it
              */
             function formatErrorMsg(error) {
-                return error.message + `   [${error.filename}:${error.lineNumber}]`;
+                return error.message + `   [${error.locator.filename}:${error.lineNumber}]`;
             }
 
             /**

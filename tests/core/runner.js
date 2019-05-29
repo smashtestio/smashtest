@@ -499,8 +499,8 @@ A
             expect(runner.ranAfterEverything2).to.be.true;
 
             expect(tree.beforeEverything[0].error.message).to.equal("oops");
-            expect(tree.beforeEverything[0].error.filename).to.equal("file.txt");
-            expect(tree.beforeEverything[0].error.lineNumber).to.equal(14);
+            expect(tree.beforeEverything[0].error.locator.filename).to.equal("file.txt");
+            expect(tree.beforeEverything[0].error.locator.lineNumber).to.equal(14);
         });
 
         it("stores errors from After Everything steps", async () => {
@@ -542,8 +542,8 @@ A
             expect(runner.ranAfterEverything2).to.be.true;
 
             expect(tree.afterEverything[0].error.message).to.equal("oops");
-            expect(tree.afterEverything[0].error.filename).to.equal("file.txt");
-            expect(tree.afterEverything[0].error.lineNumber).to.equal(18);
+            expect(tree.afterEverything[0].error.locator.filename).to.equal("file.txt");
+            expect(tree.afterEverything[0].error.locator.lineNumber).to.equal(18);
         });
 
         it("when a stop occurs while in a Before Everything hook, stops executing Before Everything hooks and executes all After Everything hooks", async () => {

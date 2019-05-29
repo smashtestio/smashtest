@@ -14,8 +14,7 @@ class StepNode {
         this.parent = null;                   // Step or StepBlock that's the parent of this Step (null if this Step is itself part of a StepBlock)
         this.children = [];                   // Step or StepBlock objects that are children of this Step ([] if this Step is itself part of a StepBlock)
 
-        this.filename = null;                 // filename where this step is from
-        this.lineNumber = null;               // line number where this step is from
+        this.locator = { filename: undefined, lineNumber: undefined}; // line where this step is from
 
         /*
         OPTIONAL
@@ -62,6 +61,13 @@ class StepNode {
     }
 
     /**
+     * @return {String} String representing this StepNode's locator
+     */
+    getLocatorStr() {
+        return locator.filename ? `${locator.filename}:${locator.lineNumber}` : `line ${locator.lineNumber}`;
+    }
+
+    /**
      * Parses a line into this StepNode
      * this.text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
      * @param {String} line - The full text of the line
@@ -71,8 +77,8 @@ class StepNode {
      * @throws {Error} If there is a parse error
      */
     parseLine(line, filename, lineNumber) {
-        this.filename = filename;
-        this.lineNumber = lineNumber;
+        this.locator.filename = filename;
+        this.locator.lineNumber = lineNumber;
 
         if(line.trim() == '') {
             this.text = '';
@@ -86,7 +92,7 @@ class StepNode {
 
         let matches = line.match(Constants.LINE_WHOLE);
         if(!matches) {
-            utils.error(`This step is not written correctly`, filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
+            utils.error(`This step is not written correctly`, `${filename}:${lineNumber}`); // NOTE: probably unreachable (LINE_WHOLE can match anything)
         }
 
         // Parsed parts of the line
@@ -117,22 +123,22 @@ class StepNode {
 
         // Validation against prohibited step texts
         if(this.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-            utils.error(`Invalid step name`, filename, lineNumber);
+            utils.error(`Invalid step name`, `${filename}:${lineNumber}`);
         }
         if(this.text.match(Constants.MODIFIER_START_OR_END)) {
-            utils.error(`Spaces must separate modifiers from each other and from the step`, filename, lineNumber);
+            utils.error(`Spaces must separate modifiers from each other and from the step`, `${filename}:${lineNumber}`);
         }
 
         // Function Declaration
         if(this.isFunctionDeclaration) {
             if(this.text.match(Constants.STRING_LITERAL)) {
-                utils.error(`A function declaration cannot have 'strings', "strings", or [strings] inside of it`, filename, lineNumber);
+                utils.error(`A function declaration cannot have 'strings', "strings", or [strings] inside of it`, `${filename}:${lineNumber}`);
             }
         }
         else { // not a function declaration
             // Validate that a non-function declaration isn't using a hook step name
             if(Constants.HOOK_NAMES.indexOf(utils.canonicalize(this.text)) != -1) {
-                utils.error(`You cannot have a function call with that name. That's reserved for hook function declarations.`, filename, lineNumber);
+                utils.error(`You cannot have a function call with that name. That's reserved for hook function declarations.`, `${filename}:${lineNumber}`);
             }
         }
 
@@ -164,7 +170,7 @@ class StepNode {
                 this.isTextualStep = true;
 
                 if(this.isFunctionDeclaration) {
-                    utils.error(`A function declaration cannot be a textual step (-) as well`, filename, lineNumber);
+                    utils.error(`A function declaration cannot be a textual step (-) as well`, `${filename}:${lineNumber}`);
                 }
             }
             if(this.modifiers.includes('$')) {
@@ -190,14 +196,14 @@ class StepNode {
             let stepText = this.text.trim().replace(/\s+/g, ' ');
             let index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index == -1) {
-                utils.error(`Invalid hook name`, filename, lineNumber);
+                utils.error(`Invalid hook name`, `${filename}:${lineNumber}`);
             }
             else {
                 if(!this.hasCodeBlock()) {
-                    utils.error(`A hook must have a code block`, filename, lineNumber);
+                    utils.error(`A hook must have a code block`, `${filename}:${lineNumber}`);
                 }
                 if(this.modifiers && this.modifiers.length > 0) {
-                    utils.error(`A hook cannot have any modifiers (${this.modifiers[0]})`, filename, lineNumber);
+                    utils.error(`A hook cannot have any modifiers (${this.modifiers[0]})`, `${filename}:${lineNumber}`);
                 }
             }
         }
@@ -207,7 +213,7 @@ class StepNode {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
 
             if(this.isFunctionDeclaration) {
-                utils.error(`A step setting {variables} cannot start with a *`, filename, lineNumber);
+                utils.error(`A step setting {variables} cannot start with a *`, `${filename}:${lineNumber}`);
             }
 
             let varsBeingSet = this.getVarsBeingSet();
@@ -217,26 +223,26 @@ class StepNode {
 
                 // Generate variable name validations
                 if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                    utils.error(`A {variable name} cannot be just numbers`, filename, lineNumber);
+                    utils.error(`A {variable name} cannot be just numbers`, `${filename}:${lineNumber}`);
                 }
 
                 // Variable names cannot end in a * (that's reserved for lookahead vars)
                 if(varBeingSet.name.match(/\*\s*$/)) {
-                    utils.error(`A variable name to the left of an = cannot end in a *`, filename, lineNumber);
+                    utils.error(`A variable name to the left of an = cannot end in a *`, `${filename}:${lineNumber}`);
                 }
 
                 // Validations for special variables
                 if(varBeingSet.name.toLowerCase() == 'frequency') {
                     if(varBeingSet.isLocal) {
-                        utils.error(`The {frequency} variable is special and cannot be a local variable`, filename, lineNumber);
+                        utils.error(`The {frequency} variable is special and cannot be a local variable`, `${filename}:${lineNumber}`);
                     }
                     if(!utils.hasQuotes(varBeingSet.value) || ['high','med','low'].indexOf(utils.stripQuotes(varBeingSet.value)) == -1) {
-                        utils.error(`The {frequency} variable is special and can only be set to 'high', 'med', or 'low'`, filename, lineNumber);
+                        utils.error(`The {frequency} variable is special and can only be set to 'high', 'med', or 'low'`, `${filename}:${lineNumber}`);
                     }
                 }
                 else if(varBeingSet.name.toLowerCase() == 'group') {
                     if(varBeingSet.isLocal) {
-                        utils.error(`The {group} variable is special and cannot be a local variable`, filename, lineNumber);
+                        utils.error(`The {group} variable is special and cannot be a local variable`, `${filename}:${lineNumber}`);
                     }
                 }
             }
@@ -249,10 +255,10 @@ class StepNode {
                     let varBeingSet = varsBeingSet[i];
 
                     if(varBeingSet.value.trim() == '') {
-                        utils.error(`A {variable} must be set to something`, filename, lineNumber);
+                        utils.error(`A {variable} must be set to something`, `${filename}:${lineNumber}`);
                     }
                     if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
-                        utils.error(`When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
+                        utils.error(`When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', "strings", or [strings]`, `${filename}:${lineNumber}`);
                     }
                 }
             }
@@ -270,13 +276,13 @@ class StepNode {
 
                     // Validations
                     if(varBeingSet.value.trim() == '') {
-                        utils.error(`A {variable} must be set to something`, filename, lineNumber);
+                        utils.error(`A {variable} must be set to something`, `${filename}:${lineNumber}`);
                     }
                     if(varBeingSet.value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                        utils.error(`{vars} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
+                        utils.error(`{vars} can only be set to 'strings', "strings", or [strings]`, `${filename}:${lineNumber}`);
                     }
                     if(this.isTextualStep) {
-                        utils.error(`A textual step (ending in -) cannot also start with a {variable} assignment`, filename, lineNumber);
+                        utils.error(`A textual step (ending in -) cannot also start with a {variable} assignment`, `${filename}:${lineNumber}`);
                     }
                 }
             }
@@ -376,8 +382,7 @@ class StepNode {
 
         utils.copyProps(o, this, [
             'text',
-            'filename',
-            'lineNumber',
+            'locator',
             'frontModifiers',
             'backModifiers',
             'isCollapsed',

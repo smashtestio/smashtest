@@ -5,6 +5,20 @@ const StepNode = require('../../stepnode.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 describe("StepNode", () => {
+    describe("getLocatorStr()", () => {
+        it("returns a locator", () => {
+            let s = new StepNode(0);
+            s.locator = { filename: 'file.txt', lineNumber: 10 };
+            expect(s.getLocatorStr()).to.equal('file.txt:10');
+        });
+
+        it("returns a locator without a filename", () => {
+            let s = new StepNode(0);
+            s.locator = { lineNumber: 10 };
+            expect(s.getLocatorStr()).to.equal('line 10');
+        });
+    });
+
     describe("parseLine()", () => {
         let s = null;
 
@@ -15,8 +29,8 @@ describe("StepNode", () => {
         context("generic tests", () => {
             it("parses a line with a string", () => {
                 s.parseLine(`Click "Big Red Button"`, "file.txt", 10);
-                assert.equal(s.filename, 'file.txt');
-                assert.equal(s.lineNumber, 10);
+                assert.equal(s.locator.filename, 'file.txt');
+                assert.equal(s.locator.lineNumber, 10);
                 assert.equal(s.text, `Click "Big Red Button"`);
                 assert.equal(s.modifiers, undefined);
                 assert.equal(s.codeBlock, undefined);
@@ -1006,8 +1020,7 @@ describe("StepNode", () => {
         it("matches a function call and function declaration if they match case insensitively", () => {
             functionDeclaration.text = "Step name here";
             functionCall.text = "step name here";
-            functionCall.filename = "filename.txt";
-            functionCall.lineNumber = 10;
+            functionCall.locator = { filename: "filename.txt", lineNumber: 10 };
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
@@ -1108,8 +1121,7 @@ describe("StepNode", () => {
         it("returns a serialized object", () => {
             let s = new StepNode(1);
             s.text = "Foobar";
-            s.filename = "file.txt";
-            s.lineNumber = 10;
+            s.locator = { filename: "file1.txt", lineNumber: 10 };
             s.isTextualStep = true;
             s.parent = null;
             s.children = [ new StepNode(2), new StepNode(3) ];
@@ -1121,8 +1133,7 @@ describe("StepNode", () => {
 
                 id: 1,
                 text: "Foobar",
-                filename: "file.txt",
-                lineNumber: 10
+                locator: { filename: "file1.txt", lineNumber: 10 }
             });
         });
     });

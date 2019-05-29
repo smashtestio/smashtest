@@ -125,7 +125,7 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            console.log(`Start:     ${chalk.gray(stepNode.text.trim())}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
+            console.log(`Start:     ${chalk.gray(stepNode.text.trim())}     ${stepNode.locator ? chalk.gray(`[${stepNode.getLocatorStr()}]`) : ``}`);
         }
 
         if(this.tree.isDebug) {
@@ -203,7 +203,7 @@ class RunInstance {
                 // Passing inputs into function calls
                 if(stepNode.isFunctionCall) {
                     let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
-                    this.appendToLog(`Calling function at ${functionDeclarationNode.filename}:${functionDeclarationNode.lineNumber}`, step);
+                    this.appendToLog(`Calling function at ${functionDeclarationNode.getLocatorStr()}`, step);
 
                     // Set {vars} based on function declaration signature and function call signature
 
@@ -347,8 +347,8 @@ class RunInstance {
                     chalk.red.bold(stepNode.text.trim()) +
                     "    " +
                     (step.error.filename ?
-                        chalk.gray(`[${step.error.filename}:${step.error.lineNumber}]`) :
-                        chalk.gray(`[line ${step.error.lineNumber}]`))
+                        chalk.gray(`[${step.error.locator.filename}:${step.error.locator.lineNumber}]`) :
+                        chalk.gray(`[line ${step.error.locator.lineNumber}]`))
                 );
                 console.log(step.error.stack);
                 console.log("");
@@ -374,7 +374,7 @@ class RunInstance {
         let codeBlock = this.tree.getCodeBlock(step);
 
         try {
-            await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.lineNumber, stepToGetError || branchToGetError);
+            await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.locator.lineNumber, stepToGetError || branchToGetError);
         }
         catch(e) {
             this.fillErrorFromStep(e, step, true);
@@ -896,7 +896,7 @@ class RunInstance {
                         let value = null;
                         if(this.tree.hasCodeBlock(s)) {
                             // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlock(this.tree.getCodeBlock(s), sNode.text, sNode.lineNumber, s, true);
+                            value = this.evalCodeBlock(this.tree.getCodeBlock(s), sNode.text, sNode.locator.lineNumber, s, true);
 
                             // Note: {varname}=Function without code block, where another {varname}= is further below, had its varBeingSet removed already
                         }
@@ -909,7 +909,7 @@ class RunInstance {
                             value = this.replaceVars(value, true); // recursive call, start at original step passed in
                         }
 
-                        this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${sNode.filename}:${sNode.lineNumber}`, step || branch);
+                        this.appendToLog(`The value of variable ${variableFull} is being set by a later step at ${sNode.getLocatorStr()}`, step || branch);
                         return value;
                     }
                 }
@@ -973,7 +973,7 @@ class RunInstance {
             console.log("Branch complete");
             if(this.currBranch.error) {
                 console.log("");
-                console.log(chalk.red.bold("Errors occurred in branch") + chalk.gray(`    [${this.currBranch.error.filename}:${this.currBranch.error.lineNumber}]`));
+                console.log(chalk.red.bold("Errors occurred in branch") + chalk.gray(`    [${this.currBranch.error.locator.filename}:${this.currBranch.error.locator.lineNumber}]`));
                 console.log(this.currBranch.error.stack);
             }
             console.log("");
@@ -1030,16 +1030,13 @@ class RunInstance {
      */
     fillErrorFromStep(error, step, inCodeBlock) {
         let stepNode = this.tree.stepNodeIndex[step.id];
-
-        error.filename = stepNode.filename;
-        error.lineNumber = stepNode.lineNumber;
+        error.locator = stepNode.locator;
 
         // If error occurred in a function's code block, we should reference the function declaration's line, not the function call's line
         // (except for hooks and packaged code blocks)
         if(stepNode.isFunctionCall && inCodeBlock && !this.tree.getModifier(step, 'isHook') && !this.tree.getModifier(step, 'isPackaged')) {
             let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
-            error.filename = functionDeclarationNode.filename;
-            error.lineNumber = functionDeclarationNode.lineNumber;
+            error.locator = functionDeclarationNode.locator;
         }
 
         // If error occurred in a code block, set the lineNumber to be that from the stack trace rather than the first line of the code block
@@ -1048,7 +1045,7 @@ class RunInstance {
             if(matches) {
                 matches = matches[0].match(/([0-9]+)$/g);
                 if(matches) {
-                    error.lineNumber = parseInt(matches[0]);
+                    error.locator.lineNumber = parseInt(matches[0]);
                 }
             }
         }
@@ -1061,10 +1058,10 @@ class RunInstance {
         let stepNode = this.tree.stepNodeIndex[step.id];
         if(stepNode.isFunctionCall && !this.tree.getModifier(step, 'isHook')) {
             let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
-            return functionDeclarationNode.lineNumber;
+            return functionDeclarationNode.locator.lineNumber;
         }
         else {
-            return stepNode.lineNumber;
+            return stepNode.locator.lineNumber;
         }
     }
 

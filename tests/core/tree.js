@@ -177,19 +177,19 @@ L`
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: [
                                             {
                                                 text: 'C',
-                                                lineNumber: 3,
+                                                locator: { lineNumber: 3 },
                                                 indents: 2,
                                                 parent: { text: 'B' },
                                                 children: []
@@ -198,20 +198,20 @@ L`
                                     },
                                     {
                                         text: 'D',
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: []
                                     },
                                     {
                                         text: 'E',
-                                        lineNumber: 6,
+                                        locator: { lineNumber: 6 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: [
                                             {
                                                 text: 'F',
-                                                lineNumber: 7,
+                                                locator: { lineNumber: 7 },
                                                 indents: 2,
                                                 parent: { text: 'E' },
                                                 children: []
@@ -222,32 +222,32 @@ L`
                             },
                             {
                                 text: 'G',
-                                lineNumber: 8,
+                                locator: { lineNumber: 8 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
                             },
                             {
                                 text: 'H',
-                                lineNumber: 10,
+                                locator: { lineNumber: 10 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'I',
-                                        lineNumber: 11,
+                                        locator: { lineNumber: 11 },
                                         indents: 1,
                                         parent: { text: 'H' },
                                         children: [
                                             {
                                                 text: 'J',
-                                                lineNumber: 12,
+                                                locator: { lineNumber: 12 },
                                                 indents: 2,
                                                 parent: { text: 'I' },
                                                 children: [
                                                     {
                                                         text: 'K',
-                                                        lineNumber: 13,
+                                                        locator: { lineNumber: 13 },
                                                         indents: 3,
                                                         parent: { text: 'J' },
                                                         children: []
@@ -260,7 +260,7 @@ L`
                             },
                             {
                                 text: 'L',
-                                lineNumber: 14,
+                                locator: { lineNumber: 14 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
@@ -303,19 +303,19 @@ L
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 3,
+                                locator: { lineNumber: 3 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'B',
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: [
                                             {
                                                 text: 'C',
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 2,
                                                 parent: { text: 'B' },
                                                 children: []
@@ -324,20 +324,20 @@ L
                                     },
                                     {
                                         text: 'D',
-                                        lineNumber: 7,
+                                        locator: { lineNumber: 7 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: []
                                     },
                                     {
                                         text: 'E',
-                                        lineNumber: 9,
+                                        locator: { lineNumber: 9 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: [
                                             {
                                                 text: 'F',
-                                                lineNumber: 10,
+                                                locator: { lineNumber: 10 },
                                                 indents: 2,
                                                 parent: { text: 'E' },
                                                 children: []
@@ -348,32 +348,32 @@ L
                             },
                             {
                                 text: 'G',
-                                lineNumber: 12,
+                                locator: { lineNumber: 12 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
                             },
                             {
                                 text: 'H',
-                                lineNumber: 14,
+                                locator: { lineNumber: 14 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'I',
-                                        lineNumber: 15,
+                                        locator: { lineNumber: 15 },
                                         indents: 1,
                                         parent: { text: 'H' },
                                         children: [
                                             {
                                                 text: 'J',
-                                                lineNumber: 18,
+                                                locator: { lineNumber: 18 },
                                                 indents: 2,
                                                 parent: { text: 'I' },
                                                 children: [
                                                     {
                                                         text: 'K',
-                                                        lineNumber: 19,
+                                                        locator: { lineNumber: 19 },
                                                         indents: 3,
                                                         parent: { text: 'J' },
                                                         children: []
@@ -386,7 +386,7 @@ L
                             },
                             {
                                 text: 'L',
-                                lineNumber: 20,
+                                locator: { lineNumber: 20 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
@@ -436,22 +436,19 @@ H
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 3,
-                                filename: 'file1.txt',
+                                locator: { filename: 'file1.txt', lineNumber: 3 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'B',
-                                        lineNumber: 4,
-                                        filename: 'file1.txt',
+                                        locator: { filename: 'file1.txt', lineNumber: 4 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: [
                                             {
                                                 text: 'C',
-                                                lineNumber: 6,
-                                                filename: 'file1.txt',
+                                                locator: { filename: 'file1.txt', lineNumber: 6 },
                                                 indents: 2,
                                                 parent: { text: 'B' },
                                                 children: []
@@ -460,23 +457,20 @@ H
                                     },
                                     {
                                         text: 'D',
-                                        lineNumber: 7,
-                                        filename: 'file1.txt',
+                                        locator: { filename: 'file1.txt', lineNumber: 7 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: []
                                     },
                                     {
                                         text: 'E',
-                                        lineNumber: 9,
-                                        filename: 'file1.txt',
+                                        locator: { filename: 'file1.txt', lineNumber: 9 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: [
                                             {
                                                 text: 'F',
-                                                lineNumber: 10,
-                                                filename: 'file1.txt',
+                                                locator: { filename: 'file1.txt', lineNumber: 10 },
                                                 indents: 2,
                                                 parent: { text: 'E' },
                                                 children: []
@@ -487,37 +481,32 @@ H
                             },
                             {
                                 text: 'G',
-                                lineNumber: 1,
-                                filename: 'file2.txt',
+                                locator: { filename: 'file2.txt', lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
                             },
                             {
                                 text: 'H',
-                                lineNumber: 3,
-                                filename: 'file2.txt',
+                                locator: { filename: 'file2.txt', lineNumber: 3 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'I',
-                                        lineNumber: 4,
-                                        filename: 'file2.txt',
+                                        locator: { filename: 'file2.txt', lineNumber: 4 },
                                         indents: 1,
                                         parent: { text: 'H' },
                                         children: [
                                             {
                                                 text: 'J',
-                                                lineNumber: 7,
-                                                filename: 'file2.txt',
+                                                locator: { filename: 'file2.txt', lineNumber: 7 },
                                                 indents: 2,
                                                 parent: { text: 'I' },
                                                 children: [
                                                     {
                                                         text: 'K',
-                                                        lineNumber: 8,
-                                                        filename: 'file2.txt',
+                                                        locator: { filename: 'file2.txt', lineNumber: 8 },
                                                         indents: 3,
                                                         parent: { text: 'J' },
                                                         children: []
@@ -530,9 +519,8 @@ H
                             },
                             {
                                 text: 'L',
-                                lineNumber: 1,
+                                locator: { filename: 'file3.txt', lineNumber: 1 },
                                 indents: 0,
-                                filename: 'file3.txt',
                                 parent: { indents: -1 },
                                 children: []
                             }
@@ -570,13 +558,13 @@ H
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'B',
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: [
@@ -584,14 +572,14 @@ H
                                                 steps: [
                                                     {
                                                         text: 'C',
-                                                        lineNumber: 4,
+                                                        locator: { lineNumber: 4 },
                                                         indents: 2,
                                                         parent: null,
                                                         children: []
                                                     },
                                                     {
                                                         text: 'E',
-                                                        lineNumber: 6,
+                                                        locator: { lineNumber: 6 },
                                                         indents: 2,
                                                         parent: null,
                                                         children: []
@@ -604,7 +592,7 @@ H
                                     },
                                     {
                                         text: 'F',
-                                        lineNumber: 8,
+                                        locator: { lineNumber: 8 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: [
@@ -612,14 +600,14 @@ H
                                                 steps: [
                                                     {
                                                         text: 'H',
-                                                        lineNumber: 11,
+                                                        locator: { lineNumber: 11 },
                                                         indents: 2,
                                                         parent: null,
                                                         children: []
                                                     },
                                                     {
                                                         text: 'I',
-                                                        lineNumber: 12,
+                                                        locator: { lineNumber: 12 },
                                                         indents: 2,
                                                         parent: null,
                                                         children: []
@@ -630,7 +618,7 @@ H
                                             },
                                             {
                                                 text: 'J',
-                                                lineNumber: 15,
+                                                locator: { lineNumber: 15 },
                                                 indents: 2,
                                                 parent: { text: 'F' },
                                                 children: []
@@ -665,16 +653,14 @@ H
                             {
                                 text: 'A',
                                 isPackaged: undefined,
-                                lineNumber: 1,
-                                filename: 'file1.txt',
+                                locator: { filename: 'file1.txt', lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'B',
                                         isPackaged: undefined,
-                                        lineNumber: 2,
-                                        filename: 'file1.txt',
+                                        locator: { filename: 'file1.txt', lineNumber: 2 },
                                         indents: 1,
                                         parent: { text: 'A' },
                                         children: []
@@ -684,16 +670,14 @@ H
                             {
                                 text: 'C',
                                 isPackaged: true,
-                                lineNumber: 1,
-                                filename: 'file2.txt',
+                                locator: { filename: 'file2.txt', lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'D',
                                         isPackaged: true,
-                                        lineNumber: 2,
-                                        filename: 'file2.txt',
+                                        locator: { filename: 'file2.txt', lineNumber: 2 },
                                         indents: 1,
                                         parent: { text: 'C' },
                                         children: []
@@ -753,12 +737,12 @@ C
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 1,
+                                        locator: { lineNumber: 1 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -766,7 +750,7 @@ C
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -774,7 +758,7 @@ C
                                     },
                                     {
                                         text: 'C',
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -785,7 +769,7 @@ C
                                 children: [
                                     {
                                         text: 'D',
-                                        lineNumber: 5,
+                                        locator: { lineNumber: 5 },
                                         indents: 1,
                                         parent: { indents: 0, steps: { $typeof: 'array' } },
                                         children: []
@@ -815,12 +799,12 @@ C
                         parent: null,
                         children: [
                             {
-                                lineNumber: 2,
+                                locator: { lineNumber: 2 },
                                 indents: 0,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -828,7 +812,7 @@ C
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -836,7 +820,7 @@ C
                                     },
                                     {
                                         text: 'C',
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -847,7 +831,7 @@ C
                                 children: [
                                     {
                                         text: 'D',
-                                        lineNumber: 6,
+                                        locator: { lineNumber: 6 },
                                         indents: 1,
                                         parent: { indents: 0, steps: { $typeof: 'array' } },
                                         children: []
@@ -879,17 +863,17 @@ C
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 1,
                                         steps: [
                                             {
                                                 text: 'B',
-                                                lineNumber: 3,
+                                                locator: { lineNumber: 3 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -897,7 +881,7 @@ C
                                             },
                                             {
                                                 text: 'C',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -905,7 +889,7 @@ C
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -916,7 +900,7 @@ C
                                         children: [
                                             {
                                                 text: 'E',
-                                                lineNumber: 7,
+                                                locator: { lineNumber: 7 },
                                                 indents: 2,
                                                 parent: { indents: 1, steps: { $typeof: 'array' } },
                                                 children: []
@@ -949,17 +933,17 @@ C
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         steps: [
                                             {
                                                 text: 'B',
-                                                lineNumber: 2,
+                                                locator: { lineNumber: 2 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -967,7 +951,7 @@ C
                                             },
                                             {
                                                 text: 'C',
-                                                lineNumber: 3,
+                                                locator: { lineNumber: 3 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -975,7 +959,7 @@ C
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -986,7 +970,7 @@ C
                                         children: [
                                             {
                                                 text: 'E',
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 2,
                                                 parent: { indents: 1, steps: { $typeof: 'array' } },
                                                 children: []
@@ -1017,17 +1001,17 @@ C
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 1,
                                         steps: [
                                             {
                                                 text: 'B',
-                                                lineNumber: 3,
+                                                locator: { lineNumber: 3 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1035,7 +1019,7 @@ C
                                             },
                                             {
                                                 text: 'C',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1043,7 +1027,7 @@ C
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1078,17 +1062,17 @@ C
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 1,
                                         steps: [
                                             {
                                                 text: 'B',
-                                                lineNumber: 3,
+                                                locator: { lineNumber: 3 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1096,7 +1080,7 @@ C
                                             },
                                             {
                                                 text: 'C',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1104,7 +1088,7 @@ C
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1137,13 +1121,13 @@ D`
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -1151,12 +1135,12 @@ D`
                                 ]
                             },
                             {
-                                lineNumber: 3,
+                                locator: { lineNumber: 3 },
                                 indents: 0,
                                 steps: [
                                     {
                                         text: 'C',
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1164,7 +1148,7 @@ D`
                                     },
                                     {
                                         text: 'D',
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1196,13 +1180,13 @@ D`
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -1210,12 +1194,12 @@ D`
                                 ]
                             },
                             {
-                                lineNumber: 4,
+                                locator: { lineNumber: 4 },
                                 indents: 0,
                                 steps: [
                                     {
                                         text: 'C',
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1223,7 +1207,7 @@ D`
                                     },
                                     {
                                         text: 'D',
-                                        lineNumber: 5,
+                                        locator: { lineNumber: 5 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1253,12 +1237,12 @@ C`
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 1,
+                                        locator: { lineNumber: 1 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1266,7 +1250,7 @@ C`
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1278,7 +1262,7 @@ C`
                             },
                             {
                                 text: 'C',
-                                lineNumber: 4,
+                                locator: { lineNumber: 4 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
@@ -1307,12 +1291,12 @@ C
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 1,
+                                        locator: { lineNumber: 1 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1320,7 +1304,7 @@ C
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1328,7 +1312,7 @@ C
                                     },
                                     {
                                         text: 'C',
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1338,12 +1322,12 @@ C
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 5,
+                                        locator: { lineNumber: 5 },
                                         indents: 1,
                                         steps: [
                                             {
                                                 text: 'D',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1351,7 +1335,7 @@ C
                                             },
                                             {
                                                 text: 'E',
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1359,7 +1343,7 @@ C
                                             },
                                             {
                                                 text: 'F',
-                                                lineNumber: 7,
+                                                locator: { lineNumber: 7 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1395,13 +1379,13 @@ B
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 isSequential: undefined,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 1,
+                                        locator: { lineNumber: 1 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1409,7 +1393,7 @@ B
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1419,13 +1403,13 @@ B
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 1,
                                         isSequential: undefined,
                                         steps: [
                                             {
                                                 text: 'C',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1433,7 +1417,7 @@ B
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1443,13 +1427,13 @@ B
                                         parent: { indents: 0 },
                                         children: [
                                             {
-                                                lineNumber: 7,
+                                                locator: { lineNumber: 7 },
                                                 indents: 2,
                                                 isSequential: undefined,
                                                 steps: [
                                                     {
                                                         text: 'E',
-                                                        lineNumber: 7,
+                                                        locator: { lineNumber: 7 },
                                                         indents: 2,
                                                         parent: null,
                                                         children: [],
@@ -1457,7 +1441,7 @@ B
                                                     },
                                                     {
                                                         text: 'F',
-                                                        lineNumber: 8,
+                                                        locator: { lineNumber: 8 },
                                                         indents: 2,
                                                         parent: null,
                                                         children: [],
@@ -1492,18 +1476,18 @@ B
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         isSequential: undefined,
                                         steps: [
                                             {
                                                 text: 'B',
-                                                lineNumber: 2,
+                                                locator: { lineNumber: 2 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1511,7 +1495,7 @@ B
                                             },
                                             {
                                                 text: 'C',
-                                                lineNumber: 3,
+                                                locator: { lineNumber: 3 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1546,18 +1530,18 @@ D
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 1,
                                         isSequential: undefined,
                                         steps: [
                                             {
                                                 text: 'B',
-                                                lineNumber: 3,
+                                                locator: { lineNumber: 3 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1565,7 +1549,7 @@ D
                                             },
                                             {
                                                 text: 'C',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1579,7 +1563,7 @@ D
                             },
                             {
                                 text: 'D',
-                                lineNumber: 5,
+                                locator: { lineNumber: 5 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
@@ -1674,18 +1658,18 @@ B`
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 1,
                                         isSequential: true,
                                         steps: [
                                             {
                                                 text: 'B',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1693,7 +1677,7 @@ B`
                                             },
                                             {
                                                 text: 'C',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1701,7 +1685,7 @@ B`
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1736,18 +1720,18 @@ B`
                         children: [
                             {
                                 text: 'A',
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         isSequential: true,
                                         steps: [
                                             {
                                                 text: 'B',
-                                                lineNumber: 3,
+                                                locator: { lineNumber: 3 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1755,7 +1739,7 @@ B`
                                             },
                                             {
                                                 text: 'C',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1763,7 +1747,7 @@ B`
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -1796,13 +1780,13 @@ C
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 isSequential: true,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1810,7 +1794,7 @@ C
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1818,7 +1802,7 @@ C
                                     },
                                     {
                                         text: 'C',
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1851,13 +1835,13 @@ C
                         parent: null,
                         children: [
                             {
-                                lineNumber: 3,
+                                locator: { lineNumber: 3 },
                                 indents: 0,
                                 isSequential: true,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1865,7 +1849,7 @@ C
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 5,
+                                        locator: { lineNumber: 5 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -1873,7 +1857,7 @@ C
                                     },
                                     {
                                         text: 'C',
-                                        lineNumber: 6,
+                                        locator: { lineNumber: 6 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2009,13 +1993,13 @@ B
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 isSequential: undefined,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 1,
+                                        locator: { lineNumber: 1 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2023,7 +2007,7 @@ B
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2033,13 +2017,13 @@ B
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 1,
                                         isSequential: true,
                                         steps: [
                                             {
                                                 text: 'C',
-                                                lineNumber: 4,
+                                                locator: { lineNumber: 4 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -2047,7 +2031,7 @@ B
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -2082,13 +2066,13 @@ B
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 isSequential: undefined,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 1,
+                                        locator: { lineNumber: 1 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2096,7 +2080,7 @@ B
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2106,13 +2090,13 @@ B
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 1,
                                         isSequential: true,
                                         steps: [
                                             {
                                                 text: 'C',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -2120,7 +2104,7 @@ B
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -2155,13 +2139,13 @@ B
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 isSequential: true,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2169,7 +2153,7 @@ B
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2179,13 +2163,13 @@ B
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 4,
+                                        locator: { lineNumber: 4 },
                                         indents: 1,
                                         isSequential: true,
                                         steps: [
                                             {
                                                 text: 'C',
-                                                lineNumber: 5,
+                                                locator: { lineNumber: 5 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -2193,7 +2177,7 @@ B
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -2229,13 +2213,13 @@ B
                         parent: null,
                         children: [
                             {
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 isSequential: true,
                                 steps: [
                                     {
                                         text: 'A',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2243,7 +2227,7 @@ B
                                     },
                                     {
                                         text: 'B',
-                                        lineNumber: 3,
+                                        locator: { lineNumber: 3 },
                                         indents: 0,
                                         parent: null,
                                         children: [],
@@ -2253,13 +2237,13 @@ B
                                 parent: { indents: -1 },
                                 children: [
                                     {
-                                        lineNumber: 5,
+                                        locator: { lineNumber: 5 },
                                         indents: 1,
                                         isSequential: true,
                                         steps: [
                                             {
                                                 text: 'C',
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -2267,7 +2251,7 @@ B
                                             },
                                             {
                                                 text: 'D',
-                                                lineNumber: 7,
+                                                locator: { lineNumber: 7 },
                                                 indents: 1,
                                                 parent: null,
                                                 children: [],
@@ -2308,14 +2292,14 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: 'start;\n        code;\n        more code;',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -2323,7 +2307,7 @@ C
                                     {
                                         text: 'B',
                                         codeBlock: undefined,
-                                        lineNumber: 7,
+                                        locator: { lineNumber: 7 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -2333,7 +2317,7 @@ C
                             {
                                 text: 'C',
                                 codeBlock: undefined,
-                                lineNumber: 8,
+                                locator: { lineNumber: 8 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
@@ -2363,14 +2347,14 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: '',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -2378,7 +2362,7 @@ C
                                     {
                                         text: 'B',
                                         codeBlock: undefined,
-                                        lineNumber: 5,
+                                        locator: { lineNumber: 5 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -2388,7 +2372,7 @@ C
                             {
                                 text: 'C',
                                 codeBlock: undefined,
-                                lineNumber: 6,
+                                locator: { lineNumber: 6 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: []
@@ -2419,14 +2403,14 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: '\n        code;\n        more code;',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -2434,7 +2418,7 @@ C
                                     {
                                         text: 'B',
                                         codeBlock: undefined,
-                                        lineNumber: 7,
+                                        locator: { lineNumber: 7 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -2466,14 +2450,14 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: '\n        code;\n        more code;',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -2481,7 +2465,7 @@ C
                                     {
                                         text: 'B',
                                         codeBlock: undefined,
-                                        lineNumber: 7,
+                                        locator: { lineNumber: 7 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: []
@@ -2514,21 +2498,21 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: '\n        code;\n        more code;',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: [
                                             {
                                                 text: 'B',
                                                 codeBlock: undefined,
-                                                lineNumber: 7,
+                                                locator: { lineNumber: 7 },
                                                 indents: 2,
                                                 parent: { indents: 1 },
                                                 children: []
@@ -2562,21 +2546,21 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: '\n        code;\n        more code;',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: [
                                             {
                                                 text: 'B',
                                                 codeBlock: undefined,
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 2,
                                                 parent: { indents: 1 },
                                                 children: []
@@ -2612,24 +2596,24 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: '\n        code;\n        more code;',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: [
                                             {
-                                                lineNumber: 7,
+                                                locator: { lineNumber: 7 },
                                                 indents: 2,
                                                 steps: [
                                                     {
                                                         text: 'B',
-                                                        lineNumber: 7,
+                                                        locator: { lineNumber: 7 },
                                                         indents: 2,
                                                         parent: null,
                                                         children: [],
@@ -2637,7 +2621,7 @@ C
                                                     },
                                                     {
                                                         text: 'C',
-                                                        lineNumber: 8,
+                                                        locator: { lineNumber: 8 },
                                                         indents: 2,
                                                         parent: null,
                                                         children: [],
@@ -2679,21 +2663,21 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: '\n        code;\n        more code;',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: [
                                             {
                                                 text: 'Another code block',
                                                 codeBlock: '\n            blah;',
-                                                lineNumber: 7,
+                                                locator: { lineNumber: 7 },
                                                 indents: 2,
                                                 parent: { indents: 1 },
                                                 children: []
@@ -2728,21 +2712,21 @@ C
                             {
                                 text: 'A',
                                 codeBlock: undefined,
-                                lineNumber: 1,
+                                locator: { lineNumber: 1 },
                                 indents: 0,
                                 parent: { indents: -1 },
                                 children: [
                                     {
                                         text: 'Code block here',
                                         codeBlock: '\n        code;\n        more code;',
-                                        lineNumber: 2,
+                                        locator: { lineNumber: 2 },
                                         indents: 1,
                                         parent: { indents: 0 },
                                         children: [
                                             {
                                                 text: 'Another code block',
                                                 codeBlock: '\n            blah;',
-                                                lineNumber: 6,
+                                                locator: { lineNumber: 6 },
                                                 indents: 2,
                                                 parent: { indents: 1 },
                                                 children: []
@@ -3241,6 +3225,35 @@ My function
             });
 
             expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+        });
+
+        it("finds the right function declaration even if it's in a different file", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* My function
+    Other file 1 -
+            `, "file1.txt");
+
+            tree.parseIn(`
+My function
+            `, "file2.txt");
+
+            tree.parseIn(`
+* My function
+    Other file 2 -
+            `, "file3.txt");
+
+            let branchAbove = new Branch();
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+
+            Comparer.expect(functionDeclaration).to.match({
+                text: "My function",
+                isFunctionDeclaration: true,
+                children: [ { text: "Other file 1" } ]
+            });
+
+            expect(functionDeclaration === tree.root.children[0]).to.equal(true);
         });
 
         it("rejects function calls that cannot be found", () => {
@@ -4682,7 +4695,11 @@ F
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "F", lineNumber: 2 }, { text: "F", lineNumber: 5 }, { text: "A", lineNumber: 8 } ]
+                        steps: [
+                            { text: "F", locator: { lineNumber: 2 } },
+                            { text: "F", locator: { lineNumber: 5 } },
+                            { text: "A", locator: { lineNumber: 8 } }
+                        ]
                     }
                 ]);
             });

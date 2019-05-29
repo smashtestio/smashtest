@@ -28,12 +28,12 @@ exports.hasQuotes = (str) => {
 }
 
 /**
- * Throws an Error with the given message, filename, and line number
+ * Throws an Error with the given message and locator
  * @throws {Error}
  */
-exports.error = (msg, filename, lineNumber) => {
-    if(filename || lineNumber) {
-        throw new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`);
+exports.error = (msg, locator) => {
+    if(locator) {
+        throw new Error(`${msg} [${locator}]`);
     }
     else {
         throw new Error(msg);
@@ -168,12 +168,11 @@ exports.keepCaseCanonicalize = (text) => {
 
 /**
  * @param {String} line - A single line
- * @param {String} filename - The filename of the file where the line is
- * @param {Integer} lineNumber - The line number
+ * @param {String} locator - The locator of the line (see StepNode.locator)
  * @return {Integer} The number of indents in line (where each SPACES_PER_INDENT spaces counts as 1 indent). Always returns 0 for empty string or all whitespace.
  * @throws {Error} If there are an invalid number of spaces, or invalid whitespace chars, at the beginning of the step
  */
-exports.numIndents = (line, filename, lineNumber) => {
+exports.numIndents = (line, locator) => {
     if(line.match(/^\s*$/)) { // empty string or all whitespace
         return 0;
     }
@@ -185,14 +184,14 @@ exports.numIndents = (line, filename, lineNumber) => {
     let whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
     if(spacesAtFront[1] != whitespaceAtFront[1]) {
-        exports.error(`Spaces are the only type of whitespace allowed at the beginning of a step`, filename, lineNumber);
+        exports.error(`Spaces are the only type of whitespace allowed at the beginning of a step`, locator);
     }
     else {
         let numSpaces = spacesAtFront[1].length;
         let numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
         if(numIndents - Math.floor(numIndents) != 0) {
-            exports.error(`The number of spaces at the beginning of a step must be a multiple of ${Constants.SPACES_PER_INDENT}. You have ${numSpaces} space${numSpaces != 1 ? `s` : ``}.`, filename, lineNumber);
+            exports.error(`The number of spaces at the beginning of a step must be a multiple of ${Constants.SPACES_PER_INDENT}. You have ${numSpaces} space${numSpaces != 1 ? `s` : ``}.`, locator);
         }
         else {
             return numIndents;
@@ -238,7 +237,6 @@ exports.serializeError = (error) => {
     return {
         message: error.message.toString(),
         stack: error.stack.toString(),
-        filename: error.filename,
-        lineNumber: error.lineNumber
+        locator: error.locator
     };
 }

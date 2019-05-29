@@ -92,14 +92,13 @@ class ElementFinder {
             }
         }
 
-        let filename = 'line';
-        let baseIndent = utils.numIndents(parentLine, filename, parentLineNumber);
+        let baseIndent = utils.numIndents(parentLine, `line ${parentLineNumber}`);
 
         // If there is more than one line at baseIndent, make this a body EF and all of str will be its children
         for(let i = parentLineNumber; i < lines.length; i++) {
             let line = lines[i];
             if(line.trim() != '') {
-                let indents = utils.numIndents(line, filename, i + 1);
+                let indents = utils.numIndents(line, `line ${i + 1}`);
                 if(indents == baseIndent) {
                     let spaces = utils.getIndents(1);
                     lines = lines.map(line => spaces + line);
@@ -128,7 +127,7 @@ class ElementFinder {
                 this.empty = true;
             }
             else {
-                utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber);
+                utils.error(`The 'any order' keyword must have a parent element`, `line ${parentLineNumber}`);
             }
         }
         else if(parentLine == 'subset' && !this.isElemArray) { // 'subset' keyword
@@ -137,7 +136,7 @@ class ElementFinder {
                 this.empty = true;
             }
             else {
-                utils.error(`The 'subset' keyword must have a parent element`, filename, parentLineNumber);
+                utils.error(`The 'subset' keyword must have a parent element`, `line ${parentLineNumber}`);
             }
         }
         else {
@@ -239,7 +238,7 @@ class ElementFinder {
                     }
                 }
                 else { // rare case (usually if someone explicitly overrides the selector prop)
-                    utils.error(`Cannot find property that matches \`${canonPropStr}\``, filename, parentLineNumber);
+                    utils.error(`Cannot find property that matches \`${canonPropStr}\``, `line ${parentLineNumber}`);
                 }
 
                 this.props.push(prop);
@@ -264,16 +263,16 @@ class ElementFinder {
                 continue;
             }
 
-            let indents = utils.numIndents(line, filename, lineNumber) - baseIndent;
+            let indents = utils.numIndents(line, `line ${lineNumber}`) - baseIndent;
             if(indents < 0) {
-                utils.error(`ElementFinder cannot have a line that's indented left of the first line`, filename, lineNumber);
+                utils.error(`ElementFinder cannot have a line that's indented left of the first line`, `line ${lineNumber}`);
             }
             else if(indents == 1) {
                 childObjs.push({str: line, lineNumber: lineNumber}); // a new child is formed
             }
             else { // indents > 1
                 if(childObjs.length == 0) {
-                    utils.error(`ElementFinder cannot have a line that's indented more than once compared to the line above`, filename, lineNumber);
+                    utils.error(`ElementFinder cannot have a line that's indented more than once compared to the line above`, `line ${lineNumber}`);
                 }
 
                 childObjs[childObjs.length - 1].str += `\n${line}`; // string goes onto the end of the last child

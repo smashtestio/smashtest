@@ -1592,7 +1592,7 @@ describe("ElementFinder", function() {
                     new ElementFinder(`
                         any order
                     `);
-                }, "The 'any order' keyword must have a parent element [line:2]");
+                }, "The 'any order' keyword must have a parent element [line 2]");
             });
 
             it("throws an error if the 'subset' keyword doesn't have a parent element", () => {
@@ -1602,7 +1602,7 @@ describe("ElementFinder", function() {
                             one
                             two
                     `);
-                }, "The 'subset' keyword must have a parent element [line:2]");
+                }, "The 'subset' keyword must have a parent element [line 2]");
             });
 
             it("element arrays", () => {
@@ -1816,7 +1816,7 @@ describe("ElementFinder", function() {
                         one
                                 two
                     `);
-                }, "ElementFinder cannot have a line that's indented more than once compared to the line above [line:3]");
+                }, "ElementFinder cannot have a line that's indented more than once compared to the line above [line 3]");
 
                 assert.throws(() => {
                     new ElementFinder(`
@@ -1825,7 +1825,7 @@ describe("ElementFinder", function() {
 
                                     three
                     `);
-                }, "ElementFinder cannot have a line that's indented more than once compared to the line above [line:5]");
+                }, "ElementFinder cannot have a line that's indented more than once compared to the line above [line 5]");
             });
 
             it("throws an error when a line is indented to the left of the top line's indent", () => {
@@ -1834,7 +1834,7 @@ describe("ElementFinder", function() {
                         one
                     two
                     `);
-                }, "ElementFinder cannot have a line that's indented left of the first line [line:3]");
+                }, "ElementFinder cannot have a line that's indented left of the first line [line 3]");
 
                 assert.throws(() => {
                     new ElementFinder(`
@@ -1842,20 +1842,20 @@ describe("ElementFinder", function() {
                             two
                     three
                     `);
-                }, "ElementFinder cannot have a line that's indented left of the first line [line:4]");
+                }, "ElementFinder cannot have a line that's indented left of the first line [line 4]");
             });
 
             it("throws an error when a line is not indented by a multiple of 4", () => {
                 assert.throws(() => {
                     new ElementFinder(`  one`);
-                }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 2 spaces. [line:1]");
+                }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 2 spaces. [line 1]");
 
                 assert.throws(() => {
                     new ElementFinder(`
 one
  two
                     `);
-                }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space. [line:3]");
+                }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space. [line 3]");
             });
 
             it("throws an error if the 'selector' prop isn't available but is needed", () => {
@@ -1863,7 +1863,7 @@ one
                     new ElementFinder(`
                         one
                     `, {});
-                }, "Cannot find property that matches `selector` [line:2]");
+                }, "Cannot find property that matches `selector` [line 2]");
             });
 
             it("handles empty lines between normal lines", () => {
