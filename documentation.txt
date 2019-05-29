@@ -18,6 +18,7 @@ Example file
     - One big example file with each type of step, etc. and // comments explaining stuff
     - Suggested flow of putting a ~ at the end of a step, ruining browser there, coming up with all permutations on all elements on
         that page and adding those steps, repeat
+    - NOTE: everything in documentation should be an example, with step names describing themselves and further documentation below if necessary
 
 Steps
     - Textual steps, packaged steps, functions
