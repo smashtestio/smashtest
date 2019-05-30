@@ -3437,6 +3437,40 @@ Trace:
             ]);
         });
 
+        it("finds equivalents on one level with a non-function-declaration parent", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    * F
+
+    * F
+            `);
+
+            let equivalents = tree.equivalents(tree.root.children[0].children[1]); // * F
+
+            Comparer.expect(equivalents).to.match([
+                { text: "F", lineNumber: 3 },
+                { text: "F", lineNumber: 5 }
+            ]);
+        });
+
+        it("doesn't find equivalents amongst function declarations that are named the same but separated by parents", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+A -
+    * F
+
+A -
+    * F
+            `);
+
+            let equivalents = tree.equivalents(tree.root.children[0].children[0]); // * F
+
+            Comparer.expect(equivalents).to.match([
+                { text: "F", lineNumber: 3 }
+            ]);
+        });
+
         it("doesn't find as equivalents function declarations with code blocks", () => {
             let tree = new Tree();
             tree.parseIn(`
