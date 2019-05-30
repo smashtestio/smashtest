@@ -371,165 +371,6 @@ class ElementFinder {
     async getAll(driver, parentElem) {
         // TODO: Don't forget to log stuff via this.logger (if it's set)
 
-        /*
-            INJECTED CODE:
-                // ef and parentElem are passed in via args
-
-                find(ef, parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*'));
-
-                matchMeElems = []
-                Recursively walk the tree, adding an EF's matchedElems to matchMeElems if that EF's matchMe is set
-                If matchMeElems.length > 0
-                    return matchMeElems
-                else
-                    return ef.matchedElems
-
-                function find(ef, pool) {
-                    let Es = getElemsThatMatchParent(ef, pool)
-
-                    if(!ef.isElemArray) {
-                        For each e in Es {
-                            let pool = all elements under e
-                            For each child in ef.children {
-                                let Cs = []
-                                try {
-                                    find(child, pool)
-                                    Cs = child.matchedElems
-                                }
-                                catch {
-                                    e is bad. Remove it from Es. Continue to the next e.
-                                }
-
-                                if(Cs.length < child.counter.min)
-                                    e is bad. Remove it from Es. Continue to the next e.
-
-                                Cs = take first child.counter.min from Cs
-
-                                if(!ef.isAnyOrder)
-                                    Remove all items before the last elem in Cs from pool
-                                else
-                                    Remove Cs (and their descendants) from pool
-
-                                if(pool is empty)
-                                    e is bad. Remove it from Es. Continue to the next e.
-                            }
-                        }
-
-                        if(Es.length < ef.counter.min) {
-                            set ef.error
-                            throw error
-                        }
-                        else {
-                            ef.matchedElems = Es, but no more than counter.max
-                        }
-                    }
-                    else { // ef is an element array
-                        if(!ef.isAnyOrder) {
-                            pointerE = first item in Es
-                            pointerC = first item in ef.children
-
-                            while(at least one pointer is pointing at something) { // pointers become null after they go off the end
-                                if(doesElemMatchParent(pointerC, pointerE)) {
-                                    pointerC.matchedElems.push(pointerE)
-                                    pointerE++
-
-                                    if(pointerC.matchedElems.length == pointerC.counter.max) {
-                                        pointerC++
-                                    }
-                                }
-                                else {
-                                    if(pointerC is not valid) {
-                                        if(!ef.isSubset) {
-                                            set pointerC.error for missing
-                                        }
-                                    }
-                                    else if(pointerC.matchedElems.length < pointerC.counter.min) {
-                                        set pointerC.error
-                                    }
-
-                                    pointerC++
-                                }
-                            }
-                        }
-                        else {
-                            For each child in ef.children {
-                                For each e in Es {
-                                    if(doesElemMatchParent(child, e)) {
-                                        child.matchedElems.push(e)
-                                        remove e from Es
-
-                                        if(child.matchedElems.length == child.counter.max)
-                                            break
-                                    }
-                                }
-
-                                if(child.matchedElems.length < child.counter.min) {
-                                    set child.error
-                                }
-                            }
-
-                            if(!ef.isSubset) {
-                                if(Es.length > 0) {
-                                    set ef.blockError for each of Es still around (these elems weren't matched by the elem array)
-                                }
-                            }
-                        }
-
-                        If at least one error was set, throw error
-                    }
-
-                    function getElemsThatMatchParent(ef, pool) {
-                        Start with pool and apply props sequentially until we're left with an array
-                    }
-
-                    function doesElemMatchParent(ef, domElem) {
-                        return true if domElem matches ef's top parent, false otherwise, and false if ef or domElem is null
-                    }
-                }
-
-
-
-            Make sure these are covered in unit tests:
-                - !isElemArray
-                    - matchMe
-                    - counter
-                        - on ef
-                        - on a child
-                    - modifiers
-                        - none
-                        - isAnyOrder
-                        - isSubset
-                        - isAnyOrder + isSubset
-                - isElemArray
-                    - matchMe
-                    - counter
-                        - on ef
-                        - on a child
-                    - modifiers
-                        - none
-                        - isAnyOrder
-                        - isSubset
-                        - isAnyOrder + isSubset
-
-            Errors to attach to an EF:
-                - EF not found at all  --> not found (zero matches after `prop name` applied)
-                - EF found once on the page, but not all children match  --> found, but doesn't contain all the children below (in that order)?
-                    child that matches
-                    child that doesn't match  --> not found (zero matches after `prop name` applied)
-
-                - EF found multiple times on page, not children  --> N found, but none contain all the children below (in that order)?
-                    child
-                    child
-
-                - counter x EF with not enough matches  --> only found N
-
-                - EF inside element array that doesn't match  --> doesn't match <tagname id="" class="">
-                - EF inside element array that points beyond the array of elements found  --> not found
-                - Element array that doesn't have items for all matched elements
-                    --> missing
-                    <tagname id="" class="">
-        */
-
         return await driver.executeScript(() => {
             let ef = JSON.parse(arguments[0]);
             let parentElem = arguments[1];
@@ -540,7 +381,7 @@ class ElementFinder {
 
 
 
-            function getAll(pool) {
+            function find(ef, pool) {
 
             }
 
@@ -617,7 +458,33 @@ class ElementFinder {
     static defaultProps() {
         return {
             'visible': [ (elems, input) => {
+                return elems.filter(elem => {
+                    if(elem.offsetWidth == 0 || elem.offsetHeight == 0) {
+                        return false;
+                    }
 
+                    var cs = window.getComputedStyle(elem);
+
+                    if(cs.visibility == 'hidden' || cs.visibility == 'collapse') {
+                        return false;
+                    }
+
+                    if(cs.opacity == '0') {
+                        return false;
+                    }
+
+                    // Check opacity of parents
+                    elem = elem.parentElement;
+                    while(elem) {
+                        cs = window.getComputedStyle(elem);
+                        if(cs.opacity == '0') {
+                            return false;
+                        }
+                        elem = elem.parentElement;
+                    }
+
+                    return true;
+                });
             } ],
 
             'any visibility': [ (elems, input) => {
@@ -626,29 +493,64 @@ class ElementFinder {
 
             'enabled': [ (elems, input) => {
                 // TODO: if elems is undefined, choose from all elements on the page
+
+
+
+
             } ],
 
             'disabled': [ (elems, input) => {
+
+
+
+
+
 
             } ],
 
             'checked': [ (elems, input) => {
 
+
+
+
+
+
             } ],
 
             'unchecked': [ (elems, input) => {
+
+
+
+
+
 
             } ],
 
             'selected': [ (elems, input) => {
 
+
+
+
+
+
             } ],
 
             'focused': [ (elems, input) => {
 
+
+
+
+
+
             } ],
 
             'in focus': [ (elems, input) => {
+
+
+
+
+
+
 
             } ],
 
@@ -657,61 +559,133 @@ class ElementFinder {
             } ],
 
             'clickable': [ (elems, input) => {
-                // a, button, label, input, textarea, select, cursor:pointer, cursor:pointer when hovered over
-                // maybe if nothing match the above, just send back all elems (so Click step will work with whatever other selectors sent in)
+                return elems.filter(elem => {
+                    let tagName = element.tagName.toLowerCase();
+                    return tagName == 'a' ||
+                        tagName == 'button' ||
+                        tagName == 'label' ||
+                        tagName == 'input' ||
+                        tagName == 'textarea' ||
+                        tagName == 'select' ||
+                        window.getComputedStyle(element).getPropertyValue('cursor') == 'pointer';
+                        // TODO: handle cursor:pointer when hovered over
+                });
             } ],
 
             'page title': [ (elems, input) => {
+
+
+
+
+
 
             } ],
 
             'page title contains': [ (elems, input) => {
 
+
+
+
+
+
             } ],
 
             'page url': [ (elems, input) => {
                 // relative or absolute
+
+
+
+
+
             } ],
 
             'page url contains': [ (elems, input) => {
                 // relative or absolute
+
+
+
+
+
+
             } ],
 
             'next to': [ (elems, input) => {
                 // Find closest element by x,y coords to smallest element(s) containing the text? Or just use expanding containers?
+
+
+
+
+
             } ],
 
             'value': [ (elems, input) => {
                 // elem.value only
+
+
+
+
+
             } ],
 
             'exact': [ (elems, input) => {
+
+
+
+
+
 
             } ],
 
             'contains': [ (elems, input) => {
                 // Contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
                 // Containing, lower case, trimmed, and whitespace-to-single-space match
+
+
+
+
+
             } ],
 
             'innertext': [ (elems, input) => {
+
+
+
+
 
             } ],
 
             'selector': [ (elems, input) => {
 
+
+
+
+
             } ],
 
             'xpath': [ (elems, input) => {
+
+
+
+
 
             } ],
 
             'style': [ (elems, input) => {
                 // input = 'name: val'
+
+
+
+
             } ],
 
             'has': [ (elems, input) => {
                 // matches this selector or has a child that matches
+
+
+
+
+
+                
             } ],
 
             // Same as an ord, returns nth elem, where n is 1-indexed
