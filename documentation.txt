@@ -375,7 +375,6 @@ Functions
         - Function {{var}} here OR Function "6" here OR Function ['element' finder] here maps to * Function {{other var}} here
             - All function inputs are either {vars}, {{vars}}, 'strings', "strings", or [strings]
             - {{vars}} in a function declaration must all be {{local}}, not {global}
-        - Finds closest matching function declaration in the tree (always looking top to bottom among siblings), otherwise looks to packaged functions
         - When a *function ends in multiple leaves, those are separate branches for the indented line below function call
             - Show example
     - Declaring
@@ -384,11 +383,32 @@ Functions
             - ** Private function declaration
             - *** Hook declaration
         - {{local vars}} designate parameters in a function declaration
-        - Finding declaration
-            - First look to siblings, then to siblings of parent, etc.
-            - Match custom functions first, then primitive packaged functions
-            - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
-                - Functions and {vars} declared inside a function are accessible to children of the caller step
+    - Finding declaration
+        - First closest matching function declaration by looking to siblings, then to siblings of parent, etc.
+        - Looks to packaged functions last
+            - It is possible for a function closer in the tree to "override" ("more specific context")
+        - Don't forget about functions declared within function F. A call to F makes the functions accessible to its children
+            - Functions and {vars} declared inside a function are accessible to children of the caller step
+        - Equivalent function declaration names in the same context are treated as equivalents
+            Example:
+                * A
+                    * B
+                        1
+                    * B
+                        2
+
+                * A
+                    * B
+                        3
+
+                is equivalent to
+
+                * A
+                    * B
+                        1
+                        2
+                        3
+
     - Functions are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
     - When * F has a call to F inside it, that call will find the closest * F, but not the parent * F.
         - Prevents infinite loops and allows a specific function to call a more generic one
@@ -481,6 +501,25 @@ Functions
                         On page X    // calls the one corresponding to mobile or desktop
 
                             Logout   // calls the one corresponding to mobile or desktop
+
+                - Organize by functionality and/or divide by files
+
+                    * Mobile
+                        * Logout
+                            Logout functionality
+                    * Desktop
+                        * Logout
+                            Logout functionality
+
+                    ...
+                    (different file or just different part of the same file)
+
+                    * Mobile
+                        * Checkout
+                            Checkout functionality
+                    * Desktop
+                        * Checkout
+                            Checkout functionality
 
             - Request and verify
 
@@ -581,15 +620,7 @@ Functions
             *
                 Step applied to each leaf
 
-            * ===
-                A1
-                    A2
-                B1
-                    B2
-            ===
-                Step applied to each leaf
-
-            - But make sure only one * or = pair at this indent level, otherwise the first one will always be called.
+            - But make sure only one * at this indent level, otherwise multiple will be called.
                 Use more *'s, ='s, or give it a traditional name.
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming

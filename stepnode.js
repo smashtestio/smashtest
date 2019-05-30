@@ -343,20 +343,8 @@ class StepNode {
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
      */
     isFunctionMatch(functionDeclarationNode) {
-        let functionCallText = this.getFunctionCallText();
-        let functionDeclarationText = functionDeclarationNode.text;
-
-        // Canonicalize by replacing {vars} and 'strings' with {}'s
-        functionDeclarationText = functionDeclarationText
-            .replace(Constants.VAR, '{}');
-        functionDeclarationText = utils.unescape(functionDeclarationText);
-        functionDeclarationText = utils.canonicalize(functionDeclarationText);
-
-        functionCallText = functionCallText
-            .replace(Constants.STRING_LITERAL, '{}')
-            .replace(Constants.VAR, '{}');
-        functionCallText = utils.unescape(functionCallText);
-        functionCallText = utils.canonicalize(functionCallText);
+        let functionCallText = this.canonicalizeFunctionCallText();
+        let functionDeclarationText = functionDeclarationNode.canonicalizeFunctionDeclarationText();
 
         if(functionDeclarationText.endsWith('*')) {
             return functionCallText.startsWith(functionDeclarationText.replace(/\*$/, ''));
@@ -364,6 +352,37 @@ class StepNode {
         else {
             return functionCallText == functionDeclarationText;
         }
+    }
+
+    /**
+     * @return {String} Canonicalized text of this step node, if it's a function declaration
+     */
+    canonicalizeFunctionDeclarationText() {
+        let functionDeclarationText = this.text;
+
+        // Canonicalize by replacing {vars} with {}'s
+        functionDeclarationText = functionDeclarationText
+            .replace(Constants.VAR, '{}');
+        functionDeclarationText = utils.unescape(functionDeclarationText);
+        functionDeclarationText = utils.canonicalize(functionDeclarationText);
+
+        return functionDeclarationText;
+    }
+
+    /**
+     * @return {String} Canonicalized text of this step node, if it's a function call
+     */
+    canonicalizeFunctionCallText() {
+        let functionCallText = this.getFunctionCallText();
+
+        // Canonicalize by replacing {vars} and 'strings' with {}'s
+        functionCallText = functionCallText
+            .replace(Constants.STRING_LITERAL, '{}')
+            .replace(Constants.VAR, '{}');
+        functionCallText = utils.unescape(functionCallText);
+        functionCallText = utils.canonicalize(functionCallText);
+
+        return functionCallText;
     }
 
     /**

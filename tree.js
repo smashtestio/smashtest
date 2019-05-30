@@ -325,10 +325,6 @@ class Tree {
             else { // indentsAdvanced < 0, and current step node is a child of an ancestor of the previous step node
                 let parent = prevStepNode.parent;
                 for(let j = indentsAdvanced; j < 0; j++) {
-                    if(parent.parent == null) {
-                        utils.error(`Invalid number of indents`, filename, currStepNode.lineNumber); // NOTE: probably unreachable
-                    }
-
                     parent = parent.parent;
                 }
 
@@ -339,20 +335,22 @@ class Tree {
     }
 
     /**
-     * Finds the nearest function declaration step node that matches a given function call step
-     * Does not choose a function declaration with a corresponding function call already inside branchAbove (a function cannot call itself)
+     * Finds the nearest function declaration step node(s) that match a given function call step
+     * Does not choose a function declaration (or equivalent) with a corresponding function call already inside branchAbove (a function cannot call itself)
+     * Matches multiple function declarations when they're equivalents (e.g., * A > * B and * A > * B somewhere else in the tree are equivalents)
      * @param {Step} functionCall - The function call Step whose function declaration we're trying to find
      * @param {Branch} branchAbove - Post-branchify Branch of steps that come before functionCall
-     * @return {StepNode} The nearest function declaration step node that matches the function call step
+     * @return {Array of StepNode} The nearest function declaration step nodes that match the function call step
      * @throws {Error} If a matching function declaration could not be found
      */
-    findFunctionDeclaration(functionCall, branchAbove) {
+    findFunctionDeclarations(functionCall, branchAbove) {
         branchAbove.steps.push(functionCall);
 
         let functionCallNode = this.stepNodeIndex[functionCall.id];
         let functionCallNodeToMatch = functionCallNode;
 
-        // If the functionCall ends in a *, find out what text was used for the * in branchAbove
+        // If the functionCall ends in a *, this is a recursive call
+        // Find out what text was used in place of the * in branchAbove
         if(functionCallNode.text.trim().endsWith('*')) {
             for(let i = branchAbove.steps.length - 2; i >= 0; i--) {
                 let s = branchAbove.steps[i];
@@ -365,59 +363,49 @@ class Tree {
             }
         }
 
-        // Say functionCall is F, and needs to be matched to a *F. If we go up branchAbove and find other instances of F,
-        // add their corresponding *F's to a list of untouchables. functionCall F is never matched to an untouchable.
+        // Say functionCall is F, and needs to be matched to *F. If we go up branchAbove and find another call F,
+        // add the corresponding *F (and its equivalents) to a list of untouchables. F is never matched to an untouchable.
         // This prevents an F within a *F from infinitely recursing.
         let untouchables = [];
         for(let s = functionCallNode; s.indents != -1; s = s.parent || s.containingStepBlock.parent) {
             if(s.isFunctionDeclaration && functionCallNodeToMatch.isFunctionMatch(s)) {
-                untouchables.push(s);
+                untouchables = untouchables.concat(this.equivalents(s));
             }
         }
 
+        // Try to find the function declarations we're looking for
         for(let index = branchAbove.steps.length - 1; index >= 0; index--) {
             let currStep = branchAbove.steps[index];
             let currStepNode = this.stepNodeIndex[currStep.id];
             let parent = currStepNode.parent || currStepNode.containingStepBlock.parent;
             let siblings = parent.children;
 
-            let foundDeclarationNode = searchAmongSiblings(siblings);
-            if(foundDeclarationNode) {
+            let foundDeclarationNodes = searchAmong(siblings, currStep);
+            if(foundDeclarationNodes.length > 0) {
                 branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
-                return foundDeclarationNode;
+                return foundDeclarationNodes;
             }
 
-            // Search inside the corresponding function declaration's children
+            // If nothing found yet, try going to the step right above (P), finding its corresponding function declaration (*P),
+            // finding all equivalents to *P, and searching all of their children
             if(index > 0) {
-                let currStepAbove = branchAbove.steps[index-1];
-                let currStepNodeAbove = this.stepNodeIndex[currStepAbove.id];
+                let stepAbove = branchAbove.steps[index-1];
+                let stepNodeAbove = this.stepNodeIndex[stepAbove.id];
 
-                if(currStepNodeAbove && currStepNodeAbove.isFunctionCall) {
-                    parent = this.stepNodeIndex[currStepAbove.fid];
-                    if(parent) {
-                        siblings = parent.children;
-                        foundDeclarationNode = searchAmongSiblings(siblings);
-                        if(foundDeclarationNode) {
+                if(stepNodeAbove && stepNodeAbove.isFunctionCall) {
+                    let funcDeclAbove = this.stepNodeIndex[stepAbove.fid]; // this is *P from the example above
+                    if(funcDeclAbove) {
+                        let funcDeclAboveEquivalents = this.equivalents(funcDeclAbove);
+                        let pool = [];
+                        funcDeclAboveEquivalents.forEach(fd => pool = pool.concat(fd.children));
+
+                        let foundDeclarationNodes = searchAmong(pool, currStep);
+                        if(foundDeclarationNodes.length > 0) {
                             branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
-                            return foundDeclarationNode;
+                            return foundDeclarationNodes;
                         }
                     }
                 }
-            }
-
-            function searchAmongSiblings(siblings) {
-                for(let i = 0; i < siblings.length; i++) {
-                    let sibling = siblings[i];
-                    if(sibling.isFunctionDeclaration && functionCallNodeToMatch.isFunctionMatch(sibling) && untouchables.indexOf(sibling) == -1) {
-                        if(sibling.isPrivateFunctionDeclaration && currStep.level > functionCall.level) {
-                            continue; // ignore private functions that are inaccessible
-                        }
-
-                        return sibling;
-                    }
-                }
-
-                return null;
             }
         }
 
@@ -427,6 +415,31 @@ Trace:
 ${outputBranchAbove(this)}
 `, functionCallNode.filename, functionCallNode.lineNumber);
 
+        /**
+         * @param {Array of StepNode} pool - Step nodes to search amongst for functionCallNodeToMatch
+         * @param {Step} currStep - The current step in branchAbove we're looking at
+         * @return {Array of StepNode} Step nodes that match functionCallNodeToMatch
+         */
+        function searchAmong(pool, currStep) {
+            let matches = [];
+            for(let i = 0; i < pool.length; i++) {
+                let sn = pool[i];
+
+                if(sn.isFunctionDeclaration
+                    && functionCallNodeToMatch.isFunctionMatch(sn) &&
+                    !untouchables.includes(sn) &&
+                    !(sn.isPrivateFunctionDeclaration && currStep.level > functionCall.level) // ignore private functions that are inaccessible)
+                ) {
+                    matches.push(sn);
+                }
+            }
+
+            return matches;
+        }
+
+        /**
+         * @return {String} The contents of branchAbove, made to look like a stack trace (for errors)
+         */
         function outputBranchAbove(self) {
             let str = '';
             branchAbove.steps.forEach(s => {
@@ -434,6 +447,43 @@ ${outputBranchAbove(this)}
             });
             return str;
         }
+    }
+
+    /**
+     * @return {Array of StepNode} All StepNodes that are equivalents to the given function declaration StepNode
+     * Note that the * A's and * B's in * A > * B > C and * A > * B > D are equivalents
+     */
+    equivalents(stepNode) {
+        let results = [];
+
+        let stack = [];
+        let s = null;
+        for(s = stepNode; s && s.isFunctionDeclaration; s = s.parent) {
+            stack.push(s);
+        }
+
+        results.push(s);
+
+        while(stack.length > 0) {
+            let newResults = [];
+            let fd = stack.pop();
+            results.forEach(result => {
+                newResults = newResults.concat(
+                    result.children.filter(
+                        c =>
+                            c === stepNode ||    // original must always match
+                            (
+                                c.isFunctionDeclaration &&
+                                !c.hasCodeBlock() &&
+                                c.canonicalizeFunctionDeclarationText() == fd.canonicalizeFunctionDeclarationText()
+                            )
+                    )
+                );
+            });
+            results = newResults;
+        }
+
+        return results;
     }
 
     /**
@@ -556,67 +606,85 @@ ${outputBranchAbove(this)}
 
         // Initialize step corresponding to stepNode
         let step = new Step(stepNode.id);
-        step.level = level; // needed to findFunctionDeclaration() below
+        step.level = level; // needed to findFunctionDeclarations() below
         let varsBeingSet = stepNode.getVarsBeingSet();
-        let functionDeclarationNode = null;
 
         // ***************************************
         // 2) Fill branchesFromThisStepNode with the branches that come from this step node alone (and not its children)
         //    (may be multiple branches if this step node is a function call, etc.)
         // ***************************************
 
-        let branchesFromThisStepNode = []; // Array of Branch
+        let branchesFromThisStepNode = [];  // Array of Branch
+        let fids = [];                      // If stepNode is a function call, all matching function declaration ids go here
 
         if(stepNode.indents == -1) {
             // We're at the root. Ignore it.
         }
         else if(stepNode.isFunctionCall) {
-            functionDeclarationNode = this.findFunctionDeclaration(step, branchAbove);
-            step.fid = functionDeclarationNode.id;
+            let newBranchesFromThisStepNode = [];
+            let functionDeclarationNodes = this.findFunctionDeclarations(step, branchAbove);
 
-            let isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
+            functionDeclarationNodes.forEach(functionDeclarationNode => {
+                step.fid = functionDeclarationNode.id;
+                fids.push(step.fid);
 
-            if(varsBeingSet && varsBeingSet.length > 0) {
-                // This step is {var} = F
+                let isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
 
-                // Validate that F is either a code block function, or has all children being {x}='val'
-                isReplaceVarsInChildren = this.validateVarSettingFunction(step);
-            }
+                if(varsBeingSet && varsBeingSet.length > 0) {
+                    // This step is {var} = F
 
-            // Branchify the function declaration node
-            branchesFromThisStepNode = placeOntoBranchAbove([step], () => this.branchify(functionDeclarationNode, groups, minFrequency, noDebug, debugHash, branchAbove, level + 1, true)); // there's no isSequential because isSequential does not extend into function calls
+                    // Validate that F is either a code block function, or has all children being {x}='val'
+                    isReplaceVarsInChildren = this.validateVarSettingFunction(step);
+                }
 
-            if(branchesFromThisStepNode.length == 0) {
-                // If branchesFromThisStepNode is empty (happens when the function declaration is empty), just stick the current step (function call) into a sole branch
-                let branch = new Branch;
-                branch.push(step, this.stepNodeIndex);
-                branchesFromThisStepNode = [ branch ];
-            }
-            else {
-                if(isReplaceVarsInChildren) {
-                    // replace {x} in each child to {var} (where this step is {var} = F)
-                    branchesFromThisStepNode.forEach(branch => {
-                        for(let i = 0; i < branch.steps.length; i++) { // handles mulitple levels of {var} = F
-                            let s = branch.steps[i];
-                            let sNode = this.stepNodeIndex[s.id];
-                            let sVarsBeingSet = sNode.getVarsBeingSet();
+                // Branchify the function declaration node
+                newBranchesFromThisStepNode = placeOntoBranchAbove([step], () => this.branchify(functionDeclarationNode, groups, minFrequency, noDebug, debugHash, branchAbove, level + 1, true)); // there's no isSequential because isSequential does not extend into function calls
 
-                            let originalName = sVarsBeingSet[0].name;
-                            let newName = varsBeingSet[0].name;
+                if(newBranchesFromThisStepNode.length == 0) {
+                    // If newBranchesFromThisStepNode is empty (happens when the function declaration is empty),
+                    // stick the current step (function call) into a sole branch, but only if it has a code block
+                    if(functionDeclarationNode.hasCodeBlock()) {
+                        let branch = new Branch;
+                        branch.push(step.clone(), this.stepNodeIndex);
+                        newBranchesFromThisStepNode = [ branch ];
+                    }
+                }
+                else {
+                    if(isReplaceVarsInChildren) {
+                        // replace {x} in each child to {var} (where this step is {var} = F)
+                        newBranchesFromThisStepNode.forEach(branch => {
+                            for(let i = 0; i < branch.steps.length; i++) { // handles mulitple levels of {var} = F
+                                let s = branch.steps[i];
+                                let sNode = this.stepNodeIndex[s.id];
+                                let sVarsBeingSet = sNode.getVarsBeingSet();
 
-                            sNode.text = sNode.text.replace(new RegExp(`(\\{\\s*)${originalName}(\\s*\\})`), `$1${newName}$2`);
+                                let originalName = sVarsBeingSet[0].name;
+                                let newName = varsBeingSet[0].name;
 
-                            if(!sNode.isFunctionCall) {
-                                break;
+                                sNode.text = sNode.text.replace(new RegExp(`(\\{\\s*)${originalName}(\\s*\\})`), `$1${newName}$2`);
+
+                                if(!sNode.isFunctionCall) {
+                                    break;
+                                }
                             }
-                        }
+                        });
+                    }
+
+                    // Put a clone of this step at the front of each Branch that results from expanding the function call
+                    newBranchesFromThisStepNode.forEach(branch => {
+                        branch.unshift(step.clone(), this.stepNodeIndex); // new clone every time we unshift
                     });
                 }
 
-                // Put a clone of this step at the front of each Branch that results from expanding the function call
-                branchesFromThisStepNode.forEach(branch => {
-                    branch.unshift(step.clone(), this.stepNodeIndex); // new clone every time we unshift
-                });
+                branchesFromThisStepNode = branchesFromThisStepNode.concat(newBranchesFromThisStepNode);
+            });
+
+            if(branchesFromThisStepNode.length == 0) {
+                // If branchesFromThisStepNode is empty (happens when the function declarations are empty),
+                // just stick the current step (function call) into a sole branch
+                let branch = new Branch;
+                branch.push(step.clone(), this.stepNodeIndex);
+                branchesFromThisStepNode = [ branch ];
             }
         }
         else if(stepNode instanceof StepBlockNode && stepNode.isSequential) { // sequential step block (with a .. on top)
@@ -726,8 +794,10 @@ ${outputBranchAbove(this)}
 
         // If stepNode is a function call, look to the hooks of the function declaration as well
         if(stepNode.isFunctionCall) {
-            this.stepNodeIndex[step.fid].children.forEach(child => {
-                setHooks(child, this);
+            fids.forEach(fid => {
+                this.stepNodeIndex[fid].children.forEach(child => {
+                    setHooks(child, this);
+                });
             });
         }
 
@@ -1117,6 +1187,9 @@ ${outputBranchAbove(this)}
                 throw e;
             }
         }
+
+        // Remove branches that end in a step marked empty
+        this.branches = this.branches.filter(branch => !branch.steps[branch.steps.length - 1].empty);
 
         // Marks branches with a first step of .s as skipped
         this.branches.forEach(branch => {

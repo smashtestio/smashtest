@@ -2812,7 +2812,7 @@ B -
         });
     });
 
-    describe("findFunctionDeclaration()", () => {
+    describe("findFunctionDeclarations()", () => {
         it("finds the right function when its declaration is a sibling of the function call and is below the function call", () => {
             let tree = new Tree();
             tree.parseIn(`
@@ -2824,21 +2824,23 @@ My function
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My function",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "Step one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Step one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
         });
 
         it("finds the right function when the declaration is private", () => {
@@ -2852,22 +2854,24 @@ My function
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My function",
-                isFunctionDeclaration: true,
-                isPrivateFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "Step one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    isPrivateFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Step one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
         });
 
         it("finds the right function when its declaration is a sibling of the function call and is above the function call", () => {
@@ -2880,21 +2884,23 @@ My function
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[1].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My function",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "Step one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Step one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[0]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
         });
 
         it("finds the right function when its declaration is a sibling of a descendant", () => {
@@ -2912,21 +2918,23 @@ Some parent step -
                 new Step(tree.root.children[0].id)
             ];
             let functionCall = new Step(tree.root.children[0].children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My function",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "Step one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Step one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
         });
 
         it("finds the right function even if a step block has to be traversed", () => {
@@ -2946,21 +2954,23 @@ Step block step 2 -
                 new Step(tree.root.children[0].steps[0].id)
             ];
             let functionCall = new Step(tree.root.children[0].children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My function",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "Step one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Step one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
         });
 
         it("finds the right function even if declaration has different amounts of whitespace between words", () => {
@@ -2978,21 +2988,23 @@ Some parent step -
                 new Step(tree.root.children[0].id)
             ];
             let functionCall = new Step(tree.root.children[0].children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My  function",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "Step one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My  function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Step one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
         });
 
         it("finds the right function when multiple functions with the same name exist", () => {
@@ -3007,7 +3019,7 @@ Some parent step -
                 The wrong one -
 
     * My function
-        The wrong one -
+        The other right one -
 
 * My function
     The wrong one -
@@ -3018,24 +3030,38 @@ Some parent step -
                 new Step(tree.root.children[0].id)
             ];
             let functionCall = new Step(tree.root.children[0].children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My function",
-                isFunctionDeclaration: true,
-                parent: { text: "Some parent step" },
-                children: [
-                    {
-                        text: "The right one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    parent: { text: "Some parent step" },
+                    children: [
+                        {
+                            text: "The right one",
+                            isTextualStep: true
+                        }
+                    ]
+                },
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    parent: { text: "Some parent step" },
+                    children: [
+                        {
+                            text: "The other right one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[0].children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[0].children[1]).to.equal(true);
+            expect(functionDeclarations[1] === tree.root.children[0].children[2]).to.equal(true);
         });
 
-        it("finds the first function declaration when multiple sibling function declarations have the same name", () => {
+        it("finds all function declarations when multiple sibling function declarations have the same name", () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3049,83 +3075,110 @@ My function
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My function",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "First",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "First",
+                            isTextualStep: true
+                        }
+                    ]
+                },
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Second",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[1] === tree.root.children[2]).to.equal(true);
         });
 
-        it("finds the first function declaration when multiple sibling function declarations match the same name", () => {
+        it("finds all function declarations when multiple sibling function declarations match the same name, including function declarations that end in *", () => {
             let tree = new Tree();
             tree.parseIn(`
-My big function
-
 * My big function
     First -
 
 * My big *
     Second -
-`);
 
-            let branchAbove = new Branch();
-            let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
-
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My big function",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "First",
-                        isTextualStep: true
-                    }
-                ]
-            });
-
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
-        });
-
-        it("finds the first function declaration, that ends in a *, when multiple sibling function declarations match the same name", () => {
-            let tree = new Tree();
-            tree.parseIn(`
 My big function
 
-* My big *
-    First -
-
 * My big function
-    Second -
+    Third -
+
+* My big *
+    Fourth -
 `);
 
             let branchAbove = new Branch();
-            let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionCall = new Step(tree.root.children[2].id);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My big *",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "First",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My big function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "First",
+                            isTextualStep: true
+                        }
+                    ]
+                },
+                {
+                    text: "My big *",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Second",
+                            isTextualStep: true
+                        }
+                    ]
+                },
+                {
+                    text: "My big function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Third",
+                            isTextualStep: true
+                        }
+                    ]
+                },
+                {
+                    text: "My big *",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Fourth",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
+            expect(functionDeclarations[1] === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[2] === tree.root.children[3]).to.equal(true);
+            expect(functionDeclarations[3] === tree.root.children[4]).to.equal(true);
         });
 
         it("finds the right function when a function call contains strings and variables", () => {
@@ -3143,21 +3196,23 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "One {{var1}} two {{var2}}   three   {{var3}}",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "Step one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "One {{var1}} two {{var2}}   three   {{var3}}",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Step one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[2]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[2]).to.equal(true);
         });
 
         it("finds the right function when a {var} = Func call contains strings and variables", () => {
@@ -3175,21 +3230,23 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "One {{var1}} two {{var2}}   three   {{var3}}",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [
-                    {
-                        text: "Step one",
-                        isTextualStep: true
-                    }
-                ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "One {{var1}} two {{var2}}   three   {{var3}}",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "Step one",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[2]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[2]).to.equal(true);
         });
 
         it("finds the right function on a {var} = Func code block that returns a value", () => {
@@ -3208,17 +3265,19 @@ One {varA}   two   {{varB}} three [1st 'text' EF]
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "One {{var1}} two {{var2}}   three   {{var3}}",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: [],
-                codeBlock: '\n    code here'
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "One {{var1}} two {{var2}}   three   {{var3}}",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: [],
+                    codeBlock: '\n    code here'
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[2]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[2]).to.equal(true);
         });
 
         it("finds the right function when the function call and function declaration match case insensitively", () => {
@@ -3231,19 +3290,21 @@ My function
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "my function",
-                isFunctionDeclaration: true,
-                parent: { indents: -1 },
-                children: []
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "my function",
+                    isFunctionDeclaration: true,
+                    parent: { indents: -1 },
+                    children: []
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[1]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right function declaration even if it's in a different file", () => {
+        it("finds the right function declarations across multiple files", () => {
             let tree = new Tree();
             tree.parseIn(`
 * My function
@@ -3261,17 +3322,24 @@ My function
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[1].id);
-            let functionDeclaration = tree.findFunctionDeclaration(functionCall, branchAbove);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
-            Comparer.expect(functionDeclaration).to.match({
-                text: "My function",
-                isFunctionDeclaration: true,
-                children: [ { text: "Other file 1" } ]
-            });
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    children: [ { text: "Other file 1" } ]
+                },
+                {
+                    text: "My function",
+                    isFunctionDeclaration: true,
+                    children: [ { text: "Other file 2" } ]
+                }
+            ]);
 
-            expect(functionDeclaration === tree.root.children[0]).to.equal(true);
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
+            expect(functionDeclarations[1] === tree.root.children[2]).to.equal(true);
         });
-
 
         it("rejects function calls that cannot be found", () => {
             let tree = new Tree();
@@ -3284,7 +3352,7 @@ Function that doesn't exist
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
             assert.throws(() => {
-                tree.findFunctionDeclaration(functionCall, branchAbove);
+                tree.findFunctionDeclarations(functionCall, branchAbove);
             }, `The function \`Function that doesn't exist\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
 
 Trace:
@@ -3304,8 +3372,9 @@ Other scope -
 
             let branchAbove = new Branch();
             let functionCall = new Step(tree.root.children[0].id);
+
             assert.throws(() => {
-                tree.findFunctionDeclaration(functionCall, branchAbove);
+                tree.findFunctionDeclarations(functionCall, branchAbove);
             }, `The function \`My function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
 
 Trace:
@@ -3327,7 +3396,7 @@ Other scope -
             ];
             functionCall = new Step(tree.root.children[0].children[0].id);
             assert.throws(() => {
-                tree.findFunctionDeclaration(functionCall, branchAbove);
+                tree.findFunctionDeclarations(functionCall, branchAbove);
             }, `The function \`My function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
 
 Trace:
@@ -3335,6 +3404,124 @@ Trace:
    My function
 
  [file.txt:3]`);
+        });
+    });
+
+    describe("equivalents()", () => {
+        it("finds only itself", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* F
+            `);
+
+            let equivalents = tree.equivalents(tree.root.children[0]); // * F
+
+            Comparer.expect(equivalents).to.match([
+                { text: "F", lineNumber: 2 }
+            ]);
+        });
+
+        it("finds equivalents on one level", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* F
+
+* F
+            `);
+
+            let equivalents = tree.equivalents(tree.root.children[0]); // * F
+
+            Comparer.expect(equivalents).to.match([
+                { text: "F", lineNumber: 2 },
+                { text: "F", lineNumber: 4 }
+            ]);
+        });
+
+        it("doesn't find as equivalents function declarations with code blocks", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* F {
+    one
+}
+
+* F {
+    two
+}
+            `);
+
+            let equivalents = tree.equivalents(tree.root.children[0]); // * F
+
+            Comparer.expect(equivalents).to.match([
+                { text: "F", lineNumber: 2 }
+            ]);
+        });
+
+        it("finds equivalents on two levels", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* F
+    * G
+
+    * H
+        * G
+
+    * G
+
+* F
+    * G
+        * G
+
+    * G
+            `);
+
+            let equivalents = tree.equivalents(tree.root.children[0].children[0]); // * G
+
+            Comparer.expect(equivalents).to.match([
+                { text: "G", lineNumber: 3 },
+                { text: "G", lineNumber: 8 },
+                { text: "G", lineNumber: 11 },
+                { text: "G", lineNumber: 14 }
+            ]);
+        });
+
+        it("finds equivalents on three levels", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* F
+    * G
+        * H
+
+        * H
+
+    * G
+        * H
+
+        * I
+            * H
+
+        * H
+* F
+    * G
+        * G
+            * H
+
+    * G
+
+    * H
+
+    * G
+        * H
+            `);
+
+            let equivalents = tree.equivalents(tree.root.children[0].children[0].children[0]); // * H
+
+            Comparer.expect(equivalents).to.match([
+                { text: "H", lineNumber: 4 },
+                { text: "H", lineNumber: 6 },
+                { text: "H", lineNumber: 9 },
+                { text: "H", lineNumber: 14 },
+                { text: "H", lineNumber: 25 }
+            ]);
         });
     });
 
@@ -3895,7 +4082,8 @@ A -
         });
 
         context("functions", () => {
-            it("branchifies a function call with no children, whose function declaration has no children", () => {
+            context("generic functions tests", () => {
+                it("branchifies a function call with no children, whose function declaration has no children", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 F
@@ -3921,238 +4109,238 @@ F
                 ]);
             });
 
-            it("branchifies a function call with no children, whose function declaration has one branch", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies a function call with no children, whose function declaration has one branch", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
 
 * F
     A -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "A",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("doesn't expand a textual step that has the same text as a function declaration", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("doesn't expand a textual step that has the same text as a function declaration", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F -
 
 * F
     A -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("branchifies a function call with no children, whose function declaration has multiple branches", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies a function call with no children, whose function declaration has multiple branches", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
 
 * F
     A -
         B -
     C -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "A",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "B",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "C",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("handles a function declaration as an only child", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("handles a function declaration as an only child", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 A -
     * F
         B -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [ { text: "A" } ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [ { text: "A" } ]
+                        }
+                    ]);
+                });
 
-            it("handles a function declaration as an only child to a step block", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("handles a function declaration as an only child to a step block", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 A -
 B -
 
     * F
         C -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [ { text: "A" } ]
-                    },
-                    {
-                        steps: [ { text: "B" } ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [ { text: "A" } ]
+                        },
+                        {
+                            steps: [ { text: "B" } ]
+                        }
+                    ]);
+                });
 
-            it("rejects a function call to a child function declaration", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("rejects a function call to a child function declaration", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
     * F
         B -
-                `, "file.txt");
+                    `, "file.txt");
 
-                assert.throws(() => {
-                    tree.branchify(tree.root);
-                }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+                    assert.throws(() => {
+                        tree.branchify(tree.root);
+                    }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
 
 Trace:
    F
 
  [file.txt:2]`);
-            });
+                });
 
-            it("branchifies a function call with children, whose function declaration has no children", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies a function call with children, whose function declaration has no children", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
     A -
         B -
 
 * F
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "A",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            },
-                            {
-                                text: "B",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("branchifies a function call where both the function declaration above, and the function call above, have child function declarations of the same name", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies a function call where both the function declaration above, and the function call above, have child function declarations of the same name", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 A
     F
 
@@ -4162,21 +4350,21 @@ A
 * A
     * F
         C -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [ { text: "A" }, { text: "F" }, { text: "D" } ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [ { text: "A" }, { text: "F" }, { text: "D" } ]
+                        }
+                    ]);
+                });
 
-            it("branchifies a function call with children, whose function declaration has one branch", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies a function call with children, whose function declaration has one branch", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
     C -
         D -
@@ -4184,61 +4372,61 @@ F
 * F
     A -
         B -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "A",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "B",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "C",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            },
-                            {
-                                text: "D",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "D",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("branchifies a function call with children, whose function declaration has multiple branches", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies a function call with children, whose function declaration has multiple branches", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
     C -
         D -
@@ -4247,96 +4435,96 @@ F
     A -
         B -
     E -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "A",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "B",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "C",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            },
-                            {
-                                text: "D",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "E",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "C",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            },
-                            {
-                                text: "D",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "D",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "E",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "D",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("branchifies a function call with multiple branches within a function call with multiple branches", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies a function call with multiple branches within a function call with multiple branches", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
     C -
         D -
@@ -4346,158 +4534,158 @@ F
     A -
         B -
     E -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "A",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "B",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "C",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            },
-                            {
-                                text: "D",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "A",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "B",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "G",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "E",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "C",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            },
-                            {
-                                text: "D",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            },
-                            {
-                                text: "E",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 1,
-                                fid: undefined
-                            },
-                            {
-                                text: "G",
-                                isFunctionCall: undefined,
-                                isFunctionDeclaration: undefined,
-                                isTextualStep: true,
-                                level: 0,
-                                fid: undefined
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "D",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "G",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "E",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "D",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "E",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "G",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("branchifies multiple function calls in the tree", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies multiple function calls in the tree", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 * FC
     FA
         C -
@@ -4516,86 +4704,86 @@ FC
 
 * FB    // never called
     X -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "FA",
-                                level: 0
-                            },
-                            {
-                                text: "A",
-                                level: 1
-                            },
-                            {
-                                text: "FB",
-                                level: 0
-                            },
-                            {
-                                text: "B1",
-                                level: 1
-                            },
-                            {
-                                text: "D",
-                                level: 0
-                            },
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "FA",
-                                level: 0
-                            },
-                            {
-                                text: "A",
-                                level: 1
-                            },
-                            {
-                                text: "FB",
-                                level: 0
-                            },
-                            {
-                                text: "B2",
-                                level: 1
-                            },
-                            {
-                                text: "D",
-                                level: 0
-                            },
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "FC",
-                                level: 0
-                            },
-                            {
-                                text: "FA",
-                                level: 1
-                            },
-                            {
-                                text: "A",
-                                level: 2
-                            },
-                            {
-                                text: "C",
-                                level: 1
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "FA",
+                                    level: 0
+                                },
+                                {
+                                    text: "A",
+                                    level: 1
+                                },
+                                {
+                                    text: "FB",
+                                    level: 0
+                                },
+                                {
+                                    text: "B1",
+                                    level: 1
+                                },
+                                {
+                                    text: "D",
+                                    level: 0
+                                },
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "FA",
+                                    level: 0
+                                },
+                                {
+                                    text: "A",
+                                    level: 1
+                                },
+                                {
+                                    text: "FB",
+                                    level: 0
+                                },
+                                {
+                                    text: "B2",
+                                    level: 1
+                                },
+                                {
+                                    text: "D",
+                                    level: 0
+                                },
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "FC",
+                                    level: 0
+                                },
+                                {
+                                    text: "FA",
+                                    level: 1
+                                },
+                                {
+                                    text: "A",
+                                    level: 2
+                                },
+                                {
+                                    text: "C",
+                                    level: 1
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("branchifies a function call declared within a function call", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("branchifies a function call declared within a function call", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 * FA
     * FB
         B -
@@ -4607,119 +4795,277 @@ FA
 
 * FB // never called
     X
-                `);
-                // A call to FA makes FB accessible to its children
+                    `);
+                    // A call to FA makes FB accessible to its children
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "FA",
-                                level: 0
-                            }
-                        ]
-                    },
-                    {
-                        steps: [
-                            {
-                                text: "FA",
-                                level: 0
-                            },
-                            {
-                                text: "FB",
-                                level: 0
-                            },
-                            {
-                                text: "B",
-                                level: 1
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "FA",
+                                    level: 0
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "FA",
+                                    level: 0
+                                },
+                                {
+                                    text: "FB",
+                                    level: 0
+                                },
+                                {
+                                    text: "B",
+                                    level: 1
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("if function B is declared within function A, and A is called, the children of the call to A will be able to call B", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 * A
     * B
         C -
 
 A
     B
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "A",
+                                    level: 0
+                                },
+                                {
+                                    text: "B",
+                                    level: 0
+                                },
+                                {
+                                    text: "C",
+                                    level: 1
+                                }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("marks function declarations that are called at least once", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+
+* F
+    A -
+
+* G
+    B -
+                    `);
+
+                    tree.branchify(tree.root);
+
+                    Comparer.expect(tree.root).to.match({
+                        children: [
                             {
-                                text: "A",
-                                level: 0
+                                text: "F",
+                                isFunctionDeclaration: undefined,
+                                used: true
+
                             },
                             {
-                                text: "B",
-                                level: 0
+                                text: "F",
+                                isFunctionDeclaration: true,
+                                used: true,
+                                children: [
+                                    {
+                                        text: "A",
+                                        used: true
+                                    }
+                                ]
                             },
                             {
-                                text: "C",
-                                level: 1
+                                text: "G",
+                                isFunctionDeclaration: true,
+                                used: undefined,
+                                children: [
+                                    {
+                                        text: "B",
+                                        used: undefined
+                                    }
+                                ]
                             }
                         ]
-                    }
-                ]);
+                    });
+                });
             });
 
-            it("doesn't allow a function to call itself", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+            context("functions ending in *", () => {
+                it("handles a function declaration that ends in a *", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+My big function
+
+* My big *
+    A -
+
+* My big something
+    B -
+
+* My big function
+    C -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'My big function' },
+                                { text: 'A' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'My big function' },
+                                { text: 'C' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles a function declaration and function call that ends in a *", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+- Test
+    My big function
+
+    * My big *
+        A -
+            My big *
+
+* My big something
+    B -
+
+* My big function
+    C -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Test' },
+                                { text: 'My big function' },
+                                { text: 'A' },
+                                { text: 'My big *' },
+                                { text: 'C' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles a function declaration and function call that ends in a *, with variables", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+- Test
+    My big 'foobar' function
+
+    * My big {{v}} *
+        A -
+            My big {{v}} *
+
+* My big {{w}} something
+    B -
+
+* My big {{w}} function
+    C -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Test' },
+                                { text: 'My big \'foobar\' function' },
+                                { text: 'A' },
+                                { text: 'My big {{v}} *' },
+                                { text: 'C' }
+                            ]
+                        }
+                    ]);
+                });
+            });
+
+            context("functions calling themselves", () => {
+                it("doesn't allow a function to call itself", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
 
 * F
     F
-                `, "file.txt");
+                    `, "file.txt");
 
-                assert.throws(() => {
-                    tree.branchify(tree.root);
-                }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+                    assert.throws(() => {
+                        tree.branchify(tree.root);
+                    }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
 
 Trace:
    F
    F
 
  [file.txt:5]`);
-            });
+                });
 
-            it("doesn't allow a function to call itself and finds a function with the same name beyond", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-F
-
-* F
+                it("doesn't allow a function to call itself but finds a function with the same name beyond", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+- Test
     F
+
+    * F
+        F
 
 * F
     A -
-                `, "file.txt");
+                    `, "file.txt");
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [ { text: "F", lineNumber: 2 }, { text: "F", lineNumber: 5 }, { text: "A", lineNumber: 8 } ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: "Test", lineNumber: 2 },
+                                { text: "F", lineNumber: 3 },
+                                { text: "F", lineNumber: 6 },
+                                { text: "A", lineNumber: 9 }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("doesn't allow a function to call itself and finds a function with the same name beyond, more complex example", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("doesn't allow a function to call itself and finds a function with the same name beyond, more complex example", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 Start browser
     Nav to page
 
@@ -4732,28 +5078,28 @@ Start browser
 
 * Nav to page
     Generic nav to page -
-                `, "file.txt");
+                    `, "file.txt");
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'Start browser' },
-                            { text: 'Starting browser' },
-                            { text: 'Nav to page' },
-                            { text: 'Specific nav to page' },
-                            { text: 'Nav to page' },
-                            { text: 'Generic nav to page' }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Start browser' },
+                                { text: 'Starting browser' },
+                                { text: 'Nav to page' },
+                                { text: 'Specific nav to page' },
+                                { text: 'Nav to page' },
+                                { text: 'Generic nav to page' }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("doesn't allow a function to call itself, with a private function, and finds a function with the same name beyond", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("doesn't allow a function to call itself, with a private function, and finds a function with the same name beyond", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 Start browser
 
 * Start browser
@@ -4766,28 +5112,28 @@ Start browser
 
 * Nav to page
     Generic nav to page -
-                `, "file.txt");
+                    `, "file.txt");
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'Start browser' },
-                            { text: 'Starting browser' },
-                            { text: 'Nav to page' },
-                            { text: 'Specific nav to page' },
-                            { text: 'Nav to page' },
-                            { text: 'Generic nav to page' }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Start browser' },
+                                { text: 'Starting browser' },
+                                { text: 'Nav to page' },
+                                { text: 'Specific nav to page' },
+                                { text: 'Nav to page' },
+                                { text: 'Generic nav to page' }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("doesn't allow a function to call itself and finds a function with the same name beyond, slightly more complex example", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("doesn't allow a function to call itself and finds a function with the same name beyond, slightly more complex example", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 * On special cart page
     On cart page
         Validate special cart stuff -
@@ -4802,85 +5148,29 @@ Start browser
 
 On special cart page
     Clear cart
-                `, "file.txt");
+                    `, "file.txt");
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'On special cart page' },
-                            { text: 'On cart page' },
-                            { text: 'Validate special cart stuff' },
-                            { text: 'Clear cart' },
-                            { text: 'Specific stuff' },
-                            { text: 'Clear cart' },
-                            { text: 'Generic stuff' }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'On special cart page' },
+                                { text: 'On cart page' },
+                                { text: 'Validate special cart stuff' },
+                                { text: 'Clear cart' },
+                                { text: 'Specific stuff' },
+                                { text: 'Clear cart' },
+                                { text: 'Generic stuff' }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("allows access to a function declared within a function", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-F
-    H
-
-* F
-    * G
-        * H
-            One -
-
-    G
-                `, "file.txt");
-
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
-
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'F' },
-                            { text: 'G' },
-                            { text: 'H' },
-                            { text: 'One' }
-                        ]
-                    }
-                ]);
-
-                tree = new Tree();
-                tree.parseIn(`
-* F
-    * G
-        * H
-            One -
-
-    G
-
-F
-    H
-                `, "file.txt");
-
-                branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
-
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'F' },
-                            { text: 'G' },
-                            { text: 'H' },
-                            { text: 'One' }
-                        ]
-                    }
-                ]);
-            });
-
-            it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("doesn't allow a function to call itself and finds a function with the same name beyond, most complex example", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 A
     F
         F
@@ -4895,29 +5185,87 @@ A
 
 * F
     Generic -
-                `, "file.txt");
+                    `, "file.txt");
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'A' },
-                            { text: 'F' },
-                            { text: 'F' },
-                            { text: 'F' },
-                            { text: 'Specific' },
-                            { text: 'F' },
-                            { text: 'Generic' }
-                        ]
-                    }
-                ]);
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'F' },
+                                { text: 'F' },
+                                { text: 'F' },
+                                { text: 'Specific' },
+                                { text: 'F' },
+                                { text: 'Generic' }
+                            ]
+                        }
+                    ]);
+                });
             });
 
-            it("calls a private function it has access to", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+            context("functions declared within functions", () => {
+                it("allows access to a function declared within a function", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    H
+
+* F
+    * G
+        * H
+            One -
+
+    G
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'One' }
+                            ]
+                        }
+                    ]);
+
+                    tree = new Tree();
+                    tree.parseIn(`
+* F
+    * G
+        * H
+            One -
+
+    G
+
+F
+    H
+                    `, "file.txt");
+
+                    branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'One' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("calls a private function it has access to", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
 
 * F
@@ -4925,25 +5273,25 @@ F
 
     ** Private
         A -
-                `, "file.txt");
+                    `, "file.txt");
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'F' },
-                            { text: 'Private' },
-                            { text: 'A' }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'Private' },
+                                { text: 'A' }
+                            ]
+                        }
+                    ]);
+                });
 
-            it("doesn't allow a function to call a private function it doesn't have access to", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("doesn't allow a function to call a private function it doesn't have access to", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 Start browser
     Nav to page
 
@@ -4955,116 +5303,569 @@ Start browser
 
 * Nav to page
     Generic nav to page -
-                `, "file.txt");
+                    `, "file.txt");
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'Start browser' },
-                            { text: 'Starting browser' },
-                            { text: 'Nav to page' },
-                            { text: 'Generic nav to page' }
-                        ]
-                    }
-                ]);
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Start browser' },
+                                { text: 'Starting browser' },
+                                { text: 'Nav to page' },
+                                { text: 'Generic nav to page' }
+                            ]
+                        }
+                    ]);
+                });
             });
 
-            it("handles a function declaration that ends in a *", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-My big function
+            context("equivalent function declarations", () => {
+                it("handles equivalent function declarations", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    * F
+        Three -
 
-* My big *
-    A -
+* F
+    One -
 
-* My big something
+* F
+    Two -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'One' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'Two' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles multiple levels of equivalent function declarations", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    G
+
+* F
+    * G
+        One -
+
+* F
+    * G
+        Two -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'One' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'Two' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles equivalent function declarations containing code blocks", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+
+* F {
+    one
+}
+
+* F {
+    two
+}
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F', codeBlock: '\n    one' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F', codeBlock: '\n    two' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles multiple levels of equivalent function declarations, more complex example", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    G
+
+* F
+    * G
+        One -
+    * G
+        Two -
+
+* F
+    * G
+        Three -
+    * G
+        Four -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'One' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'Two' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'Three' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'Four' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles multiple levels of equivalent function declarations, more complex example 2", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    H
+        G
+
+* F
+    * G
+        One -
+    * G
+        Two -
+
+* F
+    * G
+        Three -
+    * G
+        Four -
+
+* H
+    J -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'H' },
+                                { text: 'J' },
+                                { text: 'G' },
+                                { text: 'One' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'H' },
+                                { text: 'J' },
+                                { text: 'G' },
+                                { text: 'Two' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'H' },
+                                { text: 'J' },
+                                { text: 'G' },
+                                { text: 'Three' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'H' },
+                                { text: 'J' },
+                                { text: 'G' },
+                                { text: 'Four' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles multiple levels of equivalent function declarations, most complex example", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    G
+        H
+
+* F
+    * G
+        * H
+            One -
+    * G
+        * H
+            Two -
+        * H
+            Three -
+        * J
+            Zero -
+
+* F
+    * G
+        * H
+            Four -
+        * H
+            Five -
+        * H
+            Six -
+
+    * G
+        * H
+            Seven -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'One' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'Two' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'Three' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'Four' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'Five' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'Six' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' },
+                                { text: 'Seven' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("doesn't allow a function calling itself to call its equivalents", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+
+* F
+    F
+
+* F
+    Sibling that won't be called -
+                    `, "file.txt");
+
+                    assert.throws(() => {
+                        tree.branchify(tree.root);
+                    }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+   F
+   F
+
+ [file.txt:5]`);
+                });
+
+                it("handles equivalent function declarations above the function call", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+Test -
+    F
+
+* F
+    One -
+
+* F
+    Two -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Test' },
+                                { text: 'F' },
+                                { text: 'One' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'Test' },
+                                { text: 'F' },
+                                { text: 'Two' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("finds the right function declaration when there are equivalent function declarations", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+Desktop
+    On cart page
+
+* Desktop
+    * On homepage
+        One -
+
+* Mobile
+    * On homepage
+        Two -
+
+* Desktop
+    * On cart page
+        Three -
+
+* Mobile
+    * On cart page
+        Four -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Desktop' },
+                                { text: 'On cart page' },
+                                { text: 'Three' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles a function calling itself, but does not allow it to call itself or one of its equivalents", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+A -
     B -
+        F
 
-* My big function
-    C -
-                `, "file.txt");
+    * F
+        One -
+            F
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+    * F
+        Two -
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'My big function' },
-                            { text: 'A' }
-                        ]
-                    }
-                ]);
-            });
+* F
+    Three -
 
-            it("handles a function declaration and function call that ends in a *", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-My big function
+* F
+    Four -
+                    `, "file.txt");
 
-* My big *
-    A -
-        My big *
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-* My big something
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'F' },
+                                { text: 'One' },
+                                { text: 'F' },
+                                { text: 'Three' }
+
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'F' },
+                                { text: 'One' },
+                                { text: 'F' },
+                                { text: 'Four' }
+
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'F' },
+                                { text: 'Two' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles a function calling itself, but does not allow it to call itself or one of its equivalents, more complex example", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+A -
     B -
+        F
 
-* My big function
-    C -
-                `, "file.txt");
+    * F
+        One -
+            F
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+    * F
+        Two -
+            F
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'My big function' },
-                            { text: 'A' },
-                            { text: 'My big *' },
-                            { text: 'C' }
-                        ]
-                    }
-                ]);
+* F
+    Three -
+
+* F
+    Four -
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'F' },
+                                { text: 'One' },
+                                { text: 'F' },
+                                { text: 'Three' }
+
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'F' },
+                                { text: 'One' },
+                                { text: 'F' },
+                                { text: 'Four' }
+
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'F' },
+                                { text: 'Two' },
+                                { text: 'F' },
+                                { text: 'Three' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'F' },
+                                { text: 'Two' },
+                                { text: 'F' },
+                                { text: 'Four' }
+                            ]
+                        }
+                    ]);
+                });
             });
 
-            it("handles a function declaration and function call that ends in a *, with variables", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-My big 'foobar' function
-
-* My big {{v}} *
-    A -
-        My big {{v}} *
-
-* My big {{w}} something
-    B -
-
-* My big {{w}} function
-    C -
-                `, "file.txt");
-
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
-
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            { text: 'My big \'foobar\' function' },
-                            { text: 'A' },
-                            { text: 'My big {{v}} *' },
-                            { text: 'C' }
-                        ]
-                    }
-                ]);
-            });
-
-            it("doesn't expand functions under a -s", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+            context("skipped steps", () => {
+                it("doesn't expand functions under a -s", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 A -s
 B
 
@@ -5076,22 +5877,22 @@ B
 
 * B
     G -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    { steps: [ { text: "A" }, { text: "C" } ] },
-                    { steps: [ { text: "A" }, { text: "D" } ] },
-                    { steps: [ { text: "B" }, { text: "G" }, { text: "C" } ] },
-                    { steps: [ { text: "B" }, { text: "G" }, { text: "D" } ] },
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        { steps: [ { text: "A" }, { text: "C" } ] },
+                        { steps: [ { text: "A" }, { text: "D" } ] },
+                        { steps: [ { text: "B" }, { text: "G" }, { text: "C" } ] },
+                        { steps: [ { text: "B" }, { text: "G" }, { text: "D" } ] },
+                    ]);
+                });
 
-            it("expands functions under a .s", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("expands functions under a .s", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 A .s
 B
 
@@ -5107,22 +5908,22 @@ B
 * B
     * E
         G -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    { steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ] },
-                    { steps: [ { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" } ] },
-                    { steps: [ { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" } ] },
-                    { steps: [ { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" } ] },
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        { steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ] },
+                        { steps: [ { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" } ] },
+                        { steps: [ { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" } ] },
+                        { steps: [ { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" } ] },
+                    ]);
+                });
 
-            it("expands functions under a $s", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                it("expands functions under a $s", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
 A $s
 B
 
@@ -5138,64 +5939,17 @@ B
 * B
     * E
         G -
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    { steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ] },
-                    { steps: [ { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" } ] },
-                    { steps: [ { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" } ] },
-                    { steps: [ { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" } ] },
-                ]);
-            });
-
-            it("marks function declarations that are called at least once", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-F
-
-* F
-    A -
-
-* G
-    B -
-                `);
-
-                tree.branchify(tree.root);
-
-                Comparer.expect(tree.root).to.match({
-                    children: [
-                        {
-                            text: "F",
-                            isFunctionDeclaration: undefined,
-                            used: true
-
-                        },
-                        {
-                            text: "F",
-                            isFunctionDeclaration: true,
-                            used: true,
-                            children: [
-                                {
-                                    text: "A",
-                                    used: true
-                                }
-                            ]
-                        },
-                        {
-                            text: "G",
-                            isFunctionDeclaration: true,
-                            used: undefined,
-                            children: [
-                                {
-                                    text: "B",
-                                    used: undefined
-                                }
-                            ]
-                        }
-                    ]
+                    Comparer.expect(branches).to.match([
+                        { steps: [ { text: "A" }, { text: "C" }, { text: "E" }, { text: "F" } ] },
+                        { steps: [ { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" } ] },
+                        { steps: [ { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" } ] },
+                        { steps: [ { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" } ] },
+                    ]);
                 });
             });
         });

@@ -1650,13 +1650,14 @@ My {var:} Function
             it("executes function call that ends in a *, with variables", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
-My big 'foobar' function
+- Test
+    My big 'foobar' function
 
-* My big {{v}} *
-    A {
-        runInstance.a = true;
-    }
-        My big {{v}} *
+    * My big {{v}} *
+        A {
+            runInstance.a = true;
+        }
+            My big {{v}} *
 
 * My big {{w}} something
     B -
@@ -1673,6 +1674,7 @@ My big 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
                 await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+                await runInstance.runStep(tree.branches[0].steps[3], tree.branches[0], false);
 
                 expect(runInstance.a).to.be.true;
                 expect(runInstance.w).to.equal('foobar');
@@ -1681,6 +1683,7 @@ My big 'foobar' function
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[1].error).to.equal(undefined);
                 expect(tree.branches[0].steps[2].error).to.equal(undefined);
+                expect(tree.branches[0].steps[3].error).to.equal(undefined);
             });
 
             it("fails step if a function call has a {variable} passed in and it is never set", async () => {
