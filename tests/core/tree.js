@@ -6015,6 +6015,39 @@ A
                     ]);
                 });
 
+                it("chooses the correctly ordered function declaration with contexts of equal specificity", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+* A
+    * B
+        * C
+            One -
+
+* B
+    * A
+        * C
+            Two -
+
+A
+    B
+        C
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'C' },
+                                { text: 'One' }
+                            ]
+                        }
+                    ]);
+                });
+
                 it("chooses both function declarations with equal contexts", () => {
                     let tree = new Tree();
                     tree.parseIn(`
