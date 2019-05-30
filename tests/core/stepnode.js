@@ -1062,46 +1062,6 @@ describe("StepNode", () => {
             functionCall.text = "Step one two";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
-
-        it("matches a function declaration that ends in * with a function call with extra text at the end", () => {
-            functionDeclaration.text = "Step one two *";
-            functionCall.text = "Step   one  two   three  ";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
-
-            functionDeclaration.text = "Step one two   *  ";
-            functionCall.text = "Step   one  two   three  ";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
-        });
-
-        it("doesn't match a function declaration that ends in * with extra text at the end with a function call", () => {
-            functionDeclaration.text = "Step   one  two   three  * ";
-            functionCall.text = "Step one two";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
-        });
-
-        it("matches a function declaration that ends in * and a function call with extra text at the end", () => {
-            functionDeclaration.text = "Step {{var1}} *";
-            functionCall.text = "Step 'one' two three";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
-        });
-
-        it("matches a function declaration that ends in * and a function call with extra {vars} at the end", () => {
-            functionDeclaration.text = "Step {{var1}} * ";
-            functionCall.text = "Step {varA} {varB}";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
-        });
-
-        it("matches a function declaration that ends in * and a function call with extra 'strings' at the end", () => {
-            functionDeclaration.text = "Step {{var1}} * ";
-            functionCall.text = "Step 'stringA' 'stringB'";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
-        });
-
-        it("matches a function declaration that ends in * and a function call with extra [string] at the end", () => {
-            functionDeclaration.text = "Step {{var1}} *";
-            functionCall.text = "Step {varA} ['element' finderB]";
-            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
-        });
     });
 
     describe("serialize()", () => {

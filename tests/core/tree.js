@@ -3106,26 +3106,20 @@ My function
             expect(functionDeclarations[1] === tree.root.children[2]).to.equal(true);
         });
 
-        it("finds all function declarations when multiple equivalent functions exist, including function declarations that end in *", () => {
+        it("finds all function declarations when multiple equivalent functions exist, both above and below", () => {
             let tree = new Tree();
             tree.parseIn(`
 * My big function
     First -
 
-* My big *
-    Second -
-
 My big function
 
 * My big function
     Third -
-
-* My big *
-    Fourth -
 `);
 
             let branchAbove = new Branch();
-            let functionCall = new Step(tree.root.children[2].id);
+            let functionCall = new Step(tree.root.children[1].id);
             let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
             Comparer.expect(functionDeclarations).to.match([
@@ -3141,17 +3135,6 @@ My big function
                     ]
                 },
                 {
-                    text: "My big *",
-                    isFunctionDeclaration: true,
-                    parent: { indents: -1 },
-                    children: [
-                        {
-                            text: "Second",
-                            isTextualStep: true
-                        }
-                    ]
-                },
-                {
                     text: "My big function",
                     isFunctionDeclaration: true,
                     parent: { indents: -1 },
@@ -3161,24 +3144,11 @@ My big function
                             isTextualStep: true
                         }
                     ]
-                },
-                {
-                    text: "My big *",
-                    isFunctionDeclaration: true,
-                    parent: { indents: -1 },
-                    children: [
-                        {
-                            text: "Fourth",
-                            isTextualStep: true
-                        }
-                    ]
                 }
             ]);
 
             expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
-            expect(functionDeclarations[1] === tree.root.children[1]).to.equal(true);
-            expect(functionDeclarations[2] === tree.root.children[3]).to.equal(true);
-            expect(functionDeclarations[3] === tree.root.children[4]).to.equal(true);
+            expect(functionDeclarations[1] === tree.root.children[2]).to.equal(true);
         });
 
         it("finds the right function when a function call contains strings and variables", () => {
@@ -4943,108 +4913,6 @@ F
                             }
                         ]
                     });
-                });
-            });
-
-            context("functions ending in *", () => {
-                it("handles a function declaration that ends in a *", () => {
-                    let tree = new Tree();
-                    tree.parseIn(`
-My big function
-
-* My big *
-    A -
-
-* My big something
-    B -
-
-* My big function
-    C -
-                    `, "file.txt");
-
-                    let branches = tree.branchify(tree.root);
-                    mergeStepNodesInBranches(tree, branches);
-
-                    Comparer.expect(branches).to.match([
-                        {
-                            steps: [
-                                { text: 'My big function' },
-                                { text: 'A' }
-                            ]
-                        },
-                        {
-                            steps: [
-                                { text: 'My big function' },
-                                { text: 'C' }
-                            ]
-                        }
-                    ]);
-                });
-
-                it("handles a function declaration and function call that ends in a *", () => {
-                    let tree = new Tree();
-                    tree.parseIn(`
-- Test
-    My big function
-
-    * My big *
-        A -
-            My big *
-
-* My big something
-    B -
-
-* My big function
-    C -
-                    `, "file.txt");
-
-                    let branches = tree.branchify(tree.root);
-                    mergeStepNodesInBranches(tree, branches);
-
-                    Comparer.expect(branches).to.match([
-                        {
-                            steps: [
-                                { text: 'Test' },
-                                { text: 'My big function' },
-                                { text: 'A' },
-                                { text: 'My big *' },
-                                { text: 'C' }
-                            ]
-                        }
-                    ]);
-                });
-
-                it("handles a function declaration and function call that ends in a *, with variables", () => {
-                    let tree = new Tree();
-                    tree.parseIn(`
-- Test
-    My big 'foobar' function
-
-    * My big {{v}} *
-        A -
-            My big {{v}} *
-
-* My big {{w}} something
-    B -
-
-* My big {{w}} function
-    C -
-                    `, "file.txt");
-
-                    let branches = tree.branchify(tree.root);
-                    mergeStepNodesInBranches(tree, branches);
-
-                    Comparer.expect(branches).to.match([
-                        {
-                            steps: [
-                                { text: 'Test' },
-                                { text: 'My big \'foobar\' function' },
-                                { text: 'A' },
-                                { text: 'My big {{v}} *' },
-                                { text: 'C' }
-                            ]
-                        }
-                    ]);
                 });
             });
 

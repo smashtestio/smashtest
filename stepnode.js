@@ -345,13 +345,7 @@ class StepNode {
     isFunctionMatch(functionDeclarationNode) {
         let functionCallText = this.canonicalizeFunctionCallText();
         let functionDeclarationText = functionDeclarationNode.canonicalizeFunctionDeclarationText();
-
-        if(functionDeclarationText.endsWith('*')) {
-            return functionCallText.startsWith(functionDeclarationText.replace(/\*$/, ''));
-        }
-        else {
-            return functionCallText == functionDeclarationText;
-        }
+        return functionCallText == functionDeclarationText;
     }
 
     /**

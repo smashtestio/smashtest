@@ -414,19 +414,10 @@ Functions
         - Prevents infinite loops and allows a specific function to call a more generic one
         - For example, declare a * Navigate to intercept Navigate children, do something like logging or security checks, then
             call Navigate to pass control to the generic * Navigate
+            
             * Navigate to {{url}}
                 Security checks
                     Navigate to {{url}} // call to the generic one
-    - Function declaration that ends in * matches any function call that starts with that declaration (extra text at end is ok)
-        - If you call F * from inside * F *, it will use the function call text that originally matched * F *
-            For example:
-                * Security test each verify
-                    * Verify *
-                        Do security test
-                            Verify *
-
-                Security test each verify
-                    Verify 'link' is visible // this will expand to Do security test, followed by Verify 'link' is visible
 
     - Examples (maybe distribute these among the sections above)
         - Using functions to encapsulate common steps

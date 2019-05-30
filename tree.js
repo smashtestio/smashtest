@@ -349,20 +349,6 @@ class Tree {
         let functionCallNode = this.stepNodeIndex[functionCall.id];
         let functionCallNodeToMatch = functionCallNode;
 
-        // If the functionCall ends in a *, this is a recursive call
-        // Find out what text was used in place of the * in branchAbove
-        if(functionCallNode.text.trim().endsWith('*')) {
-            for(let i = branchAbove.steps.length - 2; i >= 0; i--) {
-                let s = branchAbove.steps[i];
-                let sNode = this.stepNodeIndex[s.id];
-                let sFunctionDeclarationNode = this.stepNodeIndex[s.fid];
-                if(sFunctionDeclarationNode && functionCallNode.isFunctionMatch(sFunctionDeclarationNode)) {
-                    functionCallNodeToMatch = sNode;
-                    break;
-                }
-            }
-        }
-
         // Say functionCall is F, and needs to be matched to *F. If we go up branchAbove and find another call F,
         // add the corresponding *F (and its equivalents) to a list of untouchables. F is never matched to an untouchable.
         // This prevents an F within a *F from infinitely recursing.
