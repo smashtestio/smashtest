@@ -375,17 +375,17 @@ class ElementFinder {
             INJECTED CODE:
                 // ef and parentElem are passed in via args
 
-                let pool = parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*');
-                let matchMeElems = [];
+                find(ef, parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*'));
 
-                find(ef, pool);
-                If matchMeElems
+                matchMeElems = []
+                Recursively walk the tree, adding an EF's matchedElems to matchMeElems if that EF's matchMe is set
+                If matchMeElems.length > 0
                     return matchMeElems
                 else
                     return ef.matchedElems
 
                 function find(ef, pool) {
-                    let Es = getElemsThatMatchLine(ef, pool)
+                    let Es = getElemsThatMatchParent(ef, pool)
 
                     if(!ef.isElemArray) {
                         For each e in Es {
@@ -406,13 +406,14 @@ class ElementFinder {
                                 Cs = take first child.counter.min from Cs
 
                                 if(!ef.isAnyOrder)
-                                    Remove all items from pool before the last elem in Cs
+                                    Remove all items before the last elem in Cs from pool
+                                else
+                                    Remove Cs (and their descendants) from pool
 
                                 if(pool is empty)
                                     e is bad. Remove it from Es. Continue to the next e.
                             }
                         }
-
 
                         if(Es.length < ef.counter.min) {
                             set ef.error
@@ -420,66 +421,49 @@ class ElementFinder {
                         }
                         else {
                             ef.matchedElems = Es, but no more than counter.max
-                            if(ef.matchMe)
-                                matchMeElems.push(ef.matchedElems)
                         }
                     }
                     else { // ef is an element array
-                        if(ef.matchMe)
-                            matchMeElems = matchMeElems.concat(Es)
-
                         if(!ef.isAnyOrder) {
                             pointerE = first item in Es
                             pointerC = first item in ef.children
-                            count = 0
 
-                            while(both pointers are still pointing at something) {
-                                if(pointerC matches pointerE) {
-                                    count++
+                            while(at least one pointer is pointing at something) { // pointers become null after they go off the end
+                                if(doesElemMatchParent(pointerC, pointerE)) {
+                                    pointerC.matchedElems.push(pointerE)
                                     pointerE++
 
-                                    if(pointerC.matchMe)
-                                        matchMeElems.push(pointerE)
+                                    if(pointerC.matchedElems.length == pointerC.counter.max) {
+                                        pointerC++
+                                    }
                                 }
                                 else {
-                                    if(count isn't within pointerC.counter) {
+                                    if(pointerC is not valid) {
+                                        if(!ef.isSubset) {
+                                            set pointerC.error for missing
+                                        }
+                                    }
+                                    else if(pointerC.matchedElems.length < pointerC.counter.min) {
                                         set pointerC.error
-                                        count = 0
                                     }
 
                                     pointerC++
                                 }
                             }
-
-                            if(!both pointers went off the end) {
-                                if(pointerC went off the end) {
-                                    if(!ef.isSubset) {
-                                        set ef.error for not all elements were accounted for in element array
-                                    }
-                                }
-                                else if(pointerE went off the end) {
-                                    while(pointerC is valid) {
-                                        set pointerC.error for missing element
-                                        poiterC++
-                                    }
-                                }
-                            }
                         }
                         else {
                             For each child in ef.children {
-                                let count = 0
                                 For each e in Es {
-                                    if(doesElemMatchLine(child, e)) {
-                                        count++
-
-                                        if(child.matchMe)
-                                            matchMeElems.push(e)
-
+                                    if(doesElemMatchParent(child, e)) {
+                                        child.matchedElems.push(e)
                                         remove e from Es
+
+                                        if(child.matchedElems.length == child.counter.max)
+                                            break
                                     }
                                 }
 
-                                if(count is not within child.counter) {
+                                if(child.matchedElems.length < child.counter.min) {
                                     set child.error
                                 }
                             }
@@ -494,18 +478,18 @@ class ElementFinder {
                         If at least one error was set, throw error
                     }
 
-                    function getElemsThatMatchLine(ef, pool) {
+                    function getElemsThatMatchParent(ef, pool) {
                         Start with pool and apply props sequentially until we're left with an array
                     }
 
-                    function doesElemMatchLine(ef, domElem) {
-                        return true if domElem matches ef's top parent
+                    function doesElemMatchParent(ef, domElem) {
+                        return true if domElem matches ef's top parent, false otherwise, and false if ef or domElem is null
                     }
                 }
 
 
 
-            Make sure these are covered in code and unit tests:
+            Make sure these are covered in unit tests:
                 - !isElemArray
                     - matchMe
                     - counter

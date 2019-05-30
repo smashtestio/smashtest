@@ -32,6 +32,8 @@ class SeleniumBrowser {
         runInstance.g('$', browser.$);
         runInstance.g('$$', browser.$$);
         runInstance.g('prop', browser.prop);
+        runInstance.g('propAdd', browser.propAdd);
+        runInstance.g('propClear', browser.propClear);
         runInstance.g('str', browser.str);
 
         return browser;
@@ -272,26 +274,38 @@ class SeleniumBrowser {
     }
 
     /**
-     * Sets the given ElementFinder property
-     * Clears the property if value is null
+     * Sets the one and only definition of the given EF property
+     * @param {String} name - Name of the prop
+     * @param {String or Function} value - String EF or function to set the prop to
      */
     prop(name, value) {
-        if(value === null) {
-            delete this.props[name];
-            return;
-        }
-
         if(typeof value == 'string') {
             // parse it as an EF
             value = new ElementFinder(value, this.props, runInstance.log);
         }
 
-        if(this.props.hasOwnProperty(name)) {
-            this.props[name].push(value);
+        this.props[name] = [ value ];
+    }
+
+    /**
+     * Adds a definition to the given EF property
+     * @param {String} name - Name of the prop
+     * @param {String or Function} value - String EF or function to add to the prop's definition
+     */
+    propAdd(name, value) {
+        if(typeof value == 'string') {
+            // parse it as an EF
+            value = new ElementFinder(value, this.props, runInstance.log);
         }
-        else {
-            this.props[name] = [ value ];
-        }
+
+        this.props[name].push(value);
+    }
+
+    /**
+     * Clears all definitions of the given EF property
+     */
+    propClear(name) {
+        delete this.props[name];
     }
 
     /**
