@@ -3007,7 +3007,7 @@ Some parent step -
             expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right function when multiple functions with the same name exist", () => {
+        it("finds the right function when multiple equivalent functions exist", () => {
             let tree = new Tree();
             tree.parseIn(`
 Some parent step -
@@ -3061,7 +3061,7 @@ Some parent step -
             expect(functionDeclarations[1] === tree.root.children[0].children[2]).to.equal(true);
         });
 
-        it("finds all function declarations when multiple sibling function declarations have the same name", () => {
+        it("finds all function declarations when multiple equivalent functions exist", () => {
             let tree = new Tree();
             tree.parseIn(`
 My function
@@ -3106,7 +3106,7 @@ My function
             expect(functionDeclarations[1] === tree.root.children[2]).to.equal(true);
         });
 
-        it("finds all function declarations when multiple sibling function declarations match the same name, including function declarations that end in *", () => {
+        it("finds all function declarations when multiple equivalent functions exist, including function declarations that end in *", () => {
             let tree = new Tree();
             tree.parseIn(`
 * My big function
@@ -4118,30 +4118,30 @@ A -
         context("functions", () => {
             context("generic functions tests", () => {
                 it("branchifies a function call with no children, whose function declaration has no children", () => {
-                let tree = new Tree();
-                tree.parseIn(`
+                    let tree = new Tree();
+                    tree.parseIn(`
 F
 
 * F
-                `);
+                    `);
 
-                let branches = tree.branchify(tree.root);
-                mergeStepNodesInBranches(tree, branches);
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
 
-                Comparer.expect(branches).to.match([
-                    {
-                        steps: [
-                            {
-                                text: "F",
-                                isFunctionCall: true,
-                                isFunctionDeclaration: undefined,
-                                level: 0,
-                                fid: { $typeof: 'number' }
-                            }
-                        ]
-                    }
-                ]);
-            });
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                }
+                            ]
+                        }
+                    ]);
+                });
 
                 it("branchifies a function call with no children, whose function declaration has one branch", () => {
                     let tree = new Tree();
@@ -5356,6 +5356,29 @@ Start browser
             });
 
             context("equivalent function declarations", () => {
+                it("handles empty equivalent function declarations", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+A
+    B
+
+* A
+    * B
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: "A" },
+                                { text: "B" }
+                            ]
+                        }
+                    ]);
+                });
+
                 it("handles equivalent function declarations", () => {
                     let tree = new Tree();
                     tree.parseIn(`
@@ -5890,6 +5913,144 @@ A -
                                 { text: 'Two' },
                                 { text: 'F' },
                                 { text: 'Four' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("chooses the function declaration with the more specific context", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+* A
+    * B
+        * C
+            One -
+
+* A
+    * C
+        Two -
+
+A
+    B
+        C
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'C' },
+                                { text: 'One' }
+                            ]
+                        }
+                    ]);
+
+                    tree = new Tree();
+                    tree.parseIn(`
+* A
+    * B
+        * C
+            One -
+
+* B
+    * C
+        Two -
+
+A
+    B
+        C
+                    `, "file.txt");
+
+                    branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'C' },
+                                { text: 'One' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("chooses the right function declaration with contexts of equal specificity", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+* A
+    * B
+        * D
+            One -
+
+* A
+    * C
+        * D
+            Two -
+
+A
+    B
+        C
+            D
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'C' },
+                                { text: 'D' },
+                                { text: 'Two' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("chooses both function declarations with equal contexts", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+* A
+    * B
+        * C
+            One -
+
+* A
+    * B
+        * C
+            Two -
+
+A
+    B
+        C
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'C' },
+                                { text: 'One' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'A' },
+                                { text: 'B' },
+                                { text: 'C' },
+                                { text: 'Two' }
                             ]
                         }
                     ]);

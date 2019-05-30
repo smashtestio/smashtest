@@ -1188,9 +1188,6 @@ ${outputBranchAbove(this)}
             }
         }
 
-        // Remove branches that end in a step marked empty
-        this.branches = this.branches.filter(branch => !branch.steps[branch.steps.length - 1].empty);
-
         // Marks branches with a first step of .s as skipped
         this.branches.forEach(branch => {
             let firstStep = branch.steps[0];
