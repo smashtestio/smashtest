@@ -375,18 +375,29 @@ class ElementFinder {
             let ef = JSON.parse(arguments[0]);
             let parentElem = arguments[1];
 
-            console.log(ef);
-
-
-
-
+            find(ef, parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*'));
 
             function find(ef, pool) {
 
+
+
+
+
+
+
             }
+        }, this.serializeJSON(), parentElem);
 
+        /*
+        TODO:
 
-        }, serializeMe(this), parentElem);
+        matchMeElems = []
+        Recursively walk the tree, adding an EF's matchedElems to matchMeElems if that EF's matchMe is set
+        If matchMeElems.length > 0
+            return matchMeElems
+        else
+            return ef.matchedElems
+        */
     }
 
     /**
@@ -492,20 +503,11 @@ class ElementFinder {
             } ],
 
             'enabled': [ (elems, input) => {
-                // TODO: if elems is undefined, choose from all elements on the page
-
-
-
-
+                return elems.filter(elem => !elem.getAttribute('disabled'));
             } ],
 
             'disabled': [ (elems, input) => {
-
-
-
-
-
-
+                return elems.filter(elem => elem.getAttribute('disabled'));
             } ],
 
             'checked': [ (elems, input) => {
@@ -685,7 +687,7 @@ class ElementFinder {
 
 
 
-                
+
             } ],
 
             // Same as an ord, returns nth elem, where n is 1-indexed

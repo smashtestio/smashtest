@@ -1,5 +1,17 @@
-Function here
-    Function here   // comment here
+Function call
+    Step one
+
+Function call
+
+* Function declaration
+    Step one
+        Step two
+
+* Function declaration {{var}} and 'string'
+    Step one
+
+Function call
+    Function call   // comment here
         Textual step 'non // comment string' - // comment here
             // comment on its own line
 
@@ -151,7 +163,7 @@ Not sequential
                             return 6;
                         }
 
-* Function here
+* Function declaration
     {global var}='something'
         {{local var}}="something else here {var} {var:}", {{local var2}} = "something {var inside string}"
             {var} = [ 1st 'Login' box near 'title' {var} ]
