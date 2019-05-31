@@ -222,7 +222,7 @@ ElementFinders
                 - propClear()
                     - propClear('prop name') // clears all definitions of the prop
             - Built-in properties
-                - enabled|disabled|checked|unchecked|selected|focused|in focus
+                - enabled|disabled|checked|unchecked|selected|focused
                 - element // matches any element
                 - clickable
                 - page title 'title'
@@ -231,13 +231,12 @@ ElementFinders
                 - page url contains 'text' // relative or absolute
                 - next to 'text'
                 - value 'text' // elem.value only
-                - exact 'text'
                 - contains 'text'
-                - innerText 'text'
+                - contains exact 'text'
+                - innertext 'text'
                 - selector '.selector'
                 - xpath 'xpath'
                 - style 'name: val'
-                - has 'selector' (matches this selector or has a child that matches)
                 - position 'N' (same as ord)
         - .css.selector
     - Special

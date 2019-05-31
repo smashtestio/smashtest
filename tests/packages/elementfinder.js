@@ -191,7 +191,9 @@ describe("ElementFinder", function() {
 
             it("defined property set to an EF", () => {
                 let ef = new ElementFinder(`bold`, {
-                    bold: [ new ElementFinder(`b`) ],
+                    bold: [ new ElementFinder(`b`, {
+                        b: [ (elems, input) => true ]
+                    }) ],
                     visible: [ (elems, input) => true ]
                 });
 
@@ -2411,11 +2413,13 @@ one
         });
 
         context("one-line EFs", () => {
-            it.skip("finds elements based on multiple items", () => {
+            it.skip("finds elements based on multiple props", () => {
                 // text, ords, properties, selectors
+                // nots
+                // some of those props are functions and others are EFs
             });
 
-            it.skip("doesn't find elements based on multiple items", () => {
+            it.skip("doesn't find elements based on multiple props", () => {
 
             });
 
@@ -2758,14 +2762,6 @@ one
 
         });
 
-        it.skip("finds elements based on 'in focus'", () => {
-
-        });
-
-        it.skip("doesn't find elements based on 'in focus'", () => {
-
-        });
-
         it.skip("finds elements based on 'element'", () => {
 
         });
@@ -2838,14 +2834,6 @@ one
 
         });
 
-        it.skip("finds elements based on 'exact text'", () => {
-            // exact 'text'
-        });
-
-        it.skip("doesn't find elements based on 'exact text'", () => {
-
-        });
-
         it.skip("finds elements based on 'contains text'", () => {
             // contains 'text'
         });
@@ -2854,11 +2842,19 @@ one
 
         });
 
-        it.skip("finds elements based on 'innerText'", () => {
-            // innerText 'text'
+        it.skip("finds elements based on 'contains exact'", () => {
+            // contains exact 'text'
         });
 
-        it.skip("doesn't find elements based on 'innerText'", () => {
+        it.skip("doesn't find elements based on 'contains exact'", () => {
+
+        });
+
+        it.skip("finds elements based on 'innertext'", () => {
+            // innertext 'text'
+        });
+
+        it.skip("doesn't find elements based on 'innertext'", () => {
 
         });
 
@@ -2883,14 +2879,6 @@ one
         });
 
         it.skip("doesn't find elements based on 'style'", () => {
-
-        });
-
-        it.skip("finds elements based on 'has'", () => {
-
-        });
-
-        it.skip("doesn't find elements based on 'has'", () => {
 
         });
 

@@ -315,15 +315,5 @@ class SeleniumBrowser {
     str(str) {
         return utils.escape(str);
     }
-
-
-    // Finding an elem's label:
-    // if(elem.id) {
-    //     let labelElement = document.querySelector('label[for=' + CSS.escape(elem.id) + ']');
-    //     if(labelElement) {
-    //         let innerText = labelElement.innerText.trim();
-    //     }
-    // }
-
 }
 module.exports = SeleniumBrowser;

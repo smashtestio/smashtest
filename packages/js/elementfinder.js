@@ -372,7 +372,9 @@ class ElementFinder {
         // TODO: Don't forget to log stuff via this.logger (if it's set)
 
         return await driver.executeScript(() => {
-            let ef = JSON.parse(arguments[0]);
+            let payload = JSON.parse(arguments[0]);
+            let ef = payload.ef;
+            let definedProps = payload.definedProps;
             let parentElem = arguments[1];
 
             find(ef, parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*'));
@@ -498,67 +500,21 @@ class ElementFinder {
                 });
             } ],
 
-            'any visibility': [ (elems, input) => {
-                return elems;
-            } ],
+            'any visibility': [ (elems, input) => elems } ],
 
-            'enabled': [ (elems, input) => {
-                return elems.filter(elem => !elem.getAttribute('disabled'));
-            } ],
+            'enabled': [ (elems, input) => elems.filter(elem => !elem.getAttribute('disabled')) ],
 
-            'disabled': [ (elems, input) => {
-                return elems.filter(elem => elem.getAttribute('disabled'));
-            } ],
+            'disabled': [ (elems, input) => elems.filter(elem => elem.getAttribute('disabled')) ],
 
-            'checked': [ (elems, input) => {
+            'checked': [ (elems, input) => elems.filter(elem => elem.checked) ],
 
+            'unchecked': [ (elems, input) => elems.filter(elem => !elem.checked) ],
 
+            'selected': [ (elems, input) => elems.filter(elem => elem.selected) ],
 
+            'focused': [ (elems, input) => elems.filter(elem => elem === document.activeElement) ],
 
-
-
-            } ],
-
-            'unchecked': [ (elems, input) => {
-
-
-
-
-
-
-            } ],
-
-            'selected': [ (elems, input) => {
-
-
-
-
-
-
-            } ],
-
-            'focused': [ (elems, input) => {
-
-
-
-
-
-
-            } ],
-
-            'in focus': [ (elems, input) => {
-
-
-
-
-
-
-
-            } ],
-
-            'element': [ (elems, input) => {
-                return elems;
-            } ],
+            'element': [ (elems, input) => elems ],
 
             'clickable': [ (elems, input) => {
                 return elems.filter(elem => {
@@ -574,120 +530,129 @@ class ElementFinder {
                 });
             } ],
 
-            'page title': [ (elems, input) => {
+            'page title': [ (elems, input) => document.title == input ? elems : [] ],
 
+            'page title contains': [ (elems, input) => document.title.includes(input) ? elems : [] ],
 
+            'page url': [ (elems, input) => window.location.href == input || window.location.href.replace(/^https?:\/\//, '') == input ? elems : [] ], // absolute or relative
 
+            'page url contains': [ (elems, input) => window.location.href.includes(input) || window.location.href.replace(/^https?:\/\//, '').includes(input) ? elems : [] ], // absolute or relative
 
-
-
-            } ],
-
-            'page title contains': [ (elems, input) => {
-
-
-
-
-
-
-            } ],
-
-            'page url': [ (elems, input) => {
-                // relative or absolute
-
-
-
-
-
-            } ],
-
-            'page url contains': [ (elems, input) => {
-                // relative or absolute
-
-
-
-
-
-
-            } ],
-
+            // Takes each elem and expands the container around it to its parent, parent's parent etc. until a container
+            // containing input is found. Matches multiple elems if there's a tie.
             'next to': [ (elems, input) => {
-                // Find closest element by x,y coords to smallest element(s) containing the text? Or just use expanding containers?
+                let canon = (str) => str ? str.trim().toLowerCase().replace(/\s+/, ' ') : '';
+                input = canon(input);
 
+                let containers = elems;
+                let atBody = false;
 
+                while(!atBody) { // if a container reaches document.body and nothing is still found, input doesn't exist on the page
+                    containers = containers.map(container => container.parentElement);
+                    containers.forEach(container => {
+                        if(container === document.body) {
+                            atBody = true;
+                        }
+                    });
 
+                    let matchedElems = [];
 
+                    containers.forEach((container, index) => {
+                        if(canon(container.innerText).includes(input)) {
+                            matchedElems.push(elems[index]);
+                        }
+                    });
 
+                    if(matchedElems.length > 0) {
+                        return matchedElems;
+                    }
+                }
+
+                return [];
             } ],
 
-            'value': [ (elems, input) => {
-                // elem.value only
+            'value': [ (elems, input) => elems.filter(elem => elem.value == input) ],
 
-
-
-
-
-            } ],
-
-            'exact': [ (elems, input) => {
-
-
-
-
-
-
-            } ],
-
+            // Text is contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
             'contains': [ (elems, input) => {
-                // Contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
-                // Containing, lower case, trimmed, and whitespace-to-single-space match
+                let canon = (str) => str ? str.trim().toLowerCase().replace(/\s+/, ' ') : '';
+                input = canon(input);
 
+                let isMatch = (str) => canon(str).includes(input);
 
+                return elems.filter(elem => {
+                    let labelText = '';
+                    let label = document.querySelector(`label[for="${CSS.escape(elem.id)}"]`);
+                    if(label) {
+                        labelText = label.innerText;
+                    }
 
+                    let dropdownText = '';
+                    if(elem.hasOwnProperty('options') && elem.hasOwnProperty('selectedIndex')) {
+                        dropdownText = elem.options[elem.selectedIndex].text;
+                    }
 
-
+                    return isMatch(elem.innerText) ||
+                        isMatch(elem.value) ||
+                        isMatch(elem.placeholder) ||
+                        isMatch(labelText) ||
+                        isMatch(dropdownText);
+                });
             } ],
 
-            'innertext': [ (elems, input) => {
+            // Text is the exclusive and exact text in innerText, value (including selected item in a select), placeholder, or associated label innerText
+            'contains exact': [ (elems, input) => {
+                let isMatch = (str) => str == input;
 
+                return elems.filter(elem => {
+                    let labelText = '';
+                    let label = document.querySelector(`label[for="${CSS.escape(elem.id)}"]`);
+                    if(label) {
+                        labelText = label.innerText;
+                    }
 
+                    let dropdownText = '';
+                    if(elem.hasOwnProperty('options') && elem.hasOwnProperty('selectedIndex')) {
+                        dropdownText = elem.options[elem.selectedIndex].text;
+                    }
 
-
-
+                    return isMatch(elem.innerText) ||
+                        isMatch(elem.value) ||
+                        isMatch(elem.placeholder) ||
+                        isMatch(labelText) ||
+                        isMatch(dropdownText);
+                });
             } ],
+
+            'innertext': [ (elems, input) => elems.filter(elem => (elem.innerText || '').includes(input)) ],
 
             'selector': [ (elems, input) => {
-
-
-
-
-
+                let nodes = document.querySelectorAll(input);
+                return elems.filter(nodes.includes(elem));
             } ],
 
             'xpath': [ (elems, input) => {
+                let result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
+                let node = null;
+                let nodes = [];
+                while(node = result.iterateNext()) {
+                    nodes.push(node);
+                }
 
-
-
-
-
+                return elems.filter(nodes.includes(elem));
             } ],
 
+            // Has css style name:value
             'style': [ (elems, input) => {
-                // input = 'name: val'
+                let matches = input.match(/^([^: ]+):(.*)$/);
+                if(!matches) {
+                    return [];
+                }
 
+                let name = matches[1];
+                let value = matches[2];
 
-
-
-            } ],
-
-            'has': [ (elems, input) => {
-                // matches this selector or has a child that matches
-
-
-
-
-
-
+                return elems.filter(elem => getComputedStyle(elem).name.toString() == value);
             } ],
 
             // Same as an ord, returns nth elem, where n is 1-indexed
