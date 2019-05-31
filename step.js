@@ -13,12 +13,9 @@ class Step {
         OPTIONAL
 
         this.fid = -1;                        // id of StepNode that corresponds to the function declaration, if this step is a function call
-
         this.level = 0;                       // number of function calls deep this step is within its branch
 
-        this.isDebug = false;                 // true if this step has the debug modifier (~)
-        this.isBeforeDebug = false;           // true if this step has the debug modifier (~) before the step text
-        this.isAfterDebug = false;            // true if this step has the debug modifier (~) after the step text
+        SET AFTER STEP IS RUN
 
         this.isPassed = false;                // true if this step passed after being run
         this.isFailed = false;                // true if this step failed after being run

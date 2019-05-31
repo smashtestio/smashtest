@@ -38,11 +38,16 @@ class ElementFinder {
         this.isAnyOrder = false;            // If true, this.children can be in any order
         this.isSubset = false;              // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
 
+        this.usedDefinedProps = {};
+        this.logger = undefined;
+
+        SET INSIDE BROWSER
+
         this.error = undefined;             // Set to an error string if there was an error finding this EF
         this.blockErrors = undefined;       // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
 
-        this.usedDefinedProps = {};
-        this.logger = undefined;
+        this.matchedElems = [];             // DOM Elements or WebElements that match this EF
+        this.matchMeElems = [];             // DOM Elements or WebElements that match [bracked lines] inside this EF. Use this instead of matchedElems if it has > 0 elements inside.
         */
 
         if(!usedDefinedProps) { // only create one usedDefinedProps object, and only on the top parent
@@ -500,7 +505,7 @@ class ElementFinder {
                 });
             } ],
 
-            'any visibility': [ (elems, input) => elems } ],
+            'any visibility': [ (elems, input) => elems ],
 
             'enabled': [ (elems, input) => elems.filter(elem => !elem.getAttribute('disabled')) ],
 

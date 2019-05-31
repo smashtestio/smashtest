@@ -109,10 +109,10 @@ class RunInstance {
      * Executes a step, and its corresponding beforeEveryStep and afterEveryStep steps (if a branch is passed in)
      * Sets this.isPaused if the step requires execution to pause
      * Marks the step as passed/failed, sets the step's error and log
-     * Resolves immediately if step.isDebug is true (unless overrideDebug is true as well)
+     * Resolves immediately if step's step node's isDebug is true (unless overrideDebug is true as well)
      * @param {Step} step - The Step to execute
      * @param {Branch} branch - The branch that contains the step to execute
-     * @param {Boolean} [overrideDebug] - If true, ignores step.isDebug (prevents getting stuck on a ~ step)
+     * @param {Boolean} [overrideDebug] - If true, ignores step's step node's isDebug (prevents getting stuck on a ~ step)
      * @return {Promise} Promise that gets resolved when the step finishes execution
      * @throws {Error} If an error is thrown inside the step and error.fatal is set to true
      */
