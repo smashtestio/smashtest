@@ -12,6 +12,10 @@ h1 {
     letter-spacing: 1px;
 }
 
+.logo-container {
+    cursor: pointer;
+}
+
 #sidebar {
     position: fixed;
     left: 0;
@@ -59,10 +63,18 @@ h1 {
     padding: 0;
 }
 
-.main {
+#main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 8px 14px;
+}
+
+#main .section {
+    display: none;
+}
+
+#main .section.active {
+    display: block;
 }
 
 p {

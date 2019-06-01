@@ -39,8 +39,8 @@ if(USE_SSL) {
 
 let app = express();
 
-// Homepage
-app.get(/^\/$/, (req, res) => {
+// Any page (doesn't contain a .)
+app.get(/^\/[^\.]*$/, (req, res) => {
     let file = fs.readFileSync(__dirname + '/index.html', 'utf8');
     res.status(200).send(file);
 });
