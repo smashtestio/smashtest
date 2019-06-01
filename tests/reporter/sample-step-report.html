@@ -132,6 +132,15 @@
         setAfter();
     }
 
+    window.onEscape = function() {
+        if(modal.style.display == "block") {
+            modal.style.display = "none";
+            return false; // do not run the default esc action in report
+        }
+
+        return true;
+    }
+
     function setBefore() {
         screenshot.src = beforeUrl;
         toggle.classList.add("active");

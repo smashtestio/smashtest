@@ -1101,7 +1101,14 @@ c     = copy text of branch
                         }
                     }
                     else if(event.key == 'Escape') { // esc key
-                        this.setPreview(null);
+                        let def = true;
+                        if(window.onEscape) {
+                            def = window.onEscape();
+                        }
+
+                        if(def) {
+                            this.setPreview(null);
+                        }
                     }
 
                     function getActiveIndex() {
@@ -2282,19 +2289,17 @@ c     = copy text of branch
                         }
                     }
 
-                    return (
-                        <div className="preview-section preview-details">
-                            <div className="header">Details</div>
-                            {
-                                reportTemplate ?
-                                <div className="step-report" dangerouslySetInnerHTML={ {__html: reportTemplate} }>
-                                </div> :
-                                <div className="none-indicator">
-                                    None
-                                </div>
-                            }
-                        </div>
-                    );
+                    if(reportTemplate) {
+                        return (
+                            <div className="preview-section preview-details">
+                                <div className="header">Details</div>
+                                <div className="step-report" dangerouslySetInnerHTML={ {__html: reportTemplate} }></div>
+                            </div>
+                        );
+                    }
+                    else {
+                        return "";
+                    }
                 }
             }
 
@@ -2307,22 +2312,19 @@ c     = copy text of branch
                     let logs = this.props.previewedObj.log;
                     if(logs) {
                         logs = logs.map((logItem, index) => <div className="log-line" key={index}>{logItem.text}</div>);
-                    }
 
-                    return (
-                        <div className="preview-section preview-logs">
-                            <div className="header">Logs</div>
-                            {
-                                logs ?
+                        return (
+                            <div className="preview-section preview-logs">
+                                <div className="header">Logs</div>
                                 <div className="logs">
                                     {logs}
-                                </div> :
-                                <div className="none-indicator">
-                                    None
                                 </div>
-                            }
-                        </div>
-                    );
+                            </div>
+                        );
+                    }
+                    else {
+                        return '';
+                    }
                 }
             }
 

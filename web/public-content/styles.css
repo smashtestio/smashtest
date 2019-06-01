@@ -53,7 +53,10 @@ h1 {
     cursor: pointer;
 }
 
-#sidebar .section:hover,
+#sidebar .section:hover {
+    background-color: rgb(45,45,45);
+}
+
 #sidebar .section.active {
     background-color: rgb(45,45,45);
     color: white;
