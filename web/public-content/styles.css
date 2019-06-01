@@ -22,8 +22,11 @@ h1 {
     top: 0;
     bottom: 0;
     width: 250px;
+    padding-bottom: 10px;
     background-color: rgb(30,30,30);
     font-family: Verdana;
+    overflow-y: auto;
+    color: rgb(175,175,175);
 }
 
 #sidebar .logo-container {
@@ -53,6 +56,7 @@ h1 {
 #sidebar .section:hover,
 #sidebar .section.active {
     background-color: rgb(45,45,45);
+    color: white;
 }
 
 #sidebar .group {

@@ -34,16 +34,65 @@
             </div>
             <div class="section group" data-route="/">Welcome</div>
 
-            <div class="section subsection active">Subsection 1</div>
-            <div class="section subsection">Subsection 2</div>
-            <div class="section subsection">Subsection 3</div>
+            <div class="section group" data-route="/getting-started">Getting Started</div>
+            <div class="section subsection" data-route="/getting-started/setup">Setup</div>
+            <div class="section subsection" data-route="/getting-started/example-file">Example file</div>
 
-            <div class="section group" data-route="/section2">Section 2</div>
-            <div class="section group" data-route="/section3">Section 3</div>
+            <div class="section group" data-route="/running-tests">Running Tests</div>
+            <div class="section subsection" data-route="/running-tests/command-line-options">Command-line options</div>
+            <div class="section subsection" data-route="/running-tests/selective-test-running">Selective test running</div>
+            <div class="section subsection" data-route="/running-tests/ci-cd-integration">CI/CD integration</div>
+
+            <div class="section group" data-route="/reports">Reports</div>
+
+            <div class="section group" data-route="/steps">Steps</div>
+            <div class="section subsection" data-route="/steps/modifiers">Modifiers</div>
+            <div class="section subsection" data-route="/steps/step-blocks">Step blocks</div>
+            <div class="section subsection" data-route="/steps/textual-steps">Textual steps (-)</div>
+            <div class="section subsection" data-route="/steps/functions">Functions</div>
+            <div class="section subsection" data-route="/steps/variables">Variables</div>
+            <div class="section subsection" data-route="/steps/code-blocks">Code blocks</div>
+            <div class="section subsection" data-route="/steps/sequential-execution">Sequential execution (..)</div>
+            <div class="section subsection" data-route="/steps/no-parallel-execution">No parallel execution (!)</div>
+            <div class="section subsection" data-route="/steps/comments">Comments</div>
+            <div class="section subsection" data-route="/steps/skipping">Skipping (-, -s, .s, $s)</div>
+            <div class="section subsection" data-route="/steps/collapsing">Collapsing (+, +?)</div>
+            <div class="section subsection" data-route="/steps/only">Only ($)</div>
+            <div class="section subsection" data-route="/steps/debug">Debug (~)</div>
+            <div class="section subsection" data-route="/steps/hooks">Hooks (***)</div>
+
+            <div class="section group" data-route="/ui-testing">UI Testing</div>
+            <div class="section subsection" data-route="/ui-testing/browsers-and-devices">Browsers and devices</div>
+            <div class="section subsection" data-route="/ui-testing/actions">Actions</div>
+            <div class="section subsection" data-route="/ui-testing/verify">Verify</div>
+            <div class="section subsection" data-route="/ui-testing/wait">Wait</div>
+            <div class="section subsection" data-route="/ui-testing/screenshots">Screenshots</div>
+            <div class="section subsection" data-route="/ui-testing/network-conditions-and-throttling">Network conditions and throttling</div>
+            <div class="section subsection" data-route="/ui-testing/geolocation-spoofing">Geolocation spoofing</div>
+            <div class="section subsection" data-route="/ui-testing/mocking-apis">Mocking APIs</div>
+            <div class="section subsection" data-route="/ui-testing/mocking-time">Mocking time</div>
+            <div class="section subsection" data-route="/ui-testing/code">Code</div>
+
+            <div class="section group" data-route="/element-finders">ElementFinders</div>
+            <div class="section subsection" data-route="/element-finders/props">Props</div>
+            <div class="section subsection" data-route="/element-finders/default-props">Default Props</div>
+            <div class="section subsection" data-route="/element-finders/counters">Counters</div>
+            <div class="section subsection" data-route="/element-finders/element-array">Element array</div>
+            <div class="section subsection" data-route="/element-finders/special-keywords">Special keywords</div>
+
+            <div class="section group" data-route="/api-testing">API Testing</div>
+            <div class="section subsection" data-route="/api-testing/code">Code</div>
+            <div class="section subsection" data-route="/api-testing/asserting-json">Asserting JSON</div>
+
+            <div class="section group" data-route="/repl">REPL</div>
+
+            <div class="section group" data-route="/packages">Packages</div>
+
+            <div class="section group" data-route="/contact-us">Contact Us</div>
         </div>
         <div class="main-container">
             <div id="main">
-                <div class="section active" data-route="/" data-title="Section One">
+                <div class="section active" data-route="/" data-title="Welcome">
                     <h1>Heading 1</h2>
                     <p>
                         Some stuff here
@@ -138,13 +187,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="section" data-route="/section2" data-title="Section Two">
-                    <h1>Section 2</h1>
+                <div class="section" data-route="/getting-started" data-title="Getting Started">
+                    <h1>Getting Started</h1>
                 </div>
                 <div class="section" data-route="/section3" data-title="Section Three">
                     <h1>Section 3</h1>
                 </div>
-                <div class="section" id="notfound" data-title="Not Found - SmashTEST">
+                <div class="section" id="notfound" data-title="Not Found">
                     <h1>Not Found</h1>
                 </div>
             </div>
@@ -185,7 +234,7 @@
                 }
 
                 let title = section.getAttribute('data-title');
-                document.title = title;
+                document.title = title + ' - SmashTEST';
 
                 section.classList.add('active');
                 if(sectionSidebar) {
