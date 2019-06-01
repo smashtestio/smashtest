@@ -21,11 +21,11 @@ class ElementFinder {
 
         this.props = [];                    // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
                                             // Each object in the array has the following format:
-                                            //   { prop: 'full prop text', defs: [ EFs or functions ], input: 'input text if any', not: true or false }
+                                            //   { prop: 'full prop text', def: 'name of prop', input: 'input text if any', not: true or undefined }
                                             //
-                                            // 'text' is converted to the prop "contains 'text'"
-                                            // a selector is converted to the prop "selector 'text'"
-                                            // an ord is converted to the prop "position 'N'"
+                                            // a prop of just `'text'` is converted to the prop `contains 'text'`
+                                            // a css selector is converted to the prop `selector 'text'`
+                                            // an ord is converted to the prop `position 'N'`
 
         this.parent = parent;               // Parent EF, if one exists
         this.children = [];                 // Array of ElementFinder. The children of this EF.
@@ -370,7 +370,7 @@ class ElementFinder {
      * Finds all elements matching this EF at the current moment in time
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
-     * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found, empty array if nothing found
+     * @return {Promise} Promise that resolves to the object { ef: this ef with errors and matched elements set, matches: Array of WebElements that were matched }
      * @throws {Error} If an element array wasn't properly matched
      */
     async getAll(driver, parentElem) {
@@ -379,12 +379,46 @@ class ElementFinder {
         return await driver.executeScript(() => {
             let payload = JSON.parse(arguments[0]);
             let ef = payload.ef;
-            let definedProps = payload.definedProps;
+            let definedProps = initDefinedProps(payload.definedProps);
             let parentElem = arguments[1];
 
             find(ef, parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*'));
 
+            return {
+                ef: JSON.stringify(ef),
+                matches: ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems || ef.matchedElems
+            };
+
+            /**
+             * Initializes defined props
+             */
+            function initDefinedProps(definedProps) {
+                for(let prop in definedProps) {
+                    if(definedProps.hasOwnProperty(prop) && typeof prop == 'string') {
+                        definedProps[prop] = eval(definedProps[prop]); // turn stringified function into regular function
+                    }
+                }
+
+                return definedProps;
+            }
+
+            /**
+             * Finds elements from pool that match the given ef
+             * Sets ef.matchedElems, ef.matchMeElems, ef.error, and/or ef.blockErrors
+             * @param {ElementFinder} ef - The ElementFinder to match
+             * @param {Array of Element} pool - Array of DOM elements from which to choose from
+             */
             function find(ef, pool) {
+                // Clear out existing state
+                ef.error = null;
+                ef.blockErrors = [];
+                ef.matchedElems = [];
+                ef.matchMeElems = [];
+
+                let matchedElems = findTopEF(ef, pool);
+
+                if(ef.isElemArray) {
+                    if(ef.isAnyOrder) {
 
 
 
@@ -392,19 +426,57 @@ class ElementFinder {
 
 
 
+                    }
+                    else {
+
+
+
+
+
+
+
+
+                    }
+                }
+                else {
+
+
+
+
+
+
+
+
+                }
+            }
+
+            /**
+             * @return {Array of Element} Elements from pool that match the top line in ef. Ignores the counter.
+             */
+            function findTopEF(ef, pool) {
+                // TODO: remove this line
+                // { prop: 'full prop text', def: 'name of prop', input: 'input text if any', not: true or undefined }
+
+
+                for(let prop of ef.props) {
+                    let approvedElems = [];
+                    for(let def of definedProps[prop.def]) {
+                        if(typeof def == 'object') { // def is an EF
+                            find(def, pool);
+                            let matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
+                            approvedElems = approvedElems.concat(pool.filter(elem => matched.includes(elem));
+                        }
+                        else if(typeof def == 'function') {
+                            approvedElems = approvedElems.concat(def(pool, prop.input));
+                        }
+                    }
+
+                    pool = pool.filter(elem => prop.not ? !approvedElems.includes(elem) : approvedElems.includes(elem));
+                }
+
+                return pool;
             }
         }, this.serializeJSON(), parentElem);
-
-        /*
-        TODO:
-
-        matchMeElems = []
-        Recursively walk the tree, adding an EF's matchedElems to matchMeElems if that EF's matchMe is set
-        If matchMeElems.length > 0
-            return matchMeElems
-        else
-            return ef.matchedElems
-        */
     }
 
     /**
