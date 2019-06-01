@@ -2,13 +2,53 @@
     <head>
         <title>SmashTEST</title>
 
+        <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+        <link rel="manifest" href="favicons/site.webmanifest">
+        <link rel="mask-icon" href="favicons/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+
         <link rel="stylesheet" href="styles.css">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        <script>
+            function openSidebar() {
+                let hamburger = document.getElementById('hamburger');
+                let sidebar = document.getElementById('sidebar');
+
+                hamburger.classList.add('open');
+                sidebar.classList.add('open');
+
+                sidebar.classList.remove('closed');
+            }
+
+            function closeSidebar() {
+                let hamburger = document.getElementById('hamburger');
+                let sidebar = document.getElementById('sidebar');
+
+                hamburger.classList.remove('open');
+                sidebar.classList.remove('open');
+
+                sidebar.classList.add('closed');
+            }
+
+            function toggleSidebar() {
+                let sidebar = document.getElementById('sidebar');
+                if(sidebar.classList.contains('open')) {
+                    closeSidebar();
+                }
+                else {
+                    openSidebar();
+                }
+            }
+        </script>
     </head>
     <body>
-        <div class="navbar">
-            <div class="hamburger">
+        <div id="navbar">
+            <div id="hamburger" onclick="toggleSidebar()">
                 <div></div>
                 <div></div>
                 <div></div>
@@ -19,15 +59,20 @@
                 </a>
             </div>
         </div>
-        <div class="sidebar">
+        <div id="sidebar">
             <div class="logo-container">
                 <a href="/">
-                    <img class="logo" src="star-1s-200px.svg">
+                    <img class="logo" src="logo.svg">
                 </a>
             </div>
-            <div class="item">Section 1</div>
-            <div class="item active">Section 2</div>
-            <div class="item">Section 3</div>
+            <div class="section group">Section 1</div>
+
+            <div class="section subsection">Subsection 1</div>
+            <div class="section subsection active">Subsection 2</div>
+            <div class="section subsection">Subsection 3</div>
+
+            <div class="section group active">Section 2</div>
+            <div class="section group">Section 3</div>
         </div>
         <div class="main-container">
             <div class="main">
@@ -46,11 +91,20 @@
                     Some stuff here
                 </p>
 
+                <div class="install">
+                    <span>npm i smashtest</span>
+                </div>
+
                 <div class="code">Code section here</div>
 
-                <div class="warning">
+                <div class="warning suggestbox">
                     <img src="warning.png">
                     Warning here
+                </div>
+
+                <div class="info suggestbox">
+                    <img src="info.png">
+                    Info here
                 </div>
             </div>
         </div>
