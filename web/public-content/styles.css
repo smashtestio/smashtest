@@ -29,12 +29,21 @@ h1 {
 #sidebar .logo-container {
     text-align: center;
     padding: 10px 14px;
-    height: 120px;
+    height: 150px;
     overflow: hidden;
 }
 
 #sidebar .logo {
     width: 120px;
+}
+
+#sidebar .logo-container .title {
+    color: rgb(100,100,100);
+    font-family: 'Jura', Verdana, sans-serif;
+    letter-spacing: 4px;
+    margin: 8px 0;
+    font-size: 18px;
+    font-weight: 600;
 }
 
 #sidebar .section {

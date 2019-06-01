@@ -10,6 +10,8 @@
         <meta name="msapplication-TileColor" content="#da532c">
         <meta name="theme-color" content="#ffffff">
 
+        <link href="https://fonts.googleapis.com/css?family=Jura:400,500,600,700&display=swap" rel="stylesheet">
+
         <link rel="stylesheet" href="styles.css">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -28,8 +30,9 @@
         <div id="sidebar">
             <div class="logo-container">
                 <img class="logo" src="logo.svg">
+                <div class="title">SMASHTEST</div>
             </div>
-            <div class="section group" data-route="/">Section 1</div>
+            <div class="section group" data-route="/">Welcome</div>
 
             <div class="section subsection active">Subsection 1</div>
             <div class="section subsection">Subsection 2</div>
@@ -160,7 +163,7 @@
             });
 
             // Click handlers for logos
-            document.querySelectorAll('.logo').forEach(logo => {
+            document.querySelectorAll('.logo-container').forEach(logo => {
                 logo.addEventListener("click", () => goToRoute('/', true));
             });
 
