@@ -1,0 +1,135 @@
+body {
+    background-color: rgb(45,45,45);
+    color: white;
+    font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    padding: 0;
+    margin: 0;
+}
+
+h1 {
+    font-size: 26px;
+    letter-spacing: 1px;
+    margin: 5px 0 15px 0;
+    color: white;
+    font-weight: bold;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 250px;
+    background-color: rgb(30,30,30);
+    letter-spacing: 1px;
+    font-size: 14px;
+    font-family: Verdana;
+}
+
+.sidebar .logo-container {
+    text-align: left;
+    padding: 8px 14px;
+    height: 120px;
+    overflow: hidden;
+}
+
+.sidebar .logo {
+    margin: -40px 0 0 0;
+    width: 200px;
+}
+
+.sidebar .item {
+    cursor: pointer;
+    padding: 10px 16px;
+}
+
+.sidebar .item:hover,
+.sidebar .item.active {
+    background-color: rgb(45,45,45);
+}
+
+.main-container {
+    margin-left: 250px;
+    padding: 0;
+}
+
+.main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8px 14px;
+}
+
+p {
+    font-size: 14px;
+    color: gray;
+    padding: 10px 0;
+}
+
+.code {
+    font-size: 12px;
+    color: gray;
+    white-space: pre;
+    margin: 10px 0;
+    border: 1px solid gray;
+    padding: 10px;
+    background-color: rgb(35,35,35);
+    border-radius: 5px;
+}
+
+.warning {
+    font-size: 14px;
+    color: gray;
+    margin: 10px 0;
+    border: 1px solid gray;
+    padding: 10px 10px 15px 10px;
+    background-color: #401515;
+    border-radius: 5px;
+}
+
+.warning img {
+    width: 18px;
+    position: relative;
+    top: 4px;
+    filter: invert(.55);
+}
+
+.navbar {
+    display: none;
+    background-color: rgb(30,30,30);
+    height: 54px;
+    text-align: center;
+}
+
+.navbar img {
+    margin: 7px 0;
+    width: 40px;
+}
+
+.hamburger {
+    position: fixed;
+    top: 12px;
+    left: 20px;
+}
+
+.hamburger div {
+    width: 25px;
+    height: 2px;
+    background-color: rgb(150,150,150);
+    margin: 6px 0;
+    border-radius: 3px;
+}
+
+@media screen and (max-width: 991px) {
+    .sidebar {
+        display: none;
+        width: 100%;
+    }
+
+    .main-container {
+        margin-left: 0;
+    }
+
+    .navbar {
+        display: block;
+    }
+}
