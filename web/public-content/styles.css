@@ -98,14 +98,21 @@ p {
 }
 
 .code {
-    font-size: 14px;
     color: gray;
-    white-space: pre;
-    margin: 10px 0;
     border: 1px solid gray;
-    padding: 10px 16px;
     background-color: rgb(35,35,35);
     border-radius: 5px;
+}
+
+.code.block {
+    font-size: 14px;
+    white-space: pre;
+    margin: 10px 0;
+    padding: 10px 16px;
+}
+
+.code.inline {
+    padding: 1px 5px;
 }
 
 .suggestbox {
@@ -124,12 +131,42 @@ p {
     filter: invert(.55);
 }
 
-.warning {
+.suggestbox.warning {
     background-color: #401515;
 }
 
-.info {
+.suggestbox.info {
     background-color: #0a3104;
+}
+
+.info-section {
+    text-align: center;
+}
+
+.info-box {
+    display: inline-block;
+    width: calc(33% - 90px);
+    margin: 10px;
+    padding: 30px;
+    text-align: center;
+    color: gray;
+    border-radius: 6px;
+    background-color: rgb(35,35,35);
+}
+
+.info-box .icon {
+    margin-bottom: 20px;
+    width: 70px;
+    filter: invert(.5);
+}
+
+.info-box .heading {
+    font-size: 26px;
+}
+
+.info-box .explanation {
+    margin-top: 10px;
+    font-size: 0.8em;
 }
 
 #navbar {
@@ -208,5 +245,20 @@ p {
 
     #navbar {
         display: block;
+    }
+}
+
+@media screen and (max-width: 875px) {
+    .info-box {
+        width: calc(50% - 90px);
+        margin: 10px 5px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .info-box {
+        display: block;
+        width: auto;
+        margin: 10px 0;
     }
 }
