@@ -213,14 +213,15 @@ ElementFinders
             - You should list list this one last
         - defined property
             - Setting props
-                - prop()
-                    - prop('prop name', 'EF') // sets the one and only prop definition
-                    - prop('prop name', (elems, input) => array of elems that match) // sets the one and only prop definition, the input is the string passed in
-                - propAdd()
-                    - propAdd('prop name', 'EF') // adds a definition to prop definition (same syntax as in prop()), an element is matched if it's included in at least one definition
-                    - propAdd('prop name', (elems, input) => array of elems that match) // adds to prop definition (same syntax as in prop())
-                - propClear()
-                    - propClear('prop name') // clears all definitions of the prop
+                - props({      // sets the one and only prop definition
+                    'prop name': 'EF',
+                    'prop name': (elems, input) => array of elems that match    // input is the string passed in
+                  });
+                - propsAdd({   // adds a definition to prop definition (same syntax as in prop())
+                    'prop name': 'EF',
+                    'prop name': (elems, input) => array of elems that match    // input is the string passed in
+                  });
+                - propsClear(['prop name', 'prop name']) // clears all definitions of the props
             - Built-in properties
                 - enabled|disabled|checked|unchecked|selected|focused
                 - element // matches any element

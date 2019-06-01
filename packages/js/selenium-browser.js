@@ -31,9 +31,9 @@ class SeleniumBrowser {
         // Set commonly-used global vars
         runInstance.g('$', browser.$);
         runInstance.g('$$', browser.$$);
-        runInstance.g('prop', browser.prop);
-        runInstance.g('propAdd', browser.propAdd);
-        runInstance.g('propClear', browser.propClear);
+        runInstance.g('props', browser.props);
+        runInstance.g('propsAdd', browser.propsAdd);
+        runInstance.g('propsClear', browser.propsClear);
         runInstance.g('str', browser.str);
 
         return browser;
@@ -274,38 +274,55 @@ class SeleniumBrowser {
     }
 
     /**
-     * Sets the one and only definition of the given EF property
-     * @param {String} name - Name of the prop
-     * @param {String or Function} value - String EF or function to set the prop to
+     * Sets the one and only definition of the given EF props
+     * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      */
-    prop(name, value) {
-        if(typeof value == 'string') {
-            // parse it as an EF
-            value = new ElementFinder(value, this.props, runInstance.log);
-        }
+    props(props) {
+        for(let prop in props) {
+            if(props.hasOwnProperty(prop)) {
+                if(typeof props[prop] == 'string') {
+                    // parse it as an EF
+                    props[prop] = new ElementFinder(props[prop], this.props, runInstance.log);
+                }
+                else if(typeof props[prop] == 'function') {
+                }
+                else {
+                    throw new Error(`Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`);
+                }
 
-        this.props[name] = [ value ];
+                this.props[prop] = [ props[prop] ];
+            }
+        }
     }
 
     /**
-     * Adds a definition to the given EF property
-     * @param {String} name - Name of the prop
-     * @param {String or Function} value - String EF or function to add to the prop's definition
+     * Adds definitions for the given EF props. Keeps existing definitions.
+     * A prop matches an element if at least one of its definitions matches.
+     * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      */
-    propAdd(name, value) {
-        if(typeof value == 'string') {
-            // parse it as an EF
-            value = new ElementFinder(value, this.props, runInstance.log);
-        }
+    propsAdd(props) {
+        for(let prop in props) {
+            if(props.hasOwnProperty(prop)) {
+                if(typeof props[prop] == 'string') {
+                    // parse it as an EF
+                    props[prop] = new ElementFinder(props[prop], this.props, runInstance.log);
+                }
+                else if(typeof props[prop] == 'function') {
+                }
+                else {
+                    throw new Error(`Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`);
+                }
 
-        this.props[name].push(value);
+                this.props[prop].push(props[prop]);
+            }
+        }
     }
 
     /**
-     * Clears all definitions of the given EF property
+     * Clears all definitions of the given EF props
      */
-    propClear(name) {
-        delete this.props[name];
+    propsClear(names) {
+        names.forEach(name => delete this.props[name]);
     }
 
     /**
