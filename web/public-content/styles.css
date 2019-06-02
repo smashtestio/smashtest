@@ -114,7 +114,7 @@ p {
 }
 
 .code {
-    color: gray;
+    color: #abb2bf;
     border: 1px solid gray;
     background-color: rgb(35,35,35);
     border-radius: 5px;
@@ -124,11 +124,62 @@ p {
     font-size: 14px;
     white-space: pre;
     margin: 10px 0;
-    padding: 10px 16px;
+    padding: 10px 16px 10px 6px;
 }
 
 .code.inline {
     padding: 1px 5px;
+}
+
+.code .line-number {
+    color: rgb(80,80,80);
+    font-size: 10px;
+    margin-right: 20px;
+}
+
+.code .modifier,
+.code .js-keyword {
+    color: #c678dd;
+}
+
+.code .variable {
+    color: #e06c75;
+}
+
+.code .lookahead-colon {
+    color: #c678dd;
+}
+
+.code .string {
+    color: #98c379;
+}
+
+.code .escaped-char {
+    color: #56b6c2;
+}
+
+.code .func-declaration,
+.code .js-classname {
+    color: #e5c07b;
+}
+
+.code .comment {
+    color: #5c6370;
+    font-style: italic;
+}
+
+.code .debug {
+    color: #c678dd;
+    font-style: italic;
+}
+
+.code .sequential,
+.code .js-function-name {
+    color: #61afef;
+}
+
+.code .js-const {
+    color: #d19a66;
 }
 
 .suggestbox {
