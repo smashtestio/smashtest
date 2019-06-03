@@ -2274,13 +2274,18 @@ one
 
     describe("getAll()", () => {
         context("text EFs", () => {
-            it.skip("finds elements based on innerText", async () => {
-                let ef = new ElementFinder(`
-                    one
-                        two
-                `);
-                await ef.getAll(driver, await driver.findElement(By.tagName('h1')));
-                await new Promise((res, rej) => {});
+            it.only("finds elements based on innerText", async () => {
+                let ef = new ElementFinder(`'one'`);
+                await ef.getAll(driver);
+                console.log(ef.matchedElems);
+
+
+
+
+
+
+
+
             });
 
             it.skip("finds elements based on innerText, where the matching text is of a different case and has differing whitespace", () => {

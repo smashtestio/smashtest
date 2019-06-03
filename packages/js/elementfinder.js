@@ -380,7 +380,7 @@ class ElementFinder {
             let definedProps = initDefinedProps(payload.definedProps);
             let parentElem = arguments[1];
 
-            findEF(ef, parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*'));
+            findEF(ef, parentElem ? parentElem.querySelectorAll('*') : document.body.querySelectorAll('*'));
 
             return {
                 ef: JSON.stringify(ef, (k, v) => ['matchedElems', 'matchMeElems'].includes(key) ? undefined : v),
@@ -439,7 +439,7 @@ class ElementFinder {
                             if(!ef.isSubset && topElems.length > 0) {
                                 // Set block error for each of topElems still around (these elems weren't matched by the elem array)
                                 for(let topElem of topElems) {
-                                    ef.blockErrors.push(elemSummary(topElem));
+                                    ef.blockErrors.push({ header: 'missing', body: elemSummary(topElem) });
                                 }
                             }
                         }
@@ -453,7 +453,7 @@ class ElementFinder {
 
                                 if(!currChildEF) { // indexC went over the edge
                                     if(!ef.isSubset) {
-                                        ef.blockErrors.push(elemSummary(currTopElem));
+                                        ef.blockErrors.push({ header: 'missing', body: elemSummary(currTopElem) });
                                     }
 
                                     indexE++;
@@ -566,8 +566,8 @@ class ElementFinder {
                 for(let prop of ef.props) {
                     let approvedElems = [];
 
-                    if(!definedProps.hasOwnPropery(prop.def)) {
-                        throw new Error("Prop '" + prop.def + "' is not defined");
+                    if(!definedProps.hasOwnProperty(prop.def)) {
+                        throw new Error("ElementFinder prop '" + prop.def + "' is not defined");
                     }
 
                     for(let def of definedProps[prop.def]) {
@@ -602,14 +602,11 @@ class ElementFinder {
              * @return {String} A summary of the given elem
              */
             function elemSummary(elem) {
-                return {
-                    header: 'missing',
-                    body: "<" +
+                return "<" +
                         elem.tagName +
                         (elem.id ? " id=' " + elem.id + "'" : "") +
                         (elem.className ? " class=' " + elem.className + "'" : "") +
-                        ">"
-                };
+                        ">";
             }
 
             /**
