@@ -191,7 +191,7 @@ describe("ElementFinder", function() {
                 });
             });
 
-            context("defined props", () => {
+            context("defined prop", () => {
                 it("defined property set to an EF", () => {
                     let ef = new ElementFinder(`bold`, {
                         bold: [ new ElementFinder(`b`, {
@@ -326,7 +326,7 @@ describe("ElementFinder", function() {
                 });
             });
 
-            context("selectors", () => {
+            context("selector", () => {
                 it("selector", () => {
                     let ef = new ElementFinder(`div.class1 .class2`);
 
@@ -508,7 +508,7 @@ describe("ElementFinder", function() {
                 });
             });
 
-            context("ords", () => {
+            context("ord", () => {
                 it("ordinal", () => {
                     let ef = new ElementFinder(`4th`);
 
@@ -540,7 +540,7 @@ describe("ElementFinder", function() {
                 });
             });
 
-            context("counters", () => {
+            context("counter", () => {
                 it("no counter equates to a counter of 1", () => {
                     let ef = new ElementFinder(`something`);
 
@@ -606,7 +606,7 @@ describe("ElementFinder", function() {
                 });
             });
 
-            context("element arrays", () => {
+            context("element array", () => {
                 it("empty element array", () => {
                     let ef = new ElementFinder(`* something`);
 
@@ -711,7 +711,7 @@ describe("ElementFinder", function() {
                 });
             });
 
-            context("comments", () => {
+            context("comment", () => {
                 it("comment at the end of a line", () => {
                     let ef = new ElementFinder(`.class1 // comment`);
 
@@ -1803,7 +1803,7 @@ one
                 });
             });
 
-            context("element arrays", () => {
+            context("element array", () => {
                 it("element arrays", () => {
                     let ef = new ElementFinder(`
                         * one
@@ -2593,11 +2593,13 @@ one
     });
 
     describe("getAll()", () => {
-        context("text EFs", () => {
-            it.skip("finds elements based on innerText", async () => {
-                let ef = new ElementFinder(`'one'`);
-                await ef.getAll(driver);
-                console.log(ef.matchedElems);
+        context("normal EFs", () => {
+            context("one line", () => {
+                context("'text'", () => {
+                    it.skip("finds elements based on innerText", async () => {
+                        let ef = new ElementFinder(`'one'`);
+                        await ef.getAll(driver);
+                        console.log(ef.matchedElems);
 
 
 
@@ -2606,289 +2608,672 @@ one
 
 
 
+                    });
+
+                    it.skip("finds elements based on innerText, where the matching text is of a different case and has differing whitespace", () => {
+                        // Containing, lower case, trimmed, and whitespace-to-single-space match
+                    });
+
+                    it.skip("finds elements based on value", () => {
+
+                    });
+
+                    it.skip("finds elements based on placeholder", () => {
+
+                    });
+
+                    it.skip("finds elements based on an associated label's innerText", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on text", () => {
+                        // verify error message with -->'s
+                    });
+
+                    it.skip("finds elements based on text that spans multiple elements", () => {
+
+                    });
+                });
+
+                context("defined prop", () => {
+                    it.skip("finds elements based on an EF property", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on an EF property", () => {
+
+                    });
+
+                    it.skip("finds elements based on a function property", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a function property", () => {
+
+                    });
+
+                    it.skip("finds elements based on a function property with input", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a function property with input", () => {
+
+                    });
+
+                    it.skip("handles the 'not' keyword", () => {
+
+                    });
+                });
+
+                context("selector", () => {
+                    it.skip("finds elements based on a css selector", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a css selector", () => {
+
+                    });
+
+                    it.skip("interprets an item as a selector if a corresponding property does not exist", () => {
+
+                    });
+                });
+
+                context("ord", () => {
+                    it.skip("finds elements based on an ord", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on an ord", () => {
+
+                    });
+                });
+
+                context("counter", () => {
+                    it.skip("finds elements based on a counter with a min", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a counter with a min", () => {
+
+                    });
+
+                    it.skip("finds elements based on a counter with a max", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a counter with a max", () => {
+
+                    });
+
+                    it.skip("finds elements based on a counter with a min and max", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a counter with a min and max", () => {
+
+                    });
+
+                    it.skip("finds elements based on a counter with an equal min and max", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a counter with an equal min and max", () => {
+
+                    });
+
+                    it.skip("finds elements based on a counter with a min of 0", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a counter with a min of 0", () => {
+
+                    });
+
+                    it.skip("finds elements based on a counter with a min and max of 0", () => {
+
+                    });
+
+                    it.skip("doesn't find elements based on a counter with a min and max of 0", () => {
+
+                    });
+                });
+
+                context("[match me]", () => {
+                    it.skip("[match me]", () => {
+                        let ef = new ElementFinder(`[something]`);
+
+                    });
+
+                    it.skip("[counter x match me]", () => {
+                        let ef = new ElementFinder(`[4 x something]`);
+                    });
+
+                    it.skip("counter x [match me]", () => {
+                        let ef = new ElementFinder(`4 x [something]`);
+                    });
+
+                    it.skip("* [match me element array]", () => {
+                        let ef = new ElementFinder(`* [something]`);
+                    });
+                });
+
+                context("multiple props", () => {
+                    it.skip("finds elements based on multiple props", () => {
+                        // text, ords, properties, selectors
+                        // nots
+                        // some of those props are functions and others are EFs
+                    });
+
+                    it.skip("doesn't find elements based on multiple props", () => {
+
+                    });
+
+                    it.skip("chooses the first element when multiple matching elements exist", () => {
+
+                    });
+
+                    it.skip("ignores matching elements that aren't visible", () => {
+
+                    });
+                });
+
+                context("'visible' property", () => {
+                    it.skip("only finds visible elements by default", () => {
+
+                    });
+
+                    it.skip("finds all elements regardless of visibility if 'any visibility' is explicitly listed", () => {
+                        let ef = new ElementFinder(`something, any visibility`);
+                    });
+                });
+
+                context("errors", () => {
+                    it.skip("includes an error if an element isn't found, and lists the prop after which 0 elements are matched", () => {
+
+                    });
+
+                    it.skip("includes an error if an element isn't found, where there are multiple props that bring the matches down to 0", () => {
+
+                    });
+
+                    it.skip("includes an error if the number of elements found are less than the counter min", () => {
+
+                    });
+
+                    it.skip("throws an error if an undefined prop is used", () => {
+                        // hard to repro - delete the prop dynamically at runtime right before the EF is run
+                    });
+                });
             });
 
-            it.skip("finds elements based on innerText, where the matching text is of a different case and has differing whitespace", () => {
-                // Containing, lower case, trimmed, and whitespace-to-single-space match
+            context("one child", () => {
+                context("'text' on child", () => {
+                    it.skip("finds elements that match", () => {
+
+                    });
+
+                    it.skip("doesn't find elements that don't match", () => {
+
+                    });
+                });
+
+                context("defined prop on child", () => {
+                    it.skip("finds elements that match", () => {
+
+                    });
+
+                    it.skip("doesn't find elements that don't match", () => {
+
+                    });
+                });
+
+                context("selector on child", () => {
+                    it.skip("finds elements that match", () => {
+
+                    });
+
+                    it.skip("doesn't find elements that don't match", () => {
+
+                    });
+                });
+
+                context("ord on child", () => {
+                    it.skip("finds elements that match", () => {
+
+                    });
+
+                    it.skip("doesn't find elements that don't match", () => {
+
+                    });
+                });
+
+                context("counter on child", () => {
+                    it.skip("finds elements that match", () => {
+
+                    });
+
+                    it.skip("doesn't find elements that don't match", () => {
+
+                    });
+                });
+
+                context("[match me] on child", () => {
+                    it.skip("finds elements that match", () => {
+
+                    });
+
+                    it.skip("doesn't find elements that don't match", () => {
+
+                    });
+                });
             });
 
-            it.skip("finds elements based on value", () => {
+            context("one level of children", () => {
+                context("generic tests", () => {
+                    it.skip("finds elements that match", () => {
 
+                    });
+
+                    it.skip("parent matches once, children always match", () => {
+
+                    });
+
+                    it.skip("parent matches once, children never match", () => {
+
+                    });
+
+                    it.skip("parent matches once, children sometimes match", () => {
+                        // parent  --> found, but doesn't contain all the children below
+                        // child that doesn't match  --> not found (zero matches after `prop name` applied)
+                    });
+
+                    it.skip("parent matches multiple times, children always match", () => {
+
+                    });
+
+                    it.skip("parent matches multiple times, children never match", () => {
+                        // parent  --> N found, but none contain all the children below
+                    });
+
+                    it.skip("parent matches multiple times, children sometimes match", () => {
+
+                    });
+
+                    it.skip("doesn't find elements, when children are correct but in the wrong order", () => {
+
+                    });
+                });
+
+                context("counter", () => {
+                    context("counter on parent", () => {
+                        it.skip("finds elements, where counters allow correct matching", () => {
+
+                        });
+
+                        it.skip("finds elements, where a counter of 0+ is used", () => {
+
+                        });
+
+                        it.skip("finds elements, where the number of elements are between the counter's min and max", () => {
+
+                        });
+
+                        it.skip("finds elements, where there are more elements than a counter's min, and no max exists", () => {
+
+                        });
+
+                        it.skip("finds elements, where there are more elements than a counter's max", () => {
+
+                        });
+
+                        it.skip("matches the most amount of elements allowed by the counter (greedy matching)", () => {
+
+                        });
+
+                        it.skip("doesn't find elements, where there are fewer elements than a counter's min", () => {
+                            // parent    --> only found N
+                        });
+
+                        it.skip("doesn't find elements, where there are 0 elements and fewer than the counter's min", () => {
+
+                        });
+                    });
+
+                    context("counter on child", () => {
+                        it.skip("finds elements, where a counter of 0+ is used on a child, and none of those children exist", () => {
+
+                        });
+
+                        it.skip("finds elements, where counters allow correct matching", () => {
+
+                        });
+
+                        it.skip("finds elements, where a counter of 0+ is used", () => {
+
+                        });
+
+                        it.skip("finds elements, where the number of elements are between the counter's min and max", () => {
+
+                        });
+
+                        it.skip("finds elements, where there are more elements than a counter's min, and no max exists", () => {
+
+                        });
+
+                        it.skip("finds elements, where there are more elements than a counter's max", () => {
+
+                        });
+
+                        it.skip("matches the most amount of elements allowed by the counter (greedy matching)", () => {
+
+                        });
+
+                        it.skip("doesn't find elements, where there are fewer elements than a counter's min", () => {
+
+                        });
+
+                        it.skip("doesn't find elements, where there are 0 elements and fewer than the counter's min", () => {
+
+                        });
+                    });
+
+                    context("counter on parent and child", () => {
+                        it.skip("handles a counter on both a parent and child", () => {
+
+                        });
+                    });
+                });
+
+                context("keywords", () => {
+                    it.skip("finds elements in a differing order with the 'any order' keyword", () => {
+
+                    });
+
+                    it.skip("parent matches once, children don't match, even with the 'any order' keyword", () => {
+                        // includes (in that order) in error
+                    });
+
+                    it.skip("parent matches multiple times, children don't match, even with the 'any order' keyword", () => {
+                        // includes (in that order) in error
+                    });
+
+                    it.skip("finds elements with the 'subset' keyword, even though it doesn't do anything", () => {
+
+                    });
+
+                    it.skip("handles the 'any order' and 'subset' keywords together", () => {
+
+                    });
+                });
+
+                context("[match me]", () => {
+                    it.skip("[match me] on the parent", () => {
+
+                    });
+
+                    it.skip("[match me] on a child", () => {
+
+                    });
+
+                    it.skip("[match me] on multiple children", () => {
+
+                    });
+
+                    it.skip("[match me] on the parent and multiple children", () => {
+
+                    });
+
+                    it.skip("doesn't match elements that don't match when [match me] is on the parent and multiple children", () => {
+
+                    });
+
+                    it.skip("finds [counter x child element]", () => {
+
+                    });
+
+                    it.skip("doesn't find [counter x child elements]", () => {
+
+                    });
+                });
             });
 
-            it.skip("finds elements based on placeholder", () => {
+            context("multiple levels of children", () => {
+                context("generic tests", () => {
+                    it.skip("parent matches, child matches, grandchild always matches", () => {
 
-            });
+                    });
 
-            it.skip("finds elements based on an associated label's innerText", () => {
+                    it.skip("parent matches, child matches, grandchild never matches", () => {
 
-            });
+                    });
 
-            it.skip("doesn't find elements based on text", () => {
-                // verify error message with -->'s
-            });
+                    it.skip("parent matches, child matches, grandchild sometimes matches", () => {
+                        // including a bad match at the end - shouldn't appear as an error
+                    });
+                });
 
-            it.skip("finds elements based on text that spans multiple elements", () => {
+                context("counter", () => {
+                    it.skip("handles multiple levels of counters", () => {
 
+                    });
+                });
+
+                context("keywords", () => {
+                    it.skip("handles multiple levels of subset and any order", () => {
+
+                    });
+                });
+
+                context("[match me]", () => {
+                    it.skip("[]'s on multiple levels'", () => {
+
+                    });
+
+                    it.skip("[]'s matches multiple elements when its parent matches multiple elements", () => {
+
+                    });
+
+                    it.skip("[]'s matches multiple elements when its grandparent matches multiple elements", () => {
+
+                    });
+                });
             });
         });
 
-        context("ordinal EFs", () => {
-            it.skip("finds elements based on an ord", () => {
-
+        context("element array EFs", () => {
+            context("one line", () => {
+                it.skip("empty element array", () => {
+                    let ef = new ElementFinder(`* something`);
+                });
             });
 
-            it.skip("doesn't find elements based on an ord", () => {
+            context("one child", () => {
+                context("element array on child", () => {
+                    it.skip("finds elements that match", () => {
 
+                    });
+
+                    it.skip("doesn't find elements that don't match", () => {
+
+                    });
+                });
+            });
+
+            context("one level of children", () => {
+                context("element array on child", () => {
+                    it.skip("finds elements that match", () => {
+
+                    });
+
+                    it.skip("doesn't find elements that don't match", () => {
+                        // child    --> doesn't match <tagname id="" class="">
+                    });
+                });
+
+                context("element array on parent", () => {
+                    it.skip("accepts a matching of 0 elements", () => {
+
+                    });
+
+                    it.skip("accepts a correct matching", () => {
+
+                    });
+
+                    it.skip("accepts a correct matching, even when the matched element type exists at different depths in the DOM, and with other elements in between", () => {
+
+                    });
+
+                    it.skip("rejects an incorrect matching where there are too few elements listed", () => {
+                        // --> missing
+                        // <tagname id="" class="">
+                    });
+
+                    it.skip("rejects an incorrect matching where there are too many elements listed", () => {
+                        // elements at the end   --> not found
+                    });
+
+                    it.skip("rejects an incorrect matching where the elements are correct but in the wrong order", () => {
+
+                    });
+
+                    it.skip("rejects an incorrect matching where the elements listed don't match", () => {
+
+                    });
+                });
+
+                context("element array on parent and child", () => {
+                    it.skip("handles an element array as both parent and child", () => {
+
+                    });
+                });
+
+                context("counter", () => {
+                    it.skip("accepts a correct matching where counters allow correct matching", () => {
+
+                    });
+
+                    it.skip("accepts a correct matching where a counter of 0+ allows correct matching", () => {
+
+                    });
+
+                    it.skip("accepts a correct matching where the number of elements are between the counter's min and max", () => {
+
+                    });
+
+                    it.skip("accepts a correct matching where there are more elements than a counter's min, and no max exists", () => {
+
+                    });
+
+                    it.skip("rejects matching where there are more elements than a counter's max", () => {
+
+                    });
+
+                    it.skip("matches the most amount of elements allowed by the counter (greedy matching)", () => {
+
+                    });
+
+                    it.skip("rejects matching where there are fewer elements than a counter's min", () => {
+
+                    });
+
+                    it.skip("rejects matching where there are 0 elements and fewer than the counter's min", () => {
+
+                    });
+                });
+
+                context("keywords", () => {
+                    context("any order", () => {
+                        it.skip("accepts any order with the 'any order' keyword", () => {
+
+                        });
+
+                        it.skip("rejects an incorrect matching with the 'any order' keyword", () => {
+
+                        });
+                    });
+
+                    context("subset", () => {
+                        it.skip("accepts a correct matching with the 'subset' keyword", () => {
+
+                        });
+
+                        it.skip("rejects an incorrect matching with the 'subset' keyword", () => {
+
+                        });
+
+                        it.skip("accepts matching where there are more elements than a counter's max", () => {
+
+                        });
+
+                        it.skip("accepts matching where there are fewer elements than a counter's min", () => {
+
+                        });
+
+                        it.skip("accepts matching where there are 0 elements and fewer than the counter's min", () => {
+
+                        });
+                    });
+
+                    context("any order and subset", () => {
+                        it.skip("accepts a correct matching with the 'any order' and 'subset' keywords together", () => {
+
+                        });
+
+                        it.skip("rejects an incorrect matching with the 'any order' and 'subset' keywords together", () => {
+
+                        });
+                    });
+                });
+
+                context("[match me]", () => {
+                    it.skip("matches elements with [] on an element array parent", () => {
+
+                    });
+
+                    it.skip("matches elements with [] on an element array child", () => {
+
+                    });
+                });
+            });
+
+            context("multiple levels of children", () => {
+                context("generic tests", () => {
+                    it.skip("handles an element array with multiple levels of children", () => {
+
+                    });
+
+                    it.skip("handles nested element arrays on multiple levels of children", () => {
+
+                    });
+                });
+
+                context("[match me]", () => {
+                    it.skip("matches elements with [] on an element array grandchild", () => {
+
+                    });
+
+                    it.skip("matches elements with [] on an element array grandchild, where the parent sometimes matches and sometimes doesn't", () => {
+
+                    });
+
+                    it.skip("matches elements with [] on multiple levels of an element array", () => {
+
+                    });
+                });
             });
         });
 
-        context("defined property EFs", () => {
-            it.skip("finds elements based on an EF property", () => {
-
-            });
-
-            it.skip("doesn't find elements based on an EF property", () => {
-
-            });
-
-            it.skip("finds elements based on a function property", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a function property", () => {
-
-            });
-
-            it.skip("finds elements based on a function property with input", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a function property with input", () => {
-
-            });
-
-            it.skip("handles the 'not' keyword", () => {
-
-            });
-        });
-
-        context("selector EFs", () => {
-            it.skip("finds elements based on a css selector", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a css selector", () => {
-
-            });
-
-            it.skip("interprets an item as a selector if a corresponding property does not exist", () => {
-
-            });
-        });
-
-        context("counter EFs", () => {
-            it.skip("finds elements based on a counter with a min", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a counter with a min", () => {
-
-            });
-
-            it.skip("finds elements based on a counter with a max", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a counter with a max", () => {
-
-            });
-
-            it.skip("finds elements based on a counter with a min and max", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a counter with a min and max", () => {
-
-            });
-
-            it.skip("finds elements based on a counter with an equal min and max", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a counter with an equal min and max", () => {
-
-            });
-
-            it.skip("finds elements based on a counter with a min of 0", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a counter with a min of 0", () => {
-
-            });
-
-            it.skip("finds elements based on a counter with a min and max of 0", () => {
-
-            });
-
-            it.skip("doesn't find elements based on a counter with a min and max of 0", () => {
-
-            });
-        });
-
-        context("one-line EFs", () => {
-            it.skip("finds elements based on multiple props", () => {
-                // text, ords, properties, selectors
-                // nots
-                // some of those props are functions and others are EFs
-            });
-
-            it.skip("doesn't find elements based on multiple props", () => {
-
-            });
-
-            it.skip("chooses the first element when multiple matching elements exist", () => {
-
-            });
-
-            it.skip("ignores matching elements that aren't visible", () => {
-
-            });
-        });
-
-        context("children", () => {
-            it.skip("finds elements with one level of children", () => {
-
-            });
-
-            it.skip("doesn't find elements with one level of children", () => {
-
-            });
-
-            it.skip("doesn't find elements with one level of children, when only one of those children couldn't be found", () => {
-
-            });
-
-            it.skip("doesn't find elements with one level of children, when those children are correct but in the wrong order", () => {
-
-            });
-
-            it.skip("finds elements with one level of children, where counters allow correct matching", () => {
-
-            });
-
-            it.skip("finds elements with one level of children, where a counter of 0 is used", () => {
-
-            });
-
-            it.skip("doesn't find elements with one level of children, where counters prevent correct matching", () => {
-
-            });
-
-            it.skip("finds elements with multiple levels of children", () => {
-
-            });
-
-            it.skip("doesn't find elements with multiple levels of children", () => {
-
-            });
-
-            it.skip("finds elements in a differing order with the 'any order' keyword", () => {
-
-            });
-
-            it.skip("finds elements with the 'subset' keyword, even though it doesn't do anything", () => {
-
-            });
-
-            it.skip("handles the 'any order' and 'subset' keywords together", () => {
-
-            });
-
-            it.skip("finds a [child element]", () => {
-
-            });
-
-            it.skip("finds multiple [child elements]", () => {
-
-            });
-
-            it.skip("doesn't find [child elements]", () => {
-
-            });
-
-            it.skip("finds [counter x child element]", () => {
-
-            });
-
-            it.skip("doesn't find [counter x child elements]", () => {
-
-            });
-
+        context("other", () => {
             it.skip("only searches within the given parent element", () => {
 
             });
-        });
 
-        context("element arrays", () => {
-            it.skip("accepts a matching of 0 elements", () => {
+            it.skip("handles finding an iframe", () => {
 
             });
 
-            it.skip("accepts a correct matching", () => {
-
-            });
-
-            it.skip("accepts a correct matching, even when the matched element type exists at different depths in the DOM, and with other elements in between", () => {
-
-            });
-
-            it.skip("rejects an incorrect matching where there are too few elements listed", () => {
-
-            });
-
-            it.skip("rejects an incorrect matching where the elements are correct but in the wrong order", () => {
-
-            });
-
-            it.skip("rejects an incorrect matching where the elements listed don't match", () => {
-
-            });
-
-            it.skip("accepts a correct matching where counters allow correct matching", () => {
-
-            });
-
-            it.skip("accepts a correct matching where a counter of 0 allows correct matching", () => {
-
-            });
-
-            it.skip("rejects an incorrect matching where counters prevent correct matching", () => {
-
-            });
-
-            it.skip("accepts a correct matching with the 'any order' keyword", () => {
-
-            });
-
-            it.skip("rejects an incorrect matching with the 'any order' keyword", () => {
-
-            });
-
-            it.skip("accepts a correct matching with the 'subset' keyword", () => {
-
-            });
-
-            it.skip("rejects an incorrect matching with the 'subset' keyword", () => {
-
-            });
-
-            it.skip("accepts a correct matching with the 'any order' and 'subset' keywords together", () => {
-
-            });
-
-            it.skip("rejects an incorrect matching with the 'any order' and 'subset' keywords together", () => {
+            it.skip("handles finding an svg", () => {
 
             });
         });
@@ -3015,208 +3400,254 @@ one
     });
 
     describe("defaultProps()", () => {
-        it.skip("finds elements based on 'visible'", () => {
+        context("visible", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'visible'", () => {
+        context("not visible", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'not visible'", () => {
+        context("any visibility", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'not visible'", () => {
+        context("enabled", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'any visibility'", () => {
+        context("disabled", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'any visibility'", () => {
+        context("checked", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'enabled'", () => {
+        context("unchecked", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'enabled'", () => {
+        context("selected", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'disabled'", () => {
+        context("focused", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'disabled'", () => {
+        context("element", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'checked'", () => {
+        context("clickable", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'checked'", () => {
+        context("page title", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'unchecked'", () => {
+        context("page title contains", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'unchecked'", () => {
+        context("relative page url", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'selected'", () => {
+        context("absolute page url", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'selected'", () => {
+        context("page url contains", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'focused'", () => {
+        context("next to", () => {
+            it.skip("finds the best element", () => {
 
+            });
+
+            it.skip("finds multiple elements if there's a tie", () => {
+
+            });
+
+            it.skip("doesn't find elements if the text doesn't exist on the page", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'focused'", () => {
+        context("value", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'element'", () => {
+        context("contains exact", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'element'", () => {
+        context("innertext", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'clickable'", () => {
+        context("selector", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'clickable'", () => {
+        context("xpath", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'page title'", () => {
-            // page title 'title'
+        context("style", () => {
+            it.skip("finds elements that match", () => {
+
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("doesn't find elements based on 'page title'", () => {
+        context("position", () => {
+            it.skip("finds elements that match", () => {
 
+            });
+
+            it.skip("doesn't find elements that don't match", () => {
+
+            });
         });
 
-        it.skip("finds elements based on 'page title contains'", () => {
-            // page title contains 'title'
-        });
+        context("not", () => {
+            it.skip("handles the 'not' keyword", () => {
 
-        it.skip("doesn't find elements based on 'page title contains'", () => {
-
-        });
-
-        it.skip("finds elements based on a relative 'page url'", () => {
-            // page url 'url'
-        });
-
-        it.skip("doesn't find elements based on a relative 'page url'", () => {
-
-        });
-
-        it.skip("finds elements based on an absolute 'page url'", () => {
-            // page url 'url'
-        });
-
-        it.skip("doesn't find elements based on an absolute 'page url'", () => {
-
-        });
-
-        it.skip("finds elements based on 'page url contains'", () => {
-            // page url contains 'url'
-        });
-
-        it.skip("doesn't find elements based on 'page url contains'", () => {
-
-        });
-
-        it.skip("finds elements based on 'next to'", () => {
-            // next to 'text', only one element chosen from many
-        });
-
-        it.skip("doesn't find elements based on 'next to'", () => {
-
-        });
-
-        it.skip("finds elements based on 'value'", () => {
-            // value 'text', elem.value only
-        });
-
-        it.skip("doesn't find elements based on 'value'", () => {
-
-        });
-
-        it.skip("finds elements based on 'contains text'", () => {
-            // contains 'text'
-        });
-
-        it.skip("doesn't find elements based on 'contains text'", () => {
-
-        });
-
-        it.skip("finds elements based on 'contains exact'", () => {
-            // contains exact 'text'
-        });
-
-        it.skip("doesn't find elements based on 'contains exact'", () => {
-
-        });
-
-        it.skip("finds elements based on 'innertext'", () => {
-            // innertext 'text'
-        });
-
-        it.skip("doesn't find elements based on 'innertext'", () => {
-
-        });
-
-        it.skip("finds elements based on 'selector'", () => {
-            // selector '.selector'
-        });
-
-        it.skip("doesn't find elements based on 'selector'", () => {
-
-        });
-
-        it.skip("finds elements based on 'xpath'", () => {
-            // xpath 'xpath'
-        });
-
-        it.skip("doesn't find elements based on 'xpath'", () => {
-
-        });
-
-        it.skip("finds elements based on 'style'", () => {
-            // style 'name: val'
-        });
-
-        it.skip("doesn't find elements based on 'style'", () => {
-
-        });
-
-        it.skip("finds elements based on 'position'", () => {
-
-        });
-
-        it.skip("doesn't find elements based on 'position'", () => {
-
-        });
-
-        it.skip("handles the 'not' keyword", () => {
-
+            });
         });
     });
 
