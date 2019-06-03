@@ -124,6 +124,7 @@ class ElementFinder {
         this.line = parentLine;
         if(parentLine[0] == '*') { // Element Array
             this.isElemArray = true;
+            this.counter = { min: 0 };
             parentLine = parentLine.substr(1).trim(); // drop the *
         }
 
@@ -157,6 +158,10 @@ class ElementFinder {
             const COUNTER_REGEX = /^([0-9]+)(\s*([\-\+])(\s*([0-9]+))?)?\s*x\s+/;
             matches = parentLine.match(COUNTER_REGEX);
             if(matches) {
+                if(this.isElemArray) {
+                    utils.error(`An element array is not allowed to have a counter`, filename, parentLineNumber);
+                }
+
                 parentLine = parentLine.replace(COUNTER_REGEX, ''); // remove counter
 
                 let min = matches[1];
@@ -297,6 +302,21 @@ class ElementFinder {
     }
 
     /**
+     * Parses a plain object in the form of an ElementFinder and converts it into an ElementFinder object
+     * Handles all children as well
+     * @param {Object} obj - The plain object to convert
+     * @return {ElementFinder} The EF derived from obj
+     */
+    static parseObj(obj) {
+        let ef = new ElementFinder("temp");
+        Object.assign(ef, obj);
+        for(let i = 0; i < ef.children.length; i++) {
+            ef.children[i] = ElementFinder.parseObj(ef.children[i]);
+        }
+        return ef;
+    }
+
+    /**
      * @param {String} [errorStart] - String to mark the start of an error, '-->' if omitted
      * @param {String} [errorEnd] - String to mark the end of an error, '' if omitted
      * @param {Number} [indents] - The number of indents at this value, 0 if omitted
@@ -331,6 +351,10 @@ class ElementFinder {
         }
 
         return spaces + this.line + error + children + blockErrors;
+    }
+
+    hasErrors() {
+
     }
 
     /**
@@ -585,6 +609,7 @@ class ElementFinder {
 
                     if(pool.length == 0) {
                         ef.error = 'not found (zero matches after `' + prop.prop + '` applied)';
+                        break;
                     }
                 }
 
@@ -592,7 +617,7 @@ class ElementFinder {
             }
 
             /**
-             * @return {Boolean} true if the given EF has errors, false otherwise
+             * @return {Boolean} true if the given EF has errors, false otherwise (only applies to top EF, not children)
              */
             function hasErrors(ef) {
                 return ef.error || (ef.blockErrors && ef.blockErrors.length > 0);

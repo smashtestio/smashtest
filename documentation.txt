@@ -276,6 +276,9 @@ ElementFinders
     - If multiple lines are at the top indent, an implicit "body" EF is inserted above them all
         - This help if you want to verify a list of things on the page but don't want to start the EF with something like "body" or "element"
     - Errors: Output expected object with "  -->  error" on some lines
+    - Pitfalls
+        - For a selector like [attr="something"], use `selector '[attr="something"]'` to prevent the []'s from covering the whole line
+        - Same thing goes for selectors that are a tag name with the same name as a defined prop, comma-separated selectors, etc.
     - [EF] step prints found elements to browser's console and number of elements found to regular console
     - $() and $$()
     - When plugging a string into an EF string programatically, use str() to escape chars such as ' and " (so it doesn't interfere with quote chars part of the EF string)
