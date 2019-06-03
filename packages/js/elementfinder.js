@@ -574,7 +574,7 @@ class ElementFinder {
                         if(typeof def == 'object') { // def is an EF
                             findEF(def, pool);
                             let matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
-                            approvedElems = approvedElems.concat(pool.filter(function(elem){ return matched.includes(elem) });
+                            approvedElems = approvedElems.concat(pool.filter(function(elem){ return matched.includes(elem) }));
                         }
                         else if(typeof def == 'function') {
                             approvedElems = approvedElems.concat(def(pool, prop.input));

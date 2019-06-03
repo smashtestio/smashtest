@@ -14,18 +14,18 @@ describe("ElementFinder", function() {
     let driver = null;
     this.timeout(60000);
 
-    // before(async () => {
-    //     driver = await new Builder()
-    //         .forBrowser('chrome')
-    //         .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
-    //         .build();
-    //
-    //     await driver.get(`file://${__dirname}/generic-page.html`);
-    // });
-    //
-    // after(async () => {
-    //     await driver.quit();
-    // });
+    before(async () => {
+        driver = await new Builder()
+            .forBrowser('chrome')
+            .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
+            .build();
+
+        await driver.get(`file://${__dirname}/generic-page.html`);
+    });
+
+    after(async () => {
+        await driver.quit();
+    });
 
     describe("parseIn()", () => {
         context("empty EFs", () => {
