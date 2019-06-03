@@ -31,6 +31,8 @@ class SeleniumBrowser {
         // Set commonly-used global vars
         runInstance.g('$', browser.$);
         runInstance.g('$$', browser.$$);
+        runInstance.g('executeScript', browser.executeScript);
+        runInstance.g('executeAsyncScript', browser.executeAsyncScript);
         runInstance.g('props', browser.props);
         runInstance.g('propsAdd', browser.propsAdd);
         runInstance.g('propsClear', browser.propsClear);
@@ -271,6 +273,22 @@ class SeleniumBrowser {
     // TODO
     $$() {
 
+    }
+
+    /**
+     * Executes a script inside the browser
+     * See executeScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
+     */
+    executeScript(script, ...args) {
+        return this.driver.executeScript(script, ...args);
+    }
+
+    /**
+     * Executes a script inside the browser
+     * See executeAsyncScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
+     */
+    executeAsyncScript(script, ...args) {
+        return this.driver.executeAsyncScript(script, ...args);
     }
 
     /**

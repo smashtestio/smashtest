@@ -370,23 +370,21 @@ class ElementFinder {
      * Finds all elements matching this EF at the current moment in time
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
-     * @return {Promise} Promise that resolves to the object { ef: this ef with errors and matched elements set, matches: Array of WebElements that were matched }
+     * @return {Promise} Promise that resolves to the object { ef: this ef with errors set, matches: Array of WebElements that were matched }
      * @throws {Error} If an element array wasn't properly matched
      */
     async getAll(driver, parentElem) {
-        // TODO: Don't forget to log stuff via this.logger (if it's set)
-
         return await driver.executeScript(() => {
             let payload = JSON.parse(arguments[0]);
             let ef = payload.ef;
             let definedProps = initDefinedProps(payload.definedProps);
             let parentElem = arguments[1];
 
-            find(ef, parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*'));
+            findEF(ef, parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*'));
 
             return {
-                ef: JSON.stringify(ef),
-                matches: ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems || ef.matchedElems
+                ef: JSON.stringify(ef, (k, v) => ['matchedElems', 'matchMeElems'].includes(key) ? undefined : v),
+                matches: ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems
             };
 
             /**
@@ -407,46 +405,157 @@ class ElementFinder {
              * Sets ef.matchedElems, ef.matchMeElems, ef.error, and/or ef.blockErrors
              * @param {ElementFinder} ef - The ElementFinder to match
              * @param {Array of Element} pool - Array of DOM elements from which to choose from
+             * @param {Boolean} [additive] - If true, add to existing matchedElems (don't clear it out)
+             * @param {Boolean} [single] - If true, ignore ef's counter and uses a counter of 1x
              */
-            function find(ef, pool) {
+            function findEF(ef, pool, additive, single) {
                 // Clear out existing state
                 ef.error = null;
                 ef.blockErrors = [];
-                ef.matchedElems = [];
                 ef.matchMeElems = [];
+                if(!additive) {
+                    ef.matchedElems = [];
+                }
 
-                let matchedElems = findTopEF(ef, pool);
+                let min = ef.counter.min;
+                let max = ef.counter.max;
+                if(single) {
+                    min = 1;
+                    max = 1;
+                }
 
-                if(ef.isElemArray) {
-                    if(ef.isAnyOrder) {
+                let topElems = findTopEF(ef, pool);
+                let originalTopElemCount = topElems.length;
 
+                if(!hasErrors(ef)) {
+                    if(ef.isElemArray) {
+                        if(ef.isAnyOrder) { // Element array, any order
+                            // Remove from topElems the elems that match up with a child EF
+                            for(let childEF of ef.children) {
+                                findEF(childEF, topElems);
+                                removeFromArr(topElems, childEF.matchedElems);
+                            }
 
+                            if(!ef.isSubset && topElems.length > 0) {
+                                // Set block error for each of topElems still around (these elems weren't matched by the elem array)
+                                for(let topElem of topElems) {
+                                    ef.blockErrors.push(elemSummary(topElem));
+                                }
+                            }
+                        }
+                        else { // Element array, in order
+                            let indexE = 0; // index within topElems
+                            let indexC = 0; // index within ef.children
 
+                            while(indexE < topElems.length || indexC < ef.children.length) { // while at least one index is valid
+                                let currTopElem = topElems[indexE];
+                                let currChildEF = ef.children[indexC];
 
+                                if(!currChildEF) { // indexC went over the edge
+                                    if(!ef.isSubset) {
+                                        ef.blockErrors.push(elemSummary(currTopElem));
+                                    }
 
+                                    indexE++;
+                                }
+                                else if(!currTopElem) { // indexE went over the edge
+                                    currChildEF.error = 'not found';
+                                    indexC++;
+                                }
+                                else { // both indexes still good
+                                    let matchesBefore = currChildEF.matchedElems;
+                                    findEF(currChildEF, [currTopElem], true, true);
 
+                                    if(currChildEF.matchedElems > matchesBefore) { // currChildEF matches currTopElem
+                                        indexE++;
 
+                                        if(currChildEF.matchedElems.length == currChildEF.counter.max) {
+                                            indexC++;
+                                        }
+                                    }
+                                    else {
+                                        if(currChildEF.matchedElems.length == 0) {
+                                            currChildEF.error = "doesn't match " + elemSummary(currTopElem);
+                                            indexE++;
+                                        }
+                                        else if(currChildEF.matchedElems.length < currChildEF.counter.min) {
+                                            currChildEF.error = 'only found ' + currChildEF.matchedElems.length;
+                                        }
+
+                                        indexC++;
+                                    }
+                                }
+                            }
+                        }
                     }
-                    else {
+                    else { // Normal EF
+                        for(let topElem of topElems) {
+                            let pool = topElem.querySelectorAll('*'); // all elements under topElem
+                            for(let childEF of ef.children) {
+                                if(pool.length == 0) {
+                                    removeFromArr(topElems, [topElem]); // topElem has no children left, but more children are expected, so remove topElem from contention
+                                    break;
+                                }
 
+                                findEF(childEF, pool);
 
+                                if(hasErrors(childEF)) {
+                                    removeFromArr(topElems, [topElem]); // topElem's children don't match, so remove it from contention
+                                    break;
+                                }
 
+                                let elemsMatchingChild = childEF.matchedElems;
+                                if(typeof childEF.counter.max != 'undefined') {
+                                    elemsMatchingChild = elemsMatchingChild.slice(0, childEF.counter.max);
+                                }
 
+                                if(ef.isAnyOrder) {
+                                    // Remove all elemsMatchingChild and their descendants from pool
+                                    removeFromArr(pool, elemsMatchingChild);
+                                    removeFromArr(pool, elemsMatchingChild.querySelectorAll('*'));
+                                }
+                                else {
+                                    // Remove from pool all elems before the last elem in elemsMatchingChild
+                                    pool.splice(0, pool.indexOf(elemsMatchingChild[elemsMatchingChild.length - 1]) + 1);
+                                }
+                            }
+                        }
 
+                        if(topElems.length == 0) {
+                            if(originalTopElemCount == 1) {
+                                ef.error = "found, but doesn't contain all the children below";
+                            }
+                            else {
+                                ef.error = originalTopElemCount + " found, but none contain all the children below";
+                                clearErrorsOfChildren(ef);
+                            }
 
-
-
+                            if(!ef.isAnyOrder) {
+                                ef.error += " (in that order)";
+                            }
+                        }
+                        else if(topElems.length < min) {
+                            ef.error = 'only found ' + topElems.length;
+                        }
                     }
                 }
-                else {
 
+                if(!hasErrors(ef)) {
+                    // Success. Set ef.matchedElems
+                    ef.matchedElems = ef.matchedElems.concat(topElems);
+                    if(typeof max != 'undefined') {
+                        ef.matchedElems = ef.matchedElems.concat(topElems.slice(0, max)); // only take up to max elems
+                    }
 
+                    // Copy over matchMeElems from children
+                    ef.children.forEach(function(childEF) {
+                        ef.matchMeElems = childEF.matchMeElems;
+                    });
+                }
 
-
-
-
-
-
+                // Copy over matchedElems if this EF has matchMe set
+                if(ef.matchMe) {
+                    ef.matchMeElems = ef.matchMeElems.concat(ef.matchedElems);
                 }
             }
 
@@ -454,17 +563,18 @@ class ElementFinder {
              * @return {Array of Element} Elements from pool that match the top line in ef. Ignores the counter.
              */
             function findTopEF(ef, pool) {
-                // TODO: remove this line
-                // { prop: 'full prop text', def: 'name of prop', input: 'input text if any', not: true or undefined }
-
-
                 for(let prop of ef.props) {
                     let approvedElems = [];
+
+                    if(!definedProps.hasOwnPropery(prop.def)) {
+                        throw new Error("Prop '" + prop.def + "' is not defined");
+                    }
+
                     for(let def of definedProps[prop.def]) {
                         if(typeof def == 'object') { // def is an EF
-                            find(def, pool);
+                            findEF(def, pool);
                             let matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
-                            approvedElems = approvedElems.concat(pool.filter(elem => matched.includes(elem));
+                            approvedElems = approvedElems.concat(pool.filter(function(elem){ return matched.includes(elem) });
                         }
                         else if(typeof def == 'function') {
                             approvedElems = approvedElems.concat(def(pool, prop.input));
@@ -472,9 +582,59 @@ class ElementFinder {
                     }
 
                     pool = pool.filter(elem => prop.not ? !approvedElems.includes(elem) : approvedElems.includes(elem));
+
+                    if(pool.length == 0) {
+                        ef.error = 'not found (zero matches after `' + prop.prop + '` applied)';
+                    }
                 }
 
                 return pool;
+            }
+
+            /**
+             * @return {Boolean} true if the given EF has errors, false otherwise
+             */
+            function hasErrors(ef) {
+                return ef.error || (ef.blockErrors && ef.blockErrors.length > 0);
+            }
+
+            /**
+             * @return {String} A summary of the given elem
+             */
+            function elemSummary(elem) {
+                return {
+                    header: 'missing',
+                    body: "<" +
+                        elem.tagName +
+                        (elem.id ? " id=' " + elem.id + "'" : "") +
+                        (elem.className ? " class=' " + elem.className + "'" : "") +
+                        ">"
+                };
+            }
+
+            /**
+             * Clears errors of the given EF's children
+             */
+            function clearErrorsOfChildren(ef) {
+                for(let childEF of ef.children) {
+                    childEF.error = null;
+                    childEF.blockErrors = [];
+                    clearErrorsOfChildren(childEF);
+                }
+            }
+
+            /**
+             * Removes from array arr the items inside array items
+             */
+            function removeFromArr(arr, items) {
+                for(let i = 0; i < arr.length;) {
+                    if(items.includes(arr[i])) {
+                        arr.splice(i, 1);
+                    }
+                    else {
+                        i++;
+                    }
+                }
             }
         }, this.serializeJSON(), parentElem);
     }

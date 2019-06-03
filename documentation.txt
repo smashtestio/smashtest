@@ -187,7 +187,11 @@ UI Testing
     - Code
         - TODO
         - JS functions available as part of built-in packages
-        - execInBrowser()
+        - $()
+        - $$()
+        - executeScript()
+        - executeAsyncScript()
+        - Using browser and browser.driver objects
         - Timeout code
         - Stubbing out APIs
 
