@@ -353,8 +353,21 @@ class ElementFinder {
         return spaces + this.line + error + children + blockErrors;
     }
 
+    /**
+     * @return {Boolean} True if this EF or one of its descendants has an error or block error, false otherwise
+     */
     hasErrors() {
+        if(this.error || (this.blockErrors && this.blockErrors.length > 0)) {
+            return true;
+        }
 
+        for(let child of this.children) {
+            if(child.hasErrors()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

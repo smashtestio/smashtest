@@ -14,18 +14,18 @@ describe("ElementFinder", function() {
     let driver = null;
     this.timeout(60000);
 
-    before(async () => {
-        driver = await new Builder()
-            .forBrowser('chrome')
-            .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
-            .build();
-
-        await driver.get(`file://${__dirname}/generic-page.html`);
-    });
-
-    after(async () => {
-        await driver.quit();
-    });
+    // before(async () => {
+    //     driver = await new Builder()
+    //         .forBrowser('chrome')
+    //         .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
+    //         .build();
+    //
+    //     await driver.get(`file://${__dirname}/generic-page.html`);
+    // });
+    //
+    // after(async () => {
+    //     await driver.quit();
+    // });
 
     describe("parseIn()", () => {
         context("empty EFs", () => {
@@ -2057,6 +2057,8 @@ one
                 isAnyOrder: undefined,
                 isSubset: undefined
             });
+
+            expect(efClone instanceof ElementFinder).to.be.true;
         });
 
         it("parses a multi-line EF", () => {
@@ -2157,6 +2159,11 @@ one
                     }
                 ]
             });
+
+            expect(efClone instanceof ElementFinder).to.be.true;
+            expect(efClone.children[0] instanceof ElementFinder).to.be.true;
+            expect(efClone.children[0].children[0] instanceof ElementFinder).to.be.true;
+            expect(efClone.children[1] instanceof ElementFinder).to.be.true;
         });
     });
 
@@ -2355,7 +2362,53 @@ one
     });
 
     describe("hasErrors()", () => {
+        it("returns false if there are no errors", () => {
+            let ef = new ElementFinder(`one`);
+            expect(ef.hasErrors()).to.be.false;
 
+            ef = new ElementFinder(`
+                one
+                    two
+                        three
+            `);
+            expect(ef.hasErrors()).to.be.false;
+        });
+
+        it("returns true if there is an error on the top EF", () => {
+            let ef = new ElementFinder(`one`);
+            ef.error = 'oops';
+            expect(ef.hasErrors()).to.be.true;
+        });
+
+        it("returns true if there is a block error on the top EF", () => {
+            let ef = new ElementFinder(`one`);
+            ef.blockErrors = ['oops'];
+            expect(ef.hasErrors()).to.be.true;
+        });
+
+        it("returns true if there is an error on a descendant", () => {
+            let ef = new ElementFinder(`
+                one
+                    two
+                        three
+                    four
+                        five
+            `);
+            ef.children[1].children[0].error = 'oops';
+            expect(ef.hasErrors()).to.be.true;
+        });
+
+        it("returns true if there is a block error on a descendant", () => {
+            let ef = new ElementFinder(`
+                one
+                    two
+                        three
+                    four
+                        five
+            `);
+            ef.children[1].children[0].blockErrors = ['oops'];
+            expect(ef.hasErrors()).to.be.true;
+        });
     });
 
     describe("serialize()", () => {
