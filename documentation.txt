@@ -221,11 +221,12 @@ ElementFinders
             - Setting props
                 - props({      // sets the one and only prop definition
                     'prop name': 'EF',
-                    'prop name': (elems, input) => array of elems that match    // input is the string passed in
+                    'prop name': function f(elems, input) { return array of elems that match }    // input is the string passed in
                   });
+                    - Note that not all browsers support => notation, so you should use function()
                 - propsAdd({   // adds a definition to prop definition (same syntax as in prop())
                     'prop name': 'EF',
-                    'prop name': (elems, input) => array of elems that match    // input is the string passed in
+                    'prop name': function f(elems, input) { return array of elems that match }    // input is the string passed in
                   });
                 - propsClear(['prop name', 'prop name']) // clears all definitions of the props
             - Built-in properties

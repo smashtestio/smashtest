@@ -181,4 +181,15 @@ describe("Utils", () => {
             });
         });
     });
+
+    describe("getDir()", () => {
+        it("returns a directory", () => {
+            expect(utils.getDir("/one/two/file.txt")).to.equal("/one/two");
+            expect(utils.getDir("/one/file.txt")).to.equal("/one");
+            expect(utils.getDir("/file.txt")).to.equal("");
+            expect(utils.getDir("file.txt")).to.equal("");
+            expect(utils.getDir("")).to.equal("");
+            expect(utils.getDir("/")).to.equal("");
+        });
+    });
 });

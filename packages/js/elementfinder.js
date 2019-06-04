@@ -12,9 +12,10 @@ class ElementFinder {
      * @param {Function} [logger] - The function used to log, which takes in as a parameter the string to log
      * @param {ElementFinder} [parent] - The ElementFinder that's the parent of this one, none if ommitted
      * @param {Number} [lineNumberOffset] - Offset line numbers by this amount (if this EF has a parent), 0 if omitted
+     * @param {Boolean} [noParse] - If true, do not parse str
      * @throws {Error} If there is a parse error
      */
-    constructor(str, definedProps, usedDefinedProps, logger, parent, lineNumberOffset) {
+    constructor(str, definedProps, usedDefinedProps, logger, parent, lineNumberOffset, noParse) {
         this.line = '';                     // The full line representing this EF
 
         this.counter = { min: 1, max: 1 };  // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
@@ -58,7 +59,9 @@ class ElementFinder {
         logger && (this.logger = logger);
 
         // Parse str into this EF
-        this.parseIn(str, definedProps || ElementFinder.defaultProps(), usedDefinedProps, lineNumberOffset || 0);
+        if(!noParse) {
+            this.parseIn(str, definedProps || ElementFinder.defaultProps(), usedDefinedProps, lineNumberOffset || 0);
+        }
     }
 
     /**
@@ -244,7 +247,7 @@ class ElementFinder {
                     input && (prop.input = input);
                     isNot && (prop.not = true);
 
-                    if(['visible', 'any visibility'].includes(canonPropStr)) {
+                    if(['visible', 'any visibility'].indexOf(canonPropStr) != -1) {
                         implicitVisible = false;
                     }
                 }
@@ -261,6 +264,8 @@ class ElementFinder {
                     prop: 'visible',
                     def: 'visible'
                 });
+
+                usedDefinedProps['visible'] = definedProps['visible'];
             }
         }
 
@@ -308,7 +313,7 @@ class ElementFinder {
      * @return {ElementFinder} The EF derived from obj
      */
     static parseObj(obj) {
-        let ef = new ElementFinder("temp");
+        let ef = new ElementFinder(undefined, undefined, undefined, undefined, undefined, undefined, true);
         Object.assign(ef, obj);
         for(let i = 0; i < ef.children.length; i++) {
             ef.children[i] = ElementFinder.parseObj(ef.children[i]);
@@ -411,31 +416,20 @@ class ElementFinder {
      * @throws {Error} If an element array wasn't properly matched
      */
     async getAll(driver, parentElem) {
-        return await driver.executeScript(() => {
+        let obj = await driver.executeScript(function() {
             let payload = JSON.parse(arguments[0]);
             let ef = payload.ef;
-            let definedProps = initDefinedProps(payload.definedProps);
+            let definedProps = payload.definedProps;
             let parentElem = arguments[1];
 
-            findEF(ef, parentElem ? parentElem.querySelectorAll('*') : document.body.querySelectorAll('*'));
+            findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.body.querySelectorAll('*')));
 
             return {
-                ef: JSON.stringify(ef, (k, v) => ['matchedElems', 'matchMeElems'].includes(key) ? undefined : v),
+                ef: JSON.stringify(ef, function(k, v) {
+                    return ['matchedElems', 'matchMeElems'].indexOf(k) != -1 ? undefined : v;
+                }),
                 matches: ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems
             };
-
-            /**
-             * Initializes defined props
-             */
-            function initDefinedProps(definedProps) {
-                for(let prop in definedProps) {
-                    if(definedProps.hasOwnProperty(prop) && typeof prop == 'string') {
-                        definedProps[prop] = eval(definedProps[prop]); // turn stringified function into regular function
-                    }
-                }
-
-                return definedProps;
-            }
 
             /**
              * Finds elements from pool that match the given ef
@@ -464,7 +458,7 @@ class ElementFinder {
                 let topElems = findTopEF(ef, pool);
                 let originalTopElemCount = topElems.length;
 
-                if(!hasErrors(ef)) {
+                if(!hasTopErrors(ef)) {
                     if(ef.isElemArray) {
                         if(ef.isAnyOrder) { // Element array, any order
                             // Remove from topElems the elems that match up with a child EF
@@ -527,7 +521,7 @@ class ElementFinder {
                     }
                     else { // Normal EF
                         for(let topElem of topElems) {
-                            let pool = topElem.querySelectorAll('*'); // all elements under topElem
+                            let pool = toArray(topElem.querySelectorAll('*')); // all elements under topElem
                             for(let childEF of ef.children) {
                                 if(pool.length == 0) {
                                     removeFromArr(topElems, [topElem]); // topElem has no children left, but more children are expected, so remove topElem from contention
@@ -536,7 +530,7 @@ class ElementFinder {
 
                                 findEF(childEF, pool);
 
-                                if(hasErrors(childEF)) {
+                                if(hasTopErrors(childEF)) {
                                     removeFromArr(topElems, [topElem]); // topElem's children don't match, so remove it from contention
                                     break;
                                 }
@@ -549,7 +543,7 @@ class ElementFinder {
                                 if(ef.isAnyOrder) {
                                     // Remove all elemsMatchingChild and their descendants from pool
                                     removeFromArr(pool, elemsMatchingChild);
-                                    removeFromArr(pool, elemsMatchingChild.querySelectorAll('*'));
+                                    removeFromArr(pool, toArray(elemsMatchingChild.querySelectorAll('*')));
                                 }
                                 else {
                                     // Remove from pool all elems before the last elem in elemsMatchingChild
@@ -577,7 +571,7 @@ class ElementFinder {
                     }
                 }
 
-                if(!hasErrors(ef)) {
+                if(!hasTopErrors(ef)) {
                     // Success. Set ef.matchedElems
                     ef.matchedElems = ef.matchedElems.concat(topElems);
                     if(typeof max != 'undefined') {
@@ -611,14 +605,15 @@ class ElementFinder {
                         if(typeof def == 'object') { // def is an EF
                             findEF(def, pool);
                             let matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
-                            approvedElems = approvedElems.concat(pool.filter(function(elem){ return matched.includes(elem) }));
+                            approvedElems = approvedElems.concat(intersectArr(pool, matched));
                         }
-                        else if(typeof def == 'function') {
-                            approvedElems = approvedElems.concat(def(pool, prop.input));
+                        else if(typeof def == 'string') { // stringified function
+                            eval('var f = ' + def);
+                            approvedElems = approvedElems.concat(f(pool, prop.input));
                         }
                     }
 
-                    pool = pool.filter(elem => prop.not ? !approvedElems.includes(elem) : approvedElems.includes(elem));
+                    pool = prop.not ? intersectArrNot(pool, approvedElems) : intersectArr(pool, approvedElems);
 
                     if(pool.length == 0) {
                         ef.error = 'not found (zero matches after `' + prop.prop + '` applied)';
@@ -630,9 +625,9 @@ class ElementFinder {
             }
 
             /**
-             * @return {Boolean} true if the given EF has errors, false otherwise (only applies to top EF, not children)
+             * @return {Boolean} true if the given EF's top parent has errors, false otherwise (only applies to top EF, not children)
              */
-            function hasErrors(ef) {
+            function hasTopErrors(ef) {
                 return ef.error || (ef.blockErrors && ef.blockErrors.length > 0);
             }
 
@@ -659,11 +654,65 @@ class ElementFinder {
             }
 
             /**
+             * @param {List or Array} list
+             * @return {Array} Array with same contents as arr
+             */
+            function toArray(list) {
+                let newArr = [];
+                for(let item of list) {
+                    newArr.push(item);
+                }
+                return newArr;
+            }
+
+            /**
+             * @param {Array} arr1
+             * @param {Array} arr2
+             * @return {Array} Array consisting of items found in both arr1 and arr2
+             */
+            function intersectArr(arr1, arr2) {
+                let newArr = [];
+                for(let i = 0; i < arr1.length; i++) {
+                    for(let j = 0; j < arr2.length; j++) {
+                        if(arr1[i] === arr2[j]) {
+                            newArr.push(arr1[i]);
+                            break;
+                        }
+                    }
+                }
+
+                return newArr;
+            }
+
+            /**
+             * @param {Array} arr1
+             * @param {Array} arr2
+             * @return {Array} Array consisting of items found in arr1 and not in arr2
+             */
+            function intersectArrNot(arr1, arr2) {
+                let newArr = [];
+                for(let i = 0; i < arr1.length; i++) {
+                    let found = false;
+                    for(let j = 0; j < arr2.length; j++) {
+                        if(arr1[i] === arr2[j]) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found) {
+                        newArr.push(arr1[i]);
+                    }
+                }
+
+                return newArr;
+            }
+
+            /**
              * Removes from array arr the items inside array items
              */
             function removeFromArr(arr, items) {
                 for(let i = 0; i < arr.length;) {
-                    if(items.includes(arr[i])) {
+                    if(items.indexOf(arr[i]) != -1) {
                         arr.splice(i, 1);
                     }
                     else {
@@ -672,6 +721,11 @@ class ElementFinder {
                 }
             }
         }, this.serializeJSON(), parentElem);
+
+        return {
+            ef: JSON.parse(obj.ef),
+            matches: obj.matches
+        };
     }
 
     /**
@@ -738,199 +792,306 @@ class ElementFinder {
 
     /**
      * @return {Object} An object with all the default props to be fed into the constructor's definedProps
-     * NOTE: definedProps are injected into the browser to be executed, so don't reference anything outside each function
+     * NOTE: definedProps are injected into the browser to be executed, so don't reference anything outside each function and
+     * make sure all js features used will work in every browser supported
      */
     static defaultProps() {
         return {
-            'visible': [ (elems, input) => {
-                return elems.filter(elem => {
-                    if(elem.offsetWidth == 0 || elem.offsetHeight == 0) {
-                        return false;
-                    }
+            'visible': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        if(elem.offsetWidth == 0 || elem.offsetHeight == 0) {
+                            return false;
+                        }
 
-                    var cs = window.getComputedStyle(elem);
+                        var cs = window.getComputedStyle(elem);
 
-                    if(cs.visibility == 'hidden' || cs.visibility == 'collapse') {
-                        return false;
-                    }
+                        if(cs.visibility == 'hidden' || cs.visibility == 'collapse') {
+                            return false;
+                        }
 
-                    if(cs.opacity == '0') {
-                        return false;
-                    }
-
-                    // Check opacity of parents
-                    elem = elem.parentElement;
-                    while(elem) {
-                        cs = window.getComputedStyle(elem);
                         if(cs.opacity == '0') {
                             return false;
                         }
+
+                        // Check opacity of parents
                         elem = elem.parentElement;
-                    }
+                        while(elem) {
+                            cs = window.getComputedStyle(elem);
+                            if(cs.opacity == '0') {
+                                return false;
+                            }
+                            elem = elem.parentElement;
+                        }
 
-                    return true;
-                });
-            } ],
+                        return true;
+                    });
+                }
+            ],
 
-            'any visibility': [ (elems, input) => elems ],
+            'any visibility': [
+                function(elems, input) {
+                    return elems;
+                }
+            ],
 
-            'enabled': [ (elems, input) => elems.filter(elem => !elem.getAttribute('disabled')) ],
+            'enabled': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        return !elem.getAttribute('disabled');
+                    });
+                }
+            ],
 
-            'disabled': [ (elems, input) => elems.filter(elem => elem.getAttribute('disabled')) ],
+            'disabled': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        return elem.getAttribute('disabled');
+                    });
+                }
+            ],
 
-            'checked': [ (elems, input) => elems.filter(elem => elem.checked) ],
+            'checked': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        return elem.checked;
+                    });
+                }
+            ],
 
-            'unchecked': [ (elems, input) => elems.filter(elem => !elem.checked) ],
+            'unchecked': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        return !elem.checked;
+                    });
+                }
+            ],
 
-            'selected': [ (elems, input) => elems.filter(elem => elem.selected) ],
+            'selected': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        return elem.selected;
+                    });
+                }
+            ],
 
-            'focused': [ (elems, input) => elems.filter(elem => elem === document.activeElement) ],
+            'focused': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        return elem === document.activeElement;
+                    });
+                }
+            ],
 
-            'element': [ (elems, input) => elems ],
+            'element': [
+                function(elems, input) {
+                    return elems;
+                }
+            ],
 
-            'clickable': [ (elems, input) => {
-                return elems.filter(elem => {
-                    let tagName = element.tagName.toLowerCase();
-                    return tagName == 'a' ||
-                        tagName == 'button' ||
-                        tagName == 'label' ||
-                        tagName == 'input' ||
-                        tagName == 'textarea' ||
-                        tagName == 'select' ||
-                        window.getComputedStyle(element).getPropertyValue('cursor') == 'pointer';
-                        // TODO: handle cursor:pointer when hovered over
-                });
-            } ],
+            'clickable': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        let tagName = element.tagName.toLowerCase();
+                        return tagName == 'a' ||
+                            tagName == 'button' ||
+                            tagName == 'label' ||
+                            tagName == 'input' ||
+                            tagName == 'textarea' ||
+                            tagName == 'select' ||
+                            window.getComputedStyle(element).getPropertyValue('cursor') == 'pointer';
+                            // TODO: handle cursor:pointer when hovered over
+                    });
+                }
+            ],
 
-            'page title': [ (elems, input) => document.title == input ? elems : [] ],
+            'page title': [
+                function(elems, input) {
+                    return document.title == input ? elems : [];
+                }
+            ],
 
-            'page title contains': [ (elems, input) => document.title.includes(input) ? elems : [] ],
+            'page title contains': [
+                function(elems, input) {
+                    return document.title.indexOf(input) != -1 ? elems : [];
+                }
+            ],
 
-            'page url': [ (elems, input) => window.location.href == input || window.location.href.replace(/^https?:\/\//, '') == input ? elems : [] ], // absolute or relative
+            'page url': [
+                function(elems, input) { // absolute or relative
+                    return window.location.href == input || window.location.href.replace(/^https?:\/\//, '') == input ? elems : [];
+                }
+            ],
 
-            'page url contains': [ (elems, input) => window.location.href.includes(input) || window.location.href.replace(/^https?:\/\//, '').includes(input) ? elems : [] ], // absolute or relative
+            'page url contains': [
+                function(elems, input) { // absolute or relative
+                    return window.location.href.indexOf(input) != -1 || window.location.href.replace(/^https?:\/\//, '').indexOf(input) != -1 ? elems : [];
+                }
+            ],
 
             // Takes each elem and expands the container around it to its parent, parent's parent etc. until a container
             // containing input is found. Matches multiple elems if there's a tie.
-            'next to': [ (elems, input) => {
-                let canon = (str) => str ? str.trim().toLowerCase().replace(/\s+/, ' ') : '';
-                input = canon(input);
+            'next to': [
+                function(elems, input) {
+                    function canon(str) {
+                        return str ? str.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+                    }
 
-                let containers = elems;
-                let atBody = false;
+                    input = canon(input);
 
-                while(!atBody) { // if a container reaches document.body and nothing is still found, input doesn't exist on the page
-                    containers = containers.map(container => container.parentElement);
-                    containers.forEach(container => {
-                        if(container === document.body) {
-                            atBody = true;
+                    let containers = elems;
+                    let atBody = false;
+
+                    while(!atBody) { // if a container reaches document.body and nothing is still found, input doesn't exist on the page
+                        containers = containers.map(function(container) { return container.parentElement });
+                        containers.forEach(function(container) {
+                            if(container === document.body) {
+                                atBody = true;
+                            }
+                        });
+
+                        let matchedElems = [];
+
+                        containers.forEach(function(container, index) {
+                            if(canon(container.innerText).indexOf(input) != -1) {
+                                matchedElems.push(elems[index]);
+                            }
+                        });
+
+                        if(matchedElems.length > 0) {
+                            return matchedElems;
                         }
-                    });
-
-                    let matchedElems = [];
-
-                    containers.forEach((container, index) => {
-                        if(canon(container.innerText).includes(input)) {
-                            matchedElems.push(elems[index]);
-                        }
-                    });
-
-                    if(matchedElems.length > 0) {
-                        return matchedElems;
-                    }
-                }
-
-                return [];
-            } ],
-
-            'value': [ (elems, input) => elems.filter(elem => elem.value == input) ],
-
-            // Text is contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
-            'contains': [ (elems, input) => {
-                let canon = (str) => str ? str.trim().toLowerCase().replace(/\s+/, ' ') : '';
-                input = canon(input);
-
-                let isMatch = (str) => canon(str).includes(input);
-
-                return elems.filter(elem => {
-                    let labelText = '';
-                    let label = document.querySelector(`label[for="${CSS.escape(elem.id)}"]`);
-                    if(label) {
-                        labelText = label.innerText;
                     }
 
-                    let dropdownText = '';
-                    if(elem.hasOwnProperty('options') && elem.hasOwnProperty('selectedIndex')) {
-                        dropdownText = elem.options[elem.selectedIndex].text;
-                    }
-
-                    return isMatch(elem.innerText) ||
-                        isMatch(elem.value) ||
-                        isMatch(elem.placeholder) ||
-                        isMatch(labelText) ||
-                        isMatch(dropdownText);
-                });
-            } ],
-
-            // Text is the exclusive and exact text in innerText, value (including selected item in a select), placeholder, or associated label innerText
-            'contains exact': [ (elems, input) => {
-                let isMatch = (str) => str == input;
-
-                return elems.filter(elem => {
-                    let labelText = '';
-                    let label = document.querySelector(`label[for="${CSS.escape(elem.id)}"]`);
-                    if(label) {
-                        labelText = label.innerText;
-                    }
-
-                    let dropdownText = '';
-                    if(elem.hasOwnProperty('options') && elem.hasOwnProperty('selectedIndex')) {
-                        dropdownText = elem.options[elem.selectedIndex].text;
-                    }
-
-                    return isMatch(elem.innerText) ||
-                        isMatch(elem.value) ||
-                        isMatch(elem.placeholder) ||
-                        isMatch(labelText) ||
-                        isMatch(dropdownText);
-                });
-            } ],
-
-            'innertext': [ (elems, input) => elems.filter(elem => (elem.innerText || '').includes(input)) ],
-
-            'selector': [ (elems, input) => {
-                let nodes = document.querySelectorAll(input);
-                return elems.filter(nodes.includes(elem));
-            } ],
-
-            'xpath': [ (elems, input) => {
-                let result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
-                let node = null;
-                let nodes = [];
-                while(node = result.iterateNext()) {
-                    nodes.push(node);
-                }
-
-                return elems.filter(nodes.includes(elem));
-            } ],
-
-            // Has css style name:value
-            'style': [ (elems, input) => {
-                let matches = input.match(/^([^: ]+):(.*)$/);
-                if(!matches) {
                     return [];
                 }
+            ],
 
-                let name = matches[1];
-                let value = matches[2];
+            'value': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        return elem.value == input;
+                    });
+                }
+            ],
 
-                return elems.filter(elem => getComputedStyle(elem).name.toString() == value);
-            } ],
+            // Text is contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
+            'contains': [
+                function(elems, input) {
+                    function canon(str) {
+                        return str ? str.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+                    }
+
+                    input = canon(input);
+
+                    function isMatch(str) {
+                        return canon(str).indexOf(input) != -1;
+                    }
+
+                    return elems.filter(function(elem) {
+                        let labelText = '';
+                        let labelElem = document.querySelector('label[for="' + CSS.escape(elem.id) + '"]');
+                        if(labelElem) {
+                            labelText = labelElem.innerText;
+                        }
+
+                        let dropdownText = '';
+                        if(elem.hasOwnProperty('options') && elem.hasOwnProperty('selectedIndex')) {
+                            dropdownText = elem.options[elem.selectedIndex].text;
+                        }
+
+                        return isMatch(elem.innerText) ||
+                            isMatch(elem.value) ||
+                            isMatch(elem.placeholder) ||
+                            isMatch(labelText) ||
+                            isMatch(dropdownText);
+                    });
+                }
+            ],
+
+            // Text is the exclusive and exact text in innerText, value (including selected item in a select), placeholder, or associated label innerText
+            'contains exact': [
+                function(elems, input) {
+                    function isMatch(str) {
+                        return str == input;
+                    }
+
+                    return elems.filter(function(elem) {
+                        let labelText = '';
+                        let labelElem = document.querySelector('label[for="' + CSS.escape(elem.id) + '"]');
+                        if(labelElem) {
+                            labelText = labelElem.innerText;
+                        }
+
+                        let dropdownText = '';
+                        if(elem.hasOwnProperty('options') && elem.hasOwnProperty('selectedIndex')) {
+                            dropdownText = elem.options[elem.selectedIndex].text;
+                        }
+
+                        return isMatch(elem.innerText) ||
+                            isMatch(elem.value) ||
+                            isMatch(elem.placeholder) ||
+                            isMatch(labelText) ||
+                            isMatch(dropdownText);
+                    });
+                }
+            ],
+
+            'innertext': [
+                function(elems, input) {
+                    return elems.filter(function(elem) {
+                        return (elem.innerText || '').indexOf(input) != -1;
+                    });
+                }
+            ],
+
+            'selector': [
+                function(elems, input) {
+                    let nodes = document.querySelectorAll(input);
+                    return elems.filter(function(elem) {
+                        return nodes.indexOf(elem) != -1;
+                    });
+                }
+            ],
+
+            'xpath': [
+                function(elems, input) {
+                    let result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
+                    let node = null;
+                    let nodes = [];
+                    while(node = result.iterateNext()) {
+                        nodes.push(node);
+                    }
+
+                    return elems.filter(function(elem) {
+                        return nodes.indexOf(elem) != -1;
+                    });
+                }
+            ],
+
+            // Has css style name:value
+            'style': [
+                function(elems, input) {
+                    let matches = input.match(/^([^: ]+):(.*)$/);
+                    if(!matches) {
+                        return [];
+                    }
+
+                    let name = matches[1];
+                    let value = matches[2];
+
+                    return elems.filter(function(elem) {
+                        return getComputedStyle(elem).name.toString() == value;
+                    });
+                }
+            ],
 
             // Same as an ord, returns nth elem, where n is 1-indexed
-            'position': [ (elems, input) => {
-                return elems[parseInt(input) - 1];
-            } ]
+            'position': [
+                function(elems, input) {
+                    return elems[parseInt(input) - 1];
+                }
+            ]
         };
     }
 

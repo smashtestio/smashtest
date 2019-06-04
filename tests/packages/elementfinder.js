@@ -14,18 +14,18 @@ describe("ElementFinder", function() {
     let driver = null;
     this.timeout(60000);
 
-    // before(async () => {
-    //     driver = await new Builder()
-    //         .forBrowser('chrome')
-    //         .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
-    //         .build();
-    //
-    //     await driver.get(`file://${__dirname}/generic-page.html`);
-    // });
-    //
-    // after(async () => {
-    //     await driver.quit();
-    // });
+    async function startBrowser() {
+        driver = await new Builder()
+            .forBrowser('chrome')
+            .setChromeOptions(HEADLESS ? new chrome.Options().headless() : new chrome.Options())
+            .build();
+
+        await driver.get(`file://${__dirname}/generic-page.html`);
+    }
+
+    async function stopBrowser() {
+        await driver.quit();
+    }
 
     describe("parseIn()", () => {
         context("empty EFs", () => {
@@ -2593,25 +2593,30 @@ one
     });
 
     describe("getAll()", () => {
+        before(startBrowser);
+        after(stopBrowser);
+
         context("normal EFs", () => {
             context("one line", () => {
                 context("'text'", () => {
                     it.skip("finds elements based on innerText", async () => {
                         let ef = new ElementFinder(`'one'`);
-                        await ef.getAll(driver);
-                        console.log(ef.matchedElems);
+                        let results = await ef.getAll(driver);
 
-
-
-
-
-
-
-
+                        results.ef = ElementFinder.parseObj(results.ef);
+                        expect(results.ef.hasErrors()).to.be.false;
+                        expect(results.matches).to.have.lengthOf.at.least(4);
                     });
 
-                    it.skip("finds elements based on innerText, where the matching text is of a different case and has differing whitespace", () => {
+                    it("finds elements based on innerText, where the matching text is of a different case and has differing whitespace", () => {
                         // Containing, lower case, trimmed, and whitespace-to-single-space match
+
+
+
+
+
+
+
                     });
 
                     it.skip("finds elements based on value", () => {

@@ -1985,6 +1985,11 @@ c     = copy text of branch
                         lineClassName += "active ";
                     }
 
+                    let frontMods = this.props.stepNode.frontModifiers ? this.props.stepNode.frontModifiers.filter(mod => ['-'].includes(mod)).join(' ') + ' ' : '';
+                    let backMods = this.props.stepNode.backModifiers ? ' ' + this.props.stepNode.backModifiers.filter(mod => ['-'].includes(mod)).join(' ') : '';
+                    frontMods = frontMods.replace(/^\s+$/, ''); // remove it if it's all whitespace
+                    backMods = backMods.replace(/^\s+$/, '');
+
                     let lineElem = (
                         <span className="line-container">
                             <span className={contentClassName}>
@@ -1993,11 +1998,7 @@ c     = copy text of branch
                                     hasLevels={this.props.hasLevels}
                                 />
                                 <span className="step-text">
-                                    {
-                                        (this.props.stepNode.frontModifiers ? this.props.stepNode.frontModifiers.filter(mod => ['-'].includes(mod)).join(' ') + ' ' : '') +
-                                        this.props.stepNode.text +
-                                        (this.props.stepNode.backModifiers ? ' ' + this.props.stepNode.backModifiers.filter(mod => ['-'].includes(mod)).join(' ') : '')
-                                    }
+                                    {frontMods + this.props.stepNode.text + backMods}
                                 </span>
                                 {pill}
                             </span>

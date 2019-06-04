@@ -242,3 +242,10 @@ exports.serializeError = (error) => {
         lineNumber: error.lineNumber
     };
 }
+
+/**
+ * @return {String} the directory of the given filename (e.g., /one/two/three.txt --> /one/two)
+ */
+exports.getDir = (filename) => {
+    return filename.replace(/(^|\/)[^\/]*$/, '');
+}

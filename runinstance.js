@@ -14,6 +14,7 @@ class RunInstance {
         this.tree = this.runner.tree;                   // Tree currently being executed
         this.currBranch = null;                         // Branch currently being executed
         this.currStep = null;                           // Step currently being executed
+        this.currFilename = null;                       // Filename of the step currently being executed
 
         this.isPaused = false;                          // true if we're currently paused (and we can only pause if there's just one branch in this.tree)
         this.isStopped = false;                         // true if we're permanently stopping this RunInstance
@@ -118,6 +119,7 @@ class RunInstance {
      */
     async runStep(step, branch, overrideDebug) {
         let stepNode = this.tree.stepNodeIndex[step.id];
+        this.currFilename = stepNode.filename;
 
         if(this.tree.getModifier(step, 'isBeforeDebug') && !overrideDebug) {
             this.setPause(true);
@@ -372,6 +374,7 @@ class RunInstance {
     async runHookStep(step, stepToGetError, branchToGetError) {
         let stepNode = this.tree.stepNodeIndex[step.id];
         let codeBlock = this.tree.getCodeBlock(step);
+        this.currFilename = stepNode.filename;
 
         try {
             await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.lineNumber, stepToGetError || branchToGetError);
@@ -611,14 +614,14 @@ class RunInstance {
     }
 
     /**
-     * @return Text of the current step, or null if there's no current step
+     * @return Current step node, or null if there's no current step
      */
-    getStepText() {
+    getCurrStepNode() {
         if(!this.currStep) {
             return null;
         }
 
-        return this.tree.stepNodeIndex[this.currStep.id].text;
+        return this.tree.stepNodeIndex[this.currStep.id];
     }
 
     /**
@@ -647,6 +650,12 @@ class RunInstance {
         }
 
         if(!this.getPersistent(varName)) {
+            const LOCAL_FILENAME_START = /^\.\/|^\.\.\//;
+            if(packageName.match(LOCAL_FILENAME_START)) { // local file (non-npm package)
+                packageName = packageName.replace(LOCAL_FILENAME_START, '');
+                packageName = `${__dirname}/${utils.getDir(this.currFilename)}/${packageName}`;
+            }
+
             this.setPersistent(varName, require(packageName));
         }
         return this.getPersistent(varName);
@@ -709,8 +718,8 @@ class RunInstance {
             return runInstance.l(varname, value);
         }
 
-        function getStepText() {
-            return runInstance.getStepText();
+        function getCurrStepNode() {
+            return runInstance.getCurrStepNode();
         }
 
         function i(name1, name2) {

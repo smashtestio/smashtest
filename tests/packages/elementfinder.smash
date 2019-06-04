@@ -1,0 +1,37 @@
+- getAll() {
+    i('ElementFinder', '../../packages/js/elementfinder.js');
+}
+
+    $ open chrome
+    open firefox
+
+        open test page +
+
+            - normal EFs
+                - one line
+                    - text
+                        finds elements based on innerText {
+                            let ef = new ElementFinder(`'one'`);
+                            let results = await ef.getAll(browser.driver);
+
+                            results.ef = ElementFinder.parseObj(results.ef);
+                            expect(results.ef.hasErrors()).to.be.false;
+                            expect(results.matches).to.have.lengthOf.at.least(4);
+                        }
+
+                    - defined prop $s
+                    - selector $s
+                    - ord $s
+                    - counter $s
+                    - match me $s
+                    - multiple props $s
+                    - visible prop $s
+                    - errors $s
+
+                - one child $s
+                - one level of children $s
+                - multiple levels of children $s
+            - element array EFs $s
+
+* open test page
+    navigate to 'file:///Users/vptes1/Documents/Projects/smashtest/tests/packages/generic-page.html'
