@@ -166,6 +166,9 @@ class StepNode {
                 if(this.isFunctionDeclaration) {
                     utils.error(`A function declaration cannot be a textual step (-) as well`, filename, lineNumber);
                 }
+                if(this.hasCodeBlock()) {
+                    utils.error(`A step with a code block cannot be a textual step (-) as well`, filename, lineNumber);
+                }
             }
             if(this.modifiers.includes('$')) {
                 this.isOnly = true;

@@ -2715,7 +2715,7 @@ C
         code;
         more code;
     }
-        Another code block - {
+        Another code block {
             blah;
         }`
                 , "file.txt");

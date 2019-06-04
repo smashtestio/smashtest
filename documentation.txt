@@ -734,7 +734,7 @@ Variables
 Code blocks
     - Types
         - * Function {code}
-        - Textual step {code} or Textual step - {code}
+        - Step name {code}
     - Code blocks end on a line that starts with '}' and is the exact number of indents as the step that started the code block
         - Captures code in between "Text {" and the } line (not including anything on the } line)
     - +, .., etc. modifiers come after the step text and before the {

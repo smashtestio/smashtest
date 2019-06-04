@@ -277,6 +277,16 @@ describe("StepNode", () => {
                 }, "A function declaration cannot be a textual step (-) as well [file.txt:10]");
             });
 
+            it("throws an error if a textual step has a code block", () => {
+                assert.throws(() => {
+                    s.parseLine(`Something - {`, "file.txt", 10);
+                }, "A step with a code block cannot be a textual step (-) as well [file.txt:10]");
+
+                assert.throws(() => {
+                    s.parseLine(`    Something - + {`, "file.txt", 10);
+                }, "A step with a code block cannot be a textual step (-) as well [file.txt:10]");
+            });
+
             it("returns text set to empty string for empty or all-whitespace lines", () => {
                 s = new StepNode(0);
                 s.parseLine(``, "file.txt", 10);
@@ -309,8 +319,8 @@ describe("StepNode", () => {
                 assert.equal(s.codeBlock, ' ');
             });
 
-            it("parses a textual step with a code block", () => {
-                s.parseLine(`Some text + - { `, "file.txt", 10);
+            it("parses a step with a code block", () => {
+                s.parseLine(`Some text + { `, "file.txt", 10);
                 assert.equal(s.text, `Some text`);
                 assert.equal(s.codeBlock, ' ');
             });

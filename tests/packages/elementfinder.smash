@@ -2,7 +2,7 @@
     i('ElementFinder', '../../packages/js/elementfinder.js');
 }
 
-    $ open chrome
+    open chrome
     open firefox
 
         open test page +

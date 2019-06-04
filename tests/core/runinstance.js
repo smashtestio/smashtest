@@ -1086,7 +1086,7 @@ A -
             it("executes a step with a code block", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A - {
+A {
     runInstance.flag = true;
 }
                 `, "file.txt");
@@ -2820,7 +2820,7 @@ My 'foobar' function
                 tree.parseIn(`
 {{one}}='foo'
 
-    Check that the original value is here - {
+    Check that the original value is here {
         runInstance.one = one;
     }
 
