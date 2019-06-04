@@ -1,15 +1,18 @@
-- getAll() {
+getAll() {
     i('ElementFinder', '../../packages/js/elementfinder.js');
 }
 
     open chrome
     open firefox
 
-        open test page +
+        open test page
 
             - normal EFs
+
                 - one line
+
                     - text
+
                         finds elements based on innerText {
                             let ef = new ElementFinder(`'one'`);
                             let results = await ef.getAll(browser.driver);
@@ -19,7 +22,34 @@
                             expect(results.matches).to.have.lengthOf.at.least(4);
                         }
 
-                    - defined prop $s
+                        $s finds elements based on innerText, where the matching text is of a different case and has differing whitespace {
+                            // Containing, lower case, trimmed, and whitespace-to-single-space match
+                        }
+
+                        $s finds elements based on value {
+
+                        }
+
+                        $s finds elements based on placeholder {
+
+                        }
+
+                        $s finds elements based on an associated label's innerText {
+
+                        }
+
+                        $s doesn't find elements based on text {
+                            // verify error message with -->'s
+                        }
+
+                        $s finds elements based on text that spans multiple elements {
+
+                        }
+
+                    - defined prop
+
+
+
                     - selector $s
                     - ord $s
                     - counter $s
@@ -31,7 +61,9 @@
                 - one child $s
                 - one level of children $s
                 - multiple levels of children $s
+
             - element array EFs $s
 
-* open test page
-    navigate to 'file:///Users/vptes1/Documents/Projects/smashtest/tests/packages/generic-page.html'
+* open test page {
+    await browser.nav(`file:///${dir()}/generic-page.html`);
+}

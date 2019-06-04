@@ -14,7 +14,6 @@ class RunInstance {
         this.tree = this.runner.tree;                   // Tree currently being executed
         this.currBranch = null;                         // Branch currently being executed
         this.currStep = null;                           // Step currently being executed
-        this.currFilename = null;                       // Filename of the step currently being executed
 
         this.isPaused = false;                          // true if we're currently paused (and we can only pause if there's just one branch in this.tree)
         this.isStopped = false;                         // true if we're permanently stopping this RunInstance
@@ -119,7 +118,6 @@ class RunInstance {
      */
     async runStep(step, branch, overrideDebug) {
         let stepNode = this.tree.stepNodeIndex[step.id];
-        this.currFilename = stepNode.filename;
 
         if(this.tree.getModifier(step, 'isBeforeDebug') && !overrideDebug) {
             this.setPause(true);
@@ -272,7 +270,7 @@ class RunInstance {
                     }
 
                     inCodeBlock = true;
-                    let retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getLineNumberOffset(step), step);
+                    let retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getFilenameOfCodeBlock(step), this.getLineNumberOffset(step), step);
                     inCodeBlock = false;
 
                     // Step is {var} = Func or Text { code block }
@@ -374,10 +372,9 @@ class RunInstance {
     async runHookStep(step, stepToGetError, branchToGetError) {
         let stepNode = this.tree.stepNodeIndex[step.id];
         let codeBlock = this.tree.getCodeBlock(step);
-        this.currFilename = stepNode.filename;
 
         try {
-            await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.lineNumber, stepToGetError || branchToGetError);
+            await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.filename, stepNode.lineNumber, stepToGetError || branchToGetError);
         }
         catch(e) {
             this.fillErrorFromStep(e, step, true);
@@ -632,12 +629,13 @@ class RunInstance {
     }
 
     /**
-     * i(varName, packageName) or i(packageName)
+     * i(varName, packageName, filename) or i(packageName, undefined, filename)
      * Imports (via require()) the given package, sets persistent var varName to the imported object and returns the imported object
      * If a persistent var with that name already exists, this function only returns the value of that var
      * If only a package name is included, the var name is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
+     * The filename is the filename of the step being executed
      */
-    i(name1, name2) {
+    i(name1, name2, filename) {
         let packageName = null;
         let varName = null;
         if(typeof name2 == 'undefined') {
@@ -650,10 +648,8 @@ class RunInstance {
         }
 
         if(!this.getPersistent(varName)) {
-            const LOCAL_FILENAME_START = /^\.\/|^\.\.\//;
-            if(packageName.match(LOCAL_FILENAME_START)) { // local file (non-npm package)
-                packageName = packageName.replace(LOCAL_FILENAME_START, '');
-                packageName = `${__dirname}/${utils.getDir(this.currFilename)}/${packageName}`;
+            if(packageName.match(/^\.\/|^\.\.\//)) { // local file (non-npm package)
+                packageName = `${this.dir(filename)}/${packageName}`;
             }
 
             this.setPersistent(varName, require(packageName));
@@ -662,15 +658,23 @@ class RunInstance {
     }
 
     /**
+     * @return {String} Absolute directory of the file where the currently executing step is
+     */
+    dir(filename) {
+        return `${process.cwd()}/${utils.getDir(filename)}`;
+    }
+
+    /**
      * Evals the given code block
      * @param {String} code - JS code to eval
      * @param {String} [funcName] - The name of the function associated with code
+     * @param {String} [filename] - The filename of the file where the function resides
      * @param {Number} [lineNumber] - The line number of the function, used to properly adjust line numbers in stack traces (1 if omitted)
      * @param {Step or Branch} [logHere] - The Object to log to, if any
      * @param {Boolean} [isSync] - If true, the code will be executed synchronously
      * @return {Promise} Promise that gets resolved with what code returns
      */
-    evalCodeBlock(code, funcName, lineNumber, logHere, isSync) {
+    evalCodeBlock(code, funcName, filename, lineNumber, logHere, isSync) {
         if(typeof lineNumber == 'undefined') {
             lineNumber = 1;
         }
@@ -723,7 +727,11 @@ class RunInstance {
         }
 
         function i(name1, name2) {
-            return runInstance.i(name1, name2);
+            return runInstance.i(name1, name2, filename);
+        }
+
+        function dir() {
+            return runInstance.dir(filename);
         }
 
         function c(s) {
@@ -905,7 +913,7 @@ class RunInstance {
                         let value = null;
                         if(this.tree.hasCodeBlock(s)) {
                             // {varname}=Function (w/ code block)
-                            value = this.evalCodeBlock(this.tree.getCodeBlock(s), sNode.text, sNode.lineNumber, s, true);
+                            value = this.evalCodeBlock(this.tree.getCodeBlock(s), sNode.text, sNode.filename, sNode.lineNumber, s, true);
 
                             // Note: {varname}=Function without code block, where another {varname}= is further below, had its varBeingSet removed already
                         }
@@ -1074,6 +1082,20 @@ class RunInstance {
         }
         else {
             return stepNode.lineNumber;
+        }
+    }
+
+    /**
+     * @return {String} The filename of the given step's code block
+     */
+    getFilenameOfCodeBlock(step) {
+        let stepNode = this.tree.stepNodeIndex[step.id];
+        if(stepNode.hasCodeBlock()) {
+            return stepNode.filename;
+        }
+        else {
+            let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
+            return functionDeclarationNode.filename;
         }
     }
 

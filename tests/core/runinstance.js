@@ -5099,14 +5099,14 @@ First step {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("return 5;", null, 0, null, true)).to.equal(5);
+            expect(runInstance.evalCodeBlock("return 5;", undefined, undefined, 0, undefined, true)).to.equal(5);
         });
 
         it("returns undefined when executing code that has no return value synchronously", () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
 
-            expect(runInstance.evalCodeBlock("5;", null, 0, null, true)).to.equal(undefined);
+            expect(runInstance.evalCodeBlock("5;", undefined, undefined, 0, undefined, true)).to.equal(undefined);
         });
 
         it("makes the persistent, global, and local objects available", async () => {
@@ -5193,7 +5193,7 @@ First step {
             let runInstance = new RunInstance(runner);
             let step = new Step();
 
-            await runInstance.evalCodeBlock("log('foobar');", null, 0, step);
+            await runInstance.evalCodeBlock("log('foobar');", undefined, undefined, 0, step);
 
             expect(step.log).to.eql([
                 {text: "foobar"}
@@ -5210,7 +5210,7 @@ First step {
                 await runInstance.evalCodeBlock(`
                     let a = 1;
                     let b = 2;
-                    throw new Error('oops');`, "Oops function!", 10, step);
+                    throw new Error('oops');`, "Oops function!", undefined, 10, step);
             }
             catch(e) {
                 errorThrown = true;
@@ -5221,7 +5221,7 @@ First step {
             expect(errorThrown).to.be.true;
         });
 
-        it("handles an error inside the code, with a function name and no line number", async () => {
+        it("handles an error inside the code, with a function name and no filename or line number", async () => {
             let runner = new Runner(new Tree());
             let runInstance = new RunInstance(runner);
             let step = new Step();
@@ -5231,7 +5231,7 @@ First step {
                 await runInstance.evalCodeBlock(`
                     let a = 1;
                     let b = 2;
-                    throw new Error('oops');`, "Oops function!", undefined, step);
+                    throw new Error('oops');`, "Oops function!", undefined, undefined, step);
             }
             catch(e) {
                 errorThrown = true;
@@ -5252,7 +5252,7 @@ First step {
                 await runInstance.evalCodeBlock(`
                     let a = 1;
                     let b = 2;
-                    throw new Error('oops');`, "@!#!!", 10, step);
+                    throw new Error('oops');`, "@!#!!", undefined, 10, step);
             }
             catch(e) {
                 errorThrown = true;
@@ -5273,7 +5273,7 @@ First step {
                 await runInstance.evalCodeBlock(`
                     let a = 1;
                     let b = 2;
-                    throw new Error('oops');`, null, 20, step);
+                    throw new Error('oops');`, undefined, undefined, 20, step);
             }
             catch(e) {
                 errorThrown = true;
@@ -5308,6 +5308,14 @@ First step {
                 getPersistent('chai').expect(!!getPersistent('chaiAsPromised')).to.be.true;
                 getPersistent('chai').expect(2+3).to.equal(2);
             `)).to.be.rejectedWith("expected 5 to equal 2");
+        });
+
+        it("can get the current step's directory", async () => {
+            let runner = new Runner(new Tree());
+            let runInstance = new RunInstance(runner);
+
+            let directory = await runInstance.evalCodeBlock(`return dir()`, `func`, `file.txt`);
+            expect(directory.length > 0).to.be.true;
         });
     });
 
