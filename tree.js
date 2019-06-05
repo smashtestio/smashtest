@@ -132,7 +132,7 @@ class Tree {
         for(let i = 0, lineNumber = 1; i < lines.length; i++, lineNumber++) {
             let line = lines[i];
 
-            if(line.match(Constants.FULL_LINE_COMMENT)) { // ignore lines that are fully comments
+            if(line.match(Constants.FULL_LINE_COMMENT) && currentlyInsideCodeBlockFromLineNum == -1) { // ignore lines that are fully comments
                 lines.splice(i, 1);
                 i--;
                 continue;

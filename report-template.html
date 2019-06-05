@@ -37,6 +37,13 @@
                 margin: 0 40px 20px 6px;
             }
 
+            .header .logo {
+                width: 20px;
+                margin: 0 8px 0 0;
+                position: relative;
+                top: 4px;
+            }
+
             .tree-errors .header {
                 margin-bottom: 0;
             }
@@ -249,17 +256,19 @@
                 display: inline-block;
             }
 
-            .line .location {
+            .line .active-indicator {
                 display: inline-block;
                 vertical-align: top;
                 color: transparent;
-                padding: 0 30px;
-                font-size: 13px;
+                padding: 0 10px;
+                font-size: 12px;
+                position: relative;
+                top: 2px;
             }
 
-            .line.active .location {
-                color: rgb(90,90,90);
-            }
+            /*.line.active .active-indicator {
+                color: rgb(80,80,80);
+            }*/
 
             .pill {
                 position: relative;
@@ -448,6 +457,10 @@
                 color: rgb(110,110,110);
                 padding: 0 30px 15px;
                 overflow-x: auto;
+            }
+
+            .preview-pane .stacktrace:first-line {
+                color: red;
             }
 
             .line .stacktrace {
@@ -1317,7 +1330,10 @@ c     = copy text of branch
 
                     return (
                         <div className="tree-header">
-                            <div className="header">SmashTEST Report</div>
+                            <div className="header">
+                                <img className="logo" src="logo/orangelogo.svg"/>
+                                SmashTEST Report
+                            </div>
                             <div className="tree-header-container">
                                 {
                                     !this.props.data.runner.isComplete && !this.props.data.runner.isStopped ?
@@ -2005,7 +2021,7 @@ c     = copy text of branch
                                 </span>
                                 {pill}
                             </span>
-                            <span className="location">[{this.props.stepNode.filename}:{this.props.stepNode.lineNumber}]</span>
+                            <span className="active-indicator">&bull;</span>
                             {error}
                         </span>
                     );
@@ -2358,14 +2374,25 @@ c     = copy text of branch
              * Injects [filename:lineNumber] into the given Error's stack trace, and returns it
              */
             function formatStackTrace(error) {
-                return error.stack.replace(/\\n/, `   [${error.filename}:${error.lineNumber}]\n`);
+                return error.stack.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
             }
 
             /**
              * Injects [filename:lineNumber] into the given Error's message, and returns it
              */
             function formatErrorMsg(error) {
-                return error.message + `   [${error.filename}:${error.lineNumber}]`;
+                let matches = error.message.match(/.*/);
+                if(matches === null) {
+                    return '';
+                }
+
+                let errorMsg = matches[0].trim();
+                if(errorMsg != '') {
+                    errorMsg += '   ';
+                }
+                errorMsg += `[${error.filename}:${error.lineNumber}]`;
+
+                return errorMsg;
             }
 
             /**

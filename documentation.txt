@@ -67,6 +67,7 @@ Running tests
         - --min-frequency=med
             - med if omitted
         - --no-debug
+        - --output-errors or -e
         - --p:varname=value or "value" (persistent var)
         - --random=true/false
         - --repl or -r
@@ -764,6 +765,7 @@ Code blocks
             - If only packageName passed in, generates it by camel casing packageName, e.g., one-two-three --> oneTwoThree
             - Usage: let chai = i('chai');
         - c() - same as console.log(), but prints it out more neatly (and clear of the progress bar)
+        - dir()
         - runInstance object (quick summary)
             - runInstance.currStep
             - runInstance.currBranch
@@ -863,6 +865,7 @@ Skipping (-, -s, .s, $s)
         - .s     = don't run me, don't run below, expand me and below, outputted to report as skipped
             - expand = replace function calls with corresponding function declarations, error if a function declaration isn't found
             - Marks this and all steps below as skipped. Skips entire branches that are identical to this one.
+            - Use when you're still working below a certain point in the tree
             - Be careful, when .s is in a function declaration it will affect steps after the function call as well
         - // on a step and all steps under it
             - Good if you don't want functions to expand (e.g., you have too many branches that you don't want showing up in the report,
@@ -873,6 +876,7 @@ Skipping (-, -s, .s, $s)
     - Skip all branches passing through a step
         - $s     = don't run entire branch, expand me and below, outputted to report as skipped
             - Will mark as skipped entire branches in report
+    - Pattern: mark manual tests as skipped, but you'll generate permutations in the report
 
 Collapsing (+, +?)
     - Collapsed (+)

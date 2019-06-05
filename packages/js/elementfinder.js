@@ -422,7 +422,7 @@ class ElementFinder {
             let definedProps = payload.definedProps;
             let parentElem = arguments[1];
 
-            findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.body.querySelectorAll('*')));
+            findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
 
             return {
                 ef: JSON.stringify(ef, function(k, v) {
@@ -573,9 +573,11 @@ class ElementFinder {
 
                 if(!hasTopErrors(ef)) {
                     // Success. Set ef.matchedElems
-                    ef.matchedElems = ef.matchedElems.concat(topElems);
                     if(typeof max != 'undefined') {
                         ef.matchedElems = ef.matchedElems.concat(topElems.slice(0, max)); // only take up to max elems
+                    }
+                    else {
+                        ef.matchedElems = ef.matchedElems.concat(topElems);
                     }
 
                     // Copy over matchMeElems from children
@@ -990,9 +992,11 @@ class ElementFinder {
 
                     return elems.filter(function(elem) {
                         let labelText = '';
-                        let labelElem = document.querySelector('label[for="' + CSS.escape(elem.id) + '"]');
-                        if(labelElem) {
-                            labelText = labelElem.innerText;
+                        if(elem.id) {
+                            let labelElem = document.querySelector('label[for="' + CSS.escape(elem.id) + '"]');
+                            if(labelElem) {
+                                labelText = labelElem.innerText;
+                            }
                         }
 
                         let dropdownText = '';

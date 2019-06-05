@@ -1,11 +1,12 @@
 getAll() {
     i('ElementFinder', '../../packages/js/elementfinder.js');
+    i('Comparer', '../../packages/js/comparer.js');
 }
 
     open chrome
     open firefox
 
-        open test page
+        open test page +
 
             - normal EFs
 
@@ -13,57 +14,954 @@ getAll() {
 
                     - text
 
-                        finds elements based on innerText {
-                            let ef = new ElementFinder(`'one'`);
-                            let results = await ef.getAll(browser.driver);
+                        - matches innerText
 
-                            results.ef = ElementFinder.parseObj(results.ef);
-                            expect(results.ef.hasErrors()).to.be.false;
-                            expect(results.matches).to.have.lengthOf.at.least(4);
-                        }
+                            create html page {
+                                await setPageBody(`
+                                    <div id="one">foobar</div>
+                                    <div id="two">
+                                        <div id="three">
+                                            foo bar
+                                        </div>
+                                    </div>
+                                    <div id="four">
+                                        buzz
+                                    </div>
+                                `);
+                            }
 
-                        $s finds elements based on innerText, where the matching text is of a different case and has differing whitespace {
-                            // Containing, lower case, trimmed, and whitespace-to-single-space match
-                        }
+                                match one element {
+                                    let ef = new ElementFinder(`'foo'`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                        $s finds elements based on value {
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                }
 
-                        }
+                                match all elements {
+                                    let ef = new ElementFinder(`0+ x 'foo'`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                        $s finds elements based on placeholder {
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(5);
+                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                    expect(await results.matches[1].getTagName()).to.equal('body');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('one');
+                                    expect(await results.matches[3].getAttribute('id')).to.equal('two');
+                                    expect(await results.matches[4].getAttribute('id')).to.equal('three');
+                                }
 
-                        }
+                        - matches innerText, where the matching text is of a different case and has differing whitespace
 
-                        $s finds elements based on an associated label's innerText {
+                            create html page {
+                                await setPageBody(`
+                                    <div id="one"> BARFOO  BARFOO </div>
+                                    <div id="two">
+                                        <div id="three">
+                                            FoO   Bar
+                                        </div>
+                                    </div>
+                                    <div id="four">
+                                        buzz
+                                    </div>
+                                `);
+                            }
 
-                        }
+                                match one element {
+                                    let ef = new ElementFinder(`' foo  bar '`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                        $s doesn't find elements based on text {
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                }
+
+                                match all elements {
+                                    let ef = new ElementFinder(`0+ x ' foo  bar '`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(5);
+                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                    expect(await results.matches[1].getTagName()).to.equal('body');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('one');
+                                    expect(await results.matches[3].getAttribute('id')).to.equal('two');
+                                    expect(await results.matches[4].getAttribute('id')).to.equal('three');
+                                }
+
+                        - matches value
+
+                            - matches by attribute value
+
+                                create html page {
+                                    await setPageBody(`
+                                        <input id="one" type="text" value="foobar">
+                                        <div id="wrong">buzz</div>
+                                    `);
+                                }
+
+                                    finds element {
+                                        let ef = new ElementFinder(`'foobar'`);
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    }
+
+                            - matches by js-set value
+
+                                create html page {
+                                    await setPageBody(`
+                                        <input id="one" type="text">
+                                        <div id="wrong">buzz</div>
+                                    `);
+
+                                    await browser.executeScript(function() {
+                                        document.getElementById("one").value = "foobar";
+                                    });
+                                }
+
+                                    finds element {
+                                        let ef = new ElementFinder(`'foobar'`);
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    }
+
+                        - matches placeholder
+
+                            create html page {
+                                await setPageBody(`
+                                    <input id="one" type="text" placeholder="foobar">
+                                    <div id="wrong">buzz</div>
+                                `);
+                            }
+
+                                finds element {
+                                    let ef = new ElementFinder(`'foobar'`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                }
+
+                        - matches an associated label's innerText
+
+                            create html page {
+                                await setPageBody(`
+                                    <div id="one">Something</div>
+                                    <label for="wrong">buzz label</div>
+                                    <label for="one">foobar2</div>
+                                    <div id="wrong">buzz</div>
+                                `);
+                            }
+
+                                finds element {
+                                    let ef = new ElementFinder(`'foobar'`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('for')).to.equal('one');
+                                }
+
+                        - matches text that spans multiple elements
+
+                            $s finds element {
+
+                            }
+
+                        $s doesn't find elements {
                             // verify error message with -->'s
-                        }
-
-                        $s finds elements based on text that spans multiple elements {
-
                         }
 
                     - defined prop
 
+                        - prop is an EF
+
+                            $s finds elements {
+
+                            }
+
+                            $s doesn't find elements {
+
+                            }
+
+                        - prop is a function
+
+                            $s finds elements {
+
+                            }
+
+                            $s doesn't find elements {
+
+                            }
+
+                        - prop is a function with input
+
+                            $s finds elements {
+
+                            }
+
+                            $s doesn't find elements {
+
+                            }
+
+                        $s handles the 'not' keyword {
+
+                        }
+
+                    - selector
+
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                        $s interprets an item as a selector if a corresponding property does not exist {
+
+                        }
+
+                    - ord
+
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                    - counter
+
+                        - counter with a min
+
+                            - min == 0
+
+                                $s finds elements {
+
+                                }
+
+                                $s doesn't find elements {
+
+                                }
+
+                            - min > 0
+
+                                $s finds elements {
+
+                                }
+
+                                $s doesn't find elements {
+
+                                }
+
+                        - counter with a max
+
+                            $s finds elements {
+
+                            }
+
+                            $s doesn't find elements {
+
+                            }
+
+                        - counter with a min and max
+
+                            - min < max
+
+                                $s finds elements {
+
+                                }
+
+                                $s doesn't find elements {
+
+                                }
+
+                            - min == max
+
+                                - min and max > 0
+
+                                    $s finds elements {
+
+                                    }
+
+                                    $s doesn't find elements {
+
+                                    }
+
+                                - min and max == 0
+
+                                    $s finds elements {
+
+                                    }
+
+                                    $s doesn't find elements {
+
+                                    }
+
+                    - match me
+
+                        - normal // [match me]
+
+                            $s finds elements {
+
+                            }
+
+                            $s doesn't find elements {
+
+                            }
+
+                        - counter x match me
+
+                            - counter inside match me // [counter x match me]
+
+                                $s finds elements {
+
+                                }
+
+                                $s doesn't find elements {
+
+                                }
+
+                            - counter outside match me // counter x [match me]
+
+                                $s finds elements {
+
+                                }
+
+                                $s doesn't find elements {
+
+                                }
+
+                        - match me element array // * [match me element array]
+
+                            $s finds elements {
+
+                            }
+
+                            $s doesn't find elements {
+
+                            }
+
+                    - multiple props
+
+                        $s finds elements {
+                            // text, ords, properties, selectors
+                            // nots
+                            // some of those props are functions and others are EFs
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                        $s chooses the first element when multiple matching elements exist {
+
+                        }
+
+                    - visible prop
+
+                        $s only finds visible elements by default {
+
+                        }
+
+                        $s finds all elements regardless of visibility if 'any visibility' is explicitly listed {
+
+                        }
+
+                    - errors
+
+                        $s includes an error if an element isn't found, and lists the prop after which 0 elements are matched {
+
+                        }
+
+                        $s includes an error if an element isn't found, where there are multiple props that bring the matches down to 0 {
+
+                        }
+
+                        $s includes an error if the number of elements found are less than the counter min {
+
+                        }
+
+                        $s throws an error if an undefined prop is used {
+                            // hard to repro - delete the prop dynamically at runtime right before the EF is run
+                        }
+
+                - one child
+
+                    - text on child
+
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                    - defined prop on child
+
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                    - selector on child
+
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                    - ord on child
+
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                    - counter on child
+
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                    - match me on child
+
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                - one level of children
+
+                    - generic tests
+
+                        - parent matches once
+
+                            - finds elements
+
+                                $s children always match {
+
+                                }
+
+                                $s children sometimes match {
+                                    // parent  --> found, but doesn't contain all the children below
+                                    // child that doesn't match  --> not found (zero matches after `prop name` applied)
+                                }
+
+                            - doesn't find elements
+
+                                $s children never match {
+
+                                }
+
+                        - parent matches multiple times
+
+                            - finds elements
+
+                                $s children always match {
+
+                                }
+
+                                $s children sometimes match {
+
+                                }
+
+                            - doesn't find elements
+
+                                $s children never match {
+                                    // parent  --> N found, but none contain all the children below
+                                }
+
+                                $s children are correct but in the wrong order {
+
+                                }
+
+                    - counter
+
+                        - counter on parent
+
+                            - finds elements
+
+                                $s counters allow correct matching {
+
+                                }
+
+                                $s counter of 0+ is used {
+
+                                }
+
+                                $s number of elements are between the counter's min and max {
+
+                                }
+
+                                $s there are more elements than a counter's min, and no max exists {
+
+                                }
+
+                                $s there are more elements than a counter's max {
+
+                                }
+
+                                $s matches the most amount of elements allowed by the counter (greedy matching) {
+
+                                }
+
+                            - doesn't find elements
+
+                                - there are fewer elements than a counter's min
+
+                                    $s there are > 0 elements {
+                                        // parent    --> only found N
+                                    }
+
+                                    $s there are 0 elements {
+
+                                    }
+
+                        - counter on child
+
+                            - finds elements
+
+                                - counter of '0+'
+
+                                    $s 0 elements exist {
+
+                                    }
+
+                                    $s those elements exist {
+
+                                    }
+
+                                $s number of elements are between the counter's min and max {
+
+                                }
+
+                                $s there are more elements than a counter's min, and no max exists {
+
+                                }
+
+                                $s there are more elements than a counter's max {
+
+                                }
+
+                                $s matches the most amount of elements allowed by the counter (greedy matching) {
+
+                                }
+
+                            - doesn't find elements
+
+                                - fewer elements than a counter's min
+
+                                    $s 0 elements exist {
+
+                                    }
+
+                                    $s those elements exist {
+
+                                    }
+
+                        $s counter on parent and child {
+
+                        }
+
+                    - keywords
+
+                        $s finds elements in a differing order with the 'any order' keyword {
+
+                        }
+
+                        $s parent matches once, children don\'t match, even with the 'any order' keyword {
+                            // includes (in that order) in error
+                        }
+
+                        $s parent matches multiple times, children don\'t match, even with the 'any order' keyword {
+                            // includes (in that order) in error
+                        }
+
+                        $s finds elements with the 'subset' keyword, even though it doesn't do anything {
+
+                        }
+
+                        $s handles the 'any order' and 'subset' keywords together {
+
+                        }
+
+                    - match me
+
+                        - [match me] on the parent
+
+                            $s matches elements {
+
+                            }
+
+                            $s doesn't match elements {
+
+                            }
+
+                        - [match me] on a child
+
+                            $s matches elements {
+
+                            }
+
+                            $s doesn't match elements {
+
+                            }
+
+                        - [match me] on multiple children
+
+                            $s matches elements {
+
+                            }
+
+                            $s doesn't match elements {
+
+                            }
+
+                        - [match me] on the parent and multiple children
+
+                            $s matches elements {
+
+                            }
+
+                            $s doesn't match elements {
+
+                            }
+
+                        - [counter x child element]
+
+                            $s matches elements {
+
+                            }
+
+                            $s doesn't match elements {
+
+                            }
+
+                - multiple levels of children
+
+                    - generic tests
+
+                        - parent matches, child matches
+
+                            - finds elements
+
+                                $s grandchild always matches {
+
+                                }
+
+                                $s grandchild sometimes matches {
+                                    // including a bad match at the end - shouldn't appear as an error
+                                }
+
+                            - doesn't find elements
+
+                                $s grandchild never matches {
+
+                                }
+
+                    - counter
+
+                        $s handles multiple levels of counters {
+
+                        }
+
+                    - keywords
+
+                        $s handles multiple levels of subset and any order {
+
+                        }
+
+                    - match me
+
+                        $s []'s on multiple levels {
+
+                        }
+
+                        $s []'s matches multiple elements when its parent matches multiple elements {
+
+                        }
+
+                        $s []'s matches multiple elements when its grandparent matches multiple elements {
+
+                        }
+
+            - element array EFs
+
+                - one line
+
+                    $s empty element array {
+                        let ef = new ElementFinder(`* something`);
 
 
-                    - selector $s
-                    - ord $s
-                    - counter $s
-                    - match me $s
-                    - multiple props $s
-                    - visible prop $s
-                    - errors $s
+                    }
 
-                - one child $s
-                - one level of children $s
-                - multiple levels of children $s
+                - one child
 
-            - element array EFs $s
+                    - element array on child
 
-* open test page {
-    await browser.nav(`file:///${dir()}/generic-page.html`);
-}
+                        $s finds elements {
+
+                        }
+
+                        $s doesn't find elements {
+
+                        }
+
+                - one level of children
+
+                    - element array on child
+
+                        $s accepts a correct matching {
+
+                        }
+
+                        $s rejects an incorrect matching {
+                            // child    --> doesn't match <tagname id="" class="">
+                        }
+
+                    - element array on parent
+
+                        - accepts a correct matching
+
+                            $s matching of 0 elements {
+
+                            }
+
+                            $s generic correct matching {
+
+                            }
+
+                            $s correct matching, even when the matched element type exists at different depths in the DOM, and with other elements in between {
+
+                            }
+
+                        - rejects an incorrect matching
+
+                            $s too few elements listed {
+                                // --> missing
+                                // <tagname id="" class="">
+                            }
+
+                            $s too many elements listed {
+                                // elements at the end   --> not found
+                            }
+
+                            $s the elements are correct but in the wrong order {
+
+                            }
+
+                            $s the elements listed don't match {
+
+                            }
+
+                    $s element array on parent and child {
+
+                    }
+
+                    - counter
+
+                        - accepts a correct matching
+
+                            $s counters allow correct matching {
+
+                            }
+
+                            $s counter of 0+ allows correct matching {
+
+                            }
+
+                            $s number of elements are between the counter's min and max {
+
+                            }
+
+                            $s there are more elements than a counter's min, and no max exists {
+
+                            }
+
+                            $s matches the most amount of elements allowed by the counter (greedy matching) {
+
+                            }
+
+                        - rejects an incorrect matching
+
+                            $s there are more elements than a counter's max {
+
+                            }
+
+                            - there are fewer elements than a counter's min
+
+                                $s 0 elements {
+
+                                }
+
+                                $s more than 0 elements {
+
+                                }
+
+                    - keywords
+
+                        - any order
+
+                            - accepts a correct matching
+
+                                $s same order {
+
+                                }
+
+                                $s different order {
+
+                                }
+
+                            $s rejects an incorrect matching {
+
+                            }
+
+                        - subset
+
+                            - accepts a correct matching
+
+                                $s number of elements falls between the counter's min and max {
+
+                                }
+
+                                $s there are more elements than a counter's max {
+
+                                }
+
+                                - there are fewer elements than a counter's min
+
+                                    $s 0 elements {
+
+                                    }
+
+                                    $s more than 0 elements {
+
+                                    }
+
+                            $s rejects an incorrect matching {
+
+                            }
+
+                        - any order and subset together
+
+                            $s accepts a correct matching {
+
+                            }
+
+                            $s rejects an incorrect matching {
+
+                            }
+
+                    - match me
+
+                        $s matches elements with [] on an element array parent {
+
+                        }
+
+                        $s matches elements with [] on an element array child {
+
+                        }
+
+                - multiple levels of children
+
+                    - generic tests
+
+                        $s element array with multiple levels of children {
+
+                        }
+
+                        $s nested element arrays on multiple levels of children {
+
+                        }
+
+                    - match me
+
+                        $s matches elements with [] on an element array grandchild {
+
+                        }
+
+                        $s matches elements with [] on an element array grandchild, where the parent sometimes matches and sometimes doesn't {
+
+                        }
+
+                        $s matches elements with [] on multiple levels of an element array {
+
+                        }
+
+            - other
+
+                $s only searches within the given parent element {
+
+                }
+
+                $s handles finding an iframe {
+
+                }
+
+                $s handles finding an svg {
+
+                }
+
+            - performance
+
+                $s handles very large DOMs {
+
+                }
+
+                $s handles very large EFs {
+
+                }
+
+                $s handles finding a very large number of elements {
+
+                }
+
+* open test page
+
+    inits {
+        g('setPageBody', async (htmlStr) => {
+            await browser.executeScript(function(htmlStr) {
+                document.body.innerHTML = htmlStr;
+            }, htmlStr);
+        });
+
+        l(`test page location`, `file:///${dir()}/generic-page.html`);
+    }
+
+        navigate to {{test page location}}

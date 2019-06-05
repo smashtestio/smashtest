@@ -2592,6 +2592,7 @@ one
         });
     });
 
+    // TODO: remove this, reference elementfinder.smash
     describe("getAll()", () => {
         before(startBrowser);
         after(stopBrowser);
@@ -2775,10 +2776,6 @@ one
                     });
 
                     it.skip("chooses the first element when multiple matching elements exist", () => {
-
-                    });
-
-                    it.skip("ignores matching elements that aren't visible", () => {
 
                     });
                 });
@@ -3071,7 +3068,7 @@ one
                 });
 
                 context("[match me]", () => {
-                    it.skip("[]'s on multiple levels'", () => {
+                    it.skip("[]'s on multiple levels", () => {
 
                     });
 

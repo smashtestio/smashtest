@@ -136,6 +136,7 @@ Options
   --max-screenshots=<N>           Do not store more than N screenshots. Set to 0 to disable screenshots.
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
   --no-debug                      Fail if there are any $'s or ~'s. Useful to prevent debugging in CI.
+  --output-errors or -e           Outputs all errors to console
   --p:<name>="<value>"            Set a persistent variable
   --random=<true/false>           Whether or not to randomize the order of branches. Default is true.
   --repl or -r                    Open the REPL (drive SmashTEST from command line)
@@ -161,6 +162,11 @@ Options
 
             case "no-debug":
                 runner.noDebug = true;
+                break;
+
+            case "output-errors":
+            case "e":
+                runner.outputErrors = true;
                 break;
 
             case "p":

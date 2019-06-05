@@ -294,6 +294,10 @@ class RunInstance {
                 if(!this.isStopped) { // if this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
                     error = e;
                     this.fillErrorFromStep(error, step, inCodeBlock);
+
+                    if(this.runner.outputErrors) {
+                        this.c(this.formatStackTrace(e));
+                    }
                 }
             }
 
@@ -378,6 +382,10 @@ class RunInstance {
         }
         catch(e) {
             this.fillErrorFromStep(e, step, true);
+
+            if(this.runner.outputErrors) {
+                this.c(this.formatStackTrace(e));
+            }
 
             if(stepToGetError) {
                 this.tree.markHookStep('fail', stepToGetError, stepToGetError.error ? undefined : e); // do not set stepToGetError.error if it's already set
@@ -662,6 +670,35 @@ class RunInstance {
      */
     dir(filename) {
         return `${process.cwd()}/${utils.getDir(filename)}`;
+    }
+
+    /**
+     * Outputs string s to console.log
+     * Inserts empty lines so s is completely clear of the progress bar in the console
+     */
+    c(s) {
+        console.log('');
+        console.log('');
+        console.log(s);
+        console.log('');
+    }
+
+    /**
+     * Injects [filename:lineNumber] into the given Error's stack trace, colors the lines, and returns it
+     */
+    formatStackTrace(error) {
+        let stack = error.stack;
+        stack = stack.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
+
+        let firstLine = stack.match(/.*/);
+        if(firstLine) {
+            firstLine = firstLine[0];
+            stack = stack.replace(firstLine, '');
+            stack = chalk.gray(stack);
+            stack = chalk.red(firstLine) + stack;
+        }
+
+        return stack;
     }
 
     /**
