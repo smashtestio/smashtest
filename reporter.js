@@ -212,7 +212,7 @@ class Reporter {
         // Have this function get called again in a certain period of time
         if(!this.stopped) {
             // The more branches there are, the longer it takes to serialize, the less often this function should get called
-            let timeout = this.tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
+            let timeout = this.tree.branches.length <= 100000 ? 1000 : 5000; // every 1 or 5 secs
             this.timerSnapshot = setTimeout(() => this.writeSnapshot(), timeout);
         }
     }

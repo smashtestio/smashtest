@@ -70,7 +70,7 @@ getAll() {
                                 `);
                             }
 
-                                match one element {
+                                finds one element {
                                     let ef = new ElementFinder(`' foo  bar '`);
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
@@ -80,7 +80,7 @@ getAll() {
                                     expect(await results.matches[0].getTagName()).to.equal('html');
                                 }
 
-                                match all elements {
+                                finds all elements {
                                     let ef = new ElementFinder(`0+ x ' foo  bar '`);
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
@@ -162,27 +162,72 @@ getAll() {
                             create html page {
                                 await setPageBody(`
                                     <div id="one">Something</div>
-                                    <label for="wrong">buzz label</div>
-                                    <label for="one">foobar2</div>
+                                    <label for="wrong">buzz label</label>
+                                    <label for="one">foobar2</label>
                                     <div id="wrong">buzz</div>
                                 `);
                             }
 
-                                finds element {
+                                finds one element {
                                     let ef = new ElementFinder(`'foobar'`);
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(1);
-                                    expect(await results.matches[0].getAttribute('for')).to.equal('one');
+                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                }
+
+                                finds all elements {
+                                    let ef = new ElementFinder(`0+ x 'foobar'`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(4);
+                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                    expect(await results.matches[1].getTagName()).to.equal('body');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('one');
+                                    expect(await results.matches[3].getAttribute('for')).to.equal('one');
                                 }
 
                         - matches text that spans multiple elements
 
-                            $s finds element {
-
+                            create html page {
+                                await setPageBody(`
+                                    <div id="one">
+                                        <div id="two">
+                                            foo
+                                        </div>
+                                        <div id="three">
+                                            bar
+                                        </div>
+                                    </div>
+                                    <div id="wrong">buzz</div>
+                                `);
                             }
+
+                                finds one element {
+                                    let ef = new ElementFinder(`'foo bar'`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                }
+
+                                finds all elements {
+                                    let ef = new ElementFinder(`0+ x 'foo bar'`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(3);
+                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                    expect(await results.matches[1].getTagName()).to.equal('body');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('one');
+                                }
 
                         $s doesn't find elements {
                             // verify error message with -->'s

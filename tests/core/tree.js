@@ -12321,10 +12321,11 @@ $ A -
         D -
 
             E -
+            F -
 
-    H - .s
+    H - $s
         I -
-    J - .s
+    J - $s
 
 F -
     G -
@@ -12336,19 +12337,19 @@ F -
             tree.branches[2].isFailed = true;
 
             expect(tree.getBranchCount(true, true)).to.equal(1);
-            expect(tree.getBranchCount(false, true)).to.equal(2);
+            expect(tree.getBranchCount(false, true)).to.equal(4);
 
             delete tree.branches[2].isFailed;
             tree.branches[2].isSkipped = true;
 
-            expect(tree.getBranchCount(true, true)).to.equal(1);
-            expect(tree.getBranchCount(false, true)).to.equal(2);
+            expect(tree.getBranchCount(true, true)).to.equal(0);
+            expect(tree.getBranchCount(false, true)).to.equal(4);
 
             delete tree.branches[0].passedLastTime;
             tree.branches[0].isPassed = true;
 
-            expect(tree.getBranchCount(true, true)).to.equal(2);
-            expect(tree.getBranchCount(false, true)).to.equal(2);
+            expect(tree.getBranchCount(true, true)).to.equal(1);
+            expect(tree.getBranchCount(false, true)).to.equal(4);
         });
 
         it("returns total number of passed branches", () => {
@@ -12589,7 +12590,7 @@ A -
             tree.branches[0].isSkipped = true;
 
             expect(tree.getStepCount(false)).to.equal(8);
-            expect(tree.getStepCount(true, true)).to.equal(4);
+            expect(tree.getStepCount(true, true)).to.equal(0);
         });
 
         it("does not count inside hooks", () => {
@@ -13537,9 +13538,8 @@ B -
             expect(tree.counts.failed).to.equal(0);
             expect(tree.counts.skipped).to.equal(0);
             expect(tree.counts.complete).to.equal(0);
+            expect(tree.counts.total).to.equal(4);
             expect(tree.counts.totalToRun).to.equal(4);
-            expect(tree.counts.totalInReport).to.equal(4);
-            expect(tree.counts.totalPassedInReport).to.equal(0);
 
             expect(tree.counts.totalStepsComplete).to.equal(0);
             expect(tree.counts.totalSteps).to.equal(8);
@@ -13574,13 +13574,12 @@ B -
             tree.updateCounts();
 
             expect(tree.counts.running).to.equal(1);
-            expect(tree.counts.passed).to.equal(1);
+            expect(tree.counts.passed).to.equal(2);
             expect(tree.counts.failed).to.equal(1);
             expect(tree.counts.skipped).to.equal(0);
-            expect(tree.counts.complete).to.equal(2);
+            expect(tree.counts.complete).to.equal(3);
+            expect(tree.counts.total).to.equal(4);
             expect(tree.counts.totalToRun).to.equal(3);
-            expect(tree.counts.totalInReport).to.equal(4);
-            expect(tree.counts.totalPassedInReport).to.equal(2);
 
             expect(tree.counts.totalStepsComplete).to.equal(4);
             expect(tree.counts.totalSteps).to.equal(6);

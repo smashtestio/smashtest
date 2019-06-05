@@ -253,7 +253,19 @@ class Branch {
          let combinedStr = '';
          this.steps.forEach(step => {
              let stepNode = stepNodeIndex[step.id];
-             combinedStr += utils.canonicalize(stepNode.text) + '\n';
+             let codeBlock = '';
+
+             if(stepNode.hasCodeBlock()) {
+                 codeBlock = stepNode.codeBlock;
+             }
+             else if(step.hasOwnProperty('fid')) {
+                 let functionDeclarationNode = stepNodeIndex[step.fid];
+                 if(functionDeclarationNode.hasCodeBlock()) {
+                     codeBlock = functionDeclarationNode.codeBlock;
+                 }
+             }
+
+             combinedStr += utils.canonicalize(stepNode.text) + codeBlock + '\n';
          });
          this.hash = md5(combinedStr);
      }

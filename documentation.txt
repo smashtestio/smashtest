@@ -87,6 +87,7 @@ Running tests
                 - Always runs the current hooks, not the hooks from the last run
             - For fixing problems in your tests that cause them to break, without having to rerun the whole entire suite again
             - Helpful for when you are typing out new tests (or updating existing ones) and only want to run whatever's new
+                - Use with -e so you don't have to switch back to the report page each time
             - Format
                 - -s/--skip-passed=filename or "filename"
                     - filename of smashtest-data.js that constitutes last run

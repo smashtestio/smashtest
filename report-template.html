@@ -233,7 +233,7 @@
                 cursor: pointer;
                 overflow-x: auto;
                 overflow-y: hidden;
-                padding-right: 20px;
+                padding-right: 30px;
             }
 
             .line::-webkit-scrollbar {
@@ -1354,7 +1354,7 @@ c     = copy text of branch
                                     }
                                     {
                                         counts.passed > 0 ?
-                                        <span><span className="passed-count count passed-item" onClick={() => this.scrollToBranchList("branch-list-passed")}> {counts.totalPassedInReport} passed</span> | </span> :
+                                        <span><span className="passed-count count passed-item" onClick={() => this.scrollToBranchList("branch-list-passed")}> {counts.passed} passed</span> | </span> :
                                         ""
                                     }
                                     {
@@ -1372,7 +1372,7 @@ c     = copy text of branch
                                         <span><span className="notrunyet-count count notrunyet-item" onClick={() => this.scrollToBranchList("branch-list-notrunyet")}> {totalNotRunYet} not run yet</span> | </span> :
                                         ""
                                     }
-                                    <span className="total-count notrunyet-item"> {counts.totalInReport} total branches</span>
+                                    <span className="total-count notrunyet-item"> {counts.total} total branches</span>
                                 </div>
                             </div>
                         </div>

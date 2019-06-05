@@ -2594,8 +2594,8 @@ one
 
     // TODO: remove this, reference elementfinder.smash
     describe("getAll()", () => {
-        before(startBrowser);
-        after(stopBrowser);
+        // before(startBrowser);
+        // after(stopBrowser);
 
         context("normal EFs", () => {
             context("one line", () => {

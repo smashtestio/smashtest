@@ -35,16 +35,15 @@ class Tree {
 
         this.counts = {
             running = 0,                    // total number of branches currently running
-            passed = 0,                     // total number of passed branches in this tree (excluding the ones that passed last time)
+            passed = 0,                     // total number of passed branches in this tree (including the ones that passed last time)
             failed = 0,                     // total number of failed branches in this tree
             skipped = 0,                    // total number of skipped branches in this tree
             complete = 0,                   // total number of complete branches in this tree (passed, failed, or skipped)
-            totalToRun = 0,                 // total number of branches that will be in the next run (total number of branches - branches passed last time if we're doing a --skip-passed)
-            totalInReport = 0,              // total number of branches in this tree
-            totalPassedInReport = 0,        // total number of passed branches in this tree (including the ones that passed last time)
+            total = 0,                      // total number of branches in this tree
+            totalToRun = 0,                 // total number of branches that will be in the next run (total number of branches minus branches passed last time if we're doing a --skip-passed)
 
-            totalStepsComplete = 0,         // total number of complete steps in this tree (out of the steps that will be in the next run)
-            totalSteps = 0                  // total number of steps in this tree that will be in the next run
+            totalStepsComplete = 0,         // total number of complete steps in this tree (not including steps that passed last time or are being skipped)
+            totalSteps = 0                  // total number of steps in this tree (not including steps that passed last time or are being skipped)
         }
         */
     }
@@ -1445,7 +1444,7 @@ ${outputBranchAbove(this)}
 
     /**
      * Counts various types of branches
-     * @param {Boolean} [runnableOnly] - If true, only count branches that are set to run (i.e., those that passed last time don't count, if we're doing a --skip-passed)
+     * @param {Boolean} [runnableOnly] - If true, only count branches that are set to run (i.e., those that passed last time don't count, if we're doing a --skip-passed, and skipped branches don't count)
      * @param {Boolean} [completeOnly] - If true, only count branches that are complete (passed, failed, or skipped)
      * @param {Boolean} [passedOnly] - If true, only count branches that have passed
      * @param {Boolean} [failedOnly] - If true, only count branches that have failed
@@ -1458,11 +1457,11 @@ ${outputBranchAbove(this)}
         for(let i = 0; i < this.branches.length; i++) {
             let branch = this.branches[i];
 
-            if(runnableOnly && branch.passedLastTime) {
+            if(runnableOnly && (branch.passedLastTime || branch.isSkipped)) {
                 continue;
             }
 
-            if(completeOnly && !branch.isPassed && !branch.isFailed && !branch.isSkipped && !branch.passedLastTime) {
+            if(completeOnly && !branch.isComplete()) {
                 continue;
             }
 
@@ -1500,7 +1499,7 @@ ${outputBranchAbove(this)}
         for(let i = 0; i < this.branches.length; i++) {
             let branch = this.branches[i];
 
-            if(runnableOnly && branch.passedLastTime) {
+            if(runnableOnly && (branch.passedLastTime || branch.isSkipped)) {
                 continue;
             }
 
@@ -1695,9 +1694,8 @@ ${outputBranchAbove(this)}
             failed: 0,
             skipped: 0,
             complete: 0,
+            total: this.getBranchCount(false, false),
             totalToRun: this.getBranchCount(true, false),
-            totalInReport: this.getBranchCount(false, false),
-            totalPassedInReport: this.getBranchCount(false, true, true, false, false),
 
             // Step counts
             totalStepsComplete: 0,
@@ -1712,13 +1710,12 @@ ${outputBranchAbove(this)}
         this.counts = {
             // Update branch counts
             running: this.getBranchCount(false, false, false, false, false, true),
-            passed: this.getBranchCount(true, true, true, false, false),
-            failed: this.getBranchCount(true, true, false, true, false),
-            skipped: this.getBranchCount(true, true, false, false, true),
-            complete: this.getBranchCount(true, true),
+            passed: this.getBranchCount(false, true, true, false, false),
+            failed: this.getBranchCount(false, true, false, true, false),
+            skipped: this.getBranchCount(false, true, false, false, true),
+            complete: this.getBranchCount(false, true),
+            total: this.getBranchCount(false, false),
             totalToRun: this.getBranchCount(true, false),
-            totalInReport: this.getBranchCount(false, false),
-            totalPassedInReport: this.getBranchCount(false, true, true, false, false),
 
             // Update step counts
             totalStepsComplete: this.getStepCount(true, true, false),

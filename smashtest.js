@@ -382,7 +382,7 @@ function plural(count) {
         }
 
         // --skip-passed
-        if(runner.skipPassed) {
+        if(runner.skipPassed && !tree.isDebug) {
             await reporter.markPassedFromPrevRun(runner.skipPassed === true ? undefined : runner.skipPassed);
         }
 
@@ -395,23 +395,14 @@ function plural(count) {
         /**
          * Outputs a message upon the completion of a run
          */
-        function outputCompleteMessage() {
+        function outputCompleteMessage(outputCounts) {
             console.log(``);
             console.log(yellowChalk("Run complete"));
-            console.log(`${tree.counts.complete} branch${plural(tree.counts.complete)} ran` + (isReport ? ` | ${tree.counts.totalInReport} branch${plural(tree.counts.totalInReport)} in report` : ``));
+            if(outputCounts) {
+                console.log(getCounts());
+            }
             if(isReport) {
                 console.log(`Report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
-            }
-
-            let failingHooks = tree.beforeEverything.concat(tree.afterEverything).filter(s => s.error);
-            if(failingHooks.length > 0) {
-                console.log(``);
-                console.log(`Hook errors occurred:`);
-
-                failingHooks.forEach(hook => {
-                    console.log(``);
-                    console.log(hook.error.stack);
-                });
             }
 
             console.log(``);
@@ -419,13 +410,16 @@ function plural(count) {
 
         // Output header that contains number of branches to run and live report location
         if(!isRepl) {
+            tree.updateCounts();
+
             if(tree.counts.totalToRun == 0 && runner.skipPassed) {
                 console.log("No branches left to run. All branches have passed last time.");
                 outputCompleteMessage(true);
+                restoreCursor();
                 return;
             }
 
-            console.log(`${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` + (isReport ? ` | ${tree.counts.totalInReport} branch${plural(tree.counts.totalInReport)} in report` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
+            console.log(`${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` + (isReport ? ` | ${tree.counts.total} branch${plural(tree.counts.total)} total` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
             if(isReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
             }
@@ -445,12 +439,14 @@ function plural(count) {
                     // Create an empty, paused runner
                     runner.createEmptyRunner();
                     runner.consoleOutput = true;
+                    runner.outputErrors = false;
                 }
                 else if(tree.counts.totalToRun > 1) {
                     utils.error(`There are ${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run but you can only have 1 to run --repl. Try isolating a branch with ~.`);
                 }
                 else {
                     runner.consoleOutput = true;
+                    runner.outputErrors = false;
 
                     // Make the first step a ~ step. Start the runner, which will immediately pause before the first step.
                     tree.debugFirstStep();
@@ -459,6 +455,7 @@ function plural(count) {
             }
             else {
                 runner.consoleOutput = true;
+                runner.outputErrors = false;
 
                 // Run the branch being debugged
                 isBranchComplete = await runner.run();
@@ -697,11 +694,7 @@ function plural(count) {
              */
             function outputCounts() {
                 process.stdout.write(
-                    (elapsed ? (`${elapsed} | `) : ``) +
-                    (tree.counts.passed > 0 ? chalk.greenBright(`${tree.counts.passed} passed`) + ` | ` : ``) +
-                    (tree.counts.failed > 0 ? chalk.redBright(`${tree.counts.failed} failed`) + ` | ` : ``) +
-                    (tree.counts.skipped > 0 ? chalk.cyanBright(`${tree.counts.skipped} skipped`) + ` | ` : ``) +
-                    (`${tree.counts.complete} branch${plural(tree.counts.complete)} complete`)
+                    (elapsed ? (`${elapsed} | `) : ``) + getCounts()
                 );
             }
 
@@ -713,6 +706,16 @@ function plural(count) {
                 d.setSeconds((new Date() - tree.timeStarted)/1000);
                 elapsed = d.toISOString().substr(11, 8);
             }
+        }
+
+        /**
+         * @return {String} The console-formatted counts in the tree
+         */
+        function getCounts() {
+            return (tree.counts.passed > 0 ? chalk.greenBright(`${tree.counts.passed} passed`) + ` | ` : ``) +
+                   (tree.counts.failed > 0 ? chalk.redBright(`${tree.counts.failed} failed`) + ` | ` : ``) +
+                   (tree.counts.skipped > 0 ? chalk.cyanBright(`${tree.counts.skipped} skipped`) + ` | ` : ``) +
+                   (`${tree.counts.complete} branch${plural(tree.counts.complete)} complete`);
         }
     }
     catch(e) {

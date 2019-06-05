@@ -296,7 +296,7 @@ class RunInstance {
                     this.fillErrorFromStep(error, step, inCodeBlock);
 
                     if(this.runner.outputErrors) {
-                        this.c(this.formatStackTrace(e));
+                        this.c(chalk.red.bold(stepNode.text) + '\n' + this.formatStackTrace(e));
                     }
                 }
             }
@@ -338,7 +338,7 @@ class RunInstance {
 
             let isGreen = step.isPassed;
             console.log("End:       " +
-                (isGreen ? chalk.green(stepNode.text.trim()) : chalk.red(stepNode.text.trim()) ) +
+                (isGreen ? chalk.green(stepNode.text) : chalk.red(stepNode.text)) +
                 "    " +
                 (step.isPassed ? chalk.green(` passed`) : ``) +
                 (step.isFailed ? chalk.red(` failed`) : ``) +
@@ -347,15 +347,8 @@ class RunInstance {
             console.log("");
 
             if(step.error) {
-                console.log(
-                    chalk.red.bold(stepNode.text.trim()) +
-                    "    " +
-                    (step.error.filename ?
-                        chalk.gray(`[${step.error.filename}:${step.error.lineNumber}]`) :
-                        chalk.gray(`[line ${step.error.lineNumber}]`))
-                );
-                console.log(step.error.stack);
-                console.log("");
+                console.log(chalk.red.bold(stepNode.text));
+                console.log(this.formatStackTrace(step.error));
                 console.log("");
             }
         }
@@ -384,7 +377,7 @@ class RunInstance {
             this.fillErrorFromStep(e, step, true);
 
             if(this.runner.outputErrors) {
-                this.c(this.formatStackTrace(e));
+                this.c(chalk.red.bold(stepNode.text) + '\n' + this.formatStackTrace(e));
             }
 
             if(stepToGetError) {
@@ -1028,7 +1021,7 @@ class RunInstance {
             if(this.currBranch.error) {
                 console.log("");
                 console.log(chalk.red.bold("Errors occurred in branch") + chalk.gray(`    [${this.currBranch.error.filename}:${this.currBranch.error.lineNumber}]`));
-                console.log(this.currBranch.error.stack);
+                console.log(chalk.gray(this.currBranch.error.stack));
             }
             console.log("");
         }
@@ -1170,7 +1163,7 @@ class RunInstance {
     }
 
     /**
-     * Returns value, only with quotes attached if it's a string
+     * @return value, only with quotes attached if it's a string
      */
     getLogValue(value) {
         if(typeof value == 'string') {

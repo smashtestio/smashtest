@@ -302,6 +302,70 @@ describe("Branch", () => {
             branch.updateHash(stepNodes);
             expect(branch.hash).to.equal("40c53c58fdafacc83cfff6ee3d2f6d69");
         });
+
+        it("doesn't change the hash if a step's name is canonically the same", () => {
+            let stepNodes = [ new StepNode(0), new StepNode(1), new StepNode(2) ];
+            let steps = [ new Step(0), new Step(1), new Step(2) ];
+
+            stepNodes[0].text = "A";
+            stepNodes[1].text = "B  B";
+            stepNodes[2].text = "C";
+
+            let branch = new Branch();
+            branch.steps = steps;
+
+            branch.updateHash(stepNodes);
+            expect(branch.hash).to.equal("2a7ed48eda68574f9e107562cf83f80d");
+
+            stepNodes[1].text = "b b";
+
+            branch.updateHash(stepNodes);
+            expect(branch.hash).to.equal("2a7ed48eda68574f9e107562cf83f80d");
+        });
+
+        it("changes the hash if an attached code block changes", () => {
+            let stepNodes = [ new StepNode(0), new StepNode(1), new StepNode(2) ];
+            let steps = [ new Step(0), new Step(1), new Step(2) ];
+
+            stepNodes[0].text = "A";
+            stepNodes[1].text = "B";
+            stepNodes[2].text = "C";
+            stepNodes[2].codeBlock = "one";
+
+            let branch = new Branch();
+            branch.steps = steps;
+
+            branch.updateHash(stepNodes);
+            expect(branch.hash).to.equal("d56bf698807b202d7dcbd81072469551");
+
+            stepNodes[2].codeBlock = "two";
+
+            branch.updateHash(stepNodes);
+            expect(branch.hash).to.equal("92184d8e2c226a9754169bff1f1f81f6");
+        });
+
+        it("changes the hash if a function call's associated code block changes", () => {
+            let stepNodes = [ new StepNode(0), new StepNode(1), new StepNode(2) ];
+            let steps = [ new Step(0), new Step(1), new Step(2) ];
+
+            stepNodes[0].text = "A";
+            stepNodes[1].text = "B";
+            stepNodes[2].text = "B";
+            stepNodes[2].codeBlock = "one";
+
+            steps[1].fid = 2;
+
+            let branch = new Branch();
+            branch.steps = steps.slice(0, 2);
+
+            branch.updateHash(stepNodes);
+            expect(branch.hash).to.equal("87cfc34a2990321cec3a3fa48b8efedf");
+
+            stepNodes[2].codeBlock = "two";
+
+            branch.updateHash(stepNodes);
+            expect(branch.hash).to.equal("181191ef59ac3756f3daf25d4b773de9");
+        });
     });
 
     describe("markBranch()", () => {
