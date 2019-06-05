@@ -249,6 +249,11 @@ class Runner {
         for(let i = 0; i < this.tree.beforeEverything.length; i++) {
             let s = this.tree.beforeEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
+            if(s.error && this.consoleOutput) {
+                console.log(``);
+                console.log(chalk.red.bold(`Before Everything error occurred:`));
+                console.log(chalk.gray(s.error.stack));
+            }
             if(s.error || this.isStopped) {
                 return false;
             }
@@ -283,6 +288,11 @@ class Runner {
         for(let i = 0; i < this.tree.afterEverything.length; i++) {
             let s = this.tree.afterEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
+            if(s.error && this.consoleOutput) {
+                console.log(``);
+                console.log(chalk.red.bold(`After Everything error occurred:`));
+                console.log(chalk.gray(s.error.stack));
+            }
         }
 
         this.tree.timeEnded = new Date();

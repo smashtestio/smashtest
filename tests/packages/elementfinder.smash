@@ -229,21 +229,40 @@ getAll() {
                                     expect(await results.matches[2].getAttribute('id')).to.equal('one');
                                 }
 
-                        $s doesn't find elements {
-                            // verify error message with -->'s
-                        }
+                        - doesn't find elements
+
+                            create html page {
+                                await setPageBody(`
+                                    <div id="wrong">buzz</div>
+                                `);
+                            }
+
+                                doesn't find elements {
+                                    let ef = new ElementFinder(`'foobar'`);
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.ef.print()).to.equal(`'foobar'  -->  not found (zero matches after \`'foobar'\` applied)`);
+                                }
 
                     - defined prop
 
                         - prop is an EF
 
-                            $s finds elements {
-
+                            create html page {
+                                await setPageBody(`
+                                    <div id="wrong">buzz</div>
+                                `);
                             }
 
-                            $s doesn't find elements {
+                                $s finds elements {
 
-                            }
+                                }
+
+                                $s doesn't find elements {
+
+                                }
 
                         - prop is a function
 

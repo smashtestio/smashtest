@@ -11611,7 +11611,7 @@ G -
             tree.branches[1].isPassed = true;
             tree.branches[2].isFailed = true;
             tree.branches[3].isFailed = true;
-            let obj = tree.serialize(1);
+            let obj = tree.serialize(1, 1);
 
             mergeStepNodesInTree(obj);
             Comparer.expect(obj).to.match({

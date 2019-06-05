@@ -374,6 +374,10 @@ class RunInstance {
             await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.filename, stepNode.lineNumber, stepToGetError || branchToGetError);
         }
         catch(e) {
+            if(this.isStopped) {
+                return true;
+            }
+
             this.fillErrorFromStep(e, step, true);
 
             if(this.runner.outputErrors) {
@@ -1020,7 +1024,7 @@ class RunInstance {
             console.log("Branch complete");
             if(this.currBranch.error) {
                 console.log("");
-                console.log(chalk.red.bold("Errors occurred in branch") + chalk.gray(`    [${this.currBranch.error.filename}:${this.currBranch.error.lineNumber}]`));
+                console.log(chalk.red.bold("Error occurred in branch") + chalk.gray(`    [${this.currBranch.error.filename}:${this.currBranch.error.lineNumber}]`));
                 console.log(chalk.gray(this.currBranch.error.stack));
             }
             console.log("");

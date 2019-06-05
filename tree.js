@@ -1305,12 +1305,13 @@ ${outputBranchAbove(this)}
     /**
      * Generates an object that represents this tree, but able to be converted to JSON and only containing the most necessary stuff for a report
      * Updates counts
-     * @param {Number} [max] - Maximum number of branches to serialize per type (passed, failed, etc.), no limit if omitted
+     * @param {Number} [max] - Maximum number of branches to serialize per type (passed, skipped, etc.), no limit if omitted
+     * @param {Number} [maxFailed] - Maximum number of failed branches to serialize, no limit if omitted
      * @return {Object} An Object representing this tree
      */
-    serialize(max) {
+    serialize(max, maxFailed) {
         let branchesRunning = this.branches.filter(branch => branch.isRunning).filter(keepBranch);
-        let branchesFailed = this.branches.filter(branch => branch.isFailed).filter(keepBranch);
+        let branchesFailed = this.branches.filter(branch => branch.isFailed).filter(keepBranchFailed);
         let branchesPassed = this.branches.filter(branch => branch.isPassed || branch.passedLastTime).filter(keepBranch);
         let branchesSkipped = this.branches.filter(branch => branch.isSkipped).filter(keepBranch);
         let branchesNotRunYet = this.branches.filter(branch => !branch.isCompleteOrRunning()).filter(keepBranch);
@@ -1351,6 +1352,10 @@ ${outputBranchAbove(this)}
 
         function keepBranch(branch, index) {
             return max ? index < max : true;
+        }
+
+        function keepBranchFailed(branch, index) {
+            return maxFailed ? index < maxFailed : true;
         }
     }
 

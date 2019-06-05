@@ -71,11 +71,15 @@ async function exit(forcedStop, exitCode) {
 }
 
 process.on('unhandledRejection', (reason, promise) => {
-    onError(reason, true);
+    if(!runner.isStopped) {
+        onError(reason, true);
+    }
 });
 
 process.on('uncaughtException', (err) => {
-    onError(err, true);
+    if(!runner.isStopped) {
+        onError(err, true);
+    }
 });
 
 // ***************************************
@@ -685,6 +689,7 @@ function plural(count) {
                     clearOnComplete: clearOnComplete,
                     barsize: 25,
                     hideCursor: true,
+                    linewrap: true,
                     format: "{bar} {percentage}% | "
                 }, progress.Presets.shades_classic);
             }

@@ -152,12 +152,13 @@ class Reporter {
      */
     async writeFull() {
         const MAX_BRANCHES_PER_TYPE = 500;
+        const MAX_BRANCHES_PER_FAILED = 1000;
 
         this.reportTime = new Date();
 
         // Generate report data file
         let reportData = 'onReportData(String.raw`' + utils.escapeBackticks(JSON.stringify({
-            tree: this.tree.serialize(MAX_BRANCHES_PER_TYPE),
+            tree: this.tree.serialize(MAX_BRANCHES_PER_TYPE, MAX_BRANCHES_PER_FAILED),
             runner: this.runner.serialize(),
             reportTime: this.reportTime,
             reportDomain: this.reportDomain
