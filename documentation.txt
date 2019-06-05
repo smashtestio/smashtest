@@ -68,6 +68,8 @@ Running tests
             - med if omitted
         - --no-debug
         - --output-errors or -e
+            - Great for when you're developing tests and expect a few to fail (great with -s)
+            - Great for unit tests that run quick and you don't want to be switching to the report each time
         - --p:varname=value or "value" (persistent var)
         - --random=true/false
         - --repl or -r
