@@ -50,7 +50,11 @@ class SeleniumBrowser {
             for(let i = 0; i < browsers.length; i++) {
                 let browser = browsers[i];
                 if(browser.driver) {
-                    await browser.driver.quit();
+                    try {
+                        await browser.driver.quit();
+                    }
+                    catch(e) {} // ignore errors
+
                     browser.driver = null;
                 }
             }
@@ -215,13 +219,7 @@ class SeleniumBrowser {
             builder = builder.usingServer(params.serverUrl);
         }
 
-        try {
-            this.driver = await builder.build();
-        }
-        catch(e) {
-            e.fatal = true;
-            throw e;
-        }
+        this.driver = await builder.build();
 
         // Resize to dimensions
         // NOTE: Options.windowSize() wasn't working properly
