@@ -67,7 +67,7 @@ Running tests
         - --min-frequency=med
             - med if omitted
         - --no-debug
-        - --output-errors or -e
+        - --output-errors=<true/false> or -e (same as true)
             - Great for when you're developing tests and expect a few to fail (great with -s)
             - Great for unit tests that run quick and you don't want to be switching to the report each time
         - --p:varname=value or "value" (persistent var)
@@ -82,7 +82,7 @@ Running tests
                 - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
         - --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
         - --selenium-server=http://localhost:4444/wd/hub
-        - --skip-passed or -s
+        - --skip-passed=<true/false/filename> or -s (same as true)
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.
                 - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
                 - Doesn't run branches that have since been removed from the tree

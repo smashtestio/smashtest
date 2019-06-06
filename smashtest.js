@@ -104,6 +104,10 @@ function processFlag(name, value) {
                 runner.debugHash = value;
                 break;
 
+            case "e":
+                runner.outputErrors = true;
+                break;
+
             case "g":
                 runner.globalInit[varName] = value;
                 break;
@@ -130,36 +134,55 @@ Files
 
 Options
 
-  --debug=<hash> or -d            Run the branch associated with the hash in debug mode
+  -d=<hash>                       Run the branch associated with the hash in debug mode
+  -r                              Open the REPL (drive SmashTEST from command line)
+  -s                              Skip branches that passed last time, carrying them over as passed into report
+  -v                              Output the version of SmashTEST
+  -?                              Open this help prompt
+
+  --debug=<hash>                  Run the branch associated with the hash in debug mode
   --group="<group>"               Same as --groups, but only one group. Multiple --group's ok.
   --groups="<group1>,<group2>"    Only run branches that are part of one of these groups
-  --g:<name>="<value>"            Sets a global variable before each branch
-  --headless=<true/false>         Overrides default headless behavior, true if <true/false> omitted
-  --help or -?                    Open this help prompt
+  --g:<name>="<value>"            Sets a global variable before every branch
+  --headless=<true/false>         Whether or not to run browsers as headless
+  --help                          Open this help prompt
   --max-parallel=<N>              Do not run more than N branches simultaneously
   --max-screenshots=<N>           Do not store more than N screenshots. Set to 0 to disable screenshots.
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
   --no-debug                      Fail if there are any $'s or ~'s. Useful to prevent debugging in CI.
-  --output-errors or -e           Outputs all errors to console
+  --output-errors=<true/false>    Whether to output all errors to console
   --p:<name>="<value>"            Set a persistent variable
-  --random=<true/false>           Whether or not to randomize the order of branches. Default is true.
-  --repl or -r                    Open the REPL (drive SmashTEST from command line)
+  --random=<true/false>           Whether or not to randomize the order of branches
+  --repl                          Open the REPL (drive SmashTEST from command line)
   --report-domain=<domain>        Domain and port where report server should run (domain or domain:port format)
-  --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
+  --report-server=<true/false>    Whether or not to run a server during run for live report updates
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
-  --skip-passed or -s             Do not run branches that passed last time. Just carry them over into new report.
-  --step-data=<all/fail/none>     Keep step data for all steps, failed step, or no steps. Default is fail.
-  --version or -v                 Output the version of SmashTEST
+  --skip-passed=<true/false/file> Whether or not to skip branches that passed last time
+  --step-data=<all/fail/none>     Keep step data for all steps, only failed steps, or no steps
+  --version                       Output the version of SmashTEST
 `);
                 process.exit();
 
             case "max-parallel":
-                runner.maxParallel = value;
+                if(typeof value == 'number') {
+                    if(value <= 0 || Math.abs(value) != value) {
+                        utils.error('Invalid max-parallel. It must be a positive integer above 0.');
+                    }
+
+                    runner.maxParallel = value;
+                }
+                else { // string
+                    if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
+                        utils.error('Invalid max-parallel. It must be a positive integer above 0.');
+                    }
+
+                    runner.maxParallel = parseInt(value);
+                }
                 break;
 
             case "min-frequency":
                 if(['high', 'med', 'low'].indexOf(value) == -1) {
-                    utils.error("Invalid min-frequency argument. Must be either high, med, or low.");
+                    utils.error("Invalid min-frequency. It must be either 'high', 'med', or 'low'.");
                 }
                 runner.minFrequency = value;
                 break;
@@ -169,8 +192,7 @@ Options
                 break;
 
             case "output-errors":
-            case "e":
-                runner.outputErrors = true;
+                runner.outputErrors = (value == 'true');
                 break;
 
             case "p":
@@ -188,7 +210,7 @@ Options
 
             case "report-domain":
                 if(!value.match(/^[^\/\: ]+(\:[0-9]+)?$/)) {
-                    utils.error("Invalid report-domain (must be domain or domain:port)");
+                    utils.error("Invalid report-domain. It must be in format 'domain' or 'domain:port'.");
                 }
                 reporter.reportDomain = value;
                 break;
@@ -197,19 +219,25 @@ Options
                 reporter.isReportServer = (value == 'true');
                 break;
 
-            case "skip-passed":
             case "s":
-                if(value) {
-                    runner.skipPassed = value;
+                runner.skipPassed = true;
+                break;
+
+            case "skip-passed":
+                if(value == 'true') {
+                    runner.skipPassed = true;
+                }
+                else if(value == 'false') {
+                    runner.skipPassed = false;
                 }
                 else {
-                    runner.skipPassed = true;
+                    runner.skipPassed = value;
                 }
                 break;
 
             case "step-data":
                 if(!value.match(/all|fail|none/)) {
-                    utils.error("step-data must be all, fail, or none");
+                    utils.error("Invalid step-data. It must be 'all', 'fail', or 'none'.");
                 }
                 tree.stepDataMode = value;
                 break;
@@ -389,6 +417,9 @@ function plural(count) {
         if(runner.skipPassed && !tree.isDebug) {
             await reporter.markPassedFromPrevRun(runner.skipPassed === true ? undefined : runner.skipPassed);
         }
+
+        // Suppress maxlisteners warning from node
+        require('events').EventEmitter.defaultMaxListeners = runner.maxParallel + 5;
 
         let elapsed = 0;
 
