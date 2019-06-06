@@ -248,85 +248,181 @@ getAll() {
 
                     - defined prop
 
-                        - prop is an EF
+                        * create html page {
+                            await setPageBody(`
+                                <div id="one" class="small">foobar</div>
+                                <div id="two" class="big">foobar</div>
+                                <div id="three" class="big">foobar</div>
+                                <div id="four" class="small">foobar</div>
+                            `);
+                        }
 
-                            - one EF
+                            * finds one element {
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                                create html page and defined props {
-                                    await setPageBody(`
-                                        <div id="one" class="small">foobar</div>
-                                        <div id="two" class="big">foobar</div>
-                                        <div id="three" class="big">foobar</div>
-                                        <div id="four" class="small">foobar</div>
-                                    `);
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                            }
 
+                            * finds all elements {
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(2);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                            }
+
+                            * doesn't find elements {
+                                let ef = new ElementFinder(`tiny`);
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.ef.print()).to.equal(`tiny  -->  not found (zero matches after \`tiny\` applied)`);
+                            }
+
+                        create html page
+
+                            - prop is an EF
+
+                                - one EF
+
+                                    create defined props {
+                                        let definedProps = ElementFinder.defaultProps();
+                                        definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                                        definedProps.tiny = [ new ElementFinder(`selector '.tiny'`, definedProps) ];
+
+                                        g('definedProps', definedProps);
+                                    }
+
+                                        try to find one element {
+                                            g('ef', new ElementFinder(`big`, definedProps));
+                                        }
+
+                                            finds one element
+
+                                        try to find all elements {
+                                            g('ef', new ElementFinder(`0+ x big`, definedProps));
+                                        }
+
+                                            finds all elements
+
+                                        try to not find any elements {
+                                            g('ef', new ElementFinder(`tiny`, definedProps));
+                                        }
+
+                                            doesn't find elements
+
+                                - EF referenced by an EF
+
+                                    create defined props {
+                                        let definedProps = ElementFinder.defaultProps();
+                                        definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                                        definedProps.bigger = [ new ElementFinder(`big`, definedProps) ];
+
+                                        g('definedProps', definedProps);
+                                    }
+
+                                        try to find all elements {
+                                            g('ef', new ElementFinder(`0+ x bigger`, definedProps));
+                                        }
+
+                                            finds all elements
+
+                                - EF referenced by an EF referenced by an EF
+
+                                    create defined props {
+                                        let definedProps = ElementFinder.defaultProps();
+                                        definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                                        definedProps.bigger = [ new ElementFinder(`big`, definedProps) ];
+                                        definedProps.biggest = [ new ElementFinder(`bigger`, definedProps) ];
+
+                                        g('definedProps', definedProps);
+                                    }
+
+                                        try to find all elements {
+                                            g('ef', new ElementFinder(`0+ x biggest`, definedProps));
+                                        }
+
+                                            finds all elements
+
+                            - prop is a function
+
+                                create defined props {
                                     let definedProps = ElementFinder.defaultProps();
-                                    definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                                    definedProps.big = [ function(elems, input) {
+                                        return elems.filter(function(elem) {
+                                            return elem.className == 'big';
+                                        });
+                                    } ]
 
                                     g('definedProps', definedProps);
                                 }
 
-                                    finds one element {
-                                        let ef = new ElementFinder(`big`, definedProps);
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.false;
-                                        expect(results.matches).to.have.lengthOf(1);
-                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                    try to find one element {
+                                        g('ef', new ElementFinder(`big`, definedProps));
                                     }
 
-                                    finds all elements {
-                                        let ef = new ElementFinder(`0+ x big`, definedProps);
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
+                                        finds one element
 
-                                        expect(results.ef.hasErrors()).to.be.false;
-                                        expect(results.matches).to.have.lengthOf(2);
-                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
-                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                    try to find all elements {
+                                        g('ef', new ElementFinder(`0+ x big`, definedProps));
                                     }
 
-                                    doesn't find elements {
-                                        definedProps.tiny = [ new ElementFinder(`selector '.tiny'`, definedProps) ];
+                                        finds all elements
 
-                                        let ef = new ElementFinder(`tiny`);
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.true;
-                                        expect(results.ef.print()).to.equal(`tiny  -->  not found (zero matches after \`tiny\` applied)`);
+                                    try to not find any elements {
+                                        g('ef', new ElementFinder(`tiny`, definedProps));
                                     }
 
-                            - EF referenced by an EF
+                                        doesn't find elements
 
-                            - EF referenced by an EF referenced by an EF
+                            - prop is a function with input
 
-                        - prop is a function
+                                create defined props {
+                                    let definedProps = ElementFinder.defaultProps();
+                                    definedProps['look for it'] = [ function(elems, input) {
+                                        return elems.filter(function(elem) {
+                                            return elem.className == input;
+                                        });
+                                    } ]
 
-                            $s finds elements {
+                                    g('definedProps', definedProps);
+                                }
+
+                                    try to find one element {
+                                        g('ef', new ElementFinder(`look for it 'big'`, definedProps));
+                                    }
+
+                                        finds one element
+
+                                    try to find all elements {
+                                        g('ef', new ElementFinder(`0+ x look for it 'big'`, definedProps));
+                                    }
+
+                                        finds all elements
+
+                                    try to not find any elements {
+                                        g('ef', new ElementFinder(`look for it 'tiny'`, definedProps));
+                                    }
+
+                                        doesn't find elements
+
+                            - multiple definitions in one prop
+
+
+
+
+
+                            
+
+                            $s handles the 'not' keyword {
 
                             }
-
-                            $s doesn't find elements {
-
-                            }
-
-                        - prop is a function with input
-
-                            $s finds elements {
-
-                            }
-
-                            $s doesn't find elements {
-
-                            }
-
-                        - multiple definitions in one prop
-
-                        $s handles the 'not' keyword {
-
-                        }
 
                     - selector
 
