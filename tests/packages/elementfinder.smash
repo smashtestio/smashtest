@@ -250,19 +250,50 @@ getAll() {
 
                         - prop is an EF
 
-                            create html page {
-                                await setPageBody(`
-                                    <div id="wrong">buzz</div>
-                                `);
-                            }
+                            - one EF
 
-                                $s finds elements {
+                                create html page and defined props {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
 
+                                    let definedProps = ElementFinder.defaultProps();
+                                    definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+
+                                    g('definedProps', definedProps);
                                 }
 
-                                $s doesn't find elements {
+                                    finds one element {
+                                        let ef = new ElementFinder(`big`, definedProps);
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
-                                }
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                    }
+
+                                    finds all elements {
+                                        let ef = new ElementFinder(`0+ x big`, definedProps);
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                    }
+
+                                    $s doesn't find elements {
+
+                                    }
+
+                            - EF referenced by an EF
+
+                            - EF referenced by an EF referenced by an EF
 
                         - prop is a function
 

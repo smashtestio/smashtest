@@ -298,7 +298,7 @@ class SeleniumBrowser {
             if(props.hasOwnProperty(prop)) {
                 if(typeof props[prop] == 'string') {
                     // parse it as an EF
-                    props[prop] = new ElementFinder(props[prop], this.props, runInstance.log);
+                    props[prop] = new ElementFinder(props[prop], this.props, undefined, runInstance.log);
                 }
                 else if(typeof props[prop] == 'function') {
                 }
@@ -321,7 +321,7 @@ class SeleniumBrowser {
             if(props.hasOwnProperty(prop)) {
                 if(typeof props[prop] == 'string') {
                     // parse it as an EF
-                    props[prop] = new ElementFinder(props[prop], this.props, runInstance.log);
+                    props[prop] = new ElementFinder(props[prop], this.props, undefined, runInstance.log);
                 }
                 else if(typeof props[prop] == 'function') {
                 }

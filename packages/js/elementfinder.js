@@ -52,15 +52,15 @@ class ElementFinder {
         */
 
         if(!usedDefinedProps) { // only create one usedDefinedProps object, and only on the top parent
-            this.usedDefinedProps = {};
-            usedDefinedProps = this.usedDefinedProps;
+            usedDefinedProps = {};
         }
+        this.usedDefinedProps = usedDefinedProps;
 
         logger && (this.logger = logger);
 
         // Parse str into this EF
         if(!noParse) {
-            this.parseIn(str, definedProps || ElementFinder.defaultProps(), usedDefinedProps, lineNumberOffset || 0);
+            this.parseIn(str, definedProps || ElementFinder.defaultProps(), this.usedDefinedProps, lineNumberOffset || 0);
         }
     }
 
@@ -236,9 +236,19 @@ class ElementFinder {
                 }
 
                 if(definedProps.hasOwnProperty(canonPropStr)) {
-                    if(!usedDefinedProps.hasOwnProperty(canonPropStr)) {
-                        usedDefinedProps[canonPropStr] = definedProps[canonPropStr];
+                    function addToUsedDefinedProps(canonPropStr) {
+                        if(!usedDefinedProps.hasOwnProperty(canonPropStr)) {
+                            usedDefinedProps[canonPropStr] = definedProps[canonPropStr];
+
+                            usedDefinedProps[canonPropStr].forEach(def => {
+                                if(def instanceof ElementFinder) {
+                                    def.props.forEach(prop => addToUsedDefinedProps(prop.def));
+                                }
+                            });
+                        }
                     }
+
+                    addToUsedDefinedProps(canonPropStr);
 
                     prop = {
                         prop: (isNot ? 'not ' : '') + propStr,
@@ -405,7 +415,17 @@ class ElementFinder {
             ef: this.serialize(),
             definedProps: this.usedDefinedProps
         },
-        (k, v) => typeof v == 'function' ? v.toString() : v );
+        (k, v) => {
+            if(typeof v == 'function') {
+                return v.toString();
+            }
+            else if(v instanceof ElementFinder) {
+                return v.serialize();
+            }
+            else {
+                return v;
+            }
+        });
     }
 
     /**
@@ -605,12 +625,13 @@ class ElementFinder {
 
                     for(let def of definedProps[prop.def]) {
                         if(typeof def == 'object') { // def is an EF
+                            def.counter = { min: 0 }; // match multiple elements
                             findEF(def, pool);
                             let matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
                             approvedElems = approvedElems.concat(intersectArr(pool, matched));
                         }
                         else if(typeof def == 'string') { // stringified function
-                            eval('var f = ' + def);
+                            eval('var f = ' + def.replace(/\n/g, '\n'));
                             approvedElems = approvedElems.concat(f(pool, prop.input));
                         }
                     }
@@ -1052,8 +1073,12 @@ class ElementFinder {
             'selector': [
                 function(elems, input) {
                     let nodes = document.querySelectorAll(input);
-                    return elems.filter(function(elem) {
-                        return nodes.indexOf(elem) != -1;
+                    let nodesArr = [];
+                    for(let node of nodes) {
+                        nodesArr.push(node);
+                    }
+                    return nodesArr.filter(function(node) {
+                        return elems.indexOf(node) != -1;
                     });
                 }
             ],

@@ -193,12 +193,11 @@ describe("ElementFinder", function() {
 
             context("defined prop", () => {
                 it("defined property set to an EF", () => {
-                    let ef = new ElementFinder(`bold`, {
-                        bold: [ new ElementFinder(`b`, {
-                            b: [ (elems, input) => true ]
-                        }) ],
-                        visible: [ (elems, input) => true ]
-                    });
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps.b = [ (elems, input) => true ];
+                    definedProps.bold = [ new ElementFinder(`b`, definedProps) ];
+
+                    let ef = new ElementFinder(`bold`, definedProps);
 
                     Comparer.expect(ef).to.match({
                         counter: { min: 1, max: 1 },
@@ -2513,6 +2512,167 @@ one
                     children: []
                 },
                 definedProps: {}
+            });
+        });
+
+        it("handles a prop set to an EF", () => {
+            let definedProps = ElementFinder.defaultProps();
+            definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+
+            let ef = new ElementFinder(`big`, definedProps);
+            let json = ef.serializeJSON();
+            let obj = JSON.parse(json);
+
+            Comparer.expect(obj).to.match({
+                ef: {
+                    line: `big`,
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `big`,
+                            def: `big`,
+                            input: undefined,
+                            not: undefined
+                        },
+                        {
+                           prop: `visible`,
+                           def: `visible`,
+                           input: undefined,
+                           not: undefined
+                        }
+                    ],
+                    children: []
+                },
+                definedProps: {
+                    big: [
+                        {
+                            line: `selector '.big'`,
+                            counter: { min: 1, max: 1 },
+                            props: [
+                                {
+                                    prop: `selector '.big'`,
+                                    def: `selector`,
+                                    input: `.big`
+                                },
+                                {
+                                    prop: `visible`,
+                                    def: `visible`
+                                }
+                            ],
+                            children: []
+                        }
+                    ],
+                    visible: [ { $typeof: 'string' } ],
+                    selector: [ { $typeof: 'string' } ]
+                }
+            });
+        });
+
+        it("handles a prop set to an EF with a prop set to an EF", () => {
+            let definedProps = ElementFinder.defaultProps();
+            definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+            definedProps.bigger = [ new ElementFinder(`big`, definedProps) ];
+
+            let ef = new ElementFinder(`bigger`, definedProps);
+            let json = ef.serializeJSON();
+            let obj = JSON.parse(json);
+
+            Comparer.expect(obj).to.match({
+                ef: {
+                    line: `bigger`,
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `bigger`,
+                            def: `bigger`,
+                            input: undefined,
+                            not: undefined
+                        },
+                        {
+                           prop: `visible`,
+                           def: `visible`,
+                           input: undefined,
+                           not: undefined
+                        }
+                    ],
+                    children: []
+                },
+                definedProps: {
+                    big: [
+                        {
+                            line: `selector '.big'`,
+                            counter: { min: 1, max: 1 },
+                            props: [
+                                {
+                                    prop: `selector '.big'`,
+                                    def: `selector`,
+                                    input: `.big`
+                                },
+                                {
+                                    prop: `visible`,
+                                    def: `visible`,
+                                    input: undefined,
+                                }
+                            ],
+                            children: []
+                        }
+                    ],
+                    bigger: [
+                        {
+                            line: `big`,
+                            counter: { min: 1, max: 1 },
+                            props: [
+                                {
+                                    prop: `big`,
+                                    def: `big`,
+                                    input: undefined,
+                                },
+                                {
+                                    prop: `visible`,
+                                    def: `visible`,
+                                    input: undefined,
+                                }
+                            ],
+                            children: []
+                        }
+                    ],
+                    visible: [ { $typeof: 'string' } ],
+                    selector: [ { $typeof: 'string' } ]
+                }
+            });
+        });
+
+        it("handles a prop set to a function", () => {
+            let definedProps = ElementFinder.defaultProps();
+            definedProps.big = [ (elems, input) => elems.filter(elem => elem.className == 'big') ];
+
+            let ef = new ElementFinder(`big`, definedProps);
+            let json = ef.serializeJSON();
+            let obj = JSON.parse(json);
+
+            Comparer.expect(obj).to.match({
+                ef: {
+                    line: `big`,
+                    counter: { min: 1, max: 1 },
+                    props: [
+                        {
+                            prop: `big`,
+                            def: `big`,
+                            input: undefined,
+                            not: undefined
+                        },
+                        {
+                           prop: `visible`,
+                           def: `visible`,
+                           input: undefined,
+                           not: undefined
+                        }
+                    ],
+                    children: []
+                },
+                definedProps: {
+                    big: [ `(elems, input) => elems.filter(elem => elem.className == 'big')` ]
+                }
             });
         });
 
