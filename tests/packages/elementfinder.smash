@@ -287,8 +287,15 @@ getAll() {
                                         expect(await results.matches[1].getAttribute('id')).to.equal('three');
                                     }
 
-                                    $s doesn't find elements {
+                                    doesn't find elements {
+                                        definedProps.tiny = [ new ElementFinder(`selector '.tiny'`, definedProps) ];
 
+                                        let ef = new ElementFinder(`tiny`);
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.ef.print()).to.equal(`tiny  -->  not found (zero matches after \`tiny\` applied)`);
                                     }
 
                             - EF referenced by an EF
