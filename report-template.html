@@ -1715,10 +1715,6 @@ c     = copy text of branch
                             </div>
                         </span>
                     );
-
-                    /*
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAELSURBVEhL7dTNSgJRHIbxcZuW6yATXES0ELoOr6BNmzYRJWpBm1begRvvRy2qOwgXEUEQ0b5NfjzvwJHp3xmb8YM288BvMc54XkQ0yMr613bQxnZ4tVw1nCMXXkXaxTMmGKKERTvGN3RWFz/GnqAbjkbLSNsJRoie1cSsO0RvygsqSNopxrDn6BPOKuIR9qFX7OGvLuAbucKvNPYA+/Ab9hHXJXwjLcSmsXvYN73jALZr2Gdl7ohLY77v7ANVuG5gn9EnayBxW7iFPegTh9Dvzd7TSB2p24Rv7Mvz2sIjLo0NYA+O0oj+BZaugD7iRs6wsvLowY7oR7ryNuDG1jbi0lgHR+FVVlb6gmAKeHV8OT7nAP0AAAAASUVORK5CYII=" />
-                    */
                 }
             }
 
@@ -1879,6 +1875,7 @@ c     = copy text of branch
                                 setPreview={this.props.setPreview}
                                 previewedItem={previewedItem}
                                 hasLevels={hasLevels}
+                                getRunState={this.getRunState}
                             />
                         );
 
@@ -1919,6 +1916,14 @@ c     = copy text of branch
                     this.me = null; // this element
 
                     this.toggleActiveState = this.toggleActiveState.bind(this);
+                }
+
+                shouldComponentUpdate(nextProps, nextState) {
+                    return this.props.getRunState(nextProps.step) != this.props.getRunState(this.props.step) ||
+                        nextProps.previewedItem === this ||
+                        this.props.previewedItem === this ||
+                        nextProps.step.collapse != this.props.step.collapse ||
+                        nextProps.step.collapseHide != this.props.step.collapse;
                 }
 
                 surroundByVerticalLineContainers(elem, n) {

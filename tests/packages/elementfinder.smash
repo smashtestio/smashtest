@@ -322,6 +322,8 @@ getAll() {
 
                             }
 
+                        - multiple definitions in one prop
+
                         $s handles the 'not' keyword {
 
                         }

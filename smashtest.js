@@ -192,7 +192,7 @@ Options
                 break;
 
             case "output-errors":
-                runner.outputErrors = (value == 'true');
+                runner.outputErrors = isTrue(value);
                 break;
 
             case "p":
@@ -200,7 +200,7 @@ Options
                 break;
 
             case "random":
-                runner.random = (value == 'true');
+                runner.random = isTrue(value);
                 break;
 
             case "repl":
@@ -216,7 +216,7 @@ Options
                 break;
 
             case "report-server":
-                reporter.isReportServer = (value == 'true');
+                reporter.isReportServer = isTrue(value);
                 break;
 
             case "s":
@@ -224,10 +224,10 @@ Options
                 break;
 
             case "skip-passed":
-                if(value == 'true') {
+                if(isTrue(value)) {
                     runner.skipPassed = true;
                 }
-                else if(value == 'false') {
+                else if(isFalse(value)) {
                     runner.skipPassed = false;
                 }
                 else {
@@ -252,6 +252,30 @@ Options
     }
     catch(e) {
         onError(e);
+    }
+
+    function isTrue(value) {
+        if(typeof value == 'boolean') {
+            return value;
+        }
+        else if(typeof value == 'string') {
+            return value.toLowerCase() == 'true';
+        }
+        else {
+            return false;
+        }
+    }
+
+    function isFalse(value) {
+        if(typeof value == 'boolean') {
+            return !value;
+        }
+        else if(typeof value == 'string') {
+            return value.toLowerCase() == 'false';
+        }
+        else {
+            return false;
+        }
     }
 }
 

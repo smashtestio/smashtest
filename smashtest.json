@@ -1,5 +1,5 @@
 {
-    "max-parallel": 10,
+    "max-parallel": 5,
     "output-errors": true,
     "skip-passed": true
 }
