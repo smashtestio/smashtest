@@ -249,6 +249,8 @@ Options
             default:
                 break;
         }
+
+        runner.flags[name] = value;
     }
     catch(e) {
         onError(e);
@@ -356,7 +358,6 @@ function plural(count) {
                 let value = matches[3];
 
                 processFlag(name, value);
-                runner.flags[name] = value;
             }
             else {
                 filenames.push(arg);
