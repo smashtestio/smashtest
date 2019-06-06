@@ -91,6 +91,13 @@ process.on('uncaughtException', (err) => {
  */
 function processFlag(name, value) {
     try {
+        if(typeof name != 'string') {
+            name = name.toString();
+        }
+        if(typeof value != 'string') {
+            value = value.toString();
+        }
+
         let varName = null;
         matches = name.match(/^(g|p)\:(.*)$/);
         if(matches) {
@@ -164,20 +171,11 @@ Options
                 process.exit();
 
             case "max-parallel":
-                if(typeof value == 'number') {
-                    if(value <= 0 || Math.abs(value) != value) {
-                        utils.error('Invalid max-parallel. It must be a positive integer above 0.');
-                    }
-
-                    runner.maxParallel = value;
+                if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
+                    utils.error('Invalid max-parallel. It must be a positive integer above 0.');
                 }
-                else { // string
-                    if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
-                        utils.error('Invalid max-parallel. It must be a positive integer above 0.');
-                    }
 
-                    runner.maxParallel = parseInt(value);
-                }
+                runner.maxParallel = parseInt(value);
                 break;
 
             case "min-frequency":
@@ -192,7 +190,7 @@ Options
                 break;
 
             case "output-errors":
-                runner.outputErrors = isTrue(value);
+                runner.outputErrors = (value == 'true');
                 break;
 
             case "p":
@@ -200,7 +198,7 @@ Options
                 break;
 
             case "random":
-                runner.random = isTrue(value);
+                runner.random = (value == 'true');
                 break;
 
             case "repl":
@@ -216,7 +214,7 @@ Options
                 break;
 
             case "report-server":
-                reporter.isReportServer = isTrue(value);
+                reporter.isReportServer = (value == 'true');
                 break;
 
             case "s":
@@ -224,10 +222,10 @@ Options
                 break;
 
             case "skip-passed":
-                if(isTrue(value)) {
+                if(value == 'true') {
                     runner.skipPassed = true;
                 }
-                else if(isFalse(value)) {
+                else if(value == 'false') {
                     runner.skipPassed = false;
                 }
                 else {
@@ -254,30 +252,6 @@ Options
     }
     catch(e) {
         onError(e);
-    }
-
-    function isTrue(value) {
-        if(typeof value == 'boolean') {
-            return value;
-        }
-        else if(typeof value == 'string') {
-            return value.toLowerCase() == 'true';
-        }
-        else {
-            return false;
-        }
-    }
-
-    function isFalse(value) {
-        if(typeof value == 'boolean') {
-            return !value;
-        }
-        else if(typeof value == 'string') {
-            return value.toLowerCase() == 'false';
-        }
-        else {
-            return false;
-        }
     }
 }
 
