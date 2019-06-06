@@ -693,7 +693,7 @@ right = expand
 space = toggle before/after
 esc   = close preview
 h     = copy hash
-d     = copy debug command <span class="keystroke-command">smashtest -d=hash</span>
+d     = copy debug command <span class="keystroke-command">smashtest --debug=hash</span>
 c     = copy text of branch
                 `);
                 let tippyOptionsKeystrokes = Object.assign({}, tippyOptions);
@@ -1089,9 +1089,7 @@ c     = copy text of branch
                     else if(charStr == 'D') {
                         if(this.state.previewedItem) {
                             let hash = this.state.previewedItem.props.branch.hash;
-                            //let filename = this.state.previewedItem.props.branch.steps[0].filename;
-                            //let command = `smashtest ${filename} -d=${hash}`;
-                            let command = `smashtest -d=${hash}`;
+                            let command = `smashtest --debug=${hash}`;
                             this.copyToClipboard(command);
                             this.showNotification(`Copied  <span class="copied-text">${command}</span> to clipboard`);
                         }

@@ -48,7 +48,7 @@ Running tests
         - 2) Diversifies the browsers and devices used at any given time, so as to maximize the capabilities of a grid (such as selenium grid)
         - Disable with --random=false
     - Command line options
-        - --debug=[HASH] or -d
+        - --debug=[HASH]
             - Only run that branch as debugged. Ignore $'s, ~'s, groups, and frequency
         - --group=value (you can do many of these - great for group names with spaces)
         - --groups=value or "val1,val2,val3"
@@ -82,7 +82,7 @@ Running tests
                 - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
         - --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
         - --selenium-server=http://localhost:4444/wd/hub
-        - --skip-passed=<true/false/filename> or -s (same as true)
+        - --skip-passed=<true/false/filename>, -s (same as true), -a (same as false)
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.
                 - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
                 - Doesn't run branches that have since been removed from the tree
