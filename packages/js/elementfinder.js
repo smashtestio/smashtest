@@ -600,16 +600,18 @@ class ElementFinder {
                         }
 
                         if(topElems.length == 0) {
-                            if(originalTopElemCount == 1) {
-                                ef.error = "found, but doesn't contain all the children below";
-                            }
-                            else {
-                                ef.error = originalTopElemCount + " found, but none contain all the children below";
-                                clearErrorsOfChildren(ef);
-                            }
+                            if(ef.counter.min > 0) {
+                                if(originalTopElemCount == 1) {
+                                    ef.error = "found, but doesn't contain all the children below";
+                                }
+                                else {
+                                    ef.error = originalTopElemCount + " found, but none contain all the children below";
+                                    clearErrorsOfChildren(ef);
+                                }
 
-                            if(!ef.isAnyOrder) {
-                                ef.error += " (in that order)";
+                                if(!ef.isAnyOrder) {
+                                    ef.error += " (in that order)";
+                                }
                             }
                         }
                         else if(topElems.length < min) {
@@ -666,7 +668,9 @@ class ElementFinder {
                     pool = prop.not ? intersectArrNot(pool, approvedElems) : intersectArr(pool, approvedElems);
 
                     if(pool.length == 0) {
-                        ef.error = 'not found (zero matches after `' + prop.prop + '` applied)';
+                        if(ef.counter.min > 0 || ef.isElemArray) {
+                            ef.error = 'not found (zero matches after `' + prop.prop + '` applied)';
+                        }
                         break;
                     }
                 }
