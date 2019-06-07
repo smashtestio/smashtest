@@ -622,7 +622,7 @@ getAll() {
                                     `);
                                 }
 
-                                    ~ doesn't find elements, no errors {
+                                    doesn't find elements, no errors {
                                         let results = await ef.getAll(browser.driver);
                                         results.ef = ElementFinder.parseObj(results.ef);
 
