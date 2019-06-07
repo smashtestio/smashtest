@@ -30,7 +30,7 @@ getAll() {
                                 `);
                             }
 
-                                match one element {
+                                finds one element {
                                     let ef = new ElementFinder(`'foo'`);
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
@@ -40,8 +40,8 @@ getAll() {
                                     expect(await results.matches[0].getTagName()).to.equal('html');
                                 }
 
-                                match all elements {
-                                    let ef = new ElementFinder(`0+ x 'foo'`);
+                                finds all elements {
+                                    let ef = new ElementFinder(`1+ x 'foo'`);
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
 
@@ -81,7 +81,7 @@ getAll() {
                                 }
 
                                 finds all elements {
-                                    let ef = new ElementFinder(`0+ x ' foo  bar '`);
+                                    let ef = new ElementFinder(`1+ x ' foo  bar '`);
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
 
@@ -179,7 +179,7 @@ getAll() {
                                 }
 
                                 finds all elements {
-                                    let ef = new ElementFinder(`0+ x 'foobar'`);
+                                    let ef = new ElementFinder(`1+ x 'foobar'`);
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
 
@@ -218,7 +218,7 @@ getAll() {
                                 }
 
                                 finds all elements {
-                                    let ef = new ElementFinder(`0+ x 'foo bar'`);
+                                    let ef = new ElementFinder(`1+ x 'foo bar'`);
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
 
@@ -243,6 +243,7 @@ getAll() {
                                     results.ef = ElementFinder.parseObj(results.ef);
 
                                     expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
                                     expect(results.ef.print()).to.equal(`'foobar'  -->  not found (zero matches after \`'foobar'\` applied)`);
                                 }
 
@@ -277,11 +278,11 @@ getAll() {
                             }
 
                             * doesn't find elements {
-                                let ef = new ElementFinder(`tiny`);
                                 let results = await ef.getAll(browser.driver);
                                 results.ef = ElementFinder.parseObj(results.ef);
 
                                 expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
                                 expect(results.ef.print()).to.equal(`tiny  -->  not found (zero matches after \`tiny\` applied)`);
                             }
 
@@ -306,7 +307,7 @@ getAll() {
                                             finds one element
 
                                         try to find all elements {
-                                            g('ef', new ElementFinder(`0+ x big`, definedProps));
+                                            g('ef', new ElementFinder(`1+ x big`, definedProps));
                                         }
 
                                             finds all elements
@@ -328,7 +329,7 @@ getAll() {
                                     }
 
                                         try to find all elements {
-                                            g('ef', new ElementFinder(`0+ x bigger`, definedProps));
+                                            g('ef', new ElementFinder(`1+ x bigger`, definedProps));
                                         }
 
                                             finds all elements
@@ -345,7 +346,7 @@ getAll() {
                                     }
 
                                         try to find all elements {
-                                            g('ef', new ElementFinder(`0+ x biggest`, definedProps));
+                                            g('ef', new ElementFinder(`1+ x biggest`, definedProps));
                                         }
 
                                             finds all elements
@@ -370,7 +371,7 @@ getAll() {
                                         finds one element
 
                                     try to find all elements {
-                                        g('ef', new ElementFinder(`0+ x big`, definedProps));
+                                        g('ef', new ElementFinder(`1+ x big`, definedProps));
                                     }
 
                                         finds all elements
@@ -401,7 +402,7 @@ getAll() {
                                         finds one element
 
                                     try to find all elements {
-                                        g('ef', new ElementFinder(`0+ x look for it 'big'`, definedProps));
+                                        g('ef', new ElementFinder(`1+ x look for it 'big'`, definedProps));
                                     }
 
                                         finds all elements
@@ -410,111 +411,332 @@ getAll() {
                                         g('ef', new ElementFinder(`look for it 'tiny'`, definedProps));
                                     }
 
-                                        doesn't find elements
+                                        doesn't find elements {
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.true;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                            expect(results.ef.print()).to.equal(`look for it 'tiny'  -->  not found (zero matches after \`look for it 'tiny'\` applied)`);
+                                        }
 
                             - multiple definitions in one prop
 
+                                create defined props {
+                                    let definedProps = ElementFinder.defaultProps();
+                                    definedProps.big = [
+                                        new ElementFinder(`#three`, definedProps),
+                                        new ElementFinder(`#three`, definedProps),
+                                        function(elems, input) {
+                                            return elems.filter(function(elem) {
+                                                return elem.id == 'two';
+                                            });
+                                        }
+                                    ];
+                                    definedProps.tiny = [
+                                        new ElementFinder(`#tiny`, definedProps),
+                                        function(elems, input) {
+                                            return elems.filter(function(elem) {
+                                                return elem.id == 'tiny';
+                                            });
+                                        }
+                                    ];
 
+                                    g('definedProps', definedProps);
+                                }
 
+                                    try to find one element {
+                                        g('ef', new ElementFinder(`big`, definedProps));
+                                    }
 
+                                        finds one element
 
-                            
+                                    try to find all elements {
+                                        g('ef', new ElementFinder(`1+ x big`, definedProps));
+                                    }
 
-                            $s handles the 'not' keyword {
+                                        finds all elements
 
-                            }
+                                    try to not find any elements {
+                                        g('ef', new ElementFinder(`tiny`, definedProps));
+                                    }
+
+                                        doesn't find elements
+
+                            - handles the 'not' keyword
+
+                                - prop has one definition
+
+                                - prop has multiple definitions
+
+                                    create defined props {
+                                        let definedProps = ElementFinder.defaultProps();
+                                        definedProps.big = [
+                                            new ElementFinder(`#three`, definedProps),
+                                            new ElementFinder(`#three`, definedProps),
+                                            function(elems, input) {
+                                                return elems.filter(function(elem) {
+                                                    return elem.id == 'two';
+                                                });
+                                            }
+                                        ];
+                                        definedProps.all = [ // matches everything
+                                            new ElementFinder(`selector '*'`, definedProps),
+                                            function(elems, input) {
+                                                return elems;
+                                            }
+                                        ];
+
+                                        g('definedProps', definedProps);
+                                    }
+
+                                        try to find one element {
+                                            g('ef', new ElementFinder(`not big`, definedProps));
+                                        }
+
+                                            finds one element {
+                                                let results = await ef.getAll(browser.driver);
+                                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                                expect(results.ef.hasErrors()).to.be.false;
+                                                expect(results.matches).to.have.lengthOf(1);
+                                                expect(await results.matches[0].getTagName()).to.equal('html');
+                                            }
+
+                                        try to find all elements {
+                                            g('ef', new ElementFinder(`1+ x not big`, definedProps));
+                                        }
+
+                                            finds all elements {
+                                                let results = await ef.getAll(browser.driver);
+                                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                                expect(results.ef.hasErrors()).to.be.false;
+                                                expect(results.matches).to.have.lengthOf(4);
+                                                expect(await results.matches[0].getTagName()).to.equal('html');
+                                                expect(await results.matches[1].getTagName()).to.equal('body');
+                                                expect(await results.matches[2].getAttribute('id')).to.equal('one');
+                                                expect(await results.matches[3].getAttribute('id')).to.equal('four');
+                                            }
+
+                                        try to not find any elements {
+                                            g('ef', new ElementFinder(`not all`, definedProps));
+                                        }
+
+                                            doesn't find elements {
+                                                let results = await ef.getAll(browser.driver);
+                                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                                expect(results.ef.hasErrors()).to.be.true;
+                                                expect(results.matches).to.have.lengthOf(0);
+                                                expect(results.ef.print()).to.equal(`not all  -->  not found (zero matches after \`not all\` applied)`);
+                                            }
 
                     - selector
 
-                        $s finds elements {
-
+                        create html page {
+                            await setPageBody(`
+                                <div id="one" class="small">foobar</div>
+                                <div id="two" class="big">foobar</div>
+                                <div id="three" class="big">foobar</div>
+                                <div id="four" class="small">foobar</div>
+                            `);
                         }
 
-                        $s doesn't find elements {
+                            finds one element {
+                                let ef = new ElementFinder(`div.big`);
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                        }
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                            }
 
-                        $s interprets an item as a selector if a corresponding property does not exist {
+                            finds all elements {
+                                let ef = new ElementFinder(`1+ x div.big`);
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                        }
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(2);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(`div.tiny`);
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(`div.tiny  -->  not found (zero matches after \`div.tiny\` applied)`);
+                            }
 
                     - ord
 
-                        $s finds elements {
-
+                        create html page {
+                            await setPageBody(`
+                                <div id="one" class="small">foobar</div>
+                                <div id="two" class="big">foobar</div>
+                                <div id="three" class="big">foobar</div>
+                                <div id="four" class="small">foobar</div>
+                            `);
                         }
 
-                        $s doesn't find elements {
+                            finds one element {
+                                let ef = new ElementFinder(`div, 3rd`);
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                        }
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('three');
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(`div, 5th`);
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(`div, 5th  -->  not found (zero matches after \`5th\` applied)`);
+                            }
 
                     - counter
 
-                        - counter with a min
+                        - counter with a min only
 
-                            - min == 0
+                            min == 0 {
+                                g('ef', new ElementFinder(`0- x .big`));
+                            }
 
-                                $s finds elements {
-
+                                0 matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="small">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
                                 }
 
-                                $s doesn't find elements {
+                                    doesn't find elements, no errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
-                                }
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                    }
+
+                                - multiple matching elements exist
+
+                                    finds elements {
+
+                                    }
 
                             - min > 0
 
-                                $s finds elements {
+                                - 0 matching elements exist
+
+                                    doesn't find elements, has errors {
+
+                                    }
+
+                                - < min matching elements exist
+
+                                - min matching elements exist
+
+                                - > min matching elements exist
+
+                        - counter with a max only
+
+                            - 0 matching elements exist
+
+                                doesn't find elements, no errors {
 
                                 }
 
-                                $s doesn't find elements {
+                            - < max matching elements exist
 
-                                }
+                            - max matching elements exist
 
-                        - counter with a max
-
-                            $s finds elements {
-
-                            }
-
-                            $s doesn't find elements {
-
-                            }
+                            - > max matching elements exist
 
                         - counter with a min and max
 
+                            - min and max == 0
+
+                                - 0 matching elements exist
+
+                                    doesn't find elements, no errors {
+
+                                    }
+
+                                - multiple matching elements exist
+
+                                    finds elements {
+
+                                    }
+
+                            - min == 0, max > 0
+
+                                - 0 matching elements exist
+
+                                    doesn't find elements, no errors {
+
+                                    }
+
+                                - < max matching elements exist
+
+                                    finds elements {
+
+                                    }
+
+                                - max matching elements exist
+
+                                    finds elements {
+
+                                    }
+
+                                - > max matching elements exist
+
+                                    finds elements {
+
+                                    }
+
                             - min < max
 
-                                $s finds elements {
+                                - 0 matching elements exist
 
-                                }
+                                    doesn't find elements, has errors {
 
-                                $s doesn't find elements {
+                                    }
 
-                                }
+                                - < max matching elements exist
+
+                                - max matching elements exist
+
+                                - > max matching elements exist
 
                             - min == max
 
-                                - min and max > 0
+                                - 0 matching elements exist
 
-                                    $s finds elements {
-
-                                    }
-
-                                    $s doesn't find elements {
+                                    doesn't find elements, has errors {
 
                                     }
 
-                                - min and max == 0
+                                - < min matching elements exist
 
-                                    $s finds elements {
+                                - min matching elements exist
 
-                                    }
+                                - min-max matching elements exist
 
-                                    $s doesn't find elements {
+                                - max matching elements exist
 
-                                    }
+                                - > max matching elements exist
 
                     - match me
 
@@ -721,7 +943,7 @@ getAll() {
 
                                 }
 
-                                $s counter of 0+ is used {
+                                $s counter of 1+ is used {
 
                                 }
 
@@ -757,7 +979,7 @@ getAll() {
 
                             - finds elements
 
-                                - counter of '0+'
+                                - counter of '1+'
 
                                     $s 0 elements exist {
 
@@ -1002,7 +1224,7 @@ getAll() {
 
                             }
 
-                            $s counter of 0+ allows correct matching {
+                            $s counter of 1+ allows correct matching {
 
                             }
 

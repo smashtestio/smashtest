@@ -42,6 +42,8 @@ class ElementFinder {
         this.usedDefinedProps = {};
         this.logger = undefined;
 
+        this.originalFullStr = '';          // The full string representing the top EF and its children. Only set this for the top parent EF.
+
         SET INSIDE BROWSER
 
         this.error = undefined;             // Set to an error string if there was an error finding this EF
@@ -73,6 +75,10 @@ class ElementFinder {
     parseIn(str, definedProps, usedDefinedProps, lineNumberOffset) {
         if(!str || !str.trim()) {
             throw new Error(`Cannot create an empty ElementFinder`);
+        }
+
+        if(!this.parent) {
+            this.originalFullStr = str;
         }
 
         let lines = str.split(/\n/);
@@ -184,6 +190,10 @@ class ElementFinder {
                 }
                 else { // N
                     this.counter = { min: parseInt(min), max: parseInt(min) };
+                }
+
+                if(this.counter.max < this.counter.min) {
+                    utils.error(`A counter's max cannot be less than its min`, filename, parentLineNumber);
                 }
             }
 
@@ -400,6 +410,7 @@ class ElementFinder {
         this.isElemArray && (o.isElemArray = true);
         this.isAnyOrder && (o.isAnyOrder = true);
         this.isSubset && (o.isSubset = true);
+        this.originalFullStr && (o.originalFullStr = this.originalFullStr);
 
         this.children.forEach(child => o.children.push(child.serialize()));
 
@@ -442,13 +453,29 @@ class ElementFinder {
             let definedProps = payload.definedProps;
             let parentElem = arguments[1];
 
+            const SEPARATOR = "――――――――――――――――――――――――――――――――――――――――――";
+
+            console.log(SEPARATOR + "\nElementFinder: " +
+                (ef.originalFullStr.match(/\n/) ? "\n" : "") +
+                ef.originalFullStr);
+            console.log(ef);
+            if(parentElem) {
+                console.log("Parent:");
+                console.log(parentElem);
+            }
+
             findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
+            let matches = ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems;
+
+            console.log("Matches:");
+            console.log(matches);
+            console.log(SEPARATOR);
 
             return {
                 ef: JSON.stringify(ef, function(k, v) {
                     return ['matchedElems', 'matchMeElems'].indexOf(k) != -1 ? undefined : v;
                 }),
-                matches: ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems
+                matches: matches
             };
 
             /**

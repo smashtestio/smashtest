@@ -992,17 +992,18 @@ c     = copy text of branch
                     this.setState({ previewedItem: this.state.previewedItem });
 
                     if(noPreview) { // we're resuming updates
-                        // Dump into this.state.tree.branches the branch snapshots that have been piling up during the pause
-                        if(this.branchSnapshots.length > 0) {
-                            this.copyBranchSnapshots(this.state.tree.branches, this.branchSnapshots);
-                            this.branchSnapshots = [];
-                            this.setState({ tree: this.state.tree });
-                        }
-
                         // If new report data became available during the pause, load it
                         if(this.newDataAvailable) {
                             this.newDataAvailable = false;
                             this.reloadReportData();
+                        }
+                        else {
+                            // Dump into this.state.tree.branches the branch snapshots that have been piling up during the pause
+                            if(this.branchSnapshots.length > 0) {
+                                this.copyBranchSnapshots(this.state.tree.branches, this.branchSnapshots);
+                                this.branchSnapshots = [];
+                                this.setState({ tree: this.state.tree });
+                            }
                         }
                     }
                 }

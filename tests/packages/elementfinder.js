@@ -603,6 +603,12 @@ describe("ElementFinder", function() {
                         counter: { min: 22, max: 77 }
                     });
                 });
+
+                it("max < min throws error", () => {
+                    assert.throws(() => {
+                        new ElementFinder(`7-6 x something`);
+                    }, `A counter's max cannot be less than its min [line:1]`);
+                });
             });
 
             context("element array", () => {
@@ -2415,6 +2421,7 @@ one
             let ef = new ElementFinder(`one`);
 
             Comparer.expect(ef.serialize()).to.match({
+                originalFullStr: `one`,
                 line: `one`,
                 counter: { min: 1, max: 1 },
                 props: [
@@ -2443,6 +2450,11 @@ one
             `);
 
             Comparer.expect(ef.serialize()).to.match({
+                originalFullStr: `
+                one
+                    subset
+                    two
+            `,
                 line: `one`,
                 counter: { min: 1, max: 1 },
                 props: [
@@ -2461,6 +2473,7 @@ one
                 ],
                 children: [
                     {
+                        originalFullStr: undefined,
                         line: `two`,
                         counter: { min: 1, max: 1 },
                         props: [

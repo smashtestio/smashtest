@@ -1,5 +1,6 @@
 {
     "max-parallel": 5,
     "output-errors": true,
-    "skip-passed": true
+    "skip-passed": true,
+    "step-data": "all"
 }
