@@ -456,19 +456,21 @@ class ElementFinder {
             findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
             let matches = ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems;
 
-            const SEPARATOR = "――――――――――――――――――――――――――――――――――――――――――";
+            const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";
+            const SEPARATOR_STYLE = "color: #C0C0C0";
+            const HEADING_STYLE = "font-weight: bold";
 
-            console.log(SEPARATOR + "\nElementFinder: " +
-                (ef.originalFullStr.match(/\n/) ? "\n" : "") +
-                ef.originalFullStr);
+            console.log(SEPARATOR, SEPARATOR_STYLE);
+            console.log("%cElementFinder: ", HEADING_STYLE);
+            console.log(ef.originalFullStr.replace(/^(.*)$/g, '    $1'));
             console.log(ef);
             if(parentElem) {
-                console.log("Parent:");
+                console.log("%cParent:", HEADING_STYLE);
                 console.log(parentElem);
             }
-            console.log("Matches:");
+            console.log("%cMatches:", HEADING_STYLE);
             console.log(matches);
-            console.log(SEPARATOR);
+            console.log(SEPARATOR, SEPARATOR_STYLE);
 
             return {
                 ef: JSON.stringify(ef, function(k, v) {
