@@ -453,6 +453,9 @@ class ElementFinder {
             let definedProps = payload.definedProps;
             let parentElem = arguments[1];
 
+            findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
+            let matches = ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems;
+
             const SEPARATOR = "――――――――――――――――――――――――――――――――――――――――――";
 
             console.log(SEPARATOR + "\nElementFinder: " +
@@ -463,10 +466,6 @@ class ElementFinder {
                 console.log("Parent:");
                 console.log(parentElem);
             }
-
-            findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
-            let matches = ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems;
-
             console.log("Matches:");
             console.log(matches);
             console.log(SEPARATOR);
