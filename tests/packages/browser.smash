@@ -1,0 +1,57 @@
+// ***************************************
+//  Manual tests for packages/browser.smash
+// ***************************************
+
+- --headless=<true/false>
+
+    - Set to true
+
+        - Branch runs Chrome
+        - Branch runs Firefox
+
+            - Normal run
+            - Debug run
+
+                Runs headless -
+
+        - Branch runs Safari
+        - Branch runs IE
+        - Branch runs Edge
+
+            - Normal run
+            - Debug run
+
+                Runs non-headless -
+
+    - Set to false
+
+        - Branch runs Chrome
+        - Branch runs Firefox
+        - Branch runs Safari
+        - Branch runs IE
+        - Branch runs Edge
+
+            - Normal run
+            - Debug run
+
+                Runs non-headless -
+
+    - Omitted
+
+        - Branch runs Chrome
+        - Branch runs Firefox
+
+            - Normal run
+                Runs headless -
+
+            - Debug run
+                Runs non-headless -
+
+        - Branch runs Safari
+        - Branch runs IE
+        - Branch runs Edge
+
+            - Normal run
+            - Debug run
+
+                Runs non-headless -

@@ -24,219 +24,337 @@
 
         - Flags inputted
 
-            - --debug=<hash>
-                - No hash
-                - Hash is invalid
+            - No flags inputted
 
-                    Verify error -
+            - Flags inputted
 
-                - Valid hash
-                    Correct branch is run in debug -
-                        Branch stops at first error or after last step -
+                - Set on command line
+                - Set in config file (smashtest.json)
+                - Set in config file (smashtest.json) and overriden on command line
 
-            - --group="<group>"
+                    - --debug=<hash>
+                        - No hash
+                        - Hash is invalid
 
-                - Group exists
+                            Verify error -
 
-                    Only members of group run -
+                        - Valid hash
+                            Correct branch is run in debug -
+                                Branch stops at first error or after last step -
 
-                - Group doesn't exist
+                    - --group="<group>"
 
-                    No branches error -
+                        - Group exists
 
-                - Multiple --group flags
+                            Only members of group run -
 
-                    - All groups exist
-                    - Some groups exist
+                        - Group doesn't exist
 
-                        Only members of at least one group run -
+                            No branches error -
 
-                    - No groups exist
+                        - Multiple --group flags
 
-                        No branches error -
+                            - All groups exist
+                            - Some groups exist
 
-            - --groups="<group1>,<group2>"
+                                Only members of at least one group run -
 
-                - All groups exist
-                - Some groups exist
+                            - No groups exist
 
-                    Only members of at least one group run -
+                                No branches error -
 
-                - No groups exist
+                    - --groups="<group1>,<group2>"
 
-                    No branches error -
+                        - All groups exist
+                        - Some groups exist
 
-            - --g:<name>="<value>"
-                Global variable set -
+                            Only members of at least one group run -
 
-            - --headless=<true/false>
+                        - No groups exist
 
-                - Set to true
+                            No branches error -
 
-                    - Branch runs Chrome
-                    - Branch runs Firefox
+                    - --g:<name>="<value>"
+                        Global variable set -
 
-                        - Normal run
-                        - Debug run
+                    - --help
+                    - '-?'
 
-                            Runs headless -
+                        Displays help prompt -
 
-                    - Branch runs Safari
-                    - Branch runs IE
-                    - Branch runs Edge
+                    - --max-parallel=<N>
+                        - Non-integer
+                        - 0
+                            Verify error -
 
-                        - Normal run
-                        - Debug run
+                        - Integer above 0
+                            Verify in report that no more than N branches are executing at once -
 
-                            Runs non-headless -
+                        - Omitted
+                            Verify in report that no more than 5 branches are executing at once -
 
-                - Set to false
+                    - --min-frequency=<high/med/low>
+                        - Set to 'high'
+                        - Set to 'med'
+                        - Set to 'low'
 
-                    - Branch runs Chrome
-                    - Branch runs Firefox
-                    - Branch runs Safari
-                    - Branch runs IE
-                    - Branch runs Edge
+                            Only runs branches at or above that frequency -
 
-                        - Normal run
-                        - Debug run
+                        - Set to other
 
-                            Runs non-headless -
+                            Outputs error -
 
-                - Omitted
+                        - Omitted
 
-                    - Branch runs Chrome
-                    - Branch runs Firefox
+                            Only runs branches at or above 'med' frequency -
 
-                        - Normal run
-                            Runs headless -
+                    - --no-debug
+                        - Included
+                            - Test files contain a '~'
+                                Outputs error -
 
-                        - Debug run
-                            Runs non-headless -
+                            - Test files do not contain a '~'
+                                Does not output error -
 
-                    - Branch runs Safari
-                    - Branch runs IE
-                    - Branch runs Edge
+                        - Omitted
+                            - Test files contain a '~'
+                            - Test files do not contain a '~'
 
-                        - Normal run
-                        - Debug run
+                                Does not output error -
 
-                            Runs non-headless -
+                    - --output-errors=<true/false>
 
-            - --help
-            - '-?'
+                        - Set to true
 
-                Displays help prompt -
+                            Outputs errors to console when they occur inside steps (or branches, or hooks) -
 
-            - --max-parallel=<N>
-                - Non-integer
-                - 0
-                    Verify error -
+                        - Set to false
+                        - Omitted
 
-                - Integer above 0
-                    Verify in report that no more than N branches are executing at once -
+                            Doesn't output errors to console when they occur inside steps (or branches, or hooks) -
 
-                - Omitted
-                    Verify in report that no more than 5 branches are executing at once -
+                    - --p:<name>="<value>"
+                        Persistent variable set -
 
-            - --min-frequency=<high/med/low>
-                - Set to 'high'
-                - Set to 'med'
-                - Set to 'low'
+                    - --random=<true/false>
 
-                    Only runs branches at or above that frequency -
+                        - Set to true
+                        - Omitted
 
-                - Set to other
+                            Branches are shuffled -
 
-                    Outputs error -
+                        - Set to false
 
-                - Omitted
+                            Branches are not shuffled -
 
-                    Only runs branches at or above 'med' frequency -
+                    - --repl
+                    - '-r'
 
-            - --no-debug
-                - Included
-                    - Test files contain a '~'
-                        Outputs error -
+                        Runs REPL -
 
-                    - Test files do not contain a '~'
-                        Does not output error -
+                    - --report-domain=<domain>
 
-                - Omitted
-                    - Test files contain a '~'
-                    - Test files do not contain a '~'
+                        - Omitted
 
-                        Does not output error -
+                            ..
+                            Runs report server on localhost and on any open port -
+                            Report connects to localhost and auto-generated port -
 
-            - --output-errors=<true/false>
+                        - Domain
 
-                - Set to true
+                            - Normal domain
+                            - localhost
 
-                    Outputs errors to console when they occur inside steps (or branches, or hooks) -
+                                ..
+                                Runs report server on localhost and on any open port -
+                                Report connects to given domain and auto-generated port -
 
-                - Set to false
-                - Omitted
+                        - Domain:port
 
-                    Doesn't output errors to console when they occur inside steps (or branches, or hooks) -
+                            - Normal domain:port
+                            - localhost:port
 
-            - --p:<name>="<value>"
-                Persistent variable set -
+                                ..
+                                Runs report server on localhost and on given port -
+                                Report connects to given domain and given port -
 
-            - --random=<true/false>
+                        - Multiple simulatenous reports
+                            - Run report A and then run report B (different directory), report-domain set to the same port in both runs
+                                - Open report A while B is running
+                                    Verify that report A isn\'t live-updated with B\'s updates -
 
-                - Set to true
-                - Omitted
+                    - --report-server=<true/false>
 
-                    Branches are shuffled -
+                        - Omitted
+                        - Set to true
 
-                - Set to false
+                            Outputs report, which gets live updates -
 
-                    Branches are not shuffled -
+                        - Set to false
 
+                            Outputs report, which does not get live updates -
 
+                    - Skip passed
+                        - --skip-passed=<true/false/file>
+                            - Set to true
+                                Skip passed branches
 
+                                - 0 branches left to run
+                                    Outputs 0 branches to run, counts -
 
+                                - 1 branch left to run
+                                    Runs the 1 branch -
 
-            - --repl
-            - '-r'
+                                - 2+ branches left to run
+                                    Runs the branches -
 
-            - --report-domain=<domain>
-            - --report-server=<true/false>
-            - --selenium-server=<url>
+                            - Set to false
+                                Do not skip passed branches
 
-            - --skip-passed=<true/false/file>
-            - '-a'
-            - '-s'
+                            - Set to a file
+                                - File exists
+                                    - Valid json
+                                        Doesn't run branches that were recorded passed in the given file -
 
-            - --step-data=<all/fail/none>
+                                    - Invalid json
+                                        Outputs error -
 
+                                - File doesn't exist
+                                    Outputs error -
 
+                        - '-a'
+                            Do not skip passed branches
 
+                        - '-s'
+                            Skip passed branches
 
+                        * Skip passed branches
+                            - smashtest-passed-data file exists
+                                Doesn't run branches that passed last time -
 
-            - --version
-            - '-v'
+                            - smashtest-passed-data doesn't exist
+                                Runs all branches, no errors regarding no passed data file -
 
-                Displays version -
+                        * Do not skip passed branches
+                            Runs all branches, including those that passed last time -
 
-            - Unknown flag
+                    - --step-data=<all/fail/none>
+                        - Set to 'all'
+                            Logs and details contained in report for passed, failed, and skipped steps -
 
-                - Starts with '-'
-                - Starts with '--'
+                        - Set to 'fail'
+                        - Omitted
+                            ..
+                            Logs and details contained in report for failed steps -
+                            Logs and details not contained in report for passed and skipped steps -
+                            report-data.js size smaller than when this is set to 'all' -
 
-                    Ignored without error -
+                        - Set to 'none'
+                            ..
+                            Logs and details not contained in report for passed, failed, and skipped steps -
+                            report-data.js size smaller than when this is set to 'all' or 'fail' -
+
+                    - --version
+                    - '-v'
+
+                        Displays version info -
+
+                    - Unknown flag
+
+                        - Starts with '-'
+                        - Starts with '--'
+
+                            Ignored without error -
+
+                    - Multiple flags set at once
 
     - Debugging (~)
+
         - Run tests containing ~'s
-            ..
-            Runs debug REPL up to the '~' -
-            Browser runs non-headless by default -
-            Doesn't output new report -
-            Existing report opened in browser doesn't update -
+
+            - '~' before step
+            - '~' after step
+            - '~' before and after a step
+            - '~' on multiple steps in a branch
+
+                ..
+                Outputs 'in debug mode' to console
+                Runs debug REPL up to the '~' -
+                Browser runs non-headless by default -
+                Doesn't output new report -
+                Existing report opened in browser doesn't update -
 
     - Only ($)
+        Only runs the given branches -
 
     - REPL
+
+        * Inputs
+            - With .smash files inputted
+                - 0 branches in files
+                - 0 branches to run because of '-s'
+            - No .smash files inputted
+        Inputs
+
+            - Verify every step type
+                - Not yet run
+                - Running
+                - Passed
+                - Failed
+                - Failed but continued
+                - Skipped
+
+            - Verify hook errors
+                - Before Every Step error
+                - After Every Step error
+                - Before Every Branch error
+                - After Every Branch error
+                - Before Everything error
+                - After Everything error
+
+            - Prompt input
+
+                - In the middle of a branch
+                - Past the last step in the branch
+
+                    - Enter = next step
+
+                    - p = run previous
+
+                    - s = skip
+
+                    - r = resume
+                        - Failing step ahead
+                        - '~' step ahead
+                        - No pauses ahead, reaches beyond the last step in branch
+
+                    - x = exit
+
+                - Ctrl + C
+                    - While step is running
+                    - At prompt
+
+                - Type in step
+                    - Textual step
+
+                    - Function call
+                        - Existing function
+                        - Function that doesn't exist
+
+                    - Step with code block
+                        - Generic code block
+                        - Code block that throws exception
+                        - Empty code block
+                        - Press tab while editing code block
+                        - Empty lines inside code block
+
+                    - Copy into REPL
+
+                        - Single line
+
+                        - Multiple lines
+                            - Code block
+                            - Separate steps
 
     - Ctrl + C
 
@@ -260,40 +378,34 @@
 
     - Config file (smashtest.json)
 
-    - Run with config file present
-        - Empty config file
-        - A few flags set
-        - Bad JSON config file
+        - Run with config file present
+            - Empty config file
+            - A few flags set
+            - Bad JSON config file
 
-    - Run without config file present
+        - Run without config file present
 
     - No branches generated
 
+        - Empty smash file
+        - No branches match --group
+
+            Error outputted -
+
+    - Running in CI
+        ..
+        - Runs correctly
+        - Reports are accessible
+        - Reports receive live updates
+        - Exit status correct
+        - Job can start/stop
+
     - Performance
-        - 100k+ branches
-        - Report size, memory usage, running time, any errors?
 
+        - 100K branches, 500K steps
+        - 1M branches, 6M steps
 
-
-    // TODO
-
-    - REPL
-        - ~-branches (before step), Runner paused
-        - ~-branches (after step), Runner paused
-    - $-branches
-
-    - All flag types
-        - --report-domain (domain, domain+port, localhost, localhost+port)
-        - --repl or -r (with tree files inputted, or no tree files inputted)
-            - Combined with -s so that there are 0/1/2+ runnable branches
-    - Running it in CI, spewing out reports and watching them update live, exist status, starting/stopping job
-    - If I ran report A and then I run report B, and if the report server is on the same port, opening up report A won't have it updating with B's info
-    - All the different kinds of hook errors + branch errors + step errors occurring during a debug/repl
-    - Make sure there's a way to add dependencies to your project so you can do require(something) in a code block
-        - Just do an npm install in the same directory?
-
-
-
+            - Check report size, memory usage, running time, and any errors
 
 - Report
 
@@ -727,3 +839,7 @@
             - Passed
             - Failed
             - Skipped
+
+- Other
+    - Adding dependencies to code in code blocks
+        - npm install package in the same directory as .smash files, then use i() inside code blocks in .smash files

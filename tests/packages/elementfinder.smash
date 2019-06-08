@@ -605,7 +605,7 @@ getAll() {
                                 expect(results.ef.print()).to.equal(`div, 5th  -->  not found (zero matches after \`5th\` applied)`);
                             }
 
-                    - counter
+                    - counter ~
 
                         - counter with a min only
 
