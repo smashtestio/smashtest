@@ -17,7 +17,7 @@
 
 For each platform $s
 
-    - Executable (smashtest.js)
+    - Executable (smashtest.js) and Reporter (reporter.js)
 
         - Running from command line
 
@@ -54,25 +54,50 @@ For each platform $s
                     - Group doesn't exist
                     - Multiple --group flags
 
+
+
+
+
                 - --groups="<group1>,<group2>"
 
                 - --g:<name>="<value>"
 
+
+
+
                 - --headless=<true/false>
-                
+
                     - Set to true
 
-                        - Normal run in Chrome
-                        - Debug run in Chrome
+                        - Chrome
+                        - Firefox
 
-                            Runs headless -
+                            - Normal run
+                            - Debug run
+
+                                Runs headless -
+
+                        - Safari
+                        - IE
+                        - Edge
+
+                            - Normal run
+                            - Debug run
+
+                                Runs non-headless -
 
                     - Set to false
 
-                        - Normal run in Chrome
-                        - Debug run in Chrome
+                        - Chrome
+                        - Firefox
+                        - Safari
+                        - IE
+                        - Edge
 
-                            Doesn't run headless -
+                            - Normal run
+                            - Debug run
+
+                                Runs non-headless -
 
                 - --help
                 - -?
@@ -80,7 +105,19 @@ For each platform $s
                     Displays help prompt -
 
                 - --max-parallel=<N>
+                    - Non-integer
+                    - 0
+                        Verify error -
+
+                    - Integer above 0
+                        Verify in report that no more than N branches are executing at once -
+
+
+
+
+
                 - --max-screenshots=<N>
+
                 - --min-frequency=<high/med/low>
                 - --no-debug
                 - --output-errors=<true/false>
@@ -100,6 +137,10 @@ For each platform $s
 
                 - --step-data=<all/fail/none>
 
+
+
+
+
                 - --version
                 - -v
 
@@ -109,8 +150,9 @@ For each platform $s
             - Run tests containing ~'s
                 ..
                 Runs debug REPL up to the '~' -
-                Doesn't output new report
-                Existing report opened in browser doesn't update
+                Browser runs non-headless by default -
+                Doesn't output new report -
+                Existing report opened in browser doesn't update -
 
         - Only ($)
 
@@ -160,16 +202,17 @@ For each platform $s
         - $-branches
 
         - All flag types
-            - --report-domain (domain, domain+port, localhost, localhost+port, http/https)
+            - --report-domain (domain, domain+port, localhost, localhost+port)
             - --repl or -r (with tree files inputted, or no tree files inputted)
                 - Combined with -s so that there are 0/1/2+ runnable branches
 
-        - Test that a browser is killed when a Ctrl + C is done, even mid-navigate (make sure navigate doesn't freeze until the navigate is complete)
-        - Ctrl + C or X in the REPL will actually kill all browsers
-        - Screenshots
+        - TODO: Move to packages.smash
+            - Test that a browser is killed when a Ctrl + C is done, even mid-navigate (make sure navigate doesn't freeze until the navigate is complete)
+            - Ctrl + C or X in the REPL will actually kill all browsers
+            - Screenshots
+
         - Standalone selenium vs. selenium grid
-        - Headless vs. non-headless
-        - Running it in CI, spewing out reports, starting/stopping job
+        - Running it in CI, spewing out reports and watching them update live, exist status, starting/stopping job
         - Sauce labs
         - If I ran report A and then I run report B, and if the report server is on the same port, opening up report A won't have it updating with B's info
         - All the different kinds of hook errors + branch errors + step errors occurring during a debug/repl
@@ -519,10 +562,10 @@ For each platform $s
             - space
 
                 - Preview pane open
-                    - Non-screenshot step details
+                    - Non-before and after step details
                         - Does nothing
 
-                    - Screenshot step details
+                    - Before and after step details
                         - Toggles between before and after
 
                 - Preview pane closed
@@ -533,8 +576,8 @@ For each platform $s
                 - Preview pane open
                     - Closes preview pane
 
-                    - Screenshot modal open
-                        - Closes screenshot modal
+                    - Modal open (such as for screenshots)
+                        - Closes modal
 
                 - Preview pane closed
                     - Does nothing
