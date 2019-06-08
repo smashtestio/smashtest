@@ -2,7 +2,7 @@
 //  Manual integration tests
 // ***************************************
 
-* For each platform
+* Choose platform
 
     - Mac
         - Chrome
@@ -15,7 +15,7 @@
         - IE
         - Edge
 
-For each platform $s
+Choose platform $s
 
     - Executable (smashtest.js) and Reporter (reporter.js)
 

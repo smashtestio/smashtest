@@ -1016,9 +1016,3 @@ Packages
         put it into packages/
     - Give some examples
         - Show injection being made into Runner.persistent.packageName
-
-Manual Testing
-    - Tips on how to use textual steps with skips to generate your manual permutations
-        - Group them as manual maybe
-        - Over time, you can convert these into actual automated tests
-    - Run automated tests with step-data=all and manually verify screenshots (better than having to click yourself)
