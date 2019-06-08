@@ -2,227 +2,315 @@
 //  Manual integration tests
 // ***************************************
 
-* Choose platform
+- Executable (smashtest.js) and Reporter (reporter.js)
 
-    - Mac
-        - Chrome
-        - FF
-        - Safari
+    - Running from command line
 
-    - Windows
-        - Chrome
-        - FF
-        - IE
-        - Edge
+        - Filenames inputted
 
-Choose platform $s
+            - No files inputted
+                - .smash files exist in current directory
+                - No .smash files exist in current directory
 
-    - Executable (smashtest.js) and Reporter (reporter.js)
+            - One filename inputted
+                - Valid file
+                - File doesn't exist
 
-        - Running from command line
+            - Glob covering multiple filenames inputted
+                - Curently directory only
+                - Multiple levels of directories
 
-            - Filenames inputted
+            - Multiple filenames as separate parameters
 
-                - No files inputted
-                    - .smash files exist in current directory
-                    - No .smash files exist in current directory
+        - Flags inputted
 
-                - One filename inputted
-                    - Valid file
-                    - File doesn't exist
+            - --debug=<hash>
+                - No hash
+                - Hash is invalid
 
-                - Glob covering multiple filenames inputted
-                    - Curently directory only
-                    - Multiple levels of directories
+                    Verify error -
 
-                - Multiple filenames as separate parameters
+                - Valid hash
+                    Correct branch is run in debug -
+                        Branch stops at first error or after last step -
 
-            - Flags inputted
+            - --group="<group>"
 
-                - --debug=<hash>
-                    - No hash
-                    - Hash is invalid
+                - Group exists
 
-                        Verify error -
+                    Only members of group run -
 
-                    - Valid hash
-                        Correct branch is run in debug -
-                            Branch stops at first error or after last step -
+                - Group doesn't exist
 
-                - --group="<group>"
-                    - Group exists
-                    - Group doesn't exist
-                    - Multiple --group flags
+                    No branches error -
+
+                - Multiple --group flags
+
+                    - All groups exist
+                    - Some groups exist
+
+                        Only members of at least one group run -
+
+                    - No groups exist
+
+                        No branches error -
+
+            - --groups="<group1>,<group2>"
+
+                - All groups exist
+                - Some groups exist
+
+                    Only members of at least one group run -
+
+                - No groups exist
+
+                    No branches error -
+
+            - --g:<name>="<value>"
+                Global variable set -
+
+            - --headless=<true/false>
+
+                - Set to true
+
+                    - Branch runs Chrome
+                    - Branch runs Firefox
+
+                        - Normal run
+                        - Debug run
+
+                            Runs headless -
+
+                    - Branch runs Safari
+                    - Branch runs IE
+                    - Branch runs Edge
+
+                        - Normal run
+                        - Debug run
+
+                            Runs non-headless -
+
+                - Set to false
+
+                    - Branch runs Chrome
+                    - Branch runs Firefox
+                    - Branch runs Safari
+                    - Branch runs IE
+                    - Branch runs Edge
+
+                        - Normal run
+                        - Debug run
+
+                            Runs non-headless -
+
+                - Omitted
+
+                    - Branch runs Chrome
+                    - Branch runs Firefox
+
+                        - Normal run
+                            Runs headless -
+
+                        - Debug run
+                            Runs non-headless -
+
+                    - Branch runs Safari
+                    - Branch runs IE
+                    - Branch runs Edge
+
+                        - Normal run
+                        - Debug run
+
+                            Runs non-headless -
+
+            - --help
+            - '-?'
+
+                Displays help prompt -
+
+            - --max-parallel=<N>
+                - Non-integer
+                - 0
+                    Verify error -
+
+                - Integer above 0
+                    Verify in report that no more than N branches are executing at once -
+
+                - Omitted
+                    Verify in report that no more than 5 branches are executing at once -
+
+            - --min-frequency=<high/med/low>
+                - Set to 'high'
+                - Set to 'med'
+                - Set to 'low'
+
+                    Only runs branches at or above that frequency -
+
+                - Set to other
+
+                    Outputs error -
+
+                - Omitted
+
+                    Only runs branches at or above 'med' frequency -
+
+            - --no-debug
+                - Included
+                    - Test files contain a '~'
+                        Outputs error -
+
+                    - Test files do not contain a '~'
+                        Does not output error -
+
+                - Omitted
+                    - Test files contain a '~'
+                    - Test files do not contain a '~'
+
+                        Does not output error -
+
+            - --output-errors=<true/false>
+
+                - Set to true
+
+                    Outputs errors to console when they occur inside steps (or branches, or hooks) -
+
+                - Set to false
+                - Omitted
+
+                    Doesn't output errors to console when they occur inside steps (or branches, or hooks) -
+
+            - --p:<name>="<value>"
+                Persistent variable set -
+
+            - --random=<true/false>
+
+                - Set to true
+                - Omitted
+
+                    Branches are shuffled -
+
+                - Set to false
+
+                    Branches are not shuffled -
 
 
 
 
 
-                - --groups="<group1>,<group2>"
+            - --repl
+            - '-r'
 
-                - --g:<name>="<value>"
+            - --report-domain=<domain>
+            - --report-server=<true/false>
+            - --selenium-server=<url>
 
+            - --skip-passed=<true/false/file>
+            - '-a'
+            - '-s'
 
-
-
-                - --headless=<true/false>
-
-                    - Set to true
-
-                        - Chrome
-                        - Firefox
-
-                            - Normal run
-                            - Debug run
-
-                                Runs headless -
-
-                        - Safari
-                        - IE
-                        - Edge
-
-                            - Normal run
-                            - Debug run
-
-                                Runs non-headless -
-
-                    - Set to false
-
-                        - Chrome
-                        - Firefox
-                        - Safari
-                        - IE
-                        - Edge
-
-                            - Normal run
-                            - Debug run
-
-                                Runs non-headless -
-
-                - --help
-                - -?
-
-                    Displays help prompt -
-
-                - --max-parallel=<N>
-                    - Non-integer
-                    - 0
-                        Verify error -
-
-                    - Integer above 0
-                        Verify in report that no more than N branches are executing at once -
+            - --step-data=<all/fail/none>
 
 
 
 
 
-                - --max-screenshots=<N>
+            - --version
+            - '-v'
 
-                - --min-frequency=<high/med/low>
-                - --no-debug
-                - --output-errors=<true/false>
-                - --p:<name>="<value>"
-                - --random=<true/false>
+                Displays version -
 
-                - --repl
-                - -r
+            - Unknown flag
 
-                - --report-domain=<domain>
-                - --report-server=<true/false>
-                - --selenium-server=<url>
+                - Starts with '-'
+                - Starts with '--'
 
-                - --skip-passed=<true/false/file>
-                - -a
-                - -s
+                    Ignored without error -
 
-                - --step-data=<all/fail/none>
+    - Debugging (~)
+        - Run tests containing ~'s
+            ..
+            Runs debug REPL up to the '~' -
+            Browser runs non-headless by default -
+            Doesn't output new report -
+            Existing report opened in browser doesn't update -
 
+    - Only ($)
 
+    - REPL
 
+    - Ctrl + C
 
+        - During branch generation
+        - During test run
 
-                - --version
-                - -v
+            ..
+            Verify exit
+            Verify report outputted with "stopped"
 
-                    Displays version -
+        - During REPL
+        - During debug run
 
-        - Debugging (~)
-            - Run tests containing ~'s
-                ..
-                Runs debug REPL up to the '~' -
-                Browser runs non-headless by default -
-                Doesn't output new report -
-                Existing report opened in browser doesn't update -
-
-        - Only ($)
-
-        - REPL
-
-        - Ctrl + C
-
-            - During branch generation
-            - During test run
+            - While step is running
+            - During prompt in between steps
 
                 ..
                 Verify exit
-                Verify report outputted with "stopped"
+                Verify no new report
+                Verify existing report opened in browser doesn't update
 
-            - During REPL
-            - During debug run
+    - Config file (smashtest.json)
 
-                - While step is running
-                - During prompt in between steps
+    - Run with config file present
+        - Empty config file
+        - A few flags set
+        - Bad JSON config file
 
-                    ..
-                    Verify exit
-                    Verify no new report
-                    Verify existing report opened in browser doesn't update
+    - Run without config file present
 
-        - Config file (smashtest.json)
+    - No branches generated
 
-        - Run with config file present
-            - Empty config file
-            - A few flags set
-            - Bad JSON config file
-
-        - Run without config file present
-
-        - No branches generated
-
-        - Performance
-            - 100k+ branches
-            - Report size, memory usage, running time, any errors?
+    - Performance
+        - 100k+ branches
+        - Report size, memory usage, running time, any errors?
 
 
 
-        // TODO
+    // TODO
 
+    - REPL
         - ~-branches (before step), Runner paused
         - ~-branches (after step), Runner paused
-        - $-branches
+    - $-branches
 
-        - All flag types
-            - --report-domain (domain, domain+port, localhost, localhost+port)
-            - --repl or -r (with tree files inputted, or no tree files inputted)
-                - Combined with -s so that there are 0/1/2+ runnable branches
-
-        - TODO: Move to packages.smash
-            - Test that a browser is killed when a Ctrl + C is done, even mid-navigate (make sure navigate doesn't freeze until the navigate is complete)
-            - Ctrl + C or X in the REPL will actually kill all browsers
-            - Screenshots
-
-        - Standalone selenium vs. selenium grid
-        - Running it in CI, spewing out reports and watching them update live, exist status, starting/stopping job
-        - Sauce labs
-        - If I ran report A and then I run report B, and if the report server is on the same port, opening up report A won't have it updating with B's info
-        - All the different kinds of hook errors + branch errors + step errors occurring during a debug/repl
-        - Make sure there's a way to add dependencies to your project so you can do require(something) in a code block
-            - Just do an npm install in the same directory?
+    - All flag types
+        - --report-domain (domain, domain+port, localhost, localhost+port)
+        - --repl or -r (with tree files inputted, or no tree files inputted)
+            - Combined with -s so that there are 0/1/2+ runnable branches
+    - Running it in CI, spewing out reports and watching them update live, exist status, starting/stopping job
+    - If I ran report A and then I run report B, and if the report server is on the same port, opening up report A won't have it updating with B's info
+    - All the different kinds of hook errors + branch errors + step errors occurring during a debug/repl
+    - Make sure there's a way to add dependencies to your project so you can do require(something) in a code block
+        - Just do an npm install in the same directory?
 
 
 
 
-    - Report
+- Report
+
+    * Open report in browser
+
+        - Mac
+            - Chrome
+            - FF
+            - Safari
+
+        - Windows
+            - Chrome
+            - FF
+            - IE
+            - Edge
+
+    Open report in browser
 
         - Tree pane
 
