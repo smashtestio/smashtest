@@ -90,11 +90,14 @@ Running tests
             - For fixing problems in your tests that cause them to break, without having to rerun the whole entire suite again
             - Helpful for when you are typing out new tests (or updating existing ones) and only want to run whatever's new
                 - Use with -e so you don't have to switch back to the report page each time
+            - Recommended to mv smashtest-passed-data to a different filename to save it (the next run will overwrite that file)
+                - Especially if you're selectively running branches with $'s (and not ~'s). Branches cut off by the $'s won't be included
+                    in the list of passed branches.
             - Format
                 - -s/--skip-passed=filename or "filename"
-                    - filename of smashtest-data.js that constitutes last run
+                    - filename of smashtest-passed-data that constitutes last run
                 - -s/--skip-passed with no filename
-                    - Uses smashtest-data.js in the current directory
+                    - Uses smashtest-passed-data in the current directory
         - --step-data=<all/fail/none>
             - 'fail' by default, unless debugging, in which case 'all' by default
         - --version/-v
@@ -109,6 +112,7 @@ Reports
             - Live updates. Click a step/branch to pause live updates.
             - Not for debug runs
         - smashtest-data.js in same directory contains test results data for report
+        - smashtest-passed-data in the same directory contains passed test data
     - Pass/fail
         - Steps
             - A step passes is no errors are thrown inside of it
@@ -1012,3 +1016,9 @@ Packages
         put it into packages/
     - Give some examples
         - Show injection being made into Runner.persistent.packageName
+
+Manual Testing
+    - Tips on how to use textual steps with skips to generate your manual permutations
+        - Group them as manual maybe
+        - Over time, you can convert these into actual automated tests
+    - Run automated tests with step-data=all and manually verify screenshots (better than having to click yourself)

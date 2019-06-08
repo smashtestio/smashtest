@@ -1,0 +1,598 @@
+// ***************************************
+//  Manual integration tests
+// ***************************************
+
+* For each platform
+
+    - Mac
+        - Chrome
+        - FF
+        - Safari
+
+    - Windows
+        - Chrome
+        - FF
+        - IE
+        - Edge
+
+For each platform $s
+
+    - Executable (smashtest.js)
+
+        - Running from command line
+
+            - Filenames inputted
+
+                - No files inputted
+                    - .smash files exist in current directory
+                    - No .smash files exist in current directory
+
+                - One filename inputted
+                    - Valid file
+                    - File doesn't exist
+
+                - Glob covering multiple filenames inputted
+                    - Curently directory only
+                    - Multiple levels of directories
+
+                - Multiple filenames as separate parameters
+
+            - Flags inputted
+
+                - --debug=<hash>
+                    - No hash
+                    - Hash is invalid
+
+                        Verify error -
+
+                    - Valid hash
+                        Correct branch is run in debug -
+                            Branch stops at first error or after last step -
+
+                - --group="<group>"
+                    - Group exists
+                    - Group doesn't exist
+                    - Multiple --group flags
+
+                - --groups="<group1>,<group2>"
+
+                - --g:<name>="<value>"
+
+                - --headless=<true/false>
+                
+                    - Set to true
+
+                        - Normal run in Chrome
+                        - Debug run in Chrome
+
+                            Runs headless -
+
+                    - Set to false
+
+                        - Normal run in Chrome
+                        - Debug run in Chrome
+
+                            Doesn't run headless -
+
+                - --help
+                - -?
+
+                    Displays help prompt -
+
+                - --max-parallel=<N>
+                - --max-screenshots=<N>
+                - --min-frequency=<high/med/low>
+                - --no-debug
+                - --output-errors=<true/false>
+                - --p:<name>="<value>"
+                - --random=<true/false>
+
+                - --repl
+                - -r
+
+                - --report-domain=<domain>
+                - --report-server=<true/false>
+                - --selenium-server=<url>
+
+                - --skip-passed=<true/false/file>
+                - -a
+                - -s
+
+                - --step-data=<all/fail/none>
+
+                - --version
+                - -v
+
+                    Displays version -
+
+        - Debugging (~)
+            - Run tests containing ~'s
+                ..
+                Runs debug REPL up to the '~' -
+                Doesn't output new report
+                Existing report opened in browser doesn't update
+
+        - Only ($)
+
+        - REPL
+
+        - Ctrl + C
+
+            - During branch generation
+            - During test run
+
+                ..
+                Verify exit
+                Verify report outputted with "stopped"
+
+            - During REPL
+            - During debug run
+
+                - While step is running
+                - During prompt in between steps
+
+                    ..
+                    Verify exit
+                    Verify no new report
+                    Verify existing report opened in browser doesn't update
+
+        - Config file (smashtest.json)
+
+        - Run with config file present
+            - Empty config file
+            - A few flags set
+            - Bad JSON config file
+
+        - Run without config file present
+
+        - No branches generated
+
+        - Performance
+            - 100k+ branches
+            - Report size, memory usage, running time, any errors?
+
+
+
+        // TODO
+
+        - ~-branches (before step), Runner paused
+        - ~-branches (after step), Runner paused
+        - $-branches
+
+        - All flag types
+            - --report-domain (domain, domain+port, localhost, localhost+port, http/https)
+            - --repl or -r (with tree files inputted, or no tree files inputted)
+                - Combined with -s so that there are 0/1/2+ runnable branches
+
+        - Test that a browser is killed when a Ctrl + C is done, even mid-navigate (make sure navigate doesn't freeze until the navigate is complete)
+        - Ctrl + C or X in the REPL will actually kill all browsers
+        - Screenshots
+        - Standalone selenium vs. selenium grid
+        - Headless vs. non-headless
+        - Running it in CI, spewing out reports, starting/stopping job
+        - Sauce labs
+        - If I ran report A and then I run report B, and if the report server is on the same port, opening up report A won't have it updating with B's info
+        - All the different kinds of hook errors + branch errors + step errors occurring during a debug/repl
+        - Make sure there's a way to add dependencies to your project so you can do require(something) in a code block
+            - Just do an npm install in the same directory?
+
+
+
+
+    - Report
+
+        - Tree pane
+
+            - Steps
+
+                Every type of step state
+
+                - Textual steps get '-' outputted
+
+                    - '-' before step text
+                    - '-' after step text
+                    - '-' before and after step text
+
+                - Step with very long text
+
+                    - With spaces
+                    - Without spaces
+
+                        Step text rendered correctly and scrolls horizontally in tree pane -
+
+                - Function call to function with empty body
+
+                - Errors
+
+                    - Error in step
+
+                        - Errors that end branch (causing branch to fail)
+                        - Errors that continue branch (with some further steps passing and others failing)
+
+                            ..
+                            Step fails -
+                            Branch fails -
+
+                    - Hook errors
+
+                        - Error in Before Every Step hook
+                        - Error in After Every Step hook
+                        - Multiple Before and After Every Step errors
+
+                            ..
+                            Step fails -
+                            Branch fails -
+                            First error shown in step -
+
+                - Multiple levels of function calls
+
+            - Branches
+
+                Every type of branch state
+
+                - Branch with a ton of indents
+                    ..
+                    Make sure it renders properly -
+                    Make sure line numbers render properly -
+
+                - Errors
+
+                    - Hook errors
+
+                        - Before Every Branch error
+                        - After Every Branch error
+                        - Multiple Before and After Every Branch errors
+
+                            ..
+                            Branch fails -
+                            Errors shown at top of branch -
+
+                - Collapsing
+
+                    - Defaults
+
+                        - Collased by default
+                            - Function calls without '+' on function call or function declaration
+
+                        - Uncollapsed by default
+                            - Function calls with '+' on function call
+                            - Function calls with '+' on function declaration
+                            - Function calls with '+' on both function call and function declaration
+                            - Currently running step always uncollapses the parents above it in its branch
+                            - Step with error always uncollapses the parents above it in its branch
+
+                    - Collapse icon
+
+                        - Clicking + uncollapses
+
+                        - Clicking - collapses
+
+                        - Multiple levels of function calls with multiple levels of collapsing
+
+                            ..
+                            Collapse child -
+                            Collapse parent -
+                            Uncollapse parent -
+                            Child is still collapsed -
+                            Make sure line numbers render properly -
+
+                            ..
+                            Uncollapse child -
+                            Collapse parent -
+                            Uncollapse parent -
+                            Child is still uncollapsed -
+                            Make sure line numbers render properly -
+
+            - Branch lists
+
+                Branch list
+                    Test this branch list
+                    - Multiple branches with different pass/fail/skip states
+
+                Grouped branch list (failing steps)
+                    - No failing branches share failing step text
+                        Test this grouped branch list
+                        - No grouping occurs
+
+                    - Multiple failing branches share failing step text
+                        - Shared failing steps are from different function declarations
+                            Test this grouped branch list
+                            - No grouping occurs
+
+                        - Shared failing steps share function declarations
+                            Test this grouped branch list
+                            - Grouping occurs
+                                Test branch list with a group
+
+                * Test this branch list
+
+                    - Branch list with multiple branches
+                    - Branch list with 0 branches
+
+                        Test branch list
+
+                * Test this grouped branch list
+
+                    - Grouped branch list with multiple groups
+                    - Grouped branch list with 0 groups
+
+                        Test branch list
+
+                * Test branch list with a group
+                    Test branch list
+
+                * Test branch list
+
+                    ..
+                    - Header is correct
+                    - Count in header is correct
+
+                        - List with fewer item than limit
+                            - More button doesn't show
+
+                        - List with as many items as limit
+                            - More button doesn't show
+
+                        - List with a few more items than limit
+                            - More button shows with correct count
+                            - Clicking more button shows more items
+
+                        - List with 2+ x limit more steps
+                            - More button shows with correct count
+                            - Clicking more button shows more items and more button with correct count
+                                - Clicking more button shows more items
+
+            - Tree header
+                Verify tests running
+
+                - Tests not running
+                    - Tests completed ..
+                        - Counts visible
+                        - Completed indicator visible
+                        - Progress bar not visible
+
+                    - Tests were stopped ..
+                        - Counts visible
+                        - Stopped indicator visible
+                        - Progress bar not visible
+
+                    - Tests start running again
+                        Verify tests running
+
+                * Verify tests running ..
+                    - Counts visible
+                    - Running indicator visible
+                    - Progress bar visible
+                    - Branch lists do not update
+
+                - Counts
+                    - All counts > 0
+                        - All counts visible
+
+                    - 0 passed
+                        - Passed count not visible
+
+                    - 0 failed
+                        - Failed count not visible
+
+                    - 0 skipped
+                        - Skipped count not visible
+
+                    - 0 not run yet
+                        - Not run yet count not visible
+
+                    - Total count visible
+
+                    - Clicking counts
+
+                        - Click running count
+                        - Click passed count
+                        - Click failed count
+                        - Click skipped count
+                        - Click not run yet count
+
+                            - Page scrolls to corresponding branch list
+
+            - Hook errors
+
+                - Before Everything error
+                - After Everything error
+                - Multiple Before and After Everything errors
+
+                    Errors shown at top of page -
+
+        - Preview pane
+
+            - Clicking step previews that step
+
+            - Clicking branch indicator previews that indicator
+
+            - Verify preview contents
+
+                - Step preview
+
+                    - Step with error
+                    - Step with logs
+                    - Step with details
+                        - Set step's reportTemplateIndex and reportView with the sample html
+                    Every type of step state
+
+                        ..
+                        - Step name visible and colored correctly
+                        - Status visible
+                        - Filename and line number visible
+                        - Branch hash visible
+                        - Hover for keystrokes section
+
+                - Branch preview
+
+                    - Branch with error
+                    - Branch with logs
+                    Every type of branch state
+
+                        ..
+                        - Branch name visible and colored correctly
+                        - Status visible
+                        - Filename and line number visible
+
+            - Clicking X closes preview pane
+
+            - Tests running
+
+                Live updates paused indiciator visible -
+
+                - Tests run ends
+
+                    - Tests complete
+                    - Run is stopped
+
+                        Live updates paused indiciator disappears -
+                            - Test run starts again
+                                Live updates paused indiciator visible -
+
+            - Tests not running
+                - Preview pane open
+                    - Tests start running
+                        Live updates paused indiciator visible -
+                            - Tests end
+                                Live updates paused indiciator disappears -
+
+        - Keystrokes
+            - up
+
+                - Step selected and it is not the first step in the report
+
+                    - A step in the middle of a branch
+                    - First step in the branch
+                    - First step in the branch group
+                    - First step in the branch list
+
+                        - Moves to the step above
+
+                - First step in the report selected
+                - Branch selected
+                - Nothing selected
+
+                    - Does nothing
+
+            - down
+
+                - Step selected and it is not the last step in the report
+
+                    - A step in the middle of a branch
+                    - Last step in the branch
+                    - Last step in the branch group
+                    - Last step in the branch list
+
+                        - Moves to the step below
+
+                - Last step in the report selected
+                - Branch selected
+                - Nothing selected
+
+                    - Does nothing
+
+            - left
+
+                - Uncollapsed step selected
+                    - Collapses step
+
+                - Collapsed step selected
+                - Non-collapsible step selected
+                - Branch selected
+                - Nothing selected
+
+                    - Does nothing
+
+            - right
+
+                - Collapsed step selected
+                    - Uncollapses step
+
+                - Uncollapsed step selected
+                - Non-collapsible step selected
+                - Branch selected
+                - Nothing selected
+
+                    - Does nothing
+
+            - space
+
+                - Preview pane open
+                    - Non-screenshot step details
+                        - Does nothing
+
+                    - Screenshot step details
+                        - Toggles between before and after
+
+                - Preview pane closed
+                    - Does nothing
+
+            - esc
+
+                - Preview pane open
+                    - Closes preview pane
+
+                    - Screenshot modal open
+                        - Closes screenshot modal
+
+                - Preview pane closed
+                    - Does nothing
+
+            - h
+
+                - Preview pane open
+
+                    - Open to a step
+                    - Open to a branch
+
+                        - Copies branch's hash
+
+                - Preview pane closed
+                    - Does nothing
+
+            - d
+
+                - Preview pane open
+
+                    - Open to a step
+                    - Open to a branch
+
+                        - Copies debug command with branch's hash
+
+                - Preview pane closed
+                    - Does nothing
+
+            - c
+
+                - Preview pane open
+
+                    - Open to a step
+                    - Open to a branch
+
+                        - Copies branch text
+
+                - Preview pane closed
+                    - Does nothing
+
+        - Performance
+
+            - Report with 500+ branches in each type (passing, failing, etc.)
+            - Report with 100+ steps per branch
+            - max-parallel set to 30+
+            - Long-running suite
+                - Each step takes a few seconds
+
+        * Every type of step state
+            - Not yet run
+            - Running
+            - Passed
+            - Failed
+            - Skipped
+
+        * Every type of branch state
+            - Not yet run
+            - Running
+            - Passed
+            - Failed
+            - Skipped

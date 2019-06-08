@@ -119,6 +119,10 @@ class RunInstance {
     async runStep(step, branch, overrideDebug) {
         let stepNode = this.tree.stepNodeIndex[step.id];
 
+        if(step.isSkipped) {
+            return;
+        }
+
         if(this.tree.getModifier(step, 'isBeforeDebug') && !overrideDebug) {
             this.setPause(true);
             return;
@@ -367,6 +371,10 @@ class RunInstance {
      * @return {Boolean} True if the run was a success, false if there was a failure
      */
     async runHookStep(step, stepToGetError, branchToGetError) {
+        if(step.isSkipped) {
+            return;
+        }
+
         let stepNode = this.tree.stepNodeIndex[step.id];
         let codeBlock = this.tree.getCodeBlock(step);
 

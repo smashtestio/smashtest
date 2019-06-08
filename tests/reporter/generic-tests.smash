@@ -230,18 +230,6 @@ After Every Step Error -
 
 
 
-Skipping similar branches on fail ! -
-
-    Failing step {
-        throw new Error("oops");
-    }
-
-        Branch one -
-        Branch two will be skipped -
-        Branch three will be skipped -
-
-
-
 Skipping a skip below step - .s
 
 
