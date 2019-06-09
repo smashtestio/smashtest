@@ -768,8 +768,21 @@ c     = copy text of branch
              * @return {Boolean} True if the given step node is textual, false otherwise
              */
             function isTextual(stepNode) {
-                return (stepNode.frontModifiers && stepNode.frontModifiers.find(mod => mod == '-')) ||
-                   (stepNode.backModifiers && stepNode.backModifiers.find(mod => mod == '-'));
+                return isFrontTextual(stepNode) || isBackTextual(stepNode);
+            }
+
+            /**
+             * @return {Boolean} True if the given step node is textual with a - in front, false otherwise
+             */
+            function isFrontTextual(stepNode) {
+                return stepNode.frontModifiers && stepNode.frontModifiers.find(mod => mod == '-');
+            }
+
+            /**
+             * @return {Boolean} True if the given step node is textual with a - in back, false otherwise
+             */
+            function isBackTextual(stepNode) {
+                return stepNode.backModifiers && stepNode.backModifiers.find(mod => mod == '-');
             }
 
             // ***************************************
@@ -2024,8 +2037,15 @@ c     = copy text of branch
                         lineClassName += "active ";
                     }
 
+                    let stepText = this.props.stepNode.text;
                     if(isTextual(this.props.stepNode)) {
                         contentClassName += " textual";
+                        // if(isFrontTextual(this.props.stepNode)) {
+                        //     stepText = `- ${stepText}`;
+                        // }
+                        // if(isBackTextual(this.props.stepNode)) {
+                        //     stepText = `${stepText} -`;
+                        // }
                     }
 
                     let lineElem = (
@@ -2036,7 +2056,7 @@ c     = copy text of branch
                                     hasLevels={this.props.hasLevels}
                                 />
                                 <span className="step-text">
-                                    {this.props.stepNode.text}
+                                    {stepText}
                                 </span>
                                 {pill}
                             </span>
