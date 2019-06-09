@@ -1024,11 +1024,11 @@
 
                         }
 
-                        $s parent matches once, children don\'t match, even with the 'any order' keyword {
+                        $s parent matches once, children don't match, even with the 'any order' keyword {
                             // includes (in that order) in error
                         }
 
-                        $s parent matches multiple times, children don\'t match, even with the 'any order' keyword {
+                        $s parent matches multiple times, children don't match, even with the 'any order' keyword {
                             // includes (in that order) in error
                         }
 
@@ -1528,3 +1528,35 @@
         - finds the best element
         - finds multiple elements if there's a tie
         - doesn't find elements if the text doesn't exist on the page
+
+    - value
+        - finds elements
+        - doesn't find elements
+
+    - contains
+        - finds elements
+        - doesn't find elements
+
+    - contains exact
+        - finds elements
+        - doesn't find elements
+
+    - innertext
+        - finds elements
+        - doesn't find elements
+
+    - selector
+        - finds elements
+        - doesn't find elements
+
+    - xpath
+        - finds elements
+        - doesn't find elements
+
+    - style
+        - finds elements
+        - doesn't find elements
+
+    - position
+        - finds elements
+        - doesn't find elements

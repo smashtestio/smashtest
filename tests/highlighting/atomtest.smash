@@ -15,7 +15,7 @@ Function call
 Function call
     Function call   // comment here
     Function call 'non // comment string' // comment here
-        Textual step 'non // comment string' - // comment here
+        Textual step 'non // comment non-string' - // comment here
         Textual step 'non-string' + -
         - Textual step 'non-string' +
             // comment on its own line
@@ -136,7 +136,7 @@ Not sequential
 
             Step with \\ special \" chars "string \" " {"var"}
 
-            Code block {
+            Code block 'non-string' {var} {
                 throw new Error("oops");
                 if(something) {
                     something();
@@ -144,7 +144,7 @@ Not sequential
                 return 6;
             }
 
-                * Code block {
+                * Function declaration code block {
                     throw new Error("oops");
                     if(something) {
                         something();
