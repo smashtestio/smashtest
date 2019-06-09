@@ -273,6 +273,8 @@
 
                     - Multiple flags set at once
 
+        - Multiple filenames and flags inputted, intertwined
+
     - Debugging (~)
 
         - Run tests containing ~'s
@@ -292,17 +294,34 @@
             - Verify errors outputted correctly
                 All error types
 
+            - Run with skip-passed set to true
+                Doesn't do skip-passed -
+
     - Only ($)
         Only runs the given branches -
 
     - REPL
 
-        * Inputs
+        * Unsuccessful inputs
+            - With .smash files inputted
+                - 2+ branches in files
+
+        * Successful inputs
             - With .smash files inputted
                 - 0 branches in files
                 - 0 branches to run because of '-s'
+                - 1 branch in files
             - No .smash files inputted
-        Inputs
+
+        Unsuccessful inputs
+
+            Outputs error -
+
+        Successful inputs
+
+            Starts REPL before first step is executed -
+
+            Doesn't output report -
 
             - Verify every step type
                 - Not yet run
@@ -352,6 +371,9 @@
                         - Press tab while editing code block
                         - Empty lines inside code block
 
+                        - Enter function declaration
+                            Outputs error -
+
                     - Copy into REPL
 
                         - Single line
@@ -362,7 +384,7 @@
 
     - Ctrl + C
 
-        - During branch generation
+        - During branch generation (100k+ branches)
         - During test run
 
             ..
@@ -409,7 +431,8 @@
         - 100K branches, 500K steps
         - 1M branches, 6M steps
 
-            - Check report size, memory usage, running time, and any errors
+            Check report size, memory usage, running time, and any errors -
+            'Generating branches...' shows -
 
     * All error types
         - Step error
