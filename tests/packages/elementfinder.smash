@@ -1387,3 +1387,144 @@
     }
 
         navigate to {{test page location}}
+
+- find() $s
+
+    - if multiple elements are found immediately
+
+        - sends back the first element
+
+    - if an element is found, but later on
+
+        - sends back that element as soon as it is found
+
+    - if nothing is ever found
+
+        - generic case
+
+        - if timeout is 0
+
+        - if timeout is omitted
+
+        - if element appears after the timeout
+
+            - throws an error
+
+                - sets error's continue properly
+
+- findAll() $s
+
+    - if multiple elements are found immediately
+
+        - sends back all elements
+
+    - if multiple elements are found, but later on
+
+        - sends back those elements as soon as they're found
+
+    - if nothing is ever found
+
+        - generic case
+
+        - if timeout is 0
+
+        - if timeout is omitted
+
+        - if elements appear after the timeout
+
+            - sends back empty array
+
+- not() $s
+
+    - if multiple elements are found immediately
+
+        - if those elements disappear before the timeout
+
+            - doesn't throw error
+
+        - if those elements don't disappear before the timeout
+        - if those elements disappear after the timeout
+
+            - throws error
+
+                - sets error's continue properly
+
+    - if nothing is ever found
+
+        - because those elements never exist in the DOM
+
+        - because those elements are never visible
+
+            - doesn't throw error
+
+- defaultProps() $s
+
+    - visible
+        - finds elements
+        - doesn't find elements
+
+    - not visible
+        - finds elements
+        - doesn't find elements
+
+    - any visibility
+        - finds elements
+        - doesn't find elements
+
+    - enabled
+        - finds elements
+        - doesn't find elements
+
+    - disabled
+        - finds elements
+        - doesn't find elements
+
+    - checked
+        - finds elements
+        - doesn't find elements
+
+    - unchecked
+        - finds elements
+        - doesn't find elements
+
+    - selected
+        - finds elements
+        - doesn't find elements
+
+    - focused
+        - finds elements
+        - doesn't find elements
+
+    - element
+        - finds elements
+        - doesn't find elements
+
+    - clickable
+        - finds elements
+        - doesn't find elements
+
+    - page title
+        - finds elements
+        - doesn't find elements
+
+    - page title contains
+        - finds elements
+        - doesn't find elements
+
+    - page url
+        - relative
+            - finds elements
+            - doesn't find elements
+
+        - absolute
+            - finds elements
+            - doesn't find elements
+
+    - page url contains
+        - finds elements
+        - doesn't find elements
+
+    - next to
+        - finds the best element
+        - finds multiple elements if there's a tie
+        - doesn't find elements if the text doesn't exist on the page

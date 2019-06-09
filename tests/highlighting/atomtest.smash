@@ -14,7 +14,10 @@ Function call
 
 Function call
     Function call   // comment here
+    Function call 'non // comment string' // comment here
         Textual step 'non // comment string' - // comment here
+        Textual step 'non-string' + -
+        - Textual step 'non-string' +
             // comment on its own line
 
             Skipped step -s
