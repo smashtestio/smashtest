@@ -67,9 +67,10 @@ Running tests
         - --min-frequency=med
             - med if omitted
         - --no-debug
-        - --output-errors=<true/false> or -e (same as true)
-            - Great for when you're developing tests and expect a few to fail (great with -s)
-            - Great for unit tests that run quick and you don't want to be switching to the report each time
+        - --output-errors=<true/false>
+            - True by default
+                - Great for when you're developing tests and expect a few to fail (great with -s)
+                - Great for unit tests that run quick and you don't want to be switching to the report each time
         - --p:varname=value or "value" (persistent var)
         - --random=true/false
         - --repl or -r

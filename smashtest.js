@@ -115,10 +115,6 @@ function processFlag(name, value) {
                 runner.debugHash = value;
                 break;
 
-            case "e":
-                runner.outputErrors = true;
-                break;
-
             case "g":
                 runner.globalInit[varName] = value;
                 break;
@@ -176,7 +172,7 @@ Options
 
             case "max-parallel":
                 if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
-                    utils.error('Invalid max-parallel. It must be a positive integer above 0.');
+                    utils.error(`Invalid max-parallel. It must be a positive integer above 0.`);
                 }
 
                 runner.maxParallel = parseInt(value);
@@ -184,7 +180,7 @@ Options
 
             case "min-frequency":
                 if(['high', 'med', 'low'].indexOf(value) == -1) {
-                    utils.error("Invalid min-frequency. It must be either 'high', 'med', or 'low'.");
+                    utils.error(`Invalid min-frequency. It must be either 'high', 'med', or 'low'.`);
                 }
                 runner.minFrequency = value;
                 break;
@@ -212,7 +208,7 @@ Options
 
             case "report-domain":
                 if(!value.match(/^[^\/\: ]+(\:[0-9]+)?$/)) {
-                    utils.error("Invalid report-domain. It must be in format 'domain' or 'domain:port'.");
+                    utils.error(`Invalid report-domain. It must be in format 'domain' or 'domain:port'.`);
                 }
                 reporter.reportDomain = value;
                 break;
@@ -239,7 +235,7 @@ Options
 
             case "step-data":
                 if(!value.match(/all|fail|none/)) {
-                    utils.error("Invalid step-data. It must be 'all', 'fail', or 'none'.");
+                    utils.error(`Invalid step-data. It must be 'all', 'fail', or 'none'.`);
                 }
                 tree.stepDataMode = value;
                 break;
@@ -249,6 +245,7 @@ Options
                 process.exit();
 
             default:
+                utils.error(`Invalid flag '${name}'. See --help for details.`);
                 break;
         }
 
@@ -402,6 +399,9 @@ function plural(count) {
 
         setSigint(); // attach SIGINT (Ctrl + C) handler after runner.init(), so user can Ctrl + C out of a long branchify operation via the default SIGINT handler
 
+        // Output errors to console by default
+        runner.outputErrors = true;
+
         // No reporter for debug or repl runs
         if(tree.isDebug || isRepl) {
             isReport = false;
@@ -480,7 +480,7 @@ function plural(count) {
                     runner.outputErrors = false;
                 }
                 else if(tree.counts.totalToRun > 1) {
-                    utils.error(`There are ${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run but you can only have 1 to run --repl. Try isolating a branch with ~.`);
+                    utils.error(`There are ${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run but you can only have 1 to run --repl. Try isolating a branch with ~ or $.`);
                 }
                 else {
                     runner.consoleOutput = true;

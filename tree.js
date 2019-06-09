@@ -428,7 +428,10 @@ ${outputBranchAbove(this)}
         function outputBranchAbove(self) {
             let str = '';
             branchAbove.steps.forEach(s => {
-                str += `   ${self.stepNodeIndex[s.id].text}\n`
+                let text = self.stepNodeIndex[s.id].text;
+                if(text) {
+                    str += `   ${text}\n`
+                }
             });
             return str;
         }

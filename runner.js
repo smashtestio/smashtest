@@ -1,5 +1,6 @@
 const RunInstance = require('./runinstance.js');
 const Tree = require('./tree.js');
+const chalk = require('chalk');
 const utils = require('./utils.js');
 
 /**
@@ -249,10 +250,11 @@ class Runner {
         for(let i = 0; i < this.tree.beforeEverything.length; i++) {
             let s = this.tree.beforeEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
-            if(s.error && this.consoleOutput) {
+            if(this.consoleOutput && s.error) {
                 console.log(``);
                 console.log(chalk.red.bold(`Before Everything error occurred:`));
-                console.log(chalk.gray(s.error.stack));
+                console.log(this.formatStackTrace(s.error));
+                console.log(``);
             }
             if(s.error || this.isStopped) {
                 return false;
@@ -288,10 +290,11 @@ class Runner {
         for(let i = 0; i < this.tree.afterEverything.length; i++) {
             let s = this.tree.afterEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
-            if(s.error && this.consoleOutput) {
+            if(this.consoleOutput && s.error) {
                 console.log(``);
                 console.log(chalk.red.bold(`After Everything error occurred:`));
-                console.log(chalk.gray(s.error.stack));
+                console.log(this.formatStackTrace(s.error));
+                console.log(``);
             }
         }
 
@@ -301,6 +304,24 @@ class Runner {
         }
 
         this.isComplete = true;
+    }
+
+    /**
+     * Injects [filename:lineNumber] into the given Error's stack trace, colors the lines, and returns it
+     */
+    formatStackTrace(error) {
+        let stack = error.stack;
+        stack = stack.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
+
+        let firstLine = stack.match(/.*/);
+        if(firstLine) {
+            firstLine = firstLine[0];
+            stack = stack.replace(firstLine, '');
+            stack = chalk.gray(stack);
+            stack = chalk.red(firstLine) + stack;
+        }
+
+        return stack;
     }
 
     /**

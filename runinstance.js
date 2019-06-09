@@ -73,6 +73,12 @@ class RunInstance {
                         return;
                     }
                     else if(this.currBranch.isFailed) {
+                        if(this.runner.consoleOutput && this.currBranch.error) {
+                            let sn = this.tree.stepNodeIndex[s.id];
+                            this.outputError(this.currBranch.error, sn);
+                            console.log("");
+                        }
+
                         // runHookStep() already marked the branch as a failure, so now just run all After Every Branch hooks
                         // and advance to the next branch
                         break;
@@ -300,7 +306,7 @@ class RunInstance {
                     this.fillErrorFromStep(error, step, inCodeBlock);
 
                     if(this.runner.outputErrors) {
-                        this.c(chalk.red.bold(stepNode.text) + '\n' + this.formatStackTrace(e));
+                        this.outputError(error, stepNode);
                     }
                 }
             }
@@ -338,7 +344,7 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            let seconds = step.elapsed/1000;
+            let seconds = step.elapsed/1000 || 0;
 
             let isGreen = step.isPassed;
             console.log("End:       " +
@@ -348,13 +354,12 @@ class RunInstance {
                 (step.isFailed ? chalk.red(` failed`) : ``) +
                 chalk.gray(` (${seconds} s)`)
             );
-            console.log("");
 
             if(step.error) {
-                console.log(chalk.red.bold(stepNode.text));
-                console.log(this.formatStackTrace(step.error));
-                console.log("");
+                this.outputError(step.error, stepNode);
             }
+
+            console.log("");
         }
 
         if(this.tree.getModifier(step, 'isAfterDebug') && !overrideDebug) {
@@ -389,7 +394,7 @@ class RunInstance {
             this.fillErrorFromStep(e, step, true);
 
             if(this.runner.outputErrors) {
-                this.c(chalk.red.bold(stepNode.text) + '\n' + this.formatStackTrace(e));
+                this.outputError(e, stepNode);
             }
 
             if(stepToGetError) {
@@ -410,6 +415,13 @@ class RunInstance {
         }
 
         return true;
+    }
+
+    /**
+     * Outputs the given error to the console, if allowed
+     */
+    outputError(error, stepNode) {
+        this.c(chalk.red.bold(stepNode.text) + '\n' + this.runner.formatStackTrace(error));
     }
 
     /**
@@ -686,24 +698,6 @@ class RunInstance {
         console.log('');
         console.log(s);
         console.log('');
-    }
-
-    /**
-     * Injects [filename:lineNumber] into the given Error's stack trace, colors the lines, and returns it
-     */
-    formatStackTrace(error) {
-        let stack = error.stack;
-        stack = stack.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
-
-        let firstLine = stack.match(/.*/);
-        if(firstLine) {
-            firstLine = firstLine[0];
-            stack = stack.replace(firstLine, '');
-            stack = chalk.gray(stack);
-            stack = chalk.red(firstLine) + stack;
-        }
-
-        return stack;
     }
 
     /**
@@ -1019,6 +1013,11 @@ class RunInstance {
                 if(this.checkForStopped()) {
                     return;
                 }
+                if(this.runner.consoleOutput && this.currBranch.error) {
+                    let sn = this.tree.stepNodeIndex[s.id];
+                    this.outputError(this.currBranch.error, sn);
+                    console.log("");
+                }
                 // finish running all After Every Branch steps, even if one fails, and even if there was a pause
             }
         }
@@ -1030,11 +1029,6 @@ class RunInstance {
 
         if(this.runner.consoleOutput) {
             console.log("Branch complete");
-            if(this.currBranch.error) {
-                console.log("");
-                console.log(chalk.red.bold("Error occurred in branch") + chalk.gray(`    [${this.currBranch.error.filename}:${this.currBranch.error.lineNumber}]`));
-                console.log(chalk.gray(this.currBranch.error.stack));
-            }
             console.log("");
         }
     }

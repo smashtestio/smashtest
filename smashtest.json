@@ -1,5 +1,3 @@
 {
-    "max-parallel": 5,
-    "output-errors": true,
     "step-data": "all"
 }

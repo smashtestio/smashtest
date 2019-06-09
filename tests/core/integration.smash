@@ -126,13 +126,17 @@
                     - output-errors=<true/false>
 
                         - Set to true
-
-                            Outputs errors to console when they occur inside steps (or branches, or hooks) -
-
-                        - Set to false
                         - Omitted
 
-                            Doesn't output errors to console when they occur inside steps (or branches, or hooks) -
+                            All error types
+
+                                Outputs errors to console -
+
+                        - Set to false
+
+                            All error types
+
+                                Doesn't output errors to console -
 
                     - p:<name>="<value>"
                         Persistent variable set -
@@ -265,7 +269,7 @@
                         - Starts with '-'
                         - Starts with '--'
 
-                            Ignored without error -
+                            Error outputted -
 
                     - Multiple flags set at once
 
@@ -284,6 +288,9 @@
                 Browser runs non-headless by default -
                 Doesn't output new report -
                 Existing report opened in browser doesn't update -
+
+            - Verify errors outputted correctly
+                All error types
 
     - Only ($)
         Only runs the given branches -
@@ -305,13 +312,8 @@
                 - Failed but continued
                 - Skipped
 
-            - Verify hook errors
-                - Before Every Step error
-                - After Every Step error
-                - Before Every Branch error
-                - After Every Branch error
-                - Before Everything error
-                - After Everything error
+            - Verify errors outputted correctly
+                All error types
 
             - Prompt input
 
@@ -346,6 +348,7 @@
                         - Generic code block
                         - Code block that throws exception
                         - Empty code block
+                        - Code block with no step name (anon)
                         - Press tab while editing code block
                         - Empty lines inside code block
 
@@ -407,6 +410,15 @@
         - 1M branches, 6M steps
 
             - Check report size, memory usage, running time, and any errors
+
+    * All error types
+        - Step error
+        - Before Every Step error
+        - After Every Step error
+        - Before Every Branch error
+        - After Every Branch error
+        - Before Everything error
+        - After Everything error
 
 - Report
 
