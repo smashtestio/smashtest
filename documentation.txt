@@ -167,16 +167,17 @@ Step blocks
             }
 
 Textual steps (-)
-    - Step that just outputs text, always passes, doesn't execute anything
+    - Step that just outputs text and doesn't execute anything
+    - Outputted as gray and italic to differentiate from runnable steps
     - Uses
         - Can be like a heading, describing the following steps until a new textual step occurs.
             - Can describe a group that subsequent steps belong to
             - Use functions to show multiple layers of headers (descriptions in varying degrees of specificity).
-            - Recommended to put the - before the step for these (looks like a heading in the report)
+            - Recommended to put the - before the step for these (looks like a heading in the smash file)
         - Can also be comments you want to appear at a certain point in the report.
             - Recommended to use - after the step for these.
             - Can use used to describe the state of the app or test at that moment in time (or that state that's beginning/ending)
-    - The '-' is outputted to the report
+            - Can be a manual step to execute
     - -s is also a textual step
 
 UI Testing
