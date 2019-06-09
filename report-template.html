@@ -345,6 +345,12 @@
                 color: gray;
             }
 
+            .line .notrunyet-item,
+            .line .textual.notrunyet-item {
+                color: rgba(128,128,128,0.55);
+                font-style: italic;
+            }
+
             .skipped-step-item {
                 color: gray;
             }
@@ -517,12 +523,7 @@
             }
 
             .textual {
-                color: rgb(128,128,128);
-                font-style: italic;
-            }
-
-            .textual.notrunyet-item {
-                font-style: normal;
+                color: rgb(140,140,140);
             }
 
             .preview-pane .close {
@@ -2044,12 +2045,6 @@ c     = copy text of branch
                     let stepText = this.props.stepNode.text;
                     if(isTextual(this.props.stepNode)) {
                         contentClassName += " textual";
-                        // if(isFrontTextual(this.props.stepNode)) {
-                        //     stepText = `- ${stepText}`;
-                        // }
-                        // if(isBackTextual(this.props.stepNode)) {
-                        //     stepText = `${stepText} -`;
-                        // }
                     }
 
                     let lineElem = (
@@ -2194,19 +2189,21 @@ c     = copy text of branch
                         previewStateClassName += "running-item";
                         previewStateText = "Currently running";
                     }
-                    else if(isTextualStep) {
-                        const className = "textual";
-                        headerClassName += className;
-                        previewStateClassName += className;
-
-                        previewStateText = "Textual step";
-                    }
                     else if(previewedObj.isPassed || (this.props.previewedItem.props.branch.isPassed && !previewedObj.isPassed && !previewedObj.isFailed && !previewedObj.isSkipped)) { // if a step is missing isPassed/isFailed/isSkipped, but its branch passed, it is implied that the step passed
-                        const className = "passed-item";
-                        headerClassName += className;
-                        previewStateClassName += className;
+                        if(isTextualStep) {
+                            const className = "textual";
+                            headerClassName += className;
+                            previewStateClassName += className;
 
-                        previewStateText = "Passed";
+                            previewStateText = "Textual step";
+                        }
+                        else {
+                            const className = "passed-item";
+                            headerClassName += className;
+                            previewStateClassName += className;
+
+                            previewStateText = "Passed";
+                        }
                     }
                     else if(previewedObj.isFailed) {
                         const className = "failed-item";
