@@ -1,7 +1,4 @@
-getAll() {
-    i('ElementFinder', '../../packages/js/elementfinder.js');
-    i('Comparer', '../../packages/js/comparer.js');
-}
+- getAll()
 
     open chrome
     open firefox
@@ -605,7 +602,7 @@ getAll() {
                                 expect(results.ef.print()).to.equal(`div, 5th  -->  not found (zero matches after \`5th\` applied)`);
                             }
 
-                    - counter ~
+                    - counter
 
                         - counter with a min only
 
@@ -1377,6 +1374,9 @@ getAll() {
 * open test page
 
     inits {
+        i('ElementFinder', '../../packages/js/elementfinder.js');
+        i('Comparer', '../../packages/js/comparer.js');
+
         g('setPageBody', async (htmlStr) => {
             await browser.executeScript(function(htmlStr) {
                 document.body.innerHTML = htmlStr;

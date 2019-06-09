@@ -512,6 +512,15 @@
                 color: gray;
             }
 
+            .textual {
+                color: rgb(128,128,128);
+                font-style: italic;
+            }
+
+            .textual.notrunyet-item {
+                font-style: normal;
+            }
+
             .preview-pane .close {
                 display: inline;
                 position: fixed;
@@ -531,10 +540,13 @@
                 margin-bottom: 10px;
             }
 
+            .preview-pane .preview-state .status {
+                margin-right: 20px;
+            }
+
             .preview-pane .preview-state .location {
                 color: rgb(110,110,110);
                 font-size: 12px;
-                margin-left: 20px;
             }
 
             .preview-pane .preview-name .elapsed {
@@ -582,6 +594,10 @@
                 margin-left: 20px;
                 font-size: 12px;
                 cursor: pointer;
+            }
+
+            .preview-pane .textual {
+                font-style: normal;
             }
 
             .step-report {
@@ -746,6 +762,14 @@ c     = copy text of branch
                 return str
                     .replace(/&#96;/g, "`")
                     .replace(/&amp;/g, "&");
+            }
+
+            /**
+             * @return {Boolean} True if the given step node is textual, false otherwise
+             */
+            function isTextual(stepNode) {
+                return (stepNode.frontModifiers && stepNode.frontModifiers.find(mod => mod == '-')) ||
+                   (stepNode.backModifiers && stepNode.backModifiers.find(mod => mod == '-'));
             }
 
             // ***************************************
@@ -967,7 +991,7 @@ c     = copy text of branch
                     else if(stepNode[modifierName]) {
                         return true;
                     }
-                    else if(step.hasOwnProperty('fid') && this.state.tree.stepNodeIndex[step.fid][modifierName]) {
+                    else if(step.hasOwnProperty('fid') && this.state.tree.stepNodeIndex[step.fid] && this.state.tree.stepNodeIndex[step.fid][modifierName]) {
                         return true;
                     }
 
@@ -1479,6 +1503,7 @@ c     = copy text of branch
                                 key="branch-list-running"
                                 header="Branches currently running"
                                 moreLabel="More currently running branches"
+                                branches={branchesRunning}
                                 lengthText={this.props.counts.running}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
@@ -1486,15 +1511,14 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
-                            >
-                                {branchesRunning}
-                            </BranchList>
+                            />
 
                             <GroupedBranchList
                                 idName="branch-list-failed"
                                 key="branch-list-failed"
                                 header="Failed branches"
                                 moreLabel="More failed branches"
+                                mapping={failedBranchMapping}
                                 lengthText={this.props.counts.failed}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
@@ -1502,15 +1526,14 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
-                            >
-                                {failedBranchMapping}
-                            </GroupedBranchList>
+                            />
 
                             <BranchList
                                 idName="branch-list-passed"
                                 key="branch-list-passed"
                                 header="Passed branches"
                                 moreLabel="More passed branches"
+                                branches={branchesPassed}
                                 lengthText={this.props.counts.passed}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
@@ -1518,15 +1541,14 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
-                            >
-                                {branchesPassed}
-                            </BranchList>
+                            />
 
                             <BranchList
                                 idName="branch-list-skipped"
                                 key="branch-list-skipped"
                                 header="Skipped branches"
                                 moreLabel="More skipped branches"
+                                branches={branchesSkipped}
                                 lengthText={this.props.counts.skipped}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
@@ -1534,15 +1556,14 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
-                            >
-                                {branchesSkipped}
-                            </BranchList>
+                            />
 
                             <BranchList
                                 idName="branch-list-notrunyet"
                                 key="branch-list-notrunyet"
                                 header="Branches not run yet"
                                 moreLabel="More branches not run yet"
+                                branches={branchesNotRunYet}
                                 lengthText={this.props.counts.total - this.props.counts.complete}
                                 stepNodeIndex={this.props.stepNodeIndex}
                                 setPreview={this.props.setPreview}
@@ -1550,9 +1571,7 @@ c     = copy text of branch
                                 getModifier={this.props.getModifier}
                                 getLimit={this.props.getLimit}
                                 setLimit={this.props.setLimit}
-                            >
-                                {branchesNotRunYet}
-                            </BranchList>
+                            />
                         </div>
                     );
                 }
@@ -1564,13 +1583,13 @@ c     = copy text of branch
                 }
 
                 render() {
-                    if(this.props.children.length == 0) {
+                    if(this.props.branches.length == 0) {
                         return "";
                     }
                     else {
                         let limit = this.props.getLimit(this.props.idName) || BRANCHES_LIMIT;
-                        let children = this.props.children.filter((child, index) => index < limit);
-                        let numNotShown = this.props.children.length - limit;
+                        let children = this.props.branches.filter((branch, index) => index < limit);
+                        let numNotShown = this.props.branches.length - limit;
 
                         return (
                             <div className="branch-list" id={this.props.idName}>
@@ -1609,7 +1628,7 @@ c     = copy text of branch
                 }
 
                 render() {
-                    let keys = Object.keys(this.props.children);
+                    let keys = Object.keys(this.props.mapping);
 
                     if(keys.length == 0) {
                         return "";
@@ -1627,15 +1646,14 @@ c     = copy text of branch
                                         <BranchGroup
                                             groupKey={groupKey}
                                             key={groupKey}
+                                            branches={this.props.mapping[groupKey]}
                                             stepNodeIndex={this.props.stepNodeIndex}
                                             setPreview={this.props.setPreview}
                                             previewedItem={this.props.previewedItem}
                                             getModifier={this.props.getModifier}
                                             getLimit={this.props.getLimit}
                                             setLimit={this.props.setLimit}
-                                        >
-                                            {this.props.children[groupKey]}
-                                        </BranchGroup>
+                                        />
                                     ))
                                 }
                                 {
@@ -1663,8 +1681,8 @@ c     = copy text of branch
                     let tooltip = `Branches that failed on<br><i>${this.props.groupKey}</i>`;
 
                     let limit = this.props.getLimit(this.props.groupKey) || BRANCHES_IN_BRANCH_GRP_LIMIT;
-                    let children = this.props.children.filter((child, index) => index < limit);
-                    let numNotShown = this.props.children.length - limit;
+                    let children = this.props.branches.filter((branch, index) => index < limit);
+                    let numNotShown = this.props.branches.length - limit;
 
                     return (
                         <div className="branch-group">
@@ -1707,12 +1725,11 @@ c     = copy text of branch
 
                 handleClick(event) {
                     this.props.setLimit(this.props.limitKey, this.props.nextLimit);
-                    event.preventDefault();
                 }
 
                 render() {
                     return (
-                        <span className="show-more" onMouseDown={this.handleClick}>
+                        <span className="show-more" onClick={this.handleClick}>
                             <div className="label">
                                 {this.props.moreLabel}
                             </div>
@@ -1863,9 +1880,7 @@ c     = copy text of branch
                     this.updateCollapsing();
 
                     let lines = branch.steps
-                        .filter(step => {
-                            return !this.props.getModifier(step, 'isHidden') || step.isFailed;
-                        })
+                        .filter(step => !this.props.getModifier(step, 'isHidden') || step.isFailed)
                         .map((step, index) =>
                             step.collapseHide ? '' : // do this here and not in filter() in order to preserve line numbering
                             <Line
@@ -1896,7 +1911,7 @@ c     = copy text of branch
                                 className={indicatorClassName}
                                 onMouseOver={this.hoverStateOn}
                                 onMouseOut={this.hoverStateOff}
-                                onMouseDown={this.toggleActiveState}
+                                onClick={this.toggleActiveState}
                             >
                             </div>
                             <div className="branch-contents">
@@ -1918,15 +1933,21 @@ c     = copy text of branch
 
                     this.me = null; // this element
 
+                    this.surroundByVerticalLineContainers = this.surroundByVerticalLineContainers.bind(this);
+                    this.surroundByVerticalLineContainer = this.surroundByVerticalLineContainer.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
                 }
 
                 shouldComponentUpdate(nextProps, nextState) {
-                    return this.props.getRunState(nextProps.step) != this.props.getRunState(this.props.step) ||
+                    let ret = !this.updated ||
+                        this.props.getRunState(nextProps.step) != this.props.getRunState(this.props.step) ||
                         nextProps.previewedItem === this ||
                         this.props.previewedItem === this ||
                         nextProps.step.collapse != this.props.step.collapse ||
-                        nextProps.step.collapseHide != this.props.step.collapse;
+                        nextProps.step.collapseHide != this.props.step.collapseHide;
+
+                    this.updated = true;
+                    return ret;
                 }
 
                 surroundByVerticalLineContainers(elem, n) {
@@ -2003,10 +2024,9 @@ c     = copy text of branch
                         lineClassName += "active ";
                     }
 
-                    let frontMods = this.props.stepNode.frontModifiers ? this.props.stepNode.frontModifiers.filter(mod => ['-'].includes(mod)).join(' ') + ' ' : '';
-                    let backMods = this.props.stepNode.backModifiers ? ' ' + this.props.stepNode.backModifiers.filter(mod => ['-'].includes(mod)).join(' ') : '';
-                    frontMods = frontMods.replace(/^\s+$/, ''); // remove it if it's all whitespace
-                    backMods = backMods.replace(/^\s+$/, '');
+                    if(isTextual(this.props.stepNode)) {
+                        contentClassName += " textual";
+                    }
 
                     let lineElem = (
                         <span className="line-container">
@@ -2016,7 +2036,7 @@ c     = copy text of branch
                                     hasLevels={this.props.hasLevels}
                                 />
                                 <span className="step-text">
-                                    {frontMods + this.props.stepNode.text + backMods}
+                                    {this.props.stepNode.text}
                                 </span>
                                 {pill}
                             </span>
@@ -2027,7 +2047,7 @@ c     = copy text of branch
                     lineElem = this.surroundByVerticalLineContainers(lineElem, this.props.step.level);
 
                     return (
-                        <div className={lineClassName} onMouseDown={this.toggleActiveState} ref={elem => this.me = elem}>
+                        <div className={lineClassName} onClick={this.toggleActiveState} ref={elem => this.me = elem}>
                             {getIndexElem(index)}
                             {lineElem}
                         </div>
@@ -2048,13 +2068,13 @@ c     = copy text of branch
                 render() {
                     let plusElem = <img
                         className="collapse plus"
-                        onMouseDown={this.toggleCollapse}
+                        onClick={this.toggleCollapse}
                         src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTM0NCA4MDB2NjRxMCAxNC05IDIzdC0yMyA5aC0zNTJ2MzUycTAgMTQtOSAyM3QtMjMgOWgtNjRxLTE0IDAtMjMtOXQtOS0yM3YtMzUyaC0zNTJxLTE0IDAtMjMtOXQtOS0yM3YtNjRxMC0xNCA5LTIzdDIzLTloMzUydi0zNTJxMC0xNCA5LTIzdDIzLTloNjRxMTQgMCAyMyA5dDkgMjN2MzUyaDM1MnExNCAwIDIzIDl0OSAyM3ptMTI4IDQ0OHYtODMycTAtNjYtNDctMTEzdC0xMTMtNDdoLTgzMnEtNjYgMC0xMTMgNDd0LTQ3IDExM3Y4MzJxMCA2NiA0NyAxMTN0MTEzIDQ3aDgzMnE2NiAwIDExMy00N3Q0Ny0xMTN6bTEyOC04MzJ2ODMycTAgMTE5LTg0LjUgMjAzLjV0LTIwMy41IDg0LjVoLTgzMnEtMTE5IDAtMjAzLjUtODQuNXQtODQuNS0yMDMuNXYtODMycTAtMTE5IDg0LjUtMjAzLjV0MjAzLjUtODQuNWg4MzJxMTE5IDAgMjAzLjUgODQuNXQ4NC41IDIwMy41eiIvPjwvc3ZnPg=="
                     />;
 
                     let minusElem = <img
                         className="collapse minus"
-                        onMouseDown={this.toggleCollapse}
+                        onClick={this.toggleCollapse}
                         src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48bGluZSB4MT0iOCIgeDI9IjE2IiB5MT0iMTIiIHkyPSIxMiIvPjwvc3ZnPg=="
                     />;
 
@@ -2139,14 +2159,23 @@ c     = copy text of branch
                     let previewedObj = this.props.previewedItem.props.step || this.props.previewedItem.props.branch;
                     let stepNodeIndex = this.props.stepNodeIndex;
                     let isBranch = previewedObj.hasOwnProperty("steps");
+                    let sn = stepNodeIndex[previewedObj.id];
+                    let isTextualStep = sn && isTextual(sn);
 
                     let headerClassName = "header preview-name ";
-                    let previewStateClassName = "";
+                    let previewStateClassName = "status ";
                     let previewStateText = "";
                     if(previewedObj.isRunning) {
                         headerClassName += "running-item-no-anim";
                         previewStateClassName += "running-item";
                         previewStateText = "Currently running";
+                    }
+                    else if(isTextualStep) {
+                        const className = "textual";
+                        headerClassName += className;
+                        previewStateClassName += className;
+
+                        previewStateText = "Textual step";
                     }
                     else if(previewedObj.isPassed || (this.props.previewedItem.props.branch.isPassed && !previewedObj.isPassed && !previewedObj.isFailed && !previewedObj.isSkipped)) { // if a step is missing isPassed/isFailed/isSkipped, but its branch passed, it is implied that the step passed
                         const className = "passed-item";
@@ -2199,9 +2228,8 @@ c     = copy text of branch
                     if(isBranch) {
                         previewedItemText = `Branch ${previewedObj.hash}`;
                     }
-                    else {
-                        let sn = stepNodeIndex[previewedObj.id];
-                        previewedItemText = sn ? sn.text : '';
+                    else if(sn) {
+                        previewedItemText = sn.text;
                     }
 
                     let postPreviewedItemText = "";
@@ -2221,7 +2249,7 @@ c     = copy text of branch
 
                     return (
                         <div className={className}>
-                            <div className="close" onMouseDown={this.handleCloseClick}>&#xd7;</div>
+                            <div className="close" onClick={this.handleCloseClick}>&#xd7;</div>
 
                             <div className={headerClassName}>
                                 {previewedItemText}

@@ -1,21 +1,4 @@
-// Desktop
-// Mobile
-//
-//     Bad step
-//
-// * Desktop
-//     * Bad step {
-//         throw new Error("desktop oops");
-//     }
-//
-// * Mobile
-//     * Bad step {
-//         throw new Error("mobile oops");
-//     }
-
-One -
-    Two -
-        Three -
-
-Four -
-    Five -
+* Function
+    Under -
+    
+Function

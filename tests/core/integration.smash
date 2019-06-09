@@ -9,8 +9,8 @@
         - Filenames inputted
 
             - No files inputted
-                - .smash files exist in current directory
-                - No .smash files exist in current directory
+                - '.smash' files exist in current directory
+                - No '.smash' files exist in current directory
 
             - One filename inputted
                 - Valid file
@@ -32,7 +32,7 @@
                 - Set in config file (smashtest.json)
                 - Set in config file (smashtest.json) and overriden on command line
 
-                    - --debug=<hash>
+                    - debug=<hash>
                         - No hash
                         - Hash is invalid
 
@@ -42,7 +42,7 @@
                             Correct branch is run in debug -
                                 Branch stops at first error or after last step -
 
-                    - --group="<group>"
+                    - group="<group>"
 
                         - Group exists
 
@@ -63,7 +63,7 @@
 
                                 No branches error -
 
-                    - --groups="<group1>,<group2>"
+                    - groups="<group1>,<group2>"
 
                         - All groups exist
                         - Some groups exist
@@ -74,26 +74,27 @@
 
                             No branches error -
 
-                    - --g:<name>="<value>"
+                    - g:<name>="<value>"
                         Global variable set -
 
-                    - --help
+                    - help
                     - '-?'
 
                         Displays help prompt -
 
-                    - --max-parallel=<N>
-                        - Non-integer
-                        - 0
+                    - max-parallel=<N>
+                        - Set to non-integer
+                        - Set to 0
+
                             Verify error -
 
-                        - Integer above 0
+                        - Set to integer above 0
                             Verify in report that no more than N branches are executing at once -
 
                         - Omitted
                             Verify in report that no more than 5 branches are executing at once -
 
-                    - --min-frequency=<high/med/low>
+                    - min-frequency=<high/med/low>
                         - Set to 'high'
                         - Set to 'med'
                         - Set to 'low'
@@ -108,7 +109,7 @@
 
                             Only runs branches at or above 'med' frequency -
 
-                    - --no-debug
+                    - no-debug
                         - Included
                             - Test files contain a '~'
                                 Outputs error -
@@ -122,7 +123,7 @@
 
                                 Does not output error -
 
-                    - --output-errors=<true/false>
+                    - output-errors=<true/false>
 
                         - Set to true
 
@@ -133,10 +134,10 @@
 
                             Doesn't output errors to console when they occur inside steps (or branches, or hooks) -
 
-                    - --p:<name>="<value>"
+                    - p:<name>="<value>"
                         Persistent variable set -
 
-                    - --random=<true/false>
+                    - random=<true/false>
 
                         - Set to true
                         - Omitted
@@ -147,12 +148,12 @@
 
                             Branches are not shuffled -
 
-                    - --repl
+                    - repl
                     - '-r'
 
                         Runs REPL -
 
-                    - --report-domain=<domain>
+                    - report-domain=<domain>
 
                         - Omitted
 
@@ -183,7 +184,7 @@
                                 - Open report A while B is running
                                     Verify that report A isn\'t live-updated with B\'s updates -
 
-                    - --report-server=<true/false>
+                    - report-server=<true/false>
 
                         - Omitted
                         - Set to true
@@ -195,7 +196,7 @@
                             Outputs report, which does not get live updates -
 
                     - Skip passed
-                        - --skip-passed=<true/false/file>
+                        - skip-passed=<true/false/file>
                             - Set to true
                                 Skip passed branches
 
@@ -238,7 +239,7 @@
                         * Do not skip passed branches
                             Runs all branches, including those that passed last time -
 
-                    - --step-data=<all/fail/none>
+                    - step-data=<all/fail/none>
                         - Set to 'all'
                             Logs and details contained in report for passed, failed, and skipped steps -
 
@@ -254,7 +255,7 @@
                             Logs and details not contained in report for passed, failed, and skipped steps -
                             report-data.js size smaller than when this is set to 'all' or 'fail' -
 
-                    - --version
+                    - version
                     - '-v'
 
                         Displays version info -
@@ -278,7 +279,7 @@
             - '~' on multiple steps in a branch
 
                 ..
-                Outputs 'in debug mode' to console
+                Outputs 'in debug mode' to console -
                 Runs debug REPL up to the '~' -
                 Browser runs non-headless by default -
                 Doesn't output new report -
@@ -362,8 +363,8 @@
         - During test run
 
             ..
-            Verify exit
-            Verify report outputted with "stopped"
+            Verify exit -
+            Verify report outputted with "stopped" -
 
         - During REPL
         - During debug run
@@ -372,9 +373,9 @@
             - During prompt in between steps
 
                 ..
-                Verify exit
-                Verify no new report
-                Verify existing report opened in browser doesn't update
+                Verify exit -
+                Verify no new report -
+                Verify existing report opened in browser doesn't update -
 
     - Config file (smashtest.json)
 
@@ -528,24 +529,29 @@
 
             - Branch lists
 
-                Branch list
+                - Branch list
+                    ..
                     Test this branch list
                     - Multiple branches with different pass/fail/skip states
 
-                Grouped branch list (failing steps)
+                - Grouped branch list (failing steps)
                     - No failing branches share failing step text
+                        ..
                         Test this grouped branch list
-                        - No grouping occurs
+                        Verify no grouping occurs -
 
                     - Multiple failing branches share failing step text
+
                         - Shared failing steps are from different function declarations
+                            ..
                             Test this grouped branch list
-                            - No grouping occurs
+                            Verify no grouping occurs -
 
                         - Shared failing steps share function declarations
+                            ..
                             Test this grouped branch list
-                            - Grouping occurs
-                                Test branch list with a group
+                            Verify grouping occurs -
+                            Test branch list with a group
 
                 * Test this branch list
 
@@ -577,13 +583,15 @@
                             - More button doesn't show
 
                         - List with a few more items than limit
+                            ..
                             - More button shows with correct count
                             - Clicking more button shows more items
 
                         - List with 2+ x limit more steps
+                            ..
                             - More button shows with correct count
                             - Clicking more button shows more items and more button with correct count
-                                - Clicking more button shows more items
+                            - Clicking more button again shows more items
 
             - Tree header
                 Verify tests running
@@ -655,9 +663,12 @@
                 - Step preview
 
                     - Step with error
+
                     - Step with logs
+
                     - Step with details
                         - Set step's reportTemplateIndex and reportView with the sample html
+
                     Every type of step state
 
                         ..
@@ -821,8 +832,11 @@
         - Performance
 
             - Report with 500+ branches in each type (passing, failing, etc.)
+
             - Report with 100+ steps per branch
-            - max-parallel set to 30+
+
+            - max-parallel set to 30 or more
+
             - Long-running suite
                 - Each step takes a few seconds
 
