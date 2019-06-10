@@ -627,25 +627,70 @@
                                         expect(results.matches).to.have.lengthOf(0);
                                     }
 
-                                - multiple matching elements exist
+                                multiple matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
 
                                     finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
                                     }
 
-                            - min > 0
+                            min > 0 {
+                                g('ef', new ElementFinder(`2- x .big`));
+                            }
 
-                                - 0 matching elements exist
+                                0 matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="small">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
+
+                                    doesn't find elements, has errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`2- x .big  -->  not found (zero matches after \`.big\` applied)`);
+                                    }
+
+                                < min matching elements exist {
+
+                                }
 
                                     doesn't find elements, has errors {
 
                                     }
 
-                                - < min matching elements exist
+                                min matching elements exist {
 
-                                - min matching elements exist
+                                }
 
-                                - > min matching elements exist
+                                    finds elements {
+
+                                    }
+
+                                > min matching elements exist {
+
+                                }
+
+                                    finds elements {
+
+                                    }
 
                         - counter with a max only
 

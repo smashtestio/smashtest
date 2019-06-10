@@ -601,9 +601,17 @@
     }
 
     // ***************************************
-    //  Misc
+    //  Print and Log
     // ***************************************
 
     * Log {{text}} {
-        log(runInstance.replaceVars(text);
+        log(runInstance.replaceVars(text));
+    }
+
+    * {{element}} {
+        // TODO: prints found elements to browser's console (and number of elements found to regular console?)
+
+
+
+
     }
