@@ -648,7 +648,7 @@ describe("ElementFinder", function() {
                     });
                 });
 
-                it("counter x [match me]", () => {
+                it("counter x [selector]", () => {
                     let ef = new ElementFinder(`4 x [something]`);
 
                     Comparer.expect(ef).to.match({

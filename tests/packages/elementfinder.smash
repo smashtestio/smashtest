@@ -725,137 +725,505 @@
                                         expect(await results.matches[2].getAttribute('id')).to.equal('four');
                                     }
 
-                        - counter with a max only
-
-                            - 0 matching elements exist
-
-                                doesn't find elements, no errors {
-
-                                }
-
-                            - < max matching elements exist
-
-                            - max matching elements exist
-
-                            - > max matching elements exist
-
                         - counter with a min and max
 
-                            - min and max == 0
+                            min and max == 0 {
+                                g('ef', new ElementFinder(`0 x .big`));
+                            }
 
-                                - 0 matching elements exist
-
-                                    doesn't find elements, no errors {
-
-                                    }
-
-                                - multiple matching elements exist
-
-                                    finds elements {
-
-                                    }
-
-                            - min == 0, max > 0
-
-                                - 0 matching elements exist
+                                0 matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="small">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
 
                                     doesn't find elements, no errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(0);
                                     }
 
-                                - < max matching elements exist
+                                multiple matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
+
+                                    doesn't find elements, no errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                    }
+
+                            min == 0, max > 0 {
+                                g('ef', new ElementFinder(`0-2 x .big`));
+                            }
+
+                                0 matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="small">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
+
+                                    doesn't find elements, no errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                    }
+
+                                < max matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
 
                                     finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
                                     }
 
-                                - max matching elements exist
+                                max matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
 
                                     finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
                                     }
 
-                                - > max matching elements exist
+                                > max matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="big">foobar</div>
+                                    `);
+                                }
 
                                     finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
                                     }
 
-                            - min < max
+                            min < max {
+                                g('ef', new ElementFinder(`2-4 x .big`));
+                            }
 
-                                - 0 matching elements exist
+                                0 matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="small">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                        <div id="five" class="small">foobar</div>
+                                    `);
+                                }
 
                                     doesn't find elements, has errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`2-4 x .big  -->  not found (zero matches after \`.big\` applied)`);
                                     }
 
-                                - < max matching elements exist
-
-                                - max matching elements exist
-
-                                - > max matching elements exist
-
-                            - min == max
-
-                                - 0 matching elements exist
+                                < min matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                        <div id="five" class="small">foobar</div>
+                                    `);
+                                }
 
                                     doesn't find elements, has errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`2-4 x .big  -->  only found 1`);
                                     }
 
-                                - < min matching elements exist
+                                min matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                        <div id="five" class="small">foobar</div>
+                                    `);
+                                }
 
-                                - min matching elements exist
+                                    finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
-                                - min-max matching elements exist
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                    }
 
-                                - max matching elements exist
+                                min-max matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="big">foobar</div>
+                                        <div id="five" class="small">foobar</div>
+                                    `);
+                                }
 
-                                - > max matching elements exist
+                                    finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                    }
+
+                                max matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="big">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="big">foobar</div>
+                                        <div id="five" class="small">foobar</div>
+                                    `);
+                                }
+
+                                    finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(4);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[3].getAttribute('id')).to.equal('four');
+                                    }
+
+                                > max matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="big">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="big">foobar</div>
+                                        <div id="five" class="big">foobar</div>
+                                    `);
+                                }
+
+                                    finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(4);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[3].getAttribute('id')).to.equal('four');
+                                    }
+
+                            min == max {
+                                g('ef', new ElementFinder(`3 x .big`));
+                            }
+
+                                0 matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="small">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
+
+                                    doesn't find elements, has errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`3 x .big  -->  not found (zero matches after \`.big\` applied)`);
+                                    }
+
+                                < min matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
+
+                                    doesn't find elements, has errors {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`3 x .big  -->  only found 2`);
+                                    }
+
+                                min-max matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="big">foobar</div>
+                                    `);
+                                }
+
+                                    finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                    }
+
+                                > max matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="big">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="big">foobar</div>
+                                    `);
+                                }
+
+                                    finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('three');
+                                    }
 
                     - match me
 
-                        - normal // [match me]
+                        normal {
+                            g('ef', new ElementFinder(`[.big]`));
+                        }
 
-                            $s finds elements {
-
+                            0 matching elements exist {
+                                await setPageBody(`
+                                    <div id="one" class="small">foobar</div>
+                                    <div id="two" class="small">foobar</div>
+                                    <div id="three" class="small">foobar</div>
+                                    <div id="four" class="small">foobar</div>
+                                `);
                             }
 
-                            $s doesn't find elements {
+                                doesn't find elements {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(`[.big]  -->  not found (zero matches after \`.big\` applied)`);
+                                }
+
+                            1 matching element exists {
+                                await setPageBody(`
+                                    <div id="one" class="small">foobar</div>
+                                    <div id="two" class="big">foobar</div>
+                                    <div id="three" class="small">foobar</div>
+                                    <div id="four" class="small">foobar</div>
+                                `);
                             }
+
+                                finds elements {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                }
+
+                            multiple matching elements exist {
+                                await setPageBody(`
+                                    <div id="one" class="small">foobar</div>
+                                    <div id="two" class="big">foobar</div>
+                                    <div id="three" class="big">foobar</div>
+                                    <div id="four" class="small">foobar</div>
+                                `);
+                            }
+
+                                finds elements {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                }
 
                         - counter x match me
 
-                            - counter inside match me // [counter x match me]
-
-                                $s finds elements {
-
-                                }
-
-                                $s doesn't find elements {
-
-                                }
-
-                            - counter outside match me // counter x [match me]
-
-                                $s finds elements {
-
-                                }
-
-                                $s doesn't find elements {
-
-                                }
-
-                        - match me element array // * [match me element array]
-
-                            $s finds elements {
-
+                            counter inside match me {
+                                g('ef', new ElementFinder(`[2 x .big]`));
                             }
 
-                            $s doesn't find elements {
+                                0 matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="small">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
 
+                                    doesn't find elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`[2 x .big]  -->  not found (zero matches after \`.big\` applied)`);
+                                    }
+
+                                < min matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="small">foobar</div>
+                                        <div id="four" class="small">foobar</div>
+                                    `);
+                                }
+
+                                    doesn't find elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`[2 x .big]  -->  only found 1`);
+                                    }
+
+                                > min matching elements exist {
+                                    await setPageBody(`
+                                        <div id="one" class="small">foobar</div>
+                                        <div id="two" class="big">foobar</div>
+                                        <div id="three" class="big">foobar</div>
+                                        <div id="four" class="big">foobar</div>
+                                    `);
+                                }
+
+                                    finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                    }
+
+                            counter outside match me {
+                                g('ef', new ElementFinder(`2 x [.big]`));
                             }
+
+                                throws error {
+                                    await expect(ef.getAll(browser.driver)).to.be.rejectedWith(`'[.big]' is not a valid selector`);
+                                }
+
+                        match me element array {
+                            g('ef', new ElementFinder(`* [.big]`));
+                        }
+
+                            0 matching elements exist {
+                                await setPageBody(`
+                                    <div id="one" class="small">foobar</div>
+                                    <div id="two" class="small">foobar</div>
+                                    <div id="three" class="small">foobar</div>
+                                    <div id="four" class="small">foobar</div>
+                                `);
+                            }
+
+                                doesn't find elements, no errors {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(`* [.big]  -->  not found (zero matches after \`.big\` applied)`);
+                                }
+
+                            multiple matching elements exist, but are not matched by the element array {
+                                await setPageBody(`
+                                    <div id="one" class="small">foobar</div>
+                                    <div id="two" class="big">foobar</div>
+                                    <div id="three" class="big">foobar</div>
+                                    <div id="four" class="small">foobar</div>
+                                `);
+                            }
+
+                                errors occur {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |* [.big]
+                                        |    --> missing
+                                        |    <DIV id='two' class='big'>
+                                        |
+                                        |    --> missing
+                                        |    <DIV id='three' class='big'>
+                                        |`));
+                                }
 
                     - multiple props
 
@@ -1454,11 +1822,16 @@
     inits {
         i('ElementFinder', '../../packages/js/elementfinder.js');
         i('Comparer', '../../packages/js/comparer.js');
+        chai.use(i('chai-as-promised'));
 
         g('setPageBody', async (htmlStr) => {
             await browser.executeScript(function(htmlStr) {
                 document.body.innerHTML = htmlStr;
             }, htmlStr);
+        });
+
+        g('regularize', (str) => {
+            return str.replace(/\n\s*\|/g, '\n').replace(/^\s*\n/, '');
         });
 
         l(`test page location`, `file:///${dir()}/generic-page.html`);

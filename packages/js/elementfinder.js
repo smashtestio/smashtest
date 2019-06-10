@@ -692,8 +692,8 @@ class ElementFinder {
             function elemSummary(elem) {
                 return "<" +
                         elem.tagName +
-                        (elem.id ? " id=' " + elem.id + "'" : "") +
-                        (elem.className ? " class=' " + elem.className + "'" : "") +
+                        (elem.id ? " id='" + elem.id + "'" : "") +
+                        (elem.className ? " class='" + elem.className + "'" : "") +
                         ">";
             }
 
