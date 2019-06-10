@@ -1151,7 +1151,11 @@ c     = copy text of branch
                             let visibleLines = branch.querySelectorAll('.line .step-text');
                             let text = '';
 
-                            visibleLines.forEach(line => text += line.innerText + '\n');
+                            visibleLines.forEach(line => text +=
+                                (line.closest('.content').classList.contains('front-textual') ? '- ' : '') +
+                                line.innerText +
+                                (line.closest('.content').classList.contains('back-textual') ? ' -' : '') +
+                                '\n');
 
                             this.copyToClipboard(text);
                             this.showNotification(`Copied text of branch to clipboard`);
@@ -2049,6 +2053,13 @@ c     = copy text of branch
                     let stepText = this.props.stepNode.text;
                     if(isTextual(this.props.stepNode)) {
                         contentClassName += " textual";
+
+                        if(isFrontTextual(this.props.stepNode)) {
+                            contentClassName += " front-textual";
+                        }
+                        if(isBackTextual(this.props.stepNode)) {
+                            contentClassName += " back-textual";
+                        }
                     }
 
                     let lineElem = (
