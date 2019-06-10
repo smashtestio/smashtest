@@ -47,7 +47,7 @@ class Branch {
     /**
      * Pushes the given step to the end of this branch
      * @param {Step} step - The step to push onto the end of this branch
-     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
+     * @param {Object} stepNodeIndex - An object that maps ids to StepNodes
      */
     push(step, stepNodeIndex) {
         this.steps.push(step);
@@ -57,19 +57,20 @@ class Branch {
     /**
      * Pushes the given step to the front of this branch
      * @param {Step} step - The step to push onto the end of this branch
-     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
+     * @param {Object} stepNodeIndex - An object that maps ids to StepNodes
      */
     unshift(step, stepNodeIndex) {
         this.steps.unshift(step);
-        this.mergeModifiers(step, stepNodeIndex);
+        this.mergeModifiers(step, stepNodeIndex, true);
     }
 
     /**
-     * Combines the modifiers of the given step with the modifiers of this branch
-     * @param {Step} step - The step to push onto the end of this branch
-
+     * Updates modifier-related vars of this branch with the modifiers of the given step
+     * @param {Step} step - The step whose modifiers to merge with those of this branch
+     * @param {Object} stepNodeIndex - An object that maps ids to StepNodes
+     * @param {Boolean} [toFront] - If true, step is being inserted to the front of this branch, false otherwise
      */
-    mergeModifiers(step, stepNodeIndex) {
+    mergeModifiers(step, stepNodeIndex, toFront) {
         let stepNode = stepNodeIndex[step.id];
         let functionDeclarationNode = stepNodeIndex[step.fid] || {};
 
@@ -81,6 +82,29 @@ class Branch {
         }
         if(stepNode.isDebug || functionDeclarationNode.isDebug) {
             this.isDebug = true;
+        }
+        if(stepNode.groups || functionDeclarationNode.groups) {
+            let incomingGroups = (stepNode.groups || []).concat(functionDeclarationNode.groups || []);
+            incomingGroups.forEach(g => {
+                if(Constants.FREQUENCIES.includes(g)) {
+                    if(toFront) {
+                        if(!this.frequency) {
+                            this.frequency = g;
+                        }
+                    }
+                    else {
+                        this.frequency = g;
+                    }
+                }
+                else {
+                    if(!this.groups) {
+                        this.groups = [];
+                    }
+                    if(!this.groups.includes(g)) {
+                        this.groups.push(g);
+                    }
+                }
+            });
         }
     }
 

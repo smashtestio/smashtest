@@ -713,23 +713,6 @@ ${outputBranchAbove(this)}
             branchesFromThisStepNode.push(branch);
         }
 
-        // Attach groups and frequencies
-        if(stepNode.groups) {
-            stepNode.groups.forEach(group => {
-                branchesFromThisStepNode.forEach(branch => {
-                    if(Constants.FREQUENCIES.includes(group)) {
-                        branch.frequency = group;
-                    }
-                    else {
-                        if(!branch.groups) {
-                            branch.groups = [];
-                        }
-                        branch.groups.push(group);
-                    }
-                });
-            });
-        }
-
         stepNode.used = true;
 
         // ***************************************

@@ -10378,6 +10378,109 @@ G -
                 ]);
             });
 
+            it("handles frequencies on function declarations", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+    A -
+
+* F #high
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ],
+                        frequency: 'high'
+                    }
+                ]);
+            });
+
+            it("handles frequencies inside function declarations", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+    A -
+
+* F
+    B - #high
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "B" }, { text: "A" } ],
+                        frequency: 'high'
+                    }
+                ]);
+            });
+
+            it("handles frequencies on function calls", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F #high
+    A -
+
+* F
+    B -
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "B" }, { text: "A" } ],
+                        frequency: 'high'
+                    }
+                ]);
+            });
+
+            it("combines frequencies on function calls and declarations", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F #low
+    A -
+
+* F #high
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ],
+                        frequency: 'high'
+                    }
+                ]);
+            });
+
+            it("combines frequencies on function calls and steps inside function declarations", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F #low
+    A -
+
+* F
+    B - #high
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "B" }, { text: "A" } ],
+                        frequency: 'high'
+                    }
+                ]);
+            });
+
             it("throws exception if a ~ exists, but is cut off due to a frequency restriction", () => {
                 let tree = new Tree();
                 tree.parseIn(`
@@ -10619,6 +10722,88 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "C3" }, { text: "L" } ],
                         groups: [ 'third', 'sixth' ]
+                    }
+                ]);
+            });
+
+            it("handles groups on function declarations", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F
+    A -
+
+* F #one
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ],
+                        groups: [ 'one' ]
+                    }
+                ]);
+            });
+
+            it("combines groups on function calls and declarations", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F #one
+    A -
+
+* F #two
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ],
+                        groups: [ 'one', 'two' ]
+                    }
+                ]);
+            });
+
+            it("combines groups on function calls and steps inside function declarations", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F #one
+    A -
+
+* F
+    B - #two
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "B" }, { text: "A" } ],
+                        groups: ['two', 'one']
+                    }
+                ]);
+            });
+
+            it("combines groups on function calls and steps inside function declarations, and doesn't duplicate group names", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+F #one
+    A -
+
+* F
+    B - #two #one
+                `, "file.txt");
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "B" }, { text: "A" } ],
+                        groups: ['two', 'one']
                     }
                 ]);
             });

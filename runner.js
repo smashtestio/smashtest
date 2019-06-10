@@ -26,7 +26,7 @@ class Runner {
         this.outputErrors = false;       // If true, output errors to console
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
-        this.consoleOutput = false;      // If true, output debug info to console
+        this.consoleOutput = true;       // If true, output debug info to console
 
         this.persistent = {};            // stores variables which persist from branch to branch, for the life of the Runner
         this.globalInit = {};            // init each branch with these global variables
