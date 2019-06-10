@@ -138,13 +138,13 @@ Options
   -r                              Open the REPL (drive SmashTEST from command line)
   -s                              Skip branches that passed last time, carrying them over into report as passed
   -v                              Output the version of SmashTEST
-  -?                              Open this help prompt
+  -?                              Output this help prompt
 
   --debug=<hash>                  Run the branch associated with the hash in debug mode
   --groups="<group1>,<group2>"    Only run branches that are part of one of these groups
   --g:<name>="<value>"            Sets a global variable before every branch
   --headless=<true/false>         Whether or not to run browsers as headless
-  --help                          Open this help prompt (-?)
+  --help                          Output this help prompt (-?)
   --max-parallel=<N>              Do not run more than N branches simultaneously
   --max-screenshots=<N>           Do not store more than N screenshots. Set to 0 to disable screenshots.
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
