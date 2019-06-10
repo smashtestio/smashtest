@@ -50,7 +50,6 @@ Running tests
     - Command line options
         - --debug=[HASH]
             - Only run that branch as debugged. Ignore $'s, ~'s, groups, and frequency
-        - --group=value (you can do many of these - great for group names with spaces)
         - --groups=value or "val1,val2,val3"
         - --g:varname=value or "value" (global var)
         - --headless=<true/false>

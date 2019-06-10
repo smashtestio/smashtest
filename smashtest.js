@@ -119,13 +119,6 @@ function processFlag(name, value) {
                 runner.globalInit[varName] = value;
                 break;
 
-            case "group":
-                if(!runner.groups) {
-                    runner.groups = [];
-                }
-                runner.groups.push(group);
-                break;
-
             case "groups":
                 runner.groups = value.split(/\s*\,\s*/);
                 break;
@@ -148,7 +141,6 @@ Options
   -?                              Open this help prompt
 
   --debug=<hash>                  Run the branch associated with the hash in debug mode
-  --group="<group>"               Same as --groups, but only one group. Multiple --group's ok.
   --groups="<group1>,<group2>"    Only run branches that are part of one of these groups
   --g:<name>="<value>"            Sets a global variable before every branch
   --headless=<true/false>         Whether or not to run browsers as headless

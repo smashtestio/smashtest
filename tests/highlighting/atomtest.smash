@@ -21,7 +21,7 @@ Function call
             // comment on its own line
 
             - Textual #group1 #group2 // comment
-            Function call #group1 #group2 // comment
+            #group1 + Function call #group2 #group-3 // comment
 
             Skipped step -s
                 Other stuff -
