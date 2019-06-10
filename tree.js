@@ -710,23 +710,24 @@ ${outputBranchAbove(this)}
         else { // Textual steps, non-function-declaration code block steps, {var}='string'
             let branch = new Branch;
             branch.push(step, this.stepNodeIndex);
+            branchesFromThisStepNode.push(branch);
+        }
 
-            // Set branch.groups and branch.frequency, if this a {group}= or {frequency}= step
-            if(varsBeingSet && varsBeingSet.length > 0) {
-                varsBeingSet.forEach(varBeingSet => {
-                    if(varBeingSet.name == 'frequency') {
-                        branch.frequency = utils.stripQuotes(varBeingSet.value);
+        // Attach groups and frequencies
+        if(stepNode.groups) {
+            stepNode.groups.forEach(group => {
+                branchesFromThisStepNode.forEach(branch => {
+                    if(Constants.FREQUENCIES.includes(group)) {
+                        branch.frequency = group;
                     }
-                    else if(varBeingSet.name == 'group') {
+                    else {
                         if(!branch.groups) {
                             branch.groups = [];
                         }
-                        branch.groups = branch.groups.concat(utils.stripQuotes(varBeingSet.value));
+                        branch.groups.push(group);
                     }
                 });
-            }
-
-            branchesFromThisStepNode.push(branch);
+            });
         }
 
         stepNode.used = true;
@@ -1236,7 +1237,7 @@ ${outputBranchAbove(this)}
             randomizeOrder(this.branches);
         }
 
-        // Sort by {frequency}, but otherwise keeping the same order
+        // Sort by frequency, but otherwise keeping the same order
         let highBranches = [];
         let medBranches = [];
         let lowBranches = [];

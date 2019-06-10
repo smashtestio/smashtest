@@ -6,152 +6,152 @@
     Mobile Portrait
 
 * Mobile Portrait +
-    {browser width}='375', {browser height}='667', {group}='mobile'
+    {browser width}='375', {browser height}='667' #mobile
 
 * Mobile Landscape +
-    {browser width}='667', {browser height}='375', {group}='mobile'
+    {browser width}='667', {browser height}='375' #mobile
 
 * Mobile S +
     Mobile S Portrait
 
 * Mobile S Portrait +
-    {browser width}='320', {browser height}='480', {group}='mobile'
+    {browser width}='320', {browser height}='480' #mobile
 
 * Mobile S Landscape +
-    {browser width}='480', {browser height}='320', {group}='mobile'
+    {browser width}='480', {browser height}='320' #mobile
 
 * Mobile M +
     Mobile M Portrait
 
 * Mobile M Portrait +
-    {browser width}='375', {browser height}='667', {group}='mobile'
+    {browser width}='375', {browser height}='667' #mobile
 
 * Mobile M Landscape +
-    {browser width}='667', {browser height}='375', {group}='mobile'
+    {browser width}='667', {browser height}='375' #mobile
 
 * Mobile L +
     Mobile L Portrait
 
 * Mobile L Portrait +
-    {browser width}='425', {browser height}='667', {group}='mobile'
+    {browser width}='425', {browser height}='667' #mobile
 
 * Mobile L Landscape +
-    {browser width}='667', {browser height}='425', {group}='mobile'
+    {browser width}='667', {browser height}='425' #mobile
 
 * Tablet +
     Tablet Portrait
 
 * Tablet Portrait +
-    {browser width}='768', {browser height}='1024', {group}='mobile'
+    {browser width}='768', {browser height}='1024' #mobile
 
 * Tablet Landscape +
-    {browser width}='1024', {browser height}='768', {group}='mobile'
+    {browser width}='1024', {browser height}='768' #mobile
 
 * Laptop +
-    {browser width}='1024', {browser height}='768', {group}='desktop'
+    {browser width}='1024', {browser height}='768' #desktop
 
 * Laptop L +
-    {browser width}='1440', {browser height}='900', {group}='desktop'
+    {browser width}='1440', {browser height}='900' #desktop
 
 * Desktop +
-    {browser width}='1920', {browser height}='1080', {group}='desktop'
+    {browser width}='1920', {browser height}='1080' #desktop
 
 // ***************************************
 //  Devices
 // ***************************************
 
 * BlackBerry Z30 +
-    {device}='BlackBerry Z30', {browser width}='360', {browser height}='640', {group}='mobile'
+    {device}='BlackBerry Z30', {browser width}='360', {browser height}='640' #mobile
 
 * Blackberry PlayBook +
-    {device}='Blackberry PlayBook', {browser width}='600', {browser height}='1024', {group}='mobile'
+    {device}='Blackberry PlayBook', {browser width}='600', {browser height}='1024' #mobile
 
 * Galaxy Note 3 +
-    {device}='Galaxy Note 3', {browser width}='360', {browser height}='640', {group}='mobile'
+    {device}='Galaxy Note 3', {browser width}='360', {browser height}='640' #mobile
 
 * Galaxy Note II +
-    {device}='Galaxy Note II', {browser width}='360', {browser height}='640', {group}='mobile'
+    {device}='Galaxy Note II', {browser width}='360', {browser height}='640' #mobile
 
 * Galaxy S III +
-    {device}='Galaxy S III', {browser width}='360', {browser height}='640', {group}='mobile'
+    {device}='Galaxy S III', {browser width}='360', {browser height}='640' #mobile
 
 * Galaxy S5 +
-    {device}='Galaxy S5', {browser width}='360', {browser height}='640', {group}='mobile'
+    {device}='Galaxy S5', {browser width}='360', {browser height}='640' #mobile
 
 * Kindle Fire HDX +
-    {device}='Kindle Fire HDX', {browser width}='800', {browser height}='1280', {group}='mobile'
+    {device}='Kindle Fire HDX', {browser width}='800', {browser height}='1280' #mobile
 
 * LG Optimus L70 +
-    {device}='LG Optimus L70', {browser width}='384', {browser height}='640', {group}='mobile'
+    {device}='LG Optimus L70', {browser width}='384', {browser height}='640' #mobile
 
 * Laptop with HiDPI screen +
-    {device}='Laptop with HiDPI screen', {browser width}='1440', {browser height}='900', {group}='mobile'
+    {device}='Laptop with HiDPI screen', {browser width}='1440', {browser height}='900' #mobile
 
 * Laptop with MDPI screen +
-    {device}='Laptop with MDPI screen', {browser width}='1280', {browser height}='800', {group}='mobile'
+    {device}='Laptop with MDPI screen', {browser width}='1280', {browser height}='800' #mobile
 
 * Laptop with touch +
-    {device}='Laptop with touch', {browser width}='1280', {browser height}='950', {group}='mobile'
+    {device}='Laptop with touch', {browser width}='1280', {browser height}='950' #mobile
 
 * Microsoft Lumia 550 +
-    {device}='Microsoft Lumia 550', {browser width}='640', {browser height}='360', {group}='mobile'
+    {device}='Microsoft Lumia 550', {browser width}='640', {browser height}='360' #mobile
 
 * Microsoft Lumia 950 +
-    {device}='Microsoft Lumia 950', {browser width}='360', {browser height}='640', {group}='mobile'
+    {device}='Microsoft Lumia 950', {browser width}='360', {browser height}='640' #mobile
 
 * Nexus 4 +
-    {device}='Nexus 4', {browser width}='384', {browser height}='640', {group}='mobile'
+    {device}='Nexus 4', {browser width}='384', {browser height}='640' #mobile
 
 * Nexus 5 +
-    {device}='Nexus 5', {browser width}='360', {browser height}='640', {group}='mobile'
+    {device}='Nexus 5', {browser width}='360', {browser height}='640' #mobile
 
 * Nexus 5X +
-    {device}='Nexus 5X', {browser width}='412', {browser height}='732', {group}='mobile'
+    {device}='Nexus 5X', {browser width}='412', {browser height}='732' #mobile
 
 * Nexus 6 +
-    {device}='Nexus 6', {browser width}='412', {browser height}='732', {group}='mobile'
+    {device}='Nexus 6', {browser width}='412', {browser height}='732' #mobile
 
 * Nexus 6P +
-    {device}='Nexus 6P', {browser width}='412', {browser height}='732', {group}='mobile'
+    {device}='Nexus 6P', {browser width}='412', {browser height}='732' #mobile
 
 * Nexus 7 +
-    {device}='Nexus 7', {browser width}='600', {browser height}='960', {group}='mobile'
+    {device}='Nexus 7', {browser width}='600', {browser height}='960' #mobile
 
 * Nexus 10 +
-    {device}='Nexus 10', {browser width}='800', {browser height}='1280', {group}='mobile'
+    {device}='Nexus 10', {browser width}='800', {browser height}='1280' #mobile
 
 * Nokia Lumia 520 +
-    {device}='Nokia Lumia 520', {browser width}='320', {browser height}='533', {group}='mobile'
+    {device}='Nokia Lumia 520', {browser width}='320', {browser height}='533' #mobile
 
 * Nokia N9 +
-    {device}='Nokia N9', {browser width}='480', {browser height}='854', {group}='mobile'
+    {device}='Nokia N9', {browser width}='480', {browser height}='854' #mobile
 
 * Pixel 2 +
-    {device}='Pixel 2', {browser width}='411', {browser height}='731', {group}='mobile'
+    {device}='Pixel 2', {browser width}='411', {browser height}='731' #mobile
 
 * Pixel 2 XL +
-    {device}='Pixel 2 XL', {browser width}='411', {browser height}='823', {group}='mobile'
+    {device}='Pixel 2 XL', {browser width}='411', {browser height}='823' #mobile
 
 * iPhone 4 +
-    {device}='iPhone 4', {browser width}='320', {browser height}='480', {group}='mobile'
+    {device}='iPhone 4', {browser width}='320', {browser height}='480' #mobile
 
 * iPhone 5/SE +
-    {device}='iPhone 5/SE', {browser width}='320', {browser height}='568', {group}='mobile'
+    {device}='iPhone 5/SE', {browser width}='320', {browser height}='568' #mobile
 
 * iPhone 6/7/8 +
-    {device}='iPhone 6/7/8', {browser width}='375', {browser height}='667', {group}='mobile'
+    {device}='iPhone 6/7/8', {browser width}='375', {browser height}='667' #mobile
 
 * iPhone 6/7/8 Plus +
-    {device}='iPhone 6/7/8 Plus', {browser width}='414', {browser height}='736', {group}='mobile'
+    {device}='iPhone 6/7/8 Plus', {browser width}='414', {browser height}='736' #mobile
 
 * iPhone X +
-    {device}='iPhone X', {browser width}='375', {browser height}='812', {group}='mobile'
+    {device}='iPhone X', {browser width}='375', {browser height}='812' #mobile
 
 * iPad +
-    {device}='iPad', {browser width}='768', {browser height}='1024', {group}='mobile'
+    {device}='iPad', {browser width}='768', {browser height}='1024' #mobile
 
 * iPad Mini +
-    {device}='iPad Mini', {browser width}='768', {browser height}='1024', {group}='mobile'
+    {device}='iPad Mini', {browser width}='768', {browser height}='1024' #mobile
 
 * iPad Pro +
-    {device}='iPad Pro', {browser width}='1024', {browser height}='1366', {group}='mobile'
+    {device}='iPad Pro', {browser width}='1024', {browser height}='1366' #mobile

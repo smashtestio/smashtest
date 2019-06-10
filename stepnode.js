@@ -25,6 +25,7 @@ class StepNode {
         this.modifiers = [];                  // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step
         this.frontModifiers = [];             // Array of String, modifiers in front of the step text
         this.backModifiers = [];              // Array of String, modifiers in back of the step text
+        this.groups = [];                     // Array of Strings, the group/freq hashtag modifiers
         this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
@@ -185,6 +186,15 @@ class StepNode {
             if(this.modifiers.includes('+?')) {
                 this.isHidden = true;
             }
+
+            this.modifiers.forEach(mod => {
+                if(mod.startsWith('#')) {
+                    if(!this.groups) {
+                        this.groups = [];
+                    }
+                    this.groups.push(mod.slice(1));
+                }
+            });
         }
 
         // Validate hook steps
@@ -226,21 +236,6 @@ class StepNode {
                 // Variable names cannot end in a * (that's reserved for lookahead vars)
                 if(varBeingSet.name.match(/\*\s*$/)) {
                     utils.error(`A variable name to the left of an = cannot end in a *`, filename, lineNumber);
-                }
-
-                // Validations for special variables
-                if(varBeingSet.name.toLowerCase() == 'frequency') {
-                    if(varBeingSet.isLocal) {
-                        utils.error(`The {frequency} variable is special and cannot be a local variable`, filename, lineNumber);
-                    }
-                    if(!utils.hasQuotes(varBeingSet.value) || ['high','med','low'].indexOf(utils.stripQuotes(varBeingSet.value)) == -1) {
-                        utils.error(`The {frequency} variable is special and can only be set to 'high', 'med', or 'low'`, filename, lineNumber);
-                    }
-                }
-                else if(varBeingSet.name.toLowerCase() == 'group') {
-                    if(varBeingSet.isLocal) {
-                        utils.error(`The {group} variable is special and cannot be a local variable`, filename, lineNumber);
-                    }
                 }
             }
 

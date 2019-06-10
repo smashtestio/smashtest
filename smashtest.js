@@ -179,7 +179,7 @@ Options
                 break;
 
             case "min-frequency":
-                if(['high', 'med', 'low'].indexOf(value) == -1) {
+                if(Constants.FREQUENCIES.indexOf(value) == -1) {
                     utils.error(`Invalid min-frequency. It must be either 'high', 'med', or 'low'.`);
                 }
                 runner.minFrequency = value;

@@ -10098,12 +10098,11 @@ I -
         });
 
         context("frequency", () => {
-            it("sets the frequency of a branch when the {frequency} variable is set on a leaf", () => {
+            it("sets the frequency of a branch", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 A -
-    B -
-        {frequency}='high'
+    B - #high
     C -
 D -
                 `, "file.txt");
@@ -10113,7 +10112,7 @@ D -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='high'" } ],
+                        steps: [ { text: "A" },  { text: "B" } ],
                         frequency: 'high'
                     },
                     {
@@ -10127,21 +10126,17 @@ D -
                 ]);
             });
 
-            it("sets the frequency of multiple branches when the {frequency} variable is set", () => {
+            it("sets the frequency of multiple branches", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 A -
-    B -
-        {frequency}='high'
-            C -
-
-            D -
+    B - #high
+        C -
+        D -
 
 E -
 
-{frequency}='low'
-
-    F -
+F - #low
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
@@ -10149,11 +10144,11 @@ E -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='high'" }, { text: "C" } ],
+                        steps: [ { text: "A" },  { text: "B" }, { text: "C" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='high'" }, { text: "D" } ],
+                        steps: [ { text: "A" },  { text: "B" }, { text: "D" } ],
                         frequency: 'high'
                     },
                     {
@@ -10161,23 +10156,21 @@ E -
                         frequency: undefined
                     },
                     {
-                        steps: [ { text: "{frequency}='low'" }, { text: "F" } ],
+                        steps: [ { text: "F" } ],
                         frequency: 'low'
                     }
                 ]);
             });
 
-            it("sets the frequency of multiple branches when the {frequency} variable is set on a step block", () => {
+            it("sets the frequency of multiple branches when the frequency is set over a step block", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 A -
     B -
         C -
-        D -
+        D - #high
 
-            {frequency}='high'
-
-        {frequency}='low'
+        K - #low
             E -
             F -
 G -
@@ -10188,19 +10181,19 @@ G -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" },  { text: "B" }, { text: "C" }, { text: "{frequency}='high'" } ],
+                        steps: [ { text: "A" },  { text: "B" }, { text: "C" } ],
+                        frequency: undefined
+                    },
+                    {
+                        steps: [ { text: "A" },  { text: "B" }, { text: "D" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" },  { text: "B" }, { text: "D" }, { text: "{frequency}='high'" } ],
-                        frequency: 'high'
-                    },
-                    {
-                        steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='low'" }, { text: "E" } ],
+                        steps: [ { text: "A" },  { text: "B" }, { text: "K" }, { text: "E" } ],
                         frequency: 'low'
                     },
                     {
-                        steps: [ { text: "A" },  { text: "B" }, { text: "{frequency}='low'" }, { text: "F" } ],
+                        steps: [ { text: "A" },  { text: "B" }, { text: "K" }, { text: "F" } ],
                         frequency: 'low'
                     },
                     {
@@ -10210,14 +10203,12 @@ G -
                 ]);
             });
 
-            it("sets the frequency of a branch to the deepest {frequency} variable when more than one exist on a branch", () => {
+            it("sets the frequency of a branch to the deepest frequency when more than one exist on a branch", () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A -
-    {frequency}='high'
-        B -
-            {frequency}='low'
-                C -
+A - #high
+    B - #low
+        C -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root);
@@ -10225,29 +10216,26 @@ A -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" },  { text: "{frequency}='high'" }, { text: "B" }, { text: "{frequency}='low'" }, { text: "C" } ],
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
                         frequency: 'low'
                     }
                 ]);
             });
 
-            it("keeps all branches when frequency is set to 'low'", () => {
+            it("keeps all branches when frequency is set to low", () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A -
-    {frequency}='high'
-        B -
+A - #high
+    B -
 
-    {frequency}='med'
+    K - #med
         C -
 
-        D -
-            {frequency}='high'
-                E -
+        D - #high
+            E -
 
-    {frequency}='low'
-        F -
-    G -
+        F - #low
+G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "low");
@@ -10255,23 +10243,23 @@ A -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
+                        steps: [ { text: "A" }, { text: "B" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "C" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "C" } ],
                         frequency: 'med'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "D" }, { text: "{frequency}='high'" }, { text: "E" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "D" }, { text: "E" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='low'" }, { text: "F" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "F" } ],
                         frequency: 'low'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "G" } ],
+                        steps: [ { text: "G" } ],
                         frequency: undefined
                     }
                 ]);
@@ -10280,20 +10268,17 @@ A -
             it("keeps all branches when frequency is not set", () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A -
-    {frequency}='high'
-        B -
+A - #high
+    B -
 
-    {frequency}='med'
+    K - #med
         C -
 
-        D -
-            {frequency}='high'
-                E -
+        D - #high
+            E -
 
-    {frequency}='low'
-        F -
-    G -
+        F - #low
+G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, undefined);
@@ -10301,45 +10286,42 @@ A -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
+                        steps: [ { text: "A" }, { text: "B" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "C" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "C" } ],
                         frequency: 'med'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "D" }, { text: "{frequency}='high'" }, { text: "E" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "D" }, { text: "E" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='low'" }, { text: "F" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "F" } ],
                         frequency: 'low'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "G" } ],
+                        steps: [ { text: "G" } ],
                         frequency: undefined
                     }
                 ]);
             });
 
-            it("keeps branches at or above 'med' frequency", () => {
+            it("keeps branches at or above med frequency", () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A -
-    {frequency}='high'
-        B -
+A - #high
+    B -
 
-    {frequency}='med'
+    K - #med
         C -
 
-        D -
-            {frequency}='high'
-                E -
+        D - #high
+            E -
 
-    {frequency}='low'
-        F -
-    G -
+        F - #low
+G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "med");
@@ -10347,41 +10329,38 @@ A -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
+                        steps: [ { text: "A" }, { text: "B" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "C" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "C" } ],
                         frequency: 'med'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "D" }, { text: "{frequency}='high'" }, { text: "E" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "D" }, { text: "E" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "G" } ],
+                        steps: [ { text: "G" } ],
                         frequency: undefined
                     }
                 ]);
             });
 
-            it("keeps branches at 'high' frequency", () => {
+            it("keeps branches at high frequency", () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A -
-    {frequency}='high'
-        B -
+A - #high
+    B -
 
-    {frequency}='med'
+    K - #med
         C -
 
-        D -
-            {frequency}='high'
-                E -
+        D - #high
+            E -
 
-    {frequency}='low'
-        F -
-    G -
+        F - #low
+G -
                 `, "file.txt");
 
                 let branches = tree.branchify(tree.root, undefined, "high");
@@ -10389,11 +10368,11 @@ A -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='high'" }, { text: "B" } ],
+                        steps: [ { text: "A" }, { text: "B" } ],
                         frequency: 'high'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='med'" }, { text: "D" }, { text: "{frequency}='high'" }, { text: "E" } ],
+                        steps: [ { text: "A" }, { text: "K" }, { text: "D" }, { text: "E" } ],
                         frequency: 'high'
                     }
                 ]);
@@ -10402,25 +10381,22 @@ A -
             it("throws exception if a ~ exists, but is cut off due to a frequency restriction", () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A -
-    {frequency}='high'
-        B -
+A - #high
+    B -
 
-    {frequency}='med'
-        ~ C -
+    K - #med
+        C - ~
 
-        D -
-            {frequency}='high'
-                E -
+        D - #high
+            E -
 
-    {frequency}='low'
-        F -
+        F - #low
     G -
                 `, "file.txt");
 
                 assert.throws(() => {
                     tree.branchify(tree.root, undefined, "high");
-                }, "This step contains a ~, but is not above the frequency allowed to run (high). Either set its frequency higher or remove the ~. [file.txt:7]");
+                }, "This step contains a ~, but is not above the frequency allowed to run (high). Either set its frequency higher or remove the ~. [file.txt:6]");
 
                 tree.branchify(tree.root, undefined, "med");
                 tree.branchify(tree.root, undefined, "low");
@@ -10434,9 +10410,9 @@ A -
                 tree.parseIn(`
 A -
     B -
-        {group}='first'
+        #primary - Something #first #1st
 
-    {group}='second'
+    Something else - #second
         D -
 
         E -
@@ -10450,19 +10426,19 @@ G -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" } ],
-                        groups: [ 'first' ]
+                        steps: [ { text: "A" }, { text: "B" }, { text: "Something" } ],
+                        groups: [ 'primary', 'first', '1st' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='second'" }, { text: "D" } ],
+                        steps: [ { text: "A" }, { text: "Something else" }, { text: "D" } ],
                         groups: [ 'second' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='second'" }, { text: "E" } ],
+                        steps: [ { text: "A" }, { text: "Something else" }, { text: "E" } ],
                         groups: [ 'second' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='second'" }, { text: "F" } ],
+                        steps: [ { text: "A" }, { text: "Something else" }, { text: "F" } ],
                         groups: [ 'second' ]
                     },
                     {
@@ -10477,17 +10453,16 @@ G -
                 tree.parseIn(`
 A -
     B -
-        {group}='first'
-            {group}='second'
+        C1 - #first
+            C2 - #second
 
-    {group}='third'
-        D -
-            {group}='fourth', {group}='fifth'
+    C3 - #third
+        D - #fourth #fifth
 
         E -
         F -
 
-            {group}='sixth'
+            - C4 #sixth
 
 G -
                 `, "file.txt");
@@ -10497,19 +10472,19 @@ G -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C1" }, { text: "C2" } ],
                         groups: [ 'first', 'second' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "D" }, { text: "{group}='fourth', {group}='fifth'" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "D" } ],
                         groups: [ 'third', 'fourth', 'fifth' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "E" }, { text: "{group}='sixth'" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "E" }, { text: "C4" } ],
                         groups: [ 'third', 'sixth' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "F" }, { text: "C4" } ],
                         groups: [ 'third', 'sixth' ]
                     },
                     {
@@ -10524,17 +10499,16 @@ G -
                 tree.parseIn(`
 A -
     B -
-        {group}='first'
-            {group}='second'
+        C1 - #first
+            C2 - #second
 
-    {group}='third'
-        D -
-            {group}='fourth', {group}='fifth'
+    C3 - #third
+        D - #fourth #fifth
 
         E -
         F -
 
-            {group}='sixth'
+            - C4 #sixth
 
 G -
                 `, "file.txt");
@@ -10544,19 +10518,19 @@ G -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C1" }, { text: "C2" } ],
                         groups: [ 'first', 'second' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "D" }, { text: "{group}='fourth', {group}='fifth'" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "D" } ],
                         groups: [ 'third', 'fourth', 'fifth' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "E" }, { text: "{group}='sixth'" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "E" }, { text: "C4" } ],
                         groups: [ 'third', 'sixth' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "F" }, { text: "C4" } ],
                         groups: [ 'third', 'sixth' ]
                     },
                     {
@@ -10571,17 +10545,16 @@ G -
                 tree.parseIn(`
 A -
     B -
-        {group}='first'
-            {group}='second'
+        C1 - #first
+            C2 - #second
 
-    {group}='third'
-        D -
-            {group}='fourth', {group}='first'
+    C3 - #third
+        D - #fourth #first
 
         E -
         F -
 
-            {group}='sixth'
+            - C4 #sixth
 
 G -
                 `, "file.txt");
@@ -10591,61 +10564,60 @@ G -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C1" }, { text: "C2" } ],
                         groups: [ 'first', 'second' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "D" }, { text: "{group}='fourth', {group}='first'" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "D" } ],
                         groups: [ 'third', 'fourth', 'first' ]
                     }
                 ]);
             });
 
-            it("only keeps branches that are part of a group being run, and multiple groups are being run", () => {
+            it("only keeps branches that are part of a group being run, when multiple groups are being run", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 A -
     B -
-        {group}='first'
-            {group}='second'
+        C1 - #first
+            C2 - #second
 
-    {group}='third'
-        D -
-            {group}='fourth', {group}='first'
+    C3 - #third
+        D - #fourth #first
 
         E -
         F -
 
-            {group}='sixth'
-                K -
+            - C4 #sixth
 
-        {group}='sixth'
-            L -
+        - L #sixth
+
 G -
                 `, "file.txt");
+
 
                 let branches = tree.branchify(tree.root, ["first", "sixth"]);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "B" }, { text: "{group}='first'" }, { text: "{group}='second'" } ],
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C1" }, { text: "C2" } ],
                         groups: [ 'first', 'second' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "D" }, { text: "{group}='fourth', {group}='first'" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "D" } ],
                         groups: [ 'third', 'fourth', 'first' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "E" }, { text: "{group}='sixth'" }, { text: "K" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "E" }, { text: "C4" } ],
                         groups: [ 'third', 'sixth' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" }, { text: "K" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "F" }, { text: "C4" } ],
                         groups: [ 'third', 'sixth' ]
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "{group}='sixth'" }, { text: "L" } ],
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "L" } ],
                         groups: [ 'third', 'sixth' ]
                     }
                 ]);
@@ -10655,28 +10627,23 @@ G -
                 let tree = new Tree();
                 tree.parseIn(`
 A -
-    {group}='one'
-        B -
+    B - #one
 
-    {group}='two'
-        ~ C -
+    ~ C - #two
 
-        D -
-            {group}='three'
-                E -
-
-    {group}='four'
-        F -
+    D -
+        E - #three
+        F - #four
     G -
                 `, "file.txt");
 
                 assert.throws(() => {
                     tree.branchify(tree.root, ["one"]);
-                }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:7]");
+                }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:5]");
 
                 assert.throws(() => {
                     tree.branchify(tree.root, ["one", "three", "four"]);
-                }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:7]");
+                }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:5]");
 
                 tree.branchify(tree.root, ["two"]);
             });
@@ -10688,24 +10655,17 @@ A -
                 let tree = new Tree();
                 tree.parseIn(`
 A -
-    $ B -
-        {group}='first', {frequency}='low'
-            {group}='second'
+    $ B - #first #low #second
 
-    $ {group}='third'
-        D -
-            {group}='fourth', {group}='first'
+    $ C - #third
+        D - #fourth #first
 
         E -
-        $ ~ F -
+        $ ~ F - #sixth
 
-            {group}='sixth'
-                ~ K -
-                    {frequency}='high'
+            ~ K - #high
 
-        {group}='sixth'
-            L -
-
+        L - #sixth
 G -
 
                 `, "file.txt");
@@ -10715,7 +10675,7 @@ G -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "{group}='third'" }, { text: "F" }, { text: "{group}='sixth'" }, { text: "K" }, { text: "{frequency}='high'" } ],
+                        steps: [ { text: "A" }, { text: "C" }, { text: "F" }, { text: "K" } ],
                         groups: [ 'third', 'sixth' ],
                         frequency: 'high'
                     }
@@ -10726,17 +10686,14 @@ G -
 
     describe("generateBranches()", () => {
         context("sorting branches", () => {
-            it("sorts branches by {frequency}", () => {
+            it("sorts branches by frequency", () => {
                 let tree = new Tree();
                 tree.parseIn(`
-A -
-    {frequency}='low'
+A - #low
 B -
 
-C -
-    {frequency}='high', {var}='foo'
-D -
-    {frequency}='med'
+C - #high
+D - #med
                 `, "file.txt");
 
                 tree.generateBranches(undefined, undefined, undefined, undefined, true);
@@ -10744,7 +10701,7 @@ D -
 
                 Comparer.expect(tree.branches).to.match([
                     {
-                        steps: [ { text: "C" }, { text: "{frequency}='high', {var}='foo'" } ],
+                        steps: [ { text: "C" } ],
                         frequency: 'high'
                     },
                     {
@@ -10752,11 +10709,11 @@ D -
                         frequency: undefined
                     },
                     {
-                        steps: [ { text: "D" }, { text: "{frequency}='med'" } ],
+                        steps: [ { text: "D" } ],
                         frequency: 'med'
                     },
                     {
-                        steps: [ { text: "A" }, { text: "{frequency}='low'" } ],
+                        steps: [ { text: "A" } ],
                         frequency: 'low'
                     }
                 ]);

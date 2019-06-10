@@ -531,6 +531,23 @@ describe("StepNode", () => {
                 assert.equal(s.isHidden, true);
             });
 
+            it("parses the group modifier (#)", () => {
+                s = new StepNode(0);
+                s.parseLine(`Click {button} #one`, "file.txt", 10);
+                assert.equal(s.text, `Click {button}`);
+                assert.deepEqual(s.groups, [`one`]);
+
+                s = new StepNode(0);
+                s.parseLine(`- #one Click {button} #two +`, "file.txt", 10);
+                assert.equal(s.text, `Click {button}`);
+                assert.deepEqual(s.groups, [`one`, `two`]);
+
+                s = new StepNode(0);
+                s.parseLine(`   #one - #two Click {button} - #three + `, "file.txt", 10);
+                assert.equal(s.text, `Click {button}`);
+                assert.deepEqual(s.groups, [`one`, `two`, `three`]);
+            });
+
             it("rejects a hook with an modifier", () => {
                 assert.throws(() => {
                     s.parseLine(`$ *** After Every Branch + {`, "file.txt", 10);
@@ -693,58 +710,6 @@ describe("StepNode", () => {
                 assert.throws(() => {
                     s.parseLine(`{{ foobar  *  }} = 'str'`, "file.txt", 10);
                 }, "A variable name to the left of an = cannot end in a * [file.txt:10]");
-            });
-
-            it("doesn't reject {Frequency}", () => {
-                s.parseLine(`{Frequency} = 'high'`, "file.txt", 10);
-            });
-
-            it("rejects {{frequency}}", () => {
-                assert.throws(() => {
-                    s.parseLine(`{{frequency}} = 'high'`, "file.txt", 10);
-                }, "The {frequency} variable is special and cannot be a local variable [file.txt:10]");
-            });
-
-            it("rejects {frequency} not set to high/med/low", () => {
-                assert.throws(() => {
-                    s.parseLine(`{frequency} = 'blah'`, "file.txt", 10);
-                }, "The {frequency} variable is special and can only be set to 'high', 'med', or 'low' [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`{frequency} = Function`, "file.txt", 10);
-                }, "The {frequency} variable is special and can only be set to 'high', 'med', or 'low' [file.txt:10]");
-            });
-
-            it("parses valid {frequency}", () => {
-                s = new StepNode(0);
-                s.parseLine(`{frequency} = 'high'`, "file.txt", 10);
-
-                s = new StepNode(0);
-                s.parseLine(`{frequency} = 'med'`, "file.txt", 10);
-
-                s = new StepNode(0);
-                s.parseLine(`{frequency} = 'low'`, "file.txt", 10);
-
-                s = new StepNode(0);
-                s.parseLine(`{foo1}='bar1',{frequency} = 'med', {foo2} = "bar2"`, "file.txt", 10);
-            });
-
-            it("doesn't reject {Group}", () => {
-                s.parseLine(`{Group} = 'foobar'`, "file.txt", 10);
-            });
-
-            it("rejects {{group}}", () => {
-                assert.throws(() => {
-                    s.parseLine(`{{group}} = 'foobar'`, "file.txt", 10);
-                }, "The {group} variable is special and cannot be a local variable [file.txt:10]");
-            });
-
-            it("parses valid {group}", () => {
-                s = new StepNode(0);
-                s.parseLine(`{group} = 'foobar'`, "file.txt", 10);
-
-                s = new StepNode(0);
-                s.parseLine(`{group} = ' one two three  '`, "file.txt", 10);
             });
 
             it("doesn't throw an error when a [bracketed string contains {vars}]", () => {

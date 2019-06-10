@@ -20,6 +20,9 @@ Function call
         - Textual step 'non-string' +
             // comment on its own line
 
+            - Textual #group1 #group2 // comment
+            Function call #group1 #group2 // comment
+
             Skipped step -s
                 Other stuff -
 
