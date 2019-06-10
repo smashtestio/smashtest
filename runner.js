@@ -23,7 +23,7 @@ class Runner {
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
         this.random = true;              // If true, randomize the order of branches
         this.skipPassed = undefined;     // If true, carry over branches that passed last time
-        this.outputErrors = false;       // If true, output errors to console
+        this.outputErrors = true;        // If true, output errors to console
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
         this.consoleOutput = true;       // If true, output debug info to console

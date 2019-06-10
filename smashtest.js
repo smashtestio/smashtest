@@ -391,8 +391,9 @@ function plural(count) {
 
         setSigint(); // attach SIGINT (Ctrl + C) handler after runner.init(), so user can Ctrl + C out of a long branchify operation via the default SIGINT handler
 
-        // Output errors to console by default
+        // Output errors to console by default, do not output all steps to console by default
         runner.outputErrors = true;
+        runner.consoleOutput = false;
 
         // No reporter for debug or repl runs
         if(tree.isDebug || isRepl) {
