@@ -143,20 +143,21 @@ Options
   --debug=<hash>                  Run the branch associated with the hash in debug mode
   --groups="<group1>,<group2>"    Only run branches that are part of one of these groups
   --g:<name>="<value>"            Sets a global variable before every branch
-  --headless=<true/false>         Whether or not to run browsers as headless
+  --headless=<true/false>         Whether to run browsers as headless
   --help                          Output this help prompt (-?)
   --max-parallel=<N>              Do not run more than N branches simultaneously
-  --max-screenshots=<N>           Do not store more than N screenshots. Set to 0 to disable screenshots.
+  --max-screenshots=<N>           Do not take more than N screenshots
   --min-frequency=<high/med/low>  Only run branches at or above this frequency
   --no-debug                      Fail if there are any $'s or ~'s. Useful to prevent debugging in CI.
   --output-errors=<true/false>    Whether to output all errors to console
   --p:<name>="<value>"            Set a persistent variable
-  --random=<true/false>           Whether or not to randomize the order of branches
+  --random=<true/false>           Whether to randomize the order of branches
   --repl                          Open the REPL (drive SmashTEST from command line) (-r)
   --report-domain=<domain>        Domain and port where report server should run (domain or domain:port format)
-  --report-server=<true/false>    Whether or not to run a server during run for live report updates
+  --report-server=<true/false>    Whether to run a server during run for live report updates
+  --screenshots=<true/false>      Whether to take screenshots at each step
   --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
-  --skip-passed=<true/false/file> Whether or not to skip branches that passed last time (-s/-a)
+  --skip-passed=<true/false/file> Whether to skip branches that passed last time (-s/-a)
   --step-data=<all/fail/none>     Keep step data for all steps, only failed steps, or no steps
   --version                       Output the version of SmashTEST (-v)
 `);
@@ -168,6 +169,13 @@ Options
                 }
 
                 runner.maxParallel = parseInt(value);
+                break;
+
+            case "max-screenshots":
+                if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
+                    utils.error(`Invalid max-screenshots. It must be a positive integer above 0.`);
+                }
+
                 break;
 
             case "min-frequency":
@@ -211,6 +219,9 @@ Options
 
             case "s":
                 runner.skipPassed = true;
+                break;
+
+            case "screenshots":
                 break;
 
             case "skip-passed":

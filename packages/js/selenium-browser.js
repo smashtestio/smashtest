@@ -263,6 +263,10 @@ class SeleniumBrowser {
         await this.driver.get(url);
     }
 
+    async takeScreenshot() {
+        
+    }
+
     /**
      * Finds the first element matching EF represented by efText. Waits up to timeout ms.
      * @param {String} efText - A string representing the EF to use
