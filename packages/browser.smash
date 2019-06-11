@@ -120,13 +120,6 @@
 
     * Navigate to {{url}} {
         browser.nav(url);
-
-        // TODO: log the details
-
-
-
-
-
     }
 
     * Click {{element}} {
@@ -609,9 +602,16 @@
     }
 
     * {{element}} {
-        // TODO: prints found elements to browser's console (and number of elements found to regular console?)
+        // Searches for given EF in browser at current moment in time
+        // Outputs details to browser's console and number of elements found to regular console
+        // Throws error if nothing found or browser isn't open
 
-
-
-
+        if(browser) {
+            let ef = new ElementFinder(element, browser.props);
+            let results = async ef.find(browser.driver, undefined, undefined, undefined, 0);
+            c(`${results.length} elements found. See browser console for details.`);
+        }
+        else {
+            throw new Error(`Browser isn't open`);
+        }
     }

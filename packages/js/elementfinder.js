@@ -18,7 +18,7 @@ class ElementFinder {
     constructor(str, definedProps, usedDefinedProps, logger, parent, lineNumberOffset, noParse) {
         this.line = '';                     // The full line representing this EF
 
-        this.counter = { min: 1, max: 1 };  // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
+        this.counter = { min: 1, max: 1, default: true };  // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
         this.props = [];                    // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
                                             // Each object in the array has the following format:
@@ -443,34 +443,38 @@ class ElementFinder {
      * Finds all elements matching this EF at the current moment in time
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
+     * @param {Boolean} [consoleOutput] - If true, outputs EF information to browser's console
      * @return {Promise} Promise that resolves to the object { ef: this ef with errors set, matches: Array of WebElements that were matched }
      * @throws {Error} If an element array wasn't properly matched
      */
-    async getAll(driver, parentElem) {
+    async getAll(driver, parentElem, consoleOutput) {
         let obj = await driver.executeScript(function() {
             let payload = JSON.parse(arguments[0]);
             let ef = payload.ef;
             let definedProps = payload.definedProps;
             let parentElem = arguments[1];
+            let consoleOutput = arguments[2];
 
             findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
             let matches = ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems;
 
-            const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";
-            const SEPARATOR_STYLE = "color: #C0C0C0";
-            const HEADING_STYLE = "font-weight: bold";
+            if(consoleOutput) {
+                const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";
+                const SEPARATOR_STYLE = "color: #C0C0C0";
+                const HEADING_STYLE = "font-weight: bold";
 
-            console.log(SEPARATOR, SEPARATOR_STYLE);
-            console.log("%cElementFinder: ", HEADING_STYLE);
-            console.log(ef.originalFullStr.replace(/^(.*)$/g, '    $1'));
-            console.log(ef);
-            if(parentElem) {
-                console.log("%cParent:", HEADING_STYLE);
-                console.log(parentElem);
+                console.log(SEPARATOR, SEPARATOR_STYLE);
+                console.log("%cElementFinder: ", HEADING_STYLE);
+                console.log(ef.originalFullStr.replace(/^(.*)$/g, '    $1'));
+                console.log(ef);
+                if(parentElem) {
+                    console.log("%cParent:", HEADING_STYLE);
+                    console.log(parentElem);
+                }
+                console.log("%cMatches:", HEADING_STYLE);
+                console.log(matches);
+                console.log(SEPARATOR, SEPARATOR_STYLE);
             }
-            console.log("%cMatches:", HEADING_STYLE);
-            console.log(matches);
-            console.log(SEPARATOR, SEPARATOR_STYLE);
 
             return {
                 ef: JSON.stringify(ef, function(k, v) {
@@ -775,7 +779,7 @@ class ElementFinder {
                     }
                 }
             }
-        }, this.serializeJSON(), parentElem);
+        }, this.serializeJSON(), parentElem, consoleOutput);
 
         return {
             ef: JSON.parse(obj.ef),
@@ -784,65 +788,50 @@ class ElementFinder {
     }
 
     /**
-     * Finds the first element matching this EF
+     * Finds all elements matching this EF
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
+     * @param {Boolean} [isNot] - If true, throws error if elements are still found after timeout
      * @param {Boolean} [isContinue] - How to set Error.continue, if an Error is thrown
      * @param {Number} [timeout] - Number of ms to continue trying before giving up. If omitted or set to 0, only try once before giving up.
      * @param {Number} [pollFrequency] - How often to poll for a matching element, in ms. If omitted, polls every 500 ms.
-     * @return {Promise} Promise that resolves to the WebDriver WebElement that was found
-     * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched
+     * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found (resolves to nothing if isNot is set)
+     * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time (if isNot is set, only throws error is elements still found after timeout)
      */
-    async find(driver, parentElem, isContinue, timeout, pollFrequency) {
-        // TODO: poll and enforce timeout
-        // Use this.getAll()
+    find(driver, parentElem, isNot, isContinue, timeout, pollFrequency) {
+        timeout = timeout || 0;
+        pollFrequency = pollFrequency || 500;
 
+        let start = new Date();
+        let results = null;
 
-        /*
-        let elems = this.findElements(driver, parentElem, isContinue, timeout, pollFrequency);
-        if(elems.length == 0) {
-            throw new Error(`Element not found${!timeout ? ' in time' : ''}`);
-        }
-        else {
-            return elems[0];
-        }
-        */
+        return new Promise(async (resolve, reject) => {
+            doFind();
+            async function doFind() {
+                results = await this.getAll(driver, parentElem, true);
+                results.ef = ElementFinder.parseObj(results.ef);
+                if(!isNot ? results.ef.hasErrors() : results.ef.matches && results.ef.matches.length > 0) {
+                    let duration = (new Date()) - start;
+                    if(duration > timeout) {
+                        let error =
+                            !isNot ?
+                            new Error(`Element${this.counter.max == 1 ? `` : `s`} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ``}:\n\n${results.ef.print("\x1b[0m\x1b[31m", "\x1b[0m\x1b[30m")}`) : // end gray and start red, then end red and start gray
+                            new Error(`Element${this.counter.max == 1 ? `` : `s`} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ``}`);
 
-
-
-
-
-
-
-    }
-
-    /**
-     * Finds all elements matching this EF
-     * Params same as in find()
-     * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found, empty array if nothing found in time
-     * @throws {Error} If an element array wasn't properly matched
-     */
-    async findAll(driver, parentElem, isContinue, timeout, pollFrequency) {
-        // TODO: Don't forget to log stuff via this.logger (if it's set)
-        // Use this.getAll()
-
-
-
-
-
-    }
-
-    /**
-     * Ensures that this EF cannot be found
-     * Params same as in find()
-     * @throws {Error} If this EF is still found after the timeout expires
-     */
-    async not(driver, parentElem, isContinue, timeout, pollFrequency) {
-        // Use this.getAll()
-
-
-
-
+                        if(isContinue) {
+                            error.continue = true;
+                        }
+                        reject(error);
+                    }
+                    else {
+                        setTimeout(doFind, pollFrequency);
+                    }
+                }
+                else {
+                    resolve(results.ef.matches);
+                }
+            }
+        });
     }
 
     /**

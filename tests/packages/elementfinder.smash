@@ -1841,72 +1841,56 @@
 
 - find() $s
 
-    - if multiple elements are found immediately
+    - isNot set to false
 
-        - sends back the first element
+        - if multiple elements are found immediately
 
-    - if an element is found, but later on
+            - sends back all elements
 
-        - sends back that element as soon as it is found
+            - if EF's counter never set
 
-    - if nothing is ever found
+                - sends back the first matched element
 
-        - generic case
+        - if an element is found, but later on
 
-        - if timeout is 0
+            - sends back those elements as soon as they're found
 
-        - if timeout is omitted
+        - if nothing is ever found
 
-        - if element appears after the timeout
+            - generic case
 
-            - throws an error
+            - if timeout is 0
 
-                - sets error's continue properly
+            - if timeout is omitted
 
-- findAll() $s
+            - if element appears after the timeout
 
-    - if multiple elements are found immediately
+                - throws an error
 
-        - sends back all elements
+                    - sets error's continue properly
 
-    - if multiple elements are found, but later on
+    - isNot set to true
 
-        - sends back those elements as soon as they're found
+        - if multiple elements are found immediately
 
-    - if nothing is ever found
+            - if those elements disappear before the timeout
 
-        - generic case
+                - doesn't throw error
 
-        - if timeout is 0
+            - if those elements don't disappear before the timeout
+            - if those elements disappear after the timeout
 
-        - if timeout is omitted
+                - throws error
 
-        - if elements appear after the timeout
+                    - sets error's continue properly
 
-            - sends back empty array
+        - if nothing is ever found
 
-- not() $s
+            - because those elements never exist in the DOM
 
-    - if multiple elements are found immediately
+            - because those elements are never visible
 
-        - if those elements disappear before the timeout
-
-            - doesn't throw error
-
-        - if those elements don't disappear before the timeout
-        - if those elements disappear after the timeout
-
-            - throws error
-
-                - sets error's continue properly
-
-    - if nothing is ever found
-
-        - because those elements never exist in the DOM
-
-        - because those elements are never visible
-
-            - doesn't throw error
+                - doesn't throw error
 
 - defaultProps() $s
 

@@ -263,14 +263,35 @@ class SeleniumBrowser {
         await this.driver.get(url);
     }
 
-    // TODO
-    $() {
-
+    /**
+     * Finds the first element matching EF represented by efText. Waits up to timeout ms.
+     * @param {String} efText - A string representing the EF to use
+     * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
+     * @param {Boolean} [continue] - If true, and if an error is throw, that error's continue will be set to true
+     * @param {Boolean} [not] - If true, throws an error if the given element doesn't disappear before the timeout
+     * @return {Promise} Promise that resolves to first WebDriver WebElement that was found (resolves to nothing if not is set)
+     * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time (if not is set, only throws error is elements still found after timeout)
+     */
+    async $(efText, timeout, continue, not) {
+        let ef = new ElementFinder(efText, this.props);
+        let results = await ef.find(this.driver, undefined, not, continue, timeout || 2000);
+        return results[0];
     }
 
-    // TODO
-    $$() {
+    /**
+     * Same params as in $()
+     * If counter isn't set on efText, sets it to 1+
+     * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found (resolves to nothing if not is set)
+     * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time (if not is set, only throws error is elements still found after timeout)
+     */
+    async $$(efText, timeout, continue, not) {
+        let ef = new ElementFinder(efText, this.props);
+        if(ef.counter.default) {
+            ef.counter = { min: 1 };
+        }
 
+        let results = await ef.find(this.driver, undefined, not, continue, timeout || 2000);
+        return results;
     }
 
     /**
@@ -306,7 +327,8 @@ class SeleniumBrowser {
                     throw new Error(`Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`);
                 }
 
-                this.props[prop] = [ props[prop] ];
+                let [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
+                this.props[canonProp] = [ props[prop] ];
             }
         }
     }
@@ -329,7 +351,8 @@ class SeleniumBrowser {
                     throw new Error(`Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`);
                 }
 
-                this.props[prop].push(props[prop]);
+                let [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
+                this.props[canonProp].push(props[prop]);
             }
         }
     }
