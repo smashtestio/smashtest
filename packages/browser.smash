@@ -117,7 +117,7 @@
     // ***************************************
 
     * Navigate to {{url}} {
-        browser.nav(url);
+        await browser.nav(url);
     }
 
     * Click {{element}} {

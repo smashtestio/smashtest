@@ -1,4 +1,5 @@
 const readFiles = require('read-files-promise');
+const fs = require('fs');
 const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
@@ -403,6 +404,12 @@ function plural(count) {
         }
 
         setSigint(); // attach SIGINT (Ctrl + C) handler after runner.init(), so user can Ctrl + C out of a long branchify operation via the default SIGINT handler
+
+        // Create smashtest directory if it doesn't already exist
+        const SMASHTEST_DIR = 'smashtest';
+        if(!fs.existsSync(SMASHTEST_DIR)) {
+            fs.mkdirSync(SMASHTEST_DIR);
+        }
 
         // Output errors to console by default, do not output all steps to console by default
         runner.outputErrors = true;

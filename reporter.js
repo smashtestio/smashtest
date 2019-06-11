@@ -6,9 +6,9 @@ const chalk = require('chalk');
 const getPort = require('get-port');
 const WebSocket = require('ws');
 
-const REPORT_FILENAME = 'smashtest.html';
-const REPORT_DATA_FILENAME = 'smashtest-data.js';
-const PASSED_DATA_FILENAME = 'smashtest-passed-data';
+const REPORT_FILENAME = 'smashtest/report.html';
+const REPORT_DATA_FILENAME = 'smashtest/report-data.js';
+const PASSED_DATA_FILENAME = 'smashtest/passed-data';
 
 /**
  * Generates a report on the status of the tree and runner

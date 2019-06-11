@@ -92,14 +92,14 @@ Running tests
             - For fixing problems in your tests that cause them to break, without having to rerun the whole entire suite again
             - Helpful for when you are typing out new tests (or updating existing ones) and only want to run whatever's new
                 - Use with -e so you don't have to switch back to the report page each time
-            - Recommended to mv smashtest-passed-data to a different filename to save it (the next run will overwrite that file)
+            - Recommended to mv smashtest/passed-data to a different filename to save it (the next run will overwrite that file)
                 - Especially if you're selectively running branches with $'s (and not ~'s). Branches cut off by the $'s won't be included
                     in the list of passed branches.
             - Format
                 - -s/--skip-passed=filename or "filename"
-                    - filename of smashtest-passed-data that constitutes last run
+                    - filename of smashtest-/assed-data that constitutes last run
                 - -s/--skip-passed with no filename
-                    - Uses smashtest-passed-data in the current directory
+                    - Uses smashtest/passed-data in the current directory
         - --step-data=<all/fail/none>
             - 'fail' by default, unless debugging, in which case 'all' by default
         - --version/-v
@@ -110,11 +110,11 @@ Running tests
 
 Reports
     - Where to find the report
-        - smashtest.html in directory where smashtest run
+        - smashtest/report.html in directory where smashtest was run
             - Live updates. Click a step/branch to pause live updates.
             - Not for debug runs
-        - smashtest-data.js in same directory contains test results data for report
-        - smashtest-passed-data in the same directory contains passed test data
+        - smashtest/report-data.js in same directory contains test results data for report
+        - smashtest/passed-data in the same directory contains passed test data
     - Pass/fail
         - Steps
             - A step passes is no errors are thrown inside of it
@@ -142,7 +142,7 @@ Reports
         just one step. When you name a test, you're really just providing a crude summary of one of the steps towards the end.
         Really, naming is useless and only slows you down.
     - Due to performance constraints, report is limited to 500 branches of each type (passed, failed, etc.), and currently running is limited to 20
-    - Any custom html file can load up smashtest-data.js and format a report. So you can create a custom report.
+    - Any custom html file can load up smashtest/report-data.js and format a report. So you can create a custom report.
 
 Modifiers
     - Table of modifiers and quick summaries for each

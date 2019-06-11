@@ -5,6 +5,7 @@ const safari = require('selenium-webdriver/safari');
 const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
 const fs = require('fs');
+const sharp = require('sharp');
 const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
 
@@ -273,22 +274,43 @@ class SeleniumBrowser {
      * param {Object} [targetCoords] - Object in form { x: <number>, y: <number> } representing the x,y coords of the target of the action
      */
     async takeScreenshot(isBefore, targetCoords) {
-        // TODO: set runInstance.currStep.reportTemplate and reportView (or add to them if they already exist)
-
         // See if screenshot is allowed
-        if(!this.runInstance.runner.screenshots || (this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots && this.runInstance.runner.maxScreenshots != -1)) {
+        if(!this.runInstance.runner.screenshots) {
+            return;
+        }
+        if(this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots && this.runInstance.runner.maxScreenshots != -1) {
+            return;
+        }
+        if(!this.runInstance.currStep || !this.runInstance.currBranch) {
             return;
         }
 
-        // Create ./smashtest/screenshots if it doesn't already exist
-        makeDir('smashtest');
-        makeDir('smashtest/screenshots');
-
-        function makeDir(dir) {
-            if(!fs.existsSync(dir)) {
-                fs.mkdirSync(dir);
-            }
+        // Create smashtest/screenshots if it doesn't already exist
+        const dir = 'smashtest/screenshots';
+        if(!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
         }
+
+        // Take screenshot
+        let data = null;
+        try {
+            data = await this.driver.takeScreenshot();
+        }
+        catch(e) {} // fail silently
+
+        if(data) {
+            await sharp(Buffer.from(data, 'base64'))
+                .resize(500)
+                .jpeg({
+                    quality: 10
+                })
+                .toFile(`smashtest/screenshots/${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isBefore ? `before` : `after`}.jpg`);
+        }
+
+
+
+
+        // TODO: set runInstance.currStep.reportTemplate and reportView (or add to them if they already exist)
 
 
 
