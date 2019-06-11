@@ -20,6 +20,7 @@ Example file
     - Suggested flow of putting a ~ at the end of a step, ruining browser there, coming up with all permutations on all elements on
         that page and adding those steps, repeat
     - NOTE: everything in documentation should be an example, with step names describing themselves and further documentation below if necessary
+    - Maybe show Gherkin example? Textual steps determine groups, other steps are actions
 
 Steps
     - Textual steps, packaged steps, functions

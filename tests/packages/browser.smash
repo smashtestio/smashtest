@@ -56,18 +56,68 @@
 
                 Runs non-headless -
 
+- Screenshots
+
+    - When flag --screenshots=<true/false>
+
+        - is set to true
+            Then screenshots are in the report -
+
+        - is set to false
+            Then screenshots are not in the report -
+                and screenshots are not on disk -
+
+        - is set to true
+        - is set to false
+
+            - and we're running in debug mode
+            - and we're running in REPL mode
+
+                Then screenshots are not on disk -
+
+    - When flag --max-screenshots=<N>
+
+        - is set
+
+            - and more than N screenshottable steps are run
+
+                Then only N screenshots end up in the report -
+                    and only N screenshots end up on disk -
+
+            - Make sure when we're deleting step data, deleted screenshots don't count against the max
+
+                - When --step-data is set to fail
+                    - and only the last N steps fail
+
+                        Then screenshots are made for all N failing steps -
+                            and only N screenshots end up on disk -
+
+        - is not set
+        - is set to -1
+
+            - and more than N screenshottable steps are run
+
+                Then all N screenshots are taken -
+
+        - is set to a negative number
+        - is set to a non-number
+
+            Then an error is shown -
+
+
+
+
 
 // TODO:
 // If not covered by an existing automated test, add these here:
 
+- Screenshots
+    - Screenshots in report, modal, before/after, spacebar, esc in modal
+    - --step-data
 - Running tests in each of the browsers
 - Sauce labs
 - --selenium-server=<url>
     - Omitted, valid url, bas syntax url, good syntax but unconnectable url, localhost/non-localhost, http/https/no-http
 - Test that a browser is killed when a Ctrl + C is done, even mid-navigate (make sure navigate doesn't freeze until the navigate is complete)
 - Ctrl + C or X in the REPL will actually kill all browsers
-- Screenshots
-    - Screenshots in report, modal, before/after, spacebar, esc in modal
-    - --max-screenshots=<N>
-    - --step-data
 - Standalone selenium vs. selenium grid

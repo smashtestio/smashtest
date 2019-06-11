@@ -176,6 +176,7 @@ Options
                     utils.error(`Invalid max-screenshots. It must be a positive integer above 0.`);
                 }
 
+                runner.maxScreenshots = parseInt(value);
                 break;
 
             case "min-frequency":
@@ -222,6 +223,7 @@ Options
                 break;
 
             case "screenshots":
+                runner.screenshots = (value == 'true');
                 break;
 
             case "skip-passed":
@@ -409,6 +411,7 @@ function plural(count) {
         // No reporter for debug or repl runs
         if(tree.isDebug || isRepl) {
             isReport = false;
+            runner.screenshots = false;
         }
 
         // Link the reporter to the runner, if we're doing a report

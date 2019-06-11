@@ -1218,10 +1218,10 @@
                                     expect(results.ef.print()).to.equal(regularize(`
                                         |* [.big]
                                         |    --> missing
-                                        |    <DIV id='two' class='big'>
+                                        |    div#two.big
                                         |
                                         |    --> missing
-                                        |    <DIV id='three' class='big'>
+                                        |    div#three.big
                                         |`));
                                 }
 

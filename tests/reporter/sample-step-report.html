@@ -79,7 +79,7 @@
 
     .crosshairs {
         position: absolute;
-        top: 100px;
+        top: 100px; /* Subtract 5px from the actual value to get this value */
         left: 100px;
         height: 26px;
         width: 26px;
@@ -109,7 +109,7 @@
     <div class="screenshot-container">
         <div class="screenshot-toggle">
             <span class="text">
-                Show Before
+                Show After
             </span>
         </div>
     </div>
@@ -118,7 +118,7 @@
             <div class="vertical"></div>
             <div class="horizontal"></div>
         </div>
-        <img class="screenshot active" src="samplescreenshot2.png">
+        <img class="screenshot active" src="samplescreenshot1.png">
     </div>
 </div>
 
@@ -149,19 +149,19 @@
 
     toggle.onclick = function() {
         if(toggle.classList.contains("active")) {
-            setAfter();
+            setBefore();
         }
         else {
-            setBefore();
+            setAfter();
         }
     }
 
     window.onSpacebarDown = function() {
-        setBefore();
+        setAfter();
     }
 
     window.onSpacebarUp = function() {
-        setAfter();
+        setBefore();
     }
 
     window.onEscape = function() {
@@ -175,11 +175,11 @@
 
     function setBefore() {
         screenshot.src = beforeUrl;
-        toggle.classList.add("active");
+        toggle.classList.remove("active");
     }
 
     function setAfter() {
         screenshot.src = afterUrl;
-        toggle.classList.remove("active");
+        toggle.classList.add("active");
     }
 </script>

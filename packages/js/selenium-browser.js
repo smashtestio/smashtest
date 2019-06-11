@@ -4,6 +4,7 @@ const firefox = require('selenium-webdriver/firefox');
 const safari = require('selenium-webdriver/safari');
 const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
+const fs = require('fs');
 const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
 
@@ -259,33 +260,61 @@ class SeleniumBrowser {
 
 
 
+        await this.takeScreenshot(true);
 
         await this.driver.get(url);
+
+        await this.takeScreenshot(false);
     }
 
-    async takeScreenshot(isBefore) {
+    /**
+     * Takes a screenshot, stores it on disk, and attaches it to the report for the current step
+     * @param {Boolean} [isBefore] If true, this screenshot occurs before the step's main action, false if it occurs after
+     * param {Object} [targetCoords] - Object in form { x: <number>, y: <number> } representing the x,y coords of the target of the action
+     */
+    async takeScreenshot(isBefore, targetCoords) {
         // TODO: set runInstance.currStep.reportTemplate and reportView (or add to them if they already exist)
 
+        // See if screenshot is allowed
+        if(!this.runInstance.runner.screenshots || (this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots && this.runInstance.runner.maxScreenshots != -1)) {
+            return;
+        }
+
+        // Create ./smashtest/screenshots if it doesn't already exist
+        makeDir('smashtest');
+        makeDir('smashtest/screenshots');
+
+        function makeDir(dir) {
+            if(!fs.existsSync(dir)) {
+                fs.mkdirSync(dir);
+            }
+        }
 
 
 
 
 
-        
+
+
+
+
+
+
+        this.runInstance.runner.screenshotCount++;
     }
 
     /**
      * Finds the first element matching EF represented by efText. Waits up to timeout ms.
      * @param {String} efText - A string representing the EF to use
      * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
-     * @param {Boolean} [continue] - If true, and if an error is throw, that error's continue will be set to true
-     * @param {Boolean} [not] - If true, throws an error if the given element doesn't disappear before the timeout
+     * @param {Boolean} [isContinue] - If true, and if an error is throw, that error's continue will be set to true
+     * @param {Boolean} [isNot] - If true, throws an error if the given element doesn't disappear before the timeout
      * @return {Promise} Promise that resolves to first WebDriver WebElement that was found (resolves to nothing if not is set)
      * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time (if not is set, only throws error is elements still found after timeout)
      */
-    async $(efText, timeout, continue, not) {
+    async $(efText, timeout, isContinue, isNot) {
         let ef = new ElementFinder(efText, this.props);
-        let results = await ef.find(this.driver, undefined, not, continue, timeout || 2000);
+        let results = await ef.find(this.driver, undefined, isNot, isContinue, timeout || 2000);
         return results[0];
     }
 
@@ -295,13 +324,13 @@ class SeleniumBrowser {
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found (resolves to nothing if not is set)
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time (if not is set, only throws error is elements still found after timeout)
      */
-    async $$(efText, timeout, continue, not) {
+    async $$(efText, timeout, isContinue, isNot) {
         let ef = new ElementFinder(efText, this.props);
         if(ef.counter.default) {
             ef.counter = { min: 1 };
         }
 
-        let results = await ef.find(this.driver, undefined, not, continue, timeout || 2000);
+        let results = await ef.find(this.driver, undefined, isNot, isContinue, timeout || 2000);
         return results;
     }
 

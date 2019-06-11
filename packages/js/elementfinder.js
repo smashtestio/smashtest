@@ -694,11 +694,7 @@ class ElementFinder {
              * @return {String} A summary of the given elem
              */
             function elemSummary(elem) {
-                return "<" +
-                        elem.tagName +
-                        (elem.id ? " id='" + elem.id + "'" : "") +
-                        (elem.className ? " class='" + elem.className + "'" : "") +
-                        ">";
+                return `${elem.tagName.toLowerCase()}${elem.id ? `#${elem.id}`: ``}${elem.className ? elem.className.trim().replace(/^\s*|\s+/g, `.`) : ``}`;
             }
 
             /**

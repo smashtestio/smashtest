@@ -14,16 +14,18 @@ class Runner {
         this.tree = null;                // The tree to run (just parsed in)
         this.reporter = null;            // The Reporter to use
 
-        this.flags = {};                 // Flags passed in through the command line (e.g., -maxParallel=7 -noDebug -groups="one two" --> {maxParallel: '7', noDebug: '', groups: 'one two'})
+        this.flags = {};                 // Flags passed in through the command line (e.g., --max-parallel=7 --no-debug --groups="one,two" --> {"max-parallel": "7", "no-debug": "true", "groups": "one,two"})
 
         this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
         this.groups = undefined;         // Array of string. Only run branches that are a part of one of these groups, no restrictions if this is undefined.
         this.maxParallel = 5;            // The maximum number of simultaneous branches to run
+        this.maxScreenshots = 2000;      // The maximum number of screenshots to take, -1 for no limit
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
-        this.random = true;              // If true, randomize the order of branches
-        this.skipPassed = undefined;     // If true, carry over branches that passed last time
         this.outputErrors = true;        // If true, output errors to console
+        this.random = true;              // If true, randomize the order of branches
+        this.screenshots = true;         // If true, take screenshots when possible
+        this.skipPassed = undefined;     // If true, carry over branches that passed last time
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
         this.consoleOutput = true;       // If true, output debug info to console
@@ -35,6 +37,8 @@ class Runner {
         this.isPaused = false;           // True if this runner has been paused (set by the RunInstance within this.runInstances)
         this.isStopped = false;          // True if this runner has been stopped
         this.isComplete = false;         // True if this runner is done running its tree
+
+        this.screenshotCount = 0;        // Number of screenshots taken
     }
 
     /**
