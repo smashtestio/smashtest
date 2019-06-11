@@ -73,24 +73,15 @@
     }
 
     *** Before Every Step {
-        // Take screenshot, set runInstance.currStep.reportTemplate and reportView
-
-
-
-
-
-
+        if(browser) {
+            browser.takeScreenshot(true);
+        }
     }
 
     *** After Every Step {
-        // Take screenshot, set runInstance.currStep.reportTemplate and reportView (which already exists - just add to it)
-
-
-
-
-
-
-
+        if(browser) {
+            browser.takeScreenshot(false);
+        }
     }
 
     // ***************************************

@@ -263,7 +263,14 @@ class SeleniumBrowser {
         await this.driver.get(url);
     }
 
-    async takeScreenshot() {
+    async takeScreenshot(isBefore) {
+        // TODO: set runInstance.currStep.reportTemplate and reportView (or add to them if they already exist)
+
+
+
+
+
+
         
     }
 

@@ -47,6 +47,7 @@
     }
 
     .screenshot-container {
+        position: relative;
         text-align: center;
     }
 
@@ -75,6 +76,33 @@
         background-color: rgb(80,80,80);
         border-color: rgb(80,80,80);
     }
+
+    .crosshairs {
+        position: absolute;
+        top: 100px;
+        left: 100px;
+        height: 26px;
+        width: 26px;
+        background-color: transparent;
+    }
+
+    .crosshairs .vertical {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        height: 100%;
+        width: 0px;
+        border-left: 1px solid red;
+    }
+
+    .crosshairs .horizontal {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 0px;
+        width: 100%;
+        border-top: 1px solid red;
+    }
 </style>
 
 <div class="screenshot-preview-container">
@@ -86,6 +114,10 @@
         </div>
     </div>
     <div class="screenshot-container">
+        <div class="crosshairs">
+            <div class="vertical"></div>
+            <div class="horizontal"></div>
+        </div>
         <img class="screenshot active" src="samplescreenshot2.png">
     </div>
 </div>
