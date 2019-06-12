@@ -121,6 +121,10 @@ Not sequential
                 Sequential three -
             Not sequential
 
+            IsOnly $
+            Debug ~
+            Debug ~~
+
             Sequential and debug ~ ..
 
             $ IsOnly step -

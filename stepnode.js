@@ -40,6 +40,7 @@ class StepNode {
         this.isDebug = false;                 // true if this step has the debug modifier (~)
         this.isBeforeDebug = false;           // true if this step has the debug modifier (~) before the step text
         this.isAfterDebug = false;            // true if this step has the debug modifier (~) after the step text
+        this.isExpressDebug = false;          // true if this step has the express debug modifier (~~)
         this.isOnly = false;                  // true if this step has the only modifier ($)
         this.isNonParallel = false;           // true if this step has the non-parallel modifier (!)
         this.isSequential = false;            // true if this step has the sequential modifier (..)
@@ -170,6 +171,10 @@ class StepNode {
                 if(this.hasCodeBlock()) {
                     utils.error(`A step with a code block cannot be a textual step (-) as well`, filename, lineNumber);
                 }
+            }
+            if(this.modifiers.includes('~~')) {
+                this.isDebug = true;
+                this.isExpressDebug = true;
             }
             if(this.modifiers.includes('$')) {
                 this.isOnly = true;

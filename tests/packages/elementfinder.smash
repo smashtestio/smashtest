@@ -1221,7 +1221,7 @@
                                         |    div#two.big
                                         |
                                         |    --> missing
-                                        |    div#three.bigb
+                                        |    div#three.big
                                         |`));
                                 }
 

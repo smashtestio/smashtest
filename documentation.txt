@@ -906,12 +906,14 @@ Only ($)
         - You can put $'s at different levels to isolate a branch or branches
         - Give more examples
 
-Debug (~)
+Debug (~, ~~)
     - Debug modifier (~)
         - Show example. Comes before or after a step, including before a function declaration's *.
         - Before means pause right before this step executes, after means pause right after
-    - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
-    - Pauses right after a step if it fails
+        - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
+        - Pauses right after a step if it fails
+    - Express debug modifier (~~)
+        - Isolates single branch, but doesn't pause (at the modifier or at an error), doesn't output each step. Still doesn't create a new report, and doesn't interfere with --skip-passed/-s.
     - Use multiple $'s and ~'s to isolate a single branch to debug (or you can use multiple ~'s)
 
 REPL

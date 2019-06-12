@@ -449,7 +449,10 @@ function plural(count) {
         }
 
         // --skip-passed
-        if(runner.skipPassed && !tree.isDebug) {
+        if(tree.isDebug) { // no --skip-passed allowed with debug mode
+            runner.skipPassed = false;
+        }
+        if(runner.skipPassed) {
             await reporter.markPassedFromPrevRun(runner.skipPassed === true ? undefined : runner.skipPassed);
         }
 
@@ -489,7 +492,7 @@ function plural(count) {
                 return;
             }
 
-            console.log(`${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` + (isReport ? ` | ${tree.counts.total} branch${plural(tree.counts.total)} total` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode (~)`) : ``));
+            console.log(`${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` + (isReport ? ` | ${tree.counts.total} branch${plural(tree.counts.total)} total` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode`) : ``));
             if(isReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
             }
@@ -497,7 +500,7 @@ function plural(count) {
             console.log(``);
         }
 
-        if(tree.isDebug || isRepl) {
+        if((tree.isDebug && !tree.isExpressDebug) || isRepl) {
             // ***************************************
             //  REPL
             // ***************************************
@@ -764,6 +767,10 @@ function plural(count) {
              * Outputs the given counts to the console
              */
             function outputCounts() {
+                if(!isReport) { // normally the reporter forces a count update itself, but if it isn't running, do it yourself
+                    tree.updateCounts();
+                }
+
                 process.stdout.write(
                     (elapsed ? (`${elapsed} | `) : ``) + getCounts()
                 );

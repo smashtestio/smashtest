@@ -62,8 +62,8 @@ class Runner {
 
         let numInstances = Math.min(this.maxParallel, this.tree.branches.length);
 
-        // If isDebug is set on any step, pauseOnFail will be set
-        if(this.tree.isDebug) {
+        // If ~ is set on any step, pauseOnFail will be set
+        if(this.tree.isDebug && !this.tree.isExpressDebug) {
             this.pauseOnFail = true;
         }
 

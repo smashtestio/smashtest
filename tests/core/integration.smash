@@ -275,19 +275,40 @@
 
         - Multiple filenames and flags inputted, intertwined
 
-    - Debugging (~)
+    - Debugging (~/~~)
 
         - Run tests containing ~'s
 
-            - '~' before step
-            - '~' after step
-            - '~' before and after a step
-            - '~' on multiple steps in a branch
+            - modifier before step
+            - modifier after step
+            - modifier before and after a step
+            - modifier on multiple steps in a branch
 
                 ..
                 Outputs 'in debug mode' to console -
                 Runs debug REPL up to the '~' -
                 Browser runs non-headless by default -
+                Doesn't output new report -
+                Existing report opened in browser doesn't update -
+
+            - Verify errors outputted correctly
+                All error types
+
+            - Run with skip-passed set to true
+                Doesn't do skip-passed -
+
+        - Run tests containing ~~'s
+        - Run tests containing ~'s and ~~'s
+
+            - modifier before step
+            - modifier after step
+            - modifier before and after a step
+            - modifier on multiple steps in a branch
+
+                ..
+                Outputs 'in debug mode' to console -
+                Doesn't pause -
+                Browser runs headless by default -
                 Doesn't output new report -
                 Existing report opened in browser doesn't update -
 

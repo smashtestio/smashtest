@@ -177,7 +177,7 @@ Branch 6 -
             await runner.run();
 
             expect(tree.elapsed).to.be.above(55);
-            expect(tree.elapsed).to.be.below(85);
+            expect(tree.elapsed).to.be.below(90);
         });
 
         it("runs multiple run instances in parallel where maxParallel is 1", async () => {

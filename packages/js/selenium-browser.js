@@ -85,7 +85,7 @@ class SeleniumBrowser {
      * @param {Number} [params.width] - The initial browser width, in pixels
      * @param {Number} [params.height] - The initial browser height, in pixels
      * @param {String} [params.deviceEmulation] - What mobile device to emulate, if any (overrides params.width and params.height, only works with Chrome)
-     * @param {Boolean} [params.isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging
+     * @param {Boolean} [params.isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging with ~
      * @param {String} [params.serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      */
     async open(params) {
@@ -162,8 +162,8 @@ class SeleniumBrowser {
         // Headless
 
         if(typeof params.isHeadless == 'undefined') {
-            // Set isHeadless to true, unless we're debugging
-            params.isHeadless = !this.runInstance.tree.isDebug;
+            // Set isHeadless to true, unless we're debugging with ~
+            params.isHeadless = !this.runInstance.tree.isDebug || this.runInstance.tree.isExpressDebug;
 
             // Override if --headless flag is set
             if(this.runInstance.runner.flags.hasOwnProperty("headless")) {

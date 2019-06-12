@@ -27,6 +27,7 @@ describe("StepNode", () => {
                 assert.equal(s.isSkipBelow, undefined);
                 assert.equal(s.isSkipBranch, undefined);
                 assert.equal(s.isDebug, undefined);
+                assert.equal(s.isExpressDebug, undefined);
                 assert.equal(s.isTextualStep, undefined);
                 assert.equal(s.isOnly, undefined);
                 assert.equal(s.isNonParallel, undefined);
@@ -459,6 +460,20 @@ describe("StepNode", () => {
                 assert.equal(s.isDebug, true);
                 assert.equal(s.isBeforeDebug, true);
                 assert.equal(s.isAfterDebug, true);
+            });
+
+            it("parses the express debug modifier (~~)", () => {
+                s = new StepNode(0);
+                s.parseLine(`~~ Click {button}`, "file.txt", 10);
+                assert.equal(s.text, `Click {button}`);
+                assert.equal(s.isDebug, true);
+                assert.equal(s.isExpressDebug, true);
+
+                s = new StepNode(0);
+                s.parseLine(`    ~~   Click {button} + `, "file.txt", 10);
+                assert.equal(s.text, `Click {button}`);
+                assert.equal(s.isDebug, true);
+                assert.equal(s.isExpressDebug, true);
             });
 
             it("parses the only modifier ($)", () => {

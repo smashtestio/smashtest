@@ -14,7 +14,9 @@ class Tree {
         this.root = new StepNode();          // the root Step of the tree (parsed version of the text that got inputted)
         this.stepNodeIndex = {};             // object where keys are ids and values are references to StepNodes under this.root
         this.stepNodeCount = 0;              // number of StepNodes under this.root, used to generate StepNode ids
-        this.isDebug = false;                // true if at least one step has isDebug (~) set
+
+        this.isDebug = false;                // true if at least one step has the debug or express debug modifier (~ or ~~) set
+        this.isExpressDebug = false;         // true if at least one step has the express debug modifier (~~) set
 
         this.branches = [];                  // Array of Branch, generated from this.root
         this.beforeEverything = [];          // Array of Step, the steps to execute before all branches
@@ -578,16 +580,24 @@ ${outputBranchAbove(this)}
         // Enforce noDebug
         if(noDebug) {
             if(stepNode.isDebug) {
-                utils.error(`A ~ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
+                if(stepNode.isExpressDebug) {
+                    utils.error(`A ~~ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
+                }
+                else {
+                    utils.error(`A ~ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
+                }
             }
             else if(stepNode.isOnly) {
                 utils.error(`A $ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
             }
         }
 
-        // Set this.isDebug
+        // Set this.isDebug and this.isExpressDebug
         if(stepNode.isDebug) {
             this.isDebug = true;
+            if(stepNode.isExpressDebug) {
+                this.isExpressDebug = true;
+            }
         }
 
         // Initialize step corresponding to stepNode
@@ -1055,7 +1065,7 @@ ${outputBranchAbove(this)}
         }
 
         // ***************************************
-        // 4) Remove branches by ~'s
+        // 4) Remove branches by ~/~~'s
         // ***************************************
 
         // If found, remove all branches other than the one that's connected with one or more ~'s
@@ -1081,7 +1091,7 @@ ${outputBranchAbove(this)}
 
         /**
          * @param {Branch} branch - The branch to look through
-         * @param {String} modifier - The modifier to look for ('~' or '$')
+         * @param {String} modifier - The modifier to look for ('~' or '$', where '~' represents both '~' and '~~')
          * @param {Tree} self - This tree
          * @return {Object} Object, in format { step: the first Step in the given branch to contain modifier, depth: depth at which the modifier was found }, null if nothing found
          */
@@ -1251,8 +1261,9 @@ ${outputBranchAbove(this)}
                     let lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
                     let lastStepNode = this.stepNodeIndex[lastStep.id];
                     lastStepNode.isDebug = true;
-                    lastStepNode.isAfterDebug = true;
+                    lastStepNode.isExpressDebug = true;
                     this.isDebug = true;
+                    this.isExpressDebug = true;
 
                     found = true;
                     break;

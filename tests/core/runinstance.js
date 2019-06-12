@@ -587,6 +587,102 @@ A {
                 expect(runInstance.afterEveryBranchRan).to.be.true;
                 expect(runInstance.beforeEveryBranchRan).to.be.true;
             });
+
+            it("handles a ~~ step, but doesn't pause", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+
+    B {
+        runInstance.ranStepB = true;
+    }
+
+        ~~ C {
+            runInstance.ranStepC = true;
+        }
+
+            D {
+                runInstance.ranStepD = true;
+            }
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.run();
+
+                expect(runInstance.ranStepB).to.be.true;
+                expect(runInstance.ranStepC).to.be.true;
+                expect(runInstance.ranStepD).to.be.true;
+
+                expect(tree.branches[0].isPassed).to.be.true;
+                expect(tree.branches[0].isFailed).to.be.undefined;
+            });
+
+            it("handles a ~ and ~~ on the same branch, but doesn't pause", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+
+    ~ B {
+        runInstance.ranStepB = true;
+    }
+
+        ~~ C {
+            runInstance.ranStepC = true;
+        }
+
+            D {
+                runInstance.ranStepD = true;
+            }
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.run();
+
+                expect(runInstance.ranStepB).to.be.true;
+                expect(runInstance.ranStepC).to.be.true;
+                expect(runInstance.ranStepD).to.be.true;
+
+                expect(tree.branches[0].isPassed).to.be.true;
+                expect(tree.branches[0].isFailed).to.be.undefined;
+            });
+
+            it("handles a ~ and ~~ on the same step, but doesn't pause", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+
+    B {
+        runInstance.ranStepB = true;
+    }
+
+        ~ ~~ C {
+            runInstance.ranStepC = true;
+        }
+
+            D {
+                runInstance.ranStepD = true;
+            }
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.run();
+
+                expect(runInstance.ranStepB).to.be.true;
+                expect(runInstance.ranStepC).to.be.true;
+                expect(runInstance.ranStepD).to.be.true;
+
+                expect(tree.branches[0].isPassed).to.be.true;
+                expect(tree.branches[0].isFailed).to.be.undefined;
+            });
         });
 
         context("stops", () => {

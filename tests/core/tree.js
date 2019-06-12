@@ -4013,6 +4013,18 @@ A -
                 }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
             });
 
+            it("throws an exception if noDebug is set but a ~~ is present in a branch", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    ~~ B -
+                `, "file.txt");
+
+                assert.throws(() => {
+                    tree.branchify(tree.root, undefined, undefined, true);
+                }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
+            });
+
             it("marks as packaged hooks that are packaged", () => {
                 let tree = new Tree();
                 tree.parseIn(`
@@ -9686,6 +9698,30 @@ F -
                 ]);
             });
 
+            it("isolates a branch with a single ~~ before the step", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    ~~ B -
+        C -
+    D -
+    E -
+
+F -
+                `);
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
+                        isOnly: undefined,
+                        isDebug: true
+                    }
+                ]);
+            });
+
             it("isolates a branch with ~ on multiple steps", () => {
                 let tree = new Tree();
                 tree.parseIn(`
@@ -10092,6 +10128,54 @@ I -
                         steps: [ { text: "A" }, { text: "B" }, { text: "D" }, { text: "E" } ],
                         isOnly: true,
                         isDebug: true,
+                    }
+                ]);
+            });
+
+            it("handles ~ and ~~ on the same branch", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    ~~ B -
+        ~ C -
+    D -
+    E -
+
+F -
+                `);
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
+                        isOnly: undefined,
+                        isDebug: true
+                    }
+                ]);
+            });
+
+            it("handles ~ and ~~ on the same step", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    ~ ~~ B -
+        C -
+    D -
+    E -
+
+F -
+                `);
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C" } ],
+                        isOnly: undefined,
+                        isDebug: true
                     }
                 ]);
             });
@@ -11528,7 +11612,7 @@ H -
 
                 Comparer.expect(tree.branches).to.match([
                     {
-                        steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isAfterDebug: true }  ]
+                        steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isExpressDebug: true }  ]
                     }
                 ]);
             });
