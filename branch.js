@@ -25,7 +25,7 @@ class Branch {
 
         this.isSkipBranch = false;          // If true, a step in this branch has a $s
         this.isOnly = false;                // If true, a step in this branch has a $
-        this.isDebug = false;               // If true, a step in this branch has a ~
+        this.isDebug = false;               // If true, a step in this branch has a ~ or ~~
 
         this.passedLastTime = false;        // If true, do not run this branch, but include it in the report
         this.isPassed = false;              // true if every step in this branch passed after being run

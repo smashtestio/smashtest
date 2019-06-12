@@ -21,7 +21,7 @@ class Runner {
         this.maxParallel = 5;            // The maximum number of simultaneous branches to run
         this.maxScreenshots = 2000;      // The maximum number of screenshots to take, -1 for no limit
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
-        this.noDebug = false;            // If true, a compile error will occur if a $ or ~ is present anywhere in the tree
+        this.noDebug = false;            // If true, a compile error will occur if a $, ~, or ~~ is present anywhere in the tree
         this.outputErrors = true;        // If true, output errors to console
         this.random = true;              // If true, randomize the order of branches
         this.screenshots = true;         // If true, take screenshots when possible

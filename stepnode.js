@@ -37,7 +37,7 @@ class StepNode {
         this.isSkip = false;                  // true if this step has the skip modifier (-s)
         this.isSkipBelow = false;             // true if this step has the skip below modifier (.s)
         this.isSkipBranch = false;            // true if this step has the skip branch modifier ($s)
-        this.isDebug = false;                 // true if this step has the debug modifier (~)
+        this.isDebug = false;                 // true if this step has a debug or express debug modifier (~ or ~~)
         this.isBeforeDebug = false;           // true if this step has the debug modifier (~) before the step text
         this.isAfterDebug = false;            // true if this step has the debug modifier (~) after the step text
         this.isExpressDebug = false;          // true if this step has the express debug modifier (~~)

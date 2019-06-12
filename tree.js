@@ -549,7 +549,7 @@ ${outputBranchAbove(this)}
      * @param {Step} stepNode - StepNode to convert to branches (NOTE: do not set step to a StepBlockNode unless it's a sequential StepBlockNode)
      * @param {Array} [groups] - Array of String, only return branches part of at least one of these groups, no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only return branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in the tree at or below the given step
+     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~, ~~, or $ is encountered in the tree at or below the given step
      * @param {String} [debugHash] - If set, only return the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
      * @param {Branch} [branchAbove] - post-branchify branch that comes before stepNode (used to help find function declarations), empty branch if omitted
      * @param {Number} [level] - Number of levels of function calls stepNode is under, 0 if omitted
@@ -1144,7 +1144,7 @@ ${outputBranchAbove(this)}
      * Gets everything ready for the test runner
      * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
      * @param {String} [minFrequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~ or $ is encountered in this.branches
+     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~, ~~, or $ is encountered in this.branches
      * @param {String} [debugHash] - If set, run the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
      * @param {Boolean} [noRandom] - If true, does not randomly sort branches
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)

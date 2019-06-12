@@ -515,7 +515,7 @@ function plural(count) {
                     runner.outputErrors = false;
                 }
                 else if(tree.counts.totalToRun > 1) {
-                    utils.error(`There are ${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run but you can only have 1 to run --repl/-r. Try isolating a branch with ~ or $.`);
+                    utils.error(`There are ${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run but you can only have 1 to run --repl/-r. Try isolating a branch with $'s.`);
                 }
                 else {
                     runner.consoleOutput = true;
