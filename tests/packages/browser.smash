@@ -58,14 +58,44 @@
 
 - Screenshots
 
+    - When a step has a screenshot in the report
+
+        - and only a before screenshot exists
+
+            - Then the screenshot is visible in the report
+                - and can be expanded
+                    - and the esc key unexpands
+
+        - and both a before and after screenshot exist
+
+            - Then the screenshot is visible in the report
+                - and can be expanded
+                    - and the esc key unexpands
+
+            - When spacebar is pressed down
+                - Then the after screenshot is shown
+                    - When the spacebar is released
+                        - Then the before screenshot is shown
+
+            - When the 'Show After' button is clicked
+                - Then the after screenshot is shown
+                    - When the 'Show After' button is clicked
+                        - Then the before screenshot is shown
+
+            - and crosshairs exist
+                - Then the crosshairs are visible
+
+            - and crosshairs don't exist
+                - Then the crosshairs are not visible
+
     - When flag --screenshots=<true/false>
 
         - is set to true
-            Then screenshots are in the report -
+            - Then screenshots are in the report
 
         - is set to false
-            Then screenshots are not in the report -
-                and screenshots are not on disk -
+            - Then screenshots are not in the report
+                - and screenshots are not on disk
 
         - is set to true
         - is set to false
@@ -73,7 +103,7 @@
             - and we're running in debug mode
             - and we're running in REPL mode
 
-                Then screenshots are not on disk -
+                - Then screenshots are not on disk
 
     - When flag --max-screenshots=<N>
 
@@ -81,28 +111,36 @@
 
             - and more than N screenshottable steps are run
 
-                Then only N screenshots end up in the report -
-                    and only N screenshots end up on disk -
+                - Then only N screenshots end up in the report
+                    - and only N screenshots end up on disk
 
             - Make sure when we're deleting step data, deleted screenshots don't count against the max
 
                 - When --step-data is set to fail
                     - and only the last N steps fail
 
-                        Then screenshots are made for all N failing steps -
-                            and only N screenshots end up on disk -
+                        - Then screenshots are made for all N failing steps
+                            - and only N screenshots end up on disk
 
         - is not set
         - is set to -1
 
             - and more than N screenshottable steps are run
 
-                Then all N screenshots are taken -
+                - Then all N screenshots are taken
 
         - is set to a negative number
         - is set to a non-number
 
-            Then an error is shown -
+            - Then an error is shown
+
+    - When flag --step-data=<all/fail/none>
+
+        - is set to 'all'
+
+        - is set to 'fail'
+
+        - is set to 'none'
 
 
 
@@ -111,9 +149,6 @@
 // TODO:
 // If not covered by an existing automated test, add these here:
 
-- Screenshots
-    - Screenshots in report, modal, before/after, spacebar, esc in modal
-    - --step-data
 - Running tests in each of the browsers
 - Sauce labs
 - --selenium-server=<url>
