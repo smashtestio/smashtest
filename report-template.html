@@ -2129,7 +2129,12 @@ c     = copy text of branch
                         contentClassName += "running running-item";
                         pill = <span className="pill running">RUNNING</span>;
                     }
-                    else if(this.props.step.isPassed || (this.props.branch.isPassed && !this.props.step.isPassed && !this.props.step.isFailed && !this.props.step.isSkipped)) { // if a step is missing isPassed/isFailed/isSkipped, but its branch passed, it is implied that the step passed
+                    else if(this.props.step.isPassed ||
+                        (
+                            !this.props.step.isPassed && !this.props.step.isFailed && !this.props.step.isSkipped && // if a step is missing isPassed/isFailed/isSkipped, but its branch passed, it is implied that the step passed
+                            (this.props.branch.isPassed || this.props.branch.isFailed)
+                        )
+                    ) {
                         contentClassName += "passed-item";
                     }
                     else if(this.props.step.isFailed) {
@@ -2310,7 +2315,12 @@ c     = copy text of branch
                         previewStateClassName += "running-item";
                         previewStateText = "Currently running";
                     }
-                    else if(previewedObj.isPassed || (this.props.previewedItem.props.branch.isPassed && !previewedObj.isPassed && !previewedObj.isFailed && !previewedObj.isSkipped)) { // if a step is missing isPassed/isFailed/isSkipped, but its branch passed, it is implied that the step passed
+                    else if(previewedObj.isPassed ||
+                        (
+                            !previewedObj.isPassed && !previewedObj.isFailed && !previewedObj.isSkipped && // if a step is missing isPassed/isFailed/isSkipped, but its branch passed, it is implied that the step passed
+                            (this.props.previewedItem.props.branch.isPassed || this.props.previewedItem.props.branch.isFailed)
+                        )
+                    ) {
                         if(isTextualStep) {
                             const className = "textual";
                             headerClassName += className;

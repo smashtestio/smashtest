@@ -5,6 +5,7 @@ const safari = require('selenium-webdriver/safari');
 const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
 const fs = require('fs');
+const path = require('path');
 const readFiles = require('read-files-promise');
 const sharp = require('sharp');
 const utils = require('../../utils.js');
@@ -282,6 +283,9 @@ class SeleniumBrowser {
         if(!this.runInstance.runner.screenshots) {
             return;
         }
+        if(this.runInstance.tree.stepDataMode == 'none') {
+            return;
+        }
         if(this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots && this.runInstance.runner.maxScreenshots != -1) {
             return;
         }
@@ -331,16 +335,17 @@ class SeleniumBrowser {
      * Clears the current branch's screenshots if the --step-data mode requires it
      */
     async clearUnneededScreenshots() {
-        // TODO:
-        // If step-data is none, or if step-data is fail and the branch didn't fail:
-        //    - Delete all screenshots with a filename that begins with the currBranch's hash
-        //    - Decrement runner.screenshotCount for every screenshot deleted
-
-
-
-
-
-
+        if(this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) { // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
+            // Delete all screenshots with a filename that begins with the currBranch's hash
+            const SMASHTEST_SS_DIR = 'smashtest/screenshots';
+            let files = fs.readdirSync(SMASHTEST_SS_DIR);
+            for(let file of files) {
+                if(file.startsWith(this.runInstance.currBranch.hash)) {
+                    fs.unlinkSync(path.join(SMASHTEST_SS_DIR, file));
+                    this.runInstance.runner.screenshotCount--; // decrement screenshotCount for every screenshot deleted
+                }
+            }
+        }
     }
 
     /**
