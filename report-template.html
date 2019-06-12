@@ -918,6 +918,9 @@ c     = copy text of branch
                     img.onload = () => {
                         resolve(img.height != 0);
                     };
+                    img.onerror = () => {
+                        resolve(false);
+                    };
                     img.src = url;
                 });
             }
