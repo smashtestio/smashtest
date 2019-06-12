@@ -68,6 +68,7 @@
 
     *** After Every Branch {
         if(typeof browser != 'undefined') {
+            await browser.clearUnneededScreenshots();
             await browser.close();
         }
     }

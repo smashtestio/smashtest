@@ -328,6 +328,22 @@ class SeleniumBrowser {
     }
 
     /**
+     * Clears the current branch's screenshots if the --step-data mode requires it
+     */
+    async clearUnneededScreenshots() {
+        // TODO:
+        // If step-data is none, or if step-data is fail and the branch didn't fail:
+        //    - Delete all screenshots with a filename that begins with the currBranch's hash
+        //    - Decrement runner.screenshotCount for every screenshot deleted
+
+
+
+
+
+
+    }
+
+    /**
      * Finds the first element matching EF represented by efText. Waits up to timeout ms.
      * @param {String} efText - A string representing the EF to use
      * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)

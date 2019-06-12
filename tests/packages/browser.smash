@@ -138,9 +138,25 @@
 
         - is set to 'all'
 
+            - and a branch passes
+            - and a branch fails
+
+                - Then its associated screenshots make it to the report and are on disk
+
         - is set to 'fail'
 
+            - and a branch passes
+                - Then its associated screenshots do not make it to the report and are not on disk
+
+            - and a branch fails
+                - Then its associated screenshots make it to the report and are on disk
+
         - is set to 'none'
+
+            - and a branch passes
+            - and a branch fails
+
+                - Then its associated screenshots do not make it to the report and are not on disk
 
 
 
