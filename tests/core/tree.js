@@ -10919,6 +10919,32 @@ A -
         });
 
         context("multiple restrictions", () => {
+            it("isolates a branch with $'s and ~", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+    $ C -
+    D -
+
+        E -
+        ~ F -
+
+G -
+                `);
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
+                        isOnly: true,
+                        isDebug: true
+                    }
+                ]);
+            });
+
             it("handles multiple restrictions", () => {
                 // Try them all here, all on one big tree (group, frequency, $, ~)
                 let tree = new Tree();
@@ -11612,7 +11638,7 @@ H -
 
                 Comparer.expect(tree.branches).to.match([
                     {
-                        steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isExpressDebug: true }  ]
+                        steps: [ { text: "D" }, { text: "E" }, { text: "F", isDebug: true, isAfterDebug: true }  ]
                     }
                 ]);
             });
