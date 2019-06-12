@@ -1130,8 +1130,9 @@ c     = copy text of branch
                  * Sets the preview in the preview pane to the given step or branch
                  * @param {Element} previewedItem - Sets the previewed item to this element (which represents a step or a branch). If that same element is already being previewed, the previewed item will be cleared. Clears the previewed item if null.
                  * @param {Boolean} [force] - If true, set the previewed item to previewedItem regardless of what the current previewed item is
+                 * @param {Boolean} [toggleCollapse] - If true, toggles collapse on previewed item
                  */
-                setPreview(previewedItem, force) {
+                setPreview(previewedItem, force, toggleCollapse) {
                     let noPreview = !previewedItem;
 
                     if(force) {
@@ -1146,6 +1147,11 @@ c     = copy text of branch
                     }
 
                     this.setState({ previewedItem: this.state.previewedItem });
+
+                    if(toggleCollapse) {
+                        previewedItem.props.step.collapse = !previewedItem.props.step.collapse;
+                        this.setState({ tree: this.state.tree });
+                    }
 
                     if(noPreview) { // we're resuming updates
                         // If new report data became available during the pause, load it
@@ -2020,12 +2026,14 @@ c     = copy text of branch
                                 stepNode={this.props.stepNodeIndex[step.id]}
                                 branch={branch}
                                 index={index+1}
-                                key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step) + ' ' + this.getRunState(step)}
+                                key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step)}
+                                collapse={step.collapse}
+                                collapseHide={step.collapseHide}
+                                runState={this.getRunState(step)}
                                 lastIndex={branch.steps.length - 1}
                                 setPreview={this.props.setPreview}
                                 previewedItem={previewedItem}
                                 hasLevels={hasLevels}
-                                getRunState={this.getRunState}
                             />
                         );
 
@@ -2071,15 +2079,11 @@ c     = copy text of branch
                 }
 
                 shouldComponentUpdate(nextProps, nextState) {
-                    let ret = !this.updated ||
-                        this.props.getRunState(nextProps.step) != this.props.getRunState(this.props.step) ||
-                        nextProps.previewedItem === this ||
+                    return nextProps.previewedItem === this ||
                         this.props.previewedItem === this ||
-                        nextProps.step.collapse != this.props.step.collapse ||
-                        nextProps.step.collapseHide != this.props.step.collapseHide;
-
-                    this.updated = true;
-                    return ret;
+                        nextProps.collapse != this.props.collapse ||
+                        nextProps.collapseHide != this.props.collapseHide ||
+                        nextProps.runState != this.props.runState;
                 }
 
                 surroundByVerticalLineContainers(elem, n) {
@@ -2100,7 +2104,7 @@ c     = copy text of branch
                 }
 
                 toggleActiveState(e) {
-                    this.props.setPreview(this, e.target.classList.contains("collapse"));
+                    this.props.setPreview(this);
                 }
 
                 render() {
@@ -2177,8 +2181,11 @@ c     = copy text of branch
                         <span className="line-container">
                             <span className={contentClassName}>
                                 <CollapseIcon
-                                    step={this.props.step}
+                                    collapse={this.props.collapse}
+                                    hasChildren={this.props.step.hasChildren}
                                     hasLevels={this.props.hasLevels}
+                                    line={this}
+                                    setPreview={this.props.setPreview}
                                 />
                                 <span className="step-text">
                                     {stepText}
@@ -2207,7 +2214,8 @@ c     = copy text of branch
                 }
 
                 toggleCollapse(e) {
-                    this.props.step.collapse = !this.props.step.collapse;
+                    e.stopPropagation();
+                    this.props.setPreview(this.props.line, true, true);
                 }
 
                 render() {
@@ -2230,8 +2238,8 @@ c     = copy text of branch
 
                     let placeholderElem = <span className="collapse-placeholder"/>;
 
-                    if(this.props.step.hasChildren) {
-                        if(this.props.step.collapse === true) {
+                    if(this.props.hasChildren) {
+                        if(this.props.collapse === true) {
                             return plusElem;
                         }
                         else {
