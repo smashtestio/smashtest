@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const readFiles = require('read-files-promise');
 const mustache = require('mustache');
 const utils = require('./utils.js');
@@ -9,6 +10,7 @@ const WebSocket = require('ws');
 const REPORT_FILENAME = 'smashtest/report.html';
 const REPORT_DATA_FILENAME = 'smashtest/report-data.js';
 const PASSED_DATA_FILENAME = 'smashtest/passed-data';
+const SMASHTEST_SS_DIR = 'smashtest/screenshots';
 
 /**
  * Generates a report on the status of the tree and runner
@@ -44,6 +46,24 @@ class Reporter {
      * Starts the reporter, which generates and writes to disk a new report once every REPORT_GENERATE_FREQUENCY ms
      */
     async start() {
+        // Clear out existing screenshots
+        try {
+            let files = fs.readdirSync(SMASHTEST_SS_DIR);
+            for(let file of files) {
+                // Delete a screenshot only if the branch didn't pass last time (if we're doing --skip-passed)
+                let match = file.match(/[^\_]+/);
+                let hash = match ? match[0] : null;
+                if(!this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
+                    fs.unlinkSync(path.join(SMASHTEST_SS_DIR, file));
+                }
+            }
+        }
+        catch(e) {
+            if(!e.message.includes(`no such file or directory, scandir 'smashtest/screenshots'`)) { // not finding the dir is ok
+                throw e;
+            }
+        }
+
         // Load template
         let buffers = await readFiles(['report-template.html'] , {encoding: 'utf8'});
         if(!buffers || !buffers[0]) {

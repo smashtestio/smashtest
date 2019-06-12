@@ -1,6 +1,5 @@
 const readFiles = require('read-files-promise');
 const fs = require('fs');
-const path = require('path');
 const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
@@ -410,23 +409,6 @@ function plural(count) {
         const SMASHTEST_DIR = 'smashtest';
         if(!fs.existsSync(SMASHTEST_DIR)) {
             fs.mkdirSync(SMASHTEST_DIR);
-        }
-
-        // Clear out screenshots
-        if(!runner.skipPassed) {
-            const SMASHTEST_SS_DIR = 'smashtest/screenshots';
-
-            try {
-                let files = fs.readdirSync(SMASHTEST_SS_DIR);
-                for(let file of files) {
-                    fs.unlinkSync(path.join(SMASHTEST_SS_DIR, file));
-                }
-            }
-            catch(e) {
-                if(!e.message.includes(`no such file or directory, scandir 'smashtest/screenshots'`)) { // not finding the dir is ok
-                    throw e;
-                }
-            }
         }
 
         // Output errors to console by default, do not output all steps to console by default
