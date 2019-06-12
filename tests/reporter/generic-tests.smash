@@ -269,13 +269,22 @@ After Every Branch Error -
 
 
 
-Setting a step's details html {
-    let readFiles = require('read-files-promise');
+Step with screenshots {
+    const fs = i('fs');
 
-    let fileBuffers = await readFiles(['tests/reporter/sample-step-report.html'], {encoding: 'utf8'});
-    runInstance.tree.reportTemplates = [ fileBuffers[0] ];
-    runInstance.currStep.reportTemplateIndex = runInstance.tree.reportTemplates.length - 1;
-    runInstance.currStep.reportView = {};
+    // Create smashtest/screenshots if it doesn't already exist
+    const dir = 'smashtest/screenshots';
+    if(!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
+
+    // Copy over screenshots
+    fs.copyFileSync(`tests/reporter/samplescreenshot1.png`, `smashtest/screenshots/${runInstance.currBranch.hash}_0_before.jpg`);
+    fs.copyFileSync(`tests/reporter/samplescreenshot2.png`, `smashtest/screenshots/${runInstance.currBranch.hash}_0_after.jpg`);
+
+    runInstance.currStep.beforeScreenshot = true;
+    runInstance.currStep.afterScreenshot = true;
+    runInstance.currStep.beforeCrosshairs = { x: 0, y: 0 };
 
     throw new Error('oops');
 }

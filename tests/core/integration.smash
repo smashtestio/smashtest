@@ -418,6 +418,13 @@
 
             Error outputted -
 
+    - Smashtest directory
+
+        - /smashtest exists initially
+        - /smashtest doesn't exist initially
+
+            /smashtest created -
+
     - Running in CI
         ..
         - Runs correctly
@@ -701,8 +708,8 @@
 
                     - Step with logs
 
-                    - Step with details
-                        - Set step's reportTemplateIndex and reportView with the sample html
+                    - Step with screenshots
+                        - Set step's beforeScreenshot, afterScreenshot, and beforeCrosshairs vars
 
                     Every type of step state
 

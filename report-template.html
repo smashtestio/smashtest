@@ -607,8 +607,8 @@
                 font-style: normal;
             }
 
-            .step-report {
-                margin: 20px;
+            .preview-pane .step-screenshots {
+                margin: 0 20px 20px 20px;
             }
 
             .preview-pane-msg {
@@ -680,6 +680,108 @@
             @keyframes fadeout {
                 from {top: 30px; opacity: 1;}
                 to {top: 0; opacity: 0;}
+            }
+
+            .screenshot {
+                max-height: 80vh;
+                max-width: 100%;
+                border: 3px solid gray;
+                padding: 5px;
+                border-radius: 3px;
+            }
+
+            .screenshot:hover {
+                cursor: zoom-in;
+                border: 3px solid lightgray;
+            }
+
+            .screenshot-modal {
+                position: fixed;
+                width: 100%;
+                height: calc(100% - 100px);
+                z-index: 3;
+                padding: 50px 0;
+                left: 0;
+                top: 0;
+                background-color: rgb(0,0,0);
+                background-color: rgba(0,0,0,0.7);
+                overflow: auto;
+            }
+
+            .screenshot-modal .image {
+                margin: auto;
+                display: block;
+                width: 80%;
+
+                animation-name: zoom;
+                animation-duration: 0.1s;
+
+                cursor: zoom-out;
+            }
+
+            @keyframes zoom {
+                from {transform:scale(0)}
+                to {transform:scale(1)}
+            }
+
+            .screenshot-preview-container {
+                display: inline-block;
+            }
+
+            .screenshot-container {
+                position: relative;
+            }
+
+            .screenshot-toggle {
+                margin: 10px auto;
+                background-color: transparent;
+                color: rgb(150,150,150);
+                width: 150px;
+                text-align: center;
+                padding: 4px 0;
+                cursor: pointer;
+                border: 2px solid rgb(60,60,60);
+                border-radius: 3px;
+            }
+
+            .screenshot-toggle:hover:not(.active) {
+                background-color: rgb(60,60,60);
+            }
+
+            .screenshot-toggle .text {
+                font-size: 14px;
+            }
+
+            .screenshot-toggle.active {
+                background-color: rgb(80,80,80);
+                border-color: rgb(80,80,80);
+            }
+
+            .crosshairs {
+                position: absolute;
+                top: 100px;
+                left: 100px;
+                height: 26px;
+                width: 26px;
+                background-color: transparent;
+            }
+
+            .crosshairs .vertical {
+                position: absolute;
+                top: 0;
+                left: 50%;
+                height: 100%;
+                width: 0px;
+                border-left: 1px solid red;
+            }
+
+            .crosshairs .horizontal {
+                position: absolute;
+                top: 50%;
+                left: 0;
+                height: 0px;
+                width: 100%;
+                border-top: 1px solid red;
             }
         </style>
     </head>
@@ -829,6 +931,12 @@ c     = copy text of branch
                     this.newDataAvailable = false;  // true if new report data is available on disk but hasn't been loaded yet (because we're paused on a preview)
                     this.branchSnapshots = [];      // Array containing branches that have been updated server-side
                                                     // (but the updates cannot be applied to state yet because we're paused on a preview)
+
+                    this.triggers = {
+                        onSpacebarDown: null,       // function that's called when the spacebar goes down
+                        onSpacebarUp: null,         // function that's called when the spacebar goes up
+                        onEsc: null                 // function that's called when the esc key is pressed, returns false if no further esc-handling is to be done, true otherwise
+                    }
 
                     this.reloadReportData();
 
@@ -1123,8 +1231,8 @@ c     = copy text of branch
                         event.preventDefault();
                     }
                     else if(charCode == '32') { // spacebar
-                        if(window.onSpacebarDown) {
-                            window.onSpacebarDown();
+                        if(this.triggers.onSpacebarDown) {
+                            this.triggers.onSpacebarDown();
                         }
                         event.preventDefault();
                     }
@@ -1160,12 +1268,12 @@ c     = copy text of branch
                         }
                     }
                     else if(event.key == 'Escape') { // esc key
-                        let def = true;
-                        if(window.onEscape) {
-                            def = window.onEscape();
+                        let defaultAllowed = true;
+                        if(this.triggers.onEsc) {
+                            defaultAllowed = this.triggers.onEsc();
                         }
 
-                        if(def) {
+                        if(defaultAllowed) {
                             this.setPreview(null);
                         }
                     }
@@ -1200,8 +1308,8 @@ c     = copy text of branch
                     let charCode = event.keyCode || event.which;
 
                     if(charCode == '32') { // spacebar
-                        if(window.onSpacebarUp) {
-                            window.onSpacebarUp();
+                        if(this.triggers.onSpacebarUp) {
+                            this.triggers.onSpacebarUp();
                         }
                     }
                 }
@@ -1289,7 +1397,7 @@ c     = copy text of branch
                                     previewedItem={this.state.previewedItem}
                                     setPreview={this.setPreview}
                                     stepNodeIndex={this.state.tree.stepNodeIndex}
-                                    reportTemplates={this.state.tree.reportTemplates}
+                                    triggers={this.triggers}
                                 /> : ''
                             }
                         </div>
@@ -2152,7 +2260,7 @@ c     = copy text of branch
                                 previewedItem={this.props.previewedItem}
                                 setPreview={this.props.setPreview}
                                 stepNodeIndex={this.props.stepNodeIndex}
-                                reportTemplates={this.props.reportTemplates}
+                                triggers={this.props.triggers}
                             />
                         );
                     }
@@ -2309,7 +2417,15 @@ c     = copy text of branch
                             </div>
 
                             <PreviewError previewedObj={previewedObj}/>
-                            {isBranch ? "" : <PreviewDetails previewedObj={previewedObj} reportTemplates={this.props.reportTemplates}/>}
+                            {
+                                !isBranch ?
+                                <PreviewScreenshots
+                                    step={this.props.previewedItem.props.step}
+                                    branch={this.props.previewedItem.props.branch}
+                                    triggers={this.props.triggers}
+                                /> :
+                                ''
+                            }
                             <PreviewLogs previewedObj={previewedObj}/>
                         </div>
                     );
@@ -2338,51 +2454,120 @@ c     = copy text of branch
                 }
             }
 
-            class PreviewDetails extends React.Component {
-                constructor() {
-                    super();
+            class PreviewScreenshots extends React.Component {
+                constructor(props) {
+                    super(props);
+
+                    this.state = {
+                        isBefore: true,
+                        modal: false
+                    };
+
+                    this.props.triggers.onSpacebarDown = () => {
+                        if(this._ismounted && this.props.step.afterScreenshot) {
+                            this.setState({ isBefore: false });
+                        }
+                    };
+
+                    this.props.triggers.onSpacebarUp = () => {
+                        if(this._ismounted && this.props.step.afterScreenshot) {
+                            this.setState({ isBefore: true });
+                        }
+                    };
+
+                    this.props.triggers.onEsc = () => {
+                        if(this._ismounted && this.state.modal) {
+                            this.closeModal();
+                            return false; // do not run the default esc action in report
+                        }
+
+                        return true;
+                    };
+
+                    this.toggleBeforeAfter = this.toggleBeforeAfter.bind(this);
+                    this.openModal = this.openModal.bind(this);
+                    this.closeModal = this.closeModal.bind(this);
+                }
+
+                /**
+                 * Toggles between before and after state
+                 */
+                toggleBeforeAfter() {
+                    this.setState({ isBefore: !this.state.isBefore });
+                }
+
+                /**
+                 * Opens the modal
+                 */
+                openModal() {
+                    this.setState({ modal: true });
+                }
+
+                /**
+                 * Closes the modal
+                 */
+                closeModal() {
+                    this.setState({ modal: false });
                 }
 
                 componentDidMount() {
-                    this.updateScripts();
+                    this._ismounted = true;
                 }
 
-                componentDidUpdate() {
-                    this.updateScripts();
-                }
-
-                updateScripts() {
-                    // Execute <script> elements with class details-init-js (this method is a workaround to get scripts to execute)
-                    let oldScriptElem = document.querySelector(".details-init-js");
-                    if(oldScriptElem) {
-                        let oldScriptText = oldScriptElem.innerText;
-                        oldScriptElem.parentNode.removeChild(oldScriptElem);
-
-                        let newScriptElem = document.createElement("script");
-                        let newScriptTextNode = document.createTextNode(oldScriptText);
-                        newScriptElem.appendChild(newScriptTextNode);
-                        document.querySelector(".step-report").appendChild(newScriptElem);
-                    }
+                componentWillUnmount() {
+                    this._ismounted = false;
                 }
 
                 render() {
-                    // Replace {{{template tags}}} in report template with values in view
-                    let reportTemplate = "";
-                    if(this.props.reportTemplates) {
-                        reportTemplate = this.props.reportTemplates[this.props.previewedObj.reportTemplateIndex];
-                        let reportView = this.props.previewedObj.reportView;
-                        for(let key in reportView) {
-                            if(reportView.hasOwnProperty(key)) {
-                                reportTemplate.replace(new RegExp(`\{\{\{\s*${key}\s*\}\}\}`, `g`), reportView[key]);
-                            }
-                        }
+                    let url = `screenshots/${this.props.branch.hash}_${this.props.branch.steps.indexOf(this.props.step)}_${this.state.isBefore ? `before` : `after`}.jpg`;
+                    let beforeScreenshot = this.props.step.beforeScreenshot;
+                    let afterScreenshot = this.props.step.afterScreenshot;
+                    let beforeCrosshairs = this.props.step.beforeCrosshairs;
+
+                    let crosshairsStyle = '';
+                    if(beforeCrosshairs) {
+                        crosshairsStyle = { top: `${beforeCrosshairs.y - 5}px`, left: `${beforeCrosshairs.x - 5}px` };
                     }
 
-                    if(reportTemplate) {
+                    let toggleClassName = `screenshot-toggle ${!this.state.isBefore ? `active` : ``}`;
+
+                    if(beforeScreenshot) {
                         return (
-                            <div className="preview-section preview-details">
-                                <div className="header">Details</div>
-                                <div className="step-report" dangerouslySetInnerHTML={ {__html: reportTemplate} }></div>
+                            <div className="preview-section preview-screenshots">
+                                <div className="header">Screenshots</div>
+                                <div className="step-screenshots">
+                                    <div className="screenshot-preview-container">
+                                        {
+                                            afterScreenshot ?
+                                            <div className="screenshot-container">
+                                                <div className={toggleClassName} onClick={this.toggleBeforeAfter}>
+                                                    <span className="text">
+                                                        Show After
+                                                    </span>
+                                                </div>
+                                            </div> :
+                                            ''
+                                        }
+                                        <div className="screenshot-container">
+                                            {
+                                                beforeCrosshairs && this.state.isBefore ?
+                                                <div className="crosshairs" style={crosshairsStyle}>
+                                                    <div className="vertical"></div>
+                                                    <div className="horizontal"></div>
+                                                </div> :
+                                                ''
+                                            }
+                                            <img className="screenshot active" src={url} onClick={this.openModal}/>
+                                        </div>
+                                    </div>
+                                    {
+                                        this.state.modal ?
+                                        <div className="screenshot-modal" onClick={this.closeModal}>
+                                            <img className="image" src={url}/>
+                                        </div> :
+                                        ''
+                                    }
+                                </div>
                             </div>
                         );
                     }

@@ -27,8 +27,6 @@ class Tree {
         /*
         OPTIONAL
 
-        this.reportTemplates = [];           // Array of strings, each of which is html that represents step details
-
         this.elapsed = 0;                    // number of ms it took for all branches to execute, set to -1 if paused
         this.timeStarted = {};               // Date object (time) of when this tree started being executed
         this.timeEnded = {};                 // Date object (time) of when this tree ended execution
@@ -1315,9 +1313,7 @@ ${outputBranchAbove(this)}
 
             branches: branches.map(branch => branch.serialize()),
             beforeEverything: this.beforeEverything.map(branch => branch.serialize()),
-            afterEverything: this.afterEverything.map(branch => branch.serialize()),
-
-            reportTemplates: this.reportTemplates
+            afterEverything: this.afterEverything.map(branch => branch.serialize())
         });
 
         /**

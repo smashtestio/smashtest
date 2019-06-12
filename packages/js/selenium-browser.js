@@ -5,6 +5,7 @@ const safari = require('selenium-webdriver/safari');
 const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
 const fs = require('fs');
+const readFiles = require('read-files-promise');
 const sharp = require('sharp');
 const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
@@ -70,7 +71,7 @@ class SeleniumBrowser {
     constructor(runInstance) {
         this.driver = null;
         this.runInstance = runInstance;
-        this.props = ElementFinder.defaultProps(); // ElementFinder props
+        this.props = ElementFinder.defaultProps();  // ElementFinder props
     }
 
     /**
@@ -261,20 +262,23 @@ class SeleniumBrowser {
 
 
 
-        await this.takeScreenshot(true);
+        await this.takeScreenshot(false);
 
         await this.driver.get(url);
 
-        await this.takeScreenshot(false);
+        await this.takeScreenshot(true);
     }
 
     /**
      * Takes a screenshot, stores it on disk, and attaches it to the report for the current step
-     * @param {Boolean} [isBefore] If true, this screenshot occurs before the step's main action, false if it occurs after
+     * @param {Boolean} [isAfter] If true, this screenshot occurs after the step's main action, false if it occurs before. You must have called this function with isAfter set to false prior to calling it with isAfter set to true.
      * param {Object} [targetCoords] - Object in form { x: <number>, y: <number> } representing the x,y coords of the target of the action
      */
-    async takeScreenshot(isBefore, targetCoords) {
+    async takeScreenshot(isAfter, targetCoords) {
         // See if screenshot is allowed
+        if(!this.runInstance.runner.reporter) {
+            return;
+        }
         if(!this.runInstance.runner.screenshots) {
             return;
         }
@@ -298,29 +302,27 @@ class SeleniumBrowser {
         }
         catch(e) {} // fail silently
 
-        if(data) {
-            await sharp(Buffer.from(data, 'base64'))
-                .resize(500)
-                .jpeg({
-                    quality: 10
-                })
-                .toFile(`smashtest/screenshots/${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isBefore ? `before` : `after`}.jpg`);
+        if(!data) {
+            return;
         }
 
+        // Write screenshot to file
+        let filename = `screenshots/${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isAfter ? `after` : `before`}.jpg`;
+        await sharp(Buffer.from(data, 'base64'))
+            .resize(1000)
+            .jpeg({
+                quality: 50
+            })
+            .toFile(`smashtest/${filename}`);
 
-
-
-        // TODO: set runInstance.currStep.reportTemplate and reportView (or add to them if they already exist)
-
-
-
-
-
-
-
-
-
-
+        // Include screenshot in report
+        if(isAfter) {
+            this.runInstance.currStep.afterScreenshot = true;
+        }
+        else {
+            this.runInstance.currStep.beforeScreenshot = true;
+            targetCoords && (this.runInstance.currStep.beforeCrosshairs = targetCoords);
+        }
 
         this.runInstance.runner.screenshotCount++;
     }

@@ -29,8 +29,9 @@ class Step {
         this.timeStarted = {};                // Date object (time) of when this step started being executed
         this.timeEnded = {};                  // Date object (time) of when this step ended execution
 
-        reportTemplateIndex = -1;             // Index of the html that represents this step in reports (stored in Tree.reportTemplates)
-        reportView = {};                      // object that replaces {{{template tags}}} in reportTemplates, values can only be strings
+        this.beforeScreenshot = false;        // true if this step has a before screenshot
+        this.afterScreenshot = false;         // true if this step has an after screenshot (must have a before screenshot too)
+        this.beforeCrosshairs = { x: 0, y: 0 };  // if this is set, set the crosshairs on the before screenshot to these coords
         */
     }
 
@@ -86,8 +87,9 @@ class Step {
 
             'elapsed',
 
-            'reportTemplateIndex',
-            'reportView'
+            'beforeScreenshot',
+            'afterScreenshot',
+            'beforeCrosshairs'
         ]);
 
         return o;

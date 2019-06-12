@@ -21,8 +21,8 @@ describe("Step", () => {
             s.timeStarted = new Date();
             s.timeEnded = new Date();
 
-            s.reportTemplateIndex = 9;
-            s.reportView = { one: 'one', two: 'two' };
+            s.beforeScreenshot = true;
+            s.beforeCrosshairs = { x: 2, y: 4 };
 
             let o = s.serialize();
 
@@ -40,8 +40,8 @@ describe("Step", () => {
 
                 elapsed: 65,
 
-                reportTemplateIndex: 9,
-                reportView: { one: 'one', two: 'two' }
+                beforeScreenshot: true,
+                beforeCrosshairs: { x: 2, y: 4 }
             });
         });
     });
