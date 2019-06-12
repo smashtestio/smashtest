@@ -141,7 +141,7 @@ Options
   -v                              Output the version of SmashTEST
   -?                              Output this help prompt
 
-  --debug=<hash>                  Run in express debug mode the branch with the given hash
+  --debug=<hash>                  Run in debug mode the branch with the given hash
   --groups="<group1>,<group2>"    Only run branches that are part of one of these groups
   --g:<name>="<value>"            Sets a global variable before every branch
   --headless=<true/false>         Whether to run browsers as headless

@@ -1261,9 +1261,8 @@ ${outputBranchAbove(this)}
                     let lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
                     let lastStepNode = this.stepNodeIndex[lastStep.id];
                     lastStepNode.isDebug = true;
-                    lastStepNode.isExpressDebug = true;
+                    lastStepNode.isAfterDebug = true;
                     this.isDebug = true;
-                    this.isExpressDebug = true;
 
                     found = true;
                     break;
