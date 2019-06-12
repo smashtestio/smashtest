@@ -2,25 +2,6 @@
 //  Hooks
 // ***************************************
 
-*** Before Everything {
-    // Clear out screenshots
-    const fs = i('fs');
-    const path = i('path');
-    const dir = 'smashtest/screenshots';
-
-    try {
-        let files = fs.readdirSync(dir);
-        for(let file of files) {
-            fs.unlinkSync(path.join(dir, file));
-        }
-    }
-    catch(e) {
-        if(!e.message.includes(`no such file or directory, scandir 'smashtest/screenshots'`)) { // not finding the dir is ok
-            throw e;
-        }
-    }
-}
-
 *** After Everything {
     if(typeof SeleniumBrowser != 'undefined') {
         await SeleniumBrowser.killAllBrowsers(runInstance.runner);
