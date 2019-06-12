@@ -29,9 +29,7 @@ class Step {
         this.timeStarted = {};                // Date object (time) of when this step started being executed
         this.timeEnded = {};                  // Date object (time) of when this step ended execution
 
-        this.beforeScreenshot = false;        // true if this step has a before screenshot
-        this.afterScreenshot = false;         // true if this step has an after screenshot (must have a before screenshot too)
-        this.beforeCrosshairs = { x: 0, y: 0 };  // if this is set, set the crosshairs on the before screenshot to these coords
+        this.targetCoords = { x: 0, y: 0 };   // if this is set, set the crosshairs on the before screenshot to these coords
         */
     }
 
@@ -89,7 +87,7 @@ class Step {
 
             'beforeScreenshot',
             'afterScreenshot',
-            'beforeCrosshairs'
+            'targetCoords'
         ]);
 
         return o;

@@ -282,9 +282,7 @@ Step with screenshots {
     fs.copyFileSync(`tests/reporter/samplescreenshot1.png`, `smashtest/screenshots/${runInstance.currBranch.hash}_0_before.jpg`);
     fs.copyFileSync(`tests/reporter/samplescreenshot2.png`, `smashtest/screenshots/${runInstance.currBranch.hash}_0_after.jpg`);
 
-    runInstance.currStep.beforeScreenshot = true;
-    runInstance.currStep.afterScreenshot = true;
-    runInstance.currStep.beforeCrosshairs = { x: 0, y: 0 };
+    runInstance.currStep.targetCoords = { x: 0, y: 0 };
 
     throw new Error('oops');
 }

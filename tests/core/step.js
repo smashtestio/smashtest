@@ -21,8 +21,7 @@ describe("Step", () => {
             s.timeStarted = new Date();
             s.timeEnded = new Date();
 
-            s.beforeScreenshot = true;
-            s.beforeCrosshairs = { x: 2, y: 4 };
+            s.targetCoords = { x: 2, y: 4 };
 
             let o = s.serialize();
 
@@ -40,8 +39,7 @@ describe("Step", () => {
 
                 elapsed: 65,
 
-                beforeScreenshot: true,
-                beforeCrosshairs: { x: 2, y: 4 }
+                targetCoords: { x: 2, y: 4 }
             });
         });
     });

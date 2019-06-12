@@ -319,13 +319,9 @@ class SeleniumBrowser {
             })
             .toFile(`smashtest/${filename}`);
 
-        // Include screenshot in report
-        if(isAfter) {
-            this.runInstance.currStep.afterScreenshot = true;
-        }
-        else {
-            this.runInstance.currStep.beforeScreenshot = true;
-            targetCoords && (this.runInstance.currStep.beforeCrosshairs = targetCoords);
+        // Include crosshairs in report
+        if(targetCoords) {
+            this.runInstance.currStep.targetCoords = targetCoords;
         }
 
         this.runInstance.runner.screenshotCount++;

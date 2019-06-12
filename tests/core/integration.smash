@@ -709,7 +709,7 @@
                     - Step with logs
 
                     - Step with screenshots
-                        - Set step's beforeScreenshot, afterScreenshot, and beforeCrosshairs vars
+                        - Set step's beforeScreenshot, afterScreenshot, and targetCoords vars
 
                     Every type of step state
 

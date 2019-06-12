@@ -233,9 +233,11 @@
                 position: relative;
                 white-space: nowrap;
                 cursor: pointer;
+                padding-right: 30px;
                 overflow-x: auto;
                 overflow-y: hidden;
-                padding-right: 30px;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
             }
 
             .line::-webkit-scrollbar {
@@ -469,6 +471,19 @@
                 color: rgb(110,110,110);
                 padding: 0 30px 15px;
                 overflow-x: auto;
+            }
+
+            .tree-errors .stacktrace,
+            .branch-error .stacktrace,
+            .preview-pane .stacktrace {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .tree-errors .stacktrace::-webkit-scrollbar,
+            .branch-error .stacktrace::-webkit-scrollbar,
+            .preview-pane .stacktrace::-webkit-scrollbar {
+                display: none;
             }
 
             .stacktrace:first-line {
@@ -892,6 +907,19 @@ c     = copy text of branch
              */
             function isBackTextual(stepNode) {
                 return stepNode.backModifiers && stepNode.backModifiers.find(mod => mod == '-');
+            }
+
+            /**
+             * @return {Promise} Promise that resolves to true if the image at the given url exists, false otherwise
+             */
+            function imageExists(url) {
+                return new Promise((resolve, reject) => {
+                    let img = new Image();
+                    img.onload = () => {
+                        resolve(img.height != 0);
+                    };
+                    img.src = url;
+                });
             }
 
             // ***************************************
@@ -2309,7 +2337,9 @@ c     = copy text of branch
                 }
 
                 render() {
-                    let previewedObj = this.props.previewedItem.props.step || this.props.previewedItem.props.branch;
+                    let stepObj = this.props.previewedItem.props.step;
+                    let branchObj = this.props.previewedItem.props.branch;
+                    let previewedObj = stepObj || branchObj;
                     let stepNodeIndex = this.props.stepNodeIndex;
                     let isBranch = previewedObj.hasOwnProperty("steps");
                     let sn = stepNodeIndex[previewedObj.id];
@@ -2438,9 +2468,10 @@ c     = copy text of branch
                             {
                                 !isBranch ?
                                 <PreviewScreenshots
-                                    step={this.props.previewedItem.props.step}
-                                    branch={this.props.previewedItem.props.branch}
+                                    step={stepObj}
+                                    branch={branchObj}
                                     triggers={this.props.triggers}
+                                    key={branchObj.hash + ' ' + branchObj.steps.indexOf(stepObj)}
                                 /> :
                                 ''
                             }
@@ -2476,19 +2507,25 @@ c     = copy text of branch
                 constructor(props) {
                     super(props);
 
+                    this.baseUrl = `screenshots/${props.branch.hash}_${props.branch.steps.indexOf(props.step)}`;
+                    this.beforeUrl = `${this.baseUrl}_before.jpg`;
+                    this.afterUrl = `${this.baseUrl}_after.jpg`;
+
                     this.state = {
                         isBefore: true,
-                        modal: false
+                        modal: false,
+                        hasBeforeScreenshot: false,
+                        hasAfterScreenshot: false
                     };
 
                     this.props.triggers.onSpacebarDown = () => {
-                        if(this._ismounted && this.props.step.afterScreenshot) {
+                        if(this._ismounted && this.state.hasAfterScreenshot) {
                             this.setState({ isBefore: false });
                         }
                     };
 
                     this.props.triggers.onSpacebarUp = () => {
-                        if(this._ismounted && this.props.step.afterScreenshot) {
+                        if(this._ismounted && this.state.hasAfterScreenshot) {
                             this.setState({ isBefore: true });
                         }
                     };
@@ -2530,6 +2567,16 @@ c     = copy text of branch
 
                 componentDidMount() {
                     this._ismounted = true;
+
+                    Promise.all([
+                        imageExists(this.beforeUrl),
+                        imageExists(this.afterUrl)
+                    ]).then((results) => {
+                        this.setState({
+                            hasBeforeScreenshot: results[0],
+                            hasAfterScreenshot: results[1]
+                        });
+                    });
                 }
 
                 componentWillUnmount() {
@@ -2537,26 +2584,24 @@ c     = copy text of branch
                 }
 
                 render() {
-                    let url = `screenshots/${this.props.branch.hash}_${this.props.branch.steps.indexOf(this.props.step)}_${this.state.isBefore ? `before` : `after`}.jpg`;
-                    let beforeScreenshot = this.props.step.beforeScreenshot;
-                    let afterScreenshot = this.props.step.afterScreenshot;
-                    let beforeCrosshairs = this.props.step.beforeCrosshairs;
+                    let url = this.state.isBefore ? this.beforeUrl : this.afterUrl;
 
+                    let targetCoords = this.props.step.targetCoords;
                     let crosshairsStyle = '';
-                    if(beforeCrosshairs) {
-                        crosshairsStyle = { top: `${beforeCrosshairs.y - 5}px`, left: `${beforeCrosshairs.x - 5}px` };
+                    if(targetCoords) {
+                        crosshairsStyle = { top: `${targetCoords.y - 5}px`, left: `${targetCoords.x - 5}px` };
                     }
 
                     let toggleClassName = `screenshot-toggle ${!this.state.isBefore ? `active` : ``}`;
 
-                    if(beforeScreenshot) {
+                    if(this.state.hasBeforeScreenshot) {
                         return (
                             <div className="preview-section preview-screenshots">
                                 <div className="header">Screenshots</div>
                                 <div className="step-screenshots">
                                     <div className="screenshot-preview-container">
                                         {
-                                            afterScreenshot ?
+                                            this.state.hasAfterScreenshot ?
                                             <div className="screenshot-container">
                                                 <div className={toggleClassName} onClick={this.toggleBeforeAfter}>
                                                     <span className="text">
@@ -2568,7 +2613,7 @@ c     = copy text of branch
                                         }
                                         <div className="screenshot-container">
                                             {
-                                                beforeCrosshairs && this.state.isBefore ?
+                                                targetCoords && this.state.isBefore ?
                                                 <div className="crosshairs" style={crosshairsStyle}>
                                                     <div className="vertical"></div>
                                                     <div className="horizontal"></div>
