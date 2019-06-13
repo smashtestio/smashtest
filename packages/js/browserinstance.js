@@ -66,12 +66,13 @@ class BrowserInstance {
     }
 
     // ***************************************
-    //  Member functions
+    //  Browser actions
     // ***************************************
 
     constructor(runInstance) {
         this.driver = null;
         this.runInstance = runInstance;
+
         this.props = ElementFinder.defaultProps();  // ElementFinder props
     }
 
@@ -271,6 +272,26 @@ class BrowserInstance {
     }
 
     /**
+     * Executes a script inside the browser
+     * See executeScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
+     */
+    executeScript(script, ...args) {
+        return this.driver.executeScript(script, ...args);
+    }
+
+    /**
+     * Executes a script inside the browser
+     * See executeAsyncScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
+     */
+    executeAsyncScript(script, ...args) {
+        return this.driver.executeAsyncScript(script, ...args);
+    }
+
+    // ***************************************
+    //  Screenshots
+    // ***************************************
+
+    /**
      * Takes a screenshot, stores it on disk, and attaches it to the report for the current step
      * @param {Boolean} [isAfter] If true, this screenshot occurs after the step's main action, false if it occurs before. You must have called this function with isAfter set to false prior to calling it with isAfter set to true.
      * param {Object} [targetCoords] - Object in form { x: <number>, y: <number> } representing the x,y coords of the target of the action
@@ -344,6 +365,10 @@ class BrowserInstance {
         }
     }
 
+    // ***************************************
+    //  Elements
+    // ***************************************
+
     /**
      * Finds the first element matching EF represented by efText. Waits up to timeout ms.
      * @param {String} efText - A string representing the EF to use
@@ -373,22 +398,6 @@ class BrowserInstance {
 
         let results = await ef.find(this.driver, undefined, isNot, isContinue, timeout || 2000);
         return results;
-    }
-
-    /**
-     * Executes a script inside the browser
-     * See executeScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
-     */
-    executeScript(script, ...args) {
-        return this.driver.executeScript(script, ...args);
-    }
-
-    /**
-     * Executes a script inside the browser
-     * See executeAsyncScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
-     */
-    executeAsyncScript(script, ...args) {
-        return this.driver.executeAsyncScript(script, ...args);
     }
 
     /**
@@ -451,6 +460,22 @@ class BrowserInstance {
      */
     str(str) {
         return utils.escape(str);
+    }
+
+    // ***************************************
+    //  Mocks
+    // ***************************************
+
+    mockTime(time) {
+
+    }
+
+    mockHttp(method, url, response) {
+
+    }
+
+    mockStop() {
+
     }
 }
 module.exports = BrowserInstance;
