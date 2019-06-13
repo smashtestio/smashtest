@@ -1,5 +1,5 @@
 const request = require('request');
-const Comparer = require('../../comparer.js');
+const Comparer = require('./comparer.js');
 const Constants = require('../../constants.js');
 
 /**
@@ -18,7 +18,7 @@ class HttpApi {
      * Makes an HTTP request using the given request library function and args
      * For internal use only
      * See request() in https://github.com/request/request for details on functions that can be used
-     * @return {Promise} Promise that resolves when response comes back. Response will be stored in {response} variable.
+     * @return {Promise} Promise that resolves with a Response object, when it is received. Response will also be stored in {response} global variable.
      */
     makeReq(func, args) {
         let uri = typeof args[0] == 'string' ? args[0] : args[1].uri;
@@ -26,9 +26,10 @@ class HttpApi {
         this.runInstance.log(`Request: ${method.toUpperCase()} ${uri}`);
 
         return new Promise((resolve, reject) => {
-            let req = func(...args, (error, response, body) => {
-                this.runInstance.g('response', new Response(error, response, body));
-                resolve();
+            func(...args, (error, response, body) => {
+                let responseObj = new this.Response(this.runInstance, error, response, body);
+                this.runInstance.g('response', responseObj);
+                resolve(responseObj);
             });
         });
     }
@@ -129,50 +130,51 @@ class HttpApi {
     jar() {
         return request.jar();
     }
+}
+module.exports = HttpApi;
+
+/**
+ * Response that comes from an API call
+ */
+HttpApi.Response = class Response {
+    constructor(runInstance, error, response, body) {
+        this.runInstance = runInstance;
+        this.response = {
+            statusCode: response && response.statusCode,
+            headers: response && response.headers,
+            error: error,
+            body: body,
+            rawBody: body,
+            response: response
+        };
+
+        // If body is json, parse it
+        try {
+            this.response.body = JSON.parse(this.response.body);
+        }
+        catch(e) {}
+    }
 
     /**
-     * Response that comes from an API call
+     * @throws {Error} If expectedObj doesn't match json response (see comparer.js, Comparer.expect())
      */
-    class Response {
-        constructor(error, response, body) {
-            this.response = {
-                statusCode: response && response.statusCode,
-                headers: response && response.headers,
-                error: error,
-                body: body,
-                rawBody: body,
-                response: response
-            };
-
-            // If body is json, parse it
-            try {
-                this.response.body = JSON.parse(this.response.body);
-            }
-            catch(e) {}
-        }
-
-        /**
-         * @throws {Error} If expectedObj doesn't match json response (see comparer.js, Comparer.expect())
-         */
-        verify(expectedObj) {
-            let headersLog = ``;
-            if(this.response.headers) {
-                for(let headerName in this.response.headers) {
-                    if(this.response.headers.hasOwnProperty(headerName)) {
-                        headersLog += `${headerName}: ${this.response.headers[headerName]}\n`;
-                    }
+    verify(expectedObj) {
+        let headersLog = ``;
+        if(this.response.headers) {
+            for(let headerName in this.response.headers) {
+                if(this.response.headers.hasOwnProperty(headerName)) {
+                    headersLog += `${headerName}: ${this.response.headers[headerName]}\n`;
                 }
             }
+        }
 
-            let responseLog = `Response:
+        let responseLog = `Response:
 
 ${this.response.statusCode}
 ${headersLog}
 ${this.response.rawBody || ``}`;
-            this.runInstance.log(responseLog);
+        this.runInstance.log(responseLog);
 
-            Comparer.expect(this.response, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY).to.match(expectedObj);
-        }
+        Comparer.expect(this.response, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY).to.match(expectedObj);
     }
 }
-module.exports = HttpApi;

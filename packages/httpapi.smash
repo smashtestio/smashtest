@@ -1,0 +1,8 @@
+// ***************************************
+//  Hooks
+// ***************************************
+
+*** Before Every Branch {
+    let HttpApi = i('HttpApi', './js/httpapi.js');
+    runInstance.g('api', new HttpApi(runInstance));
+}
