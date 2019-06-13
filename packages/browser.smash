@@ -102,6 +102,10 @@
         await browser.nav(url);
     }
 
+    * Nav to {{url}} {
+        await browser.nav(url);
+    }
+
     * Click {{element}} {
         // element is an ElementFinder
 

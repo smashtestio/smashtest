@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const readFiles = require('read-files-promise');
 const sharp = require('sharp');
+const request = require('request-promise-native');
 const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
 
@@ -274,6 +275,7 @@ class BrowserInstance {
     /**
      * Executes a script inside the browser
      * See executeScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
+     * @return {Promise} Promise that resolves to the script's return value
      */
     executeScript(script, ...args) {
         return this.driver.executeScript(script, ...args);
@@ -282,6 +284,7 @@ class BrowserInstance {
     /**
      * Executes a script inside the browser
      * See executeAsyncScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
+     * @return {Promise} Promise that resolves to the script's return value
      */
     executeAsyncScript(script, ...args) {
         return this.driver.executeAsyncScript(script, ...args);
@@ -466,16 +469,56 @@ class BrowserInstance {
     //  Mocks
     // ***************************************
 
-    mockTime(time) {
+    /**
+     * Injects sinon library (sinonjs.org) into the browser, if it's not already defined there
+     * Sinon will be available inside the browser at the global js var 'sinon'
+     */
+    async injectSinon() {
+        let sinonExists = this.executeScript(function() {
+            return typeof sinon != undefined;
+        });
+
+        if(!sinonExists) {
+            let sinonCode = await request.get('https://cdnjs.cloudflare.com/ajax/libs/sinon.js/7.3.2/sinon.min.js');
+            await this.executeScript(sinonCode);
+        }
+    }
+
+    /**
+     * Mock's the browser's Date object to simulate the given time. Time will run forward normally.
+     * @param {Date} time - The time to set the browser to
+     */
+    async mockTime(time) {
+        await this.mockTimeStop(); // stop any existing time mocks
+        await this.injectSinon();
+        await this.executeScript(function(timeStr) {
+            var smashtestSinonClock = sinon.useFakeTimers({
+                now: new Date(timeStr),
+                shouldAdvanceTime: true
+            });
+        }, time.toString());
+    }
+
+    async mockHttp(method, url, response) {
 
     }
 
-    mockHttp(method, url, response) {
-
+    /**
+     * Stops and reverts all time-related mocks
+     */
+    async mockTimeStop() {
+        await this.executeScript(function() {
+            if(smashtestSinonClock) {
+                smashtestSinonClock.restore();
+            }
+        });
     }
 
-    mockStop() {
-
+    /**
+     * Stops and reverts all mocks (time and api)
+     */
+    async mockStop() {
+        await this.mockTimeStop();
     }
 }
 module.exports = BrowserInstance;
