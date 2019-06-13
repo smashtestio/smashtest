@@ -1581,19 +1581,6 @@ ${outputBranchAbove(this)}
     }
 
     /**
-     * Removes all branches except the first one, marks the first step as before debug
-     */
-    debugFirstStep() {
-        this.branches = this.branches.slice(0, 1);
-        this.isDebug = true;
-        if(this.branches[0].steps.length > 0) {
-            let firstStepNode = this.stepNodeIndex[this.branches[0].steps[0].id];
-            firstStepNode.isDebug = true;
-            firstStepNode.isBeforeDebug = true;
-        }
-    }
-
-    /**
      * Marks the given hook step has pass/fail/skip
      * @param {String} state - 'pass' to pass, 'fail' to fail
      * @param {Step} step - The Step to mark

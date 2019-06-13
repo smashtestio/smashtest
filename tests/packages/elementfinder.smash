@@ -1221,25 +1221,39 @@
                                         |    div#two.big
                                         |
                                         |    --> missing
-                                        |    div#three.big
+                                        |    div#three.bigf
                                         |`));
                                 }
 
                     - multiple props
 
-                        $s finds elements {
-                            // text, ords, properties, selectors
-                            // nots
-                            // some of those props are functions and others are EFs
+                        - 0 matching elements exist
+
+                            0 matching elements after the first prop {
+
+                            }
+
+                                doesn't find elements, has error {
+
+                                }
+
+                            0 matching elements after the second prop {
+
+                            }
+
+                                doesn't find elements, has error {
+
+                                }
+
+                        matching elements exist {
+
                         }
 
-                        $s doesn't find elements {
-
-                        }
-
-                        $s chooses the first element when multiple matching elements exist {
-
-                        }
+                            finds elements {
+                                // text, ords, properties, selectors
+                                // nots
+                                // some of those props are functions and others are EFs
+                            }
 
                     - visible prop
 

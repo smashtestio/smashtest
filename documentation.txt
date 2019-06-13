@@ -304,6 +304,7 @@ API Testing
         - fetch + chai subsets?
             - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
             - swapi.co for sample data
+        - Pattern: make step that calls api and outputs response to console. Then, copy that response into a verify step.
     - Comparer (built-in library for validating json)
         - Comparer.expect(actualObj).to.match(expectedObj)
             - Throws error if matching fails, containing whole json object prettified, with a ---> + explanation next to each line that didn't match
@@ -921,7 +922,6 @@ REPL
     - Starting REPL
         - --repl or -r
             - No filenames - kicks off blank browser and REPL
-            - Filenames - it will load the first branch but open up repl before first step begins
         - ~ in test file
     - REPL commands
         - Enter key, s, p, r, x

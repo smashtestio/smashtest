@@ -29,6 +29,7 @@ class Runner {
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
         this.consoleOutput = true;       // If true, output debug info to console
+        this.isRepl = false;             // If true, run in REPL mode
 
         this.persistent = {};            // stores variables which persist from branch to branch, for the life of the Runner
         this.globalInit = {};            // init each branch with these global variables
@@ -199,8 +200,8 @@ class Runner {
      * Creates a single empty RunInstance and pauses it
      * Will be used by --repl
      */
-    createEmptyRunner() {
-        this.tree = new Tree();
+    createEmptyRunner(tree) {
+        this.tree = tree;
         this.runInstances = [ new RunInstance(this) ];
         this.runInstances[0].isPaused = true;
         this.isPaused = true;

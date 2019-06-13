@@ -163,7 +163,7 @@ class SeleniumBrowser {
 
         if(typeof params.isHeadless == 'undefined') {
             // Set isHeadless to true, unless we're debugging with ~
-            params.isHeadless = !this.runInstance.tree.isDebug || this.runInstance.tree.isExpressDebug;
+            params.isHeadless = (!this.runInstance.tree.isDebug || this.runInstance.tree.isExpressDebug) && !this.runInstance.runner.isRepl;
 
             // Override if --headless flag is set
             if(this.runInstance.runner.flags.hasOwnProperty("headless")) {

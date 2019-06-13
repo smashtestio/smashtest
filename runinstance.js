@@ -25,7 +25,7 @@ class RunInstance {
         this.localStack = [];                           // Array of objects, where each object stores local vars
         this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
 
-        this.stepsRan = new Branch();               // record of all steps ran by this RunInstance, for inject()
+        this.stepsRan = new Branch();                   // record of all steps ran by this RunInstance, for inject()
     }
 
     /**
@@ -539,6 +539,7 @@ class RunInstance {
 
         let branchesToRun = this.tree.branchify(stepNode, undefined, undefined, undefined, undefined, branchAbove); // branchify so that if step is an already-defined function call, it will work
         let stepsToRun = branchesToRun[0];
+        this.stepsRan.mergeToEnd(stepsToRun);
 
         for(let i = 0; i < stepsToRun.steps.length; i++) {
             let s = stepsToRun.steps[i];

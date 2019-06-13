@@ -42,28 +42,11 @@
                             Correct branch is run in debug -
                                 Branch stops at first error or after last step -
 
-                    - group="<group>"
-
-                        - Group exists
-
-                            Only members of group run -
-
-                        - Group doesn't exist
-
-                            No branches error -
-
-                        - Multiple --group flags
-
-                            - All groups exist
-                            - Some groups exist
-
-                                Only members of at least one group run -
-
-                            - No groups exist
-
-                                No branches error -
-
                     - groups="<group1>,<group2>"
+                        - No groups listed
+                        - groups=<empty string>
+
+                            Verify error -
 
                         - All groups exist
                         - Some groups exist
@@ -80,7 +63,11 @@
                     - help
                     - '-?'
 
-                        Displays help prompt -
+                        - Value included
+                            Verify error -
+
+                        - Value not included
+                            Displays help prompt -
 
                     - max-parallel=<N>
                         - Set to non-integer
@@ -123,6 +110,9 @@
 
                                 Does not output error -
 
+                        - Set to a value
+                            Outputs error -
+
                     - output-errors=<true/false>
 
                         - Set to true
@@ -138,6 +128,12 @@
 
                                 Doesn't output errors to console -
 
+                        - Set to non-true/false
+                        - Set to empty string
+                        - No value
+
+                            Verify error -
+
                     - p:<name>="<value>"
                         Persistent variable set -
 
@@ -152,10 +148,18 @@
 
                             Branches are not shuffled -
 
+                        - Set to non-true/false
+
+                            Verify error -
+
                     - repl
                     - '-r'
 
-                        Runs REPL -
+                        - Set to a value
+                            Outputs error -
+
+                        - Not set to a value
+                            Runs REPL -
 
                     - report-domain=<domain>
 
@@ -183,6 +187,9 @@
                                 Runs report server on localhost and on given port -
                                 Report connects to given domain and given port -
 
+                        - Not in format domain:port
+                            Verify error -
+
                         - Multiple simulatenous reports
                             - Run report A and then run report B (different directory), report-domain set to the same port in both runs
                                 - Open report A while B is running
@@ -198,6 +205,12 @@
                         - Set to false
 
                             Outputs report, which does not get live updates -
+
+                        - Set to non-true/false
+                        - Set to empty string
+                        - No value
+
+                            Verify error -
 
                     - Skip passed
                         - skip-passed=<true/false/file>
@@ -228,10 +241,18 @@
                                     Outputs error -
 
                         - '-a'
-                            Do not skip passed branches
+                            - Set to a value
+                                Outputs error -
+
+                            - Not set to a value
+                                Do not skip passed branches
 
                         - '-s'
-                            Skip passed branches
+                            - Set to a value
+                                Outputs error -
+
+                            - Not set to a value
+                                Skip passed branches
 
                         * Skip passed branches
                             - smashtest-passed-data file exists
@@ -259,10 +280,17 @@
                             Logs and details not contained in report for passed, failed, and skipped steps -
                             report-data.js size smaller than when this is set to 'all' or 'fail' -
 
+                        - Not set to all/fail/none
+                            Verify error -
+
                     - version
                     - '-v'
 
-                        Displays version info -
+                        - Set to a value
+                            Outputs error -
+
+                        - Not set to a value
+                            Displays version info -
 
                     - Unknown flag
 

@@ -20,7 +20,6 @@ let tree = new Tree();
 let runner = new Runner();
 let reporter = new Reporter(tree, runner);
 
-let isRepl = false;
 let isReport = true;
 
 const yellowChalk = chalk.hex("#ffb347");
@@ -108,11 +107,14 @@ function processFlag(name, value) {
 
         switch(name.toLowerCase()) {
             case "a":
+                noValue();
                 runner.skipPassed = false;
                 break;
 
             case "debug":
-            case "d":
+                if(!value) {
+                    utils.error(`debug flag must be set to a hash`);
+                }
                 runner.debugHash = value;
                 break;
 
@@ -121,6 +123,9 @@ function processFlag(name, value) {
                 break;
 
             case "groups":
+                if(!value) {
+                    utils.error(`groups flag must list the groups to run, separated by commas`);
+                }
                 runner.groups = value.split(/\s*\,\s*/);
                 break;
 
@@ -188,11 +193,12 @@ Options
                 break;
 
             case "no-debug":
+                noValue();
                 runner.noDebug = true;
                 break;
 
             case "output-errors":
-                runner.outputErrors = (value == 'true');
+                runner.outputErrors = boolValue();
                 break;
 
             case "p":
@@ -200,12 +206,13 @@ Options
                 break;
 
             case "random":
-                runner.random = (value == 'true');
+                runner.random = boolValue();
                 break;
 
             case "repl":
             case "r":
-                isRepl = true;
+                noValue();
+                runner.isRepl = true;
                 break;
 
             case "report-domain":
@@ -216,15 +223,16 @@ Options
                 break;
 
             case "report-server":
-                reporter.isReportServer = (value == 'true');
+                reporter.isReportServer = boolValue();
                 break;
 
             case "s":
+                noValue();
                 runner.skipPassed = true;
                 break;
 
             case "screenshots":
-                runner.screenshots = (value == 'true');
+                runner.screenshots = boolValue();
                 break;
 
             case "skip-passed":
@@ -248,6 +256,8 @@ Options
 
             case "version":
             case "v":
+                // Version already printed to console when executable started
+                noValue();
                 process.exit();
 
             default:
@@ -256,6 +266,21 @@ Options
         }
 
         runner.flags[name] = value;
+
+        // Validation functions
+
+        function boolValue() {
+            if(!(['true','false'].includes(value))) {
+                utils.error(`'${name}' flag must be set to either 'true' or 'false'`);
+            }
+            return value == 'true';
+        }
+
+        function noValue() {
+            if(value) {
+                utils.error(`'${name}' flag cannot have a value`);
+            }
+        }
     }
     catch(e) {
         onError(e);
@@ -345,7 +370,7 @@ function plural(count) {
             }
         }
 
-        if(filenames.length == 0 && !isRepl) {
+        if(filenames.length == 0 && !runner.isRepl) {
             let smashFiles = await new Promise((resolve, reject) => {
                 glob('*.smash', (err, smashFiles) => { // if no filenames passed in, just choose all the .smash files
                     err ? reject(err) : resolve(smashFiles);
@@ -373,7 +398,12 @@ function plural(count) {
 
         // Read in all files
         let originalFilenamesLength = filenames.length;
-        filenames = filenames.concat(packageFilenames);
+        if(runner.isRepl) {
+            filenames = packageFilenames; // only include packages for a --repl
+        }
+        else {
+            filenames = filenames.concat(packageFilenames);
+        }
 
         fileBuffers = await readFiles(filenames, {encoding: 'utf8'});
 
@@ -416,7 +446,7 @@ function plural(count) {
         runner.consoleOutput = false;
 
         // No reporter for debug or repl runs
-        if(tree.isDebug || isRepl) {
+        if(tree.isDebug || runner.isRepl) {
             isReport = false;
             runner.screenshots = false;
         }
@@ -426,7 +456,7 @@ function plural(count) {
             runner.reporter = reporter;
         }
 
-        if(tree.branches.length == 0 && !isRepl) {
+        if(tree.branches.length == 0 && !runner.isRepl) {
             utils.error("0 branches generated from given files");
         }
 
@@ -464,7 +494,7 @@ function plural(count) {
         }
 
         // Output header that contains number of branches to run and live report location
-        if(!isRepl) {
+        if(!runner.isRepl) {
             tree.updateCounts();
 
             if(tree.counts.totalToRun == 0 && runner.skipPassed) {
@@ -482,33 +512,20 @@ function plural(count) {
             console.log(``);
         }
 
-        if((tree.isDebug && !tree.isExpressDebug) || isRepl) {
+        if((tree.isDebug && !tree.isExpressDebug) || runner.isRepl) {
             // ***************************************
             //  REPL
             // ***************************************
             let isBranchComplete = false;
             restoreCursor();
 
-            if(isRepl) {
-                if(tree.counts.totalToRun == 0) {
-                    // Create an empty, paused runner
-                    runner.createEmptyRunner();
-                    runner.consoleOutput = true;
-                    runner.outputErrors = false;
-                }
-                else if(tree.counts.totalToRun > 1) {
-                    utils.error(`There are ${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run but you can only have 1 to run --repl/-r. Try isolating a branch with $'s.`);
-                }
-                else {
-                    runner.consoleOutput = true;
-                    runner.outputErrors = false;
-
-                    // Make the first step a ~ step. Start the runner, which will immediately pause before the first step.
-                    tree.debugFirstStep();
-                    isBranchComplete = await runner.run();
-                }
+            if(runner.isRepl) {
+                // Create an empty, paused runner
+                runner.createEmptyRunner(tree);
+                runner.consoleOutput = true;
+                runner.outputErrors = false;
             }
-            else {
+            else { // debug mode
                 runner.consoleOutput = true;
                 runner.outputErrors = false;
 
@@ -598,7 +615,7 @@ function plural(count) {
                     switch(input.toLowerCase().trim()) {
                         case "":
                             console.log("");
-                            if(isRepl && (isBranchComplete || tree.branches == 0)) {
+                            if(runner.isRepl && (isBranchComplete || tree.branches == 0)) {
                                 // this is an empty repl, so exit
                                 exit(false);
                             }

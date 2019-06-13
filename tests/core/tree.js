@@ -13194,44 +13194,6 @@ A - !
         });
     });
 
-    describe("debugFirstStep()", () => {
-        it("marks the first step in the first branch as debug", () => {
-            let tree = new Tree();
-            tree.parseIn(
-`A -
-    B -
-        C -
-        D -
-`, "file.txt");
-
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
-            tree.debugFirstStep();
-            Comparer.expect(tree).to.match({
-                isDebug: true,
-                stepNodeIndex: {
-                    1: {
-                        text: "A",
-                        isDebug: true,
-                        isBeforeDebug: true,
-                        isAfterDebug: undefined
-                    },
-                    2: {
-                        isDebug: undefined
-                    },
-                    3: {
-                        isDebug: undefined
-                    },
-                    4: {
-                        isDebug: undefined
-                    }
-                },
-                branches: [
-                    { steps: [ {}, {}, {} ] }
-                ]
-            })
-        });
-    });
-
     describe("markHookStep()", () => {
         it("marks a hook step passed", () => {
             let tree = new Tree();
