@@ -3,8 +3,8 @@
 // ***************************************
 
 *** After Everything {
-    if(typeof SeleniumBrowser != 'undefined') {
-        await SeleniumBrowser.killAllBrowsers(runInstance.runner);
+    if(typeof BrowserInstance != 'undefined') {
+        await BrowserInstance.killAllBrowsers(runInstance.runner);
     }
 }
 
@@ -13,42 +13,42 @@
 // ***************************************
 
 * Open Chrome {
-    await i('SeleniumBrowser', './js/selenium-browser.js')
+    await i('BrowserInstance', './js/browserinstance.js')
         .create(runInstance)
         .open({name: 'chrome'});
 }
     Use browser +?
 
 * Open Firefox {
-    await i('SeleniumBrowser', './js/selenium-browser.js')
+    await i('BrowserInstance', './js/browserinstance.js')
         .create(runInstance)
         .open({name: 'firefox'});
 }
     Use browser +?
 
 * Open Safari {
-    await i('SeleniumBrowser', './js/selenium-browser.js')
+    await i('BrowserInstance', './js/browserinstance.js')
         .create(runInstance)
         .open({name: 'safari'});
 }
     Use browser +?
 
 * Open IE {
-    await i('SeleniumBrowser', './js/selenium-browser.js')
+    await i('BrowserInstance', './js/browserinstance.js')
         .create(runInstance)
         .open({name: 'internet explorer'});
 }
     Use browser +?
 
 * Open Edge {
-    await i('SeleniumBrowser', './js/selenium-browser.js')
+    await i('BrowserInstance', './js/browserinstance.js')
         .create(runInstance)
         .open({name: 'MicrosoftEdge'});
 }
     Use browser +?
 
 * Open browser {{name}} {
-    await i('SeleniumBrowser', './js/selenium-browser.js')
+    await i('BrowserInstance', './js/browserinstance.js')
         .create(runInstance)
         .open({name: name});
 }

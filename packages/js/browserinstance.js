@@ -11,17 +11,17 @@ const sharp = require('sharp');
 const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
 
-class SeleniumBrowser {
+class BrowserInstance {
     // ***************************************
     //  Static functions
     // ***************************************
 
     /**
-     * Creates a new SeleniumBrowser and initializes global vars in runInstance
-     * @return {SeleniumBrowser} The newly created SeleniumBrowser
+     * Creates a new BrowserInstance and initializes global vars in runInstance
+     * @return {BrowserInstance} The newly created BrowserInstance
      */
     static create(runInstance) {
-        let browser = runInstance.g('browser', new SeleniumBrowser(runInstance));
+        let browser = runInstance.g('browser', new BrowserInstance(runInstance));
 
         // Register this browser in the persistent array browsers
         // Used to kill all open browsers if the runner is stopped
@@ -453,4 +453,4 @@ class SeleniumBrowser {
         return utils.escape(str);
     }
 }
-module.exports = SeleniumBrowser;
+module.exports = BrowserInstance;
