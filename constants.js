@@ -55,13 +55,16 @@ exports.FUNCTION_INPUT = new RegExp(exports.STRING_LITERAL.source + "|" + export
 exports.NUMBERS_ONLY_WHOLE = /^[0-9\.\,]+$/;
 
 // ***************************************
-// PARSE CONFIG
+// PARSE
 // ***************************************
 exports.SPACES_PER_INDENT = 4;
 
-// ***************************************
-// MISC CONSTANTS
-// ***************************************
 exports.HOOK_NAMES = ['before every branch', 'after every branch', 'before every step', 'after every step', 'before everything', 'after everything'];
-
 exports.FREQUENCIES = ['high', 'med', 'low'];
+
+// ***************************************
+// CONSOLE
+// ***************************************
+exports.CONSOLE_END_COLOR = '\x1b[0m';
+exports.CONSOLE_START_RED = '\x1b[31m';
+exports.CONSOLE_START_GRAY = '\x1b[30m';

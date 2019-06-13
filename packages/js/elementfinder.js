@@ -811,7 +811,7 @@ class ElementFinder {
                     if(duration > timeout) {
                         let error =
                             !isNot ?
-                            new Error(`Element${this.counter.max == 1 ? `` : `s`} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ``}:\n\n${results.ef.print("\x1b[0m\x1b[31m", "\x1b[0m\x1b[30m")}`) : // end gray and start red, then end red and start gray
+                            new Error(`Element${this.counter.max == 1 ? `` : `s`} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ``}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
                             new Error(`Element${this.counter.max == 1 ? `` : `s`} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ``}`);
 
                         if(isContinue) {
