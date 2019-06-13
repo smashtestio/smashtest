@@ -21,8 +21,12 @@ class HttpApi {
      * @return {Promise} Promise that resolves when response comes back. Response will be stored in {response} variable.
      */
     makeReq(func, args) {
+        let uri = typeof args[0] == 'string' ? args[0] : args[1].uri;
+        let method = (args[0].hasOwnProperty('method') ? args[0].method : null) || (args[1].hasOwnProperty('method') ? args[1].method : null);
+        this.runInstance.log(`Request: ${method.toUpperCase()} ${uri}`);
+
         return new Promise((resolve, reject) => {
-            func(...args, (error, response, body) => {
+            let req = func(...args, (error, response, body) => {
                 this.runInstance.g('response', new Response(error, response, body));
                 resolve();
             });
@@ -151,6 +155,22 @@ class HttpApi {
          * @throws {Error} If expectedObj doesn't match json response (see comparer.js, Comparer.expect())
          */
         verify(expectedObj) {
+            let headersLog = ``;
+            if(this.response.headers) {
+                for(let headerName in this.response.headers) {
+                    if(this.response.headers.hasOwnProperty(headerName)) {
+                        headersLog += `${headerName}: ${this.response.headers[headerName]}\n`;
+                    }
+                }
+            }
+
+            let responseLog = `Response:
+
+${this.response.statusCode}
+${headersLog}
+${this.response.rawBody || ``}`;
+            this.runInstance.log(responseLog);
+
             Comparer.expect(this.response, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY).to.match(expectedObj);
         }
     }

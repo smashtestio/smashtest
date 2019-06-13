@@ -369,31 +369,45 @@ API Testing
                 - E.g., { $typeof: "string", $length: 10, $regex: /[A-Z]+/ } or [ "$subset", "$anyOrder", A, B, C ]
             - When expected is an object, you can include both keys to match and $-keys in expected
     - Examples
-        GET '/something/one?{{adults:}}{{children:}}'
-        GET '/something/two?{{adults:}}{{children:}}'
+        API Something {{adults:}} {{children:}}
+        GET /api/something?adults={{adults:}}&children={{children:}}
 
-            {{adults}}='adults={{num adults:}}'
-                {{children}}='children={{num children:}}'
+            {{adults}}='0'
+            {{adults}}='1'
+            {{adults}}='2'
 
-                    {{num adults}}='0'
-                    {{num adults}}='1'
-                    {{num adults}}='2'
-
-                        {{num children}}='0'
-                        {{num children}}='1'
-                        {{num children}}='2'
-
-                            Verify something
-
-            {{adults}}=''
-                {{children}}='children={{num children:}}'
+                {{children}}='0'
+                {{children}}='1'
+                {{children}}='2'
 
                     Verify something
 
-            {{children}}=''
-                {{adults}}='adults={{num adults:}}'
+            {{adults}}='' // adults not set in api request
+                {{children}}='3'
+
+                    Verify error
+
+            {{adults}}='3'
+                {{children}}=''
 
                     Verify something
+
+        * GET /api/something?adults={{adults}}&children={{children}}
+            API Something {{adults}} {{children}}
+
+        * API Something {{adults}} {{children}} {
+            // GET {host}/api/something?adults=A&children=B
+            await get(`${host}/api/something?${adults >= 0 ? `adults=${adults} : ``}${children >= 0 ? `children=${children} : ``}`);
+        }
+
+        * Verify something {
+            response.verify({
+                statusCode: 200,
+                body: {
+                    something: true
+                }
+            });
+        }
 
 Functions
     - Calling

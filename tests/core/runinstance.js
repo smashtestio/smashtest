@@ -2063,6 +2063,32 @@ My 'foo' and 'bar' and 'FU' and 'ba arr' Function
                 expect(tree.branches[0].steps[1].error).to.equal(undefined);
             });
 
+            it("allows {{variables}} passed in through a function call where there is no whitespace between them", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+GET /api/something?param1='foo'&param2='bar'&param3=blah
+
+* GET /api/something?param1={{one}}&param2={{two}}&param3=blah {
+    runInstance.one = one;
+    runInstance.two = two;
+}
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+                runInstance.currBranch = tree.branches[0];
+
+                runInstance.currStep = tree.branches[0].steps[0];
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                expect(runInstance.one).to.equal("foo");
+                expect(runInstance.two).to.equal("bar");
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            });
+
             it("allows a {global} variable passed into a function to be accessible by functions declared within, when called in context", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
