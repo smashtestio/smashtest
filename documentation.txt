@@ -662,19 +662,7 @@ Functions
                 * Mobile
                     * Verify
                         I
-
-        - Function acting as an anonymous step block
-
-            * *
-                A1
-                    A2
-                B1
-                    B2
-            *
-                Step applied to each leaf
-
-            - But make sure only one * at this indent level, otherwise multiple will be called.
-                Use more *'s, ='s, or give it a traditional name.
+                        
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
 
