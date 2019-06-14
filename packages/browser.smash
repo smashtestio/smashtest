@@ -99,7 +99,7 @@
     // ***************************************
 
     * Navigate to {{url}} {
-        await browser.nav(url);
+        await browser.nav(url); // TODO: finish this function's implementation
     }
 
     * Nav to {{url}} {
@@ -454,7 +454,7 @@
     // ***************************************
 
     * Mock time to {{datetime}} {
-        // https://sinonjs.org/releases/latest/fake-timers/
+        // Use existing function in BrowserInstance
 
 
 
@@ -462,7 +462,7 @@
     }
 
     * Stop all mocks {
-        // restores original xhr
+        // Use existing function in BrowserInstance
 
 
 

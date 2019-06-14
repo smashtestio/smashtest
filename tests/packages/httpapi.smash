@@ -1,0 +1,72 @@
+- httpapi.js
+
+    init +? {
+        i('express');
+    }
+
+        - Request
+
+            - request()
+
+                run test server {
+                    // run a mock express test server
+                }
+
+                    make a request {
+
+                    }
+
+            - defaults()
+
+                set defaults {
+
+                }
+
+            - get()
+
+                run test server {
+
+                }
+
+                    make a request {
+
+                    }
+
+            - post()
+
+            - put()
+
+            - patch()
+
+            - delete()
+            - del()
+
+            - head()
+
+            - options()
+
+            - cookie()
+
+            - jar()
+
+        - Response
+
+            - response.verify()
+
+                - Verifies JSON bodies
+
+                    run test server {
+
+                    }
+
+                        make a request {
+
+                        }
+
+                            verify the response global var {
+                                // status code, headers, body, etc.
+                            }
+
+                - Verifies non-JSON body types
+
+                - Verifies error responses
