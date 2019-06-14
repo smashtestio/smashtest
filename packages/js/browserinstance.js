@@ -36,6 +36,7 @@ class BrowserInstance {
         // Set commonly-used global vars
         runInstance.g('$', browser.$);
         runInstance.g('$$', browser.$$);
+        runInstance.g('not$', browser.not$);
         runInstance.g('executeScript', browser.executeScript);
         runInstance.g('executeAsyncScript', browser.executeAsyncScript);
         runInstance.g('props', browser.props);
@@ -376,31 +377,42 @@ class BrowserInstance {
      * Finds the first element matching EF represented by efText. Waits up to timeout ms.
      * @param {String} efText - A string representing the EF to use
      * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
-     * @param {Boolean} [isContinue] - If true, and if an error is throw, that error's continue will be set to true
-     * @param {Boolean} [isNot] - If true, throws an error if the given element doesn't disappear before the timeout
-     * @return {Promise} Promise that resolves to first WebDriver WebElement that was found (resolves to nothing if not is set)
-     * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time (if not is set, only throws error is elements still found after timeout)
+     * @param {Boolean} [isContinue] - If true, and if an error is thrown, that error's continue will be set to true
+     * @return {Promise} Promise that resolves to first WebDriver WebElement that was found
+     * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time
      */
-    async $(efText, timeout, isContinue, isNot) {
+    async $(efText, timeout, isContinue) {
         let ef = new ElementFinder(efText, this.props);
-        let results = await ef.find(this.driver, undefined, isNot, isContinue, timeout || 2000);
+        let results = await ef.find(this.driver, undefined, false, isContinue, timeout || 2000);
         return results[0];
     }
 
     /**
+     * Finds the elements matching EF represented by efText. Waits up to timeout ms.
      * Same params as in $()
      * If counter isn't set on efText, sets it to 1+
-     * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found (resolves to nothing if not is set)
-     * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time (if not is set, only throws error is elements still found after timeout)
+     * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found
+     * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
-    async $$(efText, timeout, isContinue, isNot) {
+    async $$(efText, timeout, isContinue) {
         let ef = new ElementFinder(efText, this.props);
         if(ef.counter.default) {
             ef.counter = { min: 1 };
         }
 
-        let results = await ef.find(this.driver, undefined, isNot, isContinue, timeout || 2000);
+        let results = await ef.find(this.driver, undefined, false, isContinue, timeout || 2000);
         return results;
+    }
+
+    /**
+     * Throws an error if the given element(s) don't disappear before the timeout
+     * Same params as in $()
+     * @return {Promise} Promise that resolves if the given element(s) disappear before the timeout
+     * @throws {Error} If matching elements still found after timeout
+     */
+    async not$(efText, timeout, isContinue) {
+        let ef = new ElementFinder(efText, this.props);
+        await ef.find(this.driver, undefined, true, isContinue, timeout || 2000);
     }
 
     /**

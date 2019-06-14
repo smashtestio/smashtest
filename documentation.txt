@@ -200,6 +200,7 @@ UI Testing
         - JS functions available as part of built-in packages
         - $()
         - $$()
+        - not$()
         - executeScript()
         - executeAsyncScript()
         - Using browser and browser.driver objects
@@ -213,7 +214,7 @@ ElementFinders
     - Examples
         - Examples from elementfinder_sample4.txt
         - Show how a [] in a step's text can contain a one-line EF
-        - Show how to set props() in a code block, how to verify via a $(``) in a code block. Also mention $$().
+        - Show how to set props() in a code block, how to verify via a $(``) in a code block. Also mention $$() and not$().
     - Each line contains one or more props (i.e., 'text', ord, defined prop, and/or selectors) separated by commas
         - Each item narrows the elements matched from everything on down
         - May contain // comments
@@ -292,7 +293,7 @@ ElementFinders
         - For a selector like [attr="something"], use `selector '[attr="something"]'` to prevent the []'s from covering the whole line
         - Same thing goes for selectors that are a tag name with the same name as a defined prop, comma-separated selectors, etc.
     - [EF] step prints found elements to browser's console and number of elements found to regular console
-    - $() and $$()
+    - $(), $$(), and not$()
     - When plugging a string into an EF string programatically, use str() to escape chars such as ' and " (so it doesn't interfere with quote chars part of the EF string)
         E.g.,
         $(`
