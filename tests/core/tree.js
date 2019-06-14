@@ -2957,6 +2957,42 @@ B -
 
                 }, `Invalid hook name [file.txt:2]`);
             });
+
+            it("parses anon functions with no ending *", () => {
+                let tree = new Tree();
+                tree.parseIn(
+`*
+
+A
+
+*`
+                , "file.txt");
+
+                Comparer.expect(tree).to.match({
+                    root: {
+                        children: [
+                            {
+                                text: ' ',
+                                isAnonFunction: true,
+                                isFunctionDeclaration: true,
+                                children: []
+                            },
+                            {
+                                text: 'A',
+                                isAnonFunction: undefined,
+                                isFunctionDeclaration: undefined,
+                                children: []
+                            },
+                            {
+                                text: ' ',
+                                isAnonFunction: true,
+                                isFunctionDeclaration: true,
+                                children: []
+                            }
+                        ]
+                    }
+                });
+            });
         });
     });
 
@@ -6461,6 +6497,28 @@ A -
                                 { text: 'G', level: 1 },
                                 { text: 'I', level: 0 },
                                 { text: 'J', level: 0 }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("branchifies anon functions with no ending *", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+*
+
+A -
+
+*
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A', level: 0 }
                             ]
                         }
                     ]);

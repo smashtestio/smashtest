@@ -332,23 +332,19 @@ class Tree {
             }
 
             // If current step node is an anon function, decide if it's a function declaration or function call and match it up
-            if(currStepNode.isAnonFunction) {
-                let siblings = currStepNode.parent.children;
-                for(let i = siblings.length - 1; i >= 0; i--) {
-                    let sibling = siblings[i];
-                    if(sibling.isAnonFunction && sibling !== currStepNode) {
-                        if(sibling.isFunctionDeclaration) { // match up currStepNode (which must be a function call) with the sibling (which is a function declaration)
-                            if(sibling.isPrivateFunctionDeclaration != currStepNode.isPrivateFunctionDeclaration) {
-                                utils.error(`An anonymous function must open and close with the same amount of *'s`, filename, currStepNode.lineNumber);
-                            }
-
-                            currStepNode.anonfid = sibling.id;
-                            delete currStepNode.isFunctionDeclaration;
-                            delete currStepNode.isPrivateFunctionDeclaration;
-                            currStepNode.isFunctionCall = true;
-                        }
-                        break;
+            if(currStepNode.isAnonFunction && currStepNode.parent.children.length > 1) {
+                let lastSibling = currStepNode.parent.children[currStepNode.parent.children.length - 2];
+                if(lastSibling.isAnonFunction && lastSibling.isFunctionDeclaration) {
+                    if(lastSibling.isPrivateFunctionDeclaration != currStepNode.isPrivateFunctionDeclaration) {
+                        utils.error(`An anonymous function must open and close with the same amount of *'s`, filename, currStepNode.lineNumber);
                     }
+
+                    // Match up currStepNode (which must be a function call) with the last sibling (which is a function declaration)
+                    // Make currStepNode a function call, since all anon funcs are labelled as function declarations by default
+                    currStepNode.anonfid = lastSibling.id;
+                    delete currStepNode.isFunctionDeclaration;
+                    delete currStepNode.isPrivateFunctionDeclaration;
+                    currStepNode.isFunctionCall = true;
                 }
             }
         }
