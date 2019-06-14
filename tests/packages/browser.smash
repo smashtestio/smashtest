@@ -158,7 +158,11 @@
 
                 - Then its associated screenshots do not make it to the report and are not on disk
 
-
+- [EF]
+    - Open REPL
+        - Type in "[<EF here>]"
+            - Verify that EF info is logged to browser's console
+                - Verify that number of elements found is logged to console that's running smashtest
 
 
 

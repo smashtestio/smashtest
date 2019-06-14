@@ -67,6 +67,10 @@
                                 // status code, headers, body, etc.
                             }
 
+                                - Verify correct logging in report $s
+
                 - Verifies non-JSON body types
 
                 - Verifies error responses
+
+                    - Verify that -->'s are marked red in the report $s
