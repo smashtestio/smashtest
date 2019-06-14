@@ -6522,6 +6522,28 @@ A -
                             ]
                         }
                     ]);
+
+                    tree = new Tree();
+                    tree.parseIn(`
+*
+    B -
+
+A -
+
+*
+    C -
+                    `);
+
+                    branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A', level: 0 }
+                            ]
+                        }
+                    ]);
                 });
             });
         });
