@@ -478,6 +478,7 @@ Functions
                     Do something
 
         - They can be nested, and there can be multiple under one parent. A second * acts as the call to the previous one.
+        - Think of them as a "big parenthesis" around multiple steps
         - Always put modifiers in front of the *
 
     - Examples (maybe distribute these among the sections above)
