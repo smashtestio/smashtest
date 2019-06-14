@@ -205,7 +205,14 @@ UI Testing
         - executeAsyncScript()
         - Using browser and browser.driver objects
         - Timeout code
-        - Stubbing out APIs
+        - Mocking APIs
+            - mockTime()
+            - mockHttp()
+            - mockHttpConfigure()
+            - mockTimeStop()
+            - mockHttpStop()
+            - mockStop()
+            - injectSinon() (automatically called) and global sinon object
 
 ElementFinders
     - Make this a part of the UI Testing section?

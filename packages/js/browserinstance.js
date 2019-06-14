@@ -37,12 +37,22 @@ class BrowserInstance {
         runInstance.g('$', browser.$);
         runInstance.g('$$', browser.$$);
         runInstance.g('not$', browser.not$);
+
         runInstance.g('executeScript', browser.executeScript);
         runInstance.g('executeAsyncScript', browser.executeAsyncScript);
+
         runInstance.g('props', browser.props);
         runInstance.g('propsAdd', browser.propsAdd);
         runInstance.g('propsClear', browser.propsClear);
         runInstance.g('str', browser.str);
+
+        runInstance.g('injectSinon', browser.injectSinon);
+        runInstance.g('mockTime', browser.mockTime);
+        runInstance.g('mockHttp', browser.mockHttp);
+        runInstance.g('mockHttpConfigure', browser.mockHttpConfigure);
+        runInstance.g('mockTimeStop', browser.mockTimeStop);
+        runInstance.g('mockHttpStop', browser.mockHttpStop);
+        runInstance.g('mockStop', browser.mockStop);
 
         return browser;
     }
@@ -486,7 +496,7 @@ class BrowserInstance {
      * Sinon will be available inside the browser at the global js var 'sinon'
      */
     async injectSinon() {
-        let sinonExists = this.executeScript(function() {
+        let sinonExists = await this.executeScript(function() {
             return typeof sinon != undefined;
         });
 
@@ -497,7 +507,7 @@ class BrowserInstance {
     }
 
     /**
-     * Mock's the browser's Date object to simulate the given time. Time will run forward normally.
+     * Mock's the current page's Date object to simulate the given time. Time will run forward normally.
      * See https://sinonjs.org/releases/latest/fake-timers/ for more details
      * @param {Date} time - The time to set the browser to
      */
@@ -512,15 +522,83 @@ class BrowserInstance {
         }, time.toString());
     }
 
+    /**
+     * Mock's the current page's XHR. Sends back the given response for any http requests to the given method/url from the current page.
+     * You can use multiple calls to this function to set up multiple routes. If a request doesn't match a route, it will get a 404 response.
+     * See https://sinonjs.org/releases/latest/fake-xhr-and-server/ for more details
+     * @param {String} method - The HTTP method ('GET', 'POST', etc.)
+     * @param {String or RegExp} url - A url or a regex that matches urls
+     * @param response - A String or Object representing the response body (Object will be sent as JSON), or
+     *                   an array in the form [ <status code>, { header1: "value1", etc. }, <response body string or object> ], or
+     *                   a function
+     *                   See server.respondWith() from https://sinonjs.org/releases/latest/fake-xhr-and-server/#fake-server-options
+     */
     async mockHttp(method, url, response) {
+        // Validate and serialize url
+        let typeofUrl = typeof url;
+        if(typeofUrl == 'object' && url instanceof RegExp) {
+            typeofUrl = 'regex';
+            url = url.toString();
+        }
+        else if(typeofUrl == 'string') {
+        }
+        else {
+            throw new Error('Invalid url type');
+        }
 
+        // Validate and serialize response
+        let typeofResponse = typeof response;
+        if(typeofResponse == 'function') {
+            response = response.toString();
+        }
+        else if(typeofResponse == 'string') {
+        }
+        else if(typeofResponse == 'object') {
+            if(response instanceof Array) {
+                typeofResponse = 'array';
+                if(typeof response[2] == 'object') {
+                    response[2] = JSON.stringify(response[2]);
+                }
+            }
 
+            response = JSON.stringify(response);
+        }
+        else {
+            throw new Error('Invalid response type');
+        }
 
+        await this.injectSinon();
+        await this.executeScript(function(method, url, response, typeofUrl, typeofResponse) {
+            // Deserialize url
+            if(typeofUrl == 'regex') {
+                url = eval(url);
+            }
 
+            // Deserialize response
+            if(typeofResponse == 'function') {
+                response = eval(response);
+            }
+            else if(typeofResponse == 'array') {
+                response = JSON.parse(response);
+            }
 
+            var smashtestSinonClock = smashtestSinonClock || sinon.createFakeServer({ respondImmediately: true });
+            smashtestSinonClock.respondWith(method, url, response);
+        }, method, url, response, typeofUrl, typeofResponse);
+    }
 
-
-
+    /**
+     * Sets configs on the currently mocked XHR
+     * @param {Object} The options to set (key value pairs)
+     * See server.configure(config) in https://sinonjs.org/releases/latest/fake-xhr-and-server/#fake-server-options for details on what config options are available
+     * Fails silently if no mock is currently active
+     */
+    async mockHttpConfigure(config) {
+        await this.executeScript(function() {
+            if(smashtestSinonClock) {
+                smashtestSinonClock.configure(config);
+            }
+        });
     }
 
     /**
@@ -530,6 +608,7 @@ class BrowserInstance {
         await this.executeScript(function() {
             if(smashtestSinonClock) {
                 smashtestSinonClock.restore();
+                delete smashtestSinonClock;
             }
         });
     }
@@ -539,13 +618,9 @@ class BrowserInstance {
      */
     async mockHttpStop() {
         await this.executeScript(function() {
-            // TODO
-
-
-
-
-
-
+            if(smashtestSinonFakeServer) {
+                smashtestSinonFakeServer.restore();
+            }
         });
     }
 
