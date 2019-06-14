@@ -486,6 +486,7 @@ class BrowserInstance {
 
     /**
      * Mock's the browser's Date object to simulate the given time. Time will run forward normally.
+     * See https://sinonjs.org/releases/latest/fake-timers/ for more details
      * @param {Date} time - The time to set the browser to
      */
     async mockTime(time) {
@@ -501,6 +502,13 @@ class BrowserInstance {
 
     async mockHttp(method, url, response) {
 
+
+
+
+
+
+
+
     }
 
     /**
@@ -515,10 +523,26 @@ class BrowserInstance {
     }
 
     /**
-     * Stops and reverts all mocks (time and api)
+     * Stops and reverts all http-related mocks
+     */
+    async mockHttpStop() {
+        await this.executeScript(function() {
+            // TODO
+
+
+
+
+
+
+        });
+    }
+
+    /**
+     * Stops and reverts all mocks (time and http)
      */
     async mockStop() {
         await this.mockTimeStop();
+        await this.mockHttpStop();
     }
 }
 module.exports = BrowserInstance;

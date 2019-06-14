@@ -2810,6 +2810,154 @@ B -
                 }, "You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one. [file.txt:3]");
             });
         });
+
+        context("anon functions", () => {
+            it("connects anon function declarations with their function calls", () => {
+                let tree = new Tree();
+                tree.parseIn(
+`A
+    *
+        B
+            C
+        D
+        E
+    *
+        F
+            G`
+                , "file.txt");
+
+                Comparer.expect(tree).to.match({
+                    root: {
+                        indents: -1,
+                        parent: null,
+                        children: [
+                            {
+                                text: 'A',
+                                lineNumber: 1,
+                                indents: 0,
+                                parent: { indents: -1 },
+                                children: [
+                                    {
+                                        text: ' ',
+                                        isAnonFunction: true,
+                                        isFunctionDeclaration: true,
+                                        isFunctionCall: undefined,
+                                        anonfid: undefined,
+                                        lineNumber: 2,
+                                        indents: 1,
+                                        parent: { text: 'A' },
+                                        children: [
+                                            {
+                                                text: 'B',
+                                                lineNumber: 3,
+                                                indents: 2,
+                                                parent: { text: ' ' },
+                                                children: [
+                                                    {
+                                                        text: 'C',
+                                                        lineNumber: 4,
+                                                        indents: 3,
+                                                        parent: { text: 'B' },
+                                                        children: []
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                steps: [
+                                                    {
+                                                        text: 'D',
+                                                        lineNumber: 5,
+                                                        indents: 2,
+                                                        children: []
+                                                    },
+                                                    {
+                                                        text: 'E',
+                                                        lineNumber: 6,
+                                                        indents: 2,
+                                                        children: []
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        text: ' ',
+                                        isAnonFunction: true,
+                                        isFunctionDeclaration: undefined,
+                                        isFunctionCall: true,
+                                        anonfid: 2,
+                                        lineNumber: 7,
+                                        indents: 1,
+                                        parent: { text: 'A' },
+                                        children: [
+                                            {
+                                                text: 'F',
+                                                lineNumber: 8,
+                                                indents: 2,
+                                                parent: { text: ' ' },
+                                                children: [
+                                                    {
+                                                        text: 'G',
+                                                        lineNumber: 9,
+                                                        indents: 3,
+                                                        parent: { text: 'F' },
+                                                        children: []
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                });
+            });
+
+            it("rejects anon functions with differing amounts of *'s", () => {
+                assert.throws(() => {
+                    let tree = new Tree();
+                    tree.parseIn(
+`A
+    *
+        B
+            C
+    **
+        F
+            G`
+                    , "file.txt");
+
+                }, `An anonymous function must open and close with the same amount of *'s [file.txt:5]`);
+
+                assert.throws(() => {
+                    let tree = new Tree();
+                    tree.parseIn(
+`A
+    **
+        B
+            C
+    *
+        F
+            G`
+                    , "file.txt");
+
+                }, `An anonymous function must open and close with the same amount of *'s [file.txt:5]`);
+
+                assert.throws(() => {
+                    let tree = new Tree();
+                    tree.parseIn(
+`A
+    ***
+        B
+            C
+    *
+        F
+            G`
+                    , "file.txt");
+
+                }, `Invalid hook name [file.txt:2]`);
+            });
+        });
     });
 
     describe("findFunctionDeclarations()", () => {
@@ -2872,6 +3020,164 @@ My function
             ]);
 
             expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
+        });
+
+        it("finds the right anon function", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+*
+    A -
+        B -
+
+*
+`);
+
+            let branchAbove = new Branch();
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: " ",
+                    isFunctionDeclaration: true,
+                    isFunctionCall: undefined,
+                    isPrivateFunctionDeclaration: undefined,
+                    isAnonFunction: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "A",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
+
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
+        });
+
+        it("finds the right private anon function", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+**
+    A -
+        B -
+
+**
+`);
+
+            let branchAbove = new Branch();
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: " ",
+                    isFunctionDeclaration: true,
+                    isFunctionCall: undefined,
+                    isPrivateFunctionDeclaration: true,
+                    isAnonFunction: true,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "A",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
+
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
+        });
+
+        it("finds the right anon function when there are multiple anon functions", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+*
+    A -
+        B -
+
+*
+
+*
+    C -
+*
+`);
+
+            let branchAbove = new Branch();
+
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
+
+            functionCall = new Step(tree.root.children[3].id);
+            functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations[0] === tree.root.children[2]).to.equal(true);
+        });
+
+        it("finds the right anon function when there are multiple nested anon functions", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+*
+    A -
+        *
+            B -
+        *
+
+    C -
+*
+
+*
+    D -
+*
+`);
+
+            let branchAbove = new Branch();
+
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
+
+            functionCall = new Step(tree.root.children[3].id);
+            functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations[0] === tree.root.children[2]).to.equal(true);
+
+            functionCall = new Step(tree.root.children[0].children[0].children[1].id);
+            functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations[0] === tree.root.children[0].children[0].children[0]).to.equal(true);
+        });
+
+        it("finds the right anon function declared inside another function declaration", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* F
+    *
+        A -
+            B -
+
+    *
+`);
+
+            let branchAbove = new Branch();
+            let functionCall = new Step(tree.root.children[0].children[1].id);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+
+            expect(functionDeclarations[0] === tree.root.children[0].children[0]).to.equal(true);
+        });
+
+        it("finds the right anon function when it's empty", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+*
+
+*
+`);
+
+            let branchAbove = new Branch();
+
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
         });
 
         it("finds the right function when its declaration is a sibling of the function call and is above the function call", () => {
@@ -6057,6 +6363,99 @@ B
                         { steps: [ { text: "A" }, { text: "D" }, { text: "E" }, { text: "F" } ] },
                         { steps: [ { text: "B" }, { text: "C" }, { text: "E" }, { text: "G" } ] },
                         { steps: [ { text: "B" }, { text: "D" }, { text: "E" }, { text: "G" } ] },
+                    ]);
+                });
+            });
+
+            context("anon functions", () => {
+                it("branchifies an anon function", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+A -
+    *
+        B -
+    *
+        C -
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A', level: 0 },
+                                { text: ' ', level: 0 },
+                                { text: 'B', level: 1 },
+                                { text: 'C', level: 0 }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("branchifies nested anon functions", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+A -
+    B -
+        *
+            C -
+                D -
+                H -
+
+                    *
+                        E -
+                            F -
+                    *
+            G -
+        *
+            I -
+                J -
+
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A', level: 0 },
+                                { text: 'B', level: 0 },
+                                { text: ' ', level: 0 },
+                                { text: 'C', level: 1 },
+                                { text: 'D', level: 1 },
+                                { text: ' ', level: 1 },
+                                { text: 'E', level: 2 },
+                                { text: 'F', level: 2 },
+                                { text: 'I', level: 0 },
+                                { text: 'J', level: 0 }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'A', level: 0 },
+                                { text: 'B', level: 0 },
+                                { text: ' ', level: 0 },
+                                { text: 'C', level: 1 },
+                                { text: 'H', level: 1 },
+                                { text: ' ', level: 1 },
+                                { text: 'E', level: 2 },
+                                { text: 'F', level: 2 },
+                                { text: 'I', level: 0 },
+                                { text: 'J', level: 0 }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'A', level: 0 },
+                                { text: 'B', level: 0 },
+                                { text: ' ', level: 0 },
+                                { text: 'G', level: 1 },
+                                { text: 'I', level: 0 },
+                                { text: 'J', level: 0 }
+                            ]
+                        }
                     ]);
                 });
             });

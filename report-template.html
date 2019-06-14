@@ -1983,7 +1983,7 @@ c     = copy text of branch
                                 if((s.level || 0) <= (step.level || 0)) {
                                     break;
                                 }
-                                else if(!this.props.getModifier(s, 'isHidden')) {
+                                else if(!this.props.getModifier(s, 'isHidden') && !this.props.getModifier(s, 'isAnonFunction')) {
                                     step.hasChildren = true;
                                     break;
                                 }
@@ -2049,7 +2049,7 @@ c     = copy text of branch
                     this.updateCollapsing();
 
                     let lines = branch.steps
-                        .filter(step => !this.props.getModifier(step, 'isHidden') || step.isFailed)
+                        .filter(step => (!this.props.getModifier(step, 'isHidden') && !this.props.getModifier(step, 'isAnonFunction')) || step.isFailed)
                         .map((step, index) =>
                             step.collapseHide ? '' : // do this here and not in filter() in order to preserve line numbering
                             <Line

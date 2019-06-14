@@ -424,6 +424,7 @@ Functions
             - ** Private function declaration
             - *** Hook declaration
         - {{local vars}} designate parameters in a function declaration
+        - Names should be actions (verbs). For a function with multiple branches, it could be "Choose a..." or "Try a..." (makes it easier to read and understand)
     - Finding declaration
         - First closest matching function declaration by looking to siblings, then to siblings of parent, etc.
         - Looks to packaged functions last
@@ -459,6 +460,25 @@ Functions
             * Navigate to {{url}}
                 Security checks
                     Navigate to {{url}} // call to the generic one
+
+    - Anon functions
+        - Example
+            *
+                Mac
+                    Chrome
+                    Safari
+                    Firefox
+
+                Windows
+                    Chrome
+                    Firefox
+                    IE
+            *
+                Open homepage
+                    Do something
+
+        - They can be nested, and there can be multiple under one parent. A second * acts as the call to the previous one.
+        - Always put modifiers in front of the *
 
     - Examples (maybe distribute these among the sections above)
         - Using functions to encapsulate common steps

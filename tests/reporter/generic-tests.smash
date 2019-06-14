@@ -286,3 +286,40 @@ Step with screenshots {
 
     throw new Error('oops');
 }
+
+
+
+- Anon funcs
+    - Simple
+        *
+            One -
+                Two -
+        *
+
+    - More complex
+        One -
+            *
+                Two -
+
+                Three -
+                    *
+                        Four -
+                    *
+            *
+                Five -
+
+    - Typical case
+
+        *
+            Mac -
+                Chrome -
+                Safari -
+                Firefox -
+
+            Windows -
+                Chrome -
+                Firefox -
+                IE -
+        *
+            Open homepage -
+                Do something -

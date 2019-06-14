@@ -1932,6 +1932,30 @@ My Function
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
             });
+
+            it("executes an anon function", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+*
+    F {
+        runInstance.one = true;
+    }
+*
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+                await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+                expect(runInstance.one).to.equal(true);
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            });
         });
 
         context("passing in {vars}", () => {
@@ -2120,6 +2144,39 @@ Request '6'
                 expect(tree.branches[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            });
+
+            it("allows a {global} variable to be accessed with an anon function", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+{var1}='foobar'
+    *
+        F {
+            runInstance.one = var1;
+        }
+    *
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+                runInstance.currBranch = tree.branches[0];
+
+                runInstance.currStep = tree.branches[0].steps[0];
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                runInstance.currStep = tree.branches[0].steps[1];
+                await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+                runInstance.currStep = tree.branches[0].steps[2];
+                await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+                expect(runInstance.one).to.equal('foobar');
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[1].error).to.equal(undefined);
+                expect(tree.branches[0].steps[2].error).to.equal(undefined);
             });
 
             it("ignores {{variables}} inside the text of a textual step", async () => {

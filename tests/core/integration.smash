@@ -118,13 +118,13 @@
                         - Set to true
                         - Omitted
 
-                            All error types
+                            Choose an error type
 
                                 Outputs errors to console -
 
                         - Set to false
 
-                            All error types
+                            Choose an error type
 
                                 Doesn't output errors to console -
 
@@ -320,7 +320,7 @@
                 Existing report opened in browser doesn't update -
 
             - Verify errors outputted correctly
-                All error types
+                Choose an error type
 
             - Run with skip-passed set to true
                 Doesn't do skip-passed -
@@ -341,7 +341,7 @@
                 Existing report opened in browser doesn't update -
 
             - Verify errors outputted correctly
-                All error types
+                Choose an error type
 
             - Run with skip-passed set to true
                 Doesn't do skip-passed -
@@ -351,22 +351,22 @@
 
     - REPL
 
-        * Unsuccessful inputs
+        * Use unsuccessful input
             - With .smash files inputted
                 - 2+ branches in files
 
-        * Successful inputs
+        * Use successful input
             - With .smash files inputted
                 - 0 branches in files
                 - 0 branches to run because of '-s'
                 - 1 branch in files
             - No .smash files inputted
 
-        Unsuccessful inputs
+        Use unsuccessful input
 
             Outputs error -
 
-        Successful inputs
+        Use successful input
 
             Starts REPL before first step is executed -
 
@@ -381,7 +381,7 @@
                 - Skipped
 
             - Verify errors outputted correctly
-                All error types
+                Choose an error type
 
             - Prompt input
 
@@ -490,7 +490,7 @@
             Check report size, memory usage, running time, and any errors -
             'Generating branches...' shows -
 
-    * All error types
+    * Choose an error type
         - Step error
         - Before Every Step error
         - After Every Step error
@@ -520,7 +520,7 @@
 
             - Steps
 
-                Every type of step state
+                Choose step state
 
                 - Textual steps get '-' outputted
 
@@ -563,7 +563,7 @@
 
             - Branches
 
-                Every type of branch state
+                Choose branch state
 
                 - Branch with a ton of indents
                     ..
@@ -760,7 +760,7 @@
                     - Step with screenshots
                         - Set step's beforeScreenshot, afterScreenshot, and targetCoords vars
 
-                    Every type of step state
+                    Choose step state
 
                         ..
                         - Step name visible and colored correctly
@@ -773,7 +773,7 @@
 
                     - Branch with error
                     - Branch with logs
-                    Every type of branch state
+                    Choose branch state
 
                         ..
                         - Branch name visible and colored correctly
@@ -931,14 +931,14 @@
             - Long-running suite
                 - Each step takes a few seconds
 
-        * Every type of step state
+        * Choose step state
             - Not yet run
             - Running
             - Passed
             - Failed
             - Skipped
 
-        * Every type of branch state
+        * Choose branch state
             - Not yet run
             - Running
             - Passed

@@ -9,55 +9,58 @@ class StepNode {
     constructor(id) {
         this.id = id;                         // number that uniquely identifiers this step node (must be > 0)
 
-        this.indents = -1;                    // number of indents before this step's text, where an indent consists of SPACES_PER_INDENT spaces
+        this.indents = -1;                    // number of indents before this step node's text, where an indent consists of SPACES_PER_INDENT spaces
 
-        this.parent = null;                   // Step or StepBlock that's the parent of this Step (null if this Step is itself part of a StepBlock)
-        this.children = [];                   // Step or StepBlock objects that are children of this Step ([] if this Step is itself part of a StepBlock)
+        this.parent = null;                   // StepNode or StepBlockNode that's the parent of this StepNode (null if this StepNode is itself part of a StepBlockNode)
+        this.children = [];                   // StepNode or StepBlockNode objects that are children of this StepNode ([] if this Step is itself part of a StepBlockNode)
 
-        this.filename = null;                 // filename where this step is from
-        this.lineNumber = null;               // line number where this step is from
+        this.filename = null;                 // filename where this step node is from
+        this.lineNumber = null;               // line number where this step node is from
 
         /*
         OPTIONAL
 
-        this.text = "";                       // text of the command of the step (not including spaces in front, modifiers, comments, etc.)
+        this.text = "";                       // text of the command of the step node (not including spaces in front, modifiers, comments, etc.)
 
-        this.modifiers = [];                  // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step
-        this.frontModifiers = [];             // Array of String, modifiers in front of the step text
-        this.backModifiers = [];              // Array of String, modifiers in back of the step text
+        this.modifiers = [];                  // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step node
+        this.frontModifiers = [];             // Array of String, modifiers in front of the step node's text
+        this.backModifiers = [];              // Array of String, modifiers in back of the step node's text
         this.groups = [];                     // Array of Strings, the group/freq hashtag modifiers
         this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
-        this.isFunctionDeclaration = false;   // true if this step is a function declaration
-        this.isFunctionCall = false;          // true if this step is a function call
+        this.isFunctionDeclaration = false;   // true if this is a function declaration
+        this.isFunctionCall = false;          // true if this is a function call
         this.isPrivateFunctionDeclaration = false;   // true if this is a private function declaration
-        this.isTextualStep = false;           // true if this step is textual (-) and not a function call
+        this.isTextualStep = false;           // true if this is a textual (-) step node and not a function call
 
-        this.isSkip = false;                  // true if this step has the skip modifier (-s)
-        this.isSkipBelow = false;             // true if this step has the skip below modifier (.s)
-        this.isSkipBranch = false;            // true if this step has the skip branch modifier ($s)
-        this.isDebug = false;                 // true if this step has a debug or express debug modifier (~ or ~~)
-        this.isBeforeDebug = false;           // true if this step has the debug modifier (~) before the step text
-        this.isAfterDebug = false;            // true if this step has the debug modifier (~) after the step text
-        this.isExpressDebug = false;          // true if this step has the express debug modifier (~~)
-        this.isOnly = false;                  // true if this step has the only modifier ($)
-        this.isNonParallel = false;           // true if this step has the non-parallel modifier (!)
-        this.isSequential = false;            // true if this step has the sequential modifier (..)
-        this.isCollapsed = false;             // true if this step should be collapsed in the report (+)
-        this.isHidden = false;                // true if this step should be hidden in the report (+?)
+        this.isAnonFunction = false;          // true if this is an anonymous function
+        this.anonfid = -1;                    // id of anonymous function declaration being called
 
-        this.isHook = false;                  // true if this step is a hook
-        this.isPackaged = false;              // true if this step is from a package file
+        this.isSkip = false;                  // true if this step node has the skip modifier (-s)
+        this.isSkipBelow = false;             // true if this step node has the skip below modifier (.s)
+        this.isSkipBranch = false;            // true if this step node has the skip branch modifier ($s)
+        this.isDebug = false;                 // true if this step node has a debug or express debug modifier (~ or ~~)
+        this.isBeforeDebug = false;           // true if this step node has the debug modifier (~) before the step text
+        this.isAfterDebug = false;            // true if this step node has the debug modifier (~) after the step text
+        this.isExpressDebug = false;          // true if this step node has the express debug modifier (~~)
+        this.isOnly = false;                  // true if this step node has the only modifier ($)
+        this.isNonParallel = false;           // true if this step node has the non-parallel modifier (!)
+        this.isSequential = false;            // true if this step node has the sequential modifier (..)
+        this.isCollapsed = false;             // true if this step node should be collapsed in the report (+)
+        this.isHidden = false;                // true if this step node should be hidden in the report (+?)
 
-        this.containingStepBlock = {};        // the StepBlock that contains this Step
+        this.isHook = false;                  // true if this step node is a hook
+        this.isPackaged = false;              // true if this step node is from a package file
+
+        this.containingStepBlock = {};        // the StepBlockNode that contains this StepNode
 
         this.used = false;                    // set to true if this step node is used in a branch at least once
         */
     }
 
     /**
-     * @return {Boolean} True if this step has a code block, false otherwise
+     * @return {Boolean} True if this step node has a code block, false otherwise
      */
     hasCodeBlock() {
         return typeof this.codeBlock != 'undefined';
@@ -92,7 +95,7 @@ class StepNode {
         }
 
         // Parsed parts of the line
-        this.text = matches[5].trim();
+        this.text = matches[6].trim();
         if(matches[4]) {
             this.isFunctionDeclaration = true;
             if(matches[4].trim() == '**') {
@@ -101,20 +104,25 @@ class StepNode {
             else if(matches[4].trim() == '***') {
                 this.isHook = true;
             }
+
+            if(!this.text) {
+                this.isAnonFunction = true;
+                this.text = ' ';
+            }
         }
         if(matches[1]) {
             this.frontModifiers = matches[1].trim().split(/\s+/);
             this.modifiers = (this.modifiers || []).concat(this.frontModifiers);
         }
-        if(matches[11]) {
-            this.backModifiers = matches[11].trim().split(/\s+/);
+        if(matches[12]) {
+            this.backModifiers = matches[12].trim().split(/\s+/);
             this.modifiers = (this.modifiers || []).concat(this.backModifiers);
         }
-        if(matches[15]) {
-            this.codeBlock = matches[15].replace(/^\{/, '');
+        if(matches[16]) {
+            this.codeBlock = matches[16].replace(/^\{/, '');
         }
-        if(matches[17]) {
-            this.comment = matches[17];
+        if(matches[18]) {
+            this.comment = matches[18];
         }
 
         // Validation against prohibited step texts
@@ -397,7 +405,8 @@ class StepNode {
             'frontModifiers',
             'backModifiers',
             'isCollapsed',
-            'isHidden'
+            'isHidden',
+            'isAnonFunction'
         ]);
 
         return o;
