@@ -3108,10 +3108,12 @@ My function
 
             let functionCall = new Step(tree.root.children[1].id);
             let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations).to.have.lengthOf(1);
             expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
 
             functionCall = new Step(tree.root.children[3].id);
             functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations).to.have.lengthOf(1);
             expect(functionDeclarations[0] === tree.root.children[2]).to.equal(true);
         });
 
@@ -3136,14 +3138,17 @@ My function
 
             let functionCall = new Step(tree.root.children[1].id);
             let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations).to.have.lengthOf(1);
             expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
 
             functionCall = new Step(tree.root.children[3].id);
             functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations).to.have.lengthOf(1);
             expect(functionDeclarations[0] === tree.root.children[2]).to.equal(true);
 
             functionCall = new Step(tree.root.children[0].children[0].children[1].id);
             functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations).to.have.lengthOf(1);
             expect(functionDeclarations[0] === tree.root.children[0].children[0].children[0]).to.equal(true);
         });
 
@@ -3162,6 +3167,7 @@ My function
             let functionCall = new Step(tree.root.children[0].children[1].id);
             let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
 
+            expect(functionDeclarations).to.have.lengthOf(1);
             expect(functionDeclarations[0] === tree.root.children[0].children[0]).to.equal(true);
         });
 
@@ -3177,6 +3183,7 @@ My function
 
             let functionCall = new Step(tree.root.children[1].id);
             let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+            expect(functionDeclarations).to.have.lengthOf(1);
             expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
         });
 
