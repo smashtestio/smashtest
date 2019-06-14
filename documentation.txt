@@ -478,7 +478,7 @@ Functions
                     Do something
 
         - They can be nested, and there can be multiple under one parent. A second * acts as the call to the previous one.
-        - Think of them as a "big parenthesis" around multiple steps
+        - Think of them as a "big parenthesis" around multiple steps. Or a step block but with multiple levels of indent.
         - Always put modifiers in front of the *
 
     - Examples (maybe distribute these among the sections above)
@@ -662,7 +662,7 @@ Functions
                 * Mobile
                     * Verify
                         I
-                        
+
     - Pitfalls
         - Since strings and vars designate inputs, always use \', \", \[, \] when using those actual characters inside a step's text or in a string, to prevent a parameter from forming
 
