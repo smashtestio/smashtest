@@ -334,7 +334,7 @@ class Tree {
             // If current step node is an anon function, decide if it's a function declaration or function call and match it up
             if(currStepNode.isAnonFunction && currStepNode.parent.children.length > 1) {
                 let lastSibling = currStepNode.parent.children[currStepNode.parent.children.length - 2];
-                if(lastSibling.isAnonFunction && lastSibling.isFunctionDeclaration) {
+                if(lastSibling.isFunctionDeclaration && !lastSibling.isHook) {
                     if(lastSibling.isPrivateFunctionDeclaration != currStepNode.isPrivateFunctionDeclaration) {
                         utils.error(`An anonymous function must open and close with the same amount of *'s`, filename, currStepNode.lineNumber);
                     }
@@ -345,6 +345,10 @@ class Tree {
                     delete currStepNode.isFunctionDeclaration;
                     delete currStepNode.isPrivateFunctionDeclaration;
                     currStepNode.isFunctionCall = true;
+
+                    if(lastSibling.text.trim() != '') {
+                        currStepNode.text = lastSibling.text;
+                    }
                 }
             }
         }

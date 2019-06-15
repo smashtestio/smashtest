@@ -3223,6 +3223,40 @@ My function
             expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
         });
 
+        it("finds the right function when there's an anon function call", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+* F
+    A -
+        B -
+
+*
+`);
+
+            let branchAbove = new Branch();
+            let functionCall = new Step(tree.root.children[1].id);
+            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
+
+            Comparer.expect(functionDeclarations).to.match([
+                {
+                    text: "F",
+                    isFunctionDeclaration: true,
+                    isFunctionCall: undefined,
+                    isPrivateFunctionDeclaration: undefined,
+                    isAnonFunction: undefined,
+                    parent: { indents: -1 },
+                    children: [
+                        {
+                            text: "A",
+                            isTextualStep: true
+                        }
+                    ]
+                }
+            ]);
+
+            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
+        });
+
         it("finds the right function when its declaration is a sibling of the function call and is above the function call", () => {
             let tree = new Tree();
             tree.parseIn(`
@@ -6541,6 +6575,31 @@ A -
                         {
                             steps: [
                                 { text: 'A', level: 0 }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("branchifies an anon function call", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+A -
+    * F
+        B -
+    *
+        C -
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'A', level: 0 },
+                                { text: 'F', level: 0 },
+                                { text: 'B', level: 1 },
+                                { text: 'C', level: 0 }
                             ]
                         }
                     ]);

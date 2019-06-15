@@ -1,5 +1,5 @@
 // ***************************************
-//  Manual tests for packages/browser.smash
+//  Manual integration tests for packages
 // ***************************************
 
 - headless=<true/false>

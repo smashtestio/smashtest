@@ -1,1 +1,58 @@
 - BrowserInstance
+
+    - HTTP API mocking in browser
+
+        - mockTime()
+
+            - When the mock date is set
+                - Then that change is visible from 'new Date()'
+
+        - mockHttp()
+
+            - Method is a
+
+                - GET
+                - POST
+
+                    * Url is
+                        - an absolute url
+
+                            - that's on browser's current domain
+                            - that's not on browser's current domain
+
+                        - a relative url
+
+                        - a regex
+                    *
+                        *
+                            - Response is
+
+                                - a string
+
+                                - a js object
+
+                                - an array
+
+                                    - Response body is
+                                        - a string
+                                        - an object
+
+                                - a function
+                        *
+                            - When an http request is made from the browser
+                                - and that reponse is mocked
+                                    - Then the mocked response comes back
+                                - and that response is not mocked
+                                    - Then a 404 error comes back
+
+        - mockHttpConfigure()
+        - mockTimeStop()
+        - mockHttpStop()
+        - mockStop()
+
+        - injectSinon()
+
+            - Sinon already exists in browser
+            - Sinon does not already exist in browser
+
+                - Global sinon object is accessible within browser

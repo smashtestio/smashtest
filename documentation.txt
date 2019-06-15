@@ -489,6 +489,13 @@ Functions
         - Think of them as a "big parenthesis" around multiple steps. Or a step block but with multiple levels of indent.
         - Always put modifiers in front of the *
 
+        - Anon function calls
+            * User is
+                - logged in
+                - logged out
+            *
+                Something that comes after
+
     - Examples (maybe distribute these among the sections above)
         - Using functions to encapsulate common steps
         - Using functions to enumerate branches (like a step block but with multiple levels, or the whole {x}=F thing)

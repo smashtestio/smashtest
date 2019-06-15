@@ -1,5 +1,5 @@
 // ***************************************
-//  Manual integration tests
+//  Manual integration tests for core
 // ***************************************
 
 - Executable (smashtest.js) and Reporter (reporter.js)

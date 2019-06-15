@@ -528,7 +528,8 @@ class BrowserInstance {
      * See https://sinonjs.org/releases/latest/fake-xhr-and-server/ for more details
      * @param {String} method - The HTTP method ('GET', 'POST', etc.)
      * @param {String or RegExp} url - A url or a regex that matches urls
-     * @param response - A String or Object representing the response body (Object will be sent as JSON), or
+     * @param response - A String representing the response body, or
+     *                   An Object representing the response body (it will be converted to JSON), or
      *                   an array in the form [ <status code>, { header1: "value1", etc. }, <response body string or object> ], or
      *                   a function
      *                   See server.respondWith() from https://sinonjs.org/releases/latest/fake-xhr-and-server/#fake-server-options
