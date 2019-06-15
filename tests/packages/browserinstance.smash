@@ -43,9 +43,40 @@
                                 - Then a 404 error comes back
 
         - mockHttpConfigure()
+
+            - mockHttp() was
+                - already called
+                    - Calling mockHttpConfigure()
+                        - Updates the config
+                - not called yet
+                    - Calling mockHttpConfigure()
+                        - Does nothing
+
         - mockTimeStop()
+            - mockTime() was
+                - already called
+                    - Calling mockTimeStop()
+                        - Restores the current time
+                - not called yet
+                    - Calling mockTimeStop()
+                        - Does nothing
+
         - mockHttpStop()
+            - mockHttp() was
+                - already called
+                    - Calling mockHttpStop()
+                        - and making an http request
+                            - Gets a response from the original non-mocked http server
+                - not called yet
+                    - Calling mockHttpStop()
+                        - Does nothing
+
         - mockStop()
+            - Calling mockStop() ..
+                - and using 'new Date()'
+                    - Gets the current date
+                - and making an http request
+                    - Gets a response from the original non-mocked http server
 
         - injectSinon()
 
