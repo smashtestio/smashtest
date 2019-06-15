@@ -2504,7 +2504,7 @@ one
             let ef = new ElementFinder(`one`);
 
             Comparer.expect(ef.serialize()).to.match({
-                originalFullStr: `one`,
+                fullStr: `one`,
                 line: `one`,
                 counter: { min: 1, max: 1 },
                 props: [
@@ -2533,7 +2533,7 @@ one
             `);
 
             Comparer.expect(ef.serialize()).to.match({
-                originalFullStr:
+                fullStr:
 `one
     subset
     two`,
@@ -2555,7 +2555,7 @@ one
                 ],
                 children: [
                     {
-                        originalFullStr: undefined,
+                        fullStr: undefined,
                         line: `two`,
                         counter: { min: 1, max: 1 },
                         props: [

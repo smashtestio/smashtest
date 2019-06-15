@@ -42,7 +42,7 @@ class ElementFinder {
         this.usedDefinedProps = {};
         this.logger = undefined;
 
-        this.originalFullStr = '';          // The full string representing the top EF and its children. Only set this for the top parent EF.
+        this.fullStr = '';                  // The full string representing the top EF and its children. Only set this for the top parent EF.
 
         SET INSIDE BROWSER
 
@@ -413,7 +413,7 @@ class ElementFinder {
         this.isAnyOrder && (o.isAnyOrder = true);
         this.isSubset && (o.isSubset = true);
 
-        !this.parent && (o.originalFullStr = this.print());
+        !this.parent && (o.fullStr = this.print());
 
         this.children.forEach(child => o.children.push(child.serialize()));
 
@@ -468,7 +468,7 @@ class ElementFinder {
 
                 console.log(SEPARATOR, SEPARATOR_STYLE);
                 console.log("%cElementFinder: ", HEADING_STYLE);
-                console.log(ef.originalFullStr.replace(/^(.*)$/g, '    $1'));
+                console.log(ef.fullStr.replace(/^(.*)$/g, '    $1'));
                 console.log(ef);
                 if(parentElem) {
                     console.log("%cParent:", HEADING_STYLE);
