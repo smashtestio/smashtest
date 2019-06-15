@@ -406,6 +406,8 @@ class StepNode {
             'backModifiers',
             'isCollapsed',
             'isHidden',
+            'isFunctionCall',
+            'isTextualStep',
             'isAnonFunction'
         ]);
 

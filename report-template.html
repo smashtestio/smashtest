@@ -350,7 +350,8 @@
             }
 
             .line .notrunyet-item,
-            .line .textual.notrunyet-item {
+            .line .textual.notrunyet-item,
+            .line .functioncall.notrunyet-item {
                 color: rgba(128,128,128,.55);
                 font-style: italic;
             }
@@ -539,7 +540,8 @@
                 color: gray;
             }
 
-            .textual {
+            .textual,
+            .functioncall {
                 color: rgb(140,140,140);
             }
 
@@ -618,7 +620,8 @@
                 cursor: pointer;
             }
 
-            .preview-pane .textual {
+            .preview-pane .textual,
+            .preview-pane .functioncall {
                 font-style: normal;
             }
 
@@ -892,7 +895,7 @@ c     = copy text of branch
              * @return {Boolean} True if the given step node is textual, false otherwise
              */
             function isTextual(stepNode) {
-                return isFrontTextual(stepNode) || isBackTextual(stepNode);
+                return stepNode.isTextualStep;
             }
 
             /**
@@ -1980,10 +1983,13 @@ c     = copy text of branch
                             // Set step.hasChildren
                             for(let i = index + 1; i < branch.steps.length; i++) {
                                 let s = branch.steps[i];
+                                let sn = this.props.stepNodeIndex[s.id];
+
                                 if((s.level || 0) <= (step.level || 0)) {
                                     break;
                                 }
-                                else if(!this.props.getModifier(s, 'isHidden') && !this.props.getModifier(s, 'isAnonFunction')) {
+                                else if(!this.props.getModifier(s, 'isHidden') &&
+                                    !(this.props.getModifier(s, 'isAnonFunction') && sn.text.trim() == '')) {
                                     step.hasChildren = true;
                                     break;
                                 }
@@ -2049,7 +2055,10 @@ c     = copy text of branch
                     this.updateCollapsing();
 
                     let lines = branch.steps
-                        .filter(step => (!this.props.getModifier(step, 'isHidden') && !this.props.getModifier(step, 'isAnonFunction')) || step.isFailed)
+                        .filter(step => (
+                            !this.props.getModifier(step, 'isHidden') &&
+                            !(this.props.getModifier(step, 'isAnonFunction') && this.props.stepNodeIndex[step.id].text.trim() == '')
+                        ) || step.isFailed)
                         .map((step, index) =>
                             step.collapseHide ? '' : // do this here and not in filter() in order to preserve line numbering
                             <Line
@@ -2207,6 +2216,9 @@ c     = copy text of branch
                             contentClassName += " back-textual";
                         }
                     }
+                    else if(this.props.stepNode.isFunctionCall) {
+                        contentClassName += " functioncall";
+                    }
 
                     let lineElem = (
                         <span className="line-container">
@@ -2347,6 +2359,7 @@ c     = copy text of branch
                     let isBranch = previewedObj.hasOwnProperty("steps");
                     let sn = stepNodeIndex[previewedObj.id];
                     let isTextualStep = sn && isTextual(sn);
+                    let isFunctionCallStep = sn && sn.isFunctionCall;
 
                     let headerClassName = "header preview-name ";
                     let previewStateClassName = "status ";
@@ -2368,6 +2381,13 @@ c     = copy text of branch
                             previewStateClassName += className;
 
                             previewStateText = "Textual step";
+                        }
+                        else if(isFunctionCallStep) {
+                            const className = "functioncall";
+                            headerClassName += className;
+                            previewStateClassName += className;
+
+                            previewStateText = "Function call";
                         }
                         else {
                             const className = "passed-item";
