@@ -99,7 +99,7 @@
     // ***************************************
 
     * Navigate to {{url}} {
-        await browser.nav(url); // TODO: finish this function's implementation
+        await browser.nav(url);
     }
 
     * Nav to {{url}} {

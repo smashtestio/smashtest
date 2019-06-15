@@ -1,0 +1,26 @@
+- Open browsers
+
+    - Open Chrome
+
+    - Open Firefox
+
+    - Open Safari
+
+    - Open IE
+
+    - Open Edge
+
+    - Open browser {{name}}
+
+    - Use browser
+
+- Window
+
+    - Set dimensions to width={{x}} height={{y}}
+
+    - Maximize window
+
+- Actions
+
+    - Navigate to {{url}}
+    - Nav to {{url}}
