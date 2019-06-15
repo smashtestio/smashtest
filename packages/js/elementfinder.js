@@ -77,10 +77,6 @@ class ElementFinder {
             throw new Error(`Cannot create an empty ElementFinder`);
         }
 
-        if(!this.parent) {
-            this.originalFullStr = str;
-        }
-
         let lines = str.split(/\n/);
 
         // Strip out // comments
@@ -368,8 +364,14 @@ class ElementFinder {
         }
 
         let children = '';
+        if(this.isAnyOrder) {
+            children += '\n' + nextSpaces + 'any order';
+        }
+        if(this.isSubset) {
+            children += '\n' + nextSpaces + 'subset';
+        }
         if(this.children.length > 0) {
-            children = '\n';
+            children += '\n';
             for(let i = 0; i < this.children.length; i++) {
                 children += this.children[i].print(errorStart, errorEnd, indents + 1) + (i < this.children.length - 1 ? '\n' : '');
             }
@@ -410,7 +412,8 @@ class ElementFinder {
         this.isElemArray && (o.isElemArray = true);
         this.isAnyOrder && (o.isAnyOrder = true);
         this.isSubset && (o.isSubset = true);
-        this.originalFullStr && (o.originalFullStr = this.originalFullStr);
+
+        !this.parent && (o.originalFullStr = this.print());
 
         this.children.forEach(child => o.children.push(child.serialize()));
 

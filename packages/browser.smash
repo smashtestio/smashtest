@@ -66,6 +66,18 @@
     //  Hooks
     // ***************************************
 
+    *** Before Every Step {
+        if(typeof browser != 'undefined') {
+            await browser.takeScreenshot(false);
+        }
+    }
+
+    *** After Every Step {
+        if(typeof browser != 'undefined') {
+            await browser.takeScreenshot(true);
+        }
+    }
+
     *** After Every Branch {
         if(typeof browser != 'undefined') {
             await browser.clearUnneededScreenshots();
@@ -77,21 +89,12 @@
     //  Window
     // ***************************************
 
-    * Set dimensions to width={{x}} height={{y}} {
-
-
-
-
-
+    * Set dimensions to width={{width}} height={{height}} {
+        await browser.driver.manage().window().setRect({ width: parseInt(width), height: parseInt(height) });
     }
 
     * Maximize window {
-
-
-
-
-
-
+        await browser.driver.manage().window().maximize();
     }
 
     // ***************************************
@@ -107,77 +110,44 @@
     }
 
     * Click {{element}} {
-        // element is a string ElementFinder or WebElement
-
-
-
-
-
+        await $(element).click();
     }
 
     * Double click {{element}} {
-
-
-
-
-
+        await browser.driver.actions().doubleClick(await $(element)).perform();
     }
 
     * Hover over {{element}} {
-
-
-
-
-
-    }
-
-    * Touch {{element}} {
-
-
-
-
-
+        await browser.driver.actions().mouseMove(await $(element)).perform();
     }
 
     * Scroll to {{element}} {
-
-
-
-
-
+        await browser.driver.actions().move({origin: await $(element)}).perform();
     }
 
+    // Returns JSON object representing cookie
     * Get cookie {{name}} {
-
-
-
-
-
+        return await browser.driver.manage().getCookie(name);
     }
 
     * Set cookie {{name}} to {{value}} {
-        // value can include expiration, etc.
+        await browser.driver.manage().addCookie({name: name, value: value});
+    }
 
-
-
-
+    * Set cookie {{name}} to {{value}}, expiring in {{exp}} secs {
+        await browser.driver.manage().addCookie({
+            name: name,
+            value: value,
+            expiry: new Date(Date.now() + (exp * 1000))
+        });
     }
 
     * Delete cookie {{name}} {
-
-
-
-
-
+        await browser.driver.manage().deleteCookie(name);
     }
 
     * Delete all cookies {
-
-
-
-
-
-
+        await browser.driver.manage().deleteAllCookies();
     }
 
     * Clear local storage {
@@ -453,20 +423,12 @@
     //  Mock
     // ***************************************
 
-    * Mock time to {{datetime}} {
-        // Use existing function in BrowserInstance
-
-
-
-
+    * Mock time to {{date}} {
+        await browser.mockTime(date instanceof Date ? date : new Date(date));
     }
 
     * Stop all mocks {
-        // Use existing function in BrowserInstance
-
-
-
-
+        await browser.mockStop();
     }
 
     // ***************************************

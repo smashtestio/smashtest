@@ -288,9 +288,7 @@ class BrowserInstance {
 
         url = protocol + domain + (path || '');
 
-        await this.takeScreenshot(false);
         await this.driver.get(url);
-        await this.takeScreenshot(true);
     }
 
     /**
@@ -394,28 +392,48 @@ class BrowserInstance {
     // ***************************************
 
     /**
-     * Finds the first element matching EF represented by efText. Waits up to timeout ms.
-     * @param {String} efText - A string representing the EF to use
+     * Finds the first matching element. Waits up to timeout ms.
+     * @param {String, ElementFinder, or WebElement} element - A string or EF representing the EF to use. If set to a WebElement, returns that WebElement.
      * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
      * @param {Boolean} [isContinue] - If true, and if an error is thrown, that error's continue will be set to true
      * @return {Promise} Promise that resolves to first WebDriver WebElement that was found
      * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time
      */
-    async $(efText, timeout, isContinue) {
-        let ef = new ElementFinder(efText, this.props);
+    async $(element, timeout, isContinue) {
+        let ef = null;
+        if(typeof element == 'string') {
+            ef = new ElementFinder(element, this.props);
+        }
+        else if(element instanceof ElementFinder) {
+            ef = element;
+        }
+        else {
+            return element;
+        }
+
         let results = await ef.find(this.driver, undefined, false, isContinue, timeout || 2000);
         return results[0];
     }
 
     /**
-     * Finds the elements matching EF represented by efText. Waits up to timeout ms.
+     * Finds the matching elements. Waits up to timeout ms.
      * Same params as in $()
      * If counter isn't set on efText, sets it to 1+
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
-    async $$(efText, timeout, isContinue) {
-        let ef = new ElementFinder(efText, this.props);
+    async $$(element, timeout, isContinue) {
+        let ef = null;
+        if(typeof element == 'string') {
+            ef = new ElementFinder(element, this.props);
+        }
+        else if(element instanceof ElementFinder) {
+            ef = element;
+        }
+        else {
+            return [element];
+        }
+
         if(ef.counter.default) {
             ef.counter = { min: 1 };
         }
@@ -430,9 +448,23 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves if the given element(s) disappear before the timeout
      * @throws {Error} If matching elements still found after timeout
      */
-    async not$(efText, timeout, isContinue) {
-        let ef = new ElementFinder(efText, this.props);
-        await ef.find(this.driver, undefined, true, isContinue, timeout || 2000);
+    async not$(element, timeout, isContinue) {
+        timeout = timeout || 2000;
+
+        let ef = null;
+        if(typeof element == 'string') {
+            ef = new ElementFinder(element, this.props);
+        }
+        else if(element instanceof ElementFinder) {
+            ef = element;
+        }
+        else {
+            await this.driver.wait(() => {
+                return !element.isDisplayed();
+            }, timeout);
+        }
+
+        await ef.find(this.driver, undefined, true, isContinue, timeout);
     }
 
     /**

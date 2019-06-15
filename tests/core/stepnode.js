@@ -1080,7 +1080,8 @@ describe("StepNode", () => {
                 id: 1,
                 text: "Foobar",
                 filename: "file.txt",
-                lineNumber: 10
+                lineNumber: 10,
+                isTextualStep: true
             });
         });
     });

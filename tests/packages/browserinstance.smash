@@ -9,18 +9,37 @@
     - Elements
         - '$()'
             - When $() is called
-                - only the first matching element is returned
+
+                - with a text EF
+                - with an ElementFinder object
+                - with a WebElement
+
+                    - only the first matching element is returned
 
         - '$$()'
             - When $$() is called
-                - and the EF is missing a counter
-                    - a counter of 1+ is used
-                        - and all matching elements are returned
+
+                - with a text EF
+                - with an ElementFinder object
+                - with a WebElement
+
+                    - and the EF is missing a counter
+                        - a counter of 1+ is used
+                            - and all matching elements are returned
 
         - 'not$()'
             - When not$() is called
-                - and the EF doesn't match anything
-                    - no error is thrown
+
+                - with a text EF
+                - with an ElementFinder object
+                - with a WebElement
+
+                    - and the EF doesn't match anything
+                        - no error is thrown
+
+                - with a WebElement
+                    - and the EF continues to match after the timeout
+                        - an error is thrown
 
         - props()
 

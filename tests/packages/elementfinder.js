@@ -2239,6 +2239,107 @@ one
     five`);
         });
 
+        it("prints a multi-line EF with the 'subset' keyword", () => {
+            let ef = new ElementFinder(`
+                one
+                    subset
+
+                    two
+                    three
+            `);
+
+            expect(ef.print()).to.equal(`one
+    subset
+    two
+    three`);
+        });
+
+        it("prints a multi-line EF with the 'any order' keyword", () => {
+            let ef = new ElementFinder(`
+                one
+                    any order
+
+                    two
+                    three
+            `);
+
+            expect(ef.print()).to.equal(`one
+    any order
+    two
+    three`);
+        });
+
+        it("prints a multi-line EF with the 'subset' and 'any order' keywords", () => {
+            let ef = new ElementFinder(`
+                one
+                    any order
+                    subset
+
+                    two
+                    three
+            `);
+
+            expect(ef.print()).to.equal(`one
+    any order
+    subset
+    two
+    three`);
+        });
+
+        it("prints an element array EF", () => {
+            let ef = new ElementFinder(`
+                * one
+                    two
+                    three
+            `);
+
+            expect(ef.print()).to.equal(`* one
+    two
+    three`);
+        });
+
+        it("prints multiple nested element arrays in an EF", () => {
+            let ef = new ElementFinder(`
+                * one
+                    two
+                    * three
+                        four
+                    five
+            `);
+
+            expect(ef.print()).to.equal(`* one
+    two
+    * three
+        four
+    five`);
+        });
+
+        it("prints a [match me] EF", () => {
+            let ef = new ElementFinder(`
+                one
+                    [two]
+                    three
+            `);
+
+            expect(ef.print()).to.equal(`one
+    [two]
+    three`);
+        });
+
+        it("prints a multiple [match mes] in an EF", () => {
+            let ef = new ElementFinder(`
+                [one]
+                    * [two]
+                        three
+                        [ 5 x four ]
+            `);
+
+            expect(ef.print()).to.equal(`[one]
+    * [two]
+        three
+        [ 5 x four ]`);
+        });
+
         it("prints a multi-line EF with errors on multiple lines", () => {
             let ef = new ElementFinder(`
                 one
@@ -2432,11 +2533,10 @@ one
             `);
 
             Comparer.expect(ef.serialize()).to.match({
-                originalFullStr: `
-                one
-                    subset
-                    two
-            `,
+                originalFullStr:
+`one
+    subset
+    two`,
                 line: `one`,
                 counter: { min: 1, max: 1 },
                 props: [
