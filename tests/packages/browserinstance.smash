@@ -1,6 +1,56 @@
 - BrowserInstance
 
-    - HTTP API mocking in browser
+    - Script injection
+
+        - execScript()
+
+        - executeAsyncScript()
+
+    - Elements
+        - '$()'
+            - When $() is called
+                - only the first matching element is returned
+
+        - '$$()'
+            - When $$() is called
+                - and the EF is missing a counter
+                    - a counter of 1+ is used
+                        - and all matching elements are returned
+
+        - 'not$()'
+            - When not$() is called
+                - and the EF doesn't match anything
+                    - no error is thrown
+
+        - props()
+
+            - Setting one prop
+
+                - and setting it to an EF
+                - and setting it to a function
+                - and setting it to mutiple definitions (including EFs and functions)
+
+                - that's already defined
+                    - and isAdd is set to true
+                        - Verify that the old definition gets added to
+
+                    - and isAdd is set to false
+                        - Verify that the old definition gets overridden
+
+            - Setting multiple props at once
+
+        - propsAdd()
+            - Setting a prop with an existing definition
+                - Verify that the old definition gets added to
+
+        - propsClear()
+            - Clears out multiple props
+            - Silently handles props that don't exist
+
+        - str()
+            - Escapes quotes in a string
+
+    - Mocks
 
         - mockTime()
 

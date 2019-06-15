@@ -426,10 +426,11 @@ class BrowserInstance {
     }
 
     /**
-     * Sets the one and only definition of the given EF props
+     * Sets the definition of the given EF props
      * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
+     * @param {Boolean} [isAdd] - If true, does not override existing defintions, but adds to them
      */
-    props(props) {
+    props(props, isAdd) {
         for(let prop in props) {
             if(props.hasOwnProperty(prop)) {
                 if(typeof props[prop] == 'string') {
@@ -443,7 +444,12 @@ class BrowserInstance {
                 }
 
                 let [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
-                this.props[canonProp] = [ props[prop] ];
+                if(isAdd) {
+                    this.props[canonProp].push(props[prop]);
+                }
+                else {
+                    this.props[canonProp] = [ props[prop] ];
+                }
             }
         }
     }
@@ -454,22 +460,7 @@ class BrowserInstance {
      * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      */
     propsAdd(props) {
-        for(let prop in props) {
-            if(props.hasOwnProperty(prop)) {
-                if(typeof props[prop] == 'string') {
-                    // parse it as an EF
-                    props[prop] = new ElementFinder(props[prop], this.props, undefined, runInstance.log);
-                }
-                else if(typeof props[prop] == 'function') {
-                }
-                else {
-                    throw new Error(`Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`);
-                }
-
-                let [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
-                this.props[canonProp].push(props[prop]);
-            }
-        }
+        props(props, true);
     }
 
     /**
