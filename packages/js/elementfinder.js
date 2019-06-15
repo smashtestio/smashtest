@@ -803,19 +803,20 @@ class ElementFinder {
 
         let start = new Date();
         let results = null;
+        let self = this;
 
         return new Promise(async (resolve, reject) => {
             doFind();
             async function doFind() {
-                results = await this.getAll(driver, parentElem, true);
+                results = await self.getAll(driver, parentElem, true);
                 results.ef = ElementFinder.parseObj(results.ef);
-                if(!isNot ? results.ef.hasErrors() : results.ef.matches && results.ef.matches.length > 0) {
+                if(!isNot ? results.ef.hasErrors() : (results.ef.matches && results.ef.matches.length > 0)) {
                     let duration = (new Date()) - start;
                     if(duration > timeout) {
                         let error =
                             !isNot ?
-                            new Error(`Element${this.counter.max == 1 ? `` : `s`} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ``}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
-                            new Error(`Element${this.counter.max == 1 ? `` : `s`} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ``}`);
+                            new Error(`Element${self.counter.max == 1 ? `` : `s`} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ``}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
+                            new Error(`Element${self.counter.max == 1 ? `` : `s`} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ``}`);
 
                         if(isContinue) {
                             error.continue = true;

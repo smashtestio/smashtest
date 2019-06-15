@@ -34,25 +34,25 @@ class BrowserInstance {
         runInstance.p("browsers", browsers);
 
         // Set commonly-used global vars
-        runInstance.g('$', browser.$);
-        runInstance.g('$$', browser.$$);
-        runInstance.g('not$', browser.not$);
+        runInstance.g('$', browser.$.bind(browser));
+        runInstance.g('$$', browser.$$.bind(browser));
+        runInstance.g('not$', browser.not$.bind(browser));
 
-        runInstance.g('executeScript', browser.executeScript);
-        runInstance.g('executeAsyncScript', browser.executeAsyncScript);
+        runInstance.g('executeScript', browser.executeScript.bind(browser));
+        runInstance.g('executeAsyncScript', browser.executeAsyncScript.bind(browser));
 
-        runInstance.g('props', browser.props);
-        runInstance.g('propsAdd', browser.propsAdd);
-        runInstance.g('propsClear', browser.propsClear);
-        runInstance.g('str', browser.str);
+        runInstance.g('props', browser.props.bind(browser));
+        runInstance.g('propsAdd', browser.propsAdd.bind(browser));
+        runInstance.g('propsClear', browser.propsClear.bind(browser));
+        runInstance.g('str', browser.str.bind(browser));
 
-        runInstance.g('injectSinon', browser.injectSinon);
-        runInstance.g('mockTime', browser.mockTime);
-        runInstance.g('mockHttp', browser.mockHttp);
-        runInstance.g('mockHttpConfigure', browser.mockHttpConfigure);
-        runInstance.g('mockTimeStop', browser.mockTimeStop);
-        runInstance.g('mockHttpStop', browser.mockHttpStop);
-        runInstance.g('mockStop', browser.mockStop);
+        runInstance.g('injectSinon', browser.injectSinon.bind(browser));
+        runInstance.g('mockTime', browser.mockTime.bind(browser));
+        runInstance.g('mockHttp', browser.mockHttp.bind(browser));
+        runInstance.g('mockHttpConfigure', browser.mockHttpConfigure.bind(browser));
+        runInstance.g('mockTimeStop', browser.mockTimeStop.bind(browser));
+        runInstance.g('mockHttpStop', browser.mockHttpStop.bind(browser));
+        runInstance.g('mockStop', browser.mockStop.bind(browser));
 
         return browser;
     }
@@ -85,7 +85,7 @@ class BrowserInstance {
         this.driver = null;
         this.runInstance = runInstance;
 
-        this.props = ElementFinder.defaultProps();  // ElementFinder props
+        this.definedProps = ElementFinder.defaultProps();  // ElementFinder props
     }
 
     /**
@@ -402,7 +402,7 @@ class BrowserInstance {
     async $(element, timeout, isContinue) {
         let ef = null;
         if(typeof element == 'string') {
-            ef = new ElementFinder(element, this.props);
+            ef = new ElementFinder(element, this.definedProps);
         }
         else if(element instanceof ElementFinder) {
             ef = element;
@@ -425,7 +425,7 @@ class BrowserInstance {
     async $$(element, timeout, isContinue) {
         let ef = null;
         if(typeof element == 'string') {
-            ef = new ElementFinder(element, this.props);
+            ef = new ElementFinder(element, this.definedProps);
         }
         else if(element instanceof ElementFinder) {
             ef = element;
@@ -453,7 +453,7 @@ class BrowserInstance {
 
         let ef = null;
         if(typeof element == 'string') {
-            ef = new ElementFinder(element, this.props);
+            ef = new ElementFinder(element, this.definedProps);
         }
         else if(element instanceof ElementFinder) {
             ef = element;
@@ -477,7 +477,7 @@ class BrowserInstance {
             if(props.hasOwnProperty(prop)) {
                 if(typeof props[prop] == 'string') {
                     // parse it as an EF
-                    props[prop] = new ElementFinder(props[prop], this.props, undefined, runInstance.log);
+                    props[prop] = new ElementFinder(props[prop], this.definedProps, undefined, runInstance.log);
                 }
                 else if(typeof props[prop] == 'function') {
                 }
@@ -487,10 +487,10 @@ class BrowserInstance {
 
                 let [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
                 if(isAdd) {
-                    this.props[canonProp].push(props[prop]);
+                    this.definedProps[canonProp].push(props[prop]);
                 }
                 else {
-                    this.props[canonProp] = [ props[prop] ];
+                    this.definedProps[canonProp] = [ props[prop] ];
                 }
             }
         }
@@ -502,14 +502,14 @@ class BrowserInstance {
      * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      */
     propsAdd(props) {
-        props(props, true);
+        this.props(props, true);
     }
 
     /**
      * Clears all definitions of the given EF props
      */
     propsClear(names) {
-        names.forEach(name => delete this.props[name]);
+        names.forEach(name => delete this.definedProps[name]);
     }
 
     /**
