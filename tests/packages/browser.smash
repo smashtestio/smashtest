@@ -1,26 +1,50 @@
 - Open browsers
 
-    - Open Chrome
+    Open Chrome
+    Open Firefox
+    Open Safari
+    $s Open IE
+    $s Open Edge
+    Open browser 'chrome'
+    Use browser
 
-    - Open Firefox
+* Open a browser
+    Open Chrome
+    Open Firefox
+*
+    - Window
 
-    - Open Safari
+        Set dimensions to width='100' height='200'
 
-    - Open IE
+        Maximize window
 
-    - Open Edge
+    - Actions $
 
-    - Open browser {{name}}
+        Navigate to {url:}
+        Nav to {url:}
 
-    - Use browser
+            {url} = 'http://www.example.com'
+                Verify at 'http://www.example.com/'
 
-- Window
+            {url} = 'https://www.example.com'
+                Verify at 'https://www.example.com/'
 
-    - Set dimensions to width={{x}} height={{y}}
+            {url} = 'https://www.example.com/something'
+                Verify at 'https://www.example.com/something'
 
-    - Maximize window
+            {url} = 'www.example.com'
+                Verify at 'http://www.example.com/'
 
-- Actions
+        Navigate to 'http://www.example.com'
+            Navigate to '/something'
+                Verify at 'http://www.example.com/something'
 
-    - Navigate to {{url}}
-    - Nav to {{url}}
+        Navigate to '/page'
+            - Verify step above fails
+
+* Verify at {{url}} {
+    let currUrl = await browser.driver.getCurrentUrl();
+    if(currUrl != url) {
+        throw new Error(`Expected url: '${url}', Actual url: '${currUrl}'`);
+    }
+}

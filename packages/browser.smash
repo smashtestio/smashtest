@@ -107,7 +107,7 @@
     }
 
     * Click {{element}} {
-        // element is an ElementFinder
+        // element is a string ElementFinder or WebElement
 
 
 
@@ -313,7 +313,7 @@
 
     }
 
-    * New tab {
+    * Open new tab {
 
 
 
@@ -487,7 +487,7 @@
 
     * Verify cookie {{name}} contains {{value}} {
         // wait up to 1 sec? (log this)
-
+        // Use webdriver waits
 
 
 
@@ -553,7 +553,7 @@
 
     }
 
-    * Wait until {{content}} is visible (up to {{n}} secs) {
+    * Wait until {{element}} is visible (up to {{n}} secs) {
 
 
 
@@ -569,7 +569,7 @@
 
     }
 
-    * Wait until page {{content}} is not visible (up to {{n}} secs) {
+    * Wait until {{element}} is not visible (up to {{n}} secs) {
 
 
 

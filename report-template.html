@@ -351,7 +351,7 @@
 
             .line .notrunyet-item,
             .line .textual.notrunyet-item,
-            .line .functioncall.notrunyet-item {
+            .line .textual-functioncall.notrunyet-item {
                 color: rgba(128,128,128,.55);
                 font-style: italic;
             }
@@ -541,7 +541,7 @@
             }
 
             .textual,
-            .functioncall {
+            .textual-functioncall {
                 color: rgb(140,140,140);
             }
 
@@ -621,7 +621,7 @@
             }
 
             .preview-pane .textual,
-            .preview-pane .functioncall {
+            .preview-pane .textual-functioncall {
                 font-style: normal;
             }
 
@@ -910,6 +910,20 @@ c     = copy text of branch
              */
             function isBackTextual(stepNode) {
                 return stepNode.backModifiers && stepNode.backModifiers.find(mod => mod == '-');
+            }
+
+            /**
+             * @return {Boolean} True if the step is a function call without a code block
+             */
+            function isTextualFunctionCall(step, stepNodeIndex) {
+                let stepNode = stepNodeIndex[step.id];
+                if(!stepNode) {
+                    return false;
+                }
+
+                let functionDeclarationNode = step.fid ? stepNodeIndex[step.fid] : null;
+
+                return stepNode.isFunctionCall && typeof stepNode.codeBlock == 'undefined' && (functionDeclarationNode ? functionDeclarationNode.codeBlock == 'undefined' : true);
             }
 
             /**
@@ -2074,6 +2088,7 @@ c     = copy text of branch
                                 setPreview={this.props.setPreview}
                                 previewedItem={previewedItem}
                                 hasLevels={hasLevels}
+                                stepNodeIndex={this.props.stepNodeIndex}
                             />
                         );
 
@@ -2216,8 +2231,8 @@ c     = copy text of branch
                             contentClassName += " back-textual";
                         }
                     }
-                    else if(this.props.stepNode.isFunctionCall) {
-                        contentClassName += " functioncall";
+                    else if(isTextualFunctionCall(this.props.step, this.props.stepNodeIndex)) {
+                        contentClassName += " textual-functioncall";
                     }
 
                     let lineElem = (
@@ -2359,7 +2374,7 @@ c     = copy text of branch
                     let isBranch = previewedObj.hasOwnProperty("steps");
                     let sn = stepNodeIndex[previewedObj.id];
                     let isTextualStep = sn && isTextual(sn);
-                    let isFunctionCallStep = sn && sn.isFunctionCall;
+                    let isTextualFunctionCallStep = sn && isTextualFunctionCall(stepObj, this.props.stepNodeIndex);
 
                     let headerClassName = "header preview-name ";
                     let previewStateClassName = "status ";
@@ -2382,8 +2397,8 @@ c     = copy text of branch
 
                             previewStateText = "Textual step";
                         }
-                        else if(isFunctionCallStep) {
-                            const className = "functioncall";
+                        else if(isTextualFunctionCallStep) {
+                            const className = "textual-functioncall";
                             headerClassName += className;
                             previewStateClassName += className;
 

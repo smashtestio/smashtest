@@ -1115,7 +1115,7 @@ class ElementFinder {
                 }
             ],
 
-            // Has css style name:value
+            // Has css style 'name:value'
             'style': [
                 function(elems, input) {
                     let matches = input.match(/^([^: ]+):(.*)$/);
