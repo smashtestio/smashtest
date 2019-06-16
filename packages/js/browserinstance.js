@@ -4,6 +4,7 @@ const firefox = require('selenium-webdriver/firefox');
 const safari = require('selenium-webdriver/safari');
 const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
+const Key = require('selenium-webdriver/lib/input').Key;
 const fs = require('fs');
 const path = require('path');
 const readFiles = require('read-files-promise');
@@ -85,6 +86,7 @@ class BrowserInstance {
 
     constructor(runInstance) {
         this.driver = null;
+        this.params = null;
         this.runInstance = runInstance;
 
         this.definedProps = ElementFinder.defaultProps();  // ElementFinder props
@@ -239,6 +241,7 @@ class BrowserInstance {
         }
 
         this.driver = await builder.build();
+        this.params = params;
 
         // Resize to dimensions
         // NOTE: Options.windowSize() wasn't working properly
@@ -265,6 +268,32 @@ class BrowserInstance {
                 browsers.splice(i, 1);
             }
         }
+    }
+
+    /**
+     * Sends keys from text into the given element
+     * The text can contain special keys, e.g., "one[enter]two" means type in "one", press enter, then type in "two"
+     * See https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/input_exports_Key.html for a full list of special keys
+     * @param {String} text - The text to type in
+     * @param {String, ElementFinder, or WebElement} element - The element to type into (same as the element sent to $())
+     */
+    async type(text, element) {
+        let items = text.split(/(?=(?<=[^\\])\[)|(?<=(?=[^\\])\])/g);
+        items = items.map(item => {
+            let matches = item.match(/^\[(.*)\]$/);
+            if(matches && matches[1]) {
+                let key = Key[matches[1].toUpperCase()];
+                if(!key) {
+                    throw new Error(`Invalid key ${item}`);
+                }
+                return key;
+            }
+            else {
+                return item;
+            }
+        });
+
+        await (await $(element)).sendKeys(...items);
     }
 
     /**
@@ -298,8 +327,8 @@ class BrowserInstance {
      * See executeScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
      * @return {Promise} Promise that resolves to the script's return value
      */
-    executeScript(script, ...args) {
-        return this.driver.executeScript(script, ...args);
+    async executeScript(script, ...args) {
+        return await this.driver.executeScript(script, ...args);
     }
 
     /**
@@ -307,8 +336,8 @@ class BrowserInstance {
      * See executeAsyncScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
      * @return {Promise} Promise that resolves to the script's return value
      */
-    executeAsyncScript(script, ...args) {
-        return this.driver.executeAsyncScript(script, ...args);
+    async executeAsyncScript(script, ...args) {
+        return await this.driver.executeAsyncScript(script, ...args);
     }
 
     // ***************************************
@@ -418,13 +447,14 @@ class BrowserInstance {
     /**
      * Finds the first matching element. Waits up to timeout ms.
      * @param {String, ElementFinder, or WebElement} element - A string or EF representing the EF to use. If set to a WebElement, returns that WebElement.
+     * @param {Boolean} [tryClickable] - If true, first try searching among clickable elements only (see 'clickable' in ElementFinder's defaultProps()). If no elements are found, searches among non-clickable elements.
+     * @param {WebElement} [parentElem] - If set, only searches at or within this parent element
      * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
      * @param {Boolean} [isContinue] - If true, and if an error is thrown, that error's continue will be set to true
-     * @param {Boolean} [tryClickable] - If true, first try searching among clickable elements only (see 'clickable' in ElementFinder's defaultProps()). If no elements are found, searches among non-clickable elements.
      * @return {Promise} Promise that resolves to first WebDriver WebElement that was found
      * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time
      */
-    async $(element, tryClickable, timeout, isContinue) {
+    async $(element, tryClickable, parentElem, timeout, isContinue) {
         timeout = typeof timeout != 'undefined' ? timeout : 2000;
 
         let ef = null;
@@ -442,7 +472,8 @@ class BrowserInstance {
         if(tryClickable) {
             ef.addProp('clickable', 'clickable', undefined, undefined, this.definedProps);
             try {
-                results = await ef.find(this.driver, undefined, false, isContinue, timeout);
+                results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
+                this.runInstance.log('Clickable element found');
                 let result = results[0];
                 await this.setCrosshairs(result);
                 return result;
@@ -451,8 +482,9 @@ class BrowserInstance {
         }
 
         ef.props.pop(); // remove 'clickable'
+        this.runInstance.log('Clickable element not found, trying all elements');
 
-        results = await ef.find(this.driver, undefined, false, isContinue, timeout);
+        results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
         let result = results[0];
         await this.setCrosshairs(result);
         return result;
@@ -460,12 +492,12 @@ class BrowserInstance {
 
     /**
      * Finds the matching elements. Waits up to timeout ms.
-     * Same params as in $()
+     * See $() for param details
      * If counter isn't set on efText, sets it to 1+
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
-    async $$(element, timeout, isContinue) {
+    async $$(element, parentElem, timeout, isContinue) {
         timeout = typeof timeout != 'undefined' ? timeout : 2000;
 
         let ef = null;
@@ -483,17 +515,17 @@ class BrowserInstance {
             ef.counter = { min: 1 };
         }
 
-        let results = await ef.find(this.driver, undefined, false, isContinue, timeout);
+        let results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
         return results;
     }
 
     /**
      * Throws an error if the given element(s) don't disappear before the timeout
-     * Same params as in $()
+     * See $() for param details
      * @return {Promise} Promise that resolves if the given element(s) disappear before the timeout
      * @throws {Error} If matching elements still found after timeout
      */
-    async not$(element, timeout, isContinue) {
+    async not$(element, parentElem, timeout, isContinue) {
         timeout = typeof timeout != 'undefined' ? timeout : 2000;
 
         let ef = null;
@@ -509,7 +541,7 @@ class BrowserInstance {
             }, timeout);
         }
 
-        await ef.find(this.driver, undefined, true, isContinue, timeout);
+        await ef.find(this.driver, parentElem, true, isContinue, timeout);
     }
 
     /**
@@ -681,6 +713,28 @@ class BrowserInstance {
     }
 
     /**
+     * Mocks the browser's location to the given latitude and longitude
+     * @param {String or Number} latitude - The latitude to set the browser to
+     * @param {String or Number} longitude - The longitude to set the browser to
+     */
+    async mockLocation(latitude, longitude) {
+        await this.executeScript(function(latitude, longitude) {
+            if(typeof smashtestOriginalGetCurrentPosition == 'undefined') {
+                var smashtestOriginalGetCurrentPosition = window.navigator.geolocation.getCurrentPosition;
+            }
+
+            window.navigator.geolocation.getCurrentPosition = function(success) {
+                success({
+                    coords: {
+                        latitude: parseFloat(latitude),
+                        longitude: parseFloat(longitude)
+                    }
+                });
+            }
+        }, latitude, longitude);
+    }
+
+    /**
      * Stops and reverts all time-related mocks
      */
     async mockTimeStop() {
@@ -705,11 +759,24 @@ class BrowserInstance {
     }
 
     /**
-     * Stops and reverts all mocks (time and http)
+     * Stops geolocation mock
+     */
+    async mockLocationStop() {
+        await this.executeScript(function() {
+            if(typeof smashtestOriginalGetCurrentPosition != 'undefined') {
+                window.navigator.geolocation.getCurrentPosition = smashtestOriginalGetCurrentPosition;
+                smashtestOriginalGetCurrentPosition = undefined;
+            }
+        });
+    }
+
+    /**
+     * Stops and reverts all mocks (time, http, and geolocation)
      */
     async mockStop() {
         await this.mockTimeStop();
         await this.mockHttpStop();
+        await this.mockLocationStop();
     }
 }
 module.exports = BrowserInstance;

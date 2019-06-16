@@ -198,7 +198,6 @@ UI Testing
         - Prints found elements to browser's console and number of elements found to regular console
         - Talk about this on top EF page
     - Code
-        - TODO
         - JS functions available as part of built-in packages
         - $()
         - $$()
@@ -206,6 +205,7 @@ UI Testing
         - executeScript()
         - executeAsyncScript()
         - Using browser and browser.driver objects
+        - Using runInstance (runner, tree, currStep, currBranch)
         - Timeout code
         - Mocking APIs
             - mockTime()
