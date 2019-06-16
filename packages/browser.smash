@@ -386,45 +386,51 @@
     }
 
     * Network latency of {{n}} ms {
-        // ChromeDriver only (do nothing and just log if not Chrome). driver.setNetworkConditions()
+        if(!isChrome()) {
+            return;
+        }
 
-
-
+        await browser.driver.setNetworkConditions({ latency: parseInt(n) });
     }
 
     * No network latency {
-        // ChromeDriver only (do nothing and just log if not Chrome). driver.setNetworkConditions()
+        if(!isChrome()) {
+            return;
+        }
 
-
-
+        await browser.driver.setNetworkConditions({ latency: undefined });
     }
 
     * Maximum download speed of {{n}} Kbps {
-        // ChromeDriver only (do nothing and just log if not Chrome). driver.setNetworkConditions()
+        if(!isChrome()) {
+            return;
+        }
 
-
-
+        await browser.driver.setNetworkConditions({ download_throughput: parseInt(n) * 1024 });
     }
 
     * No maximum download speed {
-        // ChromeDriver only (do nothing and just log if not Chrome). driver.setNetworkConditions()
+        if(!isChrome()) {
+            return;
+        }
 
-
-
+        await browser.driver.setNetworkConditions({ download_throughput: undefined });
     }
 
     * Maximum upload speed of {{n}} Kbps {
-        // ChromeDriver only (do nothing and just log if not Chrome). driver.setNetworkConditions()
+        if(!isChrome()) {
+            return;
+        }
 
-
-
+        await browser.driver.setNetworkConditions({ upload_throughput: parseInt(n) * 1024 });
     }
 
     * No maximum upload speed {
-        // ChromeDriver only (do nothing and just log if not Chrome). driver.setNetworkConditions()
+        if(!isChrome()) {
+            return;
+        }
 
-
-
+        await browser.driver.setNetworkConditions({ upload_throughput: undefined });
     }
 
     // ***************************************
@@ -435,8 +441,47 @@
         await browser.mockTime(date instanceof Date ? date : new Date(date));
     }
 
-    * Mock location to latitude={{latitude}} longitude={{longitude}} {
-        await browser.mockLocation(latitude, longitude);
+    * Mock location to latitude={{lat}} longitude={{long}} {
+        await browser.mockLocation(lat, long);
+    }
+
+    * Mock location to {{locale}} {
+        let lat = 0, long = 0;
+
+        switch(locale.trim().toLowerCase()) {
+            case 'berlin':
+                lat = 52.520007, long = 13.404954;
+                break;
+            case 'london':
+                lat = 51.507351, long = -0.127758;
+                break;
+            case 'moscow':
+                lat = 55.755826, long = 37.6173;
+                break;
+            case 'new york':
+                lat = 40.730610, long = -73.935242;
+                break;
+            case 'mumbai':
+                lat = 19.075984, long = 72.877656;
+                break;
+            case 'san francisco':
+                lat = 37.774929, long = -122.419416;
+                break;
+            case 'shanghai':
+                lat = 31.230416, long = 121.473701;
+                break;
+            case 'são paulo':
+            case 'sao paulo':
+                lat = -23.55052, long = -46.633309;
+                break;
+            case 'tokyo':
+                lat = 35.689487, long = 139.691706;
+                break;
+            default:
+                throw new Error(`The locale '${locale}' is not defined`);
+        }
+
+        await browser.mockLocation(lat, long);
     }
 
     * Stop all mocks {
