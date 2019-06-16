@@ -63,6 +63,26 @@
 * Use browser
 
     // ***************************************
+    //  Init
+    // ***************************************
+
+    Init +? {
+        // Network throttling
+        g('isChrome', function() {
+            if(browser.params.name.toLowerCase() != 'chrome') {
+                log(`Ignoring, since browser isn't chrome`);
+                return false;
+            }
+
+            return true;
+        });
+
+        // Verify/Wait until
+        g('VERIFY_TIMEOUT', 1000);
+        g('WAITUNTIL_TIMEOUT', 15000);
+    }
+
+    // ***************************************
     //  Hooks
     // ***************************************
 
@@ -358,17 +378,6 @@
     // ***************************************
     // NOTE: These steps do nothing if browser isn't Chrome
 
-    Network throttling init +? {
-        function isChrome() {
-            if(browser.params.name.toLowerCase() != 'chrome') {
-                log(`Ignoring, since browser isn't chrome`);
-                return false;
-            }
-
-            return true;
-        }
-    }
-
     * Offline {
         if(!isChrome()) {
             return;
@@ -445,10 +454,10 @@
         await browser.mockLocation(lat, long);
     }
 
-    * Mock location to {{locale}} {
+    * Mock location to {{location}} {
         let lat = 0, long = 0;
 
-        switch(locale.trim().toLowerCase()) {
+        switch(location.trim().toLowerCase()) {
             case 'berlin':
                 lat = 52.520007, long = 13.404954;
                 break;
@@ -466,6 +475,9 @@
                 break;
             case 'san francisco':
                 lat = 37.774929, long = -122.419416;
+                break;
+            case 'seattle':
+                lat = 47.608013, long = -122.335167;
                 break;
             case 'shanghai':
                 lat = 31.230416, long = 121.473701;
@@ -492,110 +504,57 @@
     //  Verify
     // ***************************************
 
-    * Verify at page {{page}} {
-        // page is page title or url (absolute or relative)
-        // do a partial match
-        // wait for up to 3 secs? (log this)
-        // error.continue = true
-        // Use webdriver's own waits to throw errors after a timeout
-        // Check webdriver's implicit timeouts (for navigation, etc.) to see if they need tweaking
-
-
-
-
+    // Verifies browser is currently at page whose title or url contain the given string
+    * Verify at page {{titleOrUrl}} {
+        await browser.verifyAtPage(titleOrUrl, VERIFY_TIMEOUT);
     }
 
     * Verify cookie {{name}} contains {{value}} {
-        // wait up to 1 sec? (log this)
-        // Use webdriver waits
-
-
-
+        await browser.verifyCookieContains(name, value, VERIFY_TIMEOUT);
     }
 
     * Verify {{element}} is visible {
-        // wait up to 1 sec? (log this)
-
-
-
-
-
+        await $(element, undefined, undefined, VERIFY_TIMEOUT, true);
     }
 
     * Verify {{element}} is not visible {
-
-
-
-
-
-
+        await not$(element, undefined, undefined, VERIFY_TIMEOUT, true);
     }
-
 
     // ***************************************
     //  Wait until
     // ***************************************
 
     * Wait until at page {{titleOrUrl}} {
-        // wait up to 15 secs (log this)
-
-
-
-
+        await browser.verifyAtPage(titleOrUrl, WAITUNTIL_TIMEOUT);
     }
 
     * Wait until at page {{titleOrUrl}} (up to {{n}} secs) {
-
-
-
-
-
+        await browser.verifyAtPage(titleOrUrl, n * 1000);
     }
 
     * Wait until cookie {{name}} contains {{value}} {
-
-
-
-
+        await browser.verifyCookieContains(name, value, WAITUNTIL_TIMEOUT);
     }
 
     * Wait until cookie {{name}} contains {{value}} (up to {{n}} secs) {
-
-
-
-
+        await browser.verifyCookieContains(name, value, n * 1000);
     }
 
     * Wait until {{element}} is visible {
-
-
-
-
-
+        await $(element, undefined, undefined, WAITUNTIL_TIMEOUT, true);
     }
 
     * Wait until {{element}} is visible (up to {{n}} secs) {
-
-
-
-
-
+        await $(element, undefined, undefined, n * 1000, true);
     }
 
     * Wait until {{element}} is not visible {
-
-
-
-
-
+        await not$(element, undefined, undefined, WAITUNTIL_TIMEOUT, true);
     }
 
     * Wait until {{element}} is not visible (up to {{n}} secs) {
-
-
-
-
-
+        await not$(element, undefined, undefined, n * 1000, true);
     }
 
     // ***************************************

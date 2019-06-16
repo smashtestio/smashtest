@@ -293,7 +293,7 @@ class BrowserInstance {
             }
         });
 
-        await (await $(element)).sendKeys(...items);
+        await (await this.$(element)).sendKeys(...items);
     }
 
     /**
@@ -595,6 +595,37 @@ class BrowserInstance {
      */
     str(str) {
         return utils.escape(str);
+    }
+
+    // ***************************************
+    //  Verify
+    // ***************************************
+
+    /**
+     * Throws error if current page's title or url doesn't contain the given string within timeout ms
+     */
+    async verifyAtPage(titleOrUrl, timeout) {
+        try {
+            await this.$(`page title contains '${this.str(titleOrUrl)}'`, undefined, undefined, timeout, true);
+        }
+        catch(e) {
+            try {
+                await this.$(`page url contains '${this.str(titleOrUrl)}'`, undefined, undefined, timeout, true);
+            }
+            catch(e) {
+                throw new Error(`Neither the page title nor the page url contains '${titleOrUrl}'`);
+            }
+        }
+    }
+
+    /**
+     * Throws error if cookie with the given name doesn't contain the given value within timeout ms
+     */
+    async verifyCookieContains(name, value, timeout) {
+        await this.driver.wait(() => {
+            let cookieValue = await this.driver.manage().getCookie(name);
+            return cookieValue.includes(value);
+        }, timeout);
     }
 
     // ***************************************
