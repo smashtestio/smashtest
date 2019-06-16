@@ -260,30 +260,24 @@
         }
     }
 
-    // Selects a value from a <select> dropdown or custom dropdown (via clicks)
-    // First tries to find a target item that's an exact match, and if one isn't found, tries using contains matching
+    // Selects an item from a <select> dropdown or custom dropdown (via clicks)
+    // First tries to find a target item that's an exact match, and if one isn't found, tries using contains/trimmed/case-insensitive matching
     * Select {{value}} from {{dropdownElement}} {
         if(value.trim().toLowerCase() == '[none]') {
             log(`Ignoring since value is set to [none]`);
             return;
         }
 
-
-        // - If target is not a <select>, click the target and click the item matching 'something'
-        // - Try exact matching. If not, try contains matching. Log which method you end up doing.
-
-
-
-
-
-
+        await browser.selectByValue(value, dropdownElement);
     }
 
     * Select element {{element}} from {{dropdownElement}} {
+        if(value.trim().toLowerCase() == '[none]') {
+            log(`Ignoring since value is set to [none]`);
+            return;
+        }
 
-        // - If target is not a <select>, click the target and click the item matching 'something'
-
-
+        await browser.selectByElem(element, dropdownElement);
     }
 
     // Returns current abosolute urls

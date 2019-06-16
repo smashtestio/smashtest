@@ -270,6 +270,32 @@ class BrowserInstance {
     }
 
     /**
+     * Navigates the browser to the given url
+     * @param {String} url - The absolute or relative url to navigate to. If relative, uses the browser's current domain. If http(s) is omitted, uses http://
+     */
+    async nav(url) {
+        const URL_REGEX = /^(https?:\/\/)?([^\/]*\.[^\/]*(:[0-9]+)?)?(.*)/;
+        let matches = url.match(URL_REGEX);
+
+        let protocol = matches[1] || 'http://';
+        let domain = matches[2];
+        let path = matches[4];
+
+        if(!domain) {
+            let currUrl = await this.driver.getCurrentUrl();
+            matches = currUrl.match(URL_REGEX);
+            domain = matches[2];
+            if(!domain) {
+                throw new Error(`Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.`)
+            }
+        }
+
+        url = protocol + domain + (path || '');
+
+        await this.driver.get(url);
+    }
+
+    /**
      * Sends keys from text into the given element
      * The text can contain special keys, e.g., "one[enter]two" means type in "one", press enter, then type in "two"
      * See https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/input_exports_Key.html for a full list of special keys
@@ -296,30 +322,69 @@ class BrowserInstance {
     }
 
     /**
-     * Navigates the browser to the given url
-     * @param {String} url - The absolute or relative url to navigate to. If relative, uses the browser's current domain. If http(s) is omitted, uses http://
+     * Selects an item from a <select> dropdown or custom dropdown (via clicks)
+     * First tries to find a target item that's an exact match, and if one isn't found, tries using contains/trimmed/case-insensitive matching
+     * @param {String} value - The string that the target item should match
+     * @param {String, ElementFinder, or WebElement} dropdownElement - The dropdown element (same as the element sent to $())
      */
-    async nav(url) {
-        const URL_REGEX = /^(https?:\/\/)?([^\/]*\.[^\/]*(:[0-9]+)?)?(.*)/;
-        let matches = url.match(URL_REGEX);
+    async selectByValue(value, dropdownElement) {
+        const EXACT_LOG = `Found item that exactly matches '${value}'`;
+        const INEXACT_LOG = `Didn't find item that exactly matches '${value}'. Trying to find an item that contains it.`;
+        const FOUND_LOG = `Found item that contains '${value}'`;
 
-        let protocol = matches[1] || 'http://';
-        let domain = matches[2];
-        let path = matches[4];
-
-        if(!domain) {
-            let currUrl = await this.driver.getCurrentUrl();
-            matches = currUrl.match(URL_REGEX);
-            domain = matches[2];
-            if(!domain) {
-                throw new Error(`Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.`)
+        dropdownElement = await this.$(dropdownElement, true);
+        let tagName = await dropdownElement.getTagName();
+        if(tagName.toLowerCase() == 'select') {
+            try {
+                let item = await this.$(`selector 'option', contains exact '${this.str(value)}', any visibility`, false, dropdownElement);
+                this.runInstance.log(EXACT_LOG);
+                await item.click();
+            }
+            catch(e) {
+                this.runInstance.log(INEXACT_LOG);
+                let item = await this.$(`selector 'option', contains '${this.str(value)}', any visibility`, false, dropdownElement);
+                this.runInstance.log(FOUND_LOG);
+                await item.click();
             }
         }
-
-        url = protocol + domain + (path || '');
-
-        await this.driver.get(url);
+        else {
+            // Not a select. Click open the dropdown then click the item.
+            await dropdownElement.click();
+            try {
+                let item = await this.$(`contains exact '${this.str(value)}', any visibility`, true, dropdownElement);
+                this.runInstance.log(EXACT_LOG);
+                await item.click();
+            }
+            catch(e) {
+                this.runInstance.log(INEXACT_LOG);
+                let item = await this.$(`contains '${this.str(value)}', any visibility`, true, dropdownElement);
+                this.runInstance.log(FOUND_LOG);
+                await item.click();
+            }
+        }
     }
+
+    /**
+     * Selects an item from a <select> dropdown or custom dropdown (via clicks)
+     * @param {String, ElementFinder, or WebElement} element - The target item (same as the element sent to $())
+     * @param {String, ElementFinder, or WebElement} dropdownElement - The dropdown element (same as the element sent to $())
+     */
+    async selectByElem(element, dropdownElement) {
+        element = await this.$(element, true);
+        dropdownElement = await this.$(dropdownElement, true);
+
+        let tagName = await dropdownElement.getTagName();
+        if(tagName.toLowerCase() != 'select') {
+            // Click it open
+            await dropdownElement.click();
+        }
+
+        await element.click();
+    }
+
+    // ***************************************
+    //  Execute script in browser
+    // ***************************************
 
     /**
      * Executes a script inside the browser

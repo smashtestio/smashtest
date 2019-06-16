@@ -953,6 +953,7 @@ class ElementFinder {
                             tagName == 'input' ||
                             tagName == 'textarea' ||
                             tagName == 'select' ||
+                            tagName == 'option' ||
                             window.getComputedStyle(elem).getPropertyValue('cursor') == 'pointer';
                             // TODO: handle cursor:pointer when hovered over
                     });
