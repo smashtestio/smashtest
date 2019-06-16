@@ -72,13 +72,13 @@ async function exit(forcedStop, exitCode) {
 
 process.on('unhandledRejection', (reason, promise) => {
     if(!runner.isStopped) {
-        onError(reason, true);
+        onError(reason, true, true);
     }
 });
 
 process.on('uncaughtException', (err) => {
     if(!runner.isStopped) {
-        onError(err, true);
+        onError(err, true, true);
     }
 });
 
@@ -288,9 +288,9 @@ Options
 }
 
 /**
- * Handles a generic error inside of a catch block
+ * Handles a generic error
  */
-function onError(e, extraSpace) {
+function onError(e, extraSpace, noEnd) {
     restoreCursor();
 
     if(e.fatal || extraSpace) { // extra spacing needed for fatal errors coming out of runner
@@ -300,7 +300,10 @@ function onError(e, extraSpace) {
 
     console.log(e.stack);
     console.log('');
-    process.exit();
+
+    if(!noEnd) {
+        process.exit();
+    }
 }
 
 /**

@@ -14,7 +14,16 @@
                 - with an ElementFinder object
                 - with a WebElement
 
-                    - only the first matching element is returned
+                    *
+                        - and only some elements are clickable
+                            - and tryClickable is set to
+                                - true
+                                    - the first matching element that is clickable is returned
+                                - false
+                                    - the first matching element is returned
+                    *
+                        - Make sure crosshairs appear on before screenshot over element that was found
+
 
         - '$$()'
             - When $$() is called

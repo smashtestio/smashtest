@@ -192,6 +192,8 @@ UI Testing
     - Devices
         - Emulates device on Chrome. With other browsers, the browser size will be set to that of the device, but that's it.
         - Include full list from device.smash
+    - Click, etc.
+        - Looks for clickable element. If one not found, searches among all elements.
     - Print [EF] or just [EF]
         - Prints found elements to browser's console and number of elements found to regular console
         - Talk about this on top EF page

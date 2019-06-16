@@ -12,6 +12,8 @@ const request = require('request-promise-native');
 const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
 
+const SCREENSHOT_WIDTH = 1000;
+
 class BrowserInstance {
     // ***************************************
     //  Static functions
@@ -356,7 +358,7 @@ class BrowserInstance {
         // Write screenshot to file
         let filename = `screenshots/${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isAfter ? `after` : `before`}.jpg`;
         await sharp(Buffer.from(data, 'base64'))
-            .resize(1000)
+            .resize(SCREENSHOT_WIDTH)
             .jpeg({
                 quality: 50
             })
@@ -387,6 +389,28 @@ class BrowserInstance {
         }
     }
 
+    /**
+     * Sets the crosshairs for the before screenshot to the given WebElement's coordinates
+     */
+    async setCrosshairs(elem) {
+        let rect = await this.executeScript(function(elem) {
+            let rect = elem.getBoundingClientRect();
+            return {
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height,
+                innerWidth: window.innerWidth,
+                innerHeight: window.innerHeight
+            };
+        }, elem);
+
+        this.runInstance.currStep.targetCoords = {
+            x: (rect.x + (rect.width/2)) / rect.innerWidth * SCREENSHOT_WIDTH,
+            y: (rect.y + (rect.height/2)) / rect.innerHeight * (SCREENSHOT_WIDTH * rect.innerHeight / rect.innerWidth),
+        };
+    }
+
     // ***************************************
     //  Elements
     // ***************************************
@@ -396,10 +420,13 @@ class BrowserInstance {
      * @param {String, ElementFinder, or WebElement} element - A string or EF representing the EF to use. If set to a WebElement, returns that WebElement.
      * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
      * @param {Boolean} [isContinue] - If true, and if an error is thrown, that error's continue will be set to true
+     * @param {Boolean} [tryClickable] - If true, first try searching among clickable elements only (see 'clickable' in ElementFinder's defaultProps()). If no elements are found, searches among non-clickable elements.
      * @return {Promise} Promise that resolves to first WebDriver WebElement that was found
      * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time
      */
-    async $(element, timeout, isContinue) {
+    async $(element, tryClickable, timeout, isContinue) {
+        timeout = typeof timeout != 'undefined' ? timeout : 2000;
+
         let ef = null;
         if(typeof element == 'string') {
             ef = new ElementFinder(element, this.definedProps);
@@ -411,8 +438,24 @@ class BrowserInstance {
             return element;
         }
 
-        let results = await ef.find(this.driver, undefined, false, isContinue, timeout || 2000);
-        return results[0];
+        let results = null;
+        if(tryClickable) {
+            ef.addProp('clickable', 'clickable', undefined, undefined, this.definedProps);
+            try {
+                results = await ef.find(this.driver, undefined, false, isContinue, timeout);
+                let result = results[0];
+                await this.setCrosshairs(result);
+                return result;
+            }
+            catch(e) {}
+        }
+
+        ef.props.pop(); // remove 'clickable'
+
+        results = await ef.find(this.driver, undefined, false, isContinue, timeout);
+        let result = results[0];
+        await this.setCrosshairs(result);
+        return result;
     }
 
     /**
@@ -423,6 +466,8 @@ class BrowserInstance {
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
     async $$(element, timeout, isContinue) {
+        timeout = typeof timeout != 'undefined' ? timeout : 2000;
+
         let ef = null;
         if(typeof element == 'string') {
             ef = new ElementFinder(element, this.definedProps);
@@ -438,7 +483,7 @@ class BrowserInstance {
             ef.counter = { min: 1 };
         }
 
-        let results = await ef.find(this.driver, undefined, false, isContinue, timeout || 2000);
+        let results = await ef.find(this.driver, undefined, false, isContinue, timeout);
         return results;
     }
 
@@ -449,7 +494,7 @@ class BrowserInstance {
      * @throws {Error} If matching elements still found after timeout
      */
     async not$(element, timeout, isContinue) {
-        timeout = timeout || 2000;
+        timeout = typeof timeout != 'undefined' ? timeout : 2000;
 
         let ef = null;
         if(typeof element == 'string') {

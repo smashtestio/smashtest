@@ -18,29 +18,36 @@
 
         Maximize window
 
-    - Actions $
+    - Actions
 
-        Navigate to {url:}
-        Nav to {url:}
+        - Navigate
 
-            {url} = 'http://www.example.com'
-                Verify at 'http://www.example.com/'
+            Navigate to {url:}
+            Nav to {url:}
 
-            {url} = 'https://www.example.com'
-                Verify at 'https://www.example.com/'
+                {url} = 'http://www.example.com'
+                    Verify at 'http://www.example.com/'
 
-            {url} = 'https://www.example.com/something'
-                Verify at 'https://www.example.com/something'
+                {url} = 'https://www.example.com'
+                    Verify at 'https://www.example.com/'
 
-            {url} = 'www.example.com'
-                Verify at 'http://www.example.com/'
+                {url} = 'https://www.example.com/something'
+                    Verify at 'https://www.example.com/something'
 
-        Navigate to 'http://www.example.com'
-            Navigate to '/something'
-                Verify at 'http://www.example.com/something'
+                {url} = 'www.example.com'
+                    Verify at 'http://www.example.com/'
 
-        Navigate to '/page'
-            - Verify step above fails
+            Navigate to 'http://www.example.com'
+                Navigate to '/something'
+                    Verify at 'http://www.example.com/something'
+
+            Navigate to '/page'
+                - Verify step above fails
+
+        - Click $
+
+            Navigate to 'google.com'
+                Click ["I'm Feeling Lucky"]
 
 * Verify at {{url}} {
     let currUrl = await browser.driver.getCurrentUrl();

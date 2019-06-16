@@ -242,26 +242,7 @@ class ElementFinder {
                 }
 
                 if(definedProps.hasOwnProperty(canonPropStr)) {
-                    function addToUsedDefinedProps(canonPropStr) {
-                        if(!usedDefinedProps.hasOwnProperty(canonPropStr)) {
-                            usedDefinedProps[canonPropStr] = definedProps[canonPropStr];
-
-                            usedDefinedProps[canonPropStr].forEach(def => {
-                                if(def instanceof ElementFinder) {
-                                    def.props.forEach(prop => addToUsedDefinedProps(prop.def));
-                                }
-                            });
-                        }
-                    }
-
-                    addToUsedDefinedProps(canonPropStr);
-
-                    prop = {
-                        prop: (isNot ? 'not ' : '') + propStr,
-                        def: canonPropStr
-                    };
-                    input && (prop.input = input);
-                    isNot && (prop.not = true);
+                    this.addProp((isNot ? 'not ' : '') + propStr, canonPropStr, input, isNot, definedProps);
 
                     if(['visible', 'any visibility'].indexOf(canonPropStr) != -1) {
                         implicitVisible = false;
@@ -270,18 +251,11 @@ class ElementFinder {
                 else { // rare case (usually if someone explicitly overrides the selector prop)
                     utils.error(`Cannot find property that matches \`${canonPropStr}\``, filename, parentLineNumber);
                 }
-
-                this.props.push(prop);
             }
 
             // Apply the 'visible' property, except if 'visible', 'not visible', or 'any visibility' was explicitly listed
             if(implicitVisible) {
-                this.props.push({
-                    prop: 'visible',
-                    def: 'visible'
-                });
-
-                usedDefinedProps['visible'] = definedProps['visible'];
+                this.addProp('visible', 'visible', undefined, undefined, definedProps);
             }
         }
 
@@ -320,6 +294,35 @@ class ElementFinder {
         });
 
         return this;
+    }
+
+    /**
+     * Includes the given prop in this EF (placed at the end of the list of props)
+     */
+    addProp(prop, def, input, isNot, definedProps) {
+        let self = this;
+
+        function addToUsedDefinedProps(def) {
+            if(!self.usedDefinedProps.hasOwnProperty(def)) {
+                self.usedDefinedProps[def] = definedProps[def];
+                self.usedDefinedProps[def].forEach(d => {
+                    if(d instanceof ElementFinder) {
+                        d.props.forEach(prop => addToUsedDefinedProps(prop.def));
+                    }
+                });
+            }
+        }
+
+        let propObj = {
+            prop: prop,
+            def: def
+        };
+        input && (propObj.input = input);
+        isNot && (propObj.not = true);
+
+        this.props.push(propObj);
+
+        addToUsedDefinedProps(def);
     }
 
     /**
@@ -459,7 +462,7 @@ class ElementFinder {
             let consoleOutput = arguments[2];
 
             findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
-            let matches = ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems;
+            let matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
 
             if(consoleOutput) {
                 const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";
@@ -657,7 +660,8 @@ class ElementFinder {
                     let approvedElems = [];
 
                     if(!definedProps.hasOwnProperty(prop.def)) {
-                        throw new Error("ElementFinder prop '" + prop.def + "' is not defined");
+                        ef.error = "ElementFinder prop '" + prop.def + "' is not defined";
+                        return [];
                     }
 
                     for(let def of definedProps[prop.def]) {
@@ -782,7 +786,7 @@ class ElementFinder {
 
         return {
             ef: JSON.parse(obj.ef),
-            matches: obj.matches
+            matches: obj.matches || []
         };
     }
 
@@ -797,7 +801,7 @@ class ElementFinder {
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found (resolves to nothing if isNot is set)
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time (if isNot is set, only throws error is elements still found after timeout)
      */
-    find(driver, parentElem, isNot, isContinue, timeout, pollFrequency) {
+    async find(driver, parentElem, isNot, isContinue, timeout, pollFrequency) {
         timeout = timeout || 0;
         pollFrequency = pollFrequency || 500;
 
@@ -805,31 +809,37 @@ class ElementFinder {
         let results = null;
         let self = this;
 
-        return new Promise(async (resolve, reject) => {
-            doFind();
-            async function doFind() {
-                results = await self.getAll(driver, parentElem, true);
-                results.ef = ElementFinder.parseObj(results.ef);
-                if(!isNot ? results.ef.hasErrors() : (results.ef.matches && results.ef.matches.length > 0)) {
-                    let duration = (new Date()) - start;
-                    if(duration > timeout) {
-                        let error =
-                            !isNot ?
-                            new Error(`Element${self.counter.max == 1 ? `` : `s`} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ``}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
-                            new Error(`Element${self.counter.max == 1 ? `` : `s`} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ``}`);
+        return await new Promise(async (resolve, reject) => {
+            try {
+                await doFind();
+                async function doFind() {
+                    results = await self.getAll(driver, parentElem, true);
+                    results.ef = ElementFinder.parseObj(results.ef);
+                    if(!isNot ? results.ef.hasErrors() : (results.matches && results.matches.length > 0)) {
+                        let duration = (new Date()) - start;
+                        if(duration > timeout) {
+                            let error =
+                                !isNot ?
+                                new Error(`Element${self.counter.max == 1 ? `` : `s`} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ``}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + `-->`, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
+                                new Error(`Element${self.counter.max == 1 ? `` : `s`} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ``}`);
 
-                        if(isContinue) {
-                            error.continue = true;
+                            if(isContinue) {
+                                error.continue = true;
+                            }
+
+                            reject(error);
                         }
-                        reject(error);
+                        else {
+                            setTimeout(doFind, pollFrequency);
+                        }
                     }
                     else {
-                        setTimeout(doFind, pollFrequency);
+                        resolve(results.matches);
                     }
                 }
-                else {
-                    resolve(results.ef.matches);
-                }
+            }
+            catch(e) {
+                reject(e);
             }
         });
     }
@@ -936,14 +946,14 @@ class ElementFinder {
             'clickable': [
                 function(elems, input) {
                     return elems.filter(function(elem) {
-                        let tagName = element.tagName.toLowerCase();
+                        let tagName = elem.tagName.toLowerCase();
                         return tagName == 'a' ||
                             tagName == 'button' ||
                             tagName == 'label' ||
                             tagName == 'input' ||
                             tagName == 'textarea' ||
                             tagName == 'select' ||
-                            window.getComputedStyle(element).getPropertyValue('cursor') == 'pointer';
+                            window.getComputedStyle(elem).getPropertyValue('cursor') == 'pointer';
                             // TODO: handle cursor:pointer when hovered over
                     });
                 }
@@ -1093,7 +1103,14 @@ class ElementFinder {
 
             'selector': [
                 function(elems, input) {
-                    let nodes = document.querySelectorAll(input);
+                    let nodes = null;
+                    try {
+                        nodes = document.querySelectorAll(input);
+                    }
+                    catch(e) {
+                        return [];
+                    }
+
                     let nodesArr = [];
                     for(let node of nodes) {
                         nodesArr.push(node);

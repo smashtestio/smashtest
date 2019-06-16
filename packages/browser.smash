@@ -110,19 +110,25 @@
     }
 
     * Click {{element}} {
-        await $(element).click();
+        (await $(element, true)).click();
+    }
+
+    * Native click {{element}} {
+        await executeScript(function(element) {
+            element.click();
+        }, await $(element, true));
     }
 
     * Double click {{element}} {
-        await browser.driver.actions().doubleClick(await $(element)).perform();
+        await browser.driver.actions().doubleClick(await $(element, true)).perform();
     }
 
     * Hover over {{element}} {
-        await browser.driver.actions().mouseMove(await $(element)).perform();
+        await browser.driver.actions().mouseMove(await $(element, true)).perform();
     }
 
     * Scroll to {{element}} {
-        await browser.driver.actions().move({origin: await $(element)}).perform();
+        await browser.driver.actions().move({origin: await $(element, true)}).perform();
     }
 
     // Returns JSON object representing cookie
