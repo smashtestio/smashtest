@@ -955,6 +955,8 @@ c     = copy text of branch
             const BRANCHES_IN_BRANCH_GRP_LIMIT = 1;  // default number of branches to show in a group within a grouped branch list
             const MORE_BRANCHES_IN_BRANCH_GRP = 5;   // number of additional branches to show when more button clicked in a group within a grouped branch list
 
+            let previewSSRender = null;              // holds the last screenshot render (used to prevent flicker)
+
             class App extends React.Component {
                 constructor() {
                     super();
@@ -2553,7 +2555,8 @@ c     = copy text of branch
                         isBefore: true,
                         modal: false,
                         hasBeforeScreenshot: false,
-                        hasAfterScreenshot: false
+                        hasAfterScreenshot: false,
+                        screenshotsLoaded: false
                     };
 
                     this.props.triggers.onSpacebarDown = () => {
@@ -2612,8 +2615,13 @@ c     = copy text of branch
                     ]).then((results) => {
                         this.setState({
                             hasBeforeScreenshot: results[0],
-                            hasAfterScreenshot: results[1]
+                            hasAfterScreenshot: results[1],
+                            screenshotsLoaded: true
                         });
+
+                        if(results[0]) {
+                            prevSS = this.beforeUrl;
+                        }
                     });
                 }
 
@@ -2622,6 +2630,10 @@ c     = copy text of branch
                 }
 
                 render() {
+                    if(!this.state.screenshotsLoaded) { // prevents flicker when arrowing through steps
+                        return previewSSRender;
+                    }
+
                     let url = this.state.isBefore ? this.beforeUrl : this.afterUrl;
 
                     let targetCoords = this.props.step.targetCoords;
@@ -2633,7 +2645,7 @@ c     = copy text of branch
                     let toggleClassName = `screenshot-toggle ${!this.state.isBefore ? `active` : ``}`;
 
                     if(this.state.hasBeforeScreenshot) {
-                        return (
+                        previewSSRender = (
                             <div className="preview-section preview-screenshots">
                                 <div className="header">Screenshots</div>
                                 <div className="step-screenshots">
@@ -2664,7 +2676,7 @@ c     = copy text of branch
                                     {
                                         this.state.modal ?
                                         <div className="screenshot-modal" onClick={this.closeModal}>
-                                            <img className="image" src={url}/>
+                                            <img className="image" src={this.state.screenshotsLoaded ? url : prevSS}/>
                                         </div> :
                                         ''
                                     }
@@ -2673,8 +2685,10 @@ c     = copy text of branch
                         );
                     }
                     else {
-                        return "";
+                        previewSSRender = "";
                     }
+
+                    return previewSSRender;
                 }
             }
 
