@@ -4,7 +4,6 @@ const firefox = require('selenium-webdriver/firefox');
 const safari = require('selenium-webdriver/safari');
 const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
-const Key = require('selenium-webdriver/lib/input').Key;
 const fs = require('fs');
 const path = require('path');
 const readFiles = require('read-files-promise');
@@ -622,7 +621,7 @@ class BrowserInstance {
      * Throws error if cookie with the given name doesn't contain the given value within timeout ms
      */
     async verifyCookieContains(name, value, timeout) {
-        await this.driver.wait(() => {
+        await this.driver.wait(async () => {
             let cookieValue = await this.driver.manage().getCookie(name);
             return cookieValue.includes(value);
         }, timeout);
