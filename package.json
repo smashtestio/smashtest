@@ -1,8 +1,8 @@
 {
-  "name": "SmashTEST",
+  "name": "smashtest",
   "version": "0.1.0-beta",
-  "description": "SmashTEST",
-  "author": "SmashTEST <smashtest.io>",
+  "description": "smashtest",
+  "author": "smashtest <smashtest.io>",
   "dependencies": {
     "chalk": "^2.4.2",
     "cli-progress": "^2.1.1",
@@ -27,5 +27,8 @@
   },
   "scripts": {
     "test": "nyc --reporter=lcov mocha tests/core/*.js tests/packages/*.js"
+  },
+  "bin": {
+    "smashtest": "./cli.js"
   }
 }

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const readFiles = require('read-files-promise');
 const fs = require('fs');
 const glob = require('glob');
