@@ -29,7 +29,7 @@ class Step {
         this.timeStarted = {};                // Date object (time) of when this step started being executed
         this.timeEnded = {};                  // Date object (time) of when this step ended execution
 
-        this.targetCoords = { x: 0, y: 0 };   // if this is set, set the crosshairs on the before screenshot to these coords
+        this.targetCoords = { x: 0, y: 0 };   // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
         */
     }
 

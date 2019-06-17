@@ -702,7 +702,7 @@
 
             .screenshot {
                 max-height: 80vh;
-                max-width: 100%;
+                max-width: calc(100% - 16px);
                 border: 3px solid gray;
                 padding: 5px;
                 border-radius: 3px;
@@ -775,10 +775,19 @@
                 border-color: rgb(80,80,80);
             }
 
+            .crosshairs-container {
+                pointer-events: none;
+                position: absolute;
+                top: 8px;
+                bottom: 8px;
+                left: 8px;
+                right: 8px;
+            }
+
             .crosshairs {
                 position: absolute;
-                top: 100px;
-                left: 100px;
+                margin-top: -13px;
+                margin-left: -13px;
                 height: 26px;
                 width: 26px;
                 background-color: transparent;
@@ -2618,10 +2627,6 @@ c     = copy text of branch
                             hasAfterScreenshot: results[1],
                             screenshotsLoaded: true
                         });
-
-                        if(results[0]) {
-                            prevSS = this.beforeUrl;
-                        }
                     });
                 }
 
@@ -2639,7 +2644,7 @@ c     = copy text of branch
                     let targetCoords = this.props.step.targetCoords;
                     let crosshairsStyle = '';
                     if(targetCoords) {
-                        crosshairsStyle = { top: `${targetCoords.y - 5}px`, left: `${targetCoords.x - 5}px` };
+                        crosshairsStyle = { top: `${targetCoords.y}%`, left: `${targetCoords.x}%` };
                     }
 
                     let toggleClassName = `screenshot-toggle ${!this.state.isBefore ? `active` : ``}`;
@@ -2664,9 +2669,11 @@ c     = copy text of branch
                                         <div className="screenshot-container">
                                             {
                                                 targetCoords && this.state.isBefore ?
-                                                <div className="crosshairs" style={crosshairsStyle}>
-                                                    <div className="vertical"></div>
-                                                    <div className="horizontal"></div>
+                                                <div className="crosshairs-container">
+                                                    <div className="crosshairs" style={crosshairsStyle}>
+                                                        <div className="vertical"></div>
+                                                        <div className="horizontal"></div>
+                                                    </div>
                                                 </div> :
                                                 ''
                                             }
@@ -2676,7 +2683,7 @@ c     = copy text of branch
                                     {
                                         this.state.modal ?
                                         <div className="screenshot-modal" onClick={this.closeModal}>
-                                            <img className="image" src={this.state.screenshotsLoaded ? url : prevSS}/>
+                                            <img className="image" src={url}/>
                                         </div> :
                                         ''
                                     }

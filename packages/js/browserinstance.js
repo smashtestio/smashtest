@@ -12,8 +12,6 @@ const request = require('request-promise-native');
 const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
 
-const SCREENSHOT_WIDTH = 1000;
-
 class BrowserInstance {
     // ***************************************
     //  Static functions
@@ -411,7 +409,7 @@ class BrowserInstance {
     /**
      * Takes a screenshot, stores it on disk, and attaches it to the report for the current step
      * @param {Boolean} [isAfter] If true, this screenshot occurs after the step's main action, false if it occurs before. You must have called this function with isAfter set to false prior to calling it with isAfter set to true.
-     * param {Object} [targetCoords] - Object in form { x: <number>, y: <number> } representing the x,y coords of the target of the action
+     * param {Object} [targetCoords] - Object in form { x: <number>, y: <number> } representing the x,y coords of the target of the action (where x and y are a percentage of the total width and height respectively)
      */
     async takeScreenshot(isAfter, targetCoords) {
         // See if screenshot is allowed
@@ -450,6 +448,7 @@ class BrowserInstance {
 
         // Write screenshot to file
         let filename = `screenshots/${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isAfter ? `after` : `before`}.jpg`;
+        const SCREENSHOT_WIDTH = 1000;
         await sharp(Buffer.from(data, 'base64'))
             .resize(SCREENSHOT_WIDTH)
             .jpeg({
@@ -489,18 +488,18 @@ class BrowserInstance {
         let rect = await this.executeScript(function(elem) {
             let rect = elem.getBoundingClientRect();
             return {
-                x: rect.x,
-                y: rect.y,
+                top: rect.top,
+                left: rect.left,
                 width: rect.width,
                 height: rect.height,
-                innerWidth: window.innerWidth,
-                innerHeight: window.innerHeight
+                clientWidth: document.body.clientWidth,
+                clientHeight: document.body.clientHeight
             };
         }, elem);
 
         this.runInstance.currStep.targetCoords = {
-            x: (rect.x + (rect.width/2)) / rect.innerWidth * SCREENSHOT_WIDTH,
-            y: (rect.y + (rect.height/2)) / rect.innerHeight * (SCREENSHOT_WIDTH * rect.innerHeight / rect.innerWidth),
+            x: (rect.left + (rect.width/2)) / rect.clientWidth * 100,
+            y: (rect.top + (rect.height/2)) / rect.clientHeight * 100,
         };
     }
 
