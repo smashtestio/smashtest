@@ -67,7 +67,11 @@
     // ***************************************
 
     Init +? {
-        // Network throttling
+        // Verify/Wait until timeouts
+        g('VERIFY_TIMEOUT', 1000);
+        g('WAITUNTIL_TIMEOUT', 15000);
+
+        // Checks if current browser is Chrome (for network throttling steps)
         g('isChrome', function() {
             if(browser.params.name.toLowerCase() != 'chrome') {
                 log(`Ignoring, since browser isn't chrome`);
@@ -76,10 +80,6 @@
 
             return true;
         });
-
-        // Verify/Wait until
-        g('VERIFY_TIMEOUT', 1000);
-        g('WAITUNTIL_TIMEOUT', 15000);
     }
 
     // ***************************************
@@ -345,7 +345,7 @@
     * Switch to the {{nth}} window {
         let n = parseInt(nth.replace(/[^0-9]/g, '')) - 1;
         let windows = await browser.driver.getAllWindowHandles();
-        if(n >= windows.length) {
+        if(n == NaN || n >= windows.length) {
             throw new Error(`There is no ${nth} window`);
         }
         await browser.driver.switchTo().window(windows[n]);
@@ -446,7 +446,7 @@
     }
 
     // ***************************************
-    //  Mock
+    //  Mocks
     // ***************************************
 
     * Mock time to {{date}} {

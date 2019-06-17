@@ -1,24 +1,21 @@
-- Open browsers
+- Category: Open browsers
 
     Open Chrome
     Open Firefox
     Open Safari
-    $s Open IE
-    $s Open Edge
+    Open IE
+    Open Edge
     Open browser 'chrome'
     Use browser
+
+        - Debug and manually verify #manual $s
 
 * Open a browser
     Open Chrome
     Open Firefox
 *
-    - Window
 
-        Set dimensions to width='500' height='700'
-
-        Maximize window
-
-    - Actions
+    - Category: Actions
 
         - Navigate
 
@@ -42,16 +39,269 @@
                     Verify at 'http://www.example.com/something'
 
             Navigate to '/page'
-                - Verify step above fails
+                - Debug and manually verify above step fails #manual $s
+
+            * Verify at {{url}} {
+                let currUrl = await browser.driver.getCurrentUrl();
+                if(currUrl != url) {
+                    throw new Error(`Expected url: '${url}', Actual url: '${currUrl}'`);
+                }
+            }
 
         - Click $
 
             Navigate to 'google.com'
                 Click ["I'm Feeling Lucky"]
 
-* Verify at {{url}} {
-    let currUrl = await browser.driver.getCurrentUrl();
-    if(currUrl != url) {
-        throw new Error(`Expected url: '${url}', Actual url: '${currUrl}'`);
-    }
-}
+        - Native click
+
+        - Double click
+
+        - Hover over
+
+            - an element visible in the current viewport
+            - an element that needs to be scrolled to
+
+        - Scroll to
+
+            - an element visible in the current viewport
+            - an element that needs to be scrolled to
+
+        - Get cookie
+
+            - that exists
+            - that doesn't exist
+
+        - Set cookie
+
+        - Set cookie with expiry
+
+        - Delete cookie
+
+            - that exists
+            - that doesn't exist
+
+        - Delete all cookies
+
+        - Clear local storage
+
+            - Debug and manually verify that it doesn't clear the local storage for other domains #manual $s
+
+        - Clear cookies and local storage
+
+        - Go back
+
+            - when there's a page behind
+            - when there's no page behind
+
+        - Go Forward
+
+            - when there's a page in front
+            - when there's no page in front
+
+        - Refresh
+
+        - Type
+
+            - a normal string of chars into a textbox
+            - '[none]'
+            - a string containing [special keys]
+                - such as '[enter]'
+                - and make sure it's case insensitive
+                - that's an invalid key
+                - that's '[]', which won't be treated as a special key
+            - a string containing an escaped \[special key\]
+                - \[key\]
+                - [key\]
+                - \[key]
+                - multiple \[keys\]
+
+        - Clear
+
+        - Set
+            - sets a value
+            - does nothing if value is '[none]'
+
+        - Check
+
+            - a checkbox
+            - a radio button
+
+                - that's unchecked
+
+                    - and gets checked when clicked
+                    - but refuses to get checked when clicked
+                    - but is disabled
+
+                - that's already checked
+
+        - Uncheck
+
+            - a checkbox
+            - a radio button
+
+                - that's checked
+
+                    - and gets unchecked when clicked
+                    - but refuses to get unchecked when clicked
+                    - but is disabled
+
+                - that's already unchecked
+
+        - Select
+
+            - from a <select>
+            - from a custom dropdown made from <div>'s
+
+                - where the value being matched
+                    - exactly matches the item in the dropdown
+                    - doesn't exactly match the item in the dropdown, but matches in a contains/trimmed/case-insensitive search
+
+                        - and only one item matches
+                        - and multiple items match
+
+                            - Verify that the correct item is selected
+                                - and the dropdown is closed
+                                    - and that the correct log items are present in the report #manual -s
+
+            - where the value is '[none]'
+                - Verify nothing happens
+
+        - Select element
+
+            - from a <select>
+            - from a custom dropdown made from <div>'s
+
+                - and only one item matches
+                - and multiple items match
+
+                    - Verify that the correct item is selected
+                        - and the dropdown is closed
+                            - and that the correct log items are present in the report #manual -s
+
+            - where the value is '[none]'
+                - Verify nothing happens
+
+        - Current url
+            - when the browser is at
+                - a normal url
+                - a newly opened blank tab
+
+        - Window title
+
+        - Value of
+            - an element with a value
+            - an element without a value
+
+    - Category: Window
+
+        - Set dimensions
+
+        - Maximize window
+
+        - Open new tab
+
+        - Switch to window whose title contains
+            - and a window with that title
+                - exists
+                - doesn't exist
+
+        - Switch to a window whose url contains
+            - and a window with that url
+                - exists
+                - doesn't exist
+
+        - Switch to the nth window
+            - and a window at that index
+                - exists
+                - doesn't exist
+            - and nth is not set to a number
+
+        - Switch to iframe
+
+        - Switch to topmost iframe
+
+    - Category: Alerts
+
+        - Accept alert
+
+        - Dismiss alert
+
+        - Verify alert contains
+
+    - Category: Network conditions and throttling
+
+        - Offline
+        - Online
+        - Network latency
+        - No network latency
+        - Maxmium download speed
+        - No maximum download speed
+        - Maximum upload speed
+        - No maximum upload speed
+
+            - If Chrome
+                - Manually verify #manual $s
+            - If not Chrome
+                - Manually verify nothing happens and proper logs made in report #manual $s
+
+    - Category: Mocks
+
+        - Mock time
+
+            - with valid Date object
+            - with valid Date string
+
+                - Verify date set
+
+            - with invalid Date string
+                - Verify error
+
+        - Mock location to latitude and longitude
+
+        - Mock location to location
+            - with valid city name
+            - with invalid city name
+
+        - Stop all mocks
+
+    - Category: Verify
+
+        - Verify at page
+            - and the title contains the given text
+            - and the url contains the given text
+            - and neither the title nor the url contain the given text
+
+        - Verify cookie contains
+            - where the cookie with the given name
+                - doesn't exist
+                - exists
+                    - and contains the given value
+                    - and doesn't contain the given value
+
+        - Verify element is visible
+
+        - Verify element is not visible
+
+    - Category: Wait until
+
+        - Wait until at page
+        - Wait until at page (up to n secs)
+        - Wait until cookie contains
+        - Wait until cookie contains (up to n secs)
+        - Wait until element is visible
+        - Wait until element is visible (up to n secs)
+        - Wait until element is not visible
+        - Wait until element is not visible (up to n secs)
+
+            - Manually verify the longer timeout #manual $s
+
+    - Category: Wait
+
+        - Wait '1' second
+        - Wait n seconds
+
+    - Category: Print and Log
+
+        - Log
+        - [EF]
