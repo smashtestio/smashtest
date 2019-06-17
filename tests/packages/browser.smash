@@ -104,12 +104,15 @@
         - Type
 
             - a normal string of chars into a textbox
+
             - '[none]'
+
             - a string containing [special keys]
                 - such as '[enter]'
                 - and make sure it's case insensitive
                 - that's an invalid key
                 - that's '[]', which won't be treated as a special key
+
             - a string containing an escaped \[special key\]
                 - \[key\]
                 - [key\]
@@ -273,8 +276,11 @@
             - and neither the title nor the url contain the given text
 
         - Verify cookie contains
+        
             - where the cookie with the given name
+
                 - doesn't exist
+
                 - exists
                     - and contains the given value
                     - and doesn't contain the given value

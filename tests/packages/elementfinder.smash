@@ -1174,8 +1174,13 @@
                                 g('ef', new ElementFinder(`2 x [.big]`));
                             }
 
-                                throws error {
-                                    await expect(ef.getAll(browser.driver)).to.be.rejectedWith(`'[.big]' is not a valid selector`);
+                                doesn't find elements, since it's a bad selector {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(`2 x [.big]  -->  not found (zero matches after \`[.big]\` applied)`);
                                 }
 
                         match me element array {

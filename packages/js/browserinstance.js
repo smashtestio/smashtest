@@ -272,24 +272,26 @@ class BrowserInstance {
      * @param {String} url - The absolute or relative url to navigate to. If relative, uses the browser's current domain. If http(s) is omitted, uses http://
      */
     async nav(url) {
-        const URL_REGEX = /^(https?:\/\/)?([^\/]*\.[^\/]*(:[0-9]+)?)?(.*)/;
+        const URL_REGEX = /^(https?:\/\/|file:\/\/)?([^\/]*\.[^\/]*(:[0-9]+)?)?(.*)/;
         let matches = url.match(URL_REGEX);
 
         let protocol = matches[1] || 'http://';
         let domain = matches[2];
         let path = matches[4];
 
-        if(!domain) {
-            let currUrl = await this.driver.getCurrentUrl();
-            matches = currUrl.match(URL_REGEX);
-            domain = matches[2];
+        if(protocol != 'file://') {
             if(!domain) {
-                throw new Error(`Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.`)
+                let currUrl = await this.driver.getCurrentUrl();
+                matches = currUrl.match(URL_REGEX);
+                domain = matches[2];
+                if(!domain) {
+                    throw new Error(`Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.`)
+                }
             }
+
+            url = protocol + domain + (path || '');
         }
-
-        url = protocol + domain + (path || '');
-
+        
         await this.driver.get(url);
     }
 
