@@ -48,10 +48,18 @@
                 }
             }
 
-        - Click $
+        - Click
 
             Navigate to 'google.com'
-                Click ["I'm Feeling Lucky"]
+                Click ["I'm Feeling Lucky"] $
+
+            - a button
+            - an unclickable child of a clickable parent
+
+                - where a 'text' EF is used and automatically targets the parent
+                - where an EF directly targets the child, and the click event has to reach the parent
+
+                    - Verify the parent gets clicked
 
         - Native click
 
@@ -276,7 +284,7 @@
             - and neither the title nor the url contain the given text
 
         - Verify cookie contains
-        
+
             - where the cookie with the given name
 
                 - doesn't exist

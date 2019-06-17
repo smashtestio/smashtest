@@ -311,10 +311,10 @@ ElementFinders
 
 API Testing
     - Tutorials on how to test APIs (using existing npm libraries in code blocks)
-        - fetch + chai subsets?
-            - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-            - swapi.co for sample data
+        - Using https://github.com/request/request
+            - For POST, set json:true and pass in js object. Content-Type will be handled automatically
         - Pattern: make step that calls api and outputs response to console. Then, copy that response into a verify step.
+        - swapi.co for sample data?
     - Comparer (built-in library for validating json)
         - Comparer.expect(actualObj).to.match(expectedObj)
             - Throws error if matching fails, containing whole json object prettified, with a ---> + explanation next to each line that didn't match
