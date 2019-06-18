@@ -3,6 +3,7 @@ const Branch = require('./branch.js');
 const Step = require('./step.js');
 const utils = require('./utils.js');
 const chalk = require('chalk');
+const path = require('path');
 
 /**
  * Represents a running test instance. Kind of like a "thread".
@@ -675,19 +676,12 @@ class RunInstance {
 
         if(!this.getPersistent(varName)) {
             if(packageName.match(/^\.\/|^\.\.\//)) { // local file (non-npm package)
-                packageName = `${this.dir(filename)}/${packageName}`;
+                packageName = `${path.dirname(filename)}/${packageName}`;
             }
 
             this.setPersistent(varName, require(packageName));
         }
         return this.getPersistent(varName);
-    }
-
-    /**
-     * @return {String} Absolute directory of the file where the currently executing step is
-     */
-    dir(filename) {
-        return `${process.cwd()}/${utils.getDir(filename)}`;
     }
 
     /**
@@ -765,10 +759,6 @@ class RunInstance {
 
         function i(name1, name2) {
             return runInstance.i(name1, name2, filename);
-        }
-
-        function dir() {
-            return runInstance.dir(filename);
         }
 
         function c(s) {

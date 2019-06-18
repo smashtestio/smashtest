@@ -5488,14 +5488,6 @@ First step {
                 getPersistent('chai').expect(2+3).to.equal(2);
             `)).to.be.rejectedWith("expected 5 to equal 2");
         });
-
-        it("can get the current step's directory", async () => {
-            let runner = new Runner(new Tree());
-            let runInstance = new RunInstance(runner);
-
-            let directory = await runInstance.evalCodeBlock(`return dir()`, `func`, `file.txt`);
-            expect(directory.length > 0).to.be.true;
-        });
     });
 
     describe("replaceVars()", () => {

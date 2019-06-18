@@ -3,8 +3,7 @@
 // ***************************************
 
 *** Before Everything {
-    let path = i('path');
-    i('BrowserInstance', `${path.dirname(require.main.filename)}/packages/js/browserinstance.js`);
+    i('BrowserInstance', './js/browserinstance.js');
 }
 
 *** After Everything {

@@ -3,7 +3,6 @@
 // ***************************************
 
 *** Before Every Branch {
-    let path = i('path');
-    let HttpApi = i('HttpApi', `${path.dirname(require.main.filename)}/packages/js/httpapi.js`);
+    let HttpApi = i('HttpApi', './js/httpapi.js');
     runInstance.g('api', new HttpApi(runInstance));
 }
