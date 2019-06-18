@@ -2,6 +2,11 @@
 //  Hooks
 // ***************************************
 
+*** Before Everything {
+    let path = i('path');
+    i('BrowserInstance', `${path.dirname(require.main.filename)}/packages/js/browserinstance.js`);
+}
+
 *** After Everything {
     if(typeof BrowserInstance != 'undefined') {
         await BrowserInstance.killAllBrowsers(runInstance.runner);
@@ -13,44 +18,32 @@
 // ***************************************
 
 * Open Chrome {
-    await i('BrowserInstance', './js/browserinstance.js')
-        .create(runInstance)
-        .open({name: 'chrome'});
+    await BrowserInstance.create(runInstance).open({name: 'chrome'});
 }
     Use browser +?
 
 * Open Firefox {
-    await i('BrowserInstance', './js/browserinstance.js')
-        .create(runInstance)
-        .open({name: 'firefox'});
+    await BrowserInstance.create(runInstance).open({name: 'firefox'});
 }
     Use browser +?
 
 * Open Safari {
-    await i('BrowserInstance', './js/browserinstance.js')
-        .create(runInstance)
-        .open({name: 'safari'});
+    await BrowserInstance.create(runInstance).open({name: 'safari'});
 }
     Use browser +?
 
 * Open IE {
-    await i('BrowserInstance', './js/browserinstance.js')
-        .create(runInstance)
-        .open({name: 'internet explorer'});
+    await BrowserInstance.create(runInstance).open({name: 'internet explorer'});
 }
     Use browser +?
 
 * Open Edge {
-    await i('BrowserInstance', './js/browserinstance.js')
-        .create(runInstance)
-        .open({name: 'MicrosoftEdge'});
+    await BrowserInstance.create(runInstance).open({name: 'MicrosoftEdge'});
 }
     Use browser +?
 
 * Open browser {{name}} {
-    await i('BrowserInstance', './js/browserinstance.js')
-        .create(runInstance)
-        .open({name: name});
+    await BrowserInstance.create(runInstance).open({name: name});
 }
     Use browser +?
 

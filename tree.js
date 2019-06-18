@@ -24,7 +24,7 @@ class Tree {
 
         this.latestBranchifiedStepNode = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
 
-        this.stepDataMode = null;            // Keep step data for all steps, failed steps only, or no steps ('all', 'fail', or 'none')
+        this.stepDataMode = 'all';           // Keep step data for all steps, failed steps only, or no steps ('all', 'fail', or 'none')
 
         /*
         OPTIONAL
@@ -1299,11 +1299,6 @@ ${outputBranchAbove(this)}
             if(!found) {
                 utils.error(`Couldn't find the branch with the given hash`);
             }
-        }
-
-        // Set this.stepDataMode to its default
-        if(!this.stepDataMode) {
-            this.stepDataMode = this.isDebug ? 'all' : 'fail';
         }
 
         this.initCounts();

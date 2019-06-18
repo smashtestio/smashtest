@@ -2,6 +2,7 @@
 
 const readFiles = require('read-files-promise');
 const fs = require('fs');
+const path = require('path');
 const glob = require('glob');
 const utils = require('./utils');
 const chalk = require('chalk');
@@ -391,12 +392,12 @@ function plural(count) {
         }
 
         let packageFilenames = await new Promise((resolve, reject) => {
-            glob('packages/*.smash', async(err, packageFilenames) => { // new array of filenames under packages/
+            glob(`${path.dirname(require.main.filename)}/packages/*.smash`, async(err, packageFilenames) => { // new array of filenames under packages/
                 err ? reject(err) : resolve(packageFilenames);
             });
         });
 
-        if(!packageFilenames) {
+        if(!packageFilenames || packageFilenames.length == 0) {
             // TODO: make sure this will work from any directory where you want to run smashtest from
             utils.error("Make sure packages/ directory exists in the directory you're running this from");
         }

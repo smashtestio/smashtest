@@ -3,14 +3,12 @@
 // ***************************************
 
 *** Before Everything {
-    let Comparer = i('./js/comparer.js');
+    let path = i('path');
+    let Comparer = i(`${path.dirname(require.main.filename)}/packages/js/comparer.js`);
     let chai = i('chai');
 
-    let expect = chai.expect;
-    let assert = chai.assert;
-
-    p("expect", expect);
-    p("assert", assert);
+    p("expect", chai.expect);
+    p("assert", chai.assert);
 }
 
 // ***************************************

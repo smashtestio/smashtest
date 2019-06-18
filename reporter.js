@@ -65,7 +65,7 @@ class Reporter {
         }
 
         // Load template
-        let buffers = await readFiles(['report-template.html'] , {encoding: 'utf8'});
+        let buffers = await readFiles([`${path.dirname(require.main.filename)}/report-template.html`] , {encoding: 'utf8'});
         if(!buffers || !buffers[0]) {
             utils.error(`report-template.html not found`);
         }
