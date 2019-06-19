@@ -155,7 +155,7 @@ class Reporter {
                     }
                 }
                 catch(e) {
-                    ws.send(e.toString());
+                    ws.send({ error: e.toString() });
                     ws.close();
                     isError = true;
                 }
