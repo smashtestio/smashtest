@@ -105,8 +105,7 @@ Running tests
         - --version/-v
     - Config file, smashtest.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.
-    - If you need more memory, use node --max-old-space-size=8192 (find out what this is for npm apps)
-        - Use this to speed up execution too
+    - If you need more memory, use `export NODE_OPTIONS="--max_old_space_size=8192" && smashtest <filename>`
 
 Reports
     - Where to find the report

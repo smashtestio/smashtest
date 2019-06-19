@@ -761,6 +761,11 @@ class RunInstance {
             return runInstance.i(name1, name2, filename);
         }
 
+        function dir() {
+            // Absolute directory of the file where the currently executing step is
+            return path.dirname(filename);
+        }
+
         function c(s) {
             console.log(''); // outputs empty lines so s is completely clear of the progress bar in the console
             console.log('');

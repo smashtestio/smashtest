@@ -313,7 +313,7 @@ function onError(e, extraSpace, noEnd) {
  * Restores the console's cursor (if it's been hidden)
  */
 function restoreCursor() {
-    process.stderr.write('\x1B[?25h');
+    process.stdout.write('\x1B[?25h');
 }
 
 /**
@@ -372,15 +372,14 @@ function plural(count) {
                 processFlag(name, value);
             }
             else {
-                filenames.push(arg);
+                filenames.push(path.resolve(arg));
             }
         }
 
         if(filenames.length == 0 && !runner.isRepl) {
             let smashFiles = await new Promise((resolve, reject) => {
-                glob('*.smash', (err, smashFiles) => { // if no filenames passed in, just choose all the .smash files
-                    err ? reject(err) : resolve(smashFiles);
-                });
+                // if no filenames passed in, just choose all the .smash files
+                glob('*.smash', {absolute: true}, (err, smashFiles) => err ? reject(err) : resolve(smashFiles));
             });
 
             if(!smashFiles) {
@@ -477,7 +476,7 @@ function plural(count) {
         // Suppress maxlisteners warning from node
         require('events').EventEmitter.defaultMaxListeners = runner.maxParallel + 5;
 
-        let elapsed = 0;
+        let elapsed = '';
 
         // ***************************************
         //  Output initial counts and other messages
@@ -728,18 +727,14 @@ function plural(count) {
 
                 updateElapsed();
 
-                progressBar.stop();
+                readline.clearLine(process.stderr, 0);
+                readline.cursorTo(process.stderr, 0);
+
                 progressBar.start(tree.counts.totalSteps, tree.counts.totalStepsComplete);
                 outputCounts();
 
                 if(forceComplete || runner.isComplete) {
-                    progressBar.stop();
-
-                    progressBar = generateProgressBar(false);
-                    progressBar.start(tree.counts.totalSteps, tree.counts.totalStepsComplete);
-                    outputCounts();
-                    progressBar.stop();
-
+                    console.log('');
                     outputCompleteMessage();
 
                     // If any branch failed, exit with 1, otherwise exit with 0
