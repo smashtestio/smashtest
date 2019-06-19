@@ -945,6 +945,9 @@
             - Failed
             - Skipped
 
-- Other
-    - Adding dependencies to code in code blocks
-        - npm install package in the same directory as .smash files, then use i() inside code blocks in .smash files
+- Adding dependencies to code in code blocks
+    - npm install package in the same directory as .smash files
+        - use i() inside code blocks in .smash files
+
+    - i()
+        - with a 

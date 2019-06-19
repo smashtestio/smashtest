@@ -171,7 +171,7 @@
 
 - Running tests in each of the browsers
 - Sauce labs
-- --selenium-server=<url>
+- --test-server=<url>
     - Omitted, valid url, bas syntax url, good syntax but unconnectable url, localhost/non-localhost, http/https/no-http
 - Test that a browser is killed when a Ctrl + C is done, even mid-navigate (make sure navigate doesn't freeze until the navigate is complete)
 - Ctrl + C or X in the REPL will actually kill all browsers

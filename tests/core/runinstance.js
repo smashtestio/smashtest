@@ -5490,6 +5490,254 @@ First step {
         });
     });
 
+    describe("i()", () => {
+        it("includes a file with just a package name", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    i('chalk');
+    runInstance.one = p('chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        it("includes a file with a package name and variable name", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    i('colorful', 'chalk');
+    runInstance.one = p('colorful');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        it("includes a file that has already been included", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    i('chalk');
+    i('chalk');
+    runInstance.one = p('chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        it("returns the object being included", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    runInstance.one = i('chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        // Skipped because the absolute path changes
+        it.skip("includes a file with an absolute path", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    runInstance.one = i('/ABSOLUTE-PATH-HERE/smashtest/node_modules/chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        it("includes a file with a relative path that starts with .", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    runInstance.one = i('./node_modules/chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        it("includes a file with a relative path that starts with ..", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    runInstance.one = i('../smashtest/node_modules/chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        it("includes a file using a module name, where the file resides in the executable's node_modules", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    runInstance.one = i('chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        // Skipped because the absolute path changes
+        it.skip("includes a file using a module name, where the file resides in the node_modules of the file of the current step", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    runInstance.one = i('chalk');
+}
+            `, "/ABSOLUTE-PATH-HERE/file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal("function");
+            expect(tree.branches[0].isFailed).to.equal(undefined);
+            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        it("rejects a file with an absolute path that cannot be found", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    i('/bad/path/chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].isFailed).to.be.true;
+            expect(tree.branches[0].steps[0].isFailed).to.be.true;
+            expect(tree.branches[0].steps[0].error.message).to.equal(`Cannot find module '/bad/path/chalk'`);
+        });
+
+        it("rejects a file with a relative path that cannot be found", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    i('../bad/path/chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].isFailed).to.be.true;
+            expect(tree.branches[0].steps[0].isFailed).to.be.true;
+            expect(tree.branches[0].steps[0].error.message).to.equal(`Cannot find module './../bad/path/chalk'`);
+        });
+
+        it("rejects a file with a module name that cannot be found", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    i('bad-module');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(tree.branches[0].isFailed).to.be.true;
+            expect(tree.branches[0].steps[0].isFailed).to.be.true;
+            expect(tree.branches[0].steps[0].error.message).to.equal(`Cannot find module './node_modules/bad-module'`);
+        });
+    });
+
     describe("replaceVars()", () => {
         it("replaces {vars} and {{vars}} with their values", () => {
             let tree = new Tree();
