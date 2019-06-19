@@ -1051,10 +1051,11 @@ Hooks (***)
 
 Packages
     - Distribute js file as npm package, and distribute static function text (as shown below).
-        You can have users copy and paste off a site or download a file:
+    - npm install the package in the same directory as the smash files that will use it
+    - You can have users copy and paste off a site or download a file:
 
         * My function {
-            require('mypackage').myFunction(); // or use i()
+            i('mypackage').myFunction();
         }
 
     - Just create a file with a *** Before Everything that injects what it needs. Then just distribute this file and have users
