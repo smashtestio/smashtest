@@ -18,6 +18,7 @@ class Runner {
 
         this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
         this.groups = undefined;         // Array of string. Only run branches that are a part of one of these groups, no restrictions if this is undefined.
+        this.headless = undefined;       // If true, run external processes (e.g., browsers) as headless, if possible
         this.maxParallel = 5;            // The maximum number of simultaneous branches to run
         this.maxScreenshots = 2000;      // The maximum number of screenshots to take, -1 for no limit
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
@@ -26,6 +27,7 @@ class Runner {
         this.random = true;              // If true, randomize the order of branches
         this.screenshots = true;         // If true, take screenshots when possible
         this.skipPassed = undefined;     // If true, carry over branches that passed last time
+        this.testServer = undefined;     // Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
 
         this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
         this.consoleOutput = true;       // If true, output debug info to console
@@ -50,6 +52,11 @@ class Runner {
     init(tree, noRandom) {
         this.tree = tree;
         this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash, noRandom || !this.random);
+
+        // If headless not set, set it to true, unless we're debugging with ~
+        if(typeof this.headless == 'undefined') {
+            this.headless = (!this.tree.isDebug || this.tree.isExpressDebug) && !this.isRepl;
+        }
     }
 
     /**

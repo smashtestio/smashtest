@@ -132,6 +132,10 @@ function processFlag(name, value) {
                 runner.groups = value.split(/\s*\,\s*/);
                 break;
 
+            case "headless":
+                runner.headless = boolValue();
+                break;
+
             case "help":
             case "?":
                 console.log(`Usage: smashtest [files] [options]
@@ -165,9 +169,9 @@ Options
   --report-domain=<domain>        Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>    Whether to run a server during run for live report updates
   --screenshots=<true/false>      Whether to take screenshots at each step
-  --selenium-server=<url>         Location of selenium server, if there is one (e.g., http://localhost:4444/wd/hub)
   --skip-passed=<true/false/file> Whether to skip branches that passed last time (-s/-a)
   --step-data=<all/fail/none>     Keep step data for all steps, only failed steps, or no steps
+  --test-server=<url>             Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
   --version                       Output the version of SmashTEST (-v)
 `);
                 process.exit();
@@ -220,7 +224,7 @@ Options
 
             case "report-domain":
                 if(!value.match(/^[^\/\: ]+(\:[0-9]+)?$/)) {
-                    utils.error(`Invalid report-domain. It must be in format 'domain' or 'domain:port'.`);
+                    utils.error(`Invalid report-domain. It must be in the format 'domain' or 'domain:port'.`);
                 }
                 reporter.reportDomain = value;
                 break;
@@ -255,6 +259,13 @@ Options
                     utils.error(`Invalid step-data. It must be 'all', 'fail', or 'none'.`);
                 }
                 tree.stepDataMode = value;
+                break;
+
+            case "test-server":
+                if(!value.match(/^https?:\/\/.*$/)) {
+                    utils.error(`Invalid test-server. It must be in the format 'http://...' or 'https://...'.`);
+                }
+                reporter.testServer = value;
                 break;
 
             case "version":

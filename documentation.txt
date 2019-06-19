@@ -83,7 +83,6 @@ Running tests
                 - Choose a domain other than localhost for when you're running tests in CI and want people to hit the report externally
         - --report-server=<true/false>    Whether or not to run a server during run for live report updates. Default is true.
         - --screenshots=<true/false>
-        - --selenium-server=http://localhost:4444/wd/hub
         - --skip-passed=<true/false/filename>, -s (same as true), -a (same as false)
             - Doesn't run branches that passed last time. Carries them and their state over into the new report.
                 - Runs everything else (new branches/changed branches, branches that failed last time, branches that didn't run last time)
@@ -102,6 +101,7 @@ Running tests
                     - Uses smashtest/passed-data in the current directory
         - --step-data=<all/fail/none>
             - 'fail' by default, unless debugging, in which case 'all' by default
+        - --test-server=http://localhost:4444/wd/hub
         - --version/-v
     - Config file, smashtest.json, in the same dir as you're running the command will set flags, but command-line flags will override
     - For CI, exits with exit code 1 if at least one branch failed, 0 otherwise. This only applies to non-REPL runs.

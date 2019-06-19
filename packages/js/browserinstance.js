@@ -100,7 +100,7 @@ class BrowserInstance {
      * @param {Number} [params.height] - The initial browser height, in pixels
      * @param {String} [params.deviceEmulation] - What mobile device to emulate, if any (overrides params.width and params.height, only works with Chrome)
      * @param {Boolean} [params.isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging with ~
-     * @param {String} [params.serverUrl] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
+     * @param {String} [params.testServer] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      */
     async open(params) {
         if(!params) {
@@ -176,22 +176,7 @@ class BrowserInstance {
         // Headless
 
         if(typeof params.isHeadless == 'undefined') {
-            // Set isHeadless to true, unless we're debugging with ~
-            params.isHeadless = (!this.runInstance.tree.isDebug || this.runInstance.tree.isExpressDebug) && !this.runInstance.runner.isRepl;
-
-            // Override if --headless flag is set
-            if(this.runInstance.runner.flags.hasOwnProperty("headless")) {
-                let headlessFlag = this.runInstance.runner.flags.headless;
-                if(headlessFlag === "true" || headlessFlag === "" || headlessFlag === undefined) {
-                    params.isHeadless = true;
-                }
-                else if(headlessFlag === "false") {
-                    params.isHeadless = false;
-                }
-                else {
-                    throw new Error("Invalid --headless flag value. Must be true or false.");
-                }
-            }
+            params.isHeadless = this.runInstance.runner.headless;
         }
 
         if(params.isHeadless) {
@@ -201,13 +186,10 @@ class BrowserInstance {
             // NOTE: safari, ie, and edge don't support headless, so they will always run normally
         }
 
-        // Server url
+        // Test server url
 
-        if(!params.serverUrl) {
-            // If serverUrl isn't set, look to the -selenium-server flag
-            if(this.runInstance.runner.flags['selenium-server']) {
-                params.serverUrl = this.runInstance.runner.flags['selenium-server'];
-            }
+        if(!params.testServer) {
+            params.testServer = this.runInstance.runner.testServer;
         }
 
         // Log
@@ -291,7 +273,7 @@ class BrowserInstance {
 
             url = protocol + domain + (path || '');
         }
-        
+
         await this.driver.get(url);
     }
 
