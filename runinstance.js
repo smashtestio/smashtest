@@ -566,14 +566,14 @@ class RunInstance {
      * @return Value of the given global variable (can be undefined)
      */
     getGlobal(varname) {
-        return this.global[utils.canonicalize(varname)];
+        return this.global[utils.keepCaseCanonicalize(varname)];
     }
 
     /**
      * @return Value of the given local variable (can be undefined)
      */
     getLocal(varname) {
-        varname = utils.canonicalize(varname);
+        varname = utils.keepCaseCanonicalize(varname);
         if(this.localsPassedIntoFunc.hasOwnProperty(varname)) {
             return this.localsPassedIntoFunc[varname];
         }
@@ -593,8 +593,7 @@ class RunInstance {
      * Sets the given global variable to the given value
      */
     setGlobal(varname, value) {
-        this.global[utils.canonicalize(varname)] = value;
-        this.global[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
+        this.global[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
 
@@ -602,8 +601,7 @@ class RunInstance {
      * Sets the given local variable to the given value
      */
     setLocal(varname, value) {
-        this.local[utils.canonicalize(varname)] = value;
-        this.local[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
+        this.local[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
 
@@ -611,8 +609,7 @@ class RunInstance {
      * Sets a local variable being passed into a function
      */
     setLocalPassedIn(varname, value) {
-        this.localsPassedIntoFunc[utils.canonicalize(varname)] = value;
-        this.localsPassedIntoFunc[utils.keepCaseCanonicalize(varname)] = value; // used to keep track of original casing so we create a js var in this casing for code blocks (getters will never reach this)
+        this.localsPassedIntoFunc[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
 
@@ -830,8 +827,13 @@ class RunInstance {
          */
         function loadIntoJsVars(header, arr, getter) {
             for(let varname in arr) {
-                if(arr.hasOwnProperty(varname) && varname.match(JS_VARNAME_WHITELIST) && !varname.match(JS_VARNAME_BLACKLIST)) {
-                    header += `var ${varname} = ${getter}('${varname}');`;
+                if(arr.hasOwnProperty(varname)) {
+                    varname = utils.keepCaseCanonicalize(varname);
+                    if(varname.match(JS_VARNAME_WHITELIST) &&
+                        !varname.toLowerCase().match(JS_VARNAME_BLACKLIST) &&
+                        !varname.includes("'")) {
+                        header += `var ${varname} = ${getter}('${varname}');`;
+                    }
                 }
             }
 

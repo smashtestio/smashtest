@@ -772,7 +772,7 @@ Variables
                         {{children}}='1'
                         {{children}}='8'
 
-    - Variables are case insensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
+    - Variables are case sensitive, leading and trailing whitespace is ignored, and whitespace in the middle is always treated as a single space
         - Case sensitive as js vars and in persistent/global/local though (use the case that was used when declared - though leading and trailing whitespace is ignored too)
     - Pitfalls
         - Cannot have a \ in the name of a variable

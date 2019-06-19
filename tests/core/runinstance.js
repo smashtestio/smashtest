@@ -1339,7 +1339,7 @@ My {A} Function { b }
                 let runner = new Runner();
                 runner.init(tree, true);
                 let runInstance = new RunInstance(runner);
-                runInstance.global.a = "foo";
+                runInstance.global.A = "foo";
                 runInstance.global.b = "bar";
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1362,7 +1362,7 @@ Set vars {
     My Function { A }
 
 * My Function {{X}} {
-    runInstance.one = x;
+    runInstance.one = X;
 }
                 `, "file.txt");
 
@@ -1393,9 +1393,9 @@ My {{A}} Function {{ b }} { a B  c }
                 let runner = new Runner();
                 runner.init(tree, true);
                 let runInstance = new RunInstance(runner);
-                runInstance.local.a = "foo";
+                runInstance.local.A = "foo";
                 runInstance.local.b = "bar";
-                runInstance.global["a b c"] = "blah";
+                runInstance.global["a B c"] = "blah";
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -1410,7 +1410,7 @@ My {{A}} Function {{ b }} { a B  c }
             it("executes a function call with {{variables}} in its function declaration, passing in 'strings containing {variables}'", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
-My '{A} and { b }' Function '{B}'
+My '{A} and { b }' Function '{b}'
 
 * My {{one}} Function {{two}} {
     runInstance.one = one;
@@ -1421,7 +1421,7 @@ My '{A} and { b }' Function '{B}'
                 let runner = new Runner();
                 runner.init(tree, true);
                 let runInstance = new RunInstance(runner);
-                runInstance.global.a = "foo";
+                runInstance.global.A = "foo";
                 runInstance.global.b = "b\"a'r";
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1436,7 +1436,7 @@ My '{A} and { b }' Function '{B}'
             it("executes a function call with {{variables}} in its function declaration, passing in \"strings containing {{variables}}\"", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
-My "{A} and { b }" Function "{B}"
+My "{A} and { b }" Function "{b}"
 
 * My {{one}} Function {{two}} {
     runInstance.one = one;
@@ -1447,7 +1447,7 @@ My "{A} and { b }" Function "{B}"
                 let runner = new Runner();
                 runner.init(tree, true);
                 let runInstance = new RunInstance(runner);
-                runInstance.global.a = "foo";
+                runInstance.global.A = "foo";
                 runInstance.global.b = "b\"a'r";
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
@@ -1497,10 +1497,10 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
                 let runner = new Runner();
                 runner.init(tree, true);
                 let runInstance = new RunInstance(runner);
-                runInstance.local.a = "sign";
+                runInstance.local.A = "sign";
                 runInstance.global.b = "small button";
-                runInstance.local.c = "lots of CATS!";
-                runInstance.local.n = 14;
+                runInstance.local.C = "lots of CATS!";
+                runInstance.local.N = 14;
                 runInstance.global["d d"] = "link";
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
