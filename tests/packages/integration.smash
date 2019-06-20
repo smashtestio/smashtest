@@ -56,6 +56,28 @@
 
                 Runs non-headless -
 
+- test-server=<url>
+
+    - <url> is omitted
+    - <url> is missing http
+
+        - Verify error
+
+    - <url> has correct syntax
+
+        - and can be connected to
+
+            - and is localhost
+            - and is not localhost
+
+                - and is http
+                - and is https
+
+                    - Verify tests run without errors
+
+        - and cannot be connected to
+            - Verify error
+
 - Screenshots
 
     - When a step has a screenshot in the report
@@ -158,21 +180,28 @@
 
                 - Then its associated screenshots do not make it to the report and are not on disk
 
-- [EF]
+- Typing an [EF] into REPL
     - Open REPL
         - Type in "[<EF here>]"
             - Verify that EF info is logged to browser's console
                 - Verify that number of elements found is logged to console that's running smashtest
 
+- Various testing environments
 
+    - Standalone selenium
 
-// TODO:
-// If not covered by an existing automated test, add these here:
+    - Selenium grid
+        - Local
+        - Sauce labs, etc.
 
-- Running tests in each of the browsers
-- Sauce labs
-- --test-server=<url>
-    - Omitted, valid url, bas syntax url, good syntax but unconnectable url, localhost/non-localhost, http/https/no-http
-- Test that a browser is killed when a Ctrl + C is done, even mid-navigate (make sure navigate doesn't freeze until the navigate is complete)
-- Ctrl + C or X in the REPL will actually kill all browsers
-- Standalone selenium vs. selenium grid
+- Stopping browsers
+
+    - Ctrl + C
+        - when inputted during a run
+        - when inputted into the REPL
+
+            - kills all browsers that are open
+
+    - Entering 'x'
+        - into the REPL
+            - kills all browsers that are open
