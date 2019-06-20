@@ -1232,43 +1232,115 @@
 
                     - multiple props
 
-                        - 0 matching elements exist
-
-                            0 matching elements after the first prop {
-
-                            }
-
-                                doesn't find elements, has error {
-
-                                }
-
-                            0 matching elements after the second prop {
-
-                            }
-
-                                doesn't find elements, has error {
-
-                                }
-
-                        matching elements exist {
-
+                        set up page {
+                            await setPageBody(`
+                                <div id="one" class="small">foobar</div>
+                                <div id="two" class="big">foobar</div>
+                                <div id="three" class="big">foobar</div>
+                                <div id="four" class="small">foobar</div>
+                            `);
                         }
 
-                            finds elements {
-                                // text, ords, properties, selectors
-                                // nots
-                                // some of those props are functions and others are EFs
+                            - 0 matching elements exist
+
+                                0 matching elements after the first prop {
+                                    g('ef', new ElementFinder(`.bad1, 'foobar', .bad2`));
+                                }
+
+                                    doesn't find elements, has error {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`.bad1, 'foobar', .bad2  -->  not found (zero matches after \`.bad1\` applied)`);
+                                    }
+
+                                0 matching elements after the second prop {
+                                    g('ef', new ElementFinder(`'foobar', .bad1, .bad2`));
+                                }
+
+                                    doesn't find elements, has error {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`'foobar', .bad1, .bad2  -->  not found (zero matches after \`.bad1\` applied)`);
+                                    }
+
+                            matching elements exist {
+                                g('ef', new ElementFinder(`.big, 'foobar', not .bad2, position '2'`));
                             }
+
+                                finds elements {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('three');
+                                }
 
                     - visible prop
 
-                        $s only finds visible elements by default {
-
+                        set up page {
+                            await setPageBody(`
+                                <div id="one" class="big" style="visibility: hidden">foobar</div>
+                                <div id="two" class="big" style="display: none">foobar</div>
+                                <div id="three" class="big">foobar</div>
+                                <div id="four" class="big" style="opacity: 0">foobar</div>
+                            `);
                         }
 
-                        $s finds all elements regardless of visibility if 'any visibility' is explicitly listed {
+                            only finds visible elements by default {
+                                let ef = new ElementFinder(`.big`);
 
-                        }
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('three');
+                            }
+
+                            only finds visible elements when 'visible' prop used {
+                                let ef = new ElementFinder(`.big, visible`);
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('three');
+                            }
+
+                            only finds non-visible elements when 'not visible' used {
+                                let ef = new ElementFinder(`0+ x .big, not visible`);
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(3);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                            }
+
+                            finds all elements regardless of visibility if 'any visibility' is explicitly listed {
+                                let ef = new ElementFinder(`0+ x .big, any visibility`);
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(4);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('three');
+                                expect(await results.matches[3].getAttribute('id')).to.equal('four');
+                            }
 
                     - errors
 

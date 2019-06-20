@@ -10,10 +10,11 @@ Setup
         - npm
         - Use even-numbered version of nodejs
         - Install selenium
+            - Where to download the driver from, and where to plop the executable at
             - https://github.com/SeleniumHQ/selenium/tree/master/javascript/node/selenium-webdriver
             - https://www.npmjs.com/package/selenium-webdriver
             - http://www.webdriverjs.com/example-program-for-webdriverjs/
-        - Install atom grammar (recommended)
+        - Install atom grammar (recommended) + update ~/.atom/config.cson
 
 Example file
     - One big example file with each type of step, etc. and // comments explaining stuff
