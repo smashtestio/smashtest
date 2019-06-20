@@ -1,5 +1,9 @@
 Step {
-    await new Promise((resolve, reject) => setTimeout(() => {
-        reject('oops');
+    new Promise((resolve, reject) => setTimeout(() => {
+        reject(new Error('oops'));
     }, 0));
 }
+
+    Step 2 {
+        await new Promise(res => setTimeout(res, 1000));
+    }

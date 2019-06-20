@@ -474,6 +474,12 @@
 
             /smashtest created -
 
+    - Async-related issues
+    
+        - An await is omitted in front of async code in a code block, and the async code throws an exception after the step completes
+            - Verify the test passes but the error is printed to console
+                - Verify the test doesn't hang waiting for the async code to complete
+
     - Running in CI
         ..
         - Runs correctly
