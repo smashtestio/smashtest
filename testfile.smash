@@ -1,2 +1,5 @@
-Open Chrome
-    Navigate to 'cnet.com'
+Step {
+    await new Promise((resolve, reject) => setTimeout(() => {
+        reject('oops');
+    }, 0));
+}

@@ -303,7 +303,7 @@ class RunInstance {
                 }
 
                 if(!this.isStopped) { // if this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
-                    error = e;
+                    error = this.validateError(e);
                     this.fillErrorFromStep(error, step, inCodeBlock);
 
                     if(this.runner.outputErrors) {
@@ -391,6 +391,8 @@ class RunInstance {
             if(this.isStopped) {
                 return true;
             }
+
+            e = this.validateError(e);
 
             this.fillErrorFromStep(e, step, true);
 
@@ -1115,6 +1117,18 @@ class RunInstance {
                     error.lineNumber = parseInt(matches[0]);
                 }
             }
+        }
+    }
+
+    /**
+     * If error is a valid object, returns it, otherwise returns an Error that says error is invalid
+     */
+    validateError(error) {
+        if(typeof error != 'object') {
+            return new Error(`A non-object was thrown inside this step. Only objects can be thrown.`);
+        }
+        else {
+            return error;
         }
     }
 

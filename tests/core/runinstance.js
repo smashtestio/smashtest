@@ -1235,6 +1235,24 @@ Wait 20ms {
                 runInstance1.setPersistent("foo", "bar");
                 expect(runInstance2.getPersistent("foo")).to.equal("bar");
             });
+
+            it("throws an error when a non-object is thrown inside a step", async () => {
+                let tree = new Tree();
+                tree.stepDataMode = 'all';
+                tree.parseIn(`
+Step {
+    throw 5;
+}
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                expect(tree.branches[0].steps[0].error.message).to.equal(`A non-object was thrown inside this step. Only objects can be thrown.`);
+            });
         });
 
         context("functions", () => {
