@@ -1232,7 +1232,7 @@
 
                     - multiple props
 
-                        set up page {
+                        create html page {
                             await setPageBody(`
                                 <div id="one" class="small">foobar</div>
                                 <div id="two" class="big">foobar</div>
@@ -1284,7 +1284,7 @@
 
                     - visible prop
 
-                        set up page {
+                        create html page {
                             await setPageBody(`
                                 <div id="one" class="big" style="visibility: hidden">foobar</div>
                                 <div id="two" class="big" style="display: none">foobar</div>
@@ -1344,83 +1344,171 @@
 
                     - errors
 
-                        $s includes an error if an element isn't found, and lists the prop after which 0 elements are matched {
-
+                        create html page {
+                            await setPageBody(`
+                                <div id="one" class="big">foobar</div>
+                                <div id="two" class="small">foobar</div>
+                                <div id="three" class="small">foobar</div>
+                                <div id="four" class="big">foobar</div>
+                            `);
                         }
 
-                        $s includes an error if an element isn't found, where there are multiple props that bring the matches down to 0 {
+                            includes an error if an element isn't found, and lists the prop after which 0 elements are matched {
+                                let ef = new ElementFinder(`.foobar`);
 
-                        }
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                        $s includes an error if the number of elements found are less than the counter min {
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(`.foobar  -->  not found (zero matches after \`.foobar\` applied)`);
+                            }
 
-                        }
+                            includes an error if an element isn't found, where there are multiple props that bring the matches down to 0 {
+                                let ef = new ElementFinder(`.big, .foobar`);
 
-                        $s throws an error if an undefined prop is used {
-                            // hard to repro - delete the prop dynamically at runtime right before the EF is run
-                        }
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(`.big, .foobar  -->  not found (zero matches after \`.foobar\` applied)`);
+                            }
+
+                            includes an error if the number of elements found are less than the counter min {
+                                let ef = new ElementFinder(`3 x .big`);
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(`3 x .big  -->  only found 2`);
+                            }
+
+                            throws an error if an undefined prop is used {
+                                assert.throws(() => {
+                                    new ElementFinder(`div`, {});
+                                }, `Cannot find property that matches \`selector\` [line:1]`);
+                            }
 
                 - one child
 
-                    - text on child
+                    create html page {
+                        await setPageBody(`
+                            <div id="one" class="big">
+                                <div id="two">foobar</div>
+                                <div id="three">blah</div>
+                                <div id="four">  FOOBAR </div>
+                                <div id="five"></div>
+                            </div>
+                            <div id="six" class="big">
+                                <div id="seven"></div>
+                                <div id="eight">foobar</div>
+                            </div>
+                            <div id="nine" class="small">
+                                <div id="ten">foobar</div>
+                            </div>
+                        `);
+                    }
 
-                        $s finds elements {
+                        - text on child
 
-                        }
+                            finds one element {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    'foobar'
+                                `));
 
-                        $s doesn't find elements {
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                        }
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                            }
 
-                    - defined prop on child
+                            finds multiple elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |0+ x .big
+                                    |    'foobar'
+                                `));
 
-                        $s finds elements {
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                        }
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(2);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('six');
+                            }
 
-                        $s doesn't find elements {
+                            doesn't find elements ~ {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    'nope'
+                                `));
 
-                        }
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+console.log(await results.matches[0].getAttribute('id'))
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |.big
+                                    |    'nope'  -->  not found (zero matches after \`.MEOW\` applied)
+                                `));
+                            }
 
-                    - selector on child
+                        - defined prop on child
 
-                        $s finds elements {
+                            $s finds elements {
 
-                        }
+                            }
 
-                        $s doesn't find elements {
+                            $s doesn't find elements {
 
-                        }
+                            }
 
-                    - ord on child
+                        - selector on child
 
-                        $s finds elements {
+                            $s finds elements {
 
-                        }
+                            }
 
-                        $s doesn't find elements {
+                            $s doesn't find elements {
 
-                        }
+                            }
 
-                    - counter on child
+                        - ord on child
 
-                        $s finds elements {
+                            $s finds elements {
 
-                        }
+                            }
 
-                        $s doesn't find elements {
+                            $s doesn't find elements {
 
-                        }
+                            }
 
-                    - match me on child
+                        - counter on child
 
-                        $s finds elements {
+                            $s finds elements {
 
-                        }
+                            }
 
-                        $s doesn't find elements {
+                            $s doesn't find elements {
 
-                        }
+                            }
+
+                        - match me on child
+
+                            $s finds elements {
+
+                            }
+
+                            $s doesn't find elements {
+
+                            }
 
                 - one level of children
 

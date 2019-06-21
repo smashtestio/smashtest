@@ -449,38 +449,33 @@ class ElementFinder {
      * Finds all elements matching this EF at the current moment in time
      * @param {Driver} driver - WebDriver object with which to look for this EF
      * @param {WebElement} [parentElem] - Only search at or inside this WebDriver WebElement, search anywhere on the page if omitted
-     * @param {Boolean} [consoleOutput] - If true, outputs EF information to browser's console
      * @return {Promise} Promise that resolves to the object { ef: this ef with errors set, matches: Array of WebElements that were matched }
      * @throws {Error} If an element array wasn't properly matched
      */
-    async getAll(driver, parentElem, consoleOutput) {
+    async getAll(driver, parentElem) {
         let obj = await driver.executeScript(function() {
             let payload = JSON.parse(arguments[0]);
             let ef = payload.ef;
             let definedProps = payload.definedProps;
             let parentElem = arguments[1];
-            let consoleOutput = arguments[2];
 
             findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
             let matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
 
-            if(consoleOutput) {
-                const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";
-                const SEPARATOR_STYLE = "color: #C0C0C0";
-                const HEADING_STYLE = "font-weight: bold";
+            const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";
+            const SEPARATOR_STYLE = "color: #C0C0C0";
+            const HEADING_STYLE = "font-weight: bold";
 
-                console.log(SEPARATOR, SEPARATOR_STYLE);
-                console.log("%cElementFinder: ", HEADING_STYLE);
-                console.log(ef.fullStr.replace(/^(.*)$/g, '    $1'));
-                console.log(ef);
-                if(parentElem) {
-                    console.log("%cParent:", HEADING_STYLE);
-                    console.log(parentElem);
-                }
-                console.log("%cMatches:", HEADING_STYLE);
-                console.log(matches);
-                console.log(SEPARATOR, SEPARATOR_STYLE);
+            console.log(SEPARATOR, SEPARATOR_STYLE);
+            console.log("%cElementFinder: ", HEADING_STYLE);
+            console.log(ef.fullStr.replace(/^(.*)$/g, '    $1'));
+            console.log(ef);
+            if(parentElem) {
+                console.log("%cParent:", HEADING_STYLE);
+                console.log(parentElem);
             }
+            console.log("%cMatches:", HEADING_STYLE);
+            console.log(matches);
 
             return {
                 ef: JSON.stringify(ef, function(k, v) {
@@ -782,7 +777,7 @@ class ElementFinder {
                     }
                 }
             }
-        }, this.serializeJSON(), parentElem, consoleOutput);
+        }, this.serializeJSON(), parentElem);
 
         return {
             ef: JSON.parse(obj.ef),
@@ -813,7 +808,7 @@ class ElementFinder {
             try {
                 await doFind();
                 async function doFind() {
-                    results = await self.getAll(driver, parentElem, true);
+                    results = await self.getAll(driver, parentElem);
                     results.ef = ElementFinder.parseObj(results.ef);
                     if(!isNot ? results.ef.hasErrors() : (results.matches && results.matches.length > 0)) {
                         let duration = (new Date()) - start;
