@@ -496,7 +496,9 @@ class ElementFinder {
                 // Clear out existing state
                 ef.error = null;
                 ef.blockErrors = [];
-                ef.matchMeElems = [];
+                if(!ef.matchMeElems) {
+                    ef.matchMeElems = [];
+                }
                 if(!additive) {
                     ef.matchedElems = [];
                 }
@@ -573,7 +575,7 @@ class ElementFinder {
                         }
                     }
                     else { // Normal EF
-                        for(let i = 0; i < topElems.length;) {
+                        for(let i = 0; i < topElems.length && (typeof max == 'undefined' || i < max);) {
                             let topElem = topElems[i];
                             let pool = toArray(topElem.querySelectorAll('*')); // all elements under topElem
                             let remove = false;
@@ -592,10 +594,6 @@ class ElementFinder {
                                 }
 
                                 let elemsMatchingChild = childEF.matchedElems;
-                                if(typeof childEF.counter.max != 'undefined') {
-                                    elemsMatchingChild = elemsMatchingChild.slice(0, childEF.counter.max);
-                                }
-
                                 if(ef.isAnyOrder) {
                                     // Remove all elemsMatchingChild and their descendants from pool
                                     removeFromArr(pool, elemsMatchingChild);
@@ -616,7 +614,7 @@ class ElementFinder {
                         }
 
                         if(topElems.length == 0) {
-                            if(ef.counter.min > 0) {
+                            if(min > 0) {
                                 if(originalTopElemCount == 1) {
                                     ef.error = "found, but doesn't contain the right children";
                                 }
@@ -645,15 +643,17 @@ class ElementFinder {
                         ef.matchedElems = ef.matchedElems.concat(topElems);
                     }
 
+                    // Copy over matchedElems if this EF has matchMe set
+                    if(ef.matchMe) {
+                        ef.matchMeElems = ef.matchMeElems.concat(ef.matchedElems);
+                    }
+
                     // Copy over matchMeElems from children
                     ef.children.forEach(function(childEF) {
-                        ef.matchMeElems = childEF.matchMeElems;
+                        ef.matchMeElems = ef.matchMeElems.concat(childEF.matchMeElems);
                     });
-                }
 
-                // Copy over matchedElems if this EF has matchMe set
-                if(ef.matchMe) {
-                    ef.matchMeElems = ef.matchMeElems.concat(ef.matchedElems);
+                    clearErrorsOfChildren(ef);
                 }
             }
 

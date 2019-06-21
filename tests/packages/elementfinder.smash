@@ -1290,6 +1290,7 @@
                                 <div id="two" class="big" style="display: none">foobar</div>
                                 <div id="three" class="big">foobar</div>
                                 <div id="four" class="big" style="opacity: 0">foobar</div>
+                                <div id="five" class="big"></div>
                             `);
                         }
 
@@ -1322,10 +1323,11 @@
                                 results.ef = ElementFinder.parseObj(results.ef);
 
                                 expect(results.ef.hasErrors()).to.be.false;
-                                expect(results.matches).to.have.lengthOf(3);
+                                expect(results.matches).to.have.lengthOf(4);
                                 expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                 expect(await results.matches[1].getAttribute('id')).to.equal('two');
                                 expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                expect(await results.matches[3].getAttribute('id')).to.equal('five');
                             }
 
                             finds all elements regardless of visibility if 'any visibility' is explicitly listed {
@@ -1335,11 +1337,12 @@
                                 results.ef = ElementFinder.parseObj(results.ef);
 
                                 expect(results.ef.hasErrors()).to.be.false;
-                                expect(results.matches).to.have.lengthOf(4);
+                                expect(results.matches).to.have.lengthOf(5);
                                 expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                 expect(await results.matches[1].getAttribute('id')).to.equal('two');
                                 expect(await results.matches[2].getAttribute('id')).to.equal('three');
                                 expect(await results.matches[3].getAttribute('id')).to.equal('four');
+                                expect(await results.matches[4].getAttribute('id')).to.equal('five');
                             }
 
                     - errors
@@ -1401,14 +1404,18 @@
                                 <div id="three">blah</div>
                                 <div id="four">  FOOBAR </div>
                                 <div id="five"></div>
+                                <input id="eleven" type="checkbox" checked>
                             </div>
                             <div id="six" class="big">
-                                <div id="seven"></div>
+                                <div id="seven">blah</div>
                                 <div id="eight">foobar</div>
+                                <input id="twelve" type="checkbox">
                             </div>
                             <div id="nine" class="small">
                                 <div id="ten">foobar</div>
+                                <input id="thirteen" type="checkbox" checked>
                             </div>
+                            <input id="fourteen" type="checkbox" checked>
                         `);
                     }
 
@@ -1461,98 +1468,329 @@
 
                         - defined prop on child
 
-                            $s finds elements {
+                            finds one element {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    checked
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
                             }
 
-                            $s doesn't find elements {
+                            finds multiple elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |0+ x selector '.big, .small'
+                                    |    checked
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(2);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('nine');
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    selected
+                                `));
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |.big  -->  2 found, but none contain the right children (in the right order)
+                                    |    selected`));
                             }
 
                         - selector on child
 
-                            $s finds elements {
+                            finds one element {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    #eight
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('six');
                             }
 
-                            $s doesn't find elements {
+                            finds multiple elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |0+ x .big
+                                    |    selector '#three, #eight'
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(2);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('six');
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    .blah
+                                `));
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |.big  -->  2 found, but none contain the right children (in the right order)
+                                    |    .blah`));
                             }
 
                         - ord on child
 
-                            $s finds elements {
+                            finds one element {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    3rd
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
                             }
 
-                            $s doesn't find elements {
+                            finds multiple elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |0+ x .big
+                                    |    3rd
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(2);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('six');
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    10th
+                                `));
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |.big  -->  2 found, but none contain the right children (in the right order)
+                                    |    10th`));
                             }
 
                         - counter on child
 
-                            $s finds elements {
+                            - counter of 0
 
+                                counter of 0 on a child makes child irrelevant {
+                                    let ef = new ElementFinder(regularize(`
+                                        |0+ x selector'.big,.small'
+                                        |    0 x div
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(3);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('six');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('nine');
+                                }
+
+                                counter of 0+ on a child makes child irrelevant {
+                                    let ef = new ElementFinder(regularize(`
+                                        |0+ x selector'.big,.small'
+                                        |    0+ x div
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(3);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('six');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('nine');
+                                }
+
+                            finds one element {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    2 x div
+                                `));
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
                             }
 
-                            $s doesn't find elements {
+                            finds multiple elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |0+ x .big
+                                    |    2 x div
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(2);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('six');
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    5 x div
+                                `));
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |.big  -->  2 found, but none contain the right children (in the right order)
+                                    |    5 x div`));
                             }
 
                         - match me on child
 
-                            $s finds elements {
+                            finds one element {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    ['foobar']
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('two');
                             }
 
-                            $s doesn't find elements {
+                            finds multiple elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |1+ x .big
+                                    |    [1+ x 'foobar']
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(3);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('four');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('eight');
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    ['nothing']
+                                `));
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |.big  -->  2 found, but none contain the right children (in the right order)
+                                    |    ['nothing']`));
                             }
 
                 - one level of children
 
                     - generic tests
 
-                        - parent matches once
+                        create html page {
+                            await setPageBody(`
+                                <div id="one" class="big">
+                                </div>
+                                <div id="two" class="big">
+                                </div>
+                                <div id="three" class="small">
+                                </div>
+                            `);
+                        }
 
-                            - finds elements
+                            - parent matches once
 
-                                $s children always match {
+                                - finds elements
 
-                                }
+                                    $s children always match {
 
-                                $s children sometimes match {
-                                    // parent  --> found, but doesn't contain all the children below
-                                    // child that doesn't match  --> not found (zero matches after `prop name` applied)
-                                }
+                                    }
 
-                            - doesn't find elements
+                                    $s children sometimes match {
+                                        // parent  --> found, but doesn't contain all the children below
+                                        // child that doesn't match  --> not found (zero matches after `prop name` applied)
+                                    }
 
-                                $s children never match {
+                                - doesn't find elements
 
-                                }
+                                    $s children never match {
 
-                        - parent matches multiple times
+                                    }
 
-                            - finds elements
+                            - parent matches multiple times
 
-                                $s children always match {
+                                - finds elements
 
-                                }
+                                    $s children always match {
 
-                                $s children sometimes match {
+                                    }
 
-                                }
+                                    $s children sometimes match {
 
-                            - doesn't find elements
+                                    }
 
-                                $s children never match {
-                                    // parent  --> N found, but none contain all the children below
-                                }
+                                - doesn't find elements
 
-                                $s children are correct but in the wrong order {
+                                    $s children never match {
+                                        // parent  --> N found, but none contain all the children below
+                                    }
 
-                                }
+                                    $s children are correct but in the wrong order {
+
+                                    }
 
                     - counter
 
