@@ -573,18 +573,21 @@ class ElementFinder {
                         }
                     }
                     else { // Normal EF
-                        for(let topElem of topElems) {
+                        for(let i = 0; i < topElems.length;) {
+                            let topElem = topElems[i];
                             let pool = toArray(topElem.querySelectorAll('*')); // all elements under topElem
+                            let remove = false;
+
                             for(let childEF of ef.children) {
                                 if(pool.length == 0) {
-                                    removeFromArr(topElems, [topElem]); // topElem has no children left, but more children are expected, so remove topElem from contention
+                                    remove = true; // topElem has no children left, but more children are expected, so remove topElem from contention
                                     break;
                                 }
 
                                 findEF(childEF, pool);
 
                                 if(hasTopErrors(childEF)) {
-                                    removeFromArr(topElems, [topElem]); // topElem's children don't match, so remove it from contention
+                                    remove = true; // topElem's children don't match, so remove it from contention
                                     break;
                                 }
 
@@ -603,20 +606,27 @@ class ElementFinder {
                                     pool.splice(0, pool.indexOf(elemsMatchingChild[elemsMatchingChild.length - 1]) + 1);
                                 }
                             }
+
+                            if(remove) {
+                                removeFromArr(topElems, [topElem]);
+                            }
+                            else {
+                                i++;
+                            }
                         }
 
                         if(topElems.length == 0) {
                             if(ef.counter.min > 0) {
                                 if(originalTopElemCount == 1) {
-                                    ef.error = "found, but doesn't contain all the children below";
+                                    ef.error = "found, but doesn't contain the right children";
                                 }
                                 else {
-                                    ef.error = originalTopElemCount + " found, but none contain all the children below";
+                                    ef.error = originalTopElemCount + " found, but none contain the right children";
                                     clearErrorsOfChildren(ef);
                                 }
 
                                 if(!ef.isAnyOrder) {
-                                    ef.error += " (in that order)";
+                                    ef.error += " (in the right order)";
                                 }
                             }
                         }

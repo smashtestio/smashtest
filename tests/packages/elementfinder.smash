@@ -1443,7 +1443,7 @@
                                 expect(await results.matches[1].getAttribute('id')).to.equal('six');
                             }
 
-                            doesn't find elements ~ {
+                            doesn't find elements {
                                 let ef = new ElementFinder(regularize(`
                                     |.big
                                     |    'nope'
@@ -1451,13 +1451,12 @@
 
                                 let results = await ef.getAll(browser.driver);
                                 results.ef = ElementFinder.parseObj(results.ef);
-console.log(await results.matches[0].getAttribute('id'))
+
                                 expect(results.ef.hasErrors()).to.be.true;
                                 expect(results.matches).to.have.lengthOf(0);
                                 expect(results.ef.print()).to.equal(regularize(`
-                                    |.big
-                                    |    'nope'  -->  not found (zero matches after \`.MEOW\` applied)
-                                `));
+                                    |.big  -->  2 found, but none contain the right children (in the right order)
+                                    |    'nope'`));
                             }
 
                         - defined prop on child
