@@ -1743,10 +1743,13 @@
                         create html page {
                             await setPageBody(`
                                 <div id="one" class="big">
+                                    <div id="two" class="sub1">foobar</div>
+                                    <div id="three" class="sub2">foobar</div>
                                 </div>
-                                <div id="two" class="big">
-                                </div>
-                                <div id="three" class="small">
+                                <div id="five" class="big">
+                                    <div id="six" class="sub1">foobar</div>
+                                    <div id="seven" class="sub2">foobar</div>
+                                    <div id="eight" class="sub3">foobar</div>
                                 </div>
                             `);
                         }
@@ -1755,130 +1758,230 @@
 
                                 - finds elements
 
-                                    $s children always match {
+                                    children always match {
+                                        let ef = new ElementFinder(regularize(`
+                                            |#five
+                                            |    .sub1
+                                            |    .sub2
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('five');
                                     }
 
-                                    $s children sometimes match {
-                                        // parent  --> found, but doesn't contain all the children below
-                                        // child that doesn't match  --> not found (zero matches after `prop name` applied)
+                                    children sometimes match {
+                                        let ef = new ElementFinder(regularize(`
+                                            |#five
+                                            |    .sub1
+                                            |    .sub3
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('five');
                                     }
 
                                 - doesn't find elements
 
-                                    $s children never match {
+                                    children never match {
+                                        let ef = new ElementFinder(regularize(`
+                                            |#five
+                                            |    .sub1
+                                            |    .sub4
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(regularize(`
+                                            |#five  -->  found, but doesn't contain the right children (in the right order)
+                                            |    .sub1
+                                            |    .sub4  -->  not found (zero matches after \`.sub4\` applied)`));
                                     }
 
                             - parent matches multiple times
 
                                 - finds elements
 
-                                    $s children always match {
+                                    children always match {
+                                        let ef = new ElementFinder(regularize(`
+                                            |1+ x .big
+                                            |    .sub1
+                                            |    .sub2
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('five');
+                                    }
+
+                                    children sometimes match {
+                                        let ef = new ElementFinder(regularize(`
+                                            |1+ x .big
+                                            |    .sub1
+                                            |    .sub3
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('five');
+                                    }
+
+                                - doesn't find elements
+
+                                    children never match {
+                                        let ef = new ElementFinder(regularize(`
+                                            |1+ x .big
+                                            |    .sub1
+                                            |    .sub4
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(regularize(`
+                                            |1+ x .big  -->  2 found, but none contain the right children (in the right order)
+                                            |    .sub1
+                                            |    .sub4`));
+                                    }
+
+                                    children are correct but in the wrong order {
+                                        let ef = new ElementFinder(regularize(`
+                                            |1+ x .big
+                                            |    .sub2
+                                            |    .sub1
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(regularize(`
+                                            |1+ x .big  -->  2 found, but none contain the right children (in the right order)
+                                            |    .sub2
+                                            |    .sub1`));
+                                    }
+
+                    - counter
+
+                        create html page {
+                            await setPageBody(`
+                                <div id="one" class="big">
+                                    <div id="two" class="sub1">foobar</div>
+                                    <div id="three" class="sub2">foobar</div>
+                                </div>
+                                <div id="five" class="big">
+                                    <div id="six" class="sub1">foobar</div>
+                                    <div id="seven" class="sub2">foobar</div>
+                                    <div id="eight" class="sub3">foobar</div>
+                                </div>
+                            `);
+                        }
+
+                            - counter on parent
+
+                                - finds elements
+
+                                    $s counters allow correct matching {
 
                                     }
 
-                                    $s children sometimes match {
+                                    $s counter of 1+ is used {
+
+                                    }
+
+                                    $s number of elements are between the counter's min and max {
+
+                                    }
+
+                                    $s there are more elements than a counter's min, and no max exists {
+
+                                    }
+
+                                    $s there are more elements than a counter's max {
+
+                                    }
+
+                                    $s matches the most amount of elements allowed by the counter (greedy matching) {
 
                                     }
 
                                 - doesn't find elements
 
-                                    $s children never match {
-                                        // parent  --> N found, but none contain all the children below
-                                    }
+                                    - there are fewer elements than a counter's min
 
-                                    $s children are correct but in the wrong order {
+                                        $s there are > 0 elements {
+                                            // parent    --> only found N
+                                        }
 
-                                    }
+                                        $s there are 0 elements {
 
-                    - counter
+                                        }
 
-                        - counter on parent
+                            - counter on child
 
-                            - finds elements
+                                - finds elements
 
-                                $s counters allow correct matching {
+                                    - counter of '1+'
 
-                                }
+                                        $s 0 elements exist {
 
-                                $s counter of 1+ is used {
+                                        }
 
-                                }
+                                        $s those elements exist {
 
-                                $s number of elements are between the counter's min and max {
+                                        }
 
-                                }
-
-                                $s there are more elements than a counter's min, and no max exists {
-
-                                }
-
-                                $s there are more elements than a counter's max {
-
-                                }
-
-                                $s matches the most amount of elements allowed by the counter (greedy matching) {
-
-                                }
-
-                            - doesn't find elements
-
-                                - there are fewer elements than a counter's min
-
-                                    $s there are > 0 elements {
-                                        // parent    --> only found N
-                                    }
-
-                                    $s there are 0 elements {
+                                    $s number of elements are between the counter's min and max {
 
                                     }
 
-                        - counter on child
-
-                            - finds elements
-
-                                - counter of '1+'
-
-                                    $s 0 elements exist {
+                                    $s there are more elements than a counter's min, and no max exists {
 
                                     }
 
-                                    $s those elements exist {
+                                    $s there are more elements than a counter's max {
 
                                     }
 
-                                $s number of elements are between the counter's min and max {
-
-                                }
-
-                                $s there are more elements than a counter's min, and no max exists {
-
-                                }
-
-                                $s there are more elements than a counter's max {
-
-                                }
-
-                                $s matches the most amount of elements allowed by the counter (greedy matching) {
-
-                                }
-
-                            - doesn't find elements
-
-                                - fewer elements than a counter's min
-
-                                    $s 0 elements exist {
+                                    $s matches the most amount of elements allowed by the counter (greedy matching) {
 
                                     }
 
-                                    $s those elements exist {
+                                - doesn't find elements
 
-                                    }
+                                    - fewer elements than a counter's min
 
-                        $s counter on parent and child {
+                                        $s 0 elements exist {
 
-                        }
+                                        }
+
+                                        $s those elements exist {
+
+                                        }
+
+                            $s counter on parent and child {
+
+                            }
 
                     - keywords
 
