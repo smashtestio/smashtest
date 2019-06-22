@@ -2709,6 +2709,7 @@
                                 </div>
                                 <div id="four" class="med">foobar</div>
                             </div>
+                            <div id="two" class="big">foobar</div>
                         `);
                     }
 
@@ -2718,35 +2719,79 @@
 
                                 - finds elements
 
-                                    $s grandchild always matches {
+                                    grandchild always matches {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |        .small
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                     }
 
-                                    $s grandchild sometimes matches {
-                                        // including a bad match at the end - shouldn't appear as an error
+                                    grandchild sometimes matches {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |        #six
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                     }
 
                                 - doesn't find elements
 
-                                    $s grandchild never matches {
+                                    grandchild never matches {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |        .none
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(regularize(`
+                                            |.big  -->  2 found, but none contain the right children (in the right order)
+                                            |    .med
+                                            |        .none`));
                                     }
 
                         - counter
 
                             - handles multiple levels of counters
 
-                                - finds elements
+                                finds elements {
 
-                                - doesn't find elements
+                                }
+
+                                doesn't find elements {
+
+                                }
 
                         - keywords
 
                             - handles multiple levels of subset and any order
 
-                                - finds elements
+                                finds elements {
 
-                                - doesn't find elements
+                                }
+
+                                doesn't find elements {
+
+                                }
 
                         - match me
 
