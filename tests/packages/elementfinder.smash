@@ -1883,227 +1883,884 @@
 
                     - counter
 
-                        create html page {
-                            await setPageBody(`
-                                <div id="one" class="big">
-                                    <div id="two" class="sub1">foobar</div>
-                                    <div id="three" class="sub2">foobar</div>
-                                </div>
-                                <div id="five" class="big">
-                                    <div id="six" class="sub1">foobar</div>
-                                    <div id="seven" class="sub2">foobar</div>
-                                    <div id="eight" class="sub3">foobar</div>
-                                </div>
-                            `);
-                        }
+                        - counter on parent
 
-                            - counter on parent
+                            create html page {
+                                await setPageBody(`
+                                    <div id="1" class="big">
+                                        <div id="1-1" class="sub1">foobar</div>
+                                    </div>
+                                    <div id="2" class="big">
+                                        <div id="2-1" class="sub1">foobar</div>
+                                        <div id="2-2" class="sub2">foobar</div>
+                                    </div>
+                                    <div id="3" class="big">
+                                        <div id="3-1" class="sub1">foobar</div>
+                                        <div id="3-2" class="sub2">foobar</div>
+                                        <div id="3-3" class="sub3">foobar</div>
+                                    </div>
+                                    <div id="4" class="big">
+                                        <div id="4-1" class="sub1">foobar</div>
+                                        <div id="4-2" class="sub2">foobar</div>
+                                        <div id="4-3" class="sub3">foobar</div>
+                                        <div id="4-4" class="sub4">foobar</div>
+                                    </div>
+                                    <div id="5" class="big">
+                                        <div id="5-1" class="sub1">foobar</div>
+                                        <div id="5-2" class="sub2">foobar</div>
+                                        <div id="5-3" class="sub3">foobar</div>
+                                        <div id="5-4" class="sub4">foobar</div>
+                                        <div id="5-5" class="sub5">foobar</div>
+                                    </div>
+                                `);
+                            }
 
                                 - finds elements
 
-                                    $s counters allow correct matching {
+                                    counters allow correct matching {
+                                        let ef = new ElementFinder(regularize(`
+                                            |3 x .big
+                                            |    .sub1
+                                            |    .sub2
+                                            |    .sub3
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('3');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('4');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('5');
                                     }
 
-                                    $s counter of 1+ is used {
+                                    - counter of 0 is used
 
+                                        matching elements exist {
+                                            let ef = new ElementFinder(regularize(`
+                                                |0 x .big
+                                                |    .sub1
+                                                |    .sub2
+                                                |    .sub3
+                                            `));
+
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.false;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                        }
+
+                                        matching elements don't exist {
+                                            let ef = new ElementFinder(regularize(`
+                                                |0 x .big
+                                                |    .sub1
+                                                |    .sub2
+                                                |    .sub7
+                                            `));
+
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.false;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                        }
+
+                                    counter of 0+ is used {
+                                        let ef = new ElementFinder(regularize(`
+                                            |0+ x .big
+                                            |    .sub1
+                                            |    .sub2
+                                            |    .sub3
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('3');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('4');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('5');
                                     }
 
-                                    $s number of elements are between the counter's min and max {
+                                    counter of 1+ is used {
+                                        let ef = new ElementFinder(regularize(`
+                                            |1+ x .big
+                                            |    .sub1
+                                            |    .sub2
+                                            |    .sub3
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('3');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('4');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('5');
                                     }
 
-                                    $s there are more elements than a counter's min, and no max exists {
+                                    number of elements are between the counter's min and max {
+                                        let ef = new ElementFinder(regularize(`
+                                            |1-2 x .big
+                                            |    .sub1
+                                            |    .sub2
+                                            |    .sub3
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('3');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('4');
                                     }
 
-                                    $s there are more elements than a counter's max {
+                                    there are more elements than a counter's min, and no max exists {
+                                        let ef = new ElementFinder(regularize(`
+                                            |2- x .big
+                                            |    .sub1
+                                            |    .sub2
+                                            |    .sub3
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('3');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('4');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('5');
                                     }
 
-                                    $s matches the most amount of elements allowed by the counter (greedy matching) {
+                                    there are more elements than a counter's max {
+                                        let ef = new ElementFinder(regularize(`
+                                            |0-2 x .big
+                                            |    .sub1
+                                            |    .sub2
+                                            |    .sub3
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('3');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('4');
                                     }
 
                                 - doesn't find elements
 
                                     - there are fewer elements than a counter's min
 
-                                        $s there are > 0 elements {
-                                            // parent    --> only found N
+                                        there are > 0 elements {
+                                            let ef = new ElementFinder(regularize(`
+                                                |3-4 x .big
+                                                |    .sub1
+                                                |    .sub2
+                                                |    .sub3
+                                                |    .sub4
+                                            `));
+
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.true;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                            expect(results.ef.print()).to.equal(regularize(`
+                                                |3-4 x .big  -->  only found 2
+                                                |    .sub1
+                                                |    .sub2
+                                                |    .sub3
+                                                |    .sub4`));
                                         }
 
-                                        $s there are 0 elements {
+                                        there are 0 elements {
+                                            let ef = new ElementFinder(regularize(`
+                                                |1-2 x .big
+                                                |    .sub1
+                                                |    .sub2
+                                                |    .sub3
+                                                |    .sub5
+                                                |    .sub4
+                                            `));
 
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.true;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                            expect(results.ef.print()).to.equal(regularize(`
+                                                |1-2 x .big  -->  5 found, but none contain the right children (in the right order)
+                                                |    .sub1
+                                                |    .sub2
+                                                |    .sub3
+                                                |    .sub5
+                                                |    .sub4`));
                                         }
 
-                            - counter on child
+                        - counter on child
+
+                            create html page {
+                                await setPageBody(`
+                                    <div id="one" class="big">
+                                        <div id="1" class="small">foobar</div>
+                                        <div id="2" class="med">foobar</div>
+                                        <div id="3" class="small">foobar</div>
+                                        <div id="4" class="small">foobar</div>
+                                        <div id="5" class="small">foobar</div>
+                                    </div>
+                                `);
+                            }
 
                                 - finds elements
 
-                                    - counter of '1+'
+                                    counter of '1+' {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |    1+ x .small
+                                        `));
 
-                                        $s 0 elements exist {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
-                                        }
-
-                                        $s those elements exist {
-
-                                        }
-
-                                    $s number of elements are between the counter's min and max {
-
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                     }
 
-                                    $s there are more elements than a counter's min, and no max exists {
+                                    number of elements are between the counter's min and max {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |    2-4 x .small
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                     }
 
-                                    $s there are more elements than a counter's max {
+                                    there are more elements than a counter's min, and no max exists {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |    2- x .small
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                     }
 
-                                    $s matches the most amount of elements allowed by the counter (greedy matching) {
+                                    there are more elements than a counter's max {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |    1-2 x .small
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                     }
 
                                 - doesn't find elements
 
                                     - fewer elements than a counter's min
 
-                                        $s 0 elements exist {
+                                        0 elements exist {
+                                            let ef = new ElementFinder(regularize(`
+                                                |.big
+                                                |    .med
+                                                |    4 x .bad
+                                            `));
 
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.true;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                            expect(results.ef.print()).to.equal(regularize(`
+                                                |.big  -->  found, but doesn't contain the right children (in the right order)
+                                                |    .med
+                                                |    4 x .bad  -->  not found (zero matches after \`.bad\` applied)`));
                                         }
 
-                                        $s those elements exist {
+                                        elements exist {
+                                            let ef = new ElementFinder(regularize(`
+                                                |.big
+                                                |    .med
+                                                |    4 x .small
+                                            `));
 
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.true;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                            expect(results.ef.print()).to.equal(regularize(`
+                                                |.big  -->  found, but doesn't contain the right children (in the right order)
+                                                |    .med
+                                                |    4 x .small  -->  only found 3`));
                                         }
 
-                            $s counter on parent and child {
+                        - counter on parent and child
 
+                            create html page {
+                                await setPageBody(`
+                                    <div id="one" class="big">
+                                        <div id="1" class="small">foobar</div>
+                                        <div id="2" class="small">foobar</div>
+                                        <div id="3" class="small">foobar</div>
+                                    </div>
+                                    <div id="two" class="big">
+                                        <div id="4" class="small">foobar</div>
+                                        <div id="5" class="small">foobar</div>
+                                    </div>
+                                `);
                             }
+
+                                finds elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |2-5 x .big
+                                        |    2+ x .small
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(2);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                }
+
+                                doesn't find elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |3 x .big
+                                        |    4 x .small
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |3 x .big  -->  2 found, but none contain the right children (in the right order)
+                                        |    4 x .small`));
+                                }
 
                     - keywords
 
-                        $s finds elements in a differing order with the 'any order' keyword {
-
+                        create html page {
+                            await setPageBody(`
+                                <div id="one" class="big">
+                                    <div id="d1" class="small">foobar</div>
+                                    <div id="d2" class="med">foobar</div>
+                                    <div id="d3" class="small">foobar</div>
+                                    <div id="d4" class="small">foobar</div>
+                                    <div id="d5" class="small">foobar</div>
+                                </div>
+                                <div id="two" class="big">
+                                    <div id="d1" class="small">foobar</div>
+                                    <div id="d2" class="med">foobar</div>
+                                    <div id="d3" class="small">foobar</div>
+                                </div>
+                            `);
                         }
 
-                        $s parent matches once, children don't match, even with the 'any order' keyword {
-                            // includes (in that order) in error
-                        }
+                            - 'any order'
 
-                        $s parent matches multiple times, children don't match, even with the 'any order' keyword {
-                            // includes (in that order) in error
-                        }
+                                finds elements in a differing order with the 'any order' keyword {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    any order
+                                        |    #d3
+                                        |    #d2
+                                        |    #d5
+                                    `));
 
-                        $s finds elements with the 'subset' keyword, even though it doesn't do anything {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                        }
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                }
 
-                        $s handles the 'any order' and 'subset' keywords together {
+                                parent matches once, children don't match, even with the 'any order' keyword {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big, 2nd
+                                        |    any order
+                                        |    #d2
+                                        |    #d4
+                                    `));
 
-                        }
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |.big, 2nd  -->  found, but doesn't contain the right children
+                                        |    any order
+                                        |    #d2
+                                        |    #d4  -->  not found (zero matches after \`#d4\` applied)`));
+                                }
+
+                                parent matches multiple times, children don't match, even with the 'any order' keyword {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    any order
+                                        |    #d2
+                                        |    #d6
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |.big  -->  2 found, but none contain the right children
+                                        |    any order
+                                        |    #d2
+                                        |    #d6`));
+                                }
+
+                                - counters and 'any order'
+
+                                    finds elements {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    any order
+                                            |    #d3
+                                            |    3 x div
+                                            |    #d5
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    }
+
+                                    doesn't find elements because of the counter {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    any order
+                                            |    #d3
+                                            |    4 x div
+                                            |    #d5
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(regularize(`
+                                            |.big  -->  2 found, but none contain the right children
+                                            |    any order
+                                            |    #d3
+                                            |    4 x div
+                                            |    #d5`));
+                                    }
+
+                            - 'subset'
+
+                                finds elements with the 'subset' keyword, even though it doesn't do anything {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    subset
+                                        |    #d1
+                                        |    #d2
+                                        |    #d3
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                }
+
+                                - counters and 'subset'
+
+                                    finds elements {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    subset
+                                            |    #d1
+                                            |    3 x div
+                                            |    #d5
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    }
+
+                                    doesn't find elements because of the counter {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    subset
+                                            |    #d3
+                                            |    3 x div
+                                            |    #d5
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(regularize(`
+                                            |.big  -->  2 found, but none contain the right children (in the right order)
+                                            |    subset
+                                            |    #d3
+                                            |    3 x div
+                                            |    #d5`));
+                                    }
+
+                            - 'any order' and 'subset'
+
+                                handles the 'any order' and 'subset' keywords together {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    subset
+                                        |    any order
+                                        |    #d1
+                                        |    #d3
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                }
 
                     - match me
 
-                        - [match me] on the parent
+                        create html page {
+                            await setPageBody(`
+                                <div id="one" class="big">
+                                    <div id="d1" class="small">foobar</div>
+                                    <div id="d2" class="med">foobar</div>
+                                    <div id="d3" class="small">foobar</div>
+                                    <div id="d4" class="small">foobar</div>
+                                    <div id="d5" class="small">foobar</div>
+                                </div>
+                                <div id="two" class="big">
+                                    <div id="d6" class="small">foobar</div>
+                                    <div id="d7" class="med">foobar</div>
+                                    <div id="d8" class="small">foobar</div>
+                                </div>
+                            `);
+                        }
 
-                            $s matches elements {
+                            - [match me] on the parent
 
-                            }
+                                finds elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |[2 x .big]
+                                        |    .small
+                                        |    .med
+                                    `));
 
-                            $s doesn't match elements {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                            }
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(2);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                }
 
-                        - [match me] on a child
+                                doesn't find elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |[2 x .none]
+                                        |    .small
+                                        |    .med
+                                    `));
 
-                            $s matches elements {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                            }
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |[2 x .none]  -->  not found (zero matches after \`.none\` applied)
+                                        |    .small
+                                        |    .med`));
+                                }
 
-                            $s doesn't match elements {
+                            - [match me] on a child
 
-                            }
+                                finds elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |2 x .big
+                                        |    .small
+                                        |    [.med]
+                                    `));
 
-                        - [match me] on multiple children
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                            $s matches elements {
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(2);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('d2');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('d7');
+                                }
 
-                            }
+                                doesn't find elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |2 x .big
+                                        |    .small
+                                        |    [.none]
+                                    `));
 
-                            $s doesn't match elements {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                            }
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |2 x .big  -->  2 found, but none contain the right children (in the right order)
+                                        |    .small
+                                        |    [.none]`));
+                                }
 
-                        - [match me] on the parent and multiple children
+                            - [match me] on multiple children
 
-                            $s matches elements {
+                                finds elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |2 x .big
+                                        |    [.small]
+                                        |    [.med]
+                                    `));
 
-                            }
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                            $s doesn't match elements {
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(4);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('d1');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('d6');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('d2');
+                                    expect(await results.matches[3].getAttribute('id')).to.equal('d7');
+                                }
 
-                            }
+                                doesn't find elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |2 x .big
+                                        |    [.small]
+                                        |    [.none]
+                                    `));
 
-                        - [counter x child element]
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                            $s matches elements {
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |2 x .big  -->  2 found, but none contain the right children (in the right order)
+                                        |    [.small]
+                                        |    [.none]`));
+                                }
 
-                            }
+                            - [match me] on the parent and multiple children
 
-                            $s doesn't match elements {
+                                finds elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |[2 x .big]
+                                        |    [.small]
+                                        |    [.med]
+                                    `));
 
-                            }
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(6);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('d1');
+                                    expect(await results.matches[3].getAttribute('id')).to.equal('d6');
+                                    expect(await results.matches[4].getAttribute('id')).to.equal('d2');
+                                    expect(await results.matches[5].getAttribute('id')).to.equal('d7');
+                                }
+
+                                doesn't find elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |[2 x .big]
+                                        |    [.small]
+                                        |    [.none]
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |[2 x .big]  -->  2 found, but none contain the right children (in the right order)
+                                        |    [.small]
+                                        |    [.none]`));
+                                }
+
+                            - [counter x child element]
+
+                                - finds elements
+
+                                    counter with just a min {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |    [3 x .small]
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('d3');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('d4');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('d5');
+                                    }
+
+                                    counter with a min and max {
+                                        let ef = new ElementFinder(regularize(`
+                                            |0+ x .big
+                                            |    .med
+                                            |    [1-3 x .small]
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(4);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('d3');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('d4');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('d5');
+                                        expect(await results.matches[3].getAttribute('id')).to.equal('d8');
+                                    }
+
+                                doesn't find elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    .med
+                                        |    [4 x .small]
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |.big  -->  2 found, but none contain the right children (in the right order)
+                                        |    .med
+                                        |    [4 x .small]`));
+                                }
 
                 - multiple levels of children
 
-                    - generic tests
+                    create html page {
+                        await setPageBody(`
+                            <div id="one" class="big">
+                                <div id="two" class="med">
+                                    <div id="five" class="small">foobar</div>
+                                    <div id="six" class="small">foobar</div>
+                                    <div id="seven" class="small">foobar</div>
+                                </div>
+                                <div id="three" class="med">
+                                    <div id="eight" class="small">foobar</div>
+                                    <div id="nine" class="small">foobar</div>
+                                    <div id="ten" class="small">foobar</div>
+                                </div>
+                                <div id="four" class="med">foobar</div>
+                            </div>
+                        `);
+                    }
 
-                        - parent matches, child matches
+                        - generic tests
 
-                            - finds elements
+                            - parent matches, child matches
 
-                                $s grandchild always matches {
+                                - finds elements
 
-                                }
+                                    $s grandchild always matches {
 
-                                $s grandchild sometimes matches {
-                                    // including a bad match at the end - shouldn't appear as an error
-                                }
+                                    }
 
-                            - doesn't find elements
+                                    $s grandchild sometimes matches {
+                                        // including a bad match at the end - shouldn't appear as an error
+                                    }
 
-                                $s grandchild never matches {
+                                - doesn't find elements
 
-                                }
+                                    $s grandchild never matches {
 
-                    - counter
+                                    }
 
-                        $s handles multiple levels of counters {
+                        - counter
 
-                        }
+                            - handles multiple levels of counters
 
-                    - keywords
+                                - finds elements
 
-                        $s handles multiple levels of subset and any order {
+                                - doesn't find elements
 
-                        }
+                        - keywords
 
-                    - match me
+                            - handles multiple levels of subset and any order
 
-                        $s []'s on multiple levels {
+                                - finds elements
 
-                        }
+                                - doesn't find elements
 
-                        $s []'s matches multiple elements when its parent matches multiple elements {
+                        - match me
 
-                        }
+                            $s []'s on multiple levels {
 
-                        $s []'s matches multiple elements when its grandparent matches multiple elements {
+                            }
 
-                        }
+                            $s []'s matches multiple elements when its parent matches multiple elements {
+
+                            }
+
+                            $s []'s matches multiple elements when its grandparent matches multiple elements {
+
+                            }
 
             - element array EFs
 

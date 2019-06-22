@@ -597,7 +597,9 @@ class ElementFinder {
                                 if(ef.isAnyOrder) {
                                     // Remove all elemsMatchingChild and their descendants from pool
                                     removeFromArr(pool, elemsMatchingChild);
-                                    removeFromArr(pool, toArray(elemsMatchingChild.querySelectorAll('*')));
+                                    elemsMatchingChild.forEach(function(elem) {
+                                        removeFromArr(pool, toArray(elem.querySelectorAll('*')));
+                                    });
                                 }
                                 else {
                                     // Remove from pool all elems before the last elem in elemsMatchingChild
@@ -650,7 +652,7 @@ class ElementFinder {
 
                     // Copy over matchMeElems from children
                     ef.children.forEach(function(childEF) {
-                        ef.matchMeElems = ef.matchMeElems.concat(childEF.matchMeElems);
+                        ef.matchMeElems = ef.matchMeElems.concat(childEF.matchMeElems || []);
                     });
 
                     clearErrorsOfChildren(ef);
