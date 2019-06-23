@@ -650,9 +650,15 @@ class ElementFinder {
                         ef.matchMeElems = ef.matchMeElems.concat(ef.matchedElems);
                     }
 
-                    // Copy over matchMeElems from children
+                    // Copy over matchMeElems from children (only elements that aren't already in ef.matchMeElems)
                     ef.children.forEach(function(childEF) {
-                        ef.matchMeElems = ef.matchMeElems.concat(childEF.matchMeElems || []);
+                        if(childEF.matchMeElems) {
+                            for(let matchMeElem of childEF.matchMeElems) {
+                                if(ef.matchMeElems.indexOf(matchMeElem) == -1) {
+                                    ef.matchMeElems.push(matchMeElem);
+                                }
+                            }
+                        }
                     });
 
                     clearErrorsOfChildren(ef);

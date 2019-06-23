@@ -2709,7 +2709,11 @@
                                 </div>
                                 <div id="four" class="med">foobar</div>
                             </div>
-                            <div id="two" class="big">foobar</div>
+                            <div id="two" class="big">
+                                <div id="eleven" class="other">
+                                    <div id="twelve" class="small">foobar</div>
+                                </div>
+                            </div>
                         `);
                     }
 
@@ -2749,6 +2753,24 @@
                                         expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                     }
 
+                                    multiple grandchildren {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big
+                                            |    .med
+                                            |        #six
+                                            |    .med
+                                            |        #nine
+                                            |        #ten
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                    }
+
                                 - doesn't find elements
 
                                     grandchild never matches {
@@ -2769,42 +2791,184 @@
                                             |        .none`));
                                     }
 
+                                    multiple grandchildren {
+                                        let ef = new ElementFinder(regularize(`
+                                            |.big, 1st
+                                            |    .med
+                                            |        .small
+                                            |    .med
+                                            |        .none
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(regularize(`
+                                            |.big, 1st  -->  found, but doesn't contain the right children (in the right order)
+                                            |    .med
+                                            |        .small
+                                            |    .med  -->  2 found, but none contain the right children (in the right order)
+                                            |        .none`));
+                                    }
+
                         - counter
 
                             - handles multiple levels of counters
 
                                 finds elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |1-5 x .big
+                                        |    2-5 x .med
+                                        |        3-5 x .small
+                                    `));
 
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                 }
 
                                 doesn't find elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |1-5 x .big
+                                        |    2-5 x .med
+                                        |        4-5 x .small
+                                    `));
 
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |1-5 x .big  -->  2 found, but none contain the right children (in the right order)
+                                        |    2-5 x .med
+                                        |        4-5 x .small`));
                                 }
 
                         - keywords
 
-                            - handles multiple levels of subset and any order
+                            - handles multiple levels of 'subset' and 'any order'
 
                                 finds elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    any order
+                                        |    .med
+                                        |        any order
+                                        |        subset
+                                        |        #nine
+                                        |        #eight
+                                        |    .med
+                                        |        subset
+                                        |        #six
+                                    `));
 
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                 }
 
                                 doesn't find elements {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    any order
+                                        |    .med
+                                        |        any order
+                                        |        subset
+                                        |        #nine
+                                        |        #none
+                                        |    .med
+                                        |        subset
+                                        |        #six
+                                    `));
 
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |.big  -->  2 found, but none contain the right children
+                                        |    any order
+                                        |    .med
+                                        |        any order
+                                        |        subset
+                                        |        #nine
+                                        |        #none
+                                        |    .med
+                                        |        subset
+                                        |        #six`));
                                 }
 
                         - match me
 
-                            $s []'s on multiple levels {
+                            []'s on multiple levels {
+                                let ef = new ElementFinder(regularize(`
+                                    |[.big]
+                                    |    [.med]
+                                    |        [#six]
+                                    |    .med
+                                    |        [#ten]
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(4);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('two');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('six');
+                                expect(await results.matches[3].getAttribute('id')).to.equal('ten');
                             }
 
-                            $s []'s matches multiple elements when its parent matches multiple elements {
+                            []'s matches multiple elements when its parent matches multiple elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    1+ x .med
+                                    |        [1+ x .small]
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(6);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('five');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('six');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('seven');
+                                expect(await results.matches[3].getAttribute('id')).to.equal('eight');
+                                expect(await results.matches[4].getAttribute('id')).to.equal('nine');
+                                expect(await results.matches[5].getAttribute('id')).to.equal('ten');
                             }
 
-                            $s []'s matches multiple elements when its grandparent matches multiple elements {
+                            []'s matches multiple elements when its grandparent matches multiple elements {
+                                let ef = new ElementFinder(regularize(`
+                                    |1+ x .big
+                                    |    1+ x div
+                                    |        [1+ x .small]
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(7);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('five');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('six');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('seven');
+                                expect(await results.matches[3].getAttribute('id')).to.equal('eight');
+                                expect(await results.matches[4].getAttribute('id')).to.equal('nine');
+                                expect(await results.matches[5].getAttribute('id')).to.equal('ten');
+                                expect(await results.matches[6].getAttribute('id')).to.equal('twelve');
                             }
 
             - element array EFs
