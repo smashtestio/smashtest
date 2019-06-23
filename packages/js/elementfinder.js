@@ -46,7 +46,7 @@ class ElementFinder {
 
         SET INSIDE BROWSER
 
-        this.error = undefined;             // Set to an error string if there was an error finding this EF
+        this.error = undefined;             // Set to an error string if there was an error finding this EF, set to true if there's an error on a child
         this.blockErrors = undefined;       // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
 
         this.matchedElems = [];             // DOM Elements or WebElements that match this EF
@@ -365,6 +365,9 @@ class ElementFinder {
                 blockErrors += '\n' + nextSpaces + errorStartStr + ' ' + blockError.header + '\n' + nextSpaces + blockError.body + errorEndStr + '\n';
             });
         }
+        if(blockErrors) {
+            blockErrors = '\n' + blockErrors;
+        }
 
         let children = '';
         if(this.isAnyOrder) {
@@ -541,6 +544,12 @@ class ElementFinder {
                                 let currTopElem = topElems[indexE];
                                 let currChildEF = ef.children[indexC];
 
+                                if(currChildEF && currChildEF.isElemArray) {
+                                    currChildEF.error = 'cannot have element array inside element array';
+                                    ef.error = true;
+                                    break;
+                                }
+
                                 if(!currChildEF) { // indexC went over the edge
                                     if(!ef.isSubset) {
                                         ef.blockErrors.push({ header: 'missing', body: elemSummary(currTopElem) });
@@ -549,12 +558,18 @@ class ElementFinder {
                                     indexE++;
                                 }
                                 else if(!currTopElem) { // indexE went over the edge
-                                    currChildEF.error = 'not found';
+                                    if(currChildEF.matchedElems && currChildEF.matchedElems.length < currChildEF.counter.min) {
+                                        currChildEF.error = 'only found ' + currChildEF.matchedElems.length;
+                                    }
+                                    else {
+                                        currChildEF.error = 'not found';
+                                    }
+
                                     ef.error = true;
                                     indexC++;
                                 }
                                 else { // both indexes still good
-                                    let matchesBefore = currChildEF.matchedElems || [];
+                                    let matchesBefore = [].concat(currChildEF.matchedElems || []);
                                     findEF(currChildEF, [currTopElem], true, true);
 
                                     if(currChildEF.matchedElems.length > matchesBefore.length) { // currChildEF matches currTopElem

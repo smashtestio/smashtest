@@ -2184,6 +2184,7 @@ one
             ef.blockErrors = [ { header: `header1`, body: `body1` } ];
 
             expect(ef.print()).to.equal(`one
+
     --> header1
     body1
 `);
@@ -2194,6 +2195,7 @@ one
             ef.blockErrors = [ { header: `header1`, body: `body1` }, { header: `header2`, body: `body2` } ];
 
             expect(ef.print()).to.equal(`one
+
     --> header1
     body1
 
@@ -2208,6 +2210,7 @@ one
             ef.blockErrors = [ { header: `header1`, body: `body1` }, { header: `header2`, body: `body2` } ];
 
             expect(ef.print()).to.equal(`one  -->  oops
+
     --> header1
     body1
 
@@ -2222,6 +2225,7 @@ one
             ef.blockErrors = [ { header: `header1`, body: `body1` }, { header: `header2`, body: `body2` } ];
 
             expect(ef.print(`<start>`, `<end>`)).to.equal(`one  <start>  oops<end>
+
     <start> header1
     body1<end>
 
@@ -2383,16 +2387,20 @@ one
             expect(ef.print()).to.equal(`one
     two
         three
+
             --> header3
             body3
+
 
         --> header2
         body2
 
     four
     five
+
         --> header4
         body4
+
 
     --> header1
     body1
@@ -2421,6 +2429,7 @@ one
             expect(ef.print()).to.equal(`one  -->  error1
     two  -->  error2
         three  -->  error3
+
             --> header6
             body6
 
@@ -2429,6 +2438,7 @@ one
 
             --> header8
             body8
+
 
         --> header3
         body3
@@ -2441,11 +2451,13 @@ one
 
     four
     five  -->  error4
+
         --> header9
         body9
 
         --> header10
         body10
+
 
     --> header1
     body1
