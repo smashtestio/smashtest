@@ -355,7 +355,7 @@ class ElementFinder {
         let nextSpaces = utils.getIndents(indents + 1);
 
         let error = '';
-        if(this.error) {
+        if(this.error && this.error !== true) {
             error = `  ${errorStartStr}  ${this.error}${errorEndStr}`;
         }
 
@@ -489,17 +489,21 @@ class ElementFinder {
              * Sets ef.matchedElems, ef.matchMeElems, ef.error, and/or ef.blockErrors
              * @param {ElementFinder} ef - The ElementFinder to match
              * @param {Array of Element} pool - Array of DOM elements from which to choose from
-             * @param {Boolean} [additive] - If true, add to existing matchedElems (don't clear it out)
+             * @param {Boolean} [additive] - If true, add to ef's existing matchedElems (don't clear it out)
              * @param {Boolean} [single] - If true, ignore ef's counter and uses a counter of 1x
              */
             function findEF(ef, pool, additive, single) {
                 // Clear out existing state
-                ef.error = null;
-                ef.blockErrors = [];
+                if(!ef.blockErrors || !additive) {
+                    ef.blockErrors = [];
+                }
+                if(!additive) {
+                    ef.error = null;
+                }
                 if(!ef.matchMeElems) {
                     ef.matchMeElems = [];
                 }
-                if(!additive) {
+                if(!ef.matchedElems || !additive) {
                     ef.matchedElems = [];
                 }
 
@@ -546,13 +550,14 @@ class ElementFinder {
                                 }
                                 else if(!currTopElem) { // indexE went over the edge
                                     currChildEF.error = 'not found';
+                                    ef.error = true;
                                     indexC++;
                                 }
                                 else { // both indexes still good
-                                    let matchesBefore = currChildEF.matchedElems;
+                                    let matchesBefore = currChildEF.matchedElems || [];
                                     findEF(currChildEF, [currTopElem], true, true);
 
-                                    if(currChildEF.matchedElems > matchesBefore) { // currChildEF matches currTopElem
+                                    if(currChildEF.matchedElems.length > matchesBefore.length) { // currChildEF matches currTopElem
                                         indexE++;
 
                                         if(currChildEF.matchedElems.length == currChildEF.counter.max) {
@@ -562,10 +567,12 @@ class ElementFinder {
                                     else {
                                         if(currChildEF.matchedElems.length == 0) {
                                             currChildEF.error = "doesn't match " + elemSummary(currTopElem);
+                                            ef.error = true;
                                             indexE++;
                                         }
                                         else if(currChildEF.matchedElems.length < currChildEF.counter.min) {
                                             currChildEF.error = 'only found ' + currChildEF.matchedElems.length;
+                                            ef.error = true;
                                         }
 
                                         indexC++;

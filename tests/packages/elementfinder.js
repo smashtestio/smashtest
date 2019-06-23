@@ -2172,6 +2172,13 @@ one
             expect(ef.print()).to.equal(`one  -->  oops`);
         });
 
+        it("prints a one-line EF with an error set to true", () => {
+            let ef = new ElementFinder(`one`);
+            ef.error = true;
+
+            expect(ef.print()).to.equal(`one`);
+        });
+
         it("prints a one-line EF with one block error", () => {
             let ef = new ElementFinder(`one`);
             ef.blockErrors = [ { header: `header1`, body: `body1` } ];

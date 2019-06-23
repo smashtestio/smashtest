@@ -2973,142 +2973,242 @@
 
             - element array EFs
 
-                - one line
+                create html page {
+                    await setPageBody(`
+                        <div id="one" class="big">
+                            <div id="two" class="med">
+                                <div id="five" class="small">foobar</div>
+                                <div id="six" class="small">foobar</div>
+                                <div id="seven" class="small">foobar</div>
+                            </div>
+                            <div id="three" class="med">
+                                <div id="eight" class="small">foobar</div>
+                                <div id="nine" class="small">foobar</div>
+                                <div id="ten" class="small">foobar</div>
+                            </div>
+                            <div id="four" class="med">foobar</div>
+                        </div>
+                        <div id="two" class="big">
+                            <div id="eleven" class="other">
+                                <div id="twelve" class="small">foobar</div>
+                            </div>
+                        </div>
+                    `);
+                }
 
-                    $s empty element array {
-                        let ef = new ElementFinder(`* something`);
+                    - one line
 
+                        - empty element array
 
-                    }
+                            - top element exists
 
-                - one child
+                                top element has children {
+                                    let ef = new ElementFinder(`* .big`);
 
-                    - element array on child
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                        $s finds elements {
-
-                        }
-
-                        $s doesn't find elements {
-
-                        }
-
-                - one level of children
-
-                    - element array on child
-
-                        $s accepts a correct matching {
-
-                        }
-
-                        $s rejects an incorrect matching {
-                            // child    --> doesn't match <tagname id="" class="">
-                        }
-
-                    - element array on parent
-
-                        - accepts a correct matching
-
-                            $s matching of 0 elements {
-
-                            }
-
-                            $s generic correct matching {
-
-                            }
-
-                            $s correct matching, even when the matched element type exists at different depths in the DOM, and with other elements in between {
-
-                            }
-
-                        - rejects an incorrect matching
-
-                            $s too few elements listed {
-                                // --> missing
-                                // <tagname id="" class="">
-                            }
-
-                            $s too many elements listed {
-                                // elements at the end   --> not found
-                            }
-
-                            $s the elements are correct but in the wrong order {
-
-                            }
-
-                            $s the elements listed don't match {
-
-                            }
-
-                    $s element array on parent and child {
-
-                    }
-
-                    - counter
-
-                        - accepts a correct matching
-
-                            $s counters allow correct matching {
-
-                            }
-
-                            $s counter of 1+ allows correct matching {
-
-                            }
-
-                            $s number of elements are between the counter's min and max {
-
-                            }
-
-                            $s there are more elements than a counter's min, and no max exists {
-
-                            }
-
-                            $s matches the most amount of elements allowed by the counter (greedy matching) {
-
-                            }
-
-                        - rejects an incorrect matching
-
-                            $s there are more elements than a counter's max {
-
-                            }
-
-                            - there are fewer elements than a counter's min
-
-                                $s 0 elements {
-
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |* .big
+                                        |    --> missing
+                                        |    div#one.big
+                                        |
+                                        |    --> missing
+                                        |    div#two.big
+                                        |`));
                                 }
 
-                                $s more than 0 elements {
+                                top element has no children {
+                                    let ef = new ElementFinder(`* #six`);
 
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |* #six
+                                        |    --> missing
+                                        |    div#six.small
+                                        |`));
                                 }
 
-                    - keywords
+                            top element doesn't exist {
+                                let ef = new ElementFinder(`* #none`);
 
-                        - any order
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                            - accepts a correct matching
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |* #none  -->  not found (zero matches after \`#none\` applied)`));
+                            }
 
-                                $s same order {
+                    - one child
 
+                        - element array on child
+
+                            - finds elements
+
+                                parent matches once and element array matches correctly {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big, 1st
+                                        |    * .med
+                                        |        #two
+                                        |        #three
+                                        |        #four
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                 }
 
-                                $s different order {
+                                parent matches multiple times and element array matches sometimes {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    * .med
+                                        |        #two
+                                        |        #three
+                                        |        #four
+                                    `));
 
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(1);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                 }
+
+                            - doesn't find elements
+
+                                parent matches once and element array never matches {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big, 1st
+                                        |    * .med
+                                        |        #two
+                                        |        #none
+                                        |        #four
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |.big, 1st  -->  found, but doesn't contain the right children (in the right order)
+                                        |    * .med
+                                        |        #two
+                                        |        #none  -->  doesn't match div#three.med
+                                        |        #four`));
+                                }
+
+                                parent matches multiple times and element array never matches {
+                                    let ef = new ElementFinder(regularize(`
+                                        |.big
+                                        |    * .med
+                                        |        #two
+                                        |        #none
+                                        |        #four
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |.big  -->  2 found, but none contain the right children (in the right order)
+                                        |    * .med
+                                        |        #two
+                                        |        #none
+                                        |        #four`));
+                                }
+
+                    - one level of children
+
+                        - element array on child
+
+                            $s accepts a correct matching {
+
+                            }
 
                             $s rejects an incorrect matching {
-
+                                // child    --> doesn't match <tagname id="" class="">
                             }
 
-                        - subset
+                        - element array on parent
 
                             - accepts a correct matching
 
-                                $s number of elements falls between the counter's min and max {
+                                $s matching of 0 elements {
 
                                 }
+
+                                $s generic correct matching {
+
+                                }
+
+                                $s correct matching, even when the matched element type exists at different depths in the DOM, and with other elements in between {
+
+                                }
+
+                            - rejects an incorrect matching
+
+                                $s too few elements listed {
+                                    // --> missing
+                                    // <tagname id="" class="">
+                                }
+
+                                $s too many elements listed {
+                                    // elements at the end   --> not found
+                                }
+
+                                $s the elements are correct but in the wrong order {
+
+                                }
+
+                                $s the elements listed don't match {
+
+                                }
+
+                        $s element array on parent and child {
+
+                        }
+
+                        - counter
+
+                            - accepts a correct matching
+
+                                $s counters allow correct matching {
+
+                                }
+
+                                $s counter of 1+ allows correct matching {
+
+                                }
+
+                                $s number of elements are between the counter's min and max {
+
+                                }
+
+                                $s there are more elements than a counter's min, and no max exists {
+
+                                }
+
+                                $s matches the most amount of elements allowed by the counter (greedy matching) {
+
+                                }
+
+                            - rejects an incorrect matching
 
                                 $s there are more elements than a counter's max {
 
@@ -3124,55 +3224,95 @@
 
                                     }
 
-                            $s rejects an incorrect matching {
+                        - keywords
+
+                            - any order
+
+                                - accepts a correct matching
+
+                                    $s same order {
+
+                                    }
+
+                                    $s different order {
+
+                                    }
+
+                                $s rejects an incorrect matching {
+
+                                }
+
+                            - subset
+
+                                - accepts a correct matching
+
+                                    $s number of elements falls between the counter's min and max {
+
+                                    }
+
+                                    $s there are more elements than a counter's max {
+
+                                    }
+
+                                    - there are fewer elements than a counter's min
+
+                                        $s 0 elements {
+
+                                        }
+
+                                        $s more than 0 elements {
+
+                                        }
+
+                                $s rejects an incorrect matching {
+
+                                }
+
+                            - any order and subset together
+
+                                $s accepts a correct matching {
+
+                                }
+
+                                $s rejects an incorrect matching {
+
+                                }
+
+                        - match me
+
+                            $s matches elements with [] on an element array parent {
 
                             }
 
-                        - any order and subset together
-
-                            $s accepts a correct matching {
+                            $s matches elements with [] on an element array child {
 
                             }
 
-                            $s rejects an incorrect matching {
+                    - multiple levels of children
+
+                        - generic tests
+
+                            $s element array with multiple levels of children {
 
                             }
 
-                    - match me
+                            $s nested element arrays on multiple levels of children {
 
-                        $s matches elements with [] on an element array parent {
+                            }
 
-                        }
+                        - match me
 
-                        $s matches elements with [] on an element array child {
+                            $s matches elements with [] on an element array grandchild {
 
-                        }
+                            }
 
-                - multiple levels of children
+                            $s matches elements with [] on an element array grandchild, where the parent sometimes matches and sometimes doesn't {
 
-                    - generic tests
+                            }
 
-                        $s element array with multiple levels of children {
+                            $s matches elements with [] on multiple levels of an element array {
 
-                        }
-
-                        $s nested element arrays on multiple levels of children {
-
-                        }
-
-                    - match me
-
-                        $s matches elements with [] on an element array grandchild {
-
-                        }
-
-                        $s matches elements with [] on an element array grandchild, where the parent sometimes matches and sometimes doesn't {
-
-                        }
-
-                        $s matches elements with [] on multiple levels of an element array {
-
-                        }
+                            }
 
             - other
 

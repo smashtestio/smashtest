@@ -93,7 +93,8 @@ Running tests
             - For fixing problems in your tests that cause them to break, without having to rerun the whole entire suite again
             - Helpful for when you are typing out new tests (or updating existing ones) and only want to run whatever's new
                 - Use with -e so you don't have to switch back to the report page each time
-            - Recommended to mv smashtest/passed-data to a different filename to save it (the next run will overwrite that file)
+            - Recommended to cp smashtest/passed-data to a different filename to save it (the next run will overwrite that file)
+                - e.g., cp smashtest/passed-data smashtest/passed-data-<date>
                 - Especially if you're selectively running branches with $'s (and not ~'s). Branches cut off by the $'s won't be included
                     in the list of passed branches.
             - Format
