@@ -1222,6 +1222,7 @@
                                     expect(results.matches).to.have.lengthOf(0);
                                     expect(results.ef.print()).to.equal(regularize(`
                                         |* [.big]
+                                        |
                                         |    --> missing
                                         |    div#two.big
                                         |
@@ -3012,6 +3013,7 @@
                                     expect(results.matches).to.have.lengthOf(0);
                                     expect(results.ef.print()).to.equal(regularize(`
                                         |* .big
+                                        |
                                         |    --> missing
                                         |    div#one.big
                                         |
@@ -3030,6 +3032,7 @@
                                     expect(results.matches).to.have.lengthOf(0);
                                     expect(results.ef.print()).to.equal(regularize(`
                                         |* #six
+                                        |
                                         |    --> missing
                                         |    div#six.small
                                         |`));
@@ -3325,43 +3328,148 @@
 
                         - counter
 
-                            - accepts a correct matching
+                            - counter on child
 
-                                $s counters allow correct matching {
+                                - accepts a correct matching
 
-                                }
+                                    counters allow correct matching {
+                                        let ef = new ElementFinder(regularize(`
+                                            |* .med
+                                            |    3 x .med
+                                        `));
 
-                                $s counter of 1+ allows correct matching {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
 
-                                }
-
-                                $s number of elements are between the counter's min and max {
-
-                                }
-
-                                $s there are more elements than a counter's min, and no max exists {
-
-                                }
-
-                                $s matches the most amount of elements allowed by the counter (greedy matching) {
-
-                                }
-
-                            - rejects an incorrect matching
-
-                                $s there are more elements than a counter's max {
-
-                                }
-
-                                - there are fewer elements than a counter's min
-
-                                    $s 0 elements {
-
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('four');
                                     }
 
-                                    $s more than 0 elements {
+                                    counter of 1+ allows correct matching {
+                                        let ef = new ElementFinder(regularize(`
+                                            |* .med
+                                            |    1+ x .med
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('four');
                                     }
+
+                                    number of elements are between the counter's min and max {
+                                        let ef = new ElementFinder(regularize(`
+                                            |* .med
+                                            |    2-4 x .med
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                    }
+
+                                    there are more elements than a counter's min, and no max exists {
+                                        let ef = new ElementFinder(regularize(`
+                                            |* .med
+                                            |    2- x .med
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                    }
+
+                                - rejects an incorrect matching
+
+                                    there are more elements than a counter's max {
+                                        let ef = new ElementFinder(regularize(`
+                                            |* .med
+                                            |    0-2 x .med
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(regularize(`
+                                            |* .med
+                                            |    0-2 x .med
+                                            |
+                                            |    --> missing
+                                            |    div#four.med
+                                            |`));
+                                    }
+
+                                    - there are fewer elements than a counter's min
+
+                                        0 elements {
+                                            let ef = new ElementFinder(regularize(`
+                                                |* .med
+                                                |    4- x .none
+                                            `));
+
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.true;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                            expect(results.ef.print()).to.equal(regularize(`
+                                                |* .med
+                                                |    4- x .none  -->  doesn't match div#two.med
+                                                |
+                                                |    --> missing
+                                                |    div#three.med
+                                                |
+                                                |    --> missing
+                                                |    div#four.med
+                                                |`));
+                                        }
+
+                                        more than 0 elements {
+                                            let ef = new ElementFinder(regularize(`
+                                                |* .med
+                                                |    4- x .med
+                                            `));
+
+                                            let results = await ef.getAll(browser.driver);
+                                            results.ef = ElementFinder.parseObj(results.ef);
+
+                                            expect(results.ef.hasErrors()).to.be.true;
+                                            expect(results.matches).to.have.lengthOf(0);
+                                            expect(results.ef.print()).to.equal(regularize(`
+                                                |* .med
+                                                |    4- x .med  -->  only found 3`));
+                                        }
+
+                            - counter on parent
+
+                                rejects a counter on an element array {
+                                    assert.throws(() => {
+                                        new ElementFinder(regularize(`
+                                            |* 2 x .med
+                                            |    #two
+                                            |    #three
+                                        `));
+                                    }, `An element array is not allowed to have a counter [line:1]`);
+                                }
 
                         - keywords
 

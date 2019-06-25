@@ -558,14 +558,17 @@ class ElementFinder {
                                     indexE++;
                                 }
                                 else if(!currTopElem) { // indexE went over the edge
-                                    if(currChildEF.matchedElems && currChildEF.matchedElems.length < currChildEF.counter.min) {
-                                        currChildEF.error = 'only found ' + currChildEF.matchedElems.length;
+                                    if(currChildEF.matchedElems) {
+                                        if(currChildEF.matchedElems.length < currChildEF.counter.min) {
+                                            currChildEF.error = 'only found ' + currChildEF.matchedElems.length;
+                                            ef.error = true;
+                                        }
                                     }
                                     else {
                                         currChildEF.error = 'not found';
+                                        ef.error = true;
                                     }
 
-                                    ef.error = true;
                                     indexC++;
                                 }
                                 else { // both indexes still good
