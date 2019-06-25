@@ -487,7 +487,8 @@
                 display: none;
             }
 
-            .stacktrace:first-line {
+            .stacktrace:first-line,
+            .stacktrace .red {
                 color: red;
             }
 
@@ -1630,9 +1631,7 @@ c     = copy text of branch
                         .filter(hook => hook.error)
                         .map(hook => {
                             return (
-                                <div className="stacktrace" key={hook.id}>
-                                    {formatStackTrace(hook.error)}
-                                </div>
+                                <div className="stacktrace" key={hook.id} dangerouslySetInnerHTML={{__html: formatStackTrace(hook.error)}}></div>
                             );
                         });
 
@@ -2068,9 +2067,7 @@ c     = copy text of branch
                     let error = "";
                     if(branch.error) {
                         error = (
-                            <div className="stacktrace">
-                                {formatStackTrace(branch.error)}
-                            </div>
+                            <div className="stacktrace" dangerouslySetInnerHTML={{__html: formatStackTrace(branch.error)}}></div>
                         );
                     }
 
@@ -2540,9 +2537,7 @@ c     = copy text of branch
                         return (
                             <div className="preview-section preview-error">
                                 <div className="header">Error</div>
-                                <div className="stacktrace">
-                                    {formatStackTrace(this.props.previewedObj.error)}
-                                </div>
+                                <div className="stacktrace" dangerouslySetInnerHTML={{__html: formatStackTrace(this.props.previewedObj.error)}}></div>
                             </div>
                         );
                     }
@@ -2747,14 +2742,17 @@ c     = copy text of branch
             }
 
             /**
-             * Injects [filename:lineNumber] into the given Error's stack trace, and returns it
+             * Formats the given Error's stack trace (including injecting [filename:lineNumber] and formatting -->'s) and returns it
              */
             function formatStackTrace(error) {
-                return error.stack.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
+                return error.stack
+                    .replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`)
+                    .replace(/\u001b\[0m\u001b\[31m/g, `<span class='red'>`)
+                    .replace(/\u001b\[0m\u001b\[30m/g, `</span>`);
             }
 
             /**
-             * Injects [filename:lineNumber] into the given Error's message, and returns it
+             * Formats the given Error's message (including injecting [filename:lineNumber]) and returns it
              */
             function formatErrorMsg(error) {
                 let matches = error.message.match(/.*/);
