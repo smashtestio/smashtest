@@ -2269,7 +2269,7 @@
                                         |    4 x .small`));
                                 }
 
-                    - keywords
+                    - 'any order' keyword
 
                         create html page {
                             await setPageBody(`
@@ -2288,14 +2288,71 @@
                             `);
                         }
 
-                            - 'any order'
+                            finds elements in a differing order with the 'any order' keyword {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    any order
+                                    |    #d3
+                                    |    #d2
+                                    |    #d5
+                                `));
 
-                                finds elements in a differing order with the 'any order' keyword {
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(1);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                            }
+
+                            parent matches once, children don't match, even with the 'any order' keyword {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big, 2nd
+                                    |    any order
+                                    |    #d2
+                                    |    #d4
+                                `));
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |.big, 2nd  -->  found, but doesn't contain the right children
+                                    |    any order
+                                    |    #d2
+                                    |    #d4  -->  not found (zero matches after \`#d4\` applied)`));
+                            }
+
+                            parent matches multiple times, children don't match, even with the 'any order' keyword {
+                                let ef = new ElementFinder(regularize(`
+                                    |.big
+                                    |    any order
+                                    |    #d2
+                                    |    #d6
+                                `));
+
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |.big  -->  2 found, but none contain the right children
+                                    |    any order
+                                    |    #d2
+                                    |    #d6`));
+                            }
+
+                            - counters and 'any order'
+
+                                finds elements {
                                     let ef = new ElementFinder(regularize(`
                                         |.big
                                         |    any order
                                         |    #d3
-                                        |    #d2
+                                        |    3 x div
                                         |    #d5
                                     `));
 
@@ -2307,32 +2364,13 @@
                                     expect(await results.matches[0].getAttribute('id')).to.equal('one');
                                 }
 
-                                parent matches once, children don't match, even with the 'any order' keyword {
-                                    let ef = new ElementFinder(regularize(`
-                                        |.big, 2nd
-                                        |    any order
-                                        |    #d2
-                                        |    #d4
-                                    `));
-
-                                    let results = await ef.getAll(browser.driver);
-                                    results.ef = ElementFinder.parseObj(results.ef);
-
-                                    expect(results.ef.hasErrors()).to.be.true;
-                                    expect(results.matches).to.have.lengthOf(0);
-                                    expect(results.ef.print()).to.equal(regularize(`
-                                        |.big, 2nd  -->  found, but doesn't contain the right children
-                                        |    any order
-                                        |    #d2
-                                        |    #d4  -->  not found (zero matches after \`#d4\` applied)`));
-                                }
-
-                                parent matches multiple times, children don't match, even with the 'any order' keyword {
+                                doesn't find elements because of the counter {
                                     let ef = new ElementFinder(regularize(`
                                         |.big
                                         |    any order
-                                        |    #d2
-                                        |    #d6
+                                        |    #d3
+                                        |    4 x div
+                                        |    #d5
                                     `));
 
                                     let results = await ef.getAll(browser.driver);
@@ -2343,128 +2381,9 @@
                                     expect(results.ef.print()).to.equal(regularize(`
                                         |.big  -->  2 found, but none contain the right children
                                         |    any order
-                                        |    #d2
-                                        |    #d6`));
-                                }
-
-                                - counters and 'any order'
-
-                                    finds elements {
-                                        let ef = new ElementFinder(regularize(`
-                                            |.big
-                                            |    any order
-                                            |    #d3
-                                            |    3 x div
-                                            |    #d5
-                                        `));
-
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.false;
-                                        expect(results.matches).to.have.lengthOf(1);
-                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
-                                    }
-
-                                    doesn't find elements because of the counter {
-                                        let ef = new ElementFinder(regularize(`
-                                            |.big
-                                            |    any order
-                                            |    #d3
-                                            |    4 x div
-                                            |    #d5
-                                        `));
-
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.true;
-                                        expect(results.matches).to.have.lengthOf(0);
-                                        expect(results.ef.print()).to.equal(regularize(`
-                                            |.big  -->  2 found, but none contain the right children
-                                            |    any order
-                                            |    #d3
-                                            |    4 x div
-                                            |    #d5`));
-                                    }
-
-                            - 'subset'
-
-                                finds elements with the 'subset' keyword, even though it doesn't do anything {
-                                    let ef = new ElementFinder(regularize(`
-                                        |.big
-                                        |    subset
-                                        |    #d1
-                                        |    #d2
                                         |    #d3
-                                    `));
-
-                                    let results = await ef.getAll(browser.driver);
-                                    results.ef = ElementFinder.parseObj(results.ef);
-
-                                    expect(results.ef.hasErrors()).to.be.false;
-                                    expect(results.matches).to.have.lengthOf(1);
-                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
-                                }
-
-                                - counters and 'subset'
-
-                                    finds elements {
-                                        let ef = new ElementFinder(regularize(`
-                                            |.big
-                                            |    subset
-                                            |    #d1
-                                            |    3 x div
-                                            |    #d5
-                                        `));
-
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.false;
-                                        expect(results.matches).to.have.lengthOf(1);
-                                        expect(await results.matches[0].getAttribute('id')).to.equal('one');
-                                    }
-
-                                    doesn't find elements because of the counter {
-                                        let ef = new ElementFinder(regularize(`
-                                            |.big
-                                            |    subset
-                                            |    #d3
-                                            |    3 x div
-                                            |    #d5
-                                        `));
-
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.true;
-                                        expect(results.matches).to.have.lengthOf(0);
-                                        expect(results.ef.print()).to.equal(regularize(`
-                                            |.big  -->  2 found, but none contain the right children (in the right order)
-                                            |    subset
-                                            |    #d3
-                                            |    3 x div
-                                            |    #d5`));
-                                    }
-
-                            - 'any order' and 'subset'
-
-                                handles the 'any order' and 'subset' keywords together {
-                                    let ef = new ElementFinder(regularize(`
-                                        |.big
-                                        |    subset
-                                        |    any order
-                                        |    #d1
-                                        |    #d3
-                                    `));
-
-                                    let results = await ef.getAll(browser.driver);
-                                    results.ef = ElementFinder.parseObj(results.ef);
-
-                                    expect(results.ef.hasErrors()).to.be.false;
-                                    expect(results.matches).to.have.lengthOf(1);
-                                    expect(await results.matches[0].getAttribute('id')).to.equal('one');
+                                        |    4 x div
+                                        |    #d5`));
                                 }
 
                     - match me
@@ -2853,7 +2772,7 @@
 
                         - keywords
 
-                            - handles multiple levels of 'subset' and 'any order'
+                            - handles multiple levels of 'any order'
 
                                 finds elements {
                                     let ef = new ElementFinder(regularize(`
@@ -2861,11 +2780,9 @@
                                         |    any order
                                         |    .med
                                         |        any order
-                                        |        subset
                                         |        #nine
                                         |        #eight
                                         |    .med
-                                        |        subset
                                         |        #six
                                     `));
 
@@ -2883,11 +2800,9 @@
                                         |    any order
                                         |    .med
                                         |        any order
-                                        |        subset
                                         |        #nine
                                         |        #none
                                         |    .med
-                                        |        subset
                                         |        #six
                                     `));
 
@@ -2901,11 +2816,9 @@
                                         |    any order
                                         |    .med
                                         |        any order
-                                        |        subset
                                         |        #nine
                                         |        #none
                                         |    .med
-                                        |        subset
                                         |        #six`));
                                 }
 
@@ -3453,128 +3366,73 @@
                                     }, `An element array is not allowed to have a counter [line:1]`);
                                 }
 
-                        - keywords
+                        - 'any order' keyword
 
-                            - 'any order'
+                            - accepts a correct matching
 
-                                - accepts a correct matching
-
-                                    same order {
-                                        let ef = new ElementFinder(regularize(`
-                                            |* .med
-                                            |    any order
-                                            |    #two
-                                            |    #three
-                                            |    #four
-                                        `));
-
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.false;
-                                        expect(results.matches).to.have.lengthOf(3);
-                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
-                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
-                                        expect(await results.matches[2].getAttribute('id')).to.equal('four');
-                                    }
-
-                                    different order {
-                                        let ef = new ElementFinder(regularize(`
-                                            |* .med
-                                            |    any order
-                                            |    #four
-                                            |    #three
-                                            |    #two
-                                        `));
-
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.false;
-                                        expect(results.matches).to.have.lengthOf(3);
-                                        expect(await results.matches[0].getAttribute('id')).to.equal('four');
-                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
-                                        expect(await results.matches[2].getAttribute('id')).to.equal('two');
-                                    }
-
-                                rejects an incorrect matching {
+                                same order {
                                     let ef = new ElementFinder(regularize(`
                                         |* .med
                                         |    any order
                                         |    #two
                                         |    #three
-                                        |    #three
+                                        |    #four
                                     `));
 
                                     let results = await ef.getAll(browser.driver);
                                     results.ef = ElementFinder.parseObj(results.ef);
 
-                                    expect(results.ef.hasErrors()).to.be.true;
-                                    expect(results.matches).to.have.lengthOf(0);
-                                    expect(results.ef.print()).to.equal(regularize(`
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(3);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                }
+
+                                different order {
+                                    let ef = new ElementFinder(regularize(`
                                         |* .med
                                         |    any order
-                                        |    #two
+                                        |    #four
                                         |    #three
-                                        |    #three  -->  not found (zero matches after \`#three\` applied)
-                                        |
-                                        |    --> missing
-                                        |    div#four.med
-                                        |`));
+                                        |    #two
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(3);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('four');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('two');
                                 }
 
-                            - 'subset'
+                            rejects an incorrect matching {
+                                let ef = new ElementFinder(regularize(`
+                                    |* .med
+                                    |    any order
+                                    |    #two
+                                    |    #three
+                                    |    #three
+                                `));
 
-                                - accepts a correct matching
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                                    $s subset of matching elements listed {
-                                        let ef = new ElementFinder(regularize(`
-                                            |* .med
-                                            |    subset
-                                            |    #two
-                                            |    #four
-                                        `));
-
-                                        let results = await ef.getAll(browser.driver);
-                                        results.ef = ElementFinder.parseObj(results.ef);
-
-                                        expect(results.ef.hasErrors()).to.be.false;
-                                        expect(results.matches).to.have.lengthOf(2);
-                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
-                                        expect(await results.matches[1].getAttribute('id')).to.equal('four');
-                                    }
-
-                                    $s number of elements falls between the counter's min and max {
-
-                                    }
-
-                                    $s there are more elements than a counter's max {
-
-                                    }
-
-                                    - there are fewer elements than a counter's min
-
-                                        $s 0 elements {
-
-                                        }
-
-                                        $s more than 0 elements {
-
-                                        }
-
-                                $s rejects an incorrect matching {
-
-                                }
-
-                            - 'any order' and 'subset' together
-
-                                $s accepts a correct matching {
-
-                                }
-
-                                $s rejects an incorrect matching {
-
-                                }
+                                expect(results.ef.hasErrors()).to.be.true;
+                                expect(results.matches).to.have.lengthOf(0);
+                                expect(results.ef.print()).to.equal(regularize(`
+                                    |* .med
+                                    |    any order
+                                    |    #two
+                                    |    #three
+                                    |    #three  -->  not found (zero matches after \`#three\` applied)
+                                    |
+                                    |    --> missing
+                                    |    div#four.med
+                                    |`));
+                            }
 
                         - match me
 

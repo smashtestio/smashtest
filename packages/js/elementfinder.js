@@ -37,7 +37,6 @@ class ElementFinder {
         this.matchMe = false;               // If true, this is an [element] (enclosed in brackets)
         this.isElemArray = false;           // If true, this is an element array
         this.isAnyOrder = false;            // If true, this.children can be in any order
-        this.isSubset = false;              // If true, this.children can be a subset of the children actually on the page. Only works when this.isArray is true.
 
         this.usedDefinedProps = {};
         this.logger = undefined;
@@ -144,15 +143,6 @@ class ElementFinder {
             }
             else {
                 utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber + lineNumberOffset);
-            }
-        }
-        else if(parentLine == 'subset' && !this.isElemArray) { // 'subset' keyword
-            if(this.parent) {
-                this.parent.isSubset = true;
-                this.empty = true;
-            }
-            else {
-                utils.error(`The 'subset' keyword must have a parent element`, filename, parentLineNumber + lineNumberOffset);
             }
         }
         else {
@@ -382,9 +372,6 @@ class ElementFinder {
         if(this.isAnyOrder) {
             children += '\n' + nextSpaces + 'any order';
         }
-        if(this.isSubset) {
-            children += '\n' + nextSpaces + 'subset';
-        }
         if(this.children.length > 0) {
             children += '\n';
             for(let i = 0; i < this.children.length; i++) {
@@ -426,7 +413,6 @@ class ElementFinder {
         this.matchMe && (o.matchMe = true);
         this.isElemArray && (o.isElemArray = true);
         this.isAnyOrder && (o.isAnyOrder = true);
-        this.isSubset && (o.isSubset = true);
 
         !this.parent && (o.fullStr = this.print());
 
@@ -540,7 +526,7 @@ class ElementFinder {
                                 foundElems = foundElems.concat(childEF.matchedElems);
                             }
 
-                            if(!ef.isSubset && topElems.length > 0) {
+                            if(topElems.length > 0) {
                                 // Set block error for each of topElems still around (these elems weren't matched by the elem array)
                                 for(let topElem of topElems) {
                                     ef.blockErrors.push({ header: 'missing', body: elemSummary(topElem) });
@@ -560,10 +546,7 @@ class ElementFinder {
                                 let currChildEF = ef.children[indexC];
 
                                 if(!currChildEF) { // indexC went over the edge
-                                    if(!ef.isSubset) {
-                                        ef.blockErrors.push({ header: 'missing', body: elemSummary(currTopElem) });
-                                    }
-
+                                    ef.blockErrors.push({ header: 'missing', body: elemSummary(currTopElem) });
                                     indexE++;
                                 }
                                 else if(!currTopElem) { // indexE went over the edge

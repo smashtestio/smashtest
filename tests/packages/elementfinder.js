@@ -58,8 +58,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -95,8 +94,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -125,8 +123,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -167,8 +164,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
             });
@@ -202,8 +198,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -235,8 +230,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -268,8 +262,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -301,8 +294,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
             });
@@ -333,8 +325,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -363,8 +354,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -393,8 +383,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -423,8 +412,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -453,8 +441,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -483,8 +470,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
             });
@@ -515,8 +501,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
             });
@@ -686,16 +671,6 @@ describe("ElementFinder", function() {
                         `);
                     }, "The 'any order' keyword must have a parent element [line:2]");
                 });
-
-                it("throws an error if the 'subset' keyword doesn't have a parent element", () => {
-                    assert.throws(() => {
-                        new ElementFinder(`
-                            subset
-                                one
-                                two
-                        `);
-                    }, "The 'subset' keyword must have a parent element [line:2]");
-                });
             });
 
             context("comment", () => {
@@ -724,8 +699,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -758,8 +732,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
             });
@@ -808,8 +781,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -856,8 +828,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -904,8 +875,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
             });
@@ -936,8 +906,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -990,8 +959,7 @@ describe("ElementFinder", function() {
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -1157,15 +1125,13 @@ describe("ElementFinder", function() {
 
                                 matchMe: undefined,
                                 isElemArray: undefined,
-                                isAnyOrder: undefined,
-                                isSubset: undefined
+                                isAnyOrder: undefined
                             }
                         ],
 
                         matchMe: undefined,
                         isElemArray: undefined,
-                        isAnyOrder: undefined,
-                        isSubset: undefined
+                        isAnyOrder: undefined
                     });
                 });
 
@@ -1634,91 +1600,6 @@ one
                     });
                 });
 
-                it("'subset' keyword", () => {
-                    let ef = new ElementFinder(`
-                        one
-                            subset
-                            two
-                            three
-                    `);
-
-                    Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
-                        parent: undefined,
-                        children: [
-                            {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            },
-                            {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            }
-                        ],
-                        isSubset: true
-                    });
-
-                    ef = new ElementFinder(`
-                        one
-
-                            subset
-
-                            two
-                            three
-                    `);
-
-                    Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
-                        parent: undefined,
-                        children: [
-                            {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            },
-                            {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            }
-                        ],
-                        isSubset: true
-                    });
-
-                    ef = new ElementFinder(`
-                        one
-                            two
-                            subset
-                            three
-                    `);
-
-                    Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
-                        parent: undefined,
-                        children: [
-                            {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            },
-                            {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            }
-                        ],
-                        isSubset: true
-                    });
-                });
-
                 it("doesn't recognize the 'any order' keyword if there are other things on its line", () => {
                     let ef = new ElementFinder(`
                         one
@@ -1751,41 +1632,6 @@ one
                             }
                         ],
                         isAnyOrder: undefined
-                    });
-                });
-
-                it("doesn't recognize the 'subset' keyword if there are other things on its line", () => {
-                    let ef = new ElementFinder(`
-                        one
-                            .class, subset
-                            two
-                            three
-                    `);
-
-                    Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
-                        parent: undefined,
-                        children: [
-                            {
-                                props: [ { prop: `.class` }, { prop: `subset` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            },
-                            {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            },
-                            {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isSubset: undefined
-                            }
-                        ],
-                        isSubset: undefined
                     });
                 });
             });
@@ -1848,38 +1694,6 @@ one
                         ],
                         isElemArray: true,
                         isAnyOrder: true
-                    });
-                });
-
-                it("'subset' keyword inside element array", () => {
-                    let ef = new ElementFinder(`
-                        * one
-                            subset
-                            two
-                            three
-                    `);
-
-                    Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
-                        parent: undefined,
-                        children: [
-                            {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isElemArray: undefined,
-                                isSubset: undefined
-                            },
-                            {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
-                                parent: {},
-                                children: [],
-                                isElemArray: undefined,
-                                isSubset: undefined
-                            }
-                        ],
-                        isElemArray: true,
-                        isSubset: true
                     });
                 });
 
@@ -2060,8 +1874,7 @@ one
 
                 matchMe: undefined,
                 isElemArray: undefined,
-                isAnyOrder: undefined,
-                isSubset: undefined
+                isAnyOrder: undefined
             });
 
             expect(efClone instanceof ElementFinder).to.be.true;
@@ -2269,21 +2082,6 @@ one
     five`);
         });
 
-        it("prints a multi-line EF with the 'subset' keyword", () => {
-            let ef = new ElementFinder(`
-                one
-                    subset
-
-                    two
-                    three
-            `);
-
-            expect(ef.print()).to.equal(`one
-    subset
-    two
-    three`);
-        });
-
         it("prints a multi-line EF with the 'any order' keyword", () => {
             let ef = new ElementFinder(`
                 one
@@ -2295,23 +2093,6 @@ one
 
             expect(ef.print()).to.equal(`one
     any order
-    two
-    three`);
-        });
-
-        it("prints a multi-line EF with the 'subset' and 'any order' keywords", () => {
-            let ef = new ElementFinder(`
-                one
-                    any order
-                    subset
-
-                    two
-                    three
-            `);
-
-            expect(ef.print()).to.equal(`one
-    any order
-    subset
     two
     three`);
         });
@@ -2566,14 +2347,14 @@ one
         it("serializes a multi-line EF", () => {
             let ef = new ElementFinder(`
                 one
-                    subset
+                    any order
                     two
             `);
 
             Comparer.expect(ef.serialize()).to.match({
                 fullStr:
 `one
-    subset
+    any order
     two`,
                 line: `one`,
                 counter: { min: 1, max: 1 },
@@ -2613,7 +2394,7 @@ one
                         children: []
                     }
                 ],
-                isSubset: true
+                isAnyOrder: true
             });
         });
     });
@@ -2814,7 +2595,7 @@ one
         it.skip("only includes used functions in definedProps, and converts them to strings", () => {
             let ef = new ElementFinder(`
                 one
-                    subset
+                    any order
                     'two'
             `, {
                 'selector': [
@@ -2826,6 +2607,9 @@ one
                 ],
                 'otherprop': [
                     (elems, input) => input + 4
+                ],
+                'visible': [
+                    (elems, input) => input + 5
                 ]
             });
             let json = ef.serializeJSON();
@@ -2870,7 +2654,7 @@ one
                             children: []
                         }
                     ],
-                    isSubset: true
+                    isAnyOrder: true
                 },
                 definedProps: {
                     $exact: true,
@@ -2880,6 +2664,9 @@ one
                     ],
                     contains: [
                         "(elems, input) => input + 3"
+                    ],
+                    visible: [
+                        "(elems, input) => input + 5"
                     ]
                 }
             });

@@ -271,8 +271,7 @@ ElementFinders
                 - position 'N' (same as ord)
         - .css.selector
     - Special
-        - Keyword
-            - any order|subset
+        - 'any order' keyword
             - Must be the only thing on that line
         - Counter
             - N, N-, N+, N-M
@@ -290,7 +289,6 @@ ElementFinders
         - Will match as many elements as possible not exceeding the bounds of the parent element
         - Children listed inside must be a 1 to 1 mapping to children matched by array (same order, same amount), otherwise an Error is thrown
         - If "any order" keyword is present, children can be in any order
-        - If "subset" keyword is present, children can be a subset of all matched children
     - [] around an element(s) to match that element(s). Usually used for children
         Example:
             .parent, 'nearby text'
