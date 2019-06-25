@@ -1882,6 +1882,25 @@ one
                         isSubset: true
                     });
                 });
+
+                it("rejects an element array inside an element array", () => {
+                    assert.throws(() => {
+                        new ElementFinder(`
+                            * one
+                                two
+                                * three
+                        `, `Cannot have element array inside element array [line:4]`);
+                    });
+                });
+
+                it("throws error if an element array has a counter", () => {
+                    assert.throws(() => {
+                        new ElementFinder(`
+                            one
+                                two
+                                * 4 x something`);
+                    }, `An element array is not allowed to have a counter [line:4]`);
+                });
             });
 
             context("[match me]", () => {
@@ -2313,14 +2332,14 @@ one
             let ef = new ElementFinder(`
                 * one
                     two
-                    * three
+                    three
                         four
                     five
             `);
 
             expect(ef.print()).to.equal(`* one
     two
-    * three
+    three
         four
     five`);
         });

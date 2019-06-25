@@ -3308,24 +3308,6 @@
                                         |            4 x .med  -->  only found 3`));
                                 }
 
-                            rejects element array on parent and child {
-                                let ef = new ElementFinder(regularize(`
-                                    |* .big, 1st
-                                    |    * .big
-                                    |        .big
-                                `));
-
-                                let results = await ef.getAll(browser.driver);
-                                results.ef = ElementFinder.parseObj(results.ef);
-
-                                expect(results.ef.hasErrors()).to.be.true;
-                                expect(results.matches).to.have.lengthOf(0);
-                                expect(results.ef.print()).to.equal(regularize(`
-                                    |* .big, 1st
-                                    |    * .big  -->  cannot have element array inside element array
-                                    |        .big`));
-                            }
-
                         - counter
 
                             - counter on child
@@ -3477,21 +3459,90 @@
 
                                 - accepts a correct matching
 
-                                    $s same order {
+                                    same order {
+                                        let ef = new ElementFinder(regularize(`
+                                            |* .med
+                                            |    any order
+                                            |    #two
+                                            |    #three
+                                            |    #four
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('four');
                                     }
 
-                                    $s different order {
+                                    different order {
+                                        let ef = new ElementFinder(regularize(`
+                                            |* .med
+                                            |    any order
+                                            |    #four
+                                            |    #three
+                                            |    #two
+                                        `));
 
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(3);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('four');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                        expect(await results.matches[2].getAttribute('id')).to.equal('two');
                                     }
 
-                                $s rejects an incorrect matching {
+                                rejects an incorrect matching {
+                                    let ef = new ElementFinder(regularize(`
+                                        |* .med
+                                        |    any order
+                                        |    #two
+                                        |    #three
+                                        |    #three
+                                    `));
 
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |* .med
+                                        |    any order
+                                        |    #two
+                                        |    #three
+                                        |    #three  -->  not found (zero matches after \`#three\` applied)
+                                        |
+                                        |    --> missing
+                                        |    div#four.med
+                                        |`));
                                 }
 
                             - 'subset'
 
                                 - accepts a correct matching
+
+                                    $s subset of matching elements listed {
+                                        let ef = new ElementFinder(regularize(`
+                                            |* .med
+                                            |    subset
+                                            |    #two
+                                            |    #four
+                                        `));
+
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(2);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                        expect(await results.matches[1].getAttribute('id')).to.equal('four');
+                                    }
 
                                     $s number of elements falls between the counter's min and max {
 

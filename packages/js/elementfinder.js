@@ -131,6 +131,10 @@ class ElementFinder {
             this.isElemArray = true;
             this.counter = { min: 0 };
             parentLine = parentLine.substr(1).trim(); // drop the *
+
+            if(this.parent && this.parent.isElemArray) {
+                utils.error(`Cannot have element array inside element array`, filename, parentLineNumber + lineNumberOffset);
+            }
         }
 
         if(parentLine == 'any order' && !this.isElemArray) { // 'any order' keyword
@@ -139,7 +143,7 @@ class ElementFinder {
                 this.empty = true;
             }
             else {
-                utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber);
+                utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber + lineNumberOffset);
             }
         }
         else if(parentLine == 'subset' && !this.isElemArray) { // 'subset' keyword
@@ -148,7 +152,7 @@ class ElementFinder {
                 this.empty = true;
             }
             else {
-                utils.error(`The 'subset' keyword must have a parent element`, filename, parentLineNumber);
+                utils.error(`The 'subset' keyword must have a parent element`, filename, parentLineNumber + lineNumberOffset);
             }
         }
         else {
@@ -164,7 +168,7 @@ class ElementFinder {
             matches = parentLine.match(COUNTER_REGEX);
             if(matches) {
                 if(this.isElemArray) {
-                    utils.error(`An element array is not allowed to have a counter`, filename, parentLineNumber);
+                    utils.error(`An element array is not allowed to have a counter`, filename, parentLineNumber + lineNumberOffset);
                 }
 
                 parentLine = parentLine.replace(COUNTER_REGEX, ''); // remove counter
@@ -189,7 +193,7 @@ class ElementFinder {
                 }
 
                 if(this.counter.max < this.counter.min) {
-                    utils.error(`A counter's max cannot be less than its min`, filename, parentLineNumber);
+                    utils.error(`A counter's max cannot be less than its min`, filename, parentLineNumber + lineNumberOffset);
                 }
             }
 
@@ -249,7 +253,7 @@ class ElementFinder {
                     }
                 }
                 else { // rare case (usually if someone explicitly overrides the selector prop)
-                    utils.error(`Cannot find property that matches \`${canonPropStr}\``, filename, parentLineNumber);
+                    utils.error(`Cannot find property that matches \`${canonPropStr}\``, filename, parentLineNumber + lineNumberOffset);
                 }
             }
 
@@ -263,13 +267,18 @@ class ElementFinder {
         let childObjs = [];
         for(let i = parentLineNumber; i < lines.length; i++) {
             let line = lines[i];
-            let lineNumber = i + lineNumberOffset + 1;
+            let lineNumber = i + 1 + lineNumberOffset;
 
             if(line.trim() == '') {
+                if(childObjs.length != 0) {
+                    childObjs[childObjs.length - 1].str += `\n${line}`; // goes onto the end of the last child
+                }
+
                 continue;
             }
 
             let indents = utils.numIndents(line, filename, lineNumber) - baseIndent;
+
             if(indents < 0) {
                 utils.error(`ElementFinder cannot have a line that's indented left of the first line`, filename, lineNumber);
             }
@@ -287,7 +296,7 @@ class ElementFinder {
         }
 
         childObjs.forEach(c => {
-            let childEF = new ElementFinder(c.str, definedProps, usedDefinedProps, this.logger, this, c.lineNumber + lineNumberOffset);
+            let childEF = new ElementFinder(c.str, definedProps, usedDefinedProps, this.logger, this, c.lineNumber + lineNumberOffset - 1);
             if(!childEF.empty) {
                 this.children.push(childEF);
             }
@@ -524,9 +533,11 @@ class ElementFinder {
                     if(ef.isElemArray) {
                         if(ef.isAnyOrder) { // Element array, any order
                             // Remove from topElems the elems that match up with a child EF
+                            let foundElems = [];
                             for(let childEF of ef.children) {
                                 findEF(childEF, topElems);
                                 removeFromArr(topElems, childEF.matchedElems);
+                                foundElems = foundElems.concat(childEF.matchedElems);
                             }
 
                             if(!ef.isSubset && topElems.length > 0) {
@@ -534,6 +545,10 @@ class ElementFinder {
                                 for(let topElem of topElems) {
                                     ef.blockErrors.push({ header: 'missing', body: elemSummary(topElem) });
                                 }
+                            }
+                            else {
+                                // Successful match
+                                ef.matchedElems = foundElems;
                             }
                         }
                         else { // Element array, in order
@@ -543,12 +558,6 @@ class ElementFinder {
                             while(indexE < topElems.length || indexC < ef.children.length) { // while at least one index is valid
                                 let currTopElem = topElems[indexE];
                                 let currChildEF = ef.children[indexC];
-
-                                if(currChildEF && currChildEF.isElemArray) {
-                                    currChildEF.error = 'cannot have element array inside element array';
-                                    ef.error = true;
-                                    break;
-                                }
 
                                 if(!currChildEF) { // indexC went over the edge
                                     if(!ef.isSubset) {
