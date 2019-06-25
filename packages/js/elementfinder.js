@@ -941,7 +941,7 @@ class ElementFinder {
             'enabled': [
                 function(elems, input) {
                     return elems.filter(function(elem) {
-                        return !elem.getAttribute('disabled');
+                        return elem.getAttribute('disabled') === null;
                     });
                 }
             ],
@@ -949,7 +949,7 @@ class ElementFinder {
             'disabled': [
                 function(elems, input) {
                     return elems.filter(function(elem) {
-                        return elem.getAttribute('disabled');
+                        return elem.getAttribute('disabled') !== null;
                     });
                 }
             ],
