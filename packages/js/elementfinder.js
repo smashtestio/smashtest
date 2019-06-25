@@ -576,7 +576,12 @@ class ElementFinder {
                                     }
                                     else {
                                         if(currChildEF.matchedElems.length == 0) {
-                                            currChildEF.error = "doesn't match " + elemSummary(currTopElem);
+                                            if(hasChildErrors(currChildEF)) {
+                                                currChildEF.error = true;
+                                            }
+                                            else {
+                                                currChildEF.error = "doesn't match " + elemSummary(currTopElem);
+                                            }
                                             ef.error = true;
                                             indexE++;
                                         }
@@ -726,6 +731,20 @@ class ElementFinder {
             function hasTopErrors(ef) {
                 return ef.error || (ef.blockErrors && ef.blockErrors.length > 0);
             }
+
+            /**
+             * @return {Boolean} true if the given EF's children have errors, false otherwise
+             */
+            function hasChildErrors(ef) {
+                for(let childEF of ef.children) {
+                    if(childEF.error || (childEF.blockErrors && childEF.blockErrors.length > 0)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
 
             /**
              * @return {String} A summary of the given elem

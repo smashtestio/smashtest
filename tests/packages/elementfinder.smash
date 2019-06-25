@@ -1,9 +1,30 @@
-- getAll()
+open chrome
+open firefox
 
-    open chrome
-    open firefox
+    * open test page +
 
-        open test page +
+        inits {
+            i('ElementFinder', '../../packages/js/elementfinder.js');
+            i('Comparer', '../../packages/js/comparer.js');
+            chai.use(i('chai-as-promised'));
+
+            g('setPageBody', async (htmlStr) => {
+                await browser.executeScript(function(htmlStr) {
+                    document.body.innerHTML = htmlStr;
+                }, htmlStr);
+            });
+
+            g('regularize', (str) => {
+                return str.replace(/\n\s*\|/g, '\n').replace(/^\s*\n/, '');
+            });
+
+            l(`test page location`, `file:///${dir()}/generic-page.html`);
+        }
+
+            navigate to {{test page location}}
+    *
+
+        - getAll()
 
             - normal EFs
 
@@ -3216,7 +3237,7 @@
                                     expect(results.matches).to.have.lengthOf(0);
                                     expect(results.ef.print()).to.equal(regularize(`
                                         |* .big, 1st
-                                        |    .big  -->  doesn't match div#one.big
+                                        |    .big
                                         |        * .med
                                         |            4 x .med  -->  only found 3`));
                                 }
@@ -3436,243 +3457,501 @@
 
                         - match me
 
-                            $s matches elements with [] on an element array parent {
+                            matches elements with [] on an element array parent {
+                                let ef = new ElementFinder(regularize(`
+                                    |* [.med]
+                                    |    #two
+                                    |    #three
+                                    |    #four
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(3);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('four');
                             }
 
-                            $s matches elements with [] on an element array child {
+                            matches elements with [] on an element array child {
+                                let ef = new ElementFinder(regularize(`
+                                    |* .med
+                                    |    #two
+                                    |    [#three]
+                                    |    [#four]
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(2);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('three');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('four');
                             }
 
                     - multiple levels of children
 
                         - generic tests
 
-                            $s element array with multiple levels of children {
+                            - element array with multiple levels of children
 
-                            }
+                                accepts a correct matching {
+                                    let ef = new ElementFinder(regularize(`
+                                        |* .med
+                                        |    #two
+                                        |        #five
+                                        |        #seven
+                                        |    #three
+                                        |        'foobar'
+                                        |    #four
+                                    `));
 
-                            $s nested element arrays on multiple levels of children {
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
 
-                            }
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(3);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                }
+
+                                rejects an incorrect matching {
+                                    let ef = new ElementFinder(regularize(`
+                                        |* .med
+                                        |    #two
+                                        |        #five
+                                        |        #none
+                                        |    #three
+                                        |        'foobar'
+                                        |    #four
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |* .med
+                                        |    #two
+                                        |        #five
+                                        |        #none  -->  not found (zero matches after \`#none\` applied)
+                                        |    #three
+                                        |        'foobar'
+                                        |    #four`));
+                                }
+
+                            - nested element arrays on multiple levels of children
+
+                                accepts a correct matching {
+                                    let ef = new ElementFinder(regularize(`
+                                        |* .med
+                                        |    #two
+                                        |        * .small
+                                        |            #five
+                                        |            #six
+                                        |            #seven
+                                        |    #three
+                                        |        * .small
+                                        |            3 x 'foobar'
+                                        |    #four
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.false;
+                                    expect(results.matches).to.have.lengthOf(3);
+                                    expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                    expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                    expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                }
+
+                                rejects an incorrect matching {
+                                    let ef = new ElementFinder(regularize(`
+                                        |* .med
+                                        |    #two
+                                        |        * .small
+                                        |            #five
+                                        |            #six
+                                        |            #seven
+                                        |    #three
+                                        |        * .small
+                                        |            4 x 'foobar'
+                                        |    #four
+                                    `));
+
+                                    let results = await ef.getAll(browser.driver);
+                                    results.ef = ElementFinder.parseObj(results.ef);
+
+                                    expect(results.ef.hasErrors()).to.be.true;
+                                    expect(results.matches).to.have.lengthOf(0);
+                                    expect(results.ef.print()).to.equal(regularize(`
+                                        |* .med
+                                        |    #two
+                                        |        * .small
+                                        |            #five
+                                        |            #six
+                                        |            #seven
+                                        |    #three
+                                        |        * .small
+                                        |            4 x 'foobar'  -->  only found 3
+                                        |    #four`));
+                                }
 
                         - match me
 
-                            $s matches elements with [] on an element array grandchild {
+                            matches elements with [] on an element array grandchild {
+                                let ef = new ElementFinder(regularize(`
+                                    |* .med
+                                    |    #two
+                                    |        * .small
+                                    |            #five
+                                    |            #six
+                                    |            [#seven]
+                                    |    #three
+                                    |        * .small
+                                    |            [3 x 'foobar']
+                                    |    #four
+                                `));
 
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
+
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(4);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('seven');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('eight');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('nine');
+                                expect(await results.matches[3].getAttribute('id')).to.equal('ten');
                             }
 
-                            $s matches elements with [] on an element array grandchild, where the parent sometimes matches and sometimes doesn't {
+                            matches elements with [] on multiple levels of an element array {
+                                let ef = new ElementFinder(regularize(`
+                                    |* [.med]
+                                    |    [#two]
+                                    |        * .small
+                                    |            #five
+                                    |            #six
+                                    |            [#seven]
+                                    |    #three
+                                    |        * [.small]
+                                    |            [3 x 'foobar']
+                                    |    #four
+                                `));
 
-                            }
+                                let results = await ef.getAll(browser.driver);
+                                results.ef = ElementFinder.parseObj(results.ef);
 
-                            $s matches elements with [] on multiple levels of an element array {
-
+                                expect(results.ef.hasErrors()).to.be.false;
+                                expect(results.matches).to.have.lengthOf(7);
+                                expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                expect(await results.matches[1].getAttribute('id')).to.equal('three');
+                                expect(await results.matches[2].getAttribute('id')).to.equal('four');
+                                expect(await results.matches[3].getAttribute('id')).to.equal('seven');
+                                expect(await results.matches[4].getAttribute('id')).to.equal('eight');
+                                expect(await results.matches[5].getAttribute('id')).to.equal('nine');
+                                expect(await results.matches[6].getAttribute('id')).to.equal('ten');
                             }
 
             - other
 
-                $s only searches within the given parent element {
+                only searches within the given parent element {
+                    await setPageBody(`
+                        <div id="two" class="big">
+                            <div id="five" class="small">foobar</div>
+                            <div id="six" class="small">foobar</div>
+                            <div id="seven" class="small">foobar</div>
+                        </div>
+                        <div id="three" class="big">
+                            <div id="eight" class="small">foobar</div>
+                            <div id="nine" class="small">foobar</div>
+                            <div id="ten" class="small">foobar</div>
+                        </div>
+                        <div id="four" class="big">foobar</div>
+                    `);
 
+                    let ef = new ElementFinder(`#three`);
+                    let results = await ef.getAll(browser.driver);
+                    let parent = results.matches[0];
+
+                    ef = new ElementFinder(`0+ x .small`);
+                    results = await ef.getAll(browser.driver, parent);
+                    results.ef = ElementFinder.parseObj(results.ef);
+
+                    expect(results.ef.hasErrors()).to.be.false;
+                    expect(results.matches).to.have.lengthOf(3);
+                    expect(await results.matches[0].getAttribute('id')).to.equal('eight');
+                    expect(await results.matches[1].getAttribute('id')).to.equal('nine');
+                    expect(await results.matches[2].getAttribute('id')).to.equal('ten');
                 }
 
-                $s handles finding an iframe {
+                handles finding an iframe {
+                    await setPageBody(`
+                        <div id="one" class="big">
+                            <iframe id="two" src="/something">
+                        </div>
+                    `);
 
+                    let ef = new ElementFinder(`#two, enabled`);
+
+                    let results = await ef.getAll(browser.driver);
+                    results.ef = ElementFinder.parseObj(results.ef);
+
+                    expect(results.ef.hasErrors()).to.be.false;
+                    expect(results.matches).to.have.lengthOf(1);
+                    expect(await results.matches[0].getAttribute('id')).to.equal('two');
                 }
 
-                $s handles finding an svg {
+                handles finding an svg {
+                    await setPageBody(`
+                        <div id="one" class="big">
+                            <svg id="two" src="/something">
+                        </div>
+                    `);
 
+                    let ef = new ElementFinder(`#two, enabled`);
+
+                    let results = await ef.getAll(browser.driver);
+                    results.ef = ElementFinder.parseObj(results.ef);
+
+                    expect(results.ef.hasErrors()).to.be.false;
+                    expect(results.matches).to.have.lengthOf(1);
+                    expect(await results.matches[0].getAttribute('id')).to.equal('two');
                 }
 
-            - performance
+            - $s performance
+                // NOTE: the sizes below were the maximum sizes attainable on a MacOS test machine without exceeding 10s+ of processing time
 
-                $s handles very large DOMs {
+                create html page {
+                    let html = '';
+                    for(let i = 0; i < 50; i++) {
+                        html += `<div id='i${i}'>`;
 
+                        for(let j = 0; j < 100; j++) {
+                            html += `<div id='j${j}'>`;
+
+                            for(let k = 0; k < 100; k++) {
+                                html += `<div id='k${k}'>`;
+                                html += `foobar`;
+                                html += `</div>`;
+                            }
+
+                            html += `</div>`;
+                        }
+
+                        html += `</div>`;
+                    }
+
+                    await setPageBody(html);
                 }
 
-                $s handles very large EFs {
+                    handles very large DOMs {
+                        let ef = new ElementFinder(`
+                            #i25
+                                #j50
+                                    [#k50]
+                        `);
 
-                }
+                        let results = await ef.getAll(browser.driver);
+                        results.ef = ElementFinder.parseObj(results.ef);
 
-                $s handles finding a very large number of elements {
+                        expect(results.ef.hasErrors()).to.be.false;
+                        expect(results.matches).to.have.lengthOf(1);
+                        expect(await results.matches[0].getAttribute('id')).to.equal('k50');
+                    }
 
-                }
+                    handles very large EFs {
+                        let ef = `#i25\n`;
+                        for(let j = 0; j < 100; j++) {
+                            ef += `    #j${j}\n`;
 
-* open test page
+                            for(let k = 0; k < 10; k++) {
+                                ef += `        #k${k}\n`;
+                            }
+                        }
 
-    inits {
-        i('ElementFinder', '../../packages/js/elementfinder.js');
-        i('Comparer', '../../packages/js/comparer.js');
-        chai.use(i('chai-as-promised'));
+                        ef = new ElementFinder(ef);
 
-        g('setPageBody', async (htmlStr) => {
-            await browser.executeScript(function(htmlStr) {
-                document.body.innerHTML = htmlStr;
-            }, htmlStr);
-        });
+                        let results = await ef.getAll(browser.driver);
+                        results.ef = ElementFinder.parseObj(results.ef);
 
-        g('regularize', (str) => {
-            return str.replace(/\n\s*\|/g, '\n').replace(/^\s*\n/, '');
-        });
+                        expect(results.ef.hasErrors()).to.be.false;
+                        expect(results.matches).to.have.lengthOf(1);
+                        expect(await results.matches[0].getAttribute('id')).to.equal('i25');
+                    }
 
-        l(`test page location`, `file:///${dir()}/generic-page.html`);
-    }
+                    handles finding a very large number of elements {
+                        let ef = new ElementFinder(`
+                            #i25
+                                10 x div
+                                    [0+ x div]
+                        `);
 
-        navigate to {{test page location}}
+                        let results = await ef.getAll(browser.driver);
+                        results.ef = ElementFinder.parseObj(results.ef);
 
-- find() $s
+                        expect(results.ef.hasErrors()).to.be.false;
+                        expect(results.matches).to.have.lengthOf(1000);
+                    }
 
-    - isNot set to false
+        - find() $s
 
-        - if multiple elements are found immediately
+            - isNot set to false
 
-            - sends back all elements
+                - if multiple elements are found immediately
 
-            - if EF's counter never set
+                    - sends back all elements
 
-                - sends back the first matched element
+                    - if EF's counter never set
 
-        - if an element is found, but later on
+                        - sends back the first matched element
 
-            - sends back those elements as soon as they're found
+                - if an element is found, but later on
 
-        - if nothing is ever found
+                    - sends back those elements as soon as they're found
 
-            - generic case
+                - if nothing is ever found
 
-            - if timeout is 0
+                    - generic case
 
-            - if timeout is omitted
+                    - if timeout is 0
 
-            - if element appears after the timeout
+                    - if timeout is omitted
 
-                - throws an error
+                    - if element appears after the timeout
 
-                    - sets error's continue properly
+                        - throws an error
 
-    - isNot set to true
+                            - sets error's continue properly
 
-        - if multiple elements are found immediately
+            - isNot set to true
 
-            - if those elements disappear before the timeout
+                - if multiple elements are found immediately
 
-                - doesn't throw error
+                    - if those elements disappear before the timeout
 
-            - if those elements don't disappear before the timeout
-            - if those elements disappear after the timeout
+                        - doesn't throw error
 
-                - throws error
+                    - if those elements don't disappear before the timeout
+                    - if those elements disappear after the timeout
 
-                    - sets error's continue properly
+                        - throws error
 
-        - if nothing is ever found
+                            - sets error's continue properly
 
-            - because those elements never exist in the DOM
+                - if nothing is ever found
 
-            - because those elements are never visible
+                    - because those elements never exist in the DOM
 
-                - doesn't throw error
+                    - because those elements are never visible
 
-- defaultProps() $s
+                        - doesn't throw error
 
-    - visible
-        - finds elements
-        - doesn't find elements
+        - defaultProps() $s
 
-    - not visible
-        - finds elements
-        - doesn't find elements
+            - visible
+                - finds elements
+                - doesn't find elements
 
-    - any visibility
-        - finds elements
-        - doesn't find elements
+            - not visible
+                - finds elements
+                - doesn't find elements
 
-    - enabled
-        - finds elements
-        - doesn't find elements
+            - any visibility
+                - finds elements
+                - doesn't find elements
 
-    - disabled
-        - finds elements
-        - doesn't find elements
+            - enabled
+                - finds elements
+                - doesn't find elements
 
-    - checked
-        - finds elements
-        - doesn't find elements
+            - disabled
+                - finds elements
+                - doesn't find elements
 
-    - unchecked
-        - finds elements
-        - doesn't find elements
+            - checked
+                - finds elements
+                - doesn't find elements
 
-    - selected
-        - finds elements
-        - doesn't find elements
+            - unchecked
+                - finds elements
+                - doesn't find elements
 
-    - focused
-        - finds elements
-        - doesn't find elements
+            - selected
+                - finds elements
+                - doesn't find elements
 
-    - element
-        - finds elements
-        - doesn't find elements
+            - focused
+                - finds elements
+                - doesn't find elements
 
-    - clickable
-        - finds elements
-        - doesn't find elements
+            - element
+                - finds elements
+                - doesn't find elements
 
-    - page title
-        - finds elements
-        - doesn't find elements
+            - clickable
+                - finds elements
+                - doesn't find elements
 
-    - page title contains
-        - finds elements
-        - doesn't find elements
+            - page title
+                - finds elements
+                - doesn't find elements
 
-    - page url
-        - relative
-            - finds elements
-            - doesn't find elements
+            - page title contains
+                - finds elements
+                - doesn't find elements
 
-        - absolute
-            - finds elements
-            - doesn't find elements
+            - page url
+                - relative
+                    - finds elements
+                    - doesn't find elements
 
-    - page url contains
-        - finds elements
-        - doesn't find elements
+                - absolute
+                    - finds elements
+                    - doesn't find elements
 
-    - next to
-        - finds the best element
-        - finds multiple elements if there's a tie
-        - doesn't find elements if the text doesn't exist on the page
+            - page url contains
+                - finds elements
+                - doesn't find elements
 
-    - value
-        - finds elements
-        - doesn't find elements
+            - next to
+                - finds the best element
+                - finds multiple elements if there's a tie
+                - doesn't find elements if the text doesn't exist on the page
 
-    - contains
-        - finds elements
-        - doesn't find elements
+            - value
+                - finds elements
+                - doesn't find elements
 
-    - contains exact
-        - finds elements
-        - doesn't find elements
+            - contains
+                - finds elements
+                - doesn't find elements
 
-    - innertext
-        - finds elements
-        - doesn't find elements
+            - contains exact
+                - finds elements
+                - doesn't find elements
 
-    - selector
-        - finds elements
-        - doesn't find elements
+            - innertext
+                - finds elements
+                - doesn't find elements
 
-    - xpath
-        - finds elements
-        - doesn't find elements
+            - selector
+                - finds elements
+                - doesn't find elements
 
-    - style
-        - finds elements
-        - doesn't find elements
+            - xpath
+                - finds elements
+                - doesn't find elements
 
-    - position
-        - finds elements
-        - doesn't find elements
+            - style
+                - finds elements
+                - doesn't find elements
+
+            - position
+                - finds elements
+                - doesn't find elements
