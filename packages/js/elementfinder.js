@@ -1017,7 +1017,7 @@ class ElementFinder {
 
             'page title contains': [
                 function(elems, input) {
-                    return document.title.indexOf(input) != -1 ? elems : [];
+                    return document.title.toLowerCase().indexOf(input.toLowerCase()) != -1 ? elems : [];
                 }
             ],
 

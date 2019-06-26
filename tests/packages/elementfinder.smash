@@ -4136,28 +4136,174 @@ open firefox
                 }
 
             - selected
-                - finds elements
-                - doesn't find elements
 
-            - focused
-                - finds elements
-                - doesn't find elements
+                finds elements {
+                    await setPageBody(`
+                        <select>
+                            <option value="one">One</option>
+                            <option value="two">Two</option>
+                            <option value="three" selected>Three</option>
+                            <option value="four">Four</option>
+                        </select>
+                    `);
+
+                    let ef = new ElementFinder(`option, any visibility, selected`);
+                    let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                    expect(results).to.have.lengthOf(1);
+                    expect(await results[0].getAttribute('value')).to.equal('three');
+                }
+
+                doesn't find elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                    `);
+
+                    let ef = new ElementFinder(`.big, selected`);
+                    await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                        |Element not found in time (0.5 s):
+                        |
+                        |.big, selected  \u001b[0m\u001b[31m-->  not found (zero matches after \`selected\` applied)\u001b[0m\u001b[30m`));
+                }
+
+            - $s focused
+                // NOTE: only works in non-headless mode
+
+                finds elements {
+                    await setPageBody(`
+                        <input id="one" class="big" autofocus>
+                    `);
+
+                    let ef = new ElementFinder(`#one, focused`);
+                    let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                    expect(results).to.have.lengthOf(1);
+                    expect(await results[0].getAttribute('id')).to.equal('one');
+                }
+
+                doesn't find elements {
+                    await setPageBody(`
+                        <input id="one" class="big">
+                        <input id="two" class="big" autofocus>
+                    `);
+
+                    let ef = new ElementFinder(`#one, focused`);
+                    await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                        |Element not found in time (0.5 s):
+                        |
+                        |#one, focused  \u001b[0m\u001b[31m-->  not found (zero matches after \`focused\` applied)\u001b[0m\u001b[30m`));
+                }
 
             - element
-                - finds elements
-                - doesn't find elements
+
+                finds elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                        <div id="two" class="big">foobar</div>
+                    `);
+
+                    let ef = new ElementFinder(`0+ x element`);
+                    let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                    expect(results).to.have.lengthOf(4);
+                    expect(await results[0].getTagName()).to.equal('html');
+                    expect(await results[1].getTagName()).to.equal('body');
+                    expect(await results[2].getAttribute('id')).to.equal('one');
+                    expect(await results[3].getAttribute('id')).to.equal('two');
+                }
 
             - clickable
-                - finds elements
-                - doesn't find elements
+
+                finds elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                        <div id="two" class="big" style="cursor:pointer">foobar</div>
+                        <a id="three" href="/">Link</a>
+                        <button id="four">Button</button>
+                    `);
+
+                    let ef = new ElementFinder(`1+ x clickable`);
+                    let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                    expect(results).to.have.lengthOf(3);
+                    expect(await results[0].getAttribute('id')).to.equal('two');
+                    expect(await results[1].getAttribute('id')).to.equal('three');
+                    expect(await results[2].getAttribute('id')).to.equal('four');
+                }
+
+                doesn't find elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                    `);
+
+                    let ef = new ElementFinder(`1+ x clickable`);
+                    await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                        |Elements not found in time (0.5 s):
+                        |
+                        |1+ x clickable  \u001b[0m\u001b[31m-->  not found (zero matches after \`clickable\` applied)\u001b[0m\u001b[30m`));
+                }
 
             - page title
-                - finds elements
-                - doesn't find elements
+
+                finds elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                    `);
+                    await browser.executeScript(function() {
+                        document.title = "foobar";
+                    });
+
+                    let ef = new ElementFinder(`page title 'foobar'`);
+                    let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                    expect(results).to.have.lengthOf(1);
+                }
+
+                doesn't find elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                    `);
+                    await browser.executeScript(function() {
+                        document.title = "foobar";
+                    });
+
+                    let ef = new ElementFinder(`page title 'bad'`);
+                    await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                        |Element not found in time (0.5 s):
+                        |
+                        |page title 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page title 'bad'\` applied)\u001b[0m\u001b[30m`));
+                }
 
             - page title contains
-                - finds elements
-                - doesn't find elements
+
+                finds elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                    `);
+                    await browser.executeScript(function() {
+                        document.title = " FOOBAR ";
+                    });
+
+                    let ef = new ElementFinder(`page title contains 'foo'`);
+                    let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                    expect(results).to.have.lengthOf(1);
+                }
+
+                doesn't find elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                    `);
+                    await browser.executeScript(function() {
+                        document.title = " FOOBAR ";
+                    });
+
+                    let ef = new ElementFinder(`page title contains 'bad'`);
+                    await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                        |Element not found in time (0.5 s):
+                        |
+                        |page title contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page title contains 'bad'\` applied)\u001b[0m\u001b[30m`));
+                }
 
             - page url
                 - relative
