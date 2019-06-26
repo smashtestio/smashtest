@@ -1200,7 +1200,7 @@ ${outputBranchAbove(this)}
             let firstStep = branch.steps[0];
             let firstStepNode = this.stepNodeIndex[firstStep.id];
             if(this.getModifier(firstStep, 'isSkipBelow')) {
-                branch.isSkipped = true;
+                branch.markBranch('skip', undefined, this.stepDataMode);
                 //branch.appendToLog(`Branch skipped because it starts with a .s step`);
             }
         });
@@ -1208,7 +1208,7 @@ ${outputBranchAbove(this)}
         // Marks branches with a $s as skipped
         this.branches.forEach(branch => {
             if(branch.isSkipBranch) {
-                branch.isSkipped = true;
+                branch.markBranch('skip', undefined, this.stepDataMode);
                 /*branch.steps.forEach(s => {
                     if(this.getModifier(s, 'isSkipBranch')) {
                         branch.appendToLog(`Branch skipped because a $s step was encountered at ${s.filename}:${s.lineNumber}`);
@@ -1235,7 +1235,7 @@ ${outputBranchAbove(this)}
                 if(indexOfSkipBelow != -1) {
                     let branchesToSkip = this.findSimilarBranches(branch, indexOfSkipBelow + 1);
                     branchesToSkip.forEach(branchToSkip => {
-                        branchToSkip.isSkipped = true;
+                        branchToSkip.markBranch('skip', undefined, this.stepDataMode);
                         /*branchToSkip.appendToLog(
                             `Branch skipped because it is identical to an earlier branch, up to the .s step (ends at ${branch.steps[branch.steps.length-1].filename}:${branch.steps[branch.steps.length-1].lineNumber})`
                         );*/
