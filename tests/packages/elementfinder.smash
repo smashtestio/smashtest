@@ -4167,12 +4167,16 @@ open firefox
                 }
 
             - $s focused
-                // NOTE: only works in non-headless mode
+                // NOTE: only works in non-headless mode, so run this separately
 
                 finds elements {
                     await setPageBody(`
                         <input id="one" class="big" autofocus>
                     `);
+
+                    await browser.executeScript(function() {
+                        document.getElementById("one").focus();
+                    });
 
                     let ef = new ElementFinder(`#one, focused`);
                     let results = await ef.find(browser.driver, undefined, false, false, 500);
@@ -4245,112 +4249,686 @@ open firefox
 
             - page title
 
-                finds elements {
-                    await setPageBody(`
-                        <div id="one" class="big">foobar</div>
-                    `);
+                set page title {
                     await browser.executeScript(function() {
                         document.title = "foobar";
                     });
-
-                    let ef = new ElementFinder(`page title 'foobar'`);
-                    let results = await ef.find(browser.driver, undefined, false, false, 500);
-
-                    expect(results).to.have.lengthOf(1);
                 }
 
-                doesn't find elements {
-                    await setPageBody(`
-                        <div id="one" class="big">foobar</div>
-                    `);
-                    await browser.executeScript(function() {
-                        document.title = "foobar";
-                    });
+                    finds elements {
+                        let ef = new ElementFinder(`page title 'foobar'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
 
-                    let ef = new ElementFinder(`page title 'bad'`);
-                    await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
-                        |Element not found in time (0.5 s):
-                        |
-                        |page title 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page title 'bad'\` applied)\u001b[0m\u001b[30m`));
-                }
+                        expect(results).to.have.lengthOf(1);
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`page title 'bad'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Element not found in time (0.5 s):
+                            |
+                            |page title 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page title 'bad'\` applied)\u001b[0m\u001b[30m`));
+                    }
 
             - page title contains
 
-                finds elements {
-                    await setPageBody(`
-                        <div id="one" class="big">foobar</div>
-                    `);
+                set page title {
                     await browser.executeScript(function() {
                         document.title = " FOOBAR ";
                     });
-
-                    let ef = new ElementFinder(`page title contains 'foo'`);
-                    let results = await ef.find(browser.driver, undefined, false, false, 500);
-
-                    expect(results).to.have.lengthOf(1);
                 }
 
-                doesn't find elements {
-                    await setPageBody(`
-                        <div id="one" class="big">foobar</div>
-                    `);
-                    await browser.executeScript(function() {
-                        document.title = " FOOBAR ";
-                    });
+                    finds elements {
+                        let ef = new ElementFinder(`page title contains 'foo'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
 
-                    let ef = new ElementFinder(`page title contains 'bad'`);
+                        expect(results).to.have.lengthOf(1);
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`page title contains 'bad'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Element not found in time (0.5 s):
+                            |
+                            |page title contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page title contains 'bad'\` applied)\u001b[0m\u001b[30m`));
+                    }
+
+            - page url
+
+                - relative
+
+                    - top level url (/)
+
+                        nav to page {
+                            await browser.nav('example.com');
+                        }
+
+                            finds elements {
+                                let ef = new ElementFinder(`page url '/'`);
+                                let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                                expect(results).to.have.lengthOf(1);
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(`page url '/wrong'`);
+                                await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                    |Element not found in time (0.5 s):
+                                    |
+                                    |page url '/wrong'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page url '/wrong'\` applied)\u001b[0m\u001b[30m`));
+                            }
+
+                    - non-top level url
+
+                        nav to page {
+                            await browser.nav('example.com/something');
+                        }
+
+                            finds elements {
+                                let ef = new ElementFinder(`page url '/something'`);
+                                let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                                expect(results).to.have.lengthOf(1);
+                            }
+
+                            doesn't find elements {
+                                let ef = new ElementFinder(`page url '/'`);
+                                await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                    |Element not found in time (0.5 s):
+                                    |
+                                    |page url '/'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page url '/'\` applied)\u001b[0m\u001b[30m`));
+                            }
+
+                - absolute
+
+                    nav to page {
+                        await browser.nav('example.com');
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`page url 'http://example.com/'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`page url 'http://wrong.com/'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Element not found in time (0.5 s):
+                                |
+                                |page url 'http://wrong.com/'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page url 'http://wrong.com/'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+            - page url contains
+
+                nav to page {
+                    await browser.nav('example.com/foobar/blah');
+                }
+
+                    finds elements {
+                        let ef = new ElementFinder(`page url contains 'foo'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(1);
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`page url contains 'bad'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Element not found in time (0.5 s):
+                            |
+                            |page url contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page url contains 'bad'\` applied)\u001b[0m\u001b[30m`));
+                    }
+
+            - next to
+
+                - finds the best element
+
+                    one hop {
+                        await setPageBody(`
+                            <div id="one" class="big">
+                                New York
+                                <div id="five" class="small">foobar</div>
+                            </div>
+                            <div id="two" class="big">
+                                Paris
+                                <div id="six" class="small">foobar</div>
+                                <!-- first place -->
+                            </div>
+                            <div id="three" class="big">
+                                Paris
+                                <div id="seven" class="med">
+                                    <span id="eight" class="small">foobar</span>
+                                    <!-- second place -->
+                                </div>
+                            </div>
+                            <div id="four" class="big">
+                                Tokyo
+                                <div id="nine" class="small">foobar</div>
+                            </div>
+                        `);
+
+                        let ef = new ElementFinder(`0+ x .small, next to 'Paris'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(1);
+                        expect(await results[0].getAttribute('id')).to.equal('six');
+                    }
+
+                    multiple hops {
+                        await setPageBody(`
+                            <div id="one" class="big">
+                                New York
+                                <div id="four" class="med">
+                                    <span id="seven" class="small">foobar</span>
+                                </div>
+                            </div>
+                            <div id="two" class="big">
+                                Paris
+                                <div id="five" class="med">
+                                    <span id="eight" class="small">foobar</span>
+                                </div>
+                            </div>
+                            <div id="three" class="big">
+                                Tokyo
+                                <div id="six" class="med">
+                                    <span id="nine" class="small">foobar</span>
+                                </div>
+                            </div>
+                        `);
+
+                        let ef = new ElementFinder(`0+ x .small, next to 'Paris'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(1);
+                        expect(await results[0].getAttribute('id')).to.equal('eight');
+                    }
+
+                finds multiple elements if there's a tie {
+                    await setPageBody(`
+                        <div id="one" class="big">
+                            New York
+                            <div id="four" class="small">foobar</div>
+                        </div>
+                        <div id="two" class="big">
+                            Paris
+                            <div id="five" class="small">foobar</div>
+                        </div>
+                        <div id="three" class="big">
+                            <div id="six" class="small">foobar</div>
+                            New  YORK
+                        </div>
+                    `);
+
+                    let ef = new ElementFinder(`0+ x .small, next to 'new york'`);
+                    let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                    expect(results).to.have.lengthOf(2);
+                    expect(await results[0].getAttribute('id')).to.equal('four');
+                    expect(await results[1].getAttribute('id')).to.equal('six');
+                }
+
+                doesn't find elements if the text doesn't exist on the page {
+                    await setPageBody(`
+                        <div id="one" class="big">
+                            New York
+                            <div id="four" class="small">foobar</div>
+                        </div>
+                        <div id="two" class="big">
+                            Paris
+                            <div id="five" class="small">foobar</div>
+                        </div>
+                        <div id="three" class="big">
+                            <div id="six" class="small">foobar</div>
+                            New  YORK
+                        </div>
+                    `);
+
+                    let ef = new ElementFinder(`.small, next to 'blah'`);
                     await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
                         |Element not found in time (0.5 s):
                         |
-                        |page title contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`page title contains 'bad'\` applied)\u001b[0m\u001b[30m`));
+                        |.small, next to 'blah'  \u001b[0m\u001b[31m-->  not found (zero matches after \`next to 'blah'\` applied)\u001b[0m\u001b[30m`));
                 }
 
-            - page url
-                - relative
-                    - finds elements
-                    - doesn't find elements
-
-                - absolute
-                    - finds elements
-                    - doesn't find elements
-
-            - page url contains
-                - finds elements
-                - doesn't find elements
-
-            - next to
-                - finds the best element
-                - finds multiple elements if there's a tie
-                - doesn't find elements if the text doesn't exist on the page
-
             - value
-                - finds elements
-                - doesn't find elements
+
+                create html page {
+                    await setPageBody(`
+                        <input id="one" value="777">
+                    `);
+                }
+
+                    finds elements {
+                        let ef = new ElementFinder(`input, value '777'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(1);
+                        expect(await results[0].getAttribute('id')).to.equal('one');
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`input, value '666'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Element not found in time (0.5 s):
+                            |
+                            |input, value '666'  \u001b[0m\u001b[31m-->  not found (zero matches after \`value '666'\` applied)\u001b[0m\u001b[30m`));
+                    }
 
             - contains
-                - finds elements
-                - doesn't find elements
+
+                - in innerText
+
+                    create html page {
+                        await setPageBody(`
+                            <div id="one">Alpha</div>
+                            <div id="two">Beta</div>
+                            <div id="three">FOO  BAR</div>
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x div, contains 'foo bar'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('three');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x div, contains 'bad'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x div, contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains 'bad'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+                - in value
+
+                    create html page {
+                        await setPageBody(`
+                            <input id="one" value="Alpha">
+                            <input id="two" value="Beta">
+                            <input id="three" value="FOO  BAR">
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x input, contains 'foo bar'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('three');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x input, contains 'bad'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x input, contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains 'bad'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+                - in placeholder
+
+                    create html page {
+                        await setPageBody(`
+                            <input id="one" placeholder="Alpha">
+                            <input id="two" placeholder="Beta">
+                            <input id="three" placeholder="FOO  BAR">
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x input, contains 'foo bar'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('three');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x input, contains 'bad'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x input, contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains 'bad'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+                - in label text
+
+                    create html page {
+                        await setPageBody(`
+                            <label for="one">Alpha</label><input id="one" type="checkbox">
+                            <label for="two">Beta</label><input id="two" type="checkbox">
+                            <label for="three">FOO  BAR</label><input id="three" type="checkbox">
+                            <label for="four">Gamma</label><input id="four" type="checkbox">
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x input, contains 'foo bar'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('three');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x input, contains 'bad'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x input, contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains 'bad'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+                - in dropdown option text
+
+                    create html page {
+                        await setPageBody(`
+                            <select id="five">
+                                <option value="one" id="one">Alpha</option>
+                                <option value="two" id="two">Beta</option>
+                                <option value="three" id="three" selected>FOO  BAR</option>
+                                <option value="four" id="four">Gamma</option>
+                            </select>
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x select, contains 'foo bar'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('five');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x select, contains 'beta'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x select, contains 'beta'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains 'beta'\` applied)\u001b[0m\u001b[30m`));
+                        }
 
             - contains exact
-                - finds elements
-                - doesn't find elements
+
+                - in innerText
+
+                    create html page {
+                        await setPageBody(`
+                            <div id="one">Alpha</div>
+                            <div id="two">Beta</div>
+                            <div id="three">FOO BAR</div>
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x div, contains exact 'FOO BAR'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('three');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x div, contains exact 'foo bar'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x div, contains exact 'foo bar'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains exact 'foo bar'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+                - in value
+
+                    create html page {
+                        await setPageBody(`
+                            <input id="one" value="Alpha">
+                            <input id="two" value="Beta">
+                            <input id="three" value="FOO BAR">
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x input, contains exact 'FOO BAR'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('three');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x input, contains exact 'foo bar'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x input, contains exact 'foo bar'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains exact 'foo bar'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+                - in placeholder
+
+                    create html page {
+                        await setPageBody(`
+                            <input id="one" placeholder="Alpha">
+                            <input id="two" placeholder="Beta">
+                            <input id="three" placeholder="FOO BAR">
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x input, contains exact 'FOO BAR'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('three');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x input, contains exact 'foo bar'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x input, contains exact 'foo bar'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains exact 'foo bar'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+                - in label text
+
+                    create html page {
+                        await setPageBody(`
+                            <label for="one">Alpha</label><input id="one" type="checkbox">
+                            <label for="two">Beta</label><input id="two" type="checkbox">
+                            <label for="three">FOO BAR</label><input id="three" type="checkbox">
+                            <label for="four">Gamma</label><input id="four" type="checkbox">
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x input, contains exact 'FOO BAR'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('three');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x input, contains exact 'foo bar'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x input, contains exact 'foo bar'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains exact 'foo bar'\` applied)\u001b[0m\u001b[30m`));
+                        }
+
+                - in dropdown option text
+
+                    create html page {
+                        await setPageBody(`
+                            <select id="five">
+                                <option value="one" id="one">Alpha</option>
+                                <option value="two" id="two">Beta</option>
+                                <option value="three" id="three" selected>FOO BAR</option>
+                                <option value="four" id="four">Gamma</option>
+                            </select>
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`1+ x select, contains exact 'FOO BAR'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                            expect(await results[0].getAttribute('id')).to.equal('five');
+                        }
+
+                        doesn't find elements {
+                            let ef = new ElementFinder(`1+ x select, contains exact 'foo bar'`);
+                            await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                                |Elements not found in time (0.5 s):
+                                |
+                                |1+ x select, contains exact 'foo bar'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains exact 'foo bar'\` applied)\u001b[0m\u001b[30m`));
+                        }
 
             - innertext
-                - finds elements
-                - doesn't find elements
+
+                create html page {
+                    await setPageBody(`
+                        <div id="one">Alpha</div>
+                        <div id="two">Beta</div>
+                        <div id="three">FOO BAR</div>
+                    `);
+                }
+
+                    finds elements {
+                        let ef = new ElementFinder(`1+ x div, innertext 'FOO'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(1);
+                        expect(await results[0].getAttribute('id')).to.equal('three');
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`1+ x div, innertext 'foo'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Elements not found in time (0.5 s):
+                            |
+                            |1+ x div, innertext 'foo'  \u001b[0m\u001b[31m-->  not found (zero matches after \`innertext 'foo'\` applied)\u001b[0m\u001b[30m`));
+                    }
 
             - selector
-                - finds elements
-                - doesn't find elements
+
+                create html page {
+                    await setPageBody(`
+                        <div id="one">Alpha</div>
+                        <div id="two">Beta</div>
+                        <div id="three">FOO BAR</div>
+                        <div id="four">Gamma</div>
+                    `);
+                }
+
+                    finds elements {
+                        let ef = new ElementFinder(`2 x selector 'div#two, #three'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(2);
+                        expect(await results[0].getAttribute('id')).to.equal('two');
+                        expect(await results[1].getAttribute('id')).to.equal('three');
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`2 x selector 'div#bad'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Elements not found in time (0.5 s):
+                            |
+                            |2 x selector 'div#bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`selector 'div#bad'\` applied)\u001b[0m\u001b[30m`));
+                    }
 
             - xpath
-                - finds elements
-                - doesn't find elements
+
+                create html page {
+                    await setPageBody(`
+                        <div id="one">Alpha</div>
+                        <div id="two">Beta</div>
+                        <div id="three">FOO BAR</div>
+                        <div id="four">Gamma</div>
+                    `);
+                }
+
+                    finds a single element {
+                        let ef = new ElementFinder(`xpath '//div[2]'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(1);
+                        expect(await results[0].getAttribute('id')).to.equal('two');
+                    }
+
+                    finds multiple elements {
+                        let ef = new ElementFinder(`4 x xpath '//div'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(4);
+                        expect(await results[0].getAttribute('id')).to.equal('one');
+                        expect(await results[1].getAttribute('id')).to.equal('two');
+                        expect(await results[2].getAttribute('id')).to.equal('three');
+                        expect(await results[3].getAttribute('id')).to.equal('four');
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`xpath '//bad'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Element not found in time (0.5 s):
+                            |
+                            |xpath '//bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`xpath '//bad'\` applied)\u001b[0m\u001b[30m`));
+                    }
 
             - style
-                - finds elements
-                - doesn't find elements
+
+                create html page {
+                    await setPageBody(`
+                        <div id="one" style="color: red">Alpha</div>
+                        <div id="two" style="color: blue">Beta</div>
+                        <div id="three" style="background-color: red; color: blue;">Gamma</div>
+                    `);
+                }
+
+                    finds elements {
+                        let ef = new ElementFinder(`2 x style 'color:rgb(0, 0, 255)'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(2);
+                        expect(await results[0].getAttribute('id')).to.equal('two');
+                        expect(await results[1].getAttribute('id')).to.equal('three');
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`2 x style 'color:rgb(100, 0, 0)'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Elements not found in time (0.5 s):
+                            |
+                            |2 x style 'color:rgb(100, 0, 0)'  \u001b[0m\u001b[31m-->  not found (zero matches after \`style 'color:rgb(100, 0, 0)'\` applied)\u001b[0m\u001b[30m`));
+                    }
 
             - position
-                - finds elements
-                - doesn't find elements
+
+                create html page {
+                    await setPageBody(`
+                        <div id="one">Alpha</div>
+                        <div id="two">Beta</div>
+                        <div id="three">Gamma</div>
+                    `);
+                }
+
+                    finds elements {
+                        let ef = new ElementFinder(`div, position '2'`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(1);
+                        expect(await results[0].getAttribute('id')).to.equal('two');
+                    }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`div, position '4'`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Element not found in time (0.5 s):
+                            |
+                            |div, position '4'  \u001b[0m\u001b[31m-->  not found (zero matches after \`position '4'\` applied)\u001b[0m\u001b[30m`));
+                    }

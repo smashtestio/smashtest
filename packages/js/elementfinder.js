@@ -849,6 +849,7 @@ class ElementFinder {
      * @param {Number} [pollFrequency] - How often to poll for a matching element, in ms. If omitted, polls every 500 ms.
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found (resolves to nothing if isNot is set)
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time (if isNot is set, only throws error is elements still found after timeout)
+     *                 Includes ANSI escape codes in error's stacktrace to color -->'s as red in the console
      */
     async find(driver, parentElem, isNot, isContinue, timeout, pollFrequency) {
         timeout = timeout || 0;
@@ -1023,13 +1024,13 @@ class ElementFinder {
 
             'page url': [
                 function(elems, input) { // absolute or relative
-                    return window.location.href == input || window.location.href.replace(/^https?:\/\//, '') == input ? elems : [];
+                    return window.location.href == input || window.location.href.replace(/^https?:\/\/[^\/]*/, '') == input ? elems : [];
                 }
             ],
 
             'page url contains': [
                 function(elems, input) { // absolute or relative
-                    return window.location.href.indexOf(input) != -1 || window.location.href.replace(/^https?:\/\//, '').indexOf(input) != -1 ? elems : [];
+                    return window.location.href.indexOf(input) != -1 || window.location.href.replace(/^https?:\/\/[^\/]*/, '').indexOf(input) != -1 ? elems : [];
                 }
             ],
 
@@ -1102,15 +1103,21 @@ class ElementFinder {
                         }
 
                         let dropdownText = '';
-                        if(elem.hasOwnProperty('options') && elem.hasOwnProperty('selectedIndex')) {
+                        if(elem.options && typeof elem.selectedIndex != 'undefined' && elem.selectedIndex !== null) {
                             dropdownText = elem.options[elem.selectedIndex].text;
                         }
 
-                        return isMatch(elem.innerText) ||
-                            isMatch(elem.value) ||
-                            isMatch(elem.placeholder) ||
-                            isMatch(labelText) ||
-                            isMatch(dropdownText);
+                        if(elem.tagName.toLowerCase() == 'select') {
+                            return isMatch(labelText) ||
+                                isMatch(dropdownText);
+                        }
+                        else {
+                            return isMatch(elem.innerText) ||
+                                isMatch(elem.value) ||
+                                isMatch(elem.placeholder) ||
+                                isMatch(labelText) ||
+                                isMatch(dropdownText);
+                        }
                     });
                 }
             ],
@@ -1130,15 +1137,21 @@ class ElementFinder {
                         }
 
                         let dropdownText = '';
-                        if(elem.hasOwnProperty('options') && elem.hasOwnProperty('selectedIndex')) {
+                        if(elem.options && typeof elem.selectedIndex != 'undefined' && elem.selectedIndex !== null) {
                             dropdownText = elem.options[elem.selectedIndex].text;
                         }
 
-                        return isMatch(elem.innerText) ||
-                            isMatch(elem.value) ||
-                            isMatch(elem.placeholder) ||
-                            isMatch(labelText) ||
-                            isMatch(dropdownText);
+                        if(elem.tagName.toLowerCase() == 'select') {
+                            return isMatch(labelText) ||
+                                isMatch(dropdownText);
+                        }
+                        else {
+                            return isMatch(elem.innerText) ||
+                                isMatch(elem.value) ||
+                                isMatch(elem.placeholder) ||
+                                isMatch(labelText) ||
+                                isMatch(dropdownText);
+                        }
                     });
                 }
             ],
@@ -1198,7 +1211,7 @@ class ElementFinder {
                     let value = matches[2];
 
                     return elems.filter(function(elem) {
-                        return getComputedStyle(elem).name.toString() == value;
+                        return window.getComputedStyle(elem)[name].toString() == value;
                     });
                 }
             ],
