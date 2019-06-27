@@ -12327,6 +12327,188 @@ D -
             });
         });
 
+        context("moving ~'s at the end of a function call", () => {
+            it("moves ~'s at the end of a function call to the end of the last step in the function, where no steps follow the function call", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F
+    A -
+        B -
+
+F ~
+                `, "file.txt");
+
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepNodesInBranches(tree, tree.branches);
+
+                Comparer.expect(tree.branches).to.match([
+                    {
+                        steps: [
+                            { text: "F", isAfterDebug: undefined },
+                            { text: "A", isAfterDebug: undefined },
+                            { text: "B", isAfterDebug: true }
+                        ]
+                    }
+                ]);
+            });
+
+            it("moves ~'s at the end of a function call to the end of the last step in the function, where other steps follow the function call", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F
+    A -
+        B -
+
+F ~
+    C -
+                `, "file.txt");
+
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepNodesInBranches(tree, tree.branches);
+
+                Comparer.expect(tree.branches).to.match([
+                    {
+                        steps: [
+                            { text: "F", isAfterDebug: undefined },
+                            { text: "A", isAfterDebug: undefined },
+                            { text: "B", isAfterDebug: true },
+                            { text: "C", isAfterDebug: undefined }
+                        ]
+                    }
+                ]);
+            });
+
+            it("handles moving ~'s in multiple nested function calls, where no steps follow the function call", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F
+    A -
+        G
+
+* G
+    C -
+        D -
+
+F ~
+                `, "file.txt");
+
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepNodesInBranches(tree, tree.branches);
+
+                Comparer.expect(tree.branches).to.match([
+                    {
+                        steps: [
+                            { text: "F", isAfterDebug: undefined },
+                            { text: "A", isAfterDebug: undefined },
+                            { text: "G", isAfterDebug: undefined },
+                            { text: "C", isAfterDebug: undefined },
+                            { text: "D", isAfterDebug: true }
+                        ]
+                    }
+                ]);
+            });
+
+            it("handles moving ~'s in multiple nested function calls, where other steps follow the function call", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F
+    A -
+        G
+
+* G
+    C -
+        D -
+
+* E
+    H -
+
+F ~
+    E
+        I -
+                `, "file.txt");
+
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepNodesInBranches(tree, tree.branches);
+
+                Comparer.expect(tree.branches).to.match([
+                    {
+                        steps: [
+                            { text: "F", isAfterDebug: undefined },
+                            { text: "A", isAfterDebug: undefined },
+                            { text: "G", isAfterDebug: undefined },
+                            { text: "C", isAfterDebug: undefined },
+                            { text: "D", isAfterDebug: true },
+                            { text: "E", isAfterDebug: undefined },
+                            { text: "H", isAfterDebug: undefined },
+                            { text: "I", isAfterDebug: undefined }
+                        ]
+                    }
+                ]);
+            });
+
+            it("handles moving multiple ~'s in a single branch", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F
+    A -
+        B ~
+
+* B
+    D -
+
+F ~
+    E -
+                `, "file.txt");
+
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepNodesInBranches(tree, tree.branches);
+
+                Comparer.expect(tree.branches).to.match([
+                    {
+                        steps: [
+                            { text: "F", isAfterDebug: undefined },
+                            { text: "A", isAfterDebug: undefined },
+                            { text: "B", isAfterDebug: undefined },
+                            { text: "D", isAfterDebug: true },
+                            { text: "E", isAfterDebug: undefined }
+                        ]
+                    }
+                ]);
+            });
+
+            it("handles moving multiple ~'s in a single branch, more complex example", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F
+    A -
+        B ~
+            C -
+
+* B
+    D -
+
+F ~
+    E -
+                `, "file.txt");
+
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepNodesInBranches(tree, tree.branches);
+
+                Comparer.expect(tree.branches).to.match([
+                    {
+                        steps: [
+                            { text: "F", isAfterDebug: undefined },
+                            { text: "A", isAfterDebug: undefined },
+                            { text: "B", isAfterDebug: undefined },
+                            { text: "D", isAfterDebug: true },
+                            { text: "C", isAfterDebug: true },
+                            { text: "E", isAfterDebug: undefined }
+                        ]
+                    }
+                ]);
+            });
+        });
+
         context("errors", () => {
             it("handles an error from branchify()", () => {
                 let tree = new Tree();

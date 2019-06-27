@@ -1278,6 +1278,32 @@ ${outputBranchAbove(this)}
         });
         this.branches = highBranches.concat(medBranches).concat(lowBranches);
 
+        // Move ~'s at the end of a function call to after the last step in that function
+        this.branches.forEach(branch => {
+            branch.steps.forEach((step, i) => {
+                let stepNode = this.stepNodeIndex[step.id];
+                if(stepNode.isAfterDebug && stepNode.isFunctionCall) {
+                    let baseLevel = step.level;
+                    let found = false;
+                    delete stepNode.isAfterDebug;
+                    for(i++; i < branch.steps.length; i++) {
+                        let lastStepNode = stepNode;
+                        step = branch.steps[i];
+                        stepNode = this.stepNodeIndex[step.id];
+
+                        if(step.level <= baseLevel) {
+                            found = true;
+                            lastStepNode.isAfterDebug = true;
+                            break;
+                        }
+                    }
+                    if(!found) {
+                        branch.steps[branch.steps.length - 1].isAfterDebug = true;
+                    }
+                }
+            });
+        });
+
         // Updates hashes of all branches
         this.branches.forEach(branch => branch.updateHash(this.stepNodeIndex));
 

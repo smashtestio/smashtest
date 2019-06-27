@@ -942,7 +942,7 @@ Only ($)
 Debug (~, ~~)
     - Debug modifier (~)
         - Show example. Comes before or after a step, including before a function declaration's *.
-        - Before means pause right before this step executes, after means pause right after
+        - Before means pause right before this step executes, after means pause right after (if after a function call, it will pause after the last step in that expanded function)
         - Isolates a single branch and pauses right before the step marked ~ and opens up the REPL
         - Pauses right after a step if it fails
     - Express debug modifier (~~)
