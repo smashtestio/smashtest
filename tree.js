@@ -148,6 +148,7 @@ class Tree {
                 }
 
                 lines[i] = this.newStepNode().parseLine('', filename, lineNumber); // blank out the line we just handled
+                lines[i].codeBlockLine = true;
                 if(currentlyInsideCodeBlockFromLineNum == -1) { // if the code block just ended, mark it as such
                     lines[i].indents = utils.numIndents(line, filename, lineNumber);
                     lines[i].codeBlockEnd = true;
@@ -159,10 +160,6 @@ class Tree {
 
                 if(!lastNonEmptyStepNode && s.indents != 0) {
                     utils.error(`The first step must have 0 indents`, filename, lineNumber);
-                }
-
-                if(i - 1 >= 0 && s.text != '' && lines[i - 1].codeBlockEnd && s.indents == lines[i - 1].indents) {
-                    utils.error(`You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one.`, filename, lineNumber);
                 }
 
                 // If this is the start of a new code block
@@ -225,7 +222,10 @@ class Tree {
 
             // See how far down it goes
             for(var j = i + 1; j < lines.length; j++) { // var so that j is accessible outside the for loop
-                if(lines[j].text == '' || lines[j].indents != potentialStepBlock.steps[0].indents) {
+                if(lines[j].codeBlockLine) {
+                    continue;
+                }
+                else if(lines[j].text == '' || lines[j].indents != potentialStepBlock.steps[0].indents) {
                     // We've reached the end of the (potential) step block
                     break;
                 }
@@ -254,7 +254,7 @@ class Tree {
                 }
 
                 // Have the StepBlockNode object we created replace its corresponding StepNodes
-                lines.splice(i, potentialStepBlock.steps.length, potentialStepBlock);
+                lines.splice(i, j - i, potentialStepBlock);
                 i++; // next i will be one position past the new StepBlockNode's index
             }
             else {

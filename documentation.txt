@@ -158,17 +158,7 @@ Step blocks
     - .. at the top of a step block means sequential execution. Kind of like if we indented every step into a tree.
         - .. must be at the same indentation as vertical list
         - Function in the list with multiple branches will cause the list to branch (give example - like the one in the Hooks section below)
-    - Code block ok but only if it's last member
-        - Example: Debug pattern
-            Step to debug
-
-                becomes
-
-            ..
-            Step to debug
-            Debug {
-                console.log("something")
-            }
+    - Can include steps with code blocks
 
 Textual steps (-)
     - Step that just outputs text and doesn't execute anything

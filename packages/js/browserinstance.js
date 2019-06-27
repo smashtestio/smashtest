@@ -588,9 +588,19 @@ class BrowserInstance {
             ef = element;
         }
         else {
-            await this.driver.wait(() => {
-                return !element.isDisplayed();
-            }, timeout);
+            try {
+                await this.driver.wait(() => {
+                    return !element.isDisplayed();
+                }, timeout);
+            }
+            catch(e) {
+                if(e.message.includes('Wait timed out after')) {
+                    throw new Error(`Element still found after timeout (${timeout/1000} s)`);
+                }
+                else {
+                    throw e;
+                }
+            }
         }
 
         await ef.find(this.driver, parentElem, true, isContinue, timeout);

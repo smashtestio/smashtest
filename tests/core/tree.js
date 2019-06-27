@@ -2756,6 +2756,114 @@ C
                 });
             });
 
+            it("parses code blocks in a step block", () => {
+                let tree = new Tree();
+                tree.parseIn(
+`A {
+    a
+}
+B {
+    b
+}
+C -
+
+    D -
+`
+                , "file.txt");
+
+                Comparer.expect(tree).to.match({
+                    root: {
+                        indents: -1,
+                        parent: null,
+                        children: [
+                            {
+                                steps: [
+                                    {
+                                        text: 'A',
+                                        codeBlock: '\n    a',
+                                    },
+                                    {
+                                        text: 'B',
+                                        codeBlock: '\n    b',
+                                    },
+                                    {
+                                        text: 'C',
+                                        codeBlock: undefined,
+                                    }
+                                ],
+                                children: [
+                                    {
+                                        text: 'D',
+                                        codeBlock: undefined,
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                });
+            });
+
+            it("parses code blocks in a step block, more complex example", () => {
+                let tree = new Tree();
+                tree.parseIn(
+`A {
+    a
+}
+B -
+C {
+    c
+}
+
+    D {
+        d
+    }
+    E {
+        e
+    }
+`
+                , "file.txt");
+
+                Comparer.expect(tree).to.match({
+                    root: {
+                        indents: -1,
+                        parent: null,
+                        children: [
+                            {
+                                steps: [
+                                    {
+                                        text: 'A',
+                                        codeBlock: '\n    a',
+                                    },
+                                    {
+                                        text: 'B',
+                                        codeBlock: undefined,
+                                    },
+                                    {
+                                        text: 'C',
+                                        codeBlock: '\n    c',
+                                    }
+                                ],
+                                children: [
+                                    {
+                                        steps: [
+                                            {
+                                                text: 'D',
+                                                codeBlock: '\n        d',
+                                            },
+                                            {
+                                                text: 'E',
+                                                codeBlock: '\n        e',
+                                            }
+                                        ],
+                                        children: []
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                });
+            });
+
             it("rejects a code block that isn't closed", () => {
                 let tree = new Tree();
                 assert.throws(() => {
@@ -2796,18 +2904,6 @@ C
 `
                     , "file.txt");
                 }, "An unclosed code block was found [file.txt:2]");
-            });
-
-            it("rejects a step that is directly adjacent to a code block above", () => {
-                let tree = new Tree();
-                assert.throws(() => {
-                    tree.parseIn(
-`A {
-}
-B -
-`
-                    , "file.txt");
-                }, "You cannot have a step directly adjacent to a code block above. Consider putting an empty line above this one. [file.txt:3]");
             });
         });
 

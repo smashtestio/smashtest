@@ -3,6 +3,8 @@ open firefox
 
     *
         inits +? {
+            chai.use(i('chai-as-promised'));
+
             i('ElementFinder', '../../packages/js/elementfinder.js');
 
             g('setPageBody',
@@ -251,37 +253,37 @@ open firefox
                                     expect(await g('result elements')[2].getAttribute('id')).to.equal('three');
                                 }
 
+                - 'not$()' tests $
 
+                    Given a page with multiple elements {
+                        await setPageBody(`
+                            <div id="one" class="big">foobar</div>
+                        `);
+                    }
 
+                        - and not$() is called
 
+                            with a text EF that doesn't match anything {
+                                g('element', `.none`);
+                            }
+                            with an ElementFinder object that doesn't match anything {
+                                g('element', new ElementFinder(`.none`));
+                            }
 
+                                no error is thrown {
+                                    await not$(element, undefined, 1000);
+                                }
 
+                            with an EF that continues to match after the timeout {
+                                g('element', `.big`);
+                            }
+                            $s with a valid WebElement that never disappears {
+                                g('element', await browser.driver.findElement(By.id('one')));
+                            }
 
-
-
-                - 'not$()' tests
-
-                    - When not$() is called
-
-                        - with a text EF
-                        - with an ElementFinder object
-                        - with a WebElement
-
-                            - and the EF doesn't match anything
-                                - no error is thrown
-
-                        - with a text EF
-                            - and the EF continues to match after the timeout
-                                - an error is thrown
-
-
-
-
-
-
-
-
-
+                                an error is thrown {
+                                    await expect(not$(element, undefined, 1000)).to.be.rejectedWith(`Element still found after timeout (1 s)`);
+                                }
 
                 - props() tests
 
