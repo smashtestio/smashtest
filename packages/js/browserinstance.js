@@ -589,8 +589,8 @@ class BrowserInstance {
         }
         else {
             try {
-                await this.driver.wait(() => {
-                    return !element.isDisplayed();
+                await this.driver.wait(async () => {
+                    return await element.isDisplayed() === false;
                 }, timeout);
             }
             catch(e) {

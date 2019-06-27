@@ -822,6 +822,7 @@ Code blocks
         }
             - Helps a lot with stack traces. Code blocks are recommended for short snippets of code, 1-5 lines long.
     - Pitfalls
+        - ** Don't forget await **. If errors are thrown and don't land in a step, and or things seem race-conditiony, it's probably because you forgot an await.
         - Don't have multiple local, global, or persistent variables that are spelled the same, only different casing. Variable names are stored case-insensitively.
         - Don't use a var in a js code block that's set in a later step. That trick only works for {vars} that are used and set outside of code blocks.
         - Don't set a variable by using varname= when you want that value to persist beyond the end of the code block. Use setter functions (i.e., l(), g(), p()) instead.

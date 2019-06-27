@@ -253,7 +253,7 @@ open firefox
                                     expect(await g('result elements')[2].getAttribute('id')).to.equal('three');
                                 }
 
-                - 'not$()' tests $
+                - 'not$()' tests
 
                     Given a page with multiple elements {
                         await setPageBody(`
@@ -277,7 +277,7 @@ open firefox
                             with an EF that continues to match after the timeout {
                                 g('element', `.big`);
                             }
-                            $s with a valid WebElement that never disappears {
+                            with a valid WebElement that never disappears {
                                 g('element', await browser.driver.findElement(By.id('one')));
                             }
 
