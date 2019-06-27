@@ -3944,7 +3944,7 @@ A -
             ]);
         });
 
-        it("doesn't find as equivalents function declarations with code blocks", () => {
+        it("finds as equivalents function declarations with code blocks", () => {
             let tree = new Tree();
             tree.parseIn(`
 * F {
@@ -3959,7 +3959,8 @@ A -
             let equivalents = tree.equivalents(tree.root.children[0]); // * F
 
             Comparer.expect(equivalents).to.match([
-                { text: "F", lineNumber: 2 }
+                { text: "F", lineNumber: 2 },
+                { text: "F", lineNumber: 6 }
             ]);
         });
 

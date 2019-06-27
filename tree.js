@@ -493,17 +493,12 @@ ${outputBranchAbove(this)}
                             c === stepNode ||    // include the original
                             (
                                 c.isFunctionDeclaration &&
-                                !c.hasCodeBlock() &&
                                 c.canonicalizeFunctionDeclarationText() == fd.canonicalizeFunctionDeclarationText()
                             )
                     )
                 );
             });
             results = newResults;
-        }
-
-        if(!results.includes(stepNode)) {
-            results.push(stepNode);
         }
 
         return results;
