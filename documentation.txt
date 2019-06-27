@@ -435,6 +435,7 @@ Functions
             - *** Hook declaration
         - {{local vars}} designate parameters in a function declaration
         - Names should be actions (verbs). For a function with multiple branches, it could be "Choose a..." or "Try a..." (makes it easier to read and understand)
+        - Omit gherkin (given/when/then/and) from function declaration and it will match function calls that start with any of those
     - Finding declaration
         - First closest matching function declaration by looking to siblings, then to siblings of parent, etc.
         - Looks to packaged functions last

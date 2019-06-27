@@ -24,9 +24,8 @@ open firefox
             navigate to {{test page location}}
     *
 
-        - getAll()
-
-            - normal EFs
+        - getAll() tests
+             - normal EFs
 
                 - one line
 
@@ -3799,7 +3798,7 @@ open firefox
                         expect(results.matches).to.have.lengthOf(1000);
                     }
 
-        - find()
+        - find() tests
 
             create html page {
                 await setPageBody(`
@@ -3950,7 +3949,7 @@ open firefox
                                 let results = await ef.find(browser.driver, undefined, true, false, 500);
                             }
 
-        - defaultProps()
+        - defaultProps() tests
 
             - visible
 

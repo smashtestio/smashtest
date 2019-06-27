@@ -34,6 +34,11 @@ class BrowserInstance {
         runInstance.p("browsers", browsers);
 
         // Set commonly-used global vars
+        runInstance.g('Builder', Builder);
+        runInstance.g('By', By);
+        runInstance.g('Key', Key);
+        runInstance.g('until', until);
+
         runInstance.g('$', browser.$.bind(browser));
         runInstance.g('$$', browser.$$.bind(browser));
         runInstance.g('not$', browser.not$.bind(browser));

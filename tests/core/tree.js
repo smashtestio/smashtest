@@ -3758,6 +3758,30 @@ Trace:
 
  [file.txt:3]`);
         });
+
+        it("rejects function calls that cannot be found, when an anon function call is included in the trace", () => {
+            let tree = new Tree();
+            tree.parseIn(`
+*
+    Function that doesn't exist
+*
+
+* Something else
+`, "file.txt");
+
+            let branchAbove = new Branch();
+            branchAbove.steps = [new Step(tree.root.children[1].id)];
+            let functionCall = new Step(tree.root.children[0].children[0].id);
+            assert.throws(() => {
+                tree.findFunctionDeclarations(functionCall, branchAbove);
+            }, `The function \`Function that doesn't exist\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+
+Trace:
+   *
+   Function that doesn't exist
+
+ [file.txt:3]`);
+        });
     });
 
     describe("equivalents()", () => {

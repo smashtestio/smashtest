@@ -356,13 +356,19 @@ class StepNode {
     isFunctionMatch(functionDeclarationNode) {
         let functionCallText = this.canonicalizeFunctionCallText();
         let functionDeclarationText = functionDeclarationNode.canonicalizeFunctionDeclarationText();
-        return functionCallText == functionDeclarationText;
+        if(functionCallText == functionDeclarationText) {
+            return true;
+        }
+        else {
+            functionCallText = functionCallText.replace(/^\s*(given|when|then|and)\s*/i, '');
+            return functionCallText == functionDeclarationText;
+        }
     }
 
     /**
-     * @return {String} Canonicalized text of this step node, if it's a function declaration
+     * @return {String} Canonicalized text of this step node
      */
-    canonicalizeFunctionDeclarationText() {
+    canonicalizeFunctionDeclarationText(isFunctionCall) {
         let functionDeclarationText = this.text;
 
         // Canonicalize by replacing {vars} with {}'s

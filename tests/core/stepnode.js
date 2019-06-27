@@ -1060,6 +1060,18 @@ describe("StepNode", () => {
             functionCall.text = "Step one two";
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
+
+        it("matches a function call and function declaration with the same gherkin keyword", () => {
+            functionDeclaration.text = "Given step name here";
+            functionCall.text = "Given step name here";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
+
+        it("matches a function call with gherkin a and function declaration without gherkin", () => {
+            functionDeclaration.text = "step name here";
+            functionCall.text = "Given step name here";
+            expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
+        });
     });
 
     describe("serialize()", () => {

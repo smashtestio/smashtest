@@ -455,7 +455,11 @@ ${outputBranchAbove(this)}
         function outputBranchAbove(self) {
             let str = '';
             branchAbove.steps.forEach(s => {
-                let text = self.stepNodeIndex[s.id].text;
+                let sn = self.stepNodeIndex[s.id];
+                let text = sn.text;
+                if(sn.isAnonFunction && text.trim() == '') {
+                    text = '*';
+                }
                 if(text) {
                     str += `   ${text}\n`
                 }
@@ -486,7 +490,7 @@ ${outputBranchAbove(this)}
                 newResults = newResults.concat(
                     result.children.filter(
                         c =>
-                            c === stepNode ||    // original must always match
+                            c === stepNode ||    // include the original
                             (
                                 c.isFunctionDeclaration &&
                                 !c.hasCodeBlock() &&
@@ -496,6 +500,10 @@ ${outputBranchAbove(this)}
                 );
             });
             results = newResults;
+        }
+
+        if(!results.includes(stepNode)) {
+            results.push(stepNode);
         }
 
         return results;
