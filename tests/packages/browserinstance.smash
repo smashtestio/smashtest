@@ -291,83 +291,123 @@ open edge         #windows $s
 
                         - Setting one prop
 
-                            - When a prop is
+                            - Given a prop is
 
-                                already defined {
-                                    props({
-                                        fuzzy: `.original-fuzzy`
-                                    });
-                                }
+                                - already defined
 
-                                    - and that prop is set with props()
+                                    define prop {
+                                        props({
+                                            fuzzy: `.original-fuzzy`
+                                        });
+                                    }
 
-                                        - to an EF
+                                        - When that prop is set with props()
 
-                                            with isAdd set to true {
-                                                props({
-                                                    fuzzy: `.fuzzy`
-                                                }, true);
-                                            }
+                                            - to an EF
 
-                                                Then the old definition gets added to {
-                                                    expect(browser.definedProps.fuzzy).to.have.lengthOf(2);
-                                                    expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.original-fuzzy');
-                                                    expect(browser.definedProps.fuzzy[1].props[0].input).to.equal('.fuzzy');
+                                                - with isAdd set to true
+
+                                                    call {
+                                                        props({
+                                                            fuzzy: `.fuzzy`
+                                                        }, true);
+                                                    }
+
+                                                        - Then the old definition gets added to
+
+                                                            verify {
+                                                                expect(browser.definedProps.fuzzy).to.have.lengthOf(2);
+                                                                expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.original-fuzzy');
+                                                                expect(browser.definedProps.fuzzy[1].props[0].input).to.equal('.fuzzy');
+                                                            }
+
+                                                - with isAdd set to false
+
+                                                    call {
+                                                        props({
+                                                            fuzzy: `.fuzzy`
+                                                        }, false);
+                                                    }
+
+                                                        - Then the old definition gets overridden
+
+                                                            verify {
+                                                                expect(browser.definedProps.fuzzy).to.have.lengthOf(1);
+                                                                expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.fuzzy');
+                                                            }
+
+                                            - to a function
+
+                                                - with isAdd set to true
+
+                                                    call {
+                                                        props({
+                                                            fuzzy: (elems, input) => {
+                                                                return elems.filter(elem => elem.classList.contains('fuzzy'))
+                                                            }
+                                                        }, true);
+                                                    }
+
+                                                        - Then the old definition gets added to
+
+                                                            verify {
+                                                                expect(browser.definedProps.fuzzy).to.have.lengthOf(2);
+                                                                expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.original-fuzzy');
+                                                                expect(typeof browser.definedProps.fuzzy[1]).to.equal('function');
+                                                            }
+
+                                                - with isAdd set to false
+
+                                                    call {
+                                                        props({
+                                                            fuzzy: (elems, input) => {
+                                                                return elems.filter(elem => elem.classList.contains('fuzzy'))
+                                                            }
+                                                        }, false);
+                                                    }
+
+                                                        - Then the old definition gets overridden
+
+                                                            verify {
+                                                                expect(browser.definedProps.fuzzy).to.have.lengthOf(1);
+                                                                expect(typeof browser.definedProps.fuzzy[0]).to.equal('function');
+                                                            }
+
+                                - not yet defined
+
+                                    - When that prop is set with props()
+
+                                        *
+                                            - with isAdd set to true
+
+                                                call {
+                                                    props({
+                                                        fuzzy: `.fuzzy`
+                                                    }, true);
                                                 }
 
-                                            with isAdd set to false {
-                                                props({
-                                                    fuzzy: `.fuzzy`
-                                                }, false);
-                                            }
+                                            - with isAdd set to false
 
-                                                Then the old definition gets overridden {
+                                                call {
+                                                    props({
+                                                        fuzzy: `.fuzzy`
+                                                    }, false);
+                                                }
+                                        *
+
+                                            - Then the definition gets set
+
+                                                verify {
                                                     expect(browser.definedProps.fuzzy).to.have.lengthOf(1);
                                                     expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.fuzzy');
                                                 }
 
-                                        - to a function
-
-                                            with isAdd set to true {
-                                                props({
-                                                    fuzzy: (elems, input) => {
-                                                        return elems.filter(elem => elem.classList.contains('fuzzy'))
-                                                    }
-                                                }, true);
-                                            }
-
-                                                Then the old definition gets added to {
-                                                    expect(browser.definedProps.fuzzy).to.have.lengthOf(2);
-                                                    expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.original-fuzzy');
-                                                    expect(typeof browser.definedProps.fuzzy[1]).to.equal('function');
-                                                }
-
-                                            with isAdd set to false {
-                                                props({
-                                                    fuzzy: (elems, input) => {
-                                                        return elems.filter(elem => elem.classList.contains('fuzzy'))
-                                                    }
-                                                }, false);
-                                            }
-
-                                                Then the old definition gets overridden {
-                                                    expect(browser.definedProps.fuzzy).to.have.lengthOf(1);
-                                                    expect(typeof browser.definedProps.fuzzy[0]).to.equal('function');
-                                                }
-
-                                // not yet defined {
-                                // }
-                                //
-                                //     and that prop is set with props()
-                                //
-                                //         with isAdd set to 'true'
-                                //         with isAdd set to 'false'
-                                //
-                                //             Then the definition gets set {
-                                //                 expect(browser.definedProps.fuzzy).to.have.lengthOf(1);
-                                //             }
-
                         - Setting multiple props
+
+
+
+
+
 
 
 

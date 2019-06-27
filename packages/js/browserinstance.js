@@ -626,6 +626,9 @@ class BrowserInstance {
 
                 let [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
                 if(isAdd) {
+                    if(!this.definedProps[canonProp]) {
+                        this.definedProps[canonProp] = [];
+                    }
                     this.definedProps[canonProp].push(props[prop]);
                 }
                 else {
