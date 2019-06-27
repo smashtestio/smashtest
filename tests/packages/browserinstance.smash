@@ -1,227 +1,125 @@
+* init {
+    chai.use(i('chai-as-promised'));
+
+    i('ElementFinder', '../../packages/js/elementfinder.js');
+
+    g('setPageBody',
+        async function(htmlStr) {
+            await browser.executeScript(function(htmlStr) {
+                document.body.innerHTML = htmlStr;
+            }, htmlStr);
+        }
+    );
+
+    g(`test page location`, `file:///${dir()}/generic-page.html`);
+}
+
 open chrome
 open firefox
 
-    *
-        inits +? {
-            chai.use(i('chai-as-promised'));
+    init
+        navigate to {test page location}
 
-            i('ElementFinder', '../../packages/js/elementfinder.js');
+            - BrowserInstance tests
 
-            g('setPageBody',
-                async function(htmlStr) {
-                    await browser.executeScript(function(htmlStr) {
-                        document.body.innerHTML = htmlStr;
-                    }, htmlStr);
-                }
-            );
+                - Script injection tests
 
-            l(`test page location`, `file:///${dir()}/generic-page.html`);
-        }
+                    execScript() {
+                        let body = await executeScript(function(a, b) {
+                            document.body.innerHTML = a + b;
+                            return document.body.innerHTML;
+                        }, 'foo', 'bar');
 
-            navigate to {{test page location}}
-    *
-
-        - BrowserInstance tests
-
-            - Script injection tests
-
-                execScript() {
-                    let body = await executeScript(function(a, b) {
-                        document.body.innerHTML = a + b;
-                        return document.body.innerHTML;
-                    }, 'foo', 'bar');
-
-                    expect(body).to.equal('foobar');
-                }
-
-                executeAsyncScript() {
-                    let body = await executeAsyncScript(function(a, b, done) {
-                        document.body.innerHTML = a + b;
-                        done(document.body.innerHTML);
-                    }, 'foo', 'bar');
-
-                    expect(body).to.equal('foobar');
-                }
-
-            - Elements tests
-
-                - '$()' tests
-
-                    Given only some elements on a page are clickable
-
-                        function $() is called
-
-                            with a text EF
-                            with an ElementFinder object
-
-                                and tryClickable is set to
-
-                                    true
-
-                                        When the call is made
-                                            Then first matching element that is clickable is returned
-
-                                    false
-
-                                        When the call is made
-                                            Then first matching element is returned
-
-                            with a WebElement
-
-                                When the call is made
-                                    Then the same WebElement is returned
-
-                    Given no elements on a page are clickable
-
-                        and function $() is called
-
-                            with a text EF
-                            with an ElementFinder object
-
-                                and tryClickable is set to
-
-                                    true
-                                    false
-
-                                        When the call is made
-                                            Then first matching element is returned
-
-                            with a WebElement
-
-                                When the call is made
-                                    Then the same WebElement is returned
-
-
-                    * only some elements on a page are clickable {
-                        await setPageBody(`
-                            <div id="one" class="big">foobar</div>
-                            <a id="two" class="big">foobar</div>
-                            <button id="three" class="big">foobar</div>
-                        `);
+                        expect(body).to.equal('foobar');
                     }
 
-                    * no elements on a page are clickable {
-                        await setPageBody(`
-                            <div id="one" class="big">foobar</div>
-                            <div id="two" class="big">foobar</div>
-                            <span id="three" class="big">foobar</div>
-                        `);
+                    executeAsyncScript() {
+                        let body = await executeAsyncScript(function(a, b, done) {
+                            document.body.innerHTML = a + b;
+                            done(document.body.innerHTML);
+                        }, 'foo', 'bar');
+
+                        expect(body).to.equal('foobar');
                     }
 
-                    * function $() is called
+                - Elements tests
 
-                        * with a text EF {
-                            g('element passed in',
-                                `.big`
-                            );
-                        }
+                    - '$()' tests
 
-                        * with an ElementFinder object {
-                            g('element passed in',
-                                new ElementFinder(`.big`)
-                            );
-                        }
+                        Given only some elements on a page are clickable
 
-                        * with a WebElement {
-                            g('element passed in',
-                                await browser.driver.findElement(By.id('two'))
-                            );
-                        }
+                            function $() is called
 
-                            * When the call is made {
-                                g('result element',
-                                    await $(g('element passed in'))
-                                );
-                            }
+                                with a text EF
+                                with an ElementFinder object
 
-                                * Then the same WebElement is returned {
-                                    expect(await g('result element').getAttribute('id')).to.equal('two');
-                                }
+                                    and tryClickable is set to
 
-                    * tryClickable is set to
+                                        true
 
-                        * true
+                                            When the call is made
+                                                Then first matching element that is clickable is returned
 
-                            * When the call is made {
-                                g('result element',
-                                    await $(g('element passed in'), true)
-                                );
-                            }
+                                        false
 
-                        * false
+                                            When the call is made
+                                                Then first matching element is returned
 
-                            * When the call is made {
-                                g('result element',
-                                    await $(g('element passed in'), false)
-                                );
-                            }
+                                with a WebElement
 
-                    * Then first matching element that is clickable is returned {
-                        expect(await g('result element').getAttribute('id')).to.equal('two');
-                    }
-
-                    * Then first matching element is returned {
-                        expect(await g('result element').getAttribute('id')).to.equal('one');
-                    }
-
-                - '$$()' tests
-
-                    Given a page with multiple elements
-
-                        and function $$() is called
-
-                            with a text EF
-                            with an ElementFinder object
-
-                                and the EF has a counter
                                     When the call is made
-                                        Then all matching elements are returned
+                                        Then the same WebElement is returned
 
-                                and the EF is missing a counter
+                        Given no elements on a page are clickable
+
+                            and function $() is called
+
+                                with a text EF
+                                with an ElementFinder object
+
+                                    and tryClickable is set to
+
+                                        true
+                                        false
+
+                                            When the call is made
+                                                Then first matching element is returned
+
+                                with a WebElement
+
                                     When the call is made
-                                        Then all matching elements are returned
+                                        Then the same WebElement is returned
 
-                            with a WebElement
-                                When the call is made
-                                    Then the same WebElement is returned
 
-                    * Given a page with multiple elements {
-                        await setPageBody(`
-                            <div id="one" class="big">foobar</div>
-                            <a id="two" class="big">foobar</div>
-                            <button id="three" class="big">foobar</div>
-                        `);
-                    }
+                        * only some elements on a page are clickable {
+                            await setPageBody(`
+                                <div id="one" class="big">foobar</div>
+                                <a id="two" class="big">foobar</div>
+                                <button id="three" class="big">foobar</div>
+                            `);
+                        }
 
-                        * function $$() is called
+                        * no elements on a page are clickable {
+                            await setPageBody(`
+                                <div id="one" class="big">foobar</div>
+                                <div id="two" class="big">foobar</div>
+                                <span id="three" class="big">foobar</div>
+                            `);
+                        }
 
-                            * with a text EF
+                        * function $() is called
 
-                                * the EF has a counter {
-                                    g('element passed in',
-                                        `3 x .big`
-                                    );
-                                }
+                            * with a text EF {
+                                g('element passed in',
+                                    `.big`
+                                );
+                            }
 
-                                * the EF is missing a counter {
-                                    g('element passed in',
-                                        `.big`
-                                    );
-                                }
-
-                            * with an ElementFinder object
-
-                                * the EF has a counter {
-                                    g('element passed in',
-                                        new ElementFinder(`3 x .big`)
-                                    );
-                                }
-
-                                * the EF is missing a counter {
-                                    g('element passed in',
-                                        new ElementFinder(`.big`)
-                                    );
-                                }
+                            * with an ElementFinder object {
+                                g('element passed in',
+                                    new ElementFinder(`.big`)
+                                );
+                            }
 
                             * with a WebElement {
                                 g('element passed in',
@@ -230,170 +128,271 @@ open firefox
                             }
 
                                 * When the call is made {
+                                    g('result element',
+                                        await $(g('element passed in'))
+                                    );
+                                }
+
+                                    * Then the same WebElement is returned {
+                                        expect(await g('result element').getAttribute('id')).to.equal('two');
+                                    }
+
+                        * tryClickable is set to
+
+                            * true
+
+                                * When the call is made {
+                                    g('result element',
+                                        await $(g('element passed in'), true)
+                                    );
+                                }
+
+                            * false
+
+                                * When the call is made {
+                                    g('result element',
+                                        await $(g('element passed in'), false)
+                                    );
+                                }
+
+                        * Then first matching element that is clickable is returned {
+                            expect(await g('result element').getAttribute('id')).to.equal('two');
+                        }
+
+                        * Then first matching element is returned {
+                            expect(await g('result element').getAttribute('id')).to.equal('one');
+                        }
+
+                    - '$$()' tests
+
+                        Given a page with multiple elements
+
+                            and function $$() is called
+
+                                with a text EF
+                                with an ElementFinder object
+
+                                    and the EF has a counter
+                                        When the call is made
+                                            Then all matching elements are returned
+
+                                    and the EF is missing a counter
+                                        When the call is made
+                                            Then all matching elements are returned
+
+                                with a WebElement
+                                    When the call is made
+                                        Then the same WebElement is returned
+
+                        * Given a page with multiple elements {
+                            await setPageBody(`
+                                <div id="one" class="big">foobar</div>
+                                <a id="two" class="big">foobar</div>
+                                <button id="three" class="big">foobar</div>
+                            `);
+                        }
+
+                            * function $$() is called
+
+                                * with a text EF
+
+                                    * the EF has a counter {
+                                        g('element passed in',
+                                            `3 x .big`
+                                        );
+                                    }
+
+                                    * the EF is missing a counter {
+                                        g('element passed in',
+                                            `.big`
+                                        );
+                                    }
+
+                                * with an ElementFinder object
+
+                                    * the EF has a counter {
+                                        g('element passed in',
+                                            new ElementFinder(`3 x .big`)
+                                        );
+                                    }
+
+                                    * the EF is missing a counter {
+                                        g('element passed in',
+                                            new ElementFinder(`.big`)
+                                        );
+                                    }
+
+                                * with a WebElement {
+                                    g('element passed in',
+                                        await browser.driver.findElement(By.id('two'))
+                                    );
+                                }
+
+                                    * When the call is made {
+                                        g('result elements',
+                                            await $$(g('element passed in'))
+                                        );
+                                    }
+
+                                        * Then the same WebElement is returned {
+                                            expect(g('result elements')).to.have.lengthOf(1);
+                                            expect(await g('result elements')[0].getAttribute('id')).to.equal('two');
+                                        }
+
+                                * When the call is made {
                                     g('result elements',
                                         await $$(g('element passed in'))
                                     );
                                 }
 
-                                    * Then the same WebElement is returned {
-                                        expect(g('result elements')).to.have.lengthOf(1);
-                                        expect(await g('result elements')[0].getAttribute('id')).to.equal('two');
+                                    * Then all matching elements are returned {
+                                        expect(g('result elements')).to.have.lengthOf(3);
+                                        expect(await g('result elements')[0].getAttribute('id')).to.equal('one');
+                                        expect(await g('result elements')[1].getAttribute('id')).to.equal('two');
+                                        expect(await g('result elements')[2].getAttribute('id')).to.equal('three');
                                     }
 
-                            * When the call is made {
-                                g('result elements',
-                                    await $$(g('element passed in'))
-                                );
-                            }
+                    - 'not$()' tests
 
-                                * Then all matching elements are returned {
-                                    expect(g('result elements')).to.have.lengthOf(3);
-                                    expect(await g('result elements')[0].getAttribute('id')).to.equal('one');
-                                    expect(await g('result elements')[1].getAttribute('id')).to.equal('two');
-                                    expect(await g('result elements')[2].getAttribute('id')).to.equal('three');
+                        Given a page with multiple elements {
+                            await setPageBody(`
+                                <div id="one" class="big">foobar</div>
+                            `);
+                        }
+
+                            - and not$() is called
+
+                                with a text EF that doesn't match anything {
+                                    g('element', `.none`);
+                                }
+                                with an ElementFinder object that doesn't match anything {
+                                    g('element', new ElementFinder(`.none`));
                                 }
 
-                - 'not$()' tests
+                                    no error is thrown {
+                                        await not$(element, undefined, 1000);
+                                    }
 
-                    Given a page with multiple elements {
-                        await setPageBody(`
-                            <div id="one" class="big">foobar</div>
-                        `);
-                    }
-
-                        - and not$() is called
-
-                            with a text EF that doesn't match anything {
-                                g('element', `.none`);
-                            }
-                            with an ElementFinder object that doesn't match anything {
-                                g('element', new ElementFinder(`.none`));
-                            }
-
-                                no error is thrown {
-                                    await not$(element, undefined, 1000);
+                                with an EF that continues to match after the timeout {
+                                    g('element', `.big`);
+                                }
+                                with a valid WebElement that never disappears {
+                                    g('element', await browser.driver.findElement(By.id('one')));
                                 }
 
-                            with an EF that continues to match after the timeout {
-                                g('element', `.big`);
-                            }
-                            with a valid WebElement that never disappears {
-                                g('element', await browser.driver.findElement(By.id('one')));
-                            }
+                                    an error is thrown {
+                                        await expect(not$(element, undefined, 1000)).to.be.rejectedWith(`Element still found after timeout (1 s)`);
+                                    }
 
-                                an error is thrown {
-                                    await expect(not$(element, undefined, 1000)).to.be.rejectedWith(`Element still found after timeout (1 s)`);
-                                }
+                    - props() tests
 
-                - props() tests
+                        - Setting one prop
 
-                    - Setting one prop
+                            - and setting it to an EF
+                            - and setting it to a function
+                            - and setting it to mutiple definitions (including EFs and functions)
 
-                        - and setting it to an EF
-                        - and setting it to a function
-                        - and setting it to mutiple definitions (including EFs and functions)
+                            - that's already defined
+                                - and isAdd is set to true
+                                    - Verify that the old definition gets added to
 
-                        - that's already defined
-                            - and isAdd is set to true
-                                - Verify that the old definition gets added to
+                                - and isAdd is set to false
+                                    - Verify that the old definition gets overridden
 
-                            - and isAdd is set to false
-                                - Verify that the old definition gets overridden
+                        - Setting multiple props at once
 
-                    - Setting multiple props at once
+                    - propsAdd() tests
+                        - Setting a prop with an existing definition
+                            - Verify that the old definition gets added to
 
-                - propsAdd() tests
-                    - Setting a prop with an existing definition
-                        - Verify that the old definition gets added to
+                    - propsClear() tests
+                        - Clears out multiple props
+                        - Silently handles props that don't exist
 
-                - propsClear() tests
-                    - Clears out multiple props
-                    - Silently handles props that don't exist
+                    - str() tests
+                        - Escapes quotes in a string
 
-                - str() tests
-                    - Escapes quotes in a string
+                - Mocks tests
 
-            - Mocks tests
+                    - mockTime() tests
 
-                - mockTime() tests
+                        - When the mock date is set
+                            - Then that change is visible from 'new Date()'
 
-                    - When the mock date is set
-                        - Then that change is visible from 'new Date()'
+                    - mockHttp() tests
 
-                - mockHttp() tests
-
-                    * Method is a
-                        - GET
-                        - POST
-                    *
-                        * Url is
-                            - an absolute url
-
-                                - that's on browser's current domain
-                                - that's not on browser's current domain
-
-                            - a relative url
-
-                            - a regex
+                        * Method is a
+                            - GET
+                            - POST
                         *
-                            * Response is
-                                - a string
+                            * Url is
+                                - an absolute url
 
-                                - a js object
+                                    - that's on browser's current domain
+                                    - that's not on browser's current domain
 
-                                - an array
+                                - a relative url
 
-                                    - Response body is
-                                        - a string
-                                        - an object
-
-                                - a function
+                                - a regex
                             *
-                                - When an http request is made from the browser
-                                    - and that reponse is mocked
-                                        - Then the mocked response comes back
-                                    - and that response is not mocked
-                                        - Then a 404 error comes back
+                                * Response is
+                                    - a string
 
-                - mockHttpConfigure() tests
+                                    - a js object
 
-                    - mockHttp() was
-                        - already called
-                            - Calling mockHttpConfigure()
-                                - Updates the config
-                        - not called yet
-                            - Calling mockHttpConfigure()
-                                - Does nothing
+                                    - an array
 
-                - mockTimeStop() tests
-                    - mockTime() was
-                        - already called
-                            - Calling mockTimeStop()
-                                - Restores the current time
-                        - not called yet
-                            - Calling mockTimeStop()
-                                - Does nothing
+                                        - Response body is
+                                            - a string
+                                            - an object
 
-                - mockHttpStop() tests
-                    - mockHttp() was
-                        - already called
-                            - Calling mockHttpStop()
-                                - and making an http request
-                                    - Gets a response from the original non-mocked http server
-                        - not called yet
-                            - Calling mockHttpStop()
-                                - Does nothing
+                                    - a function
+                                *
+                                    - When an http request is made from the browser
+                                        - and that reponse is mocked
+                                            - Then the mocked response comes back
+                                        - and that response is not mocked
+                                            - Then a 404 error comes back
 
-                - mockStop() tests
-                    - Calling mockStop() ..
-                        - and using 'new Date()'
-                            - Gets the current date
-                        - and making an http request
-                            - Gets a response from the original non-mocked http server
+                    - mockHttpConfigure() tests
 
-                - injectSinon() tests
+                        - mockHttp() was
+                            - already called
+                                - Calling mockHttpConfigure()
+                                    - Updates the config
+                            - not called yet
+                                - Calling mockHttpConfigure()
+                                    - Does nothing
 
-                    - Sinon already exists in browser
-                    - Sinon does not already exist in browser
+                    - mockTimeStop() tests
+                        - mockTime() was
+                            - already called
+                                - Calling mockTimeStop()
+                                    - Restores the current time
+                            - not called yet
+                                - Calling mockTimeStop()
+                                    - Does nothing
 
-                        - Global sinon object is accessible within browser
+                    - mockHttpStop() tests
+                        - mockHttp() was
+                            - already called
+                                - Calling mockHttpStop()
+                                    - and making an http request
+                                        - Gets a response from the original non-mocked http server
+                            - not called yet
+                                - Calling mockHttpStop()
+                                    - Does nothing
+
+                    - mockStop() tests
+                        - Calling mockStop() ..
+                            - and using 'new Date()'
+                                - Gets the current date
+                            - and making an http request
+                                - Gets a response from the original non-mocked http server
+
+                    - injectSinon() tests
+
+                        - Sinon already exists in browser
+                        - Sinon does not already exist in browser
+
+                            - Global sinon object is accessible within browser
