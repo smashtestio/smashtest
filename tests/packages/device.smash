@@ -1,61 +1,65 @@
-Open Chrome
-Open Firefox
-Open Safari
+Open Chrome $
+Open Firefox $
+Open Safari ! $
 Open IE
 Open Edge
 
-    Mobile
-    Mobile Portrait
-    Mobile Landscape
-    Mobile S
-    Mobile S Portrait
-    Mobile S Landscape
-    Mobile M
-    Mobile M Portrait
-    Mobile M Landscape
-    Mobile L
-    Mobile L Portrait
-    Mobile L Landscape
-    Tablet
-    Tablet Portrait
-    Tablet Landscape
-    Laptop
-    Laptop L
-    Desktop
+    *
+        - Generic devices
 
-        - Debug and manually verify #manual $s
+            Mobile
+            Mobile Portrait
+            Mobile Landscape
+            Mobile S
+            Mobile S Portrait
+            Mobile S Landscape
+            Mobile M
+            Mobile M Portrait
+            Mobile M Landscape
+            Mobile L
+            Mobile L Portrait
+            Mobile L Landscape
+            Tablet
+            Tablet Portrait
+            Tablet Landscape
+            Laptop
+            Laptop L
+            Desktop
 
-    BlackBerry Z30
-    Blackberry PlayBook
-    Galaxy Note 3
-    Galaxy Note II
-    Galaxy S III
-    Galaxy S5
-    Kindle Fire HDX
-    LG Optimus L70
-    Laptop with HiDPI screen
-    Laptop with MDPI screen
-    Laptop with touch
-    Microsoft Lumia 550
-    Microsoft Lumia 950
-    Nexus 4
-    Nexus 5
-    Nexus 5X
-    Nexus 6
-    Nexus 6P
-    Nexus 7
-    Nexus 10
-    Nokia Lumia 520
-    Nokia N9
-    Pixel 2
-    Pixel 2 XL
-    iPhone 4
-    iPhone 5/SE
-    iPhone 6/7/8
-    iPhone 6/7/8 Plus
-    iPhone X
-    iPad
-    iPad Mini
-    iPad Pro
+        - Specific devices
 
-        - Debug and manually verify #manual $s
+            BlackBerry Z30
+            Blackberry PlayBook
+            Galaxy Note 3
+            Galaxy Note II
+            Galaxy S III
+            Galaxy S5
+            Kindle Fire HDX
+            LG Optimus L70
+            Laptop with HiDPI screen
+            Laptop with MDPI screen
+            Laptop with touch
+            Microsoft Lumia 550
+            Microsoft Lumia 950
+            Nexus 4
+            Nexus 5
+            Nexus 5X
+            Nexus 6
+            Nexus 6P
+            Nexus 7
+            Nexus 10
+            Nokia Lumia 520
+            Nokia N9
+            Pixel 2
+            Pixel 2 XL
+            iPhone 4
+            iPhone 5/SE
+            iPhone 6/7/8
+            iPhone 6/7/8 Plus
+            iPhone X
+            iPad
+            iPad Mini
+            iPad Pro
+    *
+
+        - Debug and manually verify #manual
