@@ -7,10 +7,10 @@ const chalk = require('chalk');
 const getPort = require('get-port');
 const WebSocket = require('ws');
 
-const REPORT_FILENAME = 'smashtest/report.html';
-const REPORT_DATA_FILENAME = 'smashtest/report-data.js';
-const PASSED_DATA_FILENAME = 'smashtest/passed-data';
-const SMASHTEST_SS_DIR = 'smashtest/screenshots';
+const REPORT_FILENAME = path.join('smashtest', 'report.html');
+const REPORT_DATA_FILENAME = path.join('smashtest', 'report-data.js');
+const PASSED_DATA_FILENAME = path.join('smashtest', 'passed-data');
+const SMASHTEST_SS_DIR = path.join('smashtest', 'screenshots');
 
 /**
  * Generates a report on the status of the tree and runner
@@ -39,7 +39,7 @@ class Reporter {
      * @return {String} The absolute path of the report html file
      */
     getFullReportPath() {
-        return process.cwd() + "/" + REPORT_FILENAME;
+        return path.join(process.cwd(), REPORT_FILENAME);
     }
 
     /**
@@ -59,13 +59,13 @@ class Reporter {
             }
         }
         catch(e) {
-            if(!e.message.includes(`no such file or directory, scandir 'smashtest/screenshots'`)) { // not finding the dir is ok
+            if(!e.message.includes(`no such file or directory, scandir`)) { // not finding the dir is ok
                 throw e;
             }
         }
 
         // Load template
-        let buffers = await readFiles([`${path.dirname(require.main.filename)}/report-template.html`] , {encoding: 'utf8'});
+        let buffers = await readFiles([path.join(path.dirname(require.main.filename), `report-template.html`)] , {encoding: 'utf8'});
         if(!buffers || !buffers[0]) {
             utils.error(`report-template.html not found`);
         }

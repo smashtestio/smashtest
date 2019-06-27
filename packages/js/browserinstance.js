@@ -419,7 +419,7 @@ class BrowserInstance {
         }
 
         // Create smashtest/screenshots if it doesn't already exist
-        const dir = 'smashtest/screenshots';
+        const dir = path.join('smashtest', 'screenshots');
         if(!fs.existsSync(dir)) {
             fs.mkdirSync(dir);
         }
@@ -459,7 +459,7 @@ class BrowserInstance {
     async clearUnneededScreenshots() {
         if(this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) { // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
             // Delete all screenshots with a filename that begins with the currBranch's hash
-            const SMASHTEST_SS_DIR = 'smashtest/screenshots';
+            const SMASHTEST_SS_DIR = path.join('smashtest', 'screenshots');
             let files = fs.readdirSync(SMASHTEST_SS_DIR);
             for(let file of files) {
                 if(file.startsWith(this.runInstance.currBranch.hash)) {

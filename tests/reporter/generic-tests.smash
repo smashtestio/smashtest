@@ -271,16 +271,17 @@ After Every Branch Error -
 
 Step with screenshots {
     const fs = i('fs');
+    const path = i('path');
 
     // Create smashtest/screenshots if it doesn't already exist
-    const dir = 'smashtest/screenshots';
+    const dir = path.join('smashtest', 'screenshots');
     if(!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
     }
 
     // Copy over screenshots
-    fs.copyFileSync(`tests/reporter/samplescreenshot1.png`, `smashtest/screenshots/${runInstance.currBranch.hash}_0_before.jpg`);
-    fs.copyFileSync(`tests/reporter/samplescreenshot2.png`, `smashtest/screenshots/${runInstance.currBranch.hash}_0_after.jpg`);
+    fs.copyFileSync(path.join('tests', 'reporter', 'samplescreenshot1.png'), path.join('smashtest', 'screenshots', `${runInstance.currBranch.hash}_0_before.jpg`));
+    fs.copyFileSync(path.join('tests', 'reporter', 'samplescreenshot2.png'), path.join('smashtest', 'screenshots', `${runInstance.currBranch.hash}_0_after.jpg`));
 
     runInstance.currStep.targetCoords = { x: 0, y: 0 };
 

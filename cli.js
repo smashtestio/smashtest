@@ -402,7 +402,7 @@ function plural(count) {
         }
 
         let packageFilenames = await new Promise((resolve, reject) => {
-            glob(`${path.dirname(require.main.filename)}/packages/*.smash`, async(err, packageFilenames) => { // new array of filenames under packages/
+            glob(path.join(path.dirname(require.main.filename), 'packages', '*.smash'), async(err, packageFilenames) => { // new array of filenames under packages/
                 err ? reject(err) : resolve(packageFilenames);
             });
         });

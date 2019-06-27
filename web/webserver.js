@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
 const https = null;
 const http = require('http');
 
@@ -26,14 +27,14 @@ if(USE_SSL) {
     https = require('https');
 
     if(USE_PROD) {
-        ca = fs.readFileSync(__dirname + '/ssl/smashtest_io.ca-bundle', 'utf8');
-        privateKey = fs.readFileSync(__dirname + '/ssl/smashtest_io.key', 'utf8');
-        certificate = fs.readFileSync(__dirname + '/ssl/smashtest_io.crt', 'utf8');
+        ca = fs.readFileSync(path.join(__dirname, 'ssl', 'smashtest_io.ca-bundle'), 'utf8');
+        privateKey = fs.readFileSync(path.join(__dirname, 'ssl', 'smashtest_io.key'), 'utf8');
+        certificate = fs.readFileSync(path.join(__dirname, 'ssl', 'smashtest_io.crt'), 'utf8');
     }
     else { // local
         ca = null;
-        privateKey = fs.readFileSync(__dirname + '/ssl/local.key', 'utf8');
-        certificate = fs.readFileSync(__dirname + '/ssl/local.cert', 'utf8');
+        privateKey = fs.readFileSync(path.join(__dirname, 'ssl', 'local.key'), 'utf8');
+        certificate = fs.readFileSync(path.join(__dirname, 'ssl', 'local.cert'), 'utf8');
     }
 }
 
@@ -41,12 +42,12 @@ let app = express();
 
 // Any page (doesn't contain a .)
 app.get(/^\/[^\.]*$/, (req, res) => {
-    let file = fs.readFileSync(__dirname + '/index.html', 'utf8');
+    let file = fs.readFileSync(path.join(__dirname , 'index.html'), 'utf8');
     res.status(200).send(file);
 });
 
 // For serving up public-content/ directory
-app.use(express.static(__dirname + '/public-content'));
+app.use(express.static(path.join(__dirname, 'public-content')));
 
 // Generic error handler
 app.use((err, req, res, next) => {
