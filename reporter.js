@@ -150,7 +150,11 @@ class Reporter {
                     }
 
                     // Validate that the client is either the current report html file or a page on the reportDomain origin
-                    if(message.origin != this.getFullReportPath() && !message.origin.startsWith(this.reportDomain)) {
+                    function canonFilenameOrigin(origin) {
+                        return origin.replace(/^\//, '').replace(/\\/g, '/');
+                    }
+                    if(canonFilenameOrigin(message.origin) != canonFilenameOrigin(this.getFullReportPath()) &&
+                        !message.origin.startsWith(this.reportDomain)) {
                         throw new Error(ERR_MSG);
                     }
                 }
