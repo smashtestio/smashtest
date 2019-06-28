@@ -2389,6 +2389,26 @@ My 'foo' Function 'bar' other text
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
             });
 
+            it("executes a {var} is 'string' step", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+{var1} is 'foobar'
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                expect(runInstance.getLocal("var1")).to.equal(undefined);
+                expect(runInstance.getGlobal("var1")).to.equal("foobar");
+                expect(runInstance.getPersistent("var1")).to.equal(undefined);
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            });
+
             it("executes a {var} = 'string' step where the string has escaped special chars", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
@@ -2583,6 +2603,26 @@ My 'foo' Function 'bar' other text
                 let tree = new Tree();
                 tree.parseIn(`
 {var1} = 'one', {{var2}} = "two", {{ var 3 }}=[three]
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                expect(runInstance.getGlobal("var1")).to.equal("one");
+                expect(runInstance.getLocal("var2")).to.equal("two");
+                expect(runInstance.getLocal("var 3")).to.equal("three");
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+            });
+
+            it("executes a {var1} is 'string1', {{var2}} is 'string2', {{var3}} is [string3] etc. step", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+{var1} is 'one', {{var2}} is "two", {{ var 3 }}is[three]
                 `, "file.txt");
 
                 let runner = new Runner();

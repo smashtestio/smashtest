@@ -6,12 +6,6 @@
 // Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then modifiers, then { and code, or // and a comment
 exports.LINE_WHOLE = /^\s*(((\-s|\.s|\$s|\-|\!|\.\.|\~\~|\~|\$|\+\?|\+|\#[^\s]+)\s+)*)(\*{1,3}(\s+|\s*$))?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-s|\.s|\$s|\-|\!|\.\.|\~\~|\~|\$|\+\?|\+|\#[^\s]+))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
 
-// Matches an modifier by itself (but not a full #)
-exports.MODIFIER_ALONE = /\-s|\.s|\$s|\-|\!|\.\.|\~\~|\~|\$|\+\?|\+|\#/;
-
-// Matches text that starts or ends with an modifier
-exports.MODIFIER_START_OR_END = new RegExp("^(" + exports.MODIFIER_ALONE.source + ")|(" + exports.MODIFIER_ALONE.source + ")$");
-
 // Matches a line that starts a sequential step block
 exports.SEQ_MODIFIER_LINE = /^\s*\.\.\s*(\/\/.*)?$/;
 
@@ -46,7 +40,7 @@ exports.VAR = /\{\{[^\{\}\\]+\}\}|\{[^\{\}\\]+\}/g;
 exports.VAR_WHOLE = new RegExp("^" + exports.VAR.source + "$");
 
 // Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val) as the whole line
-exports.VARS_SET_WHOLE = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*\=\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)*$/;
+exports.VARS_SET_WHOLE = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*(\=|is)\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*(\=|is)\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)*$/;
 
 // Matches "string", 'string', [string], {var}, or {{var}}, handles escaped chars
 exports.FUNCTION_INPUT = new RegExp(exports.STRING_LITERAL.source + "|" + exports.VAR.source, "g");

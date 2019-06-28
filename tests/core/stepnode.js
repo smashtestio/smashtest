@@ -56,50 +56,6 @@ describe("StepNode", () => {
                 }, "Invalid step name [file.txt:10]");
             });
 
-            it("throws an error if a step starts with an modifier followed by no space", () => {
-                assert.throws(() => {
-                    s.parseLine(`$Hello world`, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`    ~ $Hello world    `, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`~$ Hello world`, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`.. ~$ Hello world`, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`~$ .. Hello world`, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-            });
-
-            it("throws an error if a step ends with an modifier with no space before it", () => {
-                assert.throws(() => {
-                    s.parseLine(`Hello world$`, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`    Hello world.. $    `, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`Hello world ..$`, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`Hello world ..$ ~`, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-
-                assert.throws(() => {
-                    s.parseLine(`Hello world ~ ..$`, "file.txt", 10);
-                }, "Spaces must separate modifiers from each other and from the step [file.txt:10]");
-            });
-
             it("throws an error if a step has the name of a hook", () => {
                 assert.throws(() => {
                     s.parseLine(`Before Every Branch`, "file.txt", 10);

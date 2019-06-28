@@ -47,7 +47,7 @@ open edge         #windows $s
 
                 - Elements tests
 
-                    - '$()' tests
+                    - $() tests
 
                         Given only some elements on a page are clickable
 
@@ -166,7 +166,7 @@ open edge         #windows $s
                             expect(await g('result element').getAttribute('id')).to.equal('one');
                         }
 
-                    - '$$()' tests
+                    - $$() tests
 
                         Given a page with multiple elements
 

@@ -181,13 +181,14 @@ Not sequential
 
 * Function declaration
     {global var}='something'
-        {{local var}}="something else here {var} {var:}", {{local var2}} = "something {var inside string}"
-            {var} = [ 1st 'Login' box near 'title' {var} ]
-                {escaping} = outside 'single\'\\\'quote\n' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
-                    {escaping}=outside 'something' outside 'something else' outside
-                        {escaping}=outside "something" outside "something else" outside
-                            {escaping}=outside [something] outside [something else] outside
-                                {lookahead var:} {{{var in squigglies}}} {a} {}
+        {global var} is 'something'
+            {{local var}}="something else here {var} {var:}", {{local var2}} = "something {var inside string}"
+                {var} = [ 1st 'Login' box near 'title' {var} ]
+                    {escaping} = outside 'single\'\\\'quote\n' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
+                        {escaping}=outside 'something' outside 'something else' outside
+                            {escaping}=outside "something" outside "something else" outside
+                                {escaping}=outside [something] outside [something else] outside
+                                    {lookahead var:} {{{var in squigglies}}} {a} {}
 
 * Other function {{var}} 'string' {
     // code block

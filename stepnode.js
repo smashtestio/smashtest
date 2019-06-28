@@ -129,9 +129,6 @@ class StepNode {
         if(this.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
             utils.error(`Invalid step name`, filename, lineNumber);
         }
-        if(this.text.match(Constants.MODIFIER_START_OR_END)) {
-            utils.error(`Spaces must separate modifiers from each other and from the step`, filename, lineNumber);
-        }
 
         // Function Declaration
         if(this.isFunctionDeclaration) {
@@ -317,7 +314,7 @@ class StepNode {
         while(matches) {
             varsBeingSet.push({
                 name: utils.stripBrackets(matches[2]),
-                value: matches[5],
+                value: matches[6],
                 isLocal: matches[2].includes('{{')
             });
 
