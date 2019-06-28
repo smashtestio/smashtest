@@ -1,3 +1,5 @@
+// NOTE: This file was used to experiment with different types of testing styles (hence the inconsistency of style)
+
 * init {
     chai.use(i('chai-as-promised'));
 
@@ -287,7 +289,7 @@ open edge         #windows $s
                                         await expect(not$(element, undefined, 1000)).to.be.rejectedWith(`Element still found after timeout (1 s)`);
                                     }
 
-                    - props() tests $
+                    - props() tests
 
                         - Setting one prop
 
@@ -404,23 +406,113 @@ open edge         #windows $s
 
                         - Setting multiple props
 
+                            - When multiple props are set with props()
+                                and some of those props have already been set {
+                                    props({
+                                        one: `.one`,
+                                        two: `.two`,
+                                        three: `.three`
+                                    });
+                                }
 
+                                    - and isAdd is set to
+                                        - true
+                                            Then the existing definitions get added to {
+                                                props({
+                                                    one: `.first`,
+                                                    three: (elems, input) => { return elems; }
+                                                }, true);
 
+                                                Comparer.expect(browser.definedProps).to.match({
+                                                    one: [
+                                                        { props: [ '$subset', {input: `.one`} ] },
+                                                        { props: [ '$subset', {input: `.first`} ] }
+                                                    ],
+                                                    two: [
+                                                        { props: [ '$subset', {input: `.two`} ] }
+                                                    ],
+                                                    three: [
+                                                        { props: [ '$subset', {input: `.three`} ] },
+                                                        { $typeof: 'function' }
+                                                    ]
+                                                });
+                                            }
 
+                                        - false
+                                            Then the existing definitions get overriden {
+                                                props({
+                                                    one: `.first`,
+                                                    three: (elems, input) => { return elems; }
+                                                }, false);
 
-
-
+                                                Comparer.expect(browser.definedProps).to.match({
+                                                    one: [
+                                                        { props: [ '$subset', {input: `.first`} ] }
+                                                    ],
+                                                    two: [
+                                                        { props: [ '$subset', {input: `.two`} ] }
+                                                    ],
+                                                    three: [
+                                                        { $typeof: 'function' }
+                                                    ]
+                                                });
+                                            }
 
                     - propsAdd() tests
-                        - Setting a prop with an existing definition
-                            - Verify that the old definition gets added to
+                        Setting a prop with an existing definition {
+                            props({
+                                fuzzy: `.original-fuzzy`
+                            });
+
+                            propsAdd({
+                                fuzzy: `.fuzzy`
+                            });
+                        }
+                            Verify that the old definition gets added to {
+                                Comparer.expect(browser.definedProps).to.match({
+                                    fuzzy: [
+                                        { props: [ '$subset', {input: `.original-fuzzy`} ] },
+                                        { props: [ '$subset', {input: `.fuzzy`} ] }
+                                    ]
+                                });
+                            }
 
                     - propsClear() tests
-                        - Clears out multiple props
-                        - Silently handles props that don't exist
+                        Clears out multiple props {
+                            props({
+                                one: `.one`,
+                                two: `.two`,
+                                three: `.three`
+                            });
+
+                            propsClear(['one', 'two']);
+
+                            Comparer.expect(browser.definedProps).to.match({
+                                three: [
+                                    { props: [ '$subset', {input: `.three`} ] }
+                                ]
+                            });
+                        }
+                        Silently handles props that don't exist {
+                            props({
+                                one: `.one`,
+                                two: `.two`,
+                                three: `.three`
+                            });
+
+                            propsClear(['one', 'two', 'foobar']);
+
+                            Comparer.expect(browser.definedProps).to.match({
+                                three: [
+                                    { props: [ '$subset', {input: `.three`} ] }
+                                ]
+                            });
+                        }
 
                     - str() tests
-                        - Escapes quotes in a string
+                        Escapes quotes in a string {
+                            expect(`'${str(`"meow"`)}'`).to.equal(`'\\"meow\\"'`);
+                        }
 
                 - Mocks tests
 

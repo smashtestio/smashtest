@@ -11,6 +11,7 @@ const sharp = require('sharp');
 const request = require('request-promise-native');
 const utils = require('../../utils.js');
 const ElementFinder = require('./elementfinder.js');
+const Comparer = require('./comparer.js');
 
 class BrowserInstance {
     // ***************************************
@@ -34,6 +35,9 @@ class BrowserInstance {
         runInstance.p("browsers", browsers);
 
         // Set commonly-used global vars
+        runInstance.g('Comparer', Comparer);
+        runInstance.g('ElementFinder', ElementFinder);
+
         runInstance.g('Builder', Builder);
         runInstance.g('By', By);
         runInstance.g('Key', Key);
