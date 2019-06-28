@@ -3,8 +3,6 @@
 * init {
     chai.use(i('chai-as-promised'));
 
-    i('ElementFinder', '../../packages/js/elementfinder.js');
-
     g('setPageBody',
         async function(htmlStr) {
             await browser.executeScript(function(htmlStr) {
@@ -598,3 +596,14 @@ open edge         #windows $s
                         - Sinon does not already exist in browser
 
                             - Global sinon object is accessible within browser
+
+                - Screenshots tests $s
+
+                    make html page very long, with a button at the very bottom (below the fold) {
+                        let body = '';
+                        for(let i = 0; i < 500; i++) body += '<div>foobar</div>';
+                        body += '<button>Click me</button>';
+                        await setPageBody(body);
+                    }
+                        Click [button]
+                            - Verify that the button is visible in the before screenshot, with crosshairs

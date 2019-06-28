@@ -2640,7 +2640,12 @@ c     = copy text of branch
                     let targetCoords = this.props.step.targetCoords;
                     let crosshairsStyle = '';
                     if(targetCoords) {
-                        crosshairsStyle = { top: `${targetCoords.y}%`, left: `${targetCoords.x}%` };
+                        if(targetCoords.y <= 100 && targetCoords.x <= 100) {
+                            crosshairsStyle = { top: `${targetCoords.y}%`, left: `${targetCoords.x}%` };
+                        }
+                        else {
+                            targetCoords = null; // crosshairs are out of bounds
+                        }
                     }
 
                     let toggleClassName = `screenshot-toggle ${!this.state.isBefore ? `active` : ``}`;

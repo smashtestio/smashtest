@@ -1,20 +1,25 @@
-- Category: Open browsers
+* init {
+    chai.use(i('chai-as-promised'));
 
-    Open Chrome
-    Open Firefox
+    g('setPageBody',
+        async function(htmlStr) {
+            await browser.executeScript(function(htmlStr) {
+                document.body.innerHTML = htmlStr;
+            }, htmlStr);
+        }
+    );
+
+    g(`test page location`, `file:///${dir()}/generic-page.html`);
+}
+
+* Open a browser
+    Open Chrome $
+    Open Firefox $
     Open Safari
     Open IE
     Open Edge
     Open browser 'chrome'
-    Use browser
-
-        - Debug and manually verify #manual $s
-
-* Open a browser
-    Open Chrome
-    Open Firefox
 *
-
     - Category: Actions
 
         - Navigate
@@ -51,7 +56,7 @@
         - Click
 
             Navigate to 'google.com'
-                Click ["I'm Feeling Lucky"] $
+                Click ["I'm Feeling Lucky"]
 
             - a button
             - an unclickable child of a clickable parent

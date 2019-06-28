@@ -496,6 +496,24 @@ class BrowserInstance {
         };
     }
 
+    /**
+     * If the given WebElement is not currently scrolled into view, scrolls it into view and retakes the before screenshot
+     */
+    async scrollIntoView(elem) {
+        let isScrolledIntoView = await this.executeScript(function(elem) {
+            var rect = elem.getBoundingClientRect();
+            let isScrolledIntoView = (rect.top >= 0) && (rect.bottom <= window.innerHeight);
+            if(!isScrolledIntoView) {
+                elem.scrollIntoView();
+            }
+            return isScrolledIntoView;
+        }, elem);
+
+        if(!isScrolledIntoView) {
+            await this.takeScreenshot(false);
+        }
+    }
+
     // ***************************************
     //  Elements
     // ***************************************
@@ -531,7 +549,10 @@ class BrowserInstance {
                 results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
                 this.runInstance.log('Clickable element found');
                 let result = results[0];
+
+                await this.scrollIntoView(result);
                 await this.setCrosshairs(result);
+
                 return result;
             }
             catch(e) {}
@@ -542,7 +563,10 @@ class BrowserInstance {
 
         results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
         let result = results[0];
+
+        await this.scrollIntoView(result);
         await this.setCrosshairs(result);
+        
         return result;
     }
 
