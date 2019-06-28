@@ -540,6 +540,7 @@ function plural(count) {
                 runner.createEmptyRunner(tree);
                 runner.consoleOutput = true;
                 runner.outputErrors = false;
+                await runner.runBeforeEverything();
             }
             else { // debug mode
                 runner.consoleOutput = true;

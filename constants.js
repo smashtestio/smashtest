@@ -6,11 +6,11 @@
 // Optional *, then alternating text or "string literal" or 'string literal' (non-greedy), then modifiers, then { and code, or // and a comment
 exports.LINE_WHOLE = /^\s*(((\-s|\.s|\$s|\-|\!|\.\.|\~\~|\~|\$|\+\?|\+|\#[^\s]+)\s+)*)(\*{1,3}(\s+|\s*$))?(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|.*?)+?)((\s+(\-s|\.s|\$s|\-|\!|\.\.|\~\~|\~|\$|\+\?|\+|\#[^\s]+))*)(\s+(\{[^\}]*$))?(\s*(\/\/.*))?\s*$/;
 
-// Matches an modifier by itself
-exports.MODIFIER = /\-s|\.s|\$s|\-|\!|\.\.|\~\~|\~|\$|\+\?|\+|\#[^\s]+/;
+// Matches an modifier by itself (but not a full #)
+exports.MODIFIER_ALONE = /\-s|\.s|\$s|\-|\!|\.\.|\~\~|\~|\$|\+\?|\+|\#/;
 
 // Matches text that starts or ends with an modifier
-exports.MODIFIER_START_OR_END = new RegExp("^(" + exports.MODIFIER.source + ")|(" + exports.MODIFIER.source + ")$");
+exports.MODIFIER_START_OR_END = new RegExp("^(" + exports.MODIFIER_ALONE.source + ")|(" + exports.MODIFIER_ALONE.source + ")$");
 
 // Matches a line that starts a sequential step block
 exports.SEQ_MODIFIER_LINE = /^\s*\.\.\s*(\/\/.*)?$/;
