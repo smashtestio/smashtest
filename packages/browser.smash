@@ -26,7 +26,8 @@
 }
     Use browser +?
 
-* Open Safari {
+* Open Safari ! {
+    await new Promise(res => setTimeout(res, 500)); // only one safari instance can run at a time (the ! and 500 ms pause prevent this)
     await BrowserInstance.create(runInstance).open({name: 'safari'});
 }
     Use browser +?
@@ -120,20 +121,40 @@
     }
 
     * Double click {{element}} {
-        await browser.driver.actions({bridge: true}).doubleClick(await $(element, true)).perform();
+        let elem = await $(element, true);
+
+        if(browser.params.name == 'safari') {
+            log(`Safari doesn't support webdriver double-click, so using js dblclick event instead`);
+            await executeScript(function(elem) {
+                elem.dispatchEvent(new MouseEvent('dblclick', {
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true
+                }));
+            }, elem);
+        }
+        else {
+            await browser.driver.actions({bridge: true}).doubleClick(elem).perform();
+        }
     }
 
     * Hover over {{element}} {
-        await browser.driver.actions({bridge: true}).mouseMove(await $(element, true)).perform();
+        await browser.driver.actions({bridge: true}).move({origin: await $(element, true)}).perform();
     }
 
     * Scroll to {{element}} {
-        await browser.driver.actions({bridge: true}).move({origin: await $(element, true)}).perform();
+        await executeScript(function(element) {
+            element.scrollIntoView();
+        }, await $(element));
     }
 
     // Returns JSON object representing cookie
     * Get cookie {{name}} {
-        return await browser.driver.manage().getCookie(name);
+        let cookie = await browser.driver.manage().getCookie(name);
+        if(!cookie) {
+            throw new Error(`Cookie with name '${name}' not found`);
+        }
+        return cookie;
     }
 
     * Set cookie {{name}} to {{value}} {
@@ -556,12 +577,18 @@
     //  Wait
     // ***************************************
 
-    * Wait {{n}} second
-        Wait {{n}} seconds +?
+    * Wait {{n}} sec
+        Wait {{n}} secs +?
 
-    * Wait {{n}} seconds {
+    * Wait {{n}} seconds
+        Wait {{n}} secs +?
+
+    * Wait {{n}} secs {
         return new Promise(res => setTimeout(res, n * 1000));
     }
+
+    * Wait {{n}} seconds
+        Wait {{n}} secs +?
 
     // ***************************************
     //  Print and Log

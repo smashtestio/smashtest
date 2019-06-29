@@ -329,7 +329,6 @@ class Branch {
          // Reset state
          delete this.isPassed;
          delete this.isFailed;
-         delete this.isRunning;
          delete this.isSkipped;
 
          if(state == 'pass') {
@@ -366,7 +365,10 @@ class Branch {
                  let isFailed = step.isFailed;
                  let isSkipped = step.isSkipped;
                  let isRunning = step.isRunning;
-                 // omitting isPassed (it will be implied by the branch passing)
+                 let isPassed = undefined;
+                 if(!self.isPassed) { // omit step.isPassed when the branch passes (it will be implied by the branch passing)
+                     isPassed = step.isPassed;
+                 }
 
                  // Clear out step
                  for(let key in step) {
@@ -381,6 +383,7 @@ class Branch {
                  isFailed && (step.isFailed = true);
                  isSkipped && (step.isSkipped = true);
                  isRunning && (step.isRunning = true);
+                 isPassed && (step.isPassed = true);
              }
          }
      }

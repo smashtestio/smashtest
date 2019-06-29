@@ -46,14 +46,14 @@ class Reporter {
      * Starts the reporter, which generates and writes to disk a new report once every REPORT_GENERATE_FREQUENCY ms
      */
     async start() {
-        // Clear out existing screenshots
+        // Clear out existing screenshots (one by one)
         try {
             let files = fs.readdirSync(SMASHTEST_SS_DIR);
             for(let file of files) {
-                // Delete a screenshot only if the branch didn't pass last time (if we're doing --skip-passed)
                 let match = file.match(/[^\_]+/);
                 let hash = match ? match[0] : null;
-                if(!this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
+                // If we're doing --skip-passed, delete a screenshot only if the branch didn't pass last time
+                if(!this.runner.skipPassed || !this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
                     fs.unlinkSync(path.join(SMASHTEST_SS_DIR, file));
                 }
             }

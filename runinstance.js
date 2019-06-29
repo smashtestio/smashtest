@@ -1044,6 +1044,8 @@ class RunInstance {
             console.log("Branch complete");
             console.log("");
         }
+
+        delete this.currBranch.isRunning;
     }
 
     /**

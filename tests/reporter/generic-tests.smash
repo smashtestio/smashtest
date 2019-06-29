@@ -193,11 +193,14 @@ Continue failed -
         throw e;
     }
 
-        Step that fails and doesn't continue {
-            throw new Error("oops 2");
+        Step that passes {
         }
 
-            We never get here -
+            Step that fails and doesn't continue {
+                throw new Error("oops 2");
+            }
+
+                We never get here -
 
 
 
