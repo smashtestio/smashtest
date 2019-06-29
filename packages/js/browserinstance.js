@@ -224,8 +224,8 @@ class BrowserInstance {
             .setIeOptions(options.ie)
             .setEdgeOptions(options.edge);
 
-        if(params.serverUrl) {
-            builder = builder.usingServer(params.serverUrl);
+        if(params.testServer) {
+            builder = builder.usingServer(params.testServer);
         }
 
         this.driver = await builder.build();
@@ -566,7 +566,7 @@ class BrowserInstance {
 
         await this.scrollIntoView(result);
         await this.setCrosshairs(result);
-        
+
         return result;
     }
 

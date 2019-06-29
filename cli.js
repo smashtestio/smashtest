@@ -265,7 +265,7 @@ Options
                 if(!value.match(/^https?:\/\/.*$/)) {
                     utils.error(`Invalid test-server. It must be in the format 'http://...' or 'https://...'.`);
                 }
-                reporter.testServer = value;
+                runner.testServer = value;
                 break;
 
             case "version":
