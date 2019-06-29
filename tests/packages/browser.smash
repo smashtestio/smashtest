@@ -73,23 +73,75 @@ Open a browser
 
                         Click [target button]
 
-                            Verify ['I was clicked'] is visible 
-
-
-
-
-
+                            Verify ['I was clicked'] is visible
 
                 - an unclickable child of a clickable parent
 
-                    - where a 'text' EF is used and automatically targets the parent
-                    - where an EF directly targets the child, and the click event has to reach the parent
+                    Generate page {
+                        await setPageBody(`
+                            <button id="target" onclick="document.getElementById('display').innerHTML = 'I was clicked'">
+                                <div id="target-child">click me</div>
+                            </button>
+                            <div id="display"></div>
+                        `);
+                    }
 
-                        - Verify the parent gets clicked
+                        where a 'text' EF is used and automatically targets the parent {
+                            props({
+                                'target button': `'click me'`
+                            });
+                        }
+
+                            Click [target button]
+
+                                Verify the parent gets clicked
+
+                        where an EF directly targets the child, and the click event has to reach the parent {
+                            props({
+                                'target button': `#target-child`
+                            });
+                        }
+
+                            Click [target button]
+
+                                Verify the parent gets clicked
+
+                        * Verify the parent gets clicked
+                            Verify ['I was clicked'] is visible
 
             - Native click
 
-            - Double click
+                Generate page {
+                    await setPageBody(`
+                        <button id="target" onclick="document.getElementById('display').innerHTML = 'I was clicked'">click me</button>
+                        <div id="display"></div>
+                    `);
+
+                    props({
+                        'target button': `#target`
+                    });
+                }
+
+                    Native click [target button]
+
+                        Verify ['I was clicked'] is visible
+
+            - Double click $
+
+                Generate page {
+                    await setPageBody(`
+                        <button id="target" ondblclick="document.getElementById('display').innerHTML = 'I was double-clicked'">click me</button>
+                        <div id="display"></div>
+                    `);
+
+                    props({
+                        'target button': `#target`
+                    });
+                }
+
+                    Double click [target button]
+
+                        Verify ['I was double-clicked'] is visible
 
             - Hover over
 

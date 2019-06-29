@@ -120,15 +120,15 @@
     }
 
     * Double click {{element}} {
-        await browser.driver.actions().doubleClick(await $(element, true)).perform();
+        await browser.driver.actions({bridge: true}).doubleClick(await $(element, true)).perform();
     }
 
     * Hover over {{element}} {
-        await browser.driver.actions().mouseMove(await $(element, true)).perform();
+        await browser.driver.actions({bridge: true}).mouseMove(await $(element, true)).perform();
     }
 
     * Scroll to {{element}} {
-        await browser.driver.actions().move({origin: await $(element, true)}).perform();
+        await browser.driver.actions({bridge: true}).move({origin: await $(element, true)}).perform();
     }
 
     // Returns JSON object representing cookie
