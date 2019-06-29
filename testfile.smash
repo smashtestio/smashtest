@@ -1,7 +1,5 @@
 Open Chrome
 
-    Nav to 'google.com'
+    Navigate to 'google.com'
 
-        Verify page {
-            await $(`.meow`);
-        }
+        Click ["I'm Feeling Lucky"]

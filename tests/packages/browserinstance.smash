@@ -97,8 +97,8 @@ open edge         #windows $s
                         * only some elements on a page are clickable {
                             await setPageBody(`
                                 <div id="one" class="big">foobar</div>
-                                <a id="two" class="big">foobar</div>
-                                <button id="three" class="big">foobar</div>
+                                <a id="two" class="big">foobar</a>
+                                <button id="three" class="big">foobar</button>
                             `);
                         }
 
@@ -106,7 +106,7 @@ open edge         #windows $s
                             await setPageBody(`
                                 <div id="one" class="big">foobar</div>
                                 <div id="two" class="big">foobar</div>
-                                <span id="three" class="big">foobar</div>
+                                <span id="three" class="big">foobar</span>
                             `);
                         }
 
@@ -190,8 +190,8 @@ open edge         #windows $s
                         * Given a page with multiple elements {
                             await setPageBody(`
                                 <div id="one" class="big">foobar</div>
-                                <a id="two" class="big">foobar</div>
-                                <button id="three" class="big">foobar</div>
+                                <a id="two" class="big">foobar</a>
+                                <button id="three" class="big">foobar</button>
                             `);
                         }
 
