@@ -62,18 +62,18 @@ Open a browser
 
                     Generate page {
                         await setPageBody(`
-                            <button id="target" onclick="document.getElementById('display').innerHTML = 'foobar'">click me</button>
+                            <button id="target" onclick="document.getElementById('display').innerHTML = 'I was clicked'">click me</button>
                             <div id="display"></div>
                         `);
+
+                        props({
+                            'target button': `#target`
+                        });
                     }
 
-                        Click [#target]
+                        Click [target button]
 
-                            Verify button was clicked {
-                                await $(`
-                                    #display, 'foobar'
-                                `);
-                            }
+                            Verify ['I was clicked'] is visible 
 
 
 

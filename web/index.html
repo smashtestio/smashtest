@@ -127,7 +127,8 @@ COM(// comment)
 DEBUG(Debug line ~)
 SEQ(Sequential line ..)
 Code block {
-    JSCLASS(Class name) = JSCONST(6);
+    JSCLASS(Class name)
+    let JSVARIABLE(x) = JSCONST(6);
     JSKEYWORD(while)(true);
     JSFUNC(funccall)();
 }</div>
@@ -323,6 +324,7 @@ Code block {
                         .replace(/JSCONST\(([^\)]+)\)/g, '<span class="js-const">$1</span>') // JSCONST()
                         .replace(/JSFUNC\(([^\)]+)\)/g, '<span class="js-function-name">$1</span>') // JSFUNC()
                         .replace(/JSKEYWORD\(([^\)]+)\)/g, '<span class="js-keyword">$1</span>') // JSKEYWORD()
+                        .replace(/JSVARIABLE\(([^\)]+)\)/g, '<span class="js-variable">$1</span>') // JSVAR()
 
                     // Insert line numbers
                     codeBlock.innerHTML = codeBlock.innerHTML
