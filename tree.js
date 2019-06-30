@@ -294,9 +294,9 @@ class Tree {
 
         // Set the parents and children of each StepNode/StepBlockNode in lines, based on the indents of each StepNode/StepBlockNode
         // Insert the contents of lines into the tree (under this.root)
+        let prevStepNode = null;
         for(let i = 0; i < lines.length; i++) {
             let currStepNode = lines[i]; // either a StepNode or StepBlockNode object
-            let prevStepNode = i > 0 ? lines[i-1] : null;
 
             // Packages
             if(isPackaged) {
@@ -345,10 +345,10 @@ class Tree {
                         currStepNode.multiBlockFid = lastSibling.id;
                         currStepNode.text = lastSibling.text;
                     }
-                    else if(lastSibling.isFunctionDeclaration && lastSibling.isOpeningBracket){
-                        // remove this step, it merely closes a * function declaration
-                        currStepNode.parent.children = currStepNode.parent.children.concat(currStepNode.children);
+                    else if(lastSibling.isFunctionDeclaration && lastSibling.isOpeningBracket) {
+                        prevStepNode = lastSibling;
                         currStepNode.parent.children = currStepNode.parent.children.filter(child => child !== currStepNode);
+                        continue;
                     }
                     else {
                         utils.error(ERR_MSG, filename, currStepNode.lineNumber);
@@ -358,6 +358,8 @@ class Tree {
                     utils.error(ERR_MSG, filename, currStepNode.lineNumber);
                 }
             }
+
+            prevStepNode = currStepNode;
         }
     }
 
