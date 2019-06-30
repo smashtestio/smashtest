@@ -99,7 +99,7 @@ class StepNode {
         // Parsed parts of the line
         this.text = matches[7].trim();
 
-        // Parse functions
+        // Parse function declarations and multi-level step blocks
         //   '* Step' is a function declaration
         //   '** Step' is a private function declaration
         //   '*** Step' is a hook function declaration

@@ -249,7 +249,12 @@ class Tree {
 
                     // Validate that a step block member is not a function declaration
                     if(potentialStepBlock.steps[k].isFunctionDeclaration) {
-                        utils.error(`You cannot have a function declaration within a step block`, filename, potentialStepBlock.steps[k].lineNumber);
+                        if(potentialStepBlock.steps[k].isOpeningBracket) {
+                            utils.error(`You cannot have a '[' within a step block, or adjacent to another '[' or ']' at the same indent level`, filename, potentialStepBlock.steps[k].lineNumber);
+                        }
+                        else {
+                            utils.error(`You cannot have a function declaration within a step block`, filename, potentialStepBlock.steps[k].lineNumber);
+                        }
                     }
                 }
 

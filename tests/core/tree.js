@@ -1600,10 +1600,63 @@ C`
                 }, "You cannot have a function declaration within a step block [file.txt:2]");
             });
 
-            it("accepts a step block containing a code block as its last member", () => {
+            it("rejects a step block containing a [", () => {
+                let tree = new Tree();
+                assert.throws(() => {
+                    tree.parseIn(
+`A
+B
+[
+]`
+                    , "file.txt");
+                }, "You cannot have a '[' within a step block, or adjacent to another '[' or ']' at the same indent level [file.txt:3]");
+            });
+
+            it("rejects an empty multi-level step block", () => {
+                let tree = new Tree();
+                assert.throws(() => {
+                    tree.parseIn(
+`[
+]`
+                    , "file.txt");
+                }, "You cannot have a '[' within a step block, or adjacent to another '[' or ']' at the same indent level [file.txt:1]");
+            });
+
+            it("rejects adjacent multi-level step blocks", () => {
+                let tree = new Tree();
+                assert.throws(() => {
+                    tree.parseIn(
+`[
+    A
+]
+[
+
+    B
+]`
+                    , "file.txt");
+                }, "You cannot have a '[' within a step block, or adjacent to another '[' or ']' at the same indent level [file.txt:4]");
+            });
+
+            it("rejects adjacent named multi-level step blocks", () => {
+                let tree = new Tree();
+                assert.throws(() => {
+                    tree.parseIn(
+`X [
+    A
+]
+Y [
+
+    B
+]`
+                    , "file.txt");
+                }, "You cannot have a '[' within a step block, or adjacent to another '[' or ']' at the same indent level [file.txt:4]");
+            });
+
+            it("accepts a step block containing a code block", () => {
                 let tree = new Tree();
                 tree.parseIn(
-`A
+`A {
+}
 B
 C {
 }`
