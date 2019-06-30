@@ -1306,7 +1306,9 @@ ${outputBranchAbove(this)}
                         }
                     }
                     if(!found) {
-                        branch.steps[branch.steps.length - 1].isAfterDebug = true;
+                        let lastStep = branch.steps[branch.steps.length - 1];
+                        let lastStepNode = this.stepNodeIndex[lastStep.id];
+                        lastStepNode.isAfterDebug = true;
                     }
                 }
             });

@@ -12822,6 +12822,27 @@ F ~
                     }
                 ]);
             });
+
+            it("doesn't move a ~ when it's already on the last step of a function call", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F {
+}
+
+F ~
+                `, "file.txt");
+
+                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                mergeStepNodesInBranches(tree, tree.branches);
+
+                Comparer.expect(tree.branches).to.match([
+                    {
+                        steps: [
+                            { text: "F", isAfterDebug: true }
+                        ]
+                    }
+                ]);
+            });
         });
 
         context("errors", () => {

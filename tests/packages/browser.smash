@@ -659,96 +659,112 @@ Open a browser
 
             - Select
 
-                - from a <select>
+                Generate page {
+                    await setPageBody(`
+                        <select>
+                            <option value="one">One</option>
+                            <option value="two">Two</option>
+                            <option value="three">Three</option>
+                            <option value="three-too">Three</option>
+                        </select>
+                    `);
+                }
 
-                    Generate page {
-                        await setPageBody(`
-                            <select>
-                                <option value="one">One</option>
-                                <option value="two">Two</option>
-                                <option value="three">Three</option>
-                                <option value="three-too">Three</option>
-                            </select>
-                        `);
-                    }
+                    - where the value being matched
+                        - exactly matches the item in the dropdown
 
-                        - where the value being matched
-                            - exactly matches the item in the dropdown $
+                            - and only one item matches
 
-                                - and only one item matches
+                                Select 'Three' from [select]
 
-                                    Select 'Three' from [select]
+                                    Verify that the correct item is selected {
+                                        await $(`select, 'Three'`);
+                                    }
+                                        - Verify that the correct log items are present in the report #manual
 
-                                        Verify that the correct item is selected {
-                                            await $(`select, 'Three'`);
-                                        }
-                                            - Verify that the correct log items are present in the report #manual
+                            - and multiple items match
 
-                                - and multiple items match
+                                Select 'Three' from [select]
 
-                                    Select 'Three' from [select]
+                                    Verify that the correct item is selected {
+                                        let dropdown = await $(`select, 'Three'`);
+                                        let value = await executeScript(function(dropdown) {
+                                            return dropdown.options[dropdown.selectedIndex].value;
+                                        }, dropdown);
+                                        expect(value).to.equal('three');
+                                    }
+                                        - Verify that the correct log items are present in the report #manual
 
-                                        Verify that the correct item is selected {
-                                            let dropdown = await $(`select, 'Three'`);
-                                            let value = await executeScript(function(dropdown) {
-                                                return dropdown.options[dropdown.selectedIndex].value;
-                                            }, dropdown);
-                                            expect(value).to.equal('three');
-                                        }
-                                            - Verify that the correct log items are present in the report #manual
+                        - doesn't exactly match the item in the dropdown, but matches in a contains/trimmed/case-insensitive search
 
-                            - doesn't exactly match the item in the dropdown, but matches in a contains/trimmed/case-insensitive search
+                            - and only one item matches
 
-                                - and only one item matches
+                                Select 'WO' from [select]
 
-                                    - Verify that the correct item is selected
-                                        - and the dropdown is closed
-                                            - and that the correct log items are present in the report #manual -s
+                                    Verify that the correct item is selected {
+                                        await $(`select, 'Two'`);
+                                    }
+                                        - Verify that the correct log items are present in the report #manual
 
-                                - and multiple items match
+                            - and multiple items match
 
-                                    - Verify that the correct item is selected
-                                        - and the dropdown is closed
-                                            - and that the correct log items are present in the report #manual -s
+                                Select 'ee' from [select]
 
-                        - where the value is '[none]'
-                            - Verify nothing happens
+                                    Verify that the correct item is selected {
+                                        let dropdown = await $(`select, 'Three'`);
+                                        let value = await executeScript(function(dropdown) {
+                                            return dropdown.options[dropdown.selectedIndex].value;
+                                        }, dropdown);
+                                        expect(value).to.equal('three');
+                                    }
+                                        - Verify that the correct log items are present in the report #manual
 
-                - from a custom dropdown made from <div>'s
+                    - where the value is '[none]'
 
-                    Generate page {
-                        await setPageBody(`
-                            <div>
-                                <div>Click me</div>
+                        Select '[none]' from [select]
 
-                            </div>
-                        `);
-                    }
-
-
-
-
-
-
-
-
-
-
+                            Verify nothing happened {
+                                await $(`select, 'One'`);
+                            }
 
             - Select element
 
-                - from a <select>
-                - from a custom dropdown made from <div>'s
+                Generate page {
+                    await setPageBody(`
+                        <select>
+                            <option value="one">One</option>
+                            <option value="two">Two</option>
+                            <option value="three">Three</option>
+                            <option value="three-too">Three</option>
+                        </select>
+                    `);
+                }
 
-                    - and only one item matches
-                    - and multiple items match
+                    - where only one item matches
 
-                        - Verify that the correct item is selected
-                            - and the dropdown is closed
-                                - and that the correct log items are present in the report #manual -s
+                        Select element [option\[value='three'\], any visibility] from [select]
 
-                - where the value is '[none]'
-                    - Verify nothing happens
+                            Verify that the correct item is selected {
+                                await $(`select, 'Three'`);
+                            }
+                                - Verify that the correct log items are present in the report #manual
+
+                    - where multiple items match
+
+                        Select element [option, any visibility] from [select]
+
+                            Verify that the correct item is selected {
+                                await $(`select, 'One'`);
+                            }
+                                - Verify that the correct log items are present in the report #manual
+
+                    - where the value is '[none]'
+
+                        Select element '[none]' from [select]
+
+                            Verify nothing happened {
+                                await $(`select, 'One'`);
+                            }
 
             - Current url
 

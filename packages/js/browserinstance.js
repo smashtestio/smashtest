@@ -236,6 +236,9 @@ class BrowserInstance {
         if(params.width && params.height && !(params.name == 'chrome' && params.deviceEmulation)) {
             this.driver.manage().window().setRect({width: params.width, height: params.height});
         }
+
+        // Set timeouts
+        await this.driver.manage().setTimeouts( { implicit: 0, pageLoad: 20 * 1000, script: 20 * 1000 } );
     }
 
     /**
@@ -313,7 +316,7 @@ class BrowserInstance {
     }
 
     /**
-     * Selects an item from a <select> dropdown or custom dropdown (via clicks)
+     * Selects an item from a <select> dropdown
      * First tries to find a target item that's an exact match, and if one isn't found, tries using contains/trimmed/case-insensitive matching
      * @param {String} value - The string that the target item should match
      * @param {String, ElementFinder, or WebElement} dropdownElement - The dropdown element (same as the element sent to $())
@@ -325,7 +328,6 @@ class BrowserInstance {
 
         dropdownElement = await this.$(dropdownElement, true);
         let dropdownCoords = this.runInstance.currStep.targetCoords;
-
 
         let tagName = await dropdownElement.getTagName();
         if(tagName.toLowerCase() == 'select') {
@@ -342,19 +344,7 @@ class BrowserInstance {
             }
         }
         else {
-            // Not a select. Click open the dropdown then click the item.
-            await dropdownElement.click();
-            try {
-                let item = await this.$(`contains exact '${this.str(value)}', any visibility`, true, dropdownElement);
-                this.runInstance.log(EXACT_LOG);
-                await item.click();
-            }
-            catch(e) {
-                this.runInstance.log(INEXACT_LOG);
-                let item = await this.$(`contains '${this.str(value)}', any visibility`, true, dropdownElement);
-                this.runInstance.log(FOUND_LOG);
-                await item.click();
-            }
+            throw new Error(`Target element is not a <select>`);
         }
 
         this.runInstance.currStep.targetCoords = dropdownCoords; // restore the dropdown's coords, since the option's coords took over

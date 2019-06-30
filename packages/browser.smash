@@ -273,7 +273,7 @@
         }
     }
 
-    // Selects an item from a <select> dropdown or custom dropdown (via clicks)
+    // Selects an item from a <select> dropdown
     // First tries to find a target item that's an exact match, and if one isn't found, tries using contains/trimmed/case-insensitive matching
     * Select {{value}} from {{dropdownElement}} {
         if(value.trim().toLowerCase() == '[none]') {
@@ -285,7 +285,7 @@
     }
 
     * Select element {{element}} from {{dropdownElement}} {
-        if(value.trim().toLowerCase() == '[none]') {
+        if(typeof element == 'string' && element.trim().toLowerCase() == '[none]') {
             log(`Ignoring since value is set to [none]`);
             return;
         }
