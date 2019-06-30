@@ -324,6 +324,9 @@ class BrowserInstance {
         const FOUND_LOG = `Found item that contains '${value}'`;
 
         dropdownElement = await this.$(dropdownElement, true);
+        let dropdownCoords = this.runInstance.currStep.targetCoords;
+
+
         let tagName = await dropdownElement.getTagName();
         if(tagName.toLowerCase() == 'select') {
             try {
@@ -353,6 +356,8 @@ class BrowserInstance {
                 await item.click();
             }
         }
+
+        this.runInstance.currStep.targetCoords = dropdownCoords; // restore the dropdown's coords, since the option's coords took over
     }
 
     /**

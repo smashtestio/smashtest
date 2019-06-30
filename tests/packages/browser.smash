@@ -519,6 +519,18 @@ Open a browser
                     `);
                 }
 
+                    * and refuses to get unchecked when clicked {
+                        await setPageBody(`
+                            <input type="checkbox" id="checkbox" onclick="return false;" checked>
+                        `);
+                    }
+
+                    * and is disabled {
+                        await setPageBody(`
+                            <input type="checkbox" id="checkbox" disabled checked>
+                        `);
+                    }
+
                 * where the checkbox is unchecked {
                     await setPageBody(`
                         <input type="checkbox" id="checkbox">
@@ -547,74 +559,181 @@ Open a browser
             ]
 
             * Generate page for testing a radio button [
-                * where the first radio button is checked {
+                * where the radio button is checked {
                     await setPageBody(`
-                        <input type="radio" name="radio" value="radio1" checked>
+                        <input type="radio" id="radio" name="radio" value="radio1" checked>
                         <input type="radio" name="radio" value="radio2">
                     `);
                 }
+
+                * where the radio button is unchecked {
+                    await setPageBody(`
+                        <input type="radio" id="radio" name="radio" value="radio1">
+                        <input type="radio" name="radio" value="radio2" checked>
+                    `);
+                }
+
+                    * and refuses to get checked when clicked {
+                        await setPageBody(`
+                            <input type="radio" id="radio" name="radio" value="radio1" onclick="return false;">
+                            <input type="radio" name="radio" value="radio2" checked>
+                        `);
+                    }
+
+                    * and is disabled {
+                        await setPageBody(`
+                            <input type="radio" id="radio" name="radio" value="radio1" disabled>
+                            <input type="radio" name="radio" value="radio2" checked>
+                        `);
+                    }
+
+                * Verify the radio button is checked {
+                    await $(`#radio, checked`);
+                }
+
+                * Verify the radio button is unchecked {
+                    await $(`#radio, unchecked`);
+                }
             ]
 
-            - Check $
+            - Check
 
                 - a checkbox
                     Generate page for testing a checkbox
 
                         where the checkbox is unchecked
 
-                            ~ Check [#checkbox]
+                            Check [#checkbox]
                                 Verify the checkbox is checked
-
-
-
 
                             and refuses to get checked when clicked
                             and is disabled
 
+                                Check [#checkbox]
+                                    - Verify an error is thrown $s #manual
+
                         where the checkbox is checked
+
+                            Check [#checkbox]
+                                Verify the checkbox is checked
 
                 - a radio button
                     Generate page for testing a radio button
 
-                        - that's unchecked
+                        where the radio button is unchecked
 
-                            - and gets checked when clicked
-                            - but refuses to get checked when clicked
-                            - but is disabled
+                            Check [#radio]
+                                Verify the radio button is checked
 
-                        - that's already checked
+                            and refuses to get checked when clicked
+                            and is disabled
+
+                                Check [#radio]
+                                    - Verify an error is thrown $s #manual
+
+                        where the radio button is checked
+
+                            Check [#radio]
+                                Verify the radio button is checked
 
             - Uncheck
 
                 - a checkbox
-                - a radio button
+                    Generate page for testing a checkbox
 
-                    - that's checked
+                        where the checkbox is checked
 
-                        - and gets unchecked when clicked
-                        - but refuses to get unchecked when clicked
-                        - but is disabled
+                            Uncheck [#checkbox]
+                                Verify the checkbox is unchecked
 
-                    - that's already unchecked
+                            and refuses to get unchecked when clicked
+                            and is disabled
+
+                                Uncheck [#checkbox]
+                                    - Verify an error is thrown $s #manual
+
+                        where the checkbox is unchecked
+
+                            Uncheck [#checkbox]
+                                Verify the checkbox is unchecked
 
             - Select
 
                 - from a <select>
+
+                    Generate page {
+                        await setPageBody(`
+                            <select>
+                                <option value="one">One</option>
+                                <option value="two">Two</option>
+                                <option value="three">Three</option>
+                                <option value="three-too">Three</option>
+                            </select>
+                        `);
+                    }
+
+                        - where the value being matched
+                            - exactly matches the item in the dropdown $
+
+                                - and only one item matches
+
+                                    Select 'Three' from [select]
+
+                                        Verify that the correct item is selected {
+                                            await $(`select, 'Three'`);
+                                        }
+                                            - Verify that the correct log items are present in the report #manual
+
+                                - and multiple items match
+
+                                    Select 'Three' from [select]
+
+                                        Verify that the correct item is selected {
+                                            let dropdown = await $(`select, 'Three'`);
+                                            let value = await executeScript(function(dropdown) {
+                                                return dropdown.options[dropdown.selectedIndex].value;
+                                            }, dropdown);
+                                            expect(value).to.equal('three');
+                                        }
+                                            - Verify that the correct log items are present in the report #manual
+
+                            - doesn't exactly match the item in the dropdown, but matches in a contains/trimmed/case-insensitive search
+
+                                - and only one item matches
+
+                                    - Verify that the correct item is selected
+                                        - and the dropdown is closed
+                                            - and that the correct log items are present in the report #manual -s
+
+                                - and multiple items match
+
+                                    - Verify that the correct item is selected
+                                        - and the dropdown is closed
+                                            - and that the correct log items are present in the report #manual -s
+
+                        - where the value is '[none]'
+                            - Verify nothing happens
+
                 - from a custom dropdown made from <div>'s
 
-                    - where the value being matched
-                        - exactly matches the item in the dropdown
-                        - doesn't exactly match the item in the dropdown, but matches in a contains/trimmed/case-insensitive search
+                    Generate page {
+                        await setPageBody(`
+                            <div>
+                                <div>Click me</div>
 
-                            - and only one item matches
-                            - and multiple items match
+                            </div>
+                        `);
+                    }
 
-                                - Verify that the correct item is selected
-                                    - and the dropdown is closed
-                                        - and that the correct log items are present in the report #manual -s
 
-                - where the value is '[none]'
-                    - Verify nothing happens
+
+
+
+
+
+
+
+
 
             - Select element
 
@@ -632,15 +751,62 @@ Open a browser
                     - Verify nothing happens
 
             - Current url
+
                 - when the browser is at
+
                     - a normal url
+
+                        Navigate to 'example.com'
+                            {url} = current url
+                                Verify {
+                                    expect(url).to.equal('http://example.com/');
+                                }
+
                     - a newly opened blank tab
+
+                        Open new tab
+                            {url} = current url
+                                Verify {
+                                    expect(url).to.equal('about:blank');
+                                }
 
             - Window title
 
+                {title} is window title
+
+                    Verify {
+                        expect(title).to.equal('Window title here');
+                    }
+
             - Value of
+
                 - an element with a value
+
+                    Generate page {
+                        await setPageBody(`
+                            <input type="text" id="one" value="foo">
+                        `);
+                    }
+
+                        {value} = value of [#one]
+
+                            Verify value {
+                                expect(value).to.equal('foo');
+                            }
+
                 - an element without a value
+
+                    Generate page {
+                        await setPageBody(`
+                            <div id="one">foobar</div>
+                        `);
+                    }
+
+                        {value} = value of [#one]
+
+                            Verify value {
+                                expect(value).to.equal(null);
+                            }
 
         - Category: Window
 

@@ -324,6 +324,9 @@
         await executeScript(function() {
             window.open();
         });
+
+        let windows = await browser.driver.getAllWindowHandles();
+        await browser.driver.switchTo().window(windows[windows.length - 1]);
     }
 
     * Switch to window whose title contains {{text}} {
