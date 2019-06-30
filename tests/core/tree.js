@@ -3075,6 +3075,15 @@ A
                     , "file.txt");
                 }, `Cannot find the '[' that corresponds to this ']' [file.txt:5]`);
             });
+
+            it("rejects multi-level step blocks with no ending ], more complex example", () => {
+                assert.throws(() => {
+                    let tree = new Tree();
+                    tree.parseIn(
+`]`
+                    , "file.txt");
+                }, `Cannot find the '[' that corresponds to this ']' [file.txt:1]`);
+            });
         });
     });
 
@@ -4722,7 +4731,7 @@ F
     * G [
         B -
     ]
-    
+
     * H [
         C -
     ]

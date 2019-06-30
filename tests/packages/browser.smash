@@ -416,40 +416,173 @@ Open a browser
 
             - Type
 
-                - a normal string of chars into a textbox
+                Generate page for testing a textbox
 
-                - '[none]'
+                    - a normal string of chars into a textbox
 
-                - a string containing [special keys]
-                    - such as '[enter]'
-                    - and make sure it's case insensitive
-                    - that's an invalid key
-                    - that's '[]', which won't be treated as a special key
+                        Type 'foobar' into [#textbox]
+                            Verify 'foobar' is typed in
 
-                - a string containing an escaped \[special key\]
-                    - \[key\]
-                    - [key\]
-                    - \[key]
-                    - multiple \[keys\]
+                    - '[none]'
+
+                        Type '[none]' into [#textbox]
+                            Verify nothing is typed in
+
+                        Type 'foobar' into [#textbox]
+                            Type '[none]' into [#textbox]
+                                Verify 'foobar' is typed in
+
+                    - a string containing [special keys]
+
+                        - [enter]
+
+                            Type 'foobar[enter]' into [#textbox]
+                                Verify 'foobar' is typed in
+                                    Verify form was submitted
+
+                            - and make sure it's case insensitive
+
+                                Type 'foobar[EnTeR]something' into [#textbox]
+                                    Verify 'foobarsomething' is typed in
+                                        Verify form was submitted
+
+                        - that's an invalid key
+
+                            Type 'foobar[badkey]' into [#textbox]
+                                - Validate an error is thrown $s #manual
+
+                        - that's '[]', which won't be treated as a special key
+
+                            Type 'foobar[]' into [#textbox]
+                                Verify 'foobar[]' is typed in
+
+                    - a string containing an escaped \[special key\]
+
+                        - \[key\]
+
+                            Type 'foobar\\[enter\\]' into [#textbox]
+                                Verify 'foobar[enter]' is typed in
+
+                        - multiple \[keys\]
+
+                            Type 'foobar\\[enter\\]something\\[enter\\]' into [#textbox]
+                                Verify 'foobar[enter]something[enter]' is typed in
+
+            * Generate page for testing a textbox {
+                await setPageBody(`
+                    <form onsubmit="document.getElementById('display').innerHTML = 'Submitted'; return false;">
+                        <input type="text" id="textbox">
+                    </form>
+                    <div id="display"></div>
+                `);
+            }
+
+                * Verify {{text}} is typed in {
+                    await $(`#textbox, value '${str(text)}'`);
+                }
+
+                * Verify nothing is typed in {
+                    await $(`#textbox, value ''`);
+                }
+
+                * Verify form was submitted {
+                    await $(`#display, contains 'Submitted'`);
+                }
 
             - Clear
 
+                Generate page for testing a textbox
+                    Type 'foobar' into [#textbox]
+                        Clear [#textbox]
+                            Verify nothing is typed in
+
             - Set
                 - sets a value
+
+                    Generate page for testing a textbox
+                        Set [#textbox] to 'foobar'
+                            Verify 'foobar' is typed in
+
                 - does nothing if value is '[none]'
 
-            - Check
+                    Generate page for testing a textbox
+                        Set [#textbox] to '[none]'
+                            Verify nothing is typed in
+                        Set [#textbox] to 'blah'
+                            Set [#textbox] to '[none]'
+                                Verify 'blah' is typed in
+
+            * Generate page for testing a checkbox [
+                * where the checkbox is checked {
+                    await setPageBody(`
+                        <input type="checkbox" id="checkbox" checked>
+                    `);
+                }
+
+                * where the checkbox is unchecked {
+                    await setPageBody(`
+                        <input type="checkbox" id="checkbox">
+                    `);
+                }
+
+                    * and refuses to get checked when clicked {
+                        await setPageBody(`
+                            <input type="checkbox" id="checkbox" onclick="return false;">
+                        `);
+                    }
+
+                    * and is disabled {
+                        await setPageBody(`
+                            <input type="checkbox" id="checkbox" disabled>
+                        `);
+                    }
+
+                * Verify the checkbox is checked {
+                    await $(`#checkbox, checked`);
+                }
+
+                * Verify the checkbox is unchecked {
+                    await $(`#checkbox, unchecked`);
+                }
+            ]
+
+            * Generate page for testing a radio button [
+                * where the first radio button is checked {
+                    await setPageBody(`
+                        <input type="radio" name="radio" value="radio1" checked>
+                        <input type="radio" name="radio" value="radio2">
+                    `);
+                }
+            ]
+
+            - Check $
 
                 - a checkbox
+                    Generate page for testing a checkbox
+
+                        where the checkbox is unchecked
+
+                            ~ Check [#checkbox]
+                                Verify the checkbox is checked
+
+
+
+
+                            and refuses to get checked when clicked
+                            and is disabled
+
+                        where the checkbox is checked
+
                 - a radio button
+                    Generate page for testing a radio button
 
-                    - that's unchecked
+                        - that's unchecked
 
-                        - and gets checked when clicked
-                        - but refuses to get checked when clicked
-                        - but is disabled
+                            - and gets checked when clicked
+                            - but refuses to get checked when clicked
+                            - but is disabled
 
-                    - that's already checked
+                        - that's already checked
 
             - Uncheck
 

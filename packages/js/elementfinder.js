@@ -316,7 +316,7 @@ class ElementFinder {
             prop: prop,
             def: def
         };
-        input && (propObj.input = input);
+        typeof input != 'undefined' && (propObj.input = input);
         isNot && (propObj.not = true);
 
         this.props.push(propObj);
@@ -457,7 +457,7 @@ class ElementFinder {
             let definedProps = payload.definedProps;
             let parentElem = arguments[1];
 
-            findEF(ef, toArray(parentElem ? parentElem.querySelectorAll('*') : document.querySelectorAll('*')));
+            findEF(ef, parentElem ? toArray(parentElem.querySelectorAll('*')).concat([parentElem]) : toArray(document.querySelectorAll('*')));
             let matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
 
             const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";

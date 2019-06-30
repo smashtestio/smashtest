@@ -377,8 +377,8 @@ class Branch {
 
                  // Restore properties of step we want to keep
                  step.id = id;
-                 fid && (step.fid = fid);
-                 level && (step.level = level);
+                 typeof fid != 'undefined' && (step.fid = fid);
+                 typeof level != 'undefined' && (step.level = level);
 
                  isFailed && (step.isFailed = true);
                  isSkipped && (step.isSkipped = true);

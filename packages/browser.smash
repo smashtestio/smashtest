@@ -232,7 +232,7 @@
     * Check {{element}} {
         let elem = await $(element, true);
         try {
-            await $(`checked`, undefined, elem); // is elem already checked?
+            await $(`checked`, false, elem); // is elem already checked?
             log(`Ignoring since element is already checked`);
             return;
         }
@@ -243,7 +243,7 @@
         }
 
         try {
-            await $(`checked`, undefined, elem); // did the click work?
+            await $(`checked`, false, elem); // did the click work?
         }
         catch(e) {
             log(`Click didn't work. Element still unchecked.`);
@@ -254,7 +254,7 @@
     * Uncheck {{element}} {
         let elem = await $(element, true);
         try {
-            await $(`not checked`, undefined, elem); // is elem already not checked?
+            await $(`not checked`, false, elem); // is elem already not checked?
             log(`Ignoring since element is already not checked`);
             return;
         }
@@ -265,7 +265,7 @@
         }
 
         try {
-            await $(`not checked`, undefined, elem); // did the click work?
+            await $(`not checked`, false, elem); // did the click work?
         }
         catch(e) {
             log(`Click didn't work. Element still checked.`);

@@ -1702,9 +1702,8 @@ one
                         new ElementFinder(`
                             * one
                                 two
-                                * three
-                        `, `Cannot have element array inside element array [line:4]`);
-                    });
+                                * three`);
+                    }, `Cannot have element array inside element array [line:4]`);
                 });
 
                 it("throws error if an element array has a counter", () => {
