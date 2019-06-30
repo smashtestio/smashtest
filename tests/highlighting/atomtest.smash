@@ -10,7 +10,7 @@ Function call
         Step two
 
 [
-    Anon functions
+    Multi-level step block
 ]
 
 * Function declaration {{var}} and 'string'
@@ -23,16 +23,23 @@ Function call
         Step
     ]
 
-    Self-calling function [
+    Named Multi-level step block [
         Step 'here'
+    ]
+
+    Named Multi-level step block + [
+        Named Multi-level step block + [
+            + [
+            ]
+        ]
     ]
 
     + +? [
     ] // comment
 
     [ // comment
-        Anon function
-        Anon function
+        Step
+        Step
         - textual
     ]
         Something else
