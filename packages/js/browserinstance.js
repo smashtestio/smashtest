@@ -552,7 +552,7 @@ class BrowserInstance {
             ef.addProp('clickable', 'clickable', undefined, undefined, this.definedProps);
             try {
                 results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
-                this.runInstance.log('Clickable element found');
+                this.runInstance.log(`Clickable element found for \`${ef.print()}\``);
                 let result = results[0];
 
                 await this.scrollIntoView(result);
@@ -564,7 +564,7 @@ class BrowserInstance {
         }
 
         ef.props.pop(); // remove 'clickable'
-        this.runInstance.log('Clickable element not found, trying all elements');
+        this.runInstance.log(`Clickable element not found for \`${ef.print()}\`, so trying all elements`);
 
         results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
         let result = results[0];
