@@ -25,7 +25,7 @@ open firefox
     ]
 
         - getAll() tests
-             - normal EFs
+            - normal EFs
 
                 - one line
 
