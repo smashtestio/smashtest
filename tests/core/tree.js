@@ -4709,6 +4709,81 @@ F
                     ]);
                 });
 
+                it("branchifies a function call surrounded by brackets, declared in context, more complex example", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    G
+        H
+
+* F [
+    A -
+]
+    * G [
+        B -
+    ]
+    
+    * H [
+        C -
+    ]
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "G",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "H",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
+
                 it("doesn't expand a textual step that has the same text as a function declaration", () => {
                     let tree = new Tree();
                     tree.parseIn(`
