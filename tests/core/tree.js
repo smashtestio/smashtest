@@ -2907,17 +2907,17 @@ C {
             });
         });
 
-        context("anon functions", () => {
-            it("connects anon function declarations with their function calls", () => {
+        context("multi-level step blocks", () => {
+            it("connects multi-level step block function declarations with their function calls", () => {
                 let tree = new Tree();
                 tree.parseIn(
 `A
-    *
+    [
         B
             C
         D
         E
-    *
+    ]
         F
             G`
                 , "file.txt");
@@ -2935,7 +2935,7 @@ C {
                                 children: [
                                     {
                                         text: ' ',
-                                        isAnonFunction: true,
+                                        isMultiBlockFunctionDeclaration: true,
                                         isFunctionDeclaration: true,
                                         isFunctionCall: undefined,
                                         anonfid: undefined,
@@ -2978,10 +2978,10 @@ C {
                                     },
                                     {
                                         text: ' ',
-                                        isAnonFunction: true,
+                                        isMultiBlockFunctionCall: true,
                                         isFunctionDeclaration: undefined,
                                         isFunctionCall: true,
-                                        anonfid: 2,
+                                        multiBlockFid: 2,
                                         lineNumber: 7,
                                         indents: 1,
                                         parent: { text: 'A' },
@@ -3010,84 +3010,17 @@ C {
                 });
             });
 
-            it("rejects anon functions with differing amounts of *'s", () => {
+            it("rejects multi-level step blocks with no ending ]", () => {
                 assert.throws(() => {
                     let tree = new Tree();
                     tree.parseIn(
-`A
-    *
-        B
-            C
-    **
-        F
-            G`
-                    , "file.txt");
-
-                }, `An anonymous function must open and close with the same amount of *'s [file.txt:5]`);
-
-                assert.throws(() => {
-                    let tree = new Tree();
-                    tree.parseIn(
-`A
-    **
-        B
-            C
-    *
-        F
-            G`
-                    , "file.txt");
-
-                }, `An anonymous function must open and close with the same amount of *'s [file.txt:5]`);
-
-                assert.throws(() => {
-                    let tree = new Tree();
-                    tree.parseIn(
-`A
-    ***
-        B
-            C
-    *
-        F
-            G`
-                    , "file.txt");
-
-                }, `Invalid hook name [file.txt:2]`);
-            });
-
-            it("parses anon functions with no ending *", () => {
-                let tree = new Tree();
-                tree.parseIn(
-`*
+`[
 
 A
 
-*`
-                , "file.txt");
-
-                Comparer.expect(tree).to.match({
-                    root: {
-                        children: [
-                            {
-                                text: ' ',
-                                isAnonFunction: true,
-                                isFunctionDeclaration: true,
-                                children: []
-                            },
-                            {
-                                text: 'A',
-                                isAnonFunction: undefined,
-                                isFunctionDeclaration: undefined,
-                                children: []
-                            },
-                            {
-                                text: ' ',
-                                isAnonFunction: true,
-                                isFunctionDeclaration: true,
-                                children: []
-                            }
-                        ]
-                    }
-                });
+]`
+                    , "file.txt");
+                }, `Cannot find the '[' that corresponds to this ']' [file.txt:5]`);
             });
         });
     });
@@ -3154,48 +3087,14 @@ My function
             expect(functionDeclarations[0] === tree.root.children[1]).to.equal(true);
         });
 
-        it("finds the right anon function", () => {
+        it("finds the right multi-level step block function", () => {
             let tree = new Tree();
             tree.parseIn(`
-*
+[
     A -
         B -
 
-*
-`);
-
-            let branchAbove = new Branch();
-            let functionCall = new Step(tree.root.children[1].id);
-            let functionDeclarations = tree.findFunctionDeclarations(functionCall, branchAbove);
-
-            Comparer.expect(functionDeclarations).to.match([
-                {
-                    text: " ",
-                    isFunctionDeclaration: true,
-                    isFunctionCall: undefined,
-                    isPrivateFunctionDeclaration: undefined,
-                    isAnonFunction: true,
-                    parent: { indents: -1 },
-                    children: [
-                        {
-                            text: "A",
-                            isTextualStep: true
-                        }
-                    ]
-                }
-            ]);
-
-            expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
-        });
-
-        it("finds the right private anon function", () => {
-            let tree = new Tree();
-            tree.parseIn(`
-**
-    A -
-        B -
-
-**
+]
 `);
 
             let branchAbove = new Branch();
@@ -3208,7 +3107,8 @@ My function
                     isFunctionDeclaration: true,
                     isFunctionCall: undefined,
                     isPrivateFunctionDeclaration: true,
-                    isAnonFunction: true,
+                    isMultiBlockFunctionDeclaration: true,
+                    isMultiBlockFunctionCall: undefined,
                     parent: { indents: -1 },
                     children: [
                         {
@@ -3222,18 +3122,18 @@ My function
             expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
         });
 
-        it("finds the right anon function when there are multiple anon functions", () => {
+        it("finds the right multi-level step block function when there are multiple functions", () => {
             let tree = new Tree();
             tree.parseIn(`
-*
+[
     A -
         B -
 
-*
+]
 
-*
+[
     C -
-*
+]
 `);
 
             let branchAbove = new Branch();
@@ -3249,21 +3149,21 @@ My function
             expect(functionDeclarations[0] === tree.root.children[2]).to.equal(true);
         });
 
-        it("finds the right anon function when there are multiple nested anon functions", () => {
+        it("finds the right multi-level step block function when there are multiple nested functions", () => {
             let tree = new Tree();
             tree.parseIn(`
-*
+[
     A -
-        *
+        [
             B -
-        *
+        ]
 
     C -
-*
+]
 
-*
+[
     D -
-*
+]
 `);
 
             let branchAbove = new Branch();
@@ -3284,15 +3184,15 @@ My function
             expect(functionDeclarations[0] === tree.root.children[0].children[0].children[0]).to.equal(true);
         });
 
-        it("finds the right anon function declared inside another function declaration", () => {
+        it("finds the right multi-level step block function declared inside another function declaration", () => {
             let tree = new Tree();
             tree.parseIn(`
 * F
-    *
+    [
         A -
             B -
 
-    *
+    ]
 `);
 
             let branchAbove = new Branch();
@@ -3303,12 +3203,12 @@ My function
             expect(functionDeclarations[0] === tree.root.children[0].children[0]).to.equal(true);
         });
 
-        it("finds the right anon function when it's empty", () => {
+        it("finds the right multi-level step block function when it's empty", () => {
             let tree = new Tree();
             tree.parseIn(`
-*
+[
 
-*
+]
 `);
 
             let branchAbove = new Branch();
@@ -3319,14 +3219,14 @@ My function
             expect(functionDeclarations[0] === tree.root.children[0]).to.equal(true);
         });
 
-        it("finds the right function when there's an anon function call", () => {
+        it("finds the right multi-level step block function when it's named", () => {
             let tree = new Tree();
             tree.parseIn(`
-* F
+F [
     A -
         B -
 
-*
+]
 `);
 
             let branchAbove = new Branch();
@@ -3338,8 +3238,9 @@ My function
                     text: "F",
                     isFunctionDeclaration: true,
                     isFunctionCall: undefined,
-                    isPrivateFunctionDeclaration: undefined,
-                    isAnonFunction: undefined,
+                    isPrivateFunctionDeclaration: true,
+                    isMultiBlockFunctionDeclaration: true,
+                    isMultiBlockFunctionCall: undefined,
                     parent: { indents: -1 },
                     children: [
                         {
@@ -4664,6 +4565,42 @@ F
                     ]);
                 });
 
+                it("branchifies a function call surrounded by brackets", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+
+* F [
+    A -
+]
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
+
                 it("doesn't expand a textual step that has the same text as a function declaration", () => {
                     let tree = new Tree();
                     tree.parseIn(`
@@ -5126,6 +5063,169 @@ F
                                     isFunctionDeclaration: undefined,
                                     isTextualStep: true,
                                     level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "G",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "E",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "D",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "E",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 1,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "G",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("branchifies a function call with multiple branches within a function call with multiple branches, where each function declaration is surrounded by brackets", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    C -
+        D -
+    G -
+
+* F [
+    * A [
+        B -
+    ]
+
+    A
+    E -
+]
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 1,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 2,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "C",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                },
+                                {
+                                    text: "D",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 0,
+                                    fid: undefined
+                                }
+                            ]
+                        },
+                        {
+                            steps: [
+                                {
+                                    text: "F",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 0,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "A",
+                                    isFunctionCall: true,
+                                    isFunctionDeclaration: undefined,
+                                    level: 1,
+                                    fid: { $typeof: 'number' }
+                                },
+                                {
+                                    text: "B",
+                                    isFunctionCall: undefined,
+                                    isFunctionDeclaration: undefined,
+                                    isTextualStep: true,
+                                    level: 2,
                                     fid: undefined
                                 },
                                 {
@@ -6565,14 +6665,14 @@ B
                 });
             });
 
-            context("anon functions", () => {
-                it("branchifies an anon function", () => {
+            context("multi-level step blocks", () => {
+                it("branchifies a multi-level step block", () => {
                     let tree = new Tree();
                     tree.parseIn(`
 A -
-    *
+    [
         B -
-    *
+    ]
         C -
                     `);
 
@@ -6591,22 +6691,22 @@ A -
                     ]);
                 });
 
-                it("branchifies nested anon functions", () => {
+                it("branchifies nested multi-level step blocks", () => {
                     let tree = new Tree();
                     tree.parseIn(`
 A -
     B -
-        *
+        [
             C -
                 D -
                 H -
 
-                    *
+                    [
                         E -
                             F -
-                    *
+                    ]
             G -
-        *
+        ]
             I -
                 J -
 
@@ -6657,57 +6757,13 @@ A -
                     ]);
                 });
 
-                it("branchifies anon functions with no ending *", () => {
-                    let tree = new Tree();
-                    tree.parseIn(`
-*
-
-A -
-
-*
-                    `);
-
-                    let branches = tree.branchify(tree.root);
-                    mergeStepNodesInBranches(tree, branches);
-
-                    Comparer.expect(branches).to.match([
-                        {
-                            steps: [
-                                { text: 'A', level: 0 }
-                            ]
-                        }
-                    ]);
-
-                    tree = new Tree();
-                    tree.parseIn(`
-*
-    B -
-
-A -
-
-*
-    C -
-                    `);
-
-                    branches = tree.branchify(tree.root);
-                    mergeStepNodesInBranches(tree, branches);
-
-                    Comparer.expect(branches).to.match([
-                        {
-                            steps: [
-                                { text: 'A', level: 0 }
-                            ]
-                        }
-                    ]);
-                });
-
-                it("branchifies an anon function call", () => {
+                it("branchifies a named multi-level step block", () => {
                     let tree = new Tree();
                     tree.parseIn(`
 A -
-    * F
+    F [
         B -
-    *
+    ]
         C -
                     `);
 

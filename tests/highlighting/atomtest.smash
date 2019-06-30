@@ -9,12 +9,34 @@ Function call
     Step one
         Step two
 
-*
+[
     Anon functions
-*
+]
 
 * Function declaration {{var}} and 'string'
     Step one
+
+* Function declaration {{var}} and 'string' [
+    Step one
+
+    * Second function declaration [ // comment
+        Step
+    ]
+
+    Self-calling function [
+        Step 'here'
+    ]
+
+    + +? [
+    ] // comment
+
+    [ // comment
+        Anon function
+        Anon function
+        - textual
+    ]
+        Something else
+]
 
 Function call
     Function call   // comment here

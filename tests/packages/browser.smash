@@ -2,7 +2,7 @@
 
     Open Chrome $
     Open Firefox $
-    Open Safari $
+    Open Safari
     Open IE
     Open Edge
     Open browser 'chrome'
@@ -144,8 +144,7 @@ Open a browser
                         Verify ['I was double-clicked'] is visible
 
             - Hover over
-
-                *
+                [
                     - an element visible in the current viewport
 
                         Generate page {
@@ -176,15 +175,13 @@ Open a browser
                                 'target button': `#target`
                             });
                         }
-                *
-
+                ]
                     Hover over [target button]
 
                         Verify ['I was hovered over'] is visible
 
             - Scroll to
-
-                *
+                [
                     - an element visible in the current viewport
 
                         Generate page {
@@ -213,8 +210,7 @@ Open a browser
                                 'target': `#target`
                             });
                         }
-                *
-
+                ]
                     Scroll to [target]
 
                         Verify target is scrolled into view {
@@ -272,28 +268,148 @@ Open a browser
 
             - Delete cookie
 
-                - that exists
-                - that doesn't exist
+                Navigate to 'example.com'
+
+                    - Delete cookie that exists
+
+                        Set cookie 'name1' to 'value1'
+
+                            Delete cookie 'name1'
+
+                                Verify cookie 'name1' was deleted
+
+                    - Delete cookie that exists
+
+                        Delete cookie 'name1'
+
+                            Verify cookie 'name1' was deleted
 
             - Delete all cookies
 
+                Navigate to 'example.com'
+                    Set test cookies
+                        Delete all cookies
+                            Verify test cookies were deleted
+
             - Clear local storage
 
-                - Debug and manually verify that it doesn't clear the local storage for other domains #manual $s
+                Navigate to 'example.com'
+                    Set test items in local storage
+                        Clear local storage
+                            Verify local storage was cleared
+
+                        - Test that it doesn't clear the local storage for other domains
+
+                            Set items in the local storage of a different domain [
+                                Navigate to 'google.com'
+                                    Set test items in local storage
+                            ]
+                                Navigate back to the original domain and clear its local storage [
+                                    Navigate to 'example.com'
+                                        Clear local storage
+                                            Verify local storage was cleared
+                                ]
+                                    Navigate to the different domain and verify it wasn't cleared [
+                                        Navigate to 'google.com'
+                                            Verify local storage wasn't cleared
+                                    ]
 
             - Clear cookies and local storage
 
+                Navigate to 'example.com'
+                    Set test cookies
+                        Set test items in local storage
+
+                            Clear cookies and local storage
+
+                                Verify test cookies were deleted
+                                    Verify local storage was cleared
+
+            * Set test cookies
+                Set cookie 'name1' to 'value1'
+                    Set cookie 'name2' to 'value2'
+
+                * Verify test cookies were deleted
+                    Verify cookie 'name1' was deleted
+                        Verify cookie 'name2' was deleted
+
+            * Verify cookie {{name}} was deleted {
+                let cookie = true;
+                try {
+                    cookie = await browser.driver.manage().getCookie(name);
+                }
+                catch(e) {
+                    cookie = null;
+                }
+
+                expect(cookie).to.equal(null);
+            }
+
+            * Set test items in local storage {
+                await executeScript(function() {
+                    localStorage.setItem('name1', 'value1');
+                    localStorage.setItem('name2', 'value2');
+                });
+
+                expect(await executeScript(function() {
+                    return localStorage.getItem('name1');
+                })).to.equal('value1');
+            }
+
+                * Verify local storage was cleared {
+                    expect(await executeScript(function() {
+                        return localStorage.getItem('name1');
+                    })).to.equal(null);
+
+                    expect(await executeScript(function() {
+                        return localStorage.getItem('name2');
+                    })).to.equal(null);
+                }
+
+                * Verify local storage wasn't cleared {
+                    expect(await executeScript(function() {
+                        return localStorage.getItem('name1');
+                    })).to.equal('value1');
+
+                    expect(await executeScript(function() {
+                        return localStorage.getItem('name2');
+                    })).to.equal('value2');
+                }
+
             - Go back
 
-                - when there's a page behind
-                - when there's no page behind
+                Navigate to 'example.com'
+                    Navigate to 'google.com'
+                        Go back
+                            Verify at page 'example.com'
 
             - Go Forward
 
                 - when there's a page in front
+
+                    Navigate to 'example.com'
+                        Navigate to 'google.com'
+                            Go back
+                                Go forward
+                                    Verify at page 'google.com'
+
                 - when there's no page in front
 
+                    Navigate to 'example.com'
+                        Go forward
+                            Verify at page 'example.com'
+
             - Refresh
+
+                Edit the page {
+                    await setPageBody(`<div>Something else</div>`);
+                }
+
+                    Refresh
+
+                        Verify the edits are no longer there + [
+                            Verify ['Something else'] is not visible
+                        ]
 
             - Type
 
@@ -504,4 +620,7 @@ Open a browser
         - Category: Print and Log
 
             - Log
-            - [EF]
+                - A plain string
+                - With vars in string
+
+            - [EF] $s #manual

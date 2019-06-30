@@ -29,13 +29,15 @@ class StepNode {
         this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
         this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
 
-        this.isFunctionDeclaration = false;   // true if this is a function declaration
-        this.isFunctionCall = false;          // true if this is a function call
+        this.isFunctionDeclaration = false;          // true if this is a function declaration
+        this.isFunctionCall = false;                 // true if this is a function call
         this.isPrivateFunctionDeclaration = false;   // true if this is a private function declaration
-        this.isTextualStep = false;           // true if this is a textual (-) step node and not a function call
+        this.isTextualStep = false;                  // true if this is a textual (-) step node and not a function call
 
-        this.isAnonFunction = false;          // true if this is an anonymous function
-        this.anonfid = -1;                    // id of anonymous function declaration being called
+        this.isMultiBlockFunctionDeclaration = false;   // true if this is the '[' from a multi-level step block (implemented under the hood as a function call/declaration)
+        this.isMultiBlockFunctionCall = false;          // true if this is the ']' from a multi-level step block (implemented under the hood as a function call/declaration)
+        this.multiBlockFid = -1;                        // id of the multi-level step block function declaration being called
+        this.isOpeningBracket = false;                  // true if this step includes a '['
 
         this.isSkip = false;                  // true if this step node has the skip modifier (-s)
         this.isSkipBelow = false;             // true if this step node has the skip below modifier (.s)
@@ -95,34 +97,58 @@ class StepNode {
         }
 
         // Parsed parts of the line
-        this.text = matches[6].trim();
-        if(matches[4]) {
-            this.isFunctionDeclaration = true;
-            if(matches[4].trim() == '**') {
-                this.isPrivateFunctionDeclaration = true;
-            }
-            else if(matches[4].trim() == '***') {
-                this.isHook = true;
-            }
+        this.text = matches[7].trim();
 
-            if(!this.text) {
-                this.isAnonFunction = true;
-                this.text = ' ';
+        // Parse functions
+        //   '* Step' is a function declaration
+        //   '** Step' is a private function declaration
+        //   '*** Step' is a hook function declaration
+        //   'Step [' is a multi-step-block function declaration
+        //   '[' is a multi-level-step-block function declaration
+        //   ']' is a multi-level-step-block function call to the last multi-level-step-block function declaration
+        this.isOpeningBracket = (matches[4] && matches[4].trim() == '[') || (matches[18] && matches[18].trim() == '[');
+        if(matches[4] || this.isOpeningBracket) {
+            if(this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
+                this.isFunctionDeclaration = true;
+                this.isPrivateFunctionDeclaration = true;
+                this.isMultiBlockFunctionDeclaration = true;
+                if(!this.text) {
+                    this.text = ' ';
+                }
+            }
+            if(matches[4]) {
+                if(matches[4].trim() == '*') {
+                    this.isFunctionDeclaration = true;
+                }
+                if(matches[4].trim() == '**') {
+                    this.isFunctionDeclaration = true;
+                    this.isPrivateFunctionDeclaration = true;
+                }
+                if(matches[4].trim() == '***') {
+                    this.isFunctionDeclaration = true;
+                    this.isHook = true;
+                }
+                if(matches[4].trim() == ']') {
+                    this.isFunctionCall = true;
+                    this.isMultiBlockFunctionCall = true;
+                    this.text = ' ';
+                }
             }
         }
+
         if(matches[1]) {
             this.frontModifiers = matches[1].trim().split(/\s+/);
             this.modifiers = (this.modifiers || []).concat(this.frontModifiers);
         }
-        if(matches[12]) {
-            this.backModifiers = matches[12].trim().split(/\s+/);
+        if(matches[13]) {
+            this.backModifiers = matches[13].trim().split(/\s+/);
             this.modifiers = (this.modifiers || []).concat(this.backModifiers);
         }
-        if(matches[16]) {
-            this.codeBlock = matches[16].replace(/^\{/, '');
+        if(matches[17] && matches[17].trim().startsWith('{')) {
+            this.codeBlock = matches[17].replace(/^\{/, '');
         }
-        if(matches[18]) {
-            this.comment = matches[18];
+        if(matches[20]) {
+            this.comment = matches[20];
         }
 
         // Validation against prohibited step texts
@@ -411,7 +437,8 @@ class StepNode {
             'isHidden',
             'isFunctionCall',
             'isTextualStep',
-            'isAnonFunction'
+            'isMultiBlockFunctionDeclaration',
+            'isMultiBlockFunctionCall'
         ]);
 
         return o;

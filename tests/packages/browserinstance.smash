@@ -376,8 +376,7 @@ open edge         #windows $s
                                 - not yet defined
 
                                     - When that prop is set with props()
-
-                                        *
+                                        [
                                             - with isAdd set to true
 
                                                 call {
@@ -393,8 +392,7 @@ open edge         #windows $s
                                                         fuzzy: `.fuzzy`
                                                     }, false);
                                                 }
-                                        *
-
+                                        ]
                                             - Then the definition gets set
 
                                                 verify {
@@ -521,11 +519,11 @@ open edge         #windows $s
 
                     - mockHttp() tests
 
-                        * Method is a
+                        Method is a [
                             - GET
                             - POST
-                        *
-                            * Url is
+                        ]
+                            Url is [
                                 - an absolute url
 
                                     - that's on browser's current domain
@@ -534,8 +532,8 @@ open edge         #windows $s
                                 - a relative url
 
                                 - a regex
-                            *
-                                * Response is
+                            ]
+                                Response is [
                                     - a string
 
                                     - a js object
@@ -547,7 +545,7 @@ open edge         #windows $s
                                             - an object
 
                                     - a function
-                                *
+                                ]
                                     - When an http request is made from the browser
                                         - and that reponse is mocked
                                             - Then the mocked response comes back

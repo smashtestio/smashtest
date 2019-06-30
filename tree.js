@@ -331,24 +331,26 @@ class Tree {
                 parent.children.push(currStepNode);
             }
 
-            // If current step node is an anon function, decide if it's a function declaration or function call and match it up
-            if(currStepNode.isAnonFunction && currStepNode.parent.children.length > 1) {
-                let lastSibling = currStepNode.parent.children[currStepNode.parent.children.length - 2];
-                if(lastSibling.isFunctionDeclaration && !lastSibling.isHook) {
-                    if(lastSibling.isPrivateFunctionDeclaration != currStepNode.isPrivateFunctionDeclaration) {
-                        utils.error(`An anonymous function must open and close with the same amount of *'s`, filename, currStepNode.lineNumber);
-                    }
-
-                    // Match up currStepNode (which must be a function call) with the last sibling (which is a function declaration)
-                    // Make currStepNode a function call, since all anon funcs are labelled as function declarations by default
-                    currStepNode.anonfid = lastSibling.id;
-                    delete currStepNode.isFunctionDeclaration;
-                    delete currStepNode.isPrivateFunctionDeclaration;
-                    currStepNode.isFunctionCall = true;
-
-                    if(lastSibling.text.trim() != '') {
+            // If current step node is a multi-level-step-block function call
+            if(currStepNode.isMultiBlockFunctionCall) {
+                const ERR_MSG = `Cannot find the '[' that corresponds to this ']'`;
+                if(currStepNode.parent.children.length > 1) {
+                    let lastSibling = currStepNode.parent.children[currStepNode.parent.children.length - 2];
+                    if(lastSibling.isMultiBlockFunctionDeclaration) {
+                        currStepNode.multiBlockFid = lastSibling.id;
                         currStepNode.text = lastSibling.text;
                     }
+                    else if(lastSibling.isFunctionDeclaration && lastSibling.isOpeningBracket){
+                        // remove this step, it merely closes a * function declaration
+                        currStepNode.parent.children = currStepNode.parent.children.concat(currStepNode.children);
+                        currStepNode.parent.children = currStepNode.parent.children.filter(child => child !== currStepNode);
+                    }
+                    else {
+                        utils.error(ERR_MSG, filename, currStepNode.lineNumber);
+                    }
+                }
+                else {
+                    utils.error(ERR_MSG, filename, currStepNode.lineNumber);
                 }
             }
         }
@@ -369,10 +371,10 @@ class Tree {
         let functionCallNode = this.stepNodeIndex[functionCall.id];
         let functionCallNodeToMatch = functionCallNode;
 
-        // Anonymous functions
-        if(functionCallNode.isAnonFunction) {
+        // Multi-level step block function calls
+        if(functionCallNode.isMultiBlockFunctionCall) {
             branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
-            return [this.stepNodeIndex[functionCallNode.anonfid]];
+            return [this.stepNodeIndex[functionCallNode.multiBlockFid]];
         }
 
         // Say functionCall is F, and needs to be matched to *F. If we go up branchAbove and find another call F,
@@ -457,9 +459,6 @@ ${outputBranchAbove(this)}
             branchAbove.steps.forEach(s => {
                 let sn = self.stepNodeIndex[s.id];
                 let text = sn.text;
-                if(sn.isAnonFunction && text.trim() == '') {
-                    text = '*';
-                }
                 if(text) {
                     str += `   ${text}\n`
                 }

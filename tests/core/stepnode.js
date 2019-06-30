@@ -225,11 +225,11 @@ describe("StepNode", () => {
             });
 
             it("parses an anonymous function", () => {
-                s.parseLine(`    * `, "file.txt", 10);
+                s.parseLine(`    [ `, "file.txt", 10);
                 assert.equal(s.text, ` `);
                 assert.equal(s.isFunctionDeclaration, true);
                 assert.equal(s.isFunctionCall, undefined);
-                assert.equal(s.isAnonFunction, true);
+                assert.equal(s.isMultiBlockFunctionDeclaration, true);
             });
 
             it("throws an error if a textual step is also a function declaration", () => {

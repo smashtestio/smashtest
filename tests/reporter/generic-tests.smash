@@ -293,28 +293,28 @@ Step with screenshots {
 
 
 
-- Anon funcs
+- Multi-level step blocks
     - Simple
-        *
+        [
             One -
                 Two -
-        *
+        ]
 
     - More complex
         One -
-            *
+            [
                 Two -
 
                 Three -
-                    *
+                    [
                         Four -
-                    *
-            *
+                    ]
+            ]
                 Five -
 
     - Typical case
 
-        *
+        [
             Mac -
                 Chrome -
                 Safari -
@@ -324,12 +324,12 @@ Step with screenshots {
                 Chrome -
                 Firefox -
                 IE -
-        *
+        ]
             Open homepage -
                 Do something -
 
-    - Anon function call
-        * Platform is +
+    - Named
+        Platform is + [
             Mac -
                 Chrome -
                 Safari -
@@ -339,6 +339,6 @@ Step with screenshots {
                 Chrome -
                 Firefox -
                 IE -
-        *
+        ]
             Open homepage -
                 Do something -

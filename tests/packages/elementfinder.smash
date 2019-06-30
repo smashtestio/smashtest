@@ -1,7 +1,7 @@
 open chrome
 open firefox
 
-    * open test page +
+    open test page + [
 
         inits {
             i('ElementFinder', '../../packages/js/elementfinder.js');
@@ -22,7 +22,7 @@ open firefox
         }
 
             navigate to {{test page location}}
-    *
+    ]
 
         - getAll() tests
              - normal EFs
@@ -3917,7 +3917,7 @@ open firefox
                                 let results = await ef.find(browser.driver, undefined, true, false, 1500);
                             }
 
-                        *
+                        [
                             if those elements don't disappear before the timeout -
 
                             if those elements disappear after the timeout {
@@ -3925,7 +3925,7 @@ open firefox
                                     <div id="five" class="med">foobar</div>
                                 `), 2000);
                             }
-                        *
+                        ]
 
                             throws error and sets error's continue properly {
                                 let ef = new ElementFinder(`1+ x .big`);

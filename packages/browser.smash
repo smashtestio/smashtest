@@ -151,7 +151,7 @@
     // Returns JSON object representing cookie
     * Get cookie {{name}} {
         let cookie = await browser.driver.manage().getCookie(name);
-        if(!cookie) {
+        if(!cookie) { // some browsers don't throw an error if the cookie doesn't exist, so do it here
             throw new Error(`Cookie with name '${name}' not found`);
         }
         return cookie;

@@ -1951,14 +1951,14 @@ My Function
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
             });
 
-            it("executes an anon function", async () => {
+            it("executes a multi-level step block", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
-*
+[
     F {
         runInstance.one = true;
     }
-*
+]
                 `, "file.txt");
 
                 let runner = new Runner();
@@ -2164,15 +2164,15 @@ Request '6'
                 expect(tree.branches[0].steps[1].error).to.equal(undefined);
             });
 
-            it("allows a {global} variable to be accessed with an anon function", async () => {
+            it("allows a {global} variable to be accessed within a multi-level step block", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
 {var1}='foobar'
-    *
+    [
         F {
             runInstance.one = var1;
         }
-    *
+    ]
                 `, "file.txt");
 
                 let runner = new Runner();

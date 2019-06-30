@@ -2014,7 +2014,7 @@ c     = copy text of branch
                                     break;
                                 }
                                 else if(!this.props.getModifier(s, 'isHidden') &&
-                                    !(this.props.getModifier(s, 'isAnonFunction') && sn.text.trim() == '')) {
+                                    !(this.props.getModifier(s, 'isMultiBlockFunctionCall') && sn.text.trim() == '')) {
                                     step.hasChildren = true;
                                     break;
                                 }
@@ -2080,7 +2080,7 @@ c     = copy text of branch
                     let lines = branch.steps
                         .filter(step => (
                             !this.props.getModifier(step, 'isHidden') &&
-                            !(this.props.getModifier(step, 'isAnonFunction') && this.props.stepNodeIndex[step.id].text.trim() == '')
+                            !(this.props.getModifier(step, 'isMultiBlockFunctionCall') && this.props.stepNodeIndex[step.id].text.trim() == '')
                         ) || step.isFailed)
                         .map((step, index) =>
                             step.collapseHide ? '' : // do this here and not in filter() in order to preserve line numbering

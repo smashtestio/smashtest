@@ -1029,8 +1029,8 @@ class ElementFinder {
             ],
 
             'page url contains': [
-                function(elems, input) { // absolute or relative
-                    return window.location.href.indexOf(input) != -1 || window.location.href.replace(/^https?:\/\/[^\/]*/, '').indexOf(input) != -1 ? elems : [];
+                function(elems, input) {
+                    return window.location.href.indexOf(input) != -1 ? elems : [];
                 }
             ],
 

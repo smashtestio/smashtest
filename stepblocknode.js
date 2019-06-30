@@ -1,7 +1,7 @@
 const StepNode = require('./stepnode.js');
 
 /**
- * Represents a step block within a Tree
+ * Represents a plain step block (non-multi-level) within a Tree
  */
 class StepBlockNode extends StepNode {
     constructor() {

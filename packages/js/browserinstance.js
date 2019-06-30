@@ -698,15 +698,25 @@ class BrowserInstance {
      * Throws error if current page's title or url doesn't contain the given string within timeout ms
      */
     async verifyAtPage(titleOrUrl, timeout) {
+        let obj = null;
         try {
-            await this.$(`page title contains '${this.str(titleOrUrl)}'`, undefined, undefined, timeout, true);
+            await this.driver.wait(async () => {
+                obj = await this.executeScript(function(titleOrUrl) {
+                    return {
+                        isMatched: document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 || window.location.href.indexOf(titleOrUrl) != -1,
+                        title: document.title,
+                        url: window.location.href
+                    };
+                }, titleOrUrl);
+                return obj.isMatched;
+            }, timeout);
         }
         catch(e) {
-            try {
-                await this.$(`page url contains '${this.str(titleOrUrl)}'`, undefined, undefined, timeout, true);
+            if(e.message.includes('Wait timed out after')) {
+                throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), contains '${titleOrUrl}' after ${timeout/1000} s`);
             }
-            catch(e) {
-                throw new Error(`Neither the page title nor the page url contains '${titleOrUrl}'`);
+            else {
+                throw e;
             }
         }
     }
@@ -715,10 +725,20 @@ class BrowserInstance {
      * Throws error if cookie with the given name doesn't contain the given value within timeout ms
      */
     async verifyCookieContains(name, value, timeout) {
-        await this.driver.wait(async () => {
-            let cookieValue = await this.driver.manage().getCookie(name);
-            return cookieValue.includes(value);
-        }, timeout);
+        try {
+            await this.driver.wait(async () => {
+                let cookieValue = await this.driver.manage().getCookie(name);
+                return cookieValue.includes(value);
+            }, timeout);
+        }
+        catch(e) {
+            if(e.message.includes('Wait timed out after')) {
+                throw new Error(`The cookie '${name}' didn't contain '${value}' after ${timeout/1000} s`);
+            }
+            else {
+                throw e;
+            }
+        }
     }
 
     // ***************************************

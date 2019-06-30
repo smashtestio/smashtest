@@ -136,7 +136,7 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            console.log(`Start:     ${chalk.gray(stepNode.isAnonFunction ? '*' : stepNode.text.trim())}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
+            console.log(`Start:     ${chalk.gray(stepNode.text.trim())}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
         }
 
         if(this.tree.isDebug && !this.tree.isExpressDebug) {
@@ -349,7 +349,7 @@ class RunInstance {
 
             let isGreen = step.isPassed;
             console.log("End:       " +
-                (isGreen ? chalk.green(stepNode.isAnonFunction ? '*' : stepNode.text) : chalk.red(stepNode.text)) +
+                (isGreen ? chalk.green(stepNode.text.trim()) : chalk.red(stepNode.text)) +
                 "    " +
                 (step.isPassed ? chalk.green(` passed`) : ``) +
                 (step.isFailed ? chalk.red(` failed`) : ``) +
