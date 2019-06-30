@@ -346,8 +346,10 @@ class Tree {
                         currStepNode.text = lastSibling.text;
                     }
                     else if(lastSibling.isFunctionDeclaration && lastSibling.isOpeningBracket) {
+                        // currStepNode is the ] of a * function declaration containing []'s
+                        // Such a ] should be ignored, and the * function declaration step (lastSibling) is the true parent of currStepNode's children
                         prevStepNode = lastSibling;
-                        currStepNode.parent.children = currStepNode.parent.children.filter(child => child !== currStepNode);
+                        currStepNode.parent.children = currStepNode.parent.children.filter(child => child !== currStepNode); // remove currStepNode from its parent
                         continue;
                     }
                     else {
