@@ -106,7 +106,7 @@ class StepNode {
         //   'Step [' is a multi-step-block function declaration
         //   '[' is a multi-level-step-block function declaration
         //   ']' is a multi-level-step-block function call to the last multi-level-step-block function declaration
-        this.isOpeningBracket = (matches[4] && matches[4].trim() == '[') || (matches[18] && matches[18].trim() == '[');
+        this.isOpeningBracket = (matches[5] && matches[5].trim() == '[') || (matches[18] && matches[18].trim() == '[');
         if(matches[4] || this.isOpeningBracket) {
             if(this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
                 this.isFunctionDeclaration = true;
@@ -128,11 +128,11 @@ class StepNode {
                     this.isFunctionDeclaration = true;
                     this.isHook = true;
                 }
-                if(matches[4].trim() == ']') {
-                    this.isFunctionCall = true;
-                    this.isMultiBlockFunctionCall = true;
-                    this.text = ' ';
-                }
+            }
+            if(matches[5] && matches[5].trim() == ']') {
+                this.isFunctionCall = true;
+                this.isMultiBlockFunctionCall = true;
+                this.text = ' ';
             }
         }
 
@@ -196,10 +196,13 @@ class StepNode {
             if(this.modifiers.includes('-')) {
                 this.isTextualStep = true;
 
-                if(this.isFunctionDeclaration) {
+                if(this.isMultiBlockFunctionDeclaration) {
+                    utils.error(`A named step block ([) cannot be a textual step (-) as well`, filename, lineNumber);
+                }
+                else if(this.isFunctionDeclaration) {
                     utils.error(`A function declaration cannot be a textual step (-) as well`, filename, lineNumber);
                 }
-                if(this.hasCodeBlock()) {
+                else if(this.hasCodeBlock()) {
                     utils.error(`A step with a code block cannot be a textual step (-) as well`, filename, lineNumber);
                 }
             }

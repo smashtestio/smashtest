@@ -232,6 +232,16 @@ describe("StepNode", () => {
                 assert.equal(s.isMultiBlockFunctionDeclaration, true);
             });
 
+            it("throws an error if a textual step is also a multi-level step block", () => {
+                assert.throws(() => {
+                    s.parseLine(`- Something [`, "file.txt", 10);
+                }, "A named step block ([) cannot be a textual step (-) as well [file.txt:10]");
+
+                assert.throws(() => {
+                    s.parseLine(`    - Something + [  `, "file.txt", 10);
+                }, "A named step block ([) cannot be a textual step (-) as well [file.txt:10]");
+            });
+
             it("throws an error if a textual step is also a function declaration", () => {
                 assert.throws(() => {
                     s.parseLine(`* Something - +`, "file.txt", 10);

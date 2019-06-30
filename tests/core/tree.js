@@ -6834,6 +6834,73 @@ A -
                         }
                     ]);
                 });
+
+                it("handles a multi-level step block with ..", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+.. [
+    A -
+        B -
+            C -
+]
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: ' ', level: 0 },
+                                { text: 'A', level: 1 },
+                                { text: 'B', level: 1 },
+                                { text: 'C', level: 1 }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles a multi-level step block with a comment on the top [", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+[//comment
+    A -
+]
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: ' ', level: 0 },
+                                { text: 'A', level: 1 },
+                            ]
+                        }
+                    ]);
+                });
+
+                it("handles a multi-level step block with a comment on the bottom ]", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+[
+    A -
+]//comment
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: ' ', level: 0 },
+                                { text: 'A', level: 1 },
+                            ]
+                        }
+                    ]);
+                });
             });
         });
 
