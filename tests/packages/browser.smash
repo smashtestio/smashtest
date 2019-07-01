@@ -1,5 +1,4 @@
-Open a browser [
-
+Open test page [
     Open Chrome $
     Open Firefox $
     Open Safari
@@ -7,7 +6,7 @@ Open a browser [
     Open Edge
     Open browser 'chrome'
 
-        Initialize browser +? {
+        Init vars +? {
             g('setPageBody',
                 async function(htmlStr) {
                     await browser.executeScript(function(htmlStr) {
@@ -54,7 +53,7 @@ Open a browser [
                 }
             }
 
-        - Click
+        - Click $
 
             - a button
 
@@ -825,29 +824,122 @@ Open a browser [
 
         - Set dimensions
 
+            Set dimensions to width='200' height='100'
+
+                - Verify $s #manual
+
         - Maximize window
+
+            Maximize window
+
+                - Verify $s #manual
 
         - Open new tab
 
-        - Switch to window whose title contains
-            - and a window with that title
-                - exists
-                - doesn't exist
+            Open new tab
 
-        - Switch to a window whose url contains
-            - and a window with that url
-                - exists
-                - doesn't exist
+                - Verify $s #manual
+
+        - Switch to window whose title contains
+
+            Open new tab
+                Navigate to 'google.com'
+
+                    - and a window with that title
+
+                        - exists
+
+                            Switch to window whose title contains 'here'
+                                {title} is window title
+                                    Verify {
+                                        expect(title).to.equal('Window title here');
+                                    }
+
+                        - doesn't exist
+
+                            Switch to window whose title contains 'foobar'
+                                - Verify error $s #manual
+
+        - Switch to window whose url contains
+
+            Open new tab
+                Navigate to 'google.com'
+                    Open new tab
+                        Navigate to 'example.com'
+
+                            - and a window with that url
+
+                                - exists
+
+                                    Switch to window whose url contains 'google'
+                                        {url} is current url
+                                            Verify {
+                                                expect(url).to.contain('www.google.com');
+                                            }
+
+                                - doesn't exist
+
+                                    Switch to window whose url contains 'foobar'
+                                        - Verify error $s #manual
 
         - Switch to the nth window
-            - and a window at that index
-                - exists
-                - doesn't exist
-            - and nth is not set to a number
+
+            Open new tab
+                Navigate to 'google.com'
+                    Open new tab
+                        Navigate to 'example.com'
+
+                            - and a window at that index
+
+                                - exists
+
+                                    Switch to the '2nd' window
+                                        {url} is current url
+                                            Verify {
+                                                expect(url).to.contain('www.google.com');
+                                            }
+
+                                - doesn't exist
+
+                                    Switch to the '4th' window
+                                        - Verify error $s #manual
+
+                            - and nth is not set to a number
+
+                                Switch to the 'foobar' window
+                                    - Verify error $s #manual
+
+                            - and nth is <= 0
+
+                                Switch to the '0th' window
+                                    - Verify error $s #manual
 
         - Switch to iframe
 
+            Generate page {
+                await setPageBody(`
+                    <iframe id="frame" src="http://example.com"></iframe>
+                    <div>foobar</div>
+                `);
+            }
+
+                Switch to iframe [#frame]
+                    Verify ['Example Domain'] is visible
+                        Verify ['foobar'] is not visible
+
         - Switch to topmost iframe
+
+            Generate page {
+                await setPageBody(`
+                    <iframe id="frame" src="http://example.com"></iframe>
+                    <div>foobar</div>
+                `);
+            }
+
+                Switch to iframe [#frame]
+                    Switch to topmost iframe
+                        Verify ['Example Domain'] is not visible
+                            Verify ['foobar'] is visible
 
     - Category: Alerts
 

@@ -2551,7 +2551,7 @@ c     = copy text of branch
                     this.afterUrl = `${this.baseUrl}_after.jpg`;
 
                     this.state = {
-                        isBefore: true,
+                        isBefore: false,
                         modal: false,
                         hasBeforeScreenshot: false,
                         hasAfterScreenshot: false,
@@ -2560,13 +2560,13 @@ c     = copy text of branch
 
                     this.props.triggers.onSpacebarDown = () => {
                         if(this._ismounted && this.state.hasAfterScreenshot) {
-                            this.setState({ isBefore: false });
+                            this.setState({ isBefore: true });
                         }
                     };
 
                     this.props.triggers.onSpacebarUp = () => {
                         if(this._ismounted && this.state.hasAfterScreenshot) {
-                            this.setState({ isBefore: true });
+                            this.setState({ isBefore: false });
                         }
                     };
 
@@ -2642,7 +2642,7 @@ c     = copy text of branch
                         }
                     }
 
-                    let toggleClassName = `screenshot-toggle ${!this.state.isBefore ? `active` : ``}`;
+                    let toggleClassName = `screenshot-toggle ${this.state.isBefore ? `active` : ``}`;
 
                     if(this.state.hasBeforeScreenshot) {
                         previewSSRender = (
@@ -2655,7 +2655,7 @@ c     = copy text of branch
                                             <div className="screenshot-container">
                                                 <div className={toggleClassName} onClick={this.toggleBeforeAfter}>
                                                     <span className="text">
-                                                        Show After
+                                                        Show Before
                                                     </span>
                                                 </div>
                                             </div> :
