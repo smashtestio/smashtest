@@ -1,10 +1,9 @@
 Open test page [
     Open Chrome $
     Open Firefox $
-    Open Safari
+    Open Safari !
     Open IE
     Open Edge
-    Open browser 'chrome'
 
         Init vars +? {
             g('setPageBody',
@@ -961,35 +960,37 @@ Open test page [
             });
         }
 
-        - Accept alert
+        Do not allow Safari
 
-            Create alert
-            Create confirm
-            Create prompt
+            - Accept alert
 
-                Accept alert
+                Create alert
+                Create confirm
+                Create prompt
 
-                    - Verify alert closed #manual
+                    Accept alert
 
-        - Dismiss alert
+                        - Verify alert closed #manual
 
-            Create alert
-            Create confirm
-            Create prompt
+            - Dismiss alert
 
-                Dismiss alert
+                Create alert
+                Create confirm
+                Create prompt
 
-                    - Verify alert closed #manual
+                    Dismiss alert
 
-        - Verify alert contains
+                        - Verify alert closed #manual
 
-            Create alert
-            Create confirm
-            Create prompt
+            - Verify alert contains
 
-                Verify alert contains 'foo'
+                Create alert
+                Create confirm
+                Create prompt
 
-    - Category: Network conditions and throttling
+                    Verify alert contains 'foo'
+
+    - Category: Network conditions and throttling $s #manual
 
         [
             Set network conditions to offline='true' latency='10' max-download-speed='10' max-upload-speed='10'
@@ -1000,9 +1001,9 @@ Open test page [
         ]
             .. [
                 - If Chrome
-                    - Manually verify throughput #manual
+                    - Verify throughput
                 - If not Chrome
-                    - Manually verify nothing happens and proper logs made in report #manual
+                    - Verify nothing happens and proper logs made in report
             ]
 
     - Category: Mocks !
@@ -1378,3 +1379,9 @@ Open test page [
                     [#baditem]
 
                         - Verify error $s #manual
+
+    * Do not allow Safari +? {
+        if(browser.params.name == 'safari') {
+            runInstance.currBranch.markBranch('skip');
+        }
+    }

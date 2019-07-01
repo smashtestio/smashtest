@@ -16,7 +16,7 @@
 
 open chrome       #mac #windows
 open firefox      #mac #windows
-open safari       #mac $s
+open safari       #mac ! $s
 open ie           #windows $s
 open edge         #windows $s
 

@@ -956,6 +956,10 @@ ${outputBranchAbove(this)}
         // If isNonParallel (!) is set, connect up the branches in branchesBelow
         if(step.id && this.getModifier(step, 'isNonParallel')) {
             let nonParallelId = step.id;
+            if(step.hasOwnProperty('fid') ? this.stepNodeIndex[step.fid].isNonParallel : false) {
+                nonParallelId = step.fid;
+            }
+
             branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);
         }
 

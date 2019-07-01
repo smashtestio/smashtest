@@ -207,7 +207,7 @@ Textual steps (-)
     - -s is also a textual step
 
 UI Testing
-    - Open Chrome/Open Firefox/Open Safari/Open IE/Open Edge
+    - Open Chrome/Open Firefox/Open Safari !/Open IE/Open Edge !
         - Open browser 'browser name'
         - All steps below only exist in the context of Open browser
     - Mobile/Tablet/Laptop/Desktop
@@ -838,6 +838,12 @@ Code blocks
             yf.something();
         }
             - Helps a lot with stack traces. Code blocks are recommended for short snippets of code, 1-5 lines long.
+    - Selective testing example (i.e., only allow certain browsers beyond this point)
+        Do not allow Safari +? {
+            if(browser.params.name == 'safari') {
+                runInstance.currBranch.markBranch('skip');
+            }
+        }
     - Pitfalls
         - ** Don't forget await **. If errors are thrown and don't land in a step, and or things seem race-conditiony, it's probably because you forgot an await.
         - Don't have multiple local, global, or persistent variables that are spelled the same, only different casing. Variable names are stored case-insensitively.

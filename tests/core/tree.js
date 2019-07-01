@@ -4362,6 +4362,7 @@ A -
 
         D ! -
             E -
+            H -
 
         F -
 
@@ -4380,6 +4381,10 @@ G -
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
+                        nonParallelId: nonParallelId
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "H" } ],
                         nonParallelId: nonParallelId
                     },
                     {

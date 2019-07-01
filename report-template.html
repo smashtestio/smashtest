@@ -878,7 +878,7 @@ c     = copy text of branch
                 let elems = document.querySelectorAll(".branch-group-indicator");
                 elems.forEach(elem => {
                     let tippyOptionsBranchGroup = Object.assign({}, tippyOptions);
-                    Object.assign(tippyOptionsBranchGroup, { maxWidth: 1000 } );
+                    Object.assign(tippyOptionsBranchGroup, { maxWidth: 10000 } );
                     tippyOptionsBranchGroup.content = wrapTippyContent(elem.getAttribute("data-tooltip"), "branch-group-tooltip");
                     tippy(elem, tippyOptionsBranchGroup);
                 });

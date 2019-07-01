@@ -123,7 +123,7 @@ class Branch {
     mergeToEnd(branch) {
         this.steps = this.steps.concat(branch.steps);
 
-        branch.nonParallelId && (this.nonParallelId = branch.nonParallelId);
+        branch.nonParallelId && !this.nonParallelId && (this.nonParallelId = branch.nonParallelId);
         branch.frequency && (this.frequency = branch.frequency);
 
         if(branch.groups) {

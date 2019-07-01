@@ -26,8 +26,7 @@
 }
     Use browser +?
 
-* Open Safari ! {
-    await new Promise(res => setTimeout(res, 500)); // only one safari instance can run at a time (the ! and 500 ms pause prevent this)
+* Open Safari {
     await BrowserInstance.create(runInstance).open({name: 'safari'});
 }
     Use browser +?
@@ -325,8 +324,15 @@
             window.open();
         });
 
+        // Switch to new tab
         let windows = await browser.driver.getAllWindowHandles();
-        await browser.driver.switchTo().window(windows[windows.length - 1]);
+        for(let i = windows.length - 1; i >= 0; i--) {
+            let window = windows[i];
+            await browser.driver.switchTo().window(window);
+            if(await browser.driver.getCurrentUrl() == 'about:blank') {
+                break;
+            }
+        }
     }
 
     * Switch to window whose title contains {{text}} {
@@ -563,7 +569,7 @@
 
         if(browser) {
             let results = await $$(element);
-            c(`${results.length} elements found. See browser console for details.`);
+            console.log(`\n${results.length} elements found. See browser console for details.\n`);
         }
         else {
             throw new Error(`Browser isn't open`);
