@@ -1794,7 +1794,7 @@ c     = copy text of branch
                                 {
                                     children.map(branch => (
                                         <Branch
-                                            key={branch.hash}
+                                            key={branch.hash + " " + app.state.tree.timeStarted}
                                             branch={branch}
                                             stepNodeIndex={this.props.stepNodeIndex}
                                             setPreview={this.props.setPreview}

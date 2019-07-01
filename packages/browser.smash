@@ -538,7 +538,7 @@
     * Wait {{n}} sec
         Wait {{n}} secs +?
 
-    * Wait {{n}} seconds
+    * Wait {{n}} second
         Wait {{n}} secs +?
 
     * Wait {{n}} secs {

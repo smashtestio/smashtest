@@ -1009,13 +1009,41 @@ Open test page [
 
         - Mock time
 
-            - with valid Date object
-            - with valid Date string
+            [
+                with valid Date object [
+                    Set {time} {
+                        g('time', new Date("1/2/2011 3:45 pm"))
+                    }
+                        Mock time to {time}
+                ]
 
-                - Verify date set
+                with valid Date string [
+                    Mock time to "1/2/2011 3:45 pm"
+                ]
+            ]
+
+                Verify page time is set to 'Sun Jan 02 2011 15:45'
 
             - with invalid Date string
-                - Verify error
+
+                Mock time to "badstr"
+                    Verify page time is set to 'Invalid date'
+
+            * Verify page time is set to {{time}} [
+                Update page with element containing time {
+                    await executeScript(function() {
+                        document.body.innerHTML = `<div id="date"></div>`;
+                        let s = document.createElement("script");
+                        s.type = "text/javascript";
+                        s.innerHTML = `document.getElementById('date').innerHTML = (new Date()).toString();`
+                        document.body.append(s);
+                    });
+                }
+
+                    Verify time is correct {
+                        await $(`#date, '${str(time)}'`);
+                    }
+            ]
 
         - Mock location to latitude and longitude
 

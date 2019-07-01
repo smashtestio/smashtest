@@ -746,7 +746,7 @@ class BrowserInstance {
      */
     async injectSinon() {
         let sinonExists = await this.executeScript(function() {
-            return typeof sinon != undefined;
+            return typeof sinon != 'undefined';
         });
 
         if(!sinonExists) {
