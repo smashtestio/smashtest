@@ -1188,15 +1188,148 @@ Open test page [
     - Category: Wait until
 
         - Wait until at page
+
+            - and the title contains the given text
+
+                Wait until at page 'title here'
+
+            - and the url contains the given text
+
+                Wait until at page 'generic-page'
+
+            - and neither the title nor the url contain the given text
+
+                Wait until at page 'badstr'
+                    - Verify error $s #manual
+
         - Wait until at page (up to n secs)
+
+            - and the title contains the given text
+
+                Wait until at page 'title here' (up to '5' secs)
+
+            - and the url contains the given text
+
+                Wait until at page 'generic-page' (up to '5' secs)
+
+            - and neither the title nor the url contain the given text
+
+                Wait until at page 'badstr' (up to '5' secs)
+                    - Verify error $s #manual
+
         - Wait until cookie contains
+
+            - where the cookie with the given name
+
+                - doesn't exist
+
+                    Wait until cookie 'badname' contains 'badvalue'
+                        - Verify error $s #manual
+
+                - exists
+
+                    Navigate to 'example.com'
+                        Set cookie 'foo' to 'onetwothree'
+
+                            - and contains the given value
+
+                                Wait until cookie 'foo' contains 'two'
+
+                            - and doesn't contain the given value
+
+                                Wait until cookie 'foo' contains 'badstr'
+                                    - Verify error $s #manual
+
         - Wait until cookie contains (up to n secs)
+
+            - where the cookie with the given name
+
+                - doesn't exist
+
+                    Wait until cookie 'badname' contains 'badvalue' (up to '5' secs)
+                        - Verify error $s #manual
+
+                - exists
+
+                    Navigate to 'example.com'
+                        Set cookie 'foo' to 'onetwothree'
+
+                            - and contains the given value
+
+                                Wait until cookie 'foo' contains 'two' (up to '5' secs)
+
+                            - and doesn't contain the given value
+
+                                Wait until cookie 'foo' contains 'badstr' (up to '5' secs)
+                                    - Verify error $s #manual
+
         - Wait until element is visible
+
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Wait until [#one] is visible
+
+                - and element is not visible
+
+                    Wait until [#badid] is visible
+                        - Verify error $s #manual
+
         - Wait until element is visible (up to n secs)
+
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Wait until [#one] is visible (up to '5' secs)
+
+                - and element is not visible
+
+                    Wait until [#badid] is visible (up to '5' secs)
+                        - Verify error $s #manual
+
         - Wait until element is not visible
+
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is not visible
+
+                    Wait until [#badid] is not visible
+
+                - and element is visible
+
+                    Wait until [#one] is not visible
+                        - Verify error $s #manual
+
         - Wait until element is not visible (up to n secs)
 
-            - Manually verify the longer timeout #manual $s
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is not visible
+
+                    Wait until [#badid] is not visible (up to '5' secs)
+
+                - and element is visible
+
+                    Wait until [#one] is not visible (up to '5' secs)
+                        - Verify error $s #manual
 
     - Category: Wait
 
