@@ -1005,7 +1005,60 @@ Open test page [
                     - Manually verify nothing happens and proper logs made in report #manual
             ]
 
-    - Category: Mocks
+    - Category: Mocks !
+
+        * Verify page time is set to {{time}} [
+            Update page with element containing time
+                Verify time {
+                    await $(`#date, '${str(time)}'`);
+                }
+        ]
+
+        * Verify page time is not set to {{time}} [
+            Update page with element containing time
+                Verify time {
+                    await not$(`#date, '${str(time)}'`);
+                }
+        ]
+
+        * Update page with element containing time {
+            await executeScript(function() {
+                document.body.innerHTML = `<div id="date"></div>`;
+                let s = document.createElement("script");
+                s.type = "text/javascript";
+                s.innerHTML = `document.getElementById('date').innerHTML = (new Date()).toString();`
+                document.body.append(s);
+            });
+        }
+
+        * Verify location is latitude={{lat}} longitude={{long}} {
+            await browser.driver.manage().setTimeouts( { script: 40 * 1000 } );
+
+            let position = await executeAsyncScript(function(done) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    done(position);
+                });
+            });
+
+            Comparer.expect(position).to.match({
+                coords: {
+                    latitude: parseFloat(lat), longitude: parseFloat(long)
+                }
+            });
+        }
+
+        * Verify location is not latitude={{lat}} longitude={{long}} {
+            await browser.driver.manage().setTimeouts( { script: 40 * 1000 } );
+
+            let position = await executeAsyncScript(function(done) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    done(position);
+                });
+            });
+
+            expect(position.coords.latitide).to.not.equal(parseFloat(lat));
+            expect(position.coords.longitude).to.not.equal(parseFloat(long));
+        }
 
         - Mock time
 
@@ -1029,36 +1082,51 @@ Open test page [
                 Mock time to "badstr"
                     Verify page time is set to 'Invalid date'
 
-            * Verify page time is set to {{time}} [
-                Update page with element containing time {
-                    await executeScript(function() {
-                        document.body.innerHTML = `<div id="date"></div>`;
-                        let s = document.createElement("script");
-                        s.type = "text/javascript";
-                        s.innerHTML = `document.getElementById('date').innerHTML = (new Date()).toString();`
-                        document.body.append(s);
-                    });
-                }
+        - Location mocking
 
-                    Verify time is correct {
-                        await $(`#date, '${str(time)}'`);
-                    }
-            ]
+            - Mock location to latitude and longitude
 
-        - Mock location to latitude and longitude
+                Mock location to latitude='10.5' longitude='20'
+                    Verify location is latitude='10.5' longitude='20'
 
-        - Mock location to location
-            - with valid city name
-            - with invalid city name
+            - Mock location to location
+
+                - with valid city name
+
+                    Mock location to 'Tokyo'
+                        Verify location is latitude='35.689487' longitude='139.691706'
+
+                - with invalid city name
+
+                    Mock location to 'badcity'
+                        - Verify error $s #manual
 
         - Stop all mocks
+
+            Mock time to "1/2/2011 3:45 pm"
+                Mock location to latitude='10.5' longitude='20'
+
+                    Stop all mocks
+
+                        Verify page time is not set to 'Sun Jan 02 2011 15:45'
+                            Verify location is not latitude='10.5' longitude='20' -s #manual // manual because browser sometimes doesn't allow reading the location, needs permission, or takes forever to do so
 
     - Category: Verify
 
         - Verify at page
+
             - and the title contains the given text
+
+                Verify at page 'title here'
+
             - and the url contains the given text
+
+                Verify at page 'generic-page'
+
             - and neither the title nor the url contain the given text
+
+                Verify at page 'badstr'
+                    - Verify error $s #manual
 
         - Verify cookie contains
 
@@ -1066,13 +1134,56 @@ Open test page [
 
                 - doesn't exist
 
+                    Verify cookie 'badname' contains 'badvalue'
+                        - Verify error $s #manual
+
                 - exists
-                    - and contains the given value
-                    - and doesn't contain the given value
+
+                    Navigate to 'example.com'
+                        Set cookie 'foo' to 'onetwothree'
+
+                            - and contains the given value
+
+                                Verify cookie 'foo' contains 'two'
+
+                            - and doesn't contain the given value
+
+                                Verify cookie 'foo' contains 'badstr'
+                                    - Verify error $s #manual
 
         - Verify element is visible
 
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Verify [#one] is visible
+
+                - and element is not visible
+
+                    Verify [#badid] is visible
+                        - Verify error $s #manual
+
         - Verify element is not visible
+
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is not visible
+
+                    Verify [#badid] is not visible
+
+                - and element is visible
+
+                    Verify [#one] is not visible
+                        - Verify error $s #manual
 
     - Category: Wait until
 
@@ -1089,13 +1200,48 @@ Open test page [
 
     - Category: Wait
 
-        - Wait '1' second
-        - Wait n seconds
+        Wait '1' second
+        Wait '5' seconds
+
+            - Verify time elapsed in console output $s #manual
 
     - Category: Print and Log
 
         - Log
+
             - A plain string
+
+                Log 'hello world'
+                    - Verify in report $s #manual
+
             - With vars in string
 
-        - [EF] $s #manual
+                {foo} = 'world'
+                    Log 'hello {foo}'
+                        - Verify in report $s #manual
+
+        - [EF]
+
+            Generate page {
+                await setPageBody(`
+                    <button id="target" onclick="document.getElementById('display').innerHTML = 'I was clicked'">click me</button>
+                    <div id="display">foobar</div>
+                `);
+
+                props({
+                    'target button': `#target`
+                });
+            }
+
+                - Element exists
+
+                    [div]
+                    [#display]
+                    [target button]
+                    [element]
+
+                - Element doesn't exist
+
+                    [#baditem]
+
+                        - Verify error $s #manual

@@ -238,7 +238,7 @@ class BrowserInstance {
         }
 
         // Set timeouts
-        await this.driver.manage().setTimeouts( { implicit: 0, pageLoad: 20 * 1000, script: 20 * 1000 } );
+        await this.driver.manage().setTimeouts( { implicit: 0, pageLoad: 30 * 1000, script: 30 * 1000 } );
     }
 
     /**
@@ -722,8 +722,24 @@ class BrowserInstance {
     async verifyCookieContains(name, value, timeout) {
         try {
             await this.driver.wait(async () => {
-                let cookieValue = await this.driver.manage().getCookie(name);
-                return cookieValue.includes(value);
+                let cookie = null;
+                try {
+                    cookie = await this.driver.manage().getCookie(name);
+                }
+                catch(e) {
+                    if(e.message.includes('No cookie with name')) {
+                        return false;
+                    }
+                    else {
+                        throw e;
+                    }
+                }
+
+                if(!cookie) {
+                    return false;
+                }
+
+                return cookie.value.includes(value);
             }, timeout);
         }
         catch(e) {
@@ -764,7 +780,7 @@ class BrowserInstance {
         await this.mockTimeStop(); // stop any existing time mocks
         await this.injectSinon();
         await this.executeScript(function(timeStr) {
-            var smashtestSinonClock = sinon.useFakeTimers({
+            window.smashtestSinonClock = sinon.useFakeTimers({
                 now: new Date(timeStr),
                 shouldAdvanceTime: true
             });
@@ -832,8 +848,8 @@ class BrowserInstance {
                 response = JSON.parse(response);
             }
 
-            var smashtestSinonClock = smashtestSinonClock || sinon.createFakeServer({ respondImmediately: true });
-            smashtestSinonClock.respondWith(method, url, response);
+            window.smashtestSinonClock = window.smashtestSinonClock || sinon.createFakeServer({ respondImmediately: true });
+            window.smashtestSinonClock.respondWith(method, url, response);
         }, method, url, response, typeofUrl, typeofResponse);
     }
 
@@ -845,8 +861,8 @@ class BrowserInstance {
      */
     async mockHttpConfigure(config) {
         await this.executeScript(function() {
-            if(typeof smashtestSinonClock != 'undefined') {
-                smashtestSinonClock.configure(config);
+            if(typeof window.smashtestSinonClock != 'undefined') {
+                window.smashtestSinonClock.configure(config);
             }
         });
     }
@@ -858,8 +874,8 @@ class BrowserInstance {
      */
     async mockLocation(latitude, longitude) {
         await this.executeScript(function(latitude, longitude) {
-            if(typeof smashtestOriginalGetCurrentPosition == 'undefined') {
-                var smashtestOriginalGetCurrentPosition = window.navigator.geolocation.getCurrentPosition;
+            if(typeof window.smashtestOriginalGetCurrentPosition == 'undefined') {
+                window.smashtestOriginalGetCurrentPosition = window.navigator.geolocation.getCurrentPosition;
             }
 
             window.navigator.geolocation.getCurrentPosition = function(success) {
@@ -878,9 +894,9 @@ class BrowserInstance {
      */
     async mockTimeStop() {
         await this.executeScript(function() {
-            if(typeof smashtestSinonClock != 'undefined') {
-                smashtestSinonClock.restore();
-                smashtestSinonClock = undefined;
+            if(typeof window.smashtestSinonClock != 'undefined') {
+                window.smashtestSinonClock.restore();
+                window.smashtestSinonClock = undefined;
             }
         });
     }
@@ -890,9 +906,9 @@ class BrowserInstance {
      */
     async mockHttpStop() {
         await this.executeScript(function() {
-            if(typeof smashtestSinonFakeServer != 'undefined') {
-                smashtestSinonFakeServer.restore();
-                smashtestSinonFakeServer = undefined;
+            if(typeof window.smashtestSinonFakeServer != 'undefined') {
+                window.smashtestSinonFakeServer.restore();
+                window.smashtestSinonFakeServer = undefined;
             }
         });
     }
@@ -902,9 +918,9 @@ class BrowserInstance {
      */
     async mockLocationStop() {
         await this.executeScript(function() {
-            if(typeof smashtestOriginalGetCurrentPosition != 'undefined') {
-                window.navigator.geolocation.getCurrentPosition = smashtestOriginalGetCurrentPosition;
-                smashtestOriginalGetCurrentPosition = undefined;
+            if(typeof window.smashtestOriginalGetCurrentPosition != 'undefined') {
+                window.navigator.geolocation.getCurrentPosition = window.smashtestOriginalGetCurrentPosition;
+                window.smashtestOriginalGetCurrentPosition = undefined;
             }
         });
     }

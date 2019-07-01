@@ -877,8 +877,10 @@ c     = copy text of branch
 
                 let elems = document.querySelectorAll(".branch-group-indicator");
                 elems.forEach(elem => {
-                    tippyOptions.content = wrapTippyContent(elem.getAttribute("data-tooltip"), "branch-group-tooltip");
-                    tippy(elem, tippyOptions);
+                    let tippyOptionsBranchGroup = Object.assign({}, tippyOptions);
+                    Object.assign(tippyOptionsBranchGroup, { maxWidth: 1000 } );
+                    tippyOptionsBranchGroup.content = wrapTippyContent(elem.getAttribute("data-tooltip"), "branch-group-tooltip");
+                    tippy(elem, tippyOptionsBranchGroup);
                 });
             }
 
@@ -951,6 +953,27 @@ c     = copy text of branch
                     };
                     img.src = url;
                 });
+            }
+
+            /**
+             * @return {String} The state of the given step or branch
+             */
+            function getRunState(o) {
+                if(o.isRunning) {
+                    return "running";
+                }
+                else if(o.isFailed) {
+                    return "failed";
+                }
+                else if(o.isPassed) {
+                    return "passed";
+                }
+                else if(o.isSkipped) {
+                    return "skipped";
+                }
+                else {
+                    return "notrunyet";
+                }
             }
 
             // ***************************************
@@ -1794,7 +1817,7 @@ c     = copy text of branch
                                 {
                                     children.map(branch => (
                                         <Branch
-                                            key={branch.hash + " " + app.state.tree.timeStarted}
+                                            key={branch.hash + " " + getRunState(branch) + " " + this.props.idName}
                                             branch={branch}
                                             stepNodeIndex={this.props.stepNodeIndex}
                                             setPreview={this.props.setPreview}
@@ -1948,7 +1971,6 @@ c     = copy text of branch
                     this.hoverStateOff = this.hoverStateOff.bind(this);
                     this.toggleActiveState = this.toggleActiveState.bind(this);
                     this.updateCollapsing = this.updateCollapsing.bind(this);
-                    this.getRunState = this.getRunState.bind(this);
                 }
 
                 componentDidMount() {
@@ -2039,31 +2061,10 @@ c     = copy text of branch
                     });
                 }
 
-                /**
-                 * @return {String} The state of the given step or branch
-                 */
-                getRunState(o) {
-                    if(o.isRunning) {
-                        return "running";
-                    }
-                    else if(o.isFailed) {
-                        return "failed";
-                    }
-                    else if(o.isPassed) {
-                        return "passed";
-                    }
-                    else if(o.isSkipped) {
-                        return "skipped";
-                    }
-                    else {
-                        return "notrunyet";
-                    }
-                }
-
                 render() {
                     let branch = this.props.branch;
                     let previewedItem = this.props.previewedItem;
-                    let indicatorClassName = "branch-indicator " + this.getRunState(branch);
+                    let indicatorClassName = "branch-indicator " + getRunState(branch);
 
                     let error = "";
                     if(branch.error) {
@@ -2092,7 +2093,7 @@ c     = copy text of branch
                                 key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step)}
                                 collapse={step.collapse}
                                 collapseHide={step.collapseHide}
-                                runState={this.getRunState(step)}
+                                runState={getRunState(step)}
                                 lastIndex={branch.steps.length - 1}
                                 setPreview={this.props.setPreview}
                                 previewedItem={previewedItem}

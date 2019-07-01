@@ -245,6 +245,7 @@ ElementFinders
     - Method of finding and/or verifying elements on the page
         - Finds every instance of the topmost element
     - Examples
+        - Open browser console to see logs of EF matching
         - Examples from elementfinder_sample4.txt
         - Show how a [] in a step's text can contain a one-line EF
         - Show how to set props() in a code block, how to verify via a $(``) in a code block. Also mention $$() and not$().
