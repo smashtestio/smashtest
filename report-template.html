@@ -2629,7 +2629,8 @@ c     = copy text of branch
                         return previewSSRender;
                     }
 
-                    let url = this.state.isBefore ? this.beforeUrl : this.afterUrl;
+                    let isBefore = this.state.isBefore || !this.state.hasAfterScreenshot;
+                    let url = isBefore ? this.beforeUrl : this.afterUrl;
 
                     let targetCoords = this.props.step.targetCoords;
                     let crosshairsStyle = '';
@@ -2642,7 +2643,7 @@ c     = copy text of branch
                         }
                     }
 
-                    let toggleClassName = `screenshot-toggle ${this.state.isBefore ? `active` : ``}`;
+                    let toggleClassName = `screenshot-toggle ${isBefore ? `active` : ``}`;
 
                     if(this.state.hasBeforeScreenshot) {
                         previewSSRender = (
@@ -2663,7 +2664,7 @@ c     = copy text of branch
                                         }
                                         <div className="screenshot-container">
                                             {
-                                                targetCoords && this.state.isBefore ?
+                                                targetCoords && isBefore ?
                                                 <div className="crosshairs-container">
                                                     <div className="crosshairs" style={crosshairsStyle}>
                                                         <div className="vertical"></div>

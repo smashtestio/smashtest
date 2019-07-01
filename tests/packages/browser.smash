@@ -53,7 +53,7 @@ Open test page [
                 }
             }
 
-        - Click $
+        - Click
 
             - a button
 
@@ -826,19 +826,19 @@ Open test page [
 
             Set dimensions to width='200' height='100'
 
-                - Verify $s #manual
+                - Verify #manual
 
         - Maximize window
 
             Maximize window
 
-                - Verify $s #manual
+                - Verify #manual
 
         - Open new tab
 
             Open new tab
 
-                - Verify $s #manual
+                - Verify #manual
 
         - Switch to window whose title contains
 
@@ -943,27 +943,67 @@ Open test page [
 
     - Category: Alerts
 
+        * Create alert {
+            await executeScript(function() {
+                alert("foobar");
+            });
+        }
+
+        * Create confirm {
+            await executeScript(function() {
+                confirm("foobar");
+            });
+        }
+
+        * Create prompt {
+            await executeScript(function() {
+                prompt("foobar");
+            });
+        }
+
         - Accept alert
+
+            Create alert
+            Create confirm
+            Create prompt
+
+                Accept alert
+
+                    - Verify alert closed #manual
 
         - Dismiss alert
 
+            Create alert
+            Create confirm
+            Create prompt
+
+                Dismiss alert
+
+                    - Verify alert closed #manual
+
         - Verify alert contains
+
+            Create alert
+            Create confirm
+            Create prompt
+
+                Verify alert contains 'foo'
 
     - Category: Network conditions and throttling
 
-        - Offline
-        - Online
-        - Network latency
-        - No network latency
-        - Maxmium download speed
-        - No maximum download speed
-        - Maximum upload speed
-        - No maximum upload speed
+        [
+            Set network conditions to offline='true' latency='10' max-download-speed='10' max-upload-speed='10'
+                Navigate to 'google.com'
 
-            - If Chrome
-                - Manually verify #manual $s
-            - If not Chrome
-                - Manually verify nothing happens and proper logs made in report #manual $s
+            Set network conditions to offline='false' latency='1' max-download-speed='1000' max-upload-speed='1000'
+                Navigate to 'google.com'
+        ]
+            .. [
+                - If Chrome
+                    - Manually verify throughput #manual
+                - If not Chrome
+                    - Manually verify nothing happens and proper logs made in report #manual
+            ]
 
     - Category: Mocks
 

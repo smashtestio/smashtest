@@ -403,68 +403,17 @@
     // ***************************************
     // NOTE: These steps do nothing if browser isn't Chrome
 
-    * Offline {
+    * Set network conditions to offline={{offline}} latency={{latency}} max-download-speed={{maxDownload}} max-upload-speed={{maxUpload}} {
         if(!isChrome()) {
             return;
         }
 
-        await browser.driver.setNetworkConditions({ offline: true });
-    }
-
-    * Online {
-        if(!isChrome()) {
-            return;
-        }
-
-        await browser.driver.setNetworkConditions({ offline: false });
-    }
-
-    * Network latency of {{n}} ms {
-        if(!isChrome()) {
-            return;
-        }
-
-        await browser.driver.setNetworkConditions({ latency: parseInt(n) });
-    }
-
-    * No network latency {
-        if(!isChrome()) {
-            return;
-        }
-
-        await browser.driver.setNetworkConditions({ latency: undefined });
-    }
-
-    * Maximum download speed of {{n}} Kbps {
-        if(!isChrome()) {
-            return;
-        }
-
-        await browser.driver.setNetworkConditions({ download_throughput: parseInt(n) * 1024 });
-    }
-
-    * No maximum download speed {
-        if(!isChrome()) {
-            return;
-        }
-
-        await browser.driver.setNetworkConditions({ download_throughput: undefined });
-    }
-
-    * Maximum upload speed of {{n}} Kbps {
-        if(!isChrome()) {
-            return;
-        }
-
-        await browser.driver.setNetworkConditions({ upload_throughput: parseInt(n) * 1024 });
-    }
-
-    * No maximum upload speed {
-        if(!isChrome()) {
-            return;
-        }
-
-        await browser.driver.setNetworkConditions({ upload_throughput: undefined });
+        await browser.driver.setNetworkConditions({
+            offline: offline == 'true',
+            latency: parseInt(latency),
+            download_throughput: parseInt(maxDownload),
+            upload_throughput: parseInt(maxUpload)
+        });
     }
 
     // ***************************************
