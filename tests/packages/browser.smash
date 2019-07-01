@@ -1,4 +1,4 @@
-* Open a browser [
+Open a browser [
 
     Open Chrome $
     Open Firefox $
@@ -18,99 +18,45 @@
 
             g(`test page location`, `file:///${dir()}/generic-page.html`);
         }
+
+            Navigate to {test page location}
 ]
+    - Category: Actions
 
-Open a browser
+        - Navigate
 
-    Navigate to {test page location}
+            Navigate to {url:}
+            Nav to {url:}
 
-        - Category: Actions
+                {url} is 'http://www.example.com'
+                    Verify at 'http://www.example.com/'
 
-            - Navigate
+                {url} is 'https://www.example.com'
+                    Verify at 'https://www.example.com/'
 
-                Navigate to {url:}
-                Nav to {url:}
+                {url} is 'https://www.example.com/something'
+                    Verify at 'https://www.example.com/something'
 
-                    {url} is 'http://www.example.com'
-                        Verify at 'http://www.example.com/'
+                {url} is 'www.example.com'
+                    Verify at 'http://www.example.com/'
 
-                    {url} is 'https://www.example.com'
-                        Verify at 'https://www.example.com/'
+            Navigate to 'http://www.example.com'
+                Navigate to '/something'
+                    Verify at 'http://www.example.com/something'
 
-                    {url} is 'https://www.example.com/something'
-                        Verify at 'https://www.example.com/something'
+            Navigate to '/page'
+                - Debug and manually verify above step fails #manual $s
 
-                    {url} is 'www.example.com'
-                        Verify at 'http://www.example.com/'
-
-                Navigate to 'http://www.example.com'
-                    Navigate to '/something'
-                        Verify at 'http://www.example.com/something'
-
-                Navigate to '/page'
-                    - Debug and manually verify above step fails #manual $s
-
-                * Verify at {{url}} {
-                    let currUrl = await browser.driver.getCurrentUrl();
-                    if(currUrl != url) {
-                        throw new Error(`Expected url: '${url}', Actual url: '${currUrl}'`);
-                    }
+            * Verify at {{url}} {
+                let currUrl = await browser.driver.getCurrentUrl();
+                if(currUrl != url) {
+                    throw new Error(`Expected url: '${url}', Actual url: '${currUrl}'`);
                 }
+            }
 
-            - Click
+        - Click
 
-                - a button
-
-                    Generate page {
-                        await setPageBody(`
-                            <button id="target" onclick="document.getElementById('display').innerHTML = 'I was clicked'">click me</button>
-                            <div id="display"></div>
-                        `);
-
-                        props({
-                            'target button': `#target`
-                        });
-                    }
-
-                        Click [target button]
-
-                            Verify ['I was clicked'] is visible
-
-                - an unclickable child of a clickable parent
-
-                    Generate page {
-                        await setPageBody(`
-                            <button id="target" onclick="document.getElementById('display').innerHTML = 'I was clicked'">
-                                <div id="target-child">click me</div>
-                            </button>
-                            <div id="display"></div>
-                        `);
-                    }
-
-                        where a 'text' EF is used and automatically targets the parent {
-                            props({
-                                'target button': `'click me'`
-                            });
-                        }
-
-                            Click [target button]
-
-                                Verify the parent gets clicked
-
-                        where an EF directly targets the child, and the click event has to reach the parent {
-                            props({
-                                'target button': `#target-child`
-                            });
-                        }
-
-                            Click [target button]
-
-                                Verify the parent gets clicked
-
-                        * Verify the parent gets clicked
-                            Verify ['I was clicked'] is visible
-
-            - Native click
+            - a button
 
                 Generate page {
                     await setPageBody(`
@@ -123,129 +69,162 @@ Open a browser
                     });
                 }
 
-                    Native click [target button]
+                    Click [target button]
 
                         Verify ['I was clicked'] is visible
 
-            - Double click
+            - an unclickable child of a clickable parent
 
                 Generate page {
                     await setPageBody(`
-                        <button id="target" ondblclick="document.getElementById('display').innerHTML = 'I was double-clicked'">click me</button>
+                        <button id="target" onclick="document.getElementById('display').innerHTML = 'I was clicked'">
+                            <div id="target-child">click me</div>
+                        </button>
                         <div id="display"></div>
                     `);
-
-                    props({
-                        'target button': `#target`
-                    });
                 }
 
-                    Double click [target button]
+                    where a 'text' EF is used and automatically targets the parent {
+                        props({
+                            'target button': `'click me'`
+                        });
+                    }
 
-                        Verify ['I was double-clicked'] is visible
+                        Click [target button]
 
-            - Hover over
-                [
-                    - an element visible in the current viewport
+                            Verify the parent gets clicked
 
-                        Generate page {
-                            await setPageBody(`
-                                <button id="target" onmouseover="document.getElementById('display').innerHTML = 'I was hovered over'">hover over me</button>
-                                <div id="display"></div>
-                            `);
+                    where an EF directly targets the child, and the click event has to reach the parent {
+                        props({
+                            'target button': `#target-child`
+                        });
+                    }
 
-                            props({
-                                'target button': `#target`
-                            });
+                        Click [target button]
+
+                            Verify the parent gets clicked
+
+                    * Verify the parent gets clicked
+                        Verify ['I was clicked'] is visible
+
+        - Native click
+
+            Generate page {
+                await setPageBody(`
+                    <button id="target" onclick="document.getElementById('display').innerHTML = 'I was clicked'">click me</button>
+                    <div id="display"></div>
+                `);
+
+                props({
+                    'target button': `#target`
+                });
+            }
+
+                Native click [target button]
+
+                    Verify ['I was clicked'] is visible
+
+        - Double click
+
+            Generate page {
+                await setPageBody(`
+                    <button id="target" ondblclick="document.getElementById('display').innerHTML = 'I was double-clicked'">click me</button>
+                    <div id="display"></div>
+                `);
+
+                props({
+                    'target button': `#target`
+                });
+            }
+
+                Double click [target button]
+
+                    Verify ['I was double-clicked'] is visible
+
+        - Hover over
+            [
+                - an element visible in the current viewport
+
+                    Generate page {
+                        await setPageBody(`
+                            <button id="target" onmouseover="document.getElementById('display').innerHTML = 'I was hovered over'">hover over me</button>
+                            <div id="display"></div>
+                        `);
+
+                        props({
+                            'target button': `#target`
+                        });
+                    }
+
+                - an element that needs to be scrolled to
+
+                    Generate page {
+                        let body = ``;
+                        for(let i = 0; i < 500; i++) {
+                            body += `<div>foobar</div>`;
                         }
+                        body += `
+                            <button id="target" onmouseover="document.getElementById('display').innerHTML = 'I was hovered over'">hover over me</button>
+                            <div id="display"></div>
+                        `;
+                        await setPageBody(body);
 
-                    - an element that needs to be scrolled to
+                        props({
+                            'target button': `#target`
+                        });
+                    }
+            ]
+                Hover over [target button]
 
-                        Generate page {
-                            let body = ``;
-                            for(let i = 0; i < 500; i++) {
-                                body += `<div>foobar</div>`;
-                            }
-                            body += `
-                                <button id="target" onmouseover="document.getElementById('display').innerHTML = 'I was hovered over'">hover over me</button>
-                                <div id="display"></div>
-                            `;
-                            await setPageBody(body);
+                    Verify ['I was hovered over'] is visible
 
-                            props({
-                                'target button': `#target`
-                            });
+        - Scroll to
+            [
+                - an element visible in the current viewport
+
+                    Generate page {
+                        await setPageBody(`
+                            <div id="target">foobar</div>
+                        `);
+
+                        props({
+                            'target': `#target`
+                        });
+                    }
+
+                - an element that needs to be scrolled to
+
+                    Generate page {
+                        let body = ``;
+                        for(let i = 0; i < 500; i++) {
+                            body += `<div>foobar</div>`;
                         }
-                ]
-                    Hover over [target button]
+                        body += `
+                            <div id="target">foobar</div>
+                        `;
+                        await setPageBody(body);
 
-                        Verify ['I was hovered over'] is visible
+                        props({
+                            'target': `#target`
+                        });
+                    }
+            ]
+                Scroll to [target]
 
-            - Scroll to
-                [
-                    - an element visible in the current viewport
+                    Verify target is scrolled into view {
+                        let isScrolledIntoView = await executeScript(function(elem) {
+                            var rect = elem.getBoundingClientRect();
+                            return (rect.top >= 0) && (rect.bottom <= window.innerHeight);
+                        }, await $(`target`));
 
-                        Generate page {
-                            await setPageBody(`
-                                <div id="target">foobar</div>
-                            `);
+                        expect(isScrolledIntoView).to.be.true;
+                    }
 
-                            props({
-                                'target': `#target`
-                            });
-                        }
+        - Get cookie
 
-                    - an element that needs to be scrolled to
+            Navigate to 'example.com'
 
-                        Generate page {
-                            let body = ``;
-                            for(let i = 0; i < 500; i++) {
-                                body += `<div>foobar</div>`;
-                            }
-                            body += `
-                                <div id="target">foobar</div>
-                            `;
-                            await setPageBody(body);
-
-                            props({
-                                'target': `#target`
-                            });
-                        }
-                ]
-                    Scroll to [target]
-
-                        Verify target is scrolled into view {
-                            let isScrolledIntoView = await executeScript(function(elem) {
-                                var rect = elem.getBoundingClientRect();
-                                return (rect.top >= 0) && (rect.bottom <= window.innerHeight);
-                            }, await $(`target`));
-
-                            expect(isScrolledIntoView).to.be.true;
-                        }
-
-            - Get cookie
-
-                Navigate to 'example.com'
-
-                    - that exists
-
-                        Set cookie 'foobar' to 'blah'
-
-                            {cookie} = Get cookie 'foobar'
-
-                                Verify cookie {
-                                    expect(cookie.value).to.equal('blah');
-                                }
-
-                    - that doesn't exist
-
-                        {cookie} = Get cookie 'badname'
-
-                            - Verify above step fails #manual $s
-
-            - Set cookie
-
-                Navigate to 'example.com'
+                - that exists
 
                     Set cookie 'foobar' to 'blah'
 
@@ -255,690 +234,708 @@ Open a browser
                                 expect(cookie.value).to.equal('blah');
                             }
 
-            - Set cookie with expiry
+                - that doesn't exist
 
-                Navigate to 'example.com'
+                    {cookie} = Get cookie 'badname'
 
-                    Set cookie 'name1' to 'value1', expiring in '2' secs
+                        - Verify above step fails #manual $s
 
-                        {cookie} = Get cookie 'name1'
+        - Set cookie
 
-                            Verify cookie {
-                                expect(cookie.value).to.equal('value1');
-                            }
+            Navigate to 'example.com'
 
-            - Delete cookie
+                Set cookie 'foobar' to 'blah'
 
-                Navigate to 'example.com'
+                    {cookie} = Get cookie 'foobar'
 
-                    - Delete cookie that exists
+                        Verify cookie {
+                            expect(cookie.value).to.equal('blah');
+                        }
 
-                        Set cookie 'name1' to 'value1'
+        - Set cookie with expiry
 
-                            Delete cookie 'name1'
+            Navigate to 'example.com'
 
-                                Verify cookie 'name1' was deleted
+                Set cookie 'name1' to 'value1', expiring in '2' secs
 
-                    - Delete cookie that exists
+                    {cookie} = Get cookie 'name1'
+
+                        Verify cookie {
+                            expect(cookie.value).to.equal('value1');
+                        }
+
+        - Delete cookie
+
+            Navigate to 'example.com'
+
+                - Delete cookie that exists
+
+                    Set cookie 'name1' to 'value1'
 
                         Delete cookie 'name1'
 
                             Verify cookie 'name1' was deleted
 
-            - Delete all cookies
+                - Delete cookie that exists
 
-                Navigate to 'example.com'
-                    Set test cookies
-                        Delete all cookies
-                            Verify test cookies were deleted
+                    Delete cookie 'name1'
 
-            - Clear local storage
+                        Verify cookie 'name1' was deleted
 
-                Navigate to 'example.com'
-                    Set test items in local storage
-                        Clear local storage
-                            Verify local storage was cleared
+        - Delete all cookies
 
-                        - Test that it doesn't clear the local storage for other domains
+            Navigate to 'example.com'
+                Set test cookies
+                    Delete all cookies
+                        Verify test cookies were deleted
 
-                            Set items in the local storage of a different domain [
-                                Navigate to 'google.com'
-                                    Set test items in local storage
+        - Clear local storage
+
+            Navigate to 'example.com'
+                Set test items in local storage
+                    Clear local storage
+                        Verify local storage was cleared
+
+                    - Test that it doesn't clear the local storage for other domains
+
+                        Set items in the local storage of a different domain [
+                            Navigate to 'google.com'
+                                Set test items in local storage
+                        ]
+                            Navigate back to the original domain and clear its local storage [
+                                Navigate to 'example.com'
+                                    Clear local storage
+                                        Verify local storage was cleared
                             ]
-                                Navigate back to the original domain and clear its local storage [
-                                    Navigate to 'example.com'
-                                        Clear local storage
-                                            Verify local storage was cleared
+                                Navigate to the different domain and verify it wasn't cleared [
+                                    Navigate to 'google.com'
+                                        Verify local storage wasn't cleared
                                 ]
-                                    Navigate to the different domain and verify it wasn't cleared [
-                                        Navigate to 'google.com'
-                                            Verify local storage wasn't cleared
-                                    ]
 
-            - Clear cookies and local storage
+        - Clear cookies and local storage
 
-                Navigate to 'example.com'
-                    Set test cookies
-                        Set test items in local storage
+            Navigate to 'example.com'
+                Set test cookies
+                    Set test items in local storage
 
-                            Clear cookies and local storage
+                        Clear cookies and local storage
 
-                                Verify test cookies were deleted
-                                    Verify local storage was cleared
+                            Verify test cookies were deleted
+                                Verify local storage was cleared
 
-            * Set test cookies [
-                Set cookie 'name1' to 'value1'
-                    Set cookie 'name2' to 'value2'
+        * Set test cookies [
+            Set cookie 'name1' to 'value1'
+                Set cookie 'name2' to 'value2'
+        ]
+
+            * Verify test cookies were deleted [
+                Verify cookie 'name1' was deleted
+                    Verify cookie 'name2' was deleted
             ]
 
-                * Verify test cookies were deleted [
-                    Verify cookie 'name1' was deleted
-                        Verify cookie 'name2' was deleted
-                ]
-
-            * Verify cookie {{name}} was deleted {
-                let cookie = true;
-                try {
-                    cookie = await browser.driver.manage().getCookie(name);
-                }
-                catch(e) {
-                    cookie = null;
-                }
-
-                expect(cookie).to.equal(null);
+        * Verify cookie {{name}} was deleted {
+            let cookie = true;
+            try {
+                cookie = await browser.driver.manage().getCookie(name);
+            }
+            catch(e) {
+                cookie = null;
             }
 
-            * Set test items in local storage {
-                await executeScript(function() {
-                    localStorage.setItem('name1', 'value1');
-                    localStorage.setItem('name2', 'value2');
-                });
+            expect(cookie).to.equal(null);
+        }
 
+        * Set test items in local storage {
+            await executeScript(function() {
+                localStorage.setItem('name1', 'value1');
+                localStorage.setItem('name2', 'value2');
+            });
+
+            expect(await executeScript(function() {
+                return localStorage.getItem('name1');
+            })).to.equal('value1');
+        }
+
+            * Verify local storage was cleared {
+                expect(await executeScript(function() {
+                    return localStorage.getItem('name1');
+                })).to.equal(null);
+
+                expect(await executeScript(function() {
+                    return localStorage.getItem('name2');
+                })).to.equal(null);
+            }
+
+            * Verify local storage wasn't cleared {
                 expect(await executeScript(function() {
                     return localStorage.getItem('name1');
                 })).to.equal('value1');
+
+                expect(await executeScript(function() {
+                    return localStorage.getItem('name2');
+                })).to.equal('value2');
             }
 
-                * Verify local storage was cleared {
-                    expect(await executeScript(function() {
-                        return localStorage.getItem('name1');
-                    })).to.equal(null);
+        - Go back
 
-                    expect(await executeScript(function() {
-                        return localStorage.getItem('name2');
-                    })).to.equal(null);
-                }
+            Navigate to 'example.com'
+                Navigate to 'google.com'
+                    Go back
+                        Verify at page 'example.com'
 
-                * Verify local storage wasn't cleared {
-                    expect(await executeScript(function() {
-                        return localStorage.getItem('name1');
-                    })).to.equal('value1');
+        - Go Forward
 
-                    expect(await executeScript(function() {
-                        return localStorage.getItem('name2');
-                    })).to.equal('value2');
-                }
-
-            - Go back
+            - when there's a page in front
 
                 Navigate to 'example.com'
                     Navigate to 'google.com'
                         Go back
-                            Verify at page 'example.com'
+                            Go forward
+                                Verify at page 'google.com'
 
-            - Go Forward
+            - when there's no page in front
 
-                - when there's a page in front
+                Navigate to 'example.com'
+                    Go forward
+                        Verify at page 'example.com'
 
-                    Navigate to 'example.com'
-                        Navigate to 'google.com'
-                            Go back
-                                Go forward
-                                    Verify at page 'google.com'
+        - Refresh
 
-                - when there's no page in front
+            Edit the page {
+                await setPageBody(`<div>Something else</div>`);
+            }
 
-                    Navigate to 'example.com'
-                        Go forward
-                            Verify at page 'example.com'
+                Refresh
 
-            - Refresh
+                    Verify the edits are no longer there + [
+                        Verify ['Something else'] is not visible
+                    ]
 
-                Edit the page {
-                    await setPageBody(`<div>Something else</div>`);
-                }
+        - Type
 
-                    Refresh
+            Generate page for testing a textbox
 
-                        Verify the edits are no longer there + [
-                            Verify ['Something else'] is not visible
-                        ]
+                - a normal string of chars into a textbox
 
-            - Type
+                    Type 'foobar' into [#textbox]
+                        Verify 'foobar' is typed in
 
-                Generate page for testing a textbox
+                - '[none]'
 
-                    - a normal string of chars into a textbox
+                    Type '[none]' into [#textbox]
+                        Verify nothing is typed in
 
-                        Type 'foobar' into [#textbox]
+                    Type 'foobar' into [#textbox]
+                        Type '[none]' into [#textbox]
                             Verify 'foobar' is typed in
 
-                    - '[none]'
+                - a string containing [special keys]
 
-                        Type '[none]' into [#textbox]
-                            Verify nothing is typed in
+                    - [enter]
 
-                        Type 'foobar' into [#textbox]
-                            Type '[none]' into [#textbox]
-                                Verify 'foobar' is typed in
+                        Type 'foobar[enter]' into [#textbox]
+                            Verify 'foobar' is typed in
+                                Verify form was submitted
 
-                    - a string containing [special keys]
+                        - and make sure it's case insensitive
 
-                        - [enter]
-
-                            Type 'foobar[enter]' into [#textbox]
-                                Verify 'foobar' is typed in
+                            Type 'foobar[EnTeR]something' into [#textbox]
+                                Verify 'foobarsomething' is typed in
                                     Verify form was submitted
 
-                            - and make sure it's case insensitive
+                    - that's an invalid key
 
-                                Type 'foobar[EnTeR]something' into [#textbox]
-                                    Verify 'foobarsomething' is typed in
-                                        Verify form was submitted
+                        Type 'foobar[badkey]' into [#textbox]
+                            - Validate an error is thrown $s #manual
 
-                        - that's an invalid key
+                    - that's '[]', which won't be treated as a special key
 
-                            Type 'foobar[badkey]' into [#textbox]
-                                - Validate an error is thrown $s #manual
+                        Type 'foobar[]' into [#textbox]
+                            Verify 'foobar[]' is typed in
 
-                        - that's '[]', which won't be treated as a special key
+                - a string containing an escaped \[special key\]
 
-                            Type 'foobar[]' into [#textbox]
-                                Verify 'foobar[]' is typed in
+                    - \[key\]
 
-                    - a string containing an escaped \[special key\]
+                        Type 'foobar\\[enter\\]' into [#textbox]
+                            Verify 'foobar[enter]' is typed in
 
-                        - \[key\]
+                    - multiple \[keys\]
 
-                            Type 'foobar\\[enter\\]' into [#textbox]
-                                Verify 'foobar[enter]' is typed in
+                        Type 'foobar\\[enter\\]something\\[enter\\]' into [#textbox]
+                            Verify 'foobar[enter]something[enter]' is typed in
 
-                        - multiple \[keys\]
+        * Generate page for testing a textbox {
+            await setPageBody(`
+                <form onsubmit="document.getElementById('display').innerHTML = 'Submitted'; return false;">
+                    <input type="text" id="textbox">
+                </form>
+                <div id="display"></div>
+            `);
+        }
 
-                            Type 'foobar\\[enter\\]something\\[enter\\]' into [#textbox]
-                                Verify 'foobar[enter]something[enter]' is typed in
+            * Verify {{text}} is typed in {
+                await $(`#textbox, value '${str(text)}'`);
+            }
 
-            * Generate page for testing a textbox {
+            * Verify nothing is typed in {
+                await $(`#textbox, value ''`);
+            }
+
+            * Verify form was submitted {
+                await $(`#display, contains 'Submitted'`);
+            }
+
+        - Clear
+
+            Generate page for testing a textbox
+                Type 'foobar' into [#textbox]
+                    Clear [#textbox]
+                        Verify nothing is typed in
+
+        - Set
+            - sets a value
+
+                Generate page for testing a textbox
+                    Set [#textbox] to 'foobar'
+                        Verify 'foobar' is typed in
+
+            - does nothing if value is '[none]'
+
+                Generate page for testing a textbox
+                    Set [#textbox] to '[none]'
+                        Verify nothing is typed in
+                    Set [#textbox] to 'blah'
+                        Set [#textbox] to '[none]'
+                            Verify 'blah' is typed in
+
+        * Generate page for testing a checkbox [
+            * where the checkbox is checked {
                 await setPageBody(`
-                    <form onsubmit="document.getElementById('display').innerHTML = 'Submitted'; return false;">
-                        <input type="text" id="textbox">
-                    </form>
-                    <div id="display"></div>
+                    <input type="checkbox" id="checkbox" checked>
                 `);
             }
 
-                * Verify {{text}} is typed in {
-                    await $(`#textbox, value '${str(text)}'`);
-                }
-
-                * Verify nothing is typed in {
-                    await $(`#textbox, value ''`);
-                }
-
-                * Verify form was submitted {
-                    await $(`#display, contains 'Submitted'`);
-                }
-
-            - Clear
-
-                Generate page for testing a textbox
-                    Type 'foobar' into [#textbox]
-                        Clear [#textbox]
-                            Verify nothing is typed in
-
-            - Set
-                - sets a value
-
-                    Generate page for testing a textbox
-                        Set [#textbox] to 'foobar'
-                            Verify 'foobar' is typed in
-
-                - does nothing if value is '[none]'
-
-                    Generate page for testing a textbox
-                        Set [#textbox] to '[none]'
-                            Verify nothing is typed in
-                        Set [#textbox] to 'blah'
-                            Set [#textbox] to '[none]'
-                                Verify 'blah' is typed in
-
-            * Generate page for testing a checkbox [
-                * where the checkbox is checked {
+                * and refuses to get unchecked when clicked {
                     await setPageBody(`
-                        <input type="checkbox" id="checkbox" checked>
+                        <input type="checkbox" id="checkbox" onclick="return false;" checked>
                     `);
                 }
 
-                    * and refuses to get unchecked when clicked {
-                        await setPageBody(`
-                            <input type="checkbox" id="checkbox" onclick="return false;" checked>
-                        `);
-                    }
-
-                    * and is disabled {
-                        await setPageBody(`
-                            <input type="checkbox" id="checkbox" disabled checked>
-                        `);
-                    }
-
-                * where the checkbox is unchecked {
+                * and is disabled {
                     await setPageBody(`
-                        <input type="checkbox" id="checkbox">
+                        <input type="checkbox" id="checkbox" disabled checked>
                     `);
                 }
 
-                    * and refuses to get checked when clicked {
-                        await setPageBody(`
-                            <input type="checkbox" id="checkbox" onclick="return false;">
-                        `);
-                    }
+            * where the checkbox is unchecked {
+                await setPageBody(`
+                    <input type="checkbox" id="checkbox">
+                `);
+            }
 
-                    * and is disabled {
-                        await setPageBody(`
-                            <input type="checkbox" id="checkbox" disabled>
-                        `);
-                    }
-
-                * Verify the checkbox is checked {
-                    await $(`#checkbox, checked`);
-                }
-
-                * Verify the checkbox is unchecked {
-                    await $(`#checkbox, unchecked`);
-                }
-            ]
-
-            * Generate page for testing a radio button [
-                * where the radio button is checked {
+                * and refuses to get checked when clicked {
                     await setPageBody(`
-                        <input type="radio" id="radio" name="radio" value="radio1" checked>
-                        <input type="radio" name="radio" value="radio2">
+                        <input type="checkbox" id="checkbox" onclick="return false;">
                     `);
                 }
 
-                * where the radio button is unchecked {
+                * and is disabled {
                     await setPageBody(`
-                        <input type="radio" id="radio" name="radio" value="radio1">
+                        <input type="checkbox" id="checkbox" disabled>
+                    `);
+                }
+
+            * Verify the checkbox is checked {
+                await $(`#checkbox, checked`);
+            }
+
+            * Verify the checkbox is unchecked {
+                await $(`#checkbox, unchecked`);
+            }
+        ]
+
+        * Generate page for testing a radio button [
+            * where the radio button is checked {
+                await setPageBody(`
+                    <input type="radio" id="radio" name="radio" value="radio1" checked>
+                    <input type="radio" name="radio" value="radio2">
+                `);
+            }
+
+            * where the radio button is unchecked {
+                await setPageBody(`
+                    <input type="radio" id="radio" name="radio" value="radio1">
+                    <input type="radio" name="radio" value="radio2" checked>
+                `);
+            }
+
+                * and refuses to get checked when clicked {
+                    await setPageBody(`
+                        <input type="radio" id="radio" name="radio" value="radio1" onclick="return false;">
                         <input type="radio" name="radio" value="radio2" checked>
                     `);
                 }
 
-                    * and refuses to get checked when clicked {
-                        await setPageBody(`
-                            <input type="radio" id="radio" name="radio" value="radio1" onclick="return false;">
-                            <input type="radio" name="radio" value="radio2" checked>
-                        `);
-                    }
-
-                    * and is disabled {
-                        await setPageBody(`
-                            <input type="radio" id="radio" name="radio" value="radio1" disabled>
-                            <input type="radio" name="radio" value="radio2" checked>
-                        `);
-                    }
-
-                * Verify the radio button is checked {
-                    await $(`#radio, checked`);
-                }
-
-                * Verify the radio button is unchecked {
-                    await $(`#radio, unchecked`);
-                }
-            ]
-
-            - Check
-
-                - a checkbox
-                    Generate page for testing a checkbox
-
-                        where the checkbox is unchecked
-
-                            Check [#checkbox]
-                                Verify the checkbox is checked
-
-                            and refuses to get checked when clicked
-                            and is disabled
-
-                                Check [#checkbox]
-                                    - Verify an error is thrown $s #manual
-
-                        where the checkbox is checked
-
-                            Check [#checkbox]
-                                Verify the checkbox is checked
-
-                - a radio button
-                    Generate page for testing a radio button
-
-                        where the radio button is unchecked
-
-                            Check [#radio]
-                                Verify the radio button is checked
-
-                            and refuses to get checked when clicked
-                            and is disabled
-
-                                Check [#radio]
-                                    - Verify an error is thrown $s #manual
-
-                        where the radio button is checked
-
-                            Check [#radio]
-                                Verify the radio button is checked
-
-            - Uncheck
-
-                - a checkbox
-                    Generate page for testing a checkbox
-
-                        where the checkbox is checked
-
-                            Uncheck [#checkbox]
-                                Verify the checkbox is unchecked
-
-                            and refuses to get unchecked when clicked
-                            and is disabled
-
-                                Uncheck [#checkbox]
-                                    - Verify an error is thrown $s #manual
-
-                        where the checkbox is unchecked
-
-                            Uncheck [#checkbox]
-                                Verify the checkbox is unchecked
-
-            - Select
-
-                Generate page {
+                * and is disabled {
                     await setPageBody(`
-                        <select>
-                            <option value="one">One</option>
-                            <option value="two">Two</option>
-                            <option value="three">Three</option>
-                            <option value="three-too">Three</option>
-                        </select>
+                        <input type="radio" id="radio" name="radio" value="radio1" disabled>
+                        <input type="radio" name="radio" value="radio2" checked>
                     `);
                 }
 
-                    - where the value being matched
-                        - exactly matches the item in the dropdown
+            * Verify the radio button is checked {
+                await $(`#radio, checked`);
+            }
 
-                            - and only one item matches
+            * Verify the radio button is unchecked {
+                await $(`#radio, unchecked`);
+            }
+        ]
 
-                                Select 'Three' from [select]
+        - Check
 
-                                    Verify that the correct item is selected {
-                                        await $(`select, 'Three'`);
-                                    }
-                                        - Verify that the correct log items are present in the report #manual
+            - a checkbox
+                Generate page for testing a checkbox
 
-                            - and multiple items match
+                    where the checkbox is unchecked
 
-                                Select 'Three' from [select]
+                        Check [#checkbox]
+                            Verify the checkbox is checked
 
-                                    Verify that the correct item is selected {
-                                        let dropdown = await $(`select, 'Three'`);
-                                        let value = await executeScript(function(dropdown) {
-                                            return dropdown.options[dropdown.selectedIndex].value;
-                                        }, dropdown);
-                                        expect(value).to.equal('three');
-                                    }
-                                        - Verify that the correct log items are present in the report #manual
+                        and refuses to get checked when clicked
+                        and is disabled
 
-                        - doesn't exactly match the item in the dropdown, but matches in a contains/trimmed/case-insensitive search
+                            Check [#checkbox]
+                                - Verify an error is thrown $s #manual
 
-                            - and only one item matches
+                    where the checkbox is checked
 
-                                Select 'WO' from [select]
+                        Check [#checkbox]
+                            Verify the checkbox is checked
 
-                                    Verify that the correct item is selected {
-                                        await $(`select, 'Two'`);
-                                    }
-                                        - Verify that the correct log items are present in the report #manual
+            - a radio button
+                Generate page for testing a radio button
 
-                            - and multiple items match
+                    where the radio button is unchecked
 
-                                Select 'ee' from [select]
+                        Check [#radio]
+                            Verify the radio button is checked
 
-                                    Verify that the correct item is selected {
-                                        let dropdown = await $(`select, 'Three'`);
-                                        let value = await executeScript(function(dropdown) {
-                                            return dropdown.options[dropdown.selectedIndex].value;
-                                        }, dropdown);
-                                        expect(value).to.equal('three');
-                                    }
-                                        - Verify that the correct log items are present in the report #manual
+                        and refuses to get checked when clicked
+                        and is disabled
 
-                    - where the value is '[none]'
+                            Check [#radio]
+                                - Verify an error is thrown $s #manual
 
-                        Select '[none]' from [select]
+                    where the radio button is checked
 
-                            Verify nothing happened {
-                                await $(`select, 'One'`);
+                        Check [#radio]
+                            Verify the radio button is checked
+
+        - Uncheck
+
+            - a checkbox
+                Generate page for testing a checkbox
+
+                    where the checkbox is checked
+
+                        Uncheck [#checkbox]
+                            Verify the checkbox is unchecked
+
+                        and refuses to get unchecked when clicked
+                        and is disabled
+
+                            Uncheck [#checkbox]
+                                - Verify an error is thrown $s #manual
+
+                    where the checkbox is unchecked
+
+                        Uncheck [#checkbox]
+                            Verify the checkbox is unchecked
+
+        - Select
+
+            Generate page {
+                await setPageBody(`
+                    <select>
+                        <option value="one">One</option>
+                        <option value="two">Two</option>
+                        <option value="three">Three</option>
+                        <option value="three-too">Three</option>
+                    </select>
+                `);
+            }
+
+                - where the value being matched
+                    - exactly matches the item in the dropdown
+
+                        - and only one item matches
+
+                            Select 'Three' from [select]
+
+                                Verify that the correct item is selected {
+                                    await $(`select, 'Three'`);
+                                }
+                                    - Verify that the correct log items are present in the report #manual
+
+                        - and multiple items match
+
+                            Select 'Three' from [select]
+
+                                Verify that the correct item is selected {
+                                    let dropdown = await $(`select, 'Three'`);
+                                    let value = await executeScript(function(dropdown) {
+                                        return dropdown.options[dropdown.selectedIndex].value;
+                                    }, dropdown);
+                                    expect(value).to.equal('three');
+                                }
+                                    - Verify that the correct log items are present in the report #manual
+
+                    - doesn't exactly match the item in the dropdown, but matches in a contains/trimmed/case-insensitive search
+
+                        - and only one item matches
+
+                            Select 'WO' from [select]
+
+                                Verify that the correct item is selected {
+                                    await $(`select, 'Two'`);
+                                }
+                                    - Verify that the correct log items are present in the report #manual
+
+                        - and multiple items match
+
+                            Select 'ee' from [select]
+
+                                Verify that the correct item is selected {
+                                    let dropdown = await $(`select, 'Three'`);
+                                    let value = await executeScript(function(dropdown) {
+                                        return dropdown.options[dropdown.selectedIndex].value;
+                                    }, dropdown);
+                                    expect(value).to.equal('three');
+                                }
+                                    - Verify that the correct log items are present in the report #manual
+
+                - where the value is '[none]'
+
+                    Select '[none]' from [select]
+
+                        Verify nothing happened {
+                            await $(`select, 'One'`);
+                        }
+
+        - Select element
+
+            Generate page {
+                await setPageBody(`
+                    <select>
+                        <option value="one">One</option>
+                        <option value="two">Two</option>
+                        <option value="three">Three</option>
+                        <option value="three-too">Three</option>
+                    </select>
+                `);
+            }
+
+                - where only one item matches
+
+                    Select element [option\[value='three'\], any visibility] from [select]
+
+                        Verify that the correct item is selected {
+                            await $(`select, 'Three'`);
+                        }
+                            - Verify that the correct log items are present in the report #manual
+
+                - where multiple items match
+
+                    Select element [option, any visibility] from [select]
+
+                        Verify that the correct item is selected {
+                            await $(`select, 'One'`);
+                        }
+                            - Verify that the correct log items are present in the report #manual
+
+                - where the value is '[none]'
+
+                    Select element '[none]' from [select]
+
+                        Verify nothing happened {
+                            await $(`select, 'One'`);
+                        }
+
+        - Current url
+
+            - when the browser is at
+
+                - a normal url
+
+                    Navigate to 'example.com'
+                        {url} = current url
+                            Verify {
+                                expect(url).to.equal('http://example.com/');
                             }
 
-            - Select element
+                - a newly opened blank tab
+
+                    Open new tab
+                        {url} = current url
+                            Verify {
+                                expect(url).to.equal('about:blank');
+                            }
+
+        - Window title
+
+            {title} is window title
+
+                Verify {
+                    expect(title).to.equal('Window title here');
+                }
+
+        - Value of
+
+            - an element with a value
 
                 Generate page {
                     await setPageBody(`
-                        <select>
-                            <option value="one">One</option>
-                            <option value="two">Two</option>
-                            <option value="three">Three</option>
-                            <option value="three-too">Three</option>
-                        </select>
+                        <input type="text" id="one" value="foo">
                     `);
                 }
 
-                    - where only one item matches
+                    {value} = value of [#one]
 
-                        Select element [option\[value='three'\], any visibility] from [select]
+                        Verify value {
+                            expect(value).to.equal('foo');
+                        }
 
-                            Verify that the correct item is selected {
-                                await $(`select, 'Three'`);
-                            }
-                                - Verify that the correct log items are present in the report #manual
+            - an element without a value
 
-                    - where multiple items match
+                Generate page {
+                    await setPageBody(`
+                        <div id="one">foobar</div>
+                    `);
+                }
 
-                        Select element [option, any visibility] from [select]
+                    {value} = value of [#one]
 
-                            Verify that the correct item is selected {
-                                await $(`select, 'One'`);
-                            }
-                                - Verify that the correct log items are present in the report #manual
+                        Verify value {
+                            expect(value).to.equal(null);
+                        }
 
-                    - where the value is '[none]'
+    - Category: Window
 
-                        Select element '[none]' from [select]
+        - Set dimensions
 
-                            Verify nothing happened {
-                                await $(`select, 'One'`);
-                            }
+        - Maximize window
 
-            - Current url
+        - Open new tab
 
-                - when the browser is at
+        - Switch to window whose title contains
+            - and a window with that title
+                - exists
+                - doesn't exist
 
-                    - a normal url
+        - Switch to a window whose url contains
+            - and a window with that url
+                - exists
+                - doesn't exist
 
-                        Navigate to 'example.com'
-                            {url} = current url
-                                Verify {
-                                    expect(url).to.equal('http://example.com/');
-                                }
+        - Switch to the nth window
+            - and a window at that index
+                - exists
+                - doesn't exist
+            - and nth is not set to a number
 
-                    - a newly opened blank tab
+        - Switch to iframe
 
-                        Open new tab
-                            {url} = current url
-                                Verify {
-                                    expect(url).to.equal('about:blank');
-                                }
+        - Switch to topmost iframe
 
-            - Window title
+    - Category: Alerts
 
-                {title} is window title
+        - Accept alert
 
-                    Verify {
-                        expect(title).to.equal('Window title here');
-                    }
+        - Dismiss alert
 
-            - Value of
+        - Verify alert contains
 
-                - an element with a value
+    - Category: Network conditions and throttling
 
-                    Generate page {
-                        await setPageBody(`
-                            <input type="text" id="one" value="foo">
-                        `);
-                    }
+        - Offline
+        - Online
+        - Network latency
+        - No network latency
+        - Maxmium download speed
+        - No maximum download speed
+        - Maximum upload speed
+        - No maximum upload speed
 
-                        {value} = value of [#one]
+            - If Chrome
+                - Manually verify #manual $s
+            - If not Chrome
+                - Manually verify nothing happens and proper logs made in report #manual $s
 
-                            Verify value {
-                                expect(value).to.equal('foo');
-                            }
+    - Category: Mocks
 
-                - an element without a value
+        - Mock time
 
-                    Generate page {
-                        await setPageBody(`
-                            <div id="one">foobar</div>
-                        `);
-                    }
+            - with valid Date object
+            - with valid Date string
 
-                        {value} = value of [#one]
+                - Verify date set
 
-                            Verify value {
-                                expect(value).to.equal(null);
-                            }
+            - with invalid Date string
+                - Verify error
 
-        - Category: Window
+        - Mock location to latitude and longitude
 
-            - Set dimensions
+        - Mock location to location
+            - with valid city name
+            - with invalid city name
 
-            - Maximize window
+        - Stop all mocks
 
-            - Open new tab
+    - Category: Verify
 
-            - Switch to window whose title contains
-                - and a window with that title
-                    - exists
-                    - doesn't exist
+        - Verify at page
+            - and the title contains the given text
+            - and the url contains the given text
+            - and neither the title nor the url contain the given text
 
-            - Switch to a window whose url contains
-                - and a window with that url
-                    - exists
-                    - doesn't exist
+        - Verify cookie contains
 
-            - Switch to the nth window
-                - and a window at that index
-                    - exists
-                    - doesn't exist
-                - and nth is not set to a number
+            - where the cookie with the given name
 
-            - Switch to iframe
+                - doesn't exist
 
-            - Switch to topmost iframe
+                - exists
+                    - and contains the given value
+                    - and doesn't contain the given value
 
-        - Category: Alerts
+        - Verify element is visible
 
-            - Accept alert
+        - Verify element is not visible
 
-            - Dismiss alert
+    - Category: Wait until
 
-            - Verify alert contains
+        - Wait until at page
+        - Wait until at page (up to n secs)
+        - Wait until cookie contains
+        - Wait until cookie contains (up to n secs)
+        - Wait until element is visible
+        - Wait until element is visible (up to n secs)
+        - Wait until element is not visible
+        - Wait until element is not visible (up to n secs)
 
-        - Category: Network conditions and throttling
+            - Manually verify the longer timeout #manual $s
 
-            - Offline
-            - Online
-            - Network latency
-            - No network latency
-            - Maxmium download speed
-            - No maximum download speed
-            - Maximum upload speed
-            - No maximum upload speed
+    - Category: Wait
 
-                - If Chrome
-                    - Manually verify #manual $s
-                - If not Chrome
-                    - Manually verify nothing happens and proper logs made in report #manual $s
+        - Wait '1' second
+        - Wait n seconds
 
-        - Category: Mocks
+    - Category: Print and Log
 
-            - Mock time
+        - Log
+            - A plain string
+            - With vars in string
 
-                - with valid Date object
-                - with valid Date string
-
-                    - Verify date set
-
-                - with invalid Date string
-                    - Verify error
-
-            - Mock location to latitude and longitude
-
-            - Mock location to location
-                - with valid city name
-                - with invalid city name
-
-            - Stop all mocks
-
-        - Category: Verify
-
-            - Verify at page
-                - and the title contains the given text
-                - and the url contains the given text
-                - and neither the title nor the url contain the given text
-
-            - Verify cookie contains
-
-                - where the cookie with the given name
-
-                    - doesn't exist
-
-                    - exists
-                        - and contains the given value
-                        - and doesn't contain the given value
-
-            - Verify element is visible
-
-            - Verify element is not visible
-
-        - Category: Wait until
-
-            - Wait until at page
-            - Wait until at page (up to n secs)
-            - Wait until cookie contains
-            - Wait until cookie contains (up to n secs)
-            - Wait until element is visible
-            - Wait until element is visible (up to n secs)
-            - Wait until element is not visible
-            - Wait until element is not visible (up to n secs)
-
-                - Manually verify the longer timeout #manual $s
-
-        - Category: Wait
-
-            - Wait '1' second
-            - Wait n seconds
-
-        - Category: Print and Log
-
-            - Log
-                - A plain string
-                - With vars in string
-
-            - [EF] $s #manual
+        - [EF] $s #manual
