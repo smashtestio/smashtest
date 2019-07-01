@@ -960,7 +960,7 @@ Open test page [
             });
         }
 
-        Do not allow Safari
+        If browser isn't safari // Safari driver throws exceptions when alerts are open
 
             - Accept alert
 
@@ -1380,8 +1380,9 @@ Open test page [
 
                         - Verify error $s #manual
 
-    * Do not allow Safari +? {
+    * If browser isn't safari +? {
         if(browser.params.name == 'safari') {
-            runInstance.currBranch.markBranch('skip');
+            log(`Since browser is safari, all further steps will be skipped and the branch will be passed`);
+            runInstance.currBranch.markBranch('pass');
         }
     }

@@ -14,11 +14,11 @@
     g(`test page location`, `file:///${dir()}/generic-page.html`);
 }
 
-open chrome       #mac #windows
-open firefox      #mac #windows
-open safari       #mac ! $s
-open ie           #windows $s
-open edge         #windows $s
+open chrome       #mac #windows $
+open firefox      #mac #windows $
+open safari       #mac !
+open ie           #windows
+open edge         #windows
 
     init
         navigate to {test page location}
@@ -595,7 +595,7 @@ open edge         #windows $s
 
                             - Global sinon object is accessible within browser
 
-                - Screenshots tests $s
+                - Screenshots tests
 
                     make html page very long, with a button at the very bottom (below the fold) {
                         let body = '';
@@ -604,4 +604,4 @@ open edge         #windows $s
                         await setPageBody(body);
                     }
                         Click [button]
-                            - Verify that the button is visible in the before screenshot, with crosshairs
+                            - Verify that the button is visible in the before screenshot, with crosshairs $s #manual

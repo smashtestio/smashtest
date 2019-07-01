@@ -4,6 +4,8 @@ What is SmashTEST?
     - Easier to create tests as a tree, makes you think of all permutations on a single page or input.
         Represents how a tester comes up with test cases (tester thinks breadth-first, user thinks depth-first).
     - Look to "competitive advantages" section in SmashTEST Business
+    - Speed is what matters. Quick and dirty tests are ok. They won't last long anyway. What's important is that you hit all
+        permutations, get them written and running with little effort, and are able to debug quickly if something breaks.
 
 Setup
     - Installation
@@ -841,7 +843,7 @@ Code blocks
     - Selective testing example (i.e., only allow certain browsers beyond this point)
         Do not allow Safari +? {
             if(browser.params.name == 'safari') {
-                runInstance.currBranch.markBranch('skip');
+                runInstance.currBranch.markBranch('pass');
             }
         }
     - Pitfalls
