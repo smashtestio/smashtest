@@ -3,10 +3,10 @@ const chaiAsPromised = require("chai-as-promised");
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
-const Tree = require('../../tree.js');
-const Runner = require('../../runner.js');
+const Tree = require('../../src/tree.js');
+const Runner = require('../../src/runner.js');
 const Comparer = require('../../packages/js/comparer.js');
-const utils = require('../../utils.js');
+const utils = require('../../src/utils.js');
 
 chai.use(chaiAsPromised);
 

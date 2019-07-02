@@ -1,11 +1,11 @@
 const chai = require('chai');
 const expect = chai.expect;
 const assert = chai.assert;
-const utils = require('../../utils.js');
-const Tree = require('../../tree.js');
-const Branch = require('../../branch.js');
-const Step = require('../../step.js');
-const StepNode = require('../../stepnode.js');
+const utils = require('../../src/utils.js');
+const Tree = require('../../src/tree.js');
+const Branch = require('../../src/branch.js');
+const Step = require('../../src/step.js');
+const StepNode = require('../../src/stepnode.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 function mergeStepNodesInTree(tree) {

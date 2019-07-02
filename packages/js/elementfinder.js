@@ -1,5 +1,5 @@
-const utils = require('../../utils.js');
-const Constants = require('../../constants.js');
+const utils = require('../../src/utils.js');
+const Constants = require('../../src/constants.js');
 
 class ElementFinder {
     /**

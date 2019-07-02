@@ -1,6 +1,6 @@
-const Constants = require('../../constants.js');
+const Constants = require('../../src/constants.js');
 const clonedeep = require('lodash/clonedeep');
-const utils = require('../../utils.js');
+const utils = require('../../src/utils.js');
 
 const RESERVED_KEYWORDS = ['$typeof', '$regex', '$contains', '$max', '$min', '$code', '$length', '$maxLength', '$minLength', '$subset', '$anyOrder', '$exact', '$every'];
 

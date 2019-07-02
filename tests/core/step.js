@@ -1,7 +1,7 @@
 const chai = require('chai');
 const expect = chai.expect;
 const assert = chai.assert;
-const Step = require('../../step.js');
+const Step = require('../../src/step.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 describe("Step", () => {

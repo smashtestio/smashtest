@@ -1,6 +1,6 @@
 const request = require('request');
 const Comparer = require('./comparer.js');
-const Constants = require('../../constants.js');
+const Constants = require('../../src/constants.js');
 
 /**
  * Wraps HTTP request/response functionality

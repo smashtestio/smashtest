@@ -3,11 +3,11 @@ const chaiAsPromised = require("chai-as-promised");
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
-const Step = require('../../step.js');
-const Branch = require('../../branch.js');
-const Tree = require('../../tree.js');
-const Runner = require('../../runner.js');
-const RunInstance = require('../../runinstance.js');
+const Step = require('../../src/step.js');
+const Branch = require('../../src/branch.js');
+const Tree = require('../../src/tree.js');
+const Runner = require('../../src/runner.js');
+const RunInstance = require('../../src/runinstance.js');
 
 chai.use(chaiAsPromised);
 
@@ -5683,7 +5683,7 @@ Step {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    runInstance.one = i('./node_modules/chalk');
+    runInstance.one = i('./branch.js');
 }
             `, "file.txt");
 
@@ -5703,7 +5703,7 @@ Step {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    runInstance.one = i('../smashtest/node_modules/chalk');
+    runInstance.one = i('../../smashtest/node_modules/chalk');
 }
             `, "file.txt");
 

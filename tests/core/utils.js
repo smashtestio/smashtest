@@ -2,7 +2,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const assert = chai.assert;
 const util = require('util');
-const utils = require('../../utils.js');
+const utils = require('../../src/utils.js');
 
 describe("Utils", () => {
     describe("stripQuotes()", () => {

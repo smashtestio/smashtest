@@ -1,7 +1,7 @@
 const chai = require('chai');
 const expect = chai.expect;
 const assert = chai.assert;
-const utils = require('../../utils.js');
+const utils = require('../../src/utils.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 describe("Comparer", () => {

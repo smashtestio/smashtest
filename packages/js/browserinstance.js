@@ -9,7 +9,7 @@ const path = require('path');
 const readFiles = require('read-files-promise');
 const sharp = require('sharp');
 const request = require('request-promise-native');
-const utils = require('../../utils.js');
+const utils = require('../../src/utils.js');
 const ElementFinder = require('./elementfinder.js');
 const Comparer = require('./comparer.js');
 
