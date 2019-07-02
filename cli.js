@@ -517,7 +517,7 @@ function plural(count) {
                 console.log("No branches left to run. All branches have passed last time.");
                 outputCompleteMessage(true);
                 restoreCursor();
-                return;
+                process.exit(0);
             }
 
             console.log(`${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` + (isReport ? ` | ${tree.counts.total} branch${plural(tree.counts.total)} total` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode`) : ``));

@@ -199,7 +199,7 @@ class Reporter {
         ]);
 
         // Notify all connected websockets that new data is available on disk
-        if(this.isReportServer) {
+        if(this.isReportServer && this.wsServer) {
             this.wsServer.clients.forEach(client => {
                 client.send(`{ "dataUpdate": true }`);
             });
