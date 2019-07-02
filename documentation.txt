@@ -335,6 +335,8 @@ ElementFinders
         `);
 
 API Testing
+    - Request's github page
+        - Recommended to send in {timeout:1500}, otherwise the default OS TCP timeout applies, and that can be up to 2 minutes
     - Tutorials on how to test APIs (using existing npm libraries in code blocks)
         - Using https://github.com/request/request
             - For POST, set json:true and pass in js object. Content-Type will be handled automatically

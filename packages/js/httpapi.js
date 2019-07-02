@@ -22,7 +22,26 @@ class HttpApi {
      */
     makeReq(func) {
         let args = Array.from(arguments).slice(1);
-        let uri = typeof args[0] == 'string' ? args[0] : args[1].uri;
+        let uri = '';
+        if(typeof args[0] == 'string') {
+            uri = args[0];
+        }
+        else if(typeof args[0] == 'object') {
+            if(args[0].uri) {
+                uri = args[0].uri;
+            }
+            else if(args[0].url) {
+                uri = args[0].url;
+            }
+        }
+        else if(typeof args[1] == 'object') {
+            if(args[1].uri) {
+                uri = args[1].uri;
+            }
+            else if(args[1].url) {
+                uri = args[1].url;
+            }
+        }
 
         let method = 'GET';
         if(typeof args[0] == 'object' && args[0].hasOwnProperty('method')) {
@@ -32,7 +51,7 @@ class HttpApi {
             method = args[1].method;
         }
 
-        this.runInstance.log(`Request: ${method.toUpperCase()} ${uri}`);
+        this.runInstance.log(`Request:\n  ${method.toUpperCase()} ${uri}\n`);
 
         return new Promise((resolve, reject) => {
             func(...args, (error, response, body) => {
@@ -177,11 +196,7 @@ HttpApi.Response = class Response {
             }
         }
 
-        let responseLog = `Response:
-
-  ${this.response.statusCode}
-${headersLog}
-  ${this.response.rawBody || ``}`;
+        let responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${this.response.rawBody.replace(/(.*)/g, '  $1') || ``}`;
         this.runInstance.log(responseLog);
 
         Comparer.expect(this.response, undefined, undefined, 'Actual response object:').to.match(expectedObj);

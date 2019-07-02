@@ -2,10 +2,72 @@
     // run a mock express test server
     const express = i('express');
     const http = i('http');
+    const bodyParser = require('body-parser');
+    const cookieParser = require('cookie-parser');
+
     let app = express();
+    app.use(bodyParser.json());
+    app.use(cookieParser());
 
     app.get('/one', (req, res) => {
-        res.status(200).send('foobar');
+        res.status(200).send('get response');
+    });
+
+    app.post('/one', (req, res) => {
+        if(req.body.one == 'two') {
+            res.status(201).send('post response');
+        }
+        else {
+            res.status(404).send('bad input');
+        }
+    });
+
+    app.put('/one', (req, res) => {
+        if(req.body.one == 'two') {
+            res.status(202).send('put response');
+        }
+        else {
+            res.status(404).send('bad input');
+        }
+    });
+
+    app.patch('/one', (req, res) => {
+        if(req.body.one == 'two') {
+            res.status(203).send('patch response');
+        }
+        else {
+            res.status(404).send('bad input');
+        }
+    });
+
+    app.delete('/one', (req, res) => {
+        if(req.body.one == 'two') {
+            res.status(203).send('delete response');
+        }
+        else {
+            res.status(404).send('bad input');
+        }
+    });
+
+    app.head('/one', (req, res) => {
+        res.status(200).send('head response');
+    });
+
+    app.options('/one', (req, res) => {
+        res.status(200).send('options response');
+    });
+
+    app.get('/cookie-check', (req, res) => {
+        if(req.cookies.key1 == 'value1' && req.cookies.key2 == 'value2') {
+            res.status(200).send('good cookies');
+        }
+        else {
+            res.status(404).send('bad cookies');
+        }
+    });
+
+    app.get('/send-json', (req, res) => {
+        res.status(200).json({one:"two"});
     });
 
     await new Promise(res => {
@@ -17,11 +79,25 @@
 
     - Request
 
-        - request()
+        - GET
 
-            make a request {
-                await api.request('http://localhost:8500/one');
-            }
+            make a request [
+                using get() {
+                    await api.get('http://localhost:8500/one');
+                }
+
+                using request() {
+                    await api.request('http://localhost:8500/one');
+                }
+
+                using request() with object {
+                    await api.request({
+                        method: 'GET',
+                        url: 'http://localhost:8500/one',
+                        timeout: 1500
+                    });
+                }
+            ]
 
                 verify response {
                     response.verify({
@@ -30,8 +106,226 @@
                             "content-type": "text/html; charset=utf-8"
                         },
                         error: null,
-                        body: "foobar",
-                        rawBody: "foobar",
+                        body: "get response",
+                        rawBody: "get response",
+                        response: {}
+                    });
+                }
+
+        - POST
+
+            make a request [
+                using post() {
+                    await api.post({
+                        url: 'http://localhost:8500/one',
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        body: `{"one":"two"}`,
+                        timeout: 1500
+                    });
+                }
+
+                using request() {
+                    await api.request({
+                        method: 'POST',
+                        url: 'http://localhost:8500/one',
+                        body: {one:"two"},
+                        json: true,
+                        timeout: 1500
+                    });
+                }
+            ]
+
+                verify response {
+                    response.verify({
+                        statusCode: 201,
+                        headers: {
+                            "content-type": "text/html; charset=utf-8"
+                        },
+                        error: null,
+                        body: "post response",
+                        rawBody: "post response",
+                        response: {}
+                    });
+                }
+
+        - PUT
+
+            make a request [
+                using put() {
+                    await api.put({
+                        url: 'http://localhost:8500/one',
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        body: `{"one":"two"}`,
+                        timeout: 1500
+                    });
+                }
+
+                using request() {
+                    await api.request({
+                        method: 'PUT',
+                        url: 'http://localhost:8500/one',
+                        body: {one:"two"},
+                        json: true,
+                        timeout: 1500
+                    });
+                }
+            ]
+
+                verify response {
+                    response.verify({
+                        statusCode: 202,
+                        error: null,
+                        body: 'put response',
+                        rawBody: 'put response',
+                        response: {}
+                    });
+                }
+
+        - PATCH
+
+            make a request [
+                using patch() {
+                    await api.patch({
+                        url: 'http://localhost:8500/one',
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        body: `{"one":"two"}`,
+                        timeout: 1500
+                    });
+                }
+
+                using request() {
+                    await api.request({
+                        method: 'patch',
+                        url: 'http://localhost:8500/one',
+                        body: {one:"two"},
+                        json: true,
+                        timeout: 1500
+                    });
+                }
+            ]
+
+                verify response {
+                    response.verify({
+                        statusCode: 203,
+                        headers: {
+                            "content-type": "text/html; charset=utf-8"
+                        },
+                        error: null,
+                        body: "patch response",
+                        rawBody: "patch response",
+                        response: {}
+                    });
+                }
+
+        - DELETE
+
+            make a request [
+                using delete() {
+                    await api.delete({
+                        url: 'http://localhost:8500/one',
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        body: `{"one":"two"}`,
+                        timeout: 1500
+                    });
+                }
+
+                using del() {
+                    await api.del({
+                        url: 'http://localhost:8500/one',
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        body: `{"one":"two"}`,
+                        timeout: 1500
+                    });
+                }
+
+                using request() {
+                    await api.request({
+                        method: 'delete',
+                        url: 'http://localhost:8500/one',
+                        body: {one:"two"},
+                        json: true,
+                        timeout: 1500
+                    });
+                }
+            ]
+
+                verify response {
+                    response.verify({
+                        statusCode: 203,
+                        headers: {
+                            "content-type": "text/html; charset=utf-8"
+                        },
+                        error: null,
+                        body: "delete response",
+                        rawBody: "delete response",
+                        response: {}
+                    });
+                }
+
+        - HEAD
+
+            make a request [
+                using head() {
+                    await api.head('http://localhost:8500/one');
+                }
+
+                using request() {
+                    await api.request({
+                        method: 'HEAD',
+                        url: 'http://localhost:8500/one',
+                        timeout: 1500
+                    });
+                }
+            ]
+
+                verify response {
+                    response.verify({
+                        statusCode: 200,
+                        headers: {
+                            "content-type": "text/html; charset=utf-8"
+                        },
+                        error: null,
+                        body: "",
+                        rawBody: "",
+                        response: {}
+                    });
+                }
+
+        - OPTIONS
+
+            make a request [
+                using options() {
+                    await api.options('http://localhost:8500/one');
+                }
+
+                using request() {
+                    await api.request({
+                        method: 'options',
+                        url: 'http://localhost:8500/one',
+                        timeout: 1500
+                    });
+                }
+            ]
+
+                verify response {
+                    response.verify({
+                        statusCode: 200,
+                        headers: {
+                            "content-type": "text/html; charset=utf-8"
+                        },
+                        error: null,
+                        body: "options response",
+                        rawBody: "options response",
                         response: {}
                     });
                 }
@@ -39,46 +333,35 @@
         - defaults()
 
             set defaults {
-                await api.defaults({proxy: 'http://localproxy.com'});
+                api.defaults({proxy: 'http://localproxy.com'});
             }
 
                 - Verify no errors occur
 
-        - get()
+        - cookies
 
-            make a request {
-                await api.get('http://localhost:8500/one');
+            create cookies {
+                let jar = api.jar();
+                let cookie1 = api.cookie('key1=value1');
+                let cookie2 = api.cookie('key2=value2');
+                let url = 'http://localhost:8500';
+                jar.setCookie(cookie1, url);
+                jar.setCookie(cookie2, url);
+
+                return jar;
             }
 
-                verify response {
-                    response.verify({
-                        statusCode: 200,
-                        headers: {
-                            "content-type": "text/html; charset=utf-8"
-                        },
-                        error: null,
-                        body: "foobard",
-                        rawBody: "foobar",
-                        response: {}
-                    });
+                send a request that necessitates the cookies {
+                    let jar = prev;
+                    await api.get({url: 'http://localhost:8500/cookie-check', jar: jar});
                 }
 
-        - post()
-
-        - put()
-
-        - patch()
-
-        - delete()
-        - del()
-
-        - head()
-
-        - options()
-
-        - cookie()
-
-        - jar()
+                    verify response {
+                        response.verify({
+                            statusCode: 200,
+                            body: "good cookies"
+                        });
+                    }
 
     - Response
 
@@ -86,22 +369,44 @@
 
             - Verifies JSON bodies
 
-                run test server {
-
+                make a request {
+                    await api.get('http://localhost:8500/send-json');
                 }
 
-                    make a request {
-
+                    verify the response {
+                        response.verify({
+                            statusCode: 200,
+                            headers: {
+                                "content-type": "application/json; charset=utf-8"
+                            },
+                            error: null,
+                            body: {
+                                one: 'two'
+                            },
+                            rawBody: '{"one":"two"}',
+                            response: {}
+                        });
                     }
 
-                        verify the response global var {
-                            // status code, headers, body, etc.
-                        }
-
-                            - Verify correct logging in report #manual -s
-
-            - Verifies non-JSON body types
+                        - Verify correct logging in report #manual -s
 
             - Verifies error responses
 
-                - Verify that -->'s are marked red in the report #manual -s
+                make a bad request {
+                    await api.get('http://localhost:8500/badendpoint');
+                }
+
+                    verify the response {
+                        response.verify({
+                            statusCode: 404,
+                            headers: {
+                                "content-type": "text/html; charset=utf-8"
+                            },
+                            error: null,
+                            body: { $typeof: 'string' },
+                            rawBody: { $typeof: 'string' },
+                            response: {}
+                        });
+                    }
+
+                        - Verify that -->'s are marked red in the report #manual -s
