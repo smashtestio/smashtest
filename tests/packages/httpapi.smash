@@ -1,76 +1,107 @@
-- httpapi.js
+*** Before Everything {
+    // run a mock express test server
+    const express = i('express');
+    const http = i('http');
+    let app = express();
 
-    init +? {
-        i('express');
-    }
+    app.get('/one', (req, res) => {
+        res.status(200).send('foobar');
+    });
 
-        - Request
+    await new Promise(res => {
+        let httpServer = http.createServer(app).listen(8500, () => res());
+    });
+}
 
-            - request()
+- httpapi tests
+
+    - Request
+
+        - request()
+
+            make a request {
+                await api.request('http://localhost:8500/one');
+            }
+
+                verify response {
+                    response.verify({
+                        statusCode: 200,
+                        headers: {
+                            "content-type": "text/html; charset=utf-8"
+                        },
+                        error: null,
+                        body: "foobar",
+                        rawBody: "foobar",
+                        response: {}
+                    });
+                }
+
+        - defaults()
+
+            set defaults {
+                await api.defaults({proxy: 'http://localproxy.com'});
+            }
+
+                - Verify no errors occur
+
+        - get()
+
+            make a request {
+                await api.get('http://localhost:8500/one');
+            }
+
+                verify response {
+                    response.verify({
+                        statusCode: 200,
+                        headers: {
+                            "content-type": "text/html; charset=utf-8"
+                        },
+                        error: null,
+                        body: "foobard",
+                        rawBody: "foobar",
+                        response: {}
+                    });
+                }
+
+        - post()
+
+        - put()
+
+        - patch()
+
+        - delete()
+        - del()
+
+        - head()
+
+        - options()
+
+        - cookie()
+
+        - jar()
+
+    - Response
+
+        - response.verify()
+
+            - Verifies JSON bodies
 
                 run test server {
-                    // run a mock express test server
+
                 }
 
                     make a request {
 
                     }
 
-            - defaults()
-
-                set defaults {
-
-                }
-
-            - get()
-
-                run test server {
-
-                }
-
-                    make a request {
-
-                    }
-
-            - post()
-
-            - put()
-
-            - patch()
-
-            - delete()
-            - del()
-
-            - head()
-
-            - options()
-
-            - cookie()
-
-            - jar()
-
-        - Response
-
-            - response.verify()
-
-                - Verifies JSON bodies
-
-                    run test server {
-
-                    }
-
-                        make a request {
-
+                        verify the response global var {
+                            // status code, headers, body, etc.
                         }
 
-                            verify the response global var {
-                                // status code, headers, body, etc.
-                            }
+                            - Verify correct logging in report #manual -s
 
-                                - Verify correct logging in report #manual -s
+            - Verifies non-JSON body types
 
-                - Verifies non-JSON body types
+            - Verifies error responses
 
-                - Verifies error responses
-
-                    - Verify that -->'s are marked red in the report #manual -s
+                - Verify that -->'s are marked red in the report #manual -s

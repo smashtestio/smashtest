@@ -20,14 +20,23 @@ class HttpApi {
      * See request() in https://github.com/request/request for details on functions that can be used
      * @return {Promise} Promise that resolves with a Response object, when it is received. Response will also be stored in {response} global variable.
      */
-    makeReq(func, args) {
+    makeReq(func) {
+        let args = Array.from(arguments).slice(1);
         let uri = typeof args[0] == 'string' ? args[0] : args[1].uri;
-        let method = (args[0].hasOwnProperty('method') ? args[0].method : null) || (args[1].hasOwnProperty('method') ? args[1].method : null);
+
+        let method = 'GET';
+        if(typeof args[0] == 'object' && args[0].hasOwnProperty('method')) {
+            method = args[0].method;
+        }
+        else if(typeof args[1] == 'object' && args[1].hasOwnProperty('method')) {
+            method = args[1].method;
+        }
+
         this.runInstance.log(`Request: ${method.toUpperCase()} ${uri}`);
 
         return new Promise((resolve, reject) => {
             func(...args, (error, response, body) => {
-                let responseObj = new this.Response(this.runInstance, error, response, body);
+                let responseObj = new HttpApi.Response(this.runInstance, error, response, body);
                 this.runInstance.g('response', responseObj);
                 resolve(responseObj);
             });
@@ -39,8 +48,8 @@ class HttpApi {
      * See request() in https://github.com/request/request for details
      * @return {Promise} Promise that resolves when response comes back. Response will be stored in {response} variable.
      */
-    request(args) {
-        return this.makeReq(request, ...args);
+    request() {
+        return this.makeReq(request, ...Array.from(arguments));
     }
 
     /**
@@ -55,64 +64,64 @@ class HttpApi {
      * Makes an HTTP GET request
      * See this.makeReq() for details on args and return value
      */
-    get(args) {
-        return this.makeReq(request.get, ...args);
+    get() {
+        return this.makeReq(request.get, ...Array.from(arguments));
     }
 
     /**
      * Makes an HTTP POST request
      * See this.makeReq() for details on args and return value
      */
-    post(args) {
-        return this.makeReq(request.post, ...args);
+    post() {
+        return this.makeReq(request.post, ...Array.from(arguments));
     }
 
     /**
      * Makes an HTTP PUT request
      * See this.makeReq() for details on args and return value
      */
-    put(args) {
-        return this.makeReq(request.put, ...args);
+    put() {
+        return this.makeReq(request.put, ...Array.from(arguments));
     }
 
     /**
      * Makes an HTTP PATCH request
      * See this.makeReq() for details on args and return value
      */
-    patch(args) {
-        return this.makeReq(request.patch, ...args);
+    patch() {
+        return this.makeReq(request.patch, ...Array.from(arguments));
     }
 
     /**
      * Makes an HTTP DELETE request
      * See this.makeReq() for details on args and return value
      */
-    delete(args) {
-        return this.makeReq(request.delete, ...args);
+    delete() {
+        return this.makeReq(request.delete, ...Array.from(arguments));
     }
 
     /**
      * Makes an HTTP DELETE request
      * See this.makeReq() for details on args and return value
      */
-    del(args) {
-        return this.makeReq(request.del, ...args);
+    del() {
+        return this.makeReq(request.del, ...Array.from(arguments));
     }
 
     /**
      * Makes an HTTP HEAD request
      * See this.makeReq() for details on args and return value
      */
-    head(args) {
-        return this.makeReq(request.head, ...args);
+    head() {
+        return this.makeReq(request.head, ...Array.from(arguments));
     }
 
     /**
      * Makes an HTTP OPTIONS request
      * See this.makeReq() for details on args and return value
      */
-    options(args) {
-        return this.makeReq(request.options, ...args);
+    options() {
+        return this.makeReq(request.options, ...Array.from(arguments));
     }
 
     /**
@@ -163,18 +172,18 @@ HttpApi.Response = class Response {
         if(this.response.headers) {
             for(let headerName in this.response.headers) {
                 if(this.response.headers.hasOwnProperty(headerName)) {
-                    headersLog += `${headerName}: ${this.response.headers[headerName]}\n`;
+                    headersLog += `  ${headerName}: ${this.response.headers[headerName]}\n`;
                 }
             }
         }
 
         let responseLog = `Response:
 
-${this.response.statusCode}
+  ${this.response.statusCode}
 ${headersLog}
-${this.response.rawBody || ``}`;
+  ${this.response.rawBody || ``}`;
         this.runInstance.log(responseLog);
 
-        Comparer.expect(this.response, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY).to.match(expectedObj);
+        Comparer.expect(this.response, undefined, undefined, 'Actual response object:').to.match(expectedObj);
     }
 }

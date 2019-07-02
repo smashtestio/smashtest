@@ -166,6 +166,17 @@ describe("Comparer", () => {
     }
 }`);
         });
+
+        it("handles an error header", () => {
+            let actual = { one: "foobar" };
+            let expected = { one: "foobar2" };
+            assert.throws(() => {
+                Comparer.expect(actual, '-->', '', 'header').to.match(expected);
+            }, `header
+{
+    one: "foobar"  -->  not "foobar2"
+}`);
+        });
     });
 
     describe("comparison()", () => {

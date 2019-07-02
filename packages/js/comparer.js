@@ -23,10 +23,11 @@ class Comparer {
      * @param {Object} expectedObj - The object specifying criteria for actualObj to match
      * @param {String} [errorStart] - String to mark the start of an error, '-->' with ANSI color codes if omitted
      * @param {String} [errorEnd] - String to mark the end of an error, '' with ANSI color codes if omitted
+     * @param {String} [errorHeader] - String to put at the top of the entire error message, '' if omitted
      * @param {Boolean} [jsonClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static expect(actualObj, errorStart, errorEnd, jsonClone) {
+    static expect(actualObj, errorStart, errorEnd, errorHeader, jsonClone) {
         if(typeof errorStart == 'undefined') {
             errorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
         }
@@ -40,7 +41,7 @@ class Comparer {
                     actualObj = this.clone(actualObj, jsonClone);
                     let comp = this.comparison(actualObj, expectedObj);
                     if(this.hasErrors(comp)) {
-                        throw new Error('\n' + this.print(comp, errorStart, errorEnd));
+                        throw new Error('\n' + (errorHeader ? errorHeader + '\n' : '') + this.print(comp, errorStart, errorEnd));
                     }
                 }
             }
@@ -132,7 +133,7 @@ class Comparer {
             }
             else { // expected is a plain object
                 // { $typeof: "type" }
-                if(expected.hasOwnProperty("$typeof")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$typeof")) {
                     // Validate expected
                     if(typeof expected.$typeof != 'string') {
                         throw new Error(`$typeof has to be a string: ${expected.$typeof}`);
@@ -150,7 +151,7 @@ class Comparer {
                 }
 
                 // { $regex: /regex/ } or { $regex: "regex" }
-                if(expected.hasOwnProperty("$regex")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$regex")) {
                     // Validate expected
                     let regex = null;
                     if(typeof expected.$regex == 'string') {
@@ -173,7 +174,7 @@ class Comparer {
                 }
 
                 // { $contains: "string" }
-                if(expected.hasOwnProperty("$contains")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$contains")) {
                     // Validate expected
                     if(typeof expected.$contains != 'string') {
                         throw new Error(`$contains has to be a string: ${JSON.stringify(expected.$contains)}`);
@@ -189,7 +190,7 @@ class Comparer {
                 }
 
                 // { $max: <number> }
-                if(expected.hasOwnProperty("$max")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$max")) {
                     // Validate expected
                     if(typeof expected.$max != 'number') {
                         throw new Error(`$max has to be a number: ${JSON.stringify(expected.$max)}`);
@@ -205,7 +206,7 @@ class Comparer {
                 }
 
                 // { $min: <number> }
-                if(expected.hasOwnProperty("$min")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$min")) {
                     // Validate expected
                     if(typeof expected.$min != 'number') {
                         throw new Error(`$min has to be a number: ${JSON.stringify(expected.$min)}`);
@@ -221,7 +222,7 @@ class Comparer {
                 }
 
                 // { $code: (actual)=>{ return true/false; } } or { $code: "...true/false" } or { $code: "...return true/false" }
-                if(expected.hasOwnProperty("$code")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$code")) {
                     let success = true;
 
                     // Validate expected
@@ -253,7 +254,7 @@ class Comparer {
                 }
 
                 // { $length: <number> }
-                if(expected.hasOwnProperty("$length")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$length")) {
                     // Validate expected
                     if(typeof expected.$length != 'number') {
                         throw new Error(`$length has to be a number: ${JSON.stringify(expected.$length)}`);
@@ -264,7 +265,7 @@ class Comparer {
                         errors.push(`isn't an object, array, or string so can't have a $length of ${expected.$length}`);
                     }
                     else {
-                        if(actual.hasOwnProperty('length')) {
+                        if(Object.prototype.hasOwnProperty.call(actual, "length")) {
                             if(actual.length != expected.$length) {
                                 errors.push(`doesn't have a $length of ${expected.$length}`);
                             }
@@ -276,7 +277,7 @@ class Comparer {
                 }
 
                 // { $maxLength: <number> }
-                if(expected.hasOwnProperty("$maxLength")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$maxLength")) {
                     // Validate expected
                     if(typeof expected.$maxLength != 'number') {
                         throw new Error(`$maxLength has to be a number: ${JSON.stringify(expected.$maxLength)}`);
@@ -287,7 +288,7 @@ class Comparer {
                         errors.push(`isn't an object, array, or string so can't have a $maxLength of ${expected.$maxLength}`);
                     }
                     else {
-                        if(actual.hasOwnProperty('length')) {
+                        if(Object.prototype.hasOwnProperty.call(actual, "length")) {
                             if(actual.length > expected.$maxLength) {
                                 errors.push(`is longer than the $maxLength of ${expected.$maxLength}`);
                             }
@@ -299,7 +300,7 @@ class Comparer {
                 }
 
                 // { $minLength: <number> }
-                if(expected.hasOwnProperty("$minLength")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$minLength")) {
                     // Validate expected
                     if(typeof expected.$minLength != 'number') {
                         throw new Error(`$minLength has to be a number: ${JSON.stringify(expected.$minLength)}`);
@@ -322,7 +323,7 @@ class Comparer {
                 }
 
                 // { $every: <value> }
-                if(expected.hasOwnProperty("$every")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$every")) {
                     // Validate actual matches expected
                     if(typeof actual != 'object' || !(actual instanceof Array)) {
                         errors.push(`not an array as needed for $every`);
@@ -339,7 +340,7 @@ class Comparer {
 
                 // { $exact: true }
                 let exact = false;
-                if(expected.hasOwnProperty("$exact")) {
+                if(Object.prototype.hasOwnProperty.call(expected, "$exact")) {
                     exact = true;
                 }
 
@@ -352,7 +353,7 @@ class Comparer {
                     else {
                         // Make sure every key in expected matches every key in actual
                         for(let key of expectedKeys) {
-                            if(!actual || (!actual.hasOwnProperty(key) && expected[key] !== undefined)) {
+                            if(!actual || (!Object.prototype.hasOwnProperty.call(actual, key) && expected[key] !== undefined)) {
                                 errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
                             }
                             else {
@@ -363,8 +364,8 @@ class Comparer {
                         if(exact) {
                             // Make sure every key in actual exists in expected
                             for(let key in actual) {
-                                if(actual.hasOwnProperty(key)) {
-                                    if(!expected.hasOwnProperty(key)) {
+                                if(Object.prototype.hasOwnProperty.call(actual, key)) {
+                                    if(!Object.prototype.hasOwnProperty.call(expected, key)) {
                                         actual[key] = this.createComparerNode([`this key isn't in $exact object`], actual[key]);
                                     }
                                 }
@@ -431,7 +432,7 @@ class Comparer {
             }
             else { // plain object
                 for(let key in value) {
-                    if(value.hasOwnProperty(key)) {
+                    if(Object.prototype.hasOwnProperty.call(value, key)) {
                         if(this.hasErrors(value[key], true)) {
                             this.endSeen(!isRecursive);
                             return true;
@@ -526,7 +527,7 @@ class Comparer {
                 let keys = Object.keys(value);
                 for(let i = 0; i < keys.length; i++) {
                     let key = keys[i];
-                    if(value.hasOwnProperty(key)) {
+                    if(Object.prototype.hasOwnProperty.call(value, key)) {
                         let hasWeirdChars = key.match(/[^A-Za-z0-9\$]/); // put quotes around the key if there are non-standard chars in it
                         ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
                     }
