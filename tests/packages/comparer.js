@@ -20,7 +20,7 @@ describe("Comparer", () => {
             let actual = { one: "foobar" };
             let expected = { one: "foobar2" };
             assert.throws(() => {
-                Comparer.expect(actual).to.match(expected);
+                Comparer.expect(actual, '-->', '').to.match(expected);
             }, `{
     one: "foobar"  -->  not "foobar2"
 }`);
@@ -34,7 +34,7 @@ describe("Comparer", () => {
             let expected = [ {one: 1}, {two: 3} ];
 
             assert.throws(() => {
-                Comparer.expect(actual).to.match(expected);
+                Comparer.expect(actual, '-->', '').to.match(expected);
             }, `[
     {
         one: 1
@@ -124,7 +124,7 @@ describe("Comparer", () => {
             e.three = 3;
 
             assert.throws(() => {
-                Comparer.expect(a).to.match({
+                Comparer.expect(a, '-->', '').to.match({
                     b: {
                         d: {
                             one: 1,

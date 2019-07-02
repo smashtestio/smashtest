@@ -816,6 +816,7 @@ Code blocks
             - {{var1}} is l("var1", "value") or setLocal("var1", "value") (NOTE: you can't set var1=value as this will not persist past the end of the code block)
             - {var2} is g("var2", "value") or setGlobal("var2", "value")
             - persistent vars: p("var3", "value") or setPersistent("var3", "value")
+    - Return value of last code block is stored in global var 'prev'
     - JS functions and variables available
         - l(), g(), p()
         - getLocal(), getGlobal(), getPersistent()

@@ -284,6 +284,8 @@ class RunInstance {
                     let retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getFilenameOfCodeBlock(step), this.getLineNumberOffset(step), step);
                     inCodeBlock = false;
 
+                    this.g('prev', retVal);
+
                     // Step is {var} = Func or Text { code block }
                     // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
                     if(varsBeingSet && varsBeingSet.length == 1) {

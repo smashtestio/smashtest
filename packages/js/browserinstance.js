@@ -842,7 +842,7 @@ class BrowserInstance {
 
             // Deserialize response
             if(typeofResponse == 'function') {
-                response = eval(response);
+                eval(`response = ` + response.trim());
             }
             else if(typeofResponse == 'array') {
                 response = JSON.parse(response);
@@ -860,11 +860,11 @@ class BrowserInstance {
      * Fails silently if no mock is currently active
      */
     async mockHttpConfigure(config) {
-        await this.executeScript(function() {
+        await this.executeScript(function(config) {
             if(typeof window.smashtestSinonFakeServer != 'undefined') {
                 window.smashtestSinonFakeServer.configure(config);
             }
-        });
+        }, config);
     }
 
     /**

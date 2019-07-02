@@ -16,7 +16,7 @@
 
 open chrome       #mac #windows $
 open firefox      #mac #windows $
-open safari       #mac !
+open safari       #mac ! $
 open ie           #windows
 open edge         #windows
 
@@ -530,124 +530,554 @@ open edge         #windows
                                 await $(`#date, '${str(date.toString())}'`);
                             }
 
-                    - mockHttp() tests $
+                    - mockHttp() tests
 
                         Navigate to 'example.com'
 
-                            Method is a [
-                                - GET
-                                    {method} is 'GET'
-                                - POST
-                                    {method} is 'POST'
-                            ]
+                            - Mocked method is a GET
 
-                                Url is [
-                                    - an absolute url
-                                        - that's on browser's current domain
-                                            {url} is 'http://example.com/foobar'
-                                        - that's not on browser's current domain
-                                            {url} is 'http://google.com/foobar'
+                                - Mocked url is a string
 
-                                    - a relative url
-                                        {url} is '/foobar'
+                                    - Mocked response is a string
 
-                                    - a regex
-                                        {url} is '/foo.*'
-                                ]
-
-                                    Response is [
-                                        a string {
-                                            g('response', 'response body here');
-                                            g('expected response', 'response body here');
+                                        Set up mock {
+                                            await browser.mockHttp('GET', '/endpoint', 'foobar');
                                         }
 
-                                        a js object {
-                                            g('response', {one:'two'});
-                                            g('expected response', '{"one":"two"}');
+                                            - When an http request is made from the browser
+
+                                                - to a mocked endpoint
+
+                                                    - and the request is an absolute url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                var oReq = new XMLHttpRequest();
+                                                                oReq.addEventListener('load', done);
+                                                                oReq.open('GET', 'http://example.com/endpoint');
+                                                                oReq.send();
+                                                            });
+
+                                                            Comparer.expect(response).to.match({
+                                                                target: {
+                                                                    status: 200,
+                                                                    responseText: 'foobar'
+                                                                }
+                                                            });
+                                                        }
+
+                                                    - and the request is a relative url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                var oReq = new XMLHttpRequest();
+                                                                oReq.addEventListener('load', done);
+                                                                oReq.open('GET', '/endpoint');
+                                                                oReq.send();
+                                                            });
+
+                                                            Comparer.expect(response).to.match({
+                                                                target: {
+                                                                    status: 200,
+                                                                    responseText: 'foobar'
+                                                                }
+                                                            });
+                                                        }
+
+                                                - to a non-mocked endpoint
+
+                                                    Then a 404 error comes back {
+                                                        let response = await browser.executeAsyncScript(function(done) {
+                                                            var oReq = new XMLHttpRequest();
+                                                            oReq.addEventListener('load', done);
+                                                            oReq.open('GET', '/badendpoint');
+                                                            oReq.send();
+                                                        });
+
+                                                        Comparer.expect(response).to.match({
+                                                            target: {
+                                                                status: 404
+                                                            }
+                                                        });
+                                                    }
+
+                                    - Mocked response is a js object
+
+                                        Set up mock {
+                                            await browser.mockHttp('GET', '/endpoint', {foo:'bar'});
                                         }
 
-                                        an array [
-                                            - Response body is
-                                                a string {
-                                                    g('response', [200, { "Content-Type": "text/html" }, "response body here"]);
-                                                    g('expected response', 'response body here');
-                                                }
-                                                an object {
-                                                    g('response', [200, { "Content-Type": "text/html" }, {one:'two'} ]);
-                                                    g('expected response', '{"one":"two"}');
-                                                }
-                                        ]
+                                            - When an http request is made from the browser
 
-                                        a function {
-                                            function f(xhr) {
-                                                xhr.respond(200, { "Content-Type": "text/html" }, 'function response here');
-                                            }
-                                            g('response', f);
-                                            g('expected response', 'function response here');
+                                                - to a mocked endpoint
+
+                                                    - and the request is an absolute url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                var oReq = new XMLHttpRequest();
+                                                                oReq.addEventListener('load', done);
+                                                                oReq.open('GET', 'http://example.com/endpoint');
+                                                                oReq.send();
+                                                            });
+
+                                                            Comparer.expect(response).to.match({
+                                                                target: {
+                                                                    status: 200,
+                                                                    responseText: '{"foo":"bar"}'
+                                                                }
+                                                            });
+                                                        }
+
+                                                    - and the request is a relative url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                var oReq = new XMLHttpRequest();
+                                                                oReq.addEventListener('load', done);
+                                                                oReq.open('GET', '/endpoint');
+                                                                oReq.send();
+                                                            });
+
+                                                            Comparer.expect(response).to.match({
+                                                                target: {
+                                                                    status: 200,
+                                                                    responseText: '{"foo":"bar"}'
+                                                                }
+                                                            });
+                                                        }
+
+                                                - to a non-mocked endpoint
+
+                                                    Then a 404 error comes back {
+                                                        let response = await browser.executeAsyncScript(function(done) {
+                                                            var oReq = new XMLHttpRequest();
+                                                            oReq.addEventListener('load', done);
+                                                            oReq.open('GET', '/badendpoint');
+                                                            oReq.send();
+                                                        });
+
+                                                        Comparer.expect(response).to.match({
+                                                            target: {
+                                                                status: 404
+                                                            }
+                                                        });
+                                                    }
+
+                                    - Mocked response is an array
+
+                                        Set up mock {
+                                            await browser.mockHttp('GET', '/some/endpoint', [201, {'Content-Type': 'application/json'}, 'foobar']);
                                         }
-                                    ]
+
+                                            - When an http request is made from the browser
+
+                                                - to a mocked endpoint
+
+                                                    - and the request is an absolute url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                var oReq = new XMLHttpRequest();
+                                                                oReq.addEventListener('load', done);
+                                                                oReq.open('GET', 'http://example.com/some/endpoint');
+                                                                oReq.send();
+                                                            });
+
+                                                            Comparer.expect(response).to.match({
+                                                                target: {
+                                                                    status: 201,
+                                                                    responseText: 'foobar',
+                                                                    responseHeaders: {
+                                                                        'Content-Type': 'application/json'
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+
+                                                    - and the request is a relative url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                var oReq = new XMLHttpRequest();
+                                                                oReq.addEventListener('load', done);
+                                                                oReq.open('GET', '/some/endpoint');
+                                                                oReq.send();
+                                                            });
+
+                                                            Comparer.expect(response).to.match({
+                                                                target: {
+                                                                    status: 201,
+                                                                    responseText: 'foobar',
+                                                                    responseHeaders: {
+                                                                        'Content-Type': 'application/json'
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+
+                                                - to a non-mocked endpoint
+
+                                                    Then a 404 error comes back {
+                                                        let response = await browser.executeAsyncScript(function(done) {
+                                                            var oReq = new XMLHttpRequest();
+                                                            oReq.addEventListener('load', done);
+                                                            oReq.open('GET', '/some/badendpoint');
+                                                            oReq.send();
+                                                        });
+
+                                                        Comparer.expect(response).to.match({
+                                                            target: {
+                                                                status: 404
+                                                            }
+                                                        });
+                                                    }
+
+                                    - Mocked response is a function
+
+                                        Set up mock {
+                                            await browser.mockHttp('GET', '/some/endpoint', function(xhr) {
+                                                xhr.respond(201, {'Content-Type': 'application/json'}, 'foobar');
+                                            });
+                                        }
+
+                                            - When an http request is made from the browser
+
+                                                - to a mocked endpoint
+
+                                                    - and the request is an absolute url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                var oReq = new XMLHttpRequest();
+                                                                oReq.addEventListener('load', done);
+                                                                oReq.open('GET', 'http://example.com/some/endpoint');
+                                                                oReq.send();
+                                                            });
+
+                                                            Comparer.expect(response).to.match({
+                                                                target: {
+                                                                    status: 201,
+                                                                    responseText: 'foobar',
+                                                                    responseHeaders: {
+                                                                        'Content-Type': 'application/json'
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+
+                                                    - and the request is a relative url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                var oReq = new XMLHttpRequest();
+                                                                oReq.addEventListener('load', done);
+                                                                oReq.open('GET', '/some/endpoint');
+                                                                oReq.send();
+                                                            });
+
+                                                            Comparer.expect(response).to.match({
+                                                                target: {
+                                                                    status: 201,
+                                                                    responseText: 'foobar',
+                                                                    responseHeaders: {
+                                                                        'Content-Type': 'application/json'
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+
+                                                - to a non-mocked endpoint
+
+                                                    Then a 404 error comes back {
+                                                        let response = await browser.executeAsyncScript(function(done) {
+                                                            var oReq = new XMLHttpRequest();
+                                                            oReq.addEventListener('load', done);
+                                                            oReq.open('GET', '/some/badendpoint');
+                                                            oReq.send();
+                                                        });
+
+                                                        Comparer.expect(response).to.match({
+                                                            target: {
+                                                                status: 404
+                                                            }
+                                                        });
+                                                    }
+
+                                - Mocked url is a regex
+
+                                    Set up mock {
+                                        await browser.mockHttp('GET', /\/end.*/, 'foobar');
+                                    }
 
                                         - When an http request is made from the browser
 
-                                            to a mocked endpoint {
-                                                await browser.mockHttp(method, url, response);
-                                                g('actual response',
-                                                    await browser.executeAsyncScript(function(method, url, done) {
+                                            - to a mocked endpoint
+
+                                                - and the request is an absolute url
+
+                                                    Then the mocked response comes back {
+                                                        let response = await browser.executeAsyncScript(function(done) {
+                                                            var oReq = new XMLHttpRequest();
+                                                            oReq.addEventListener('load', done);
+                                                            oReq.open('GET', 'http://example.com/endpoint');
+                                                            oReq.send();
+                                                        });
+
+                                                        Comparer.expect(response).to.match({
+                                                            target: {
+                                                                status: 200,
+                                                                responseText: 'foobar'
+                                                            }
+                                                        });
+                                                    }
+
+                                                - and the request is a relative url
+
+                                                    Then the mocked response comes back {
+                                                        let response = await browser.executeAsyncScript(function(done) {
+                                                            var oReq = new XMLHttpRequest();
+                                                            oReq.addEventListener('load', done);
+                                                            oReq.open('GET', '/endpoint');
+                                                            oReq.send();
+                                                        });
+
+                                                        Comparer.expect(response).to.match({
+                                                            target: {
+                                                                status: 200,
+                                                                responseText: 'foobar'
+                                                            }
+                                                        });
+                                                    }
+
+                                            - to a non-mocked endpoint
+
+                                                Then a 404 error comes back {
+                                                    let response = await browser.executeAsyncScript(function(done) {
                                                         var oReq = new XMLHttpRequest();
                                                         oReq.addEventListener('load', done);
-                                                        oReq.open(method, url);
+                                                        oReq.open('GET', '/badendpoint');
                                                         oReq.send();
-                                                    }, method, url)
-                                                );
-                                            }
+                                                    });
 
-                                                Then the mocked response comes back {
-                                    console.log(g('actual response'))
-                                                    expect(g('actual response').target.responseText).to.equal(g('expected response'));
+                                                    Comparer.expect(response).to.match({
+                                                        target: {
+                                                            status: 404
+                                                        }
+                                                    });
                                                 }
 
-                                            // to a non-mocked endpoint {
-                                            // }
-                                            //
-                                            //     Then a 404 error comes back {
-                                            //
-                                            //     }
+                            - Mocked method is a POST
+
+                                Set up mock {
+                                    await browser.mockHttp('POST', '/endpoint', 'foobar');
+                                }
+
+                                    - When an http request is made from the browser
+
+                                        - to a mocked endpoint
+
+                                            - and the request is an absolute url
+
+                                                Then the mocked response comes back {
+                                                    let response = await browser.executeAsyncScript(function(done) {
+                                                        var oReq = new XMLHttpRequest();
+                                                        oReq.addEventListener('load', done);
+                                                        oReq.open('POST', 'http://example.com/endpoint');
+                                                        oReq.send();
+                                                    });
+
+                                                    Comparer.expect(response).to.match({
+                                                        target: {
+                                                            status: 200,
+                                                            responseText: 'foobar'
+                                                        }
+                                                    });
+                                                }
+
+                                            - and the request is a relative url
+
+                                                Then the mocked response comes back {
+                                                    let response = await browser.executeAsyncScript(function(done) {
+                                                        var oReq = new XMLHttpRequest();
+                                                        oReq.addEventListener('load', done);
+                                                        oReq.open('POST', '/endpoint');
+                                                        oReq.send();
+                                                    });
+
+                                                    Comparer.expect(response).to.match({
+                                                        target: {
+                                                            status: 200,
+                                                            responseText: 'foobar'
+                                                        }
+                                                    });
+                                                }
+
+                                        - to a non-mocked endpoint
+
+                                            - where the path isn't mocked
+
+                                                Then a 404 error comes back {
+                                                    let response = await browser.executeAsyncScript(function(done) {
+                                                        var oReq = new XMLHttpRequest();
+                                                        oReq.addEventListener('load', done);
+                                                        oReq.open('POST', '/badendpoint');
+                                                        oReq.send();
+                                                    });
+
+                                                    Comparer.expect(response).to.match({
+                                                        target: {
+                                                            status: 404
+                                                        }
+                                                    });
+                                                }
+
+                                            - where the method isn't mocked
+
+                                                Then a 404 error comes back {
+                                                    let response = await browser.executeAsyncScript(function(done) {
+                                                        var oReq = new XMLHttpRequest();
+                                                        oReq.addEventListener('load', done);
+                                                        oReq.open('GET', '/endpoint');
+                                                        oReq.send();
+                                                    });
+
+                                                    Comparer.expect(response).to.match({
+                                                        target: {
+                                                            status: 404
+                                                        }
+                                                    });
+                                                }
 
                     - mockHttpConfigure() tests
 
                         - mockHttp() was
-                            - already called
-                                - Calling mockHttpConfigure()
-                                    - Updates the config
-                            - not called yet
-                                - Calling mockHttpConfigure()
+                            already called {
+                                await browser.mockHttp('GET', '/endpoint', 'foobar');
+                            }
+                                Verify default config {
+                                    let autoRespond = await browser.executeScript(function() {
+                                        return window.smashtestSinonFakeServer.autoRespond;
+                                    });
+                                    expect(autoRespond).to.be.null;
+                                }
+                                    Calling mockHttpConfigure() {
+                                        await browser.mockHttpConfigure({autoRespond: false});
+                                    }
+                                        Updates the config {
+                                            let autoRespond = await browser.executeScript(function() {
+                                                return window.smashtestSinonFakeServer.autoRespond;
+                                            });
+                                            expect(autoRespond).to.be.false;
+                                        }
+                            not called yet {
+                            }
+                                Calling mockHttpConfigure() {
+                                    await browser.mockHttpConfigure({autoRespond: false});
+                                }
                                     - Does nothing
 
                     - mockTimeStop() tests
                         - mockTime() was
-                            - already called
-                                - Calling mockTimeStop()
-                                    - Restores the current time
-                            - not called yet
-                                - Calling mockTimeStop()
+                            already called {
+                                let date = g('date', new Date("1/2/2011 3:45 pm"));
+                                await browser.mockTime(date);
+                            }
+                                Calling mockTimeStop() {
+                                    await browser.mockTimeStop();
+                                }
+                                    Restores the current time {
+                                        await executeScript(function() {
+                                            document.body.innerHTML = `<div id="date"></div>`;
+                                            let s = document.createElement("script");
+                                            s.type = "text/javascript";
+                                            s.innerHTML = `document.getElementById('date').innerHTML = (new Date()).toString();`
+                                            document.body.append(s);
+                                        });
+
+                                        await not$(`#date, '${str(date.toString())}'`);
+                                    }
+                            not called yet {
+                            }
+                                Calling mockTimeStop() {
+                                    await browser.mockTimeStop();
+                                }
                                     - Does nothing
 
                     - mockHttpStop() tests
-                        - mockHttp() was
-                            - already called
-                                - Calling mockHttpStop()
-                                    - and making an http request
-                                        - Gets a response from the original non-mocked http server
-                            - not called yet
-                                - Calling mockHttpStop()
-                                    - Does nothing
+
+                        Navigate to 'example.com'
+
+                            - mockHttp() was
+                                already called {
+                                    await browser.mockHttp('GET', '/', 'foobar');
+                                }
+                                    Calling mockHttpStop() {
+                                        await browser.mockHttpStop();
+                                    }
+                                        and making an http request {
+                                            return await browser.executeAsyncScript(function(done) {
+                                                var oReq = new XMLHttpRequest();
+                                                oReq.addEventListener('load', function(result) {
+                                                    done(result != 'foobar');
+                                                });
+                                                oReq.open('GET', '/');
+                                                oReq.send();
+                                            });
+                                        }
+                                            Gets a response from the original non-mocked http server {
+                                                expect(prev).to.be.true;
+                                            }
+
+                                not called yet {
+                                }
+                                    Calling mockHttpStop() {
+                                        await browser.mockHttpStop();
+                                    }
+                                        - Does nothing
 
                     - mockStop() tests
-                        - Calling mockStop() ..
-                            - and using 'new Date()'
-                                - Gets the current date
-                            - and making an http request
-                                - Gets a response from the original non-mocked http server
+                        ..
+                        Mock time {
+                            let date = g('date', new Date("1/2/2011 3:45 pm"));
+                            await browser.mockTime(date);
+                        }
+                        Mock http {
+                            await browser.mockHttp('GET', '/', 'foobar');
+                        }
+                        Navigate to 'example.com'
+
+                            Calling mockStop() .. {
+                                await browser.mockStop();
+                            }
+
+                                and getting the date {
+                                    await executeScript(function() {
+                                        document.body.innerHTML = `<div id="date"></div>`;
+                                        let s = document.createElement("script");
+                                        s.type = "text/javascript";
+                                        s.innerHTML = `document.getElementById('date').innerHTML = (new Date()).toString();`
+                                        document.body.append(s);
+                                    });
+                                }
+
+                                    gets the original current date {
+                                        await not$(`#date, '${str(date.toString())}'`);
+                                    }
+
+                                and making an http request {
+                                    return await browser.executeAsyncScript(function(done) {
+                                        var oReq = new XMLHttpRequest();
+                                        oReq.addEventListener('load', function(result) {
+                                            done(result != 'foobar');
+                                        });
+                                        oReq.open('GET', '/');
+                                        oReq.send();
+                                    });
+                                }
+                                    Gets a response from the original non-mocked http server {
+                                        expect(prev).to.be.true;
+                                    }
 
                     - injectSinon() tests
 

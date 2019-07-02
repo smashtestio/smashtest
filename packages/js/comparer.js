@@ -1,3 +1,4 @@
+const Constants = require('../../constants.js');
 const clonedeep = require('lodash/clonedeep');
 const utils = require('../../utils.js');
 
@@ -20,12 +21,19 @@ class Comparer {
      * Usage: expect(actualObj, errorStart, errorEnd, jsonClone).to.match(expectedObj)
      * @param {Object} actualObj - The object to check. Must not have circular references or multiple references to the same object inside. Could be an array.
      * @param {Object} expectedObj - The object specifying criteria for actualObj to match
-     * @param {String} [errorStart] - String to mark the start of an error, '-->' if omitted
-     * @param {String} [errorEnd] - String to mark the end of an error, '' if omitted
+     * @param {String} [errorStart] - String to mark the start of an error, '-->' with ANSI color codes if omitted
+     * @param {String} [errorEnd] - String to mark the end of an error, '' with ANSI color codes if omitted
      * @param {Boolean} [jsonClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
     static expect(actualObj, errorStart, errorEnd, jsonClone) {
+        if(typeof errorStart == 'undefined') {
+            errorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED;
+        }
+        if(typeof errorEnd == 'undefined') {
+            errorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;
+        }
+        
         return {
             to: {
                 match: (expectedObj) => {

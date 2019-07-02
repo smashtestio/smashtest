@@ -3235,6 +3235,31 @@ My 'foobar' function
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[1].error).to.equal(undefined);
             });
+
+            it("makes the return value of the last code block available in {prev}", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+One {
+    return 7;
+}
+    Two {
+        runInstance.one = prev;
+    }
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+                await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+                expect(runInstance.one).to.equal(7);
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[1].error).to.equal(undefined);
+            });
         });
 
         context("{var} accessibility", () => {
