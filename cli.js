@@ -662,10 +662,6 @@ function plural(count) {
                             return;
 
                         default:
-                            if(input.startsWith('*')) {
-                                utils.error("Cannot define a function declaration or hook here");
-                            }
-
                             if(codeBlockStep === null) {
                                 if(input.trim() == '{') {
                                     // A code block has started. Continue inputting lines until a } is inputted.
@@ -675,7 +671,13 @@ function plural(count) {
                                 else {
                                     let stepNode = new StepNode(0);
                                     stepNode.parseLine(input);
-                                    if(stepNode.hasCodeBlock()) {
+                                    if(stepNode.isMultiBlockFunctionDeclaration || stepNode.isMultiBlockFunctionCall) {
+                                        utils.error(`Cannot use step block brackets ([, ]) here`);
+                                    }
+                                    else if(stepNode.isFunctionDeclaration) {
+                                        utils.error(`Cannot define a function declaration or hook here`);
+                                    }
+                                    else if(stepNode.hasCodeBlock()) {
                                         // A code block has started. Continue inputting lines until a } is inputted.
                                         codeBlockStep = input;
                                         return;

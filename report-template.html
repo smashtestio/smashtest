@@ -1816,9 +1816,9 @@ c     = copy text of branch
                             <div className="branch-list" id={this.props.idName}>
                                 <div className="header">{this.props.header} ({this.props.lengthText})</div>
                                 {
-                                    children.map(branch => (
+                                    children.map((branch, index) => (
                                         <Branch
-                                            key={branch.hash + " " + getRunState(branch) + " " + this.props.idName}
+                                            key={branch.hash + " " + getRunState(branch) + " " + index}
                                             branch={branch}
                                             stepNodeIndex={this.props.stepNodeIndex}
                                             setPreview={this.props.setPreview}
