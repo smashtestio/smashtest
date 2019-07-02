@@ -307,10 +307,10 @@ Code block {
              */
             function styleCodeBlocks() {
                 let codeBlocks = document.querySelectorAll('.code.block');
-
                 codeBlocks.forEach(codeBlock => {
                     // Convert style shorthands to real html
-                    codeBlock.innerHTML = codeBlock.innerHTML
+                    let codeHTML = codeBlock.innerHTML;
+                    codeHTML = codeHTML
                         .replace(/MOD\(([^\)]+)\)/g, '<span class="modifier">$1</span>') // MOD()
                         .replace(/VAR\(([^\)]+)\)/g, '<span class="variable">$1</span>') // VAR()
                         .replace(/LC\(([^\)]+)\)/g, '<span class="lookahead-colon">$1</span>') // LC()
@@ -327,10 +327,16 @@ Code block {
                         .replace(/JSVARIABLE\(([^\)]+)\)/g, '<span class="js-variable">$1</span>') // JSVAR()
 
                     // Insert line numbers
-                    codeBlock.innerHTML = codeBlock.innerHTML
+                    let lineNumbers = '';
+                    let lines = '';
+                    codeHTML
                         .split('\n')
-                        .map((line, index) => `<div><span class="line-number">${lineNumber(index)}</span>${line}</div>`)
-                        .join('');
+                        .forEach((line, index) => {
+                            lineNumbers += `<div class="line-number">${lineNumber(index)}</div>`;
+                            lines += `<div class="line">${line}</div>`;
+                        });
+
+                    codeBlock.innerHTML = `<table><tr><td class="line-numbers">${lineNumbers}</td><td class="lines">${lines}</td></tr></table>`;
                 });
 
                 function lineNumber(index) {

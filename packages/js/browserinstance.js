@@ -848,8 +848,8 @@ class BrowserInstance {
                 response = JSON.parse(response);
             }
 
-            window.smashtestSinonClock = window.smashtestSinonClock || sinon.createFakeServer({ respondImmediately: true });
-            window.smashtestSinonClock.respondWith(method, url, response);
+            window.smashtestSinonFakeServer = window.smashtestSinonFakeServer || sinon.createFakeServer({ respondImmediately: true });
+            window.smashtestSinonFakeServer.respondWith(method, url, response);
         }, method, url, response, typeofUrl, typeofResponse);
     }
 
@@ -861,8 +861,8 @@ class BrowserInstance {
      */
     async mockHttpConfigure(config) {
         await this.executeScript(function() {
-            if(typeof window.smashtestSinonClock != 'undefined') {
-                window.smashtestSinonClock.configure(config);
+            if(typeof window.smashtestSinonFakeServer != 'undefined') {
+                window.smashtestSinonFakeServer.configure(config);
             }
         });
     }

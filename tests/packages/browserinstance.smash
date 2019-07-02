@@ -514,43 +514,104 @@ open edge         #windows
 
                     - mockTime() tests
 
-                        - When the mock date is set
-                            - Then that change is visible from 'new Date()'
+                        When the mock date is set {
+                            let date = g('date', new Date("1/2/2011 3:45 pm"));
+                            await browser.mockTime(date);
+                        }
+                            Then that change is visible from 'new Date()' {
+                                await executeScript(function() {
+                                    document.body.innerHTML = `<div id="date"></div>`;
+                                    let s = document.createElement("script");
+                                    s.type = "text/javascript";
+                                    s.innerHTML = `document.getElementById('date').innerHTML = (new Date()).toString();`
+                                    document.body.append(s);
+                                });
 
-                    - mockHttp() tests
+                                await $(`#date, '${str(date.toString())}'`);
+                            }
 
-                        Method is a [
-                            - GET
-                            - POST
-                        ]
-                            Url is [
-                                - an absolute url
+                    - mockHttp() tests $
 
-                                    - that's on browser's current domain
-                                    - that's not on browser's current domain
+                        Navigate to 'example.com'
 
-                                - a relative url
-
-                                - a regex
+                            Method is a [
+                                - GET
+                                    {method} is 'GET'
+                                - POST
+                                    {method} is 'POST'
                             ]
-                                Response is [
-                                    - a string
 
-                                    - a js object
+                                Url is [
+                                    - an absolute url
+                                        - that's on browser's current domain
+                                            {url} is 'http://example.com/foobar'
+                                        - that's not on browser's current domain
+                                            {url} is 'http://google.com/foobar'
 
-                                    - an array
+                                    - a relative url
+                                        {url} is '/foobar'
 
-                                        - Response body is
-                                            - a string
-                                            - an object
-
-                                    - a function
+                                    - a regex
+                                        {url} is '/foo.*'
                                 ]
-                                    - When an http request is made from the browser
-                                        - and that reponse is mocked
-                                            - Then the mocked response comes back
-                                        - and that response is not mocked
-                                            - Then a 404 error comes back
+
+                                    Response is [
+                                        a string {
+                                            g('response', 'response body here');
+                                            g('expected response', 'response body here');
+                                        }
+
+                                        a js object {
+                                            g('response', {one:'two'});
+                                            g('expected response', '{"one":"two"}');
+                                        }
+
+                                        an array [
+                                            - Response body is
+                                                a string {
+                                                    g('response', [200, { "Content-Type": "text/html" }, "response body here"]);
+                                                    g('expected response', 'response body here');
+                                                }
+                                                an object {
+                                                    g('response', [200, { "Content-Type": "text/html" }, {one:'two'} ]);
+                                                    g('expected response', '{"one":"two"}');
+                                                }
+                                        ]
+
+                                        a function {
+                                            function f(xhr) {
+                                                xhr.respond(200, { "Content-Type": "text/html" }, 'function response here');
+                                            }
+                                            g('response', f);
+                                            g('expected response', 'function response here');
+                                        }
+                                    ]
+
+                                        - When an http request is made from the browser
+
+                                            to a mocked endpoint {
+                                                await browser.mockHttp(method, url, response);
+                                                g('actual response',
+                                                    await browser.executeAsyncScript(function(method, url, done) {
+                                                        var oReq = new XMLHttpRequest();
+                                                        oReq.addEventListener('load', done);
+                                                        oReq.open(method, url);
+                                                        oReq.send();
+                                                    }, method, url)
+                                                );
+                                            }
+
+                                                Then the mocked response comes back {
+                                    console.log(g('actual response'))
+                                                    expect(g('actual response').target.responseText).to.equal(g('expected response'));
+                                                }
+
+                                            // to a non-mocked endpoint {
+                                            // }
+                                            //
+                                            //     Then a 404 error comes back {
+                                            //
+                                            //     }
 
                     - mockHttpConfigure() tests
 
@@ -590,10 +651,22 @@ open edge         #windows
 
                     - injectSinon() tests
 
-                        - Sinon already exists in browser
-                        - Sinon does not already exist in browser
+                        Sinon already exists in browser {
+                            await browser.injectSinon();
+                        }
+                        Sinon does not already exist in browser {
+                        }
 
-                            - Global sinon object is accessible within browser
+                            When injectSinon() is called {
+                                await browser.injectSinon();
+                            }
+
+                                Then the global sinon object is accessible within browser {
+                                    let exists = await browser.executeScript(function() {
+                                        return typeof sinon != 'undefined';
+                                    });
+                                    expect(exists).to.be.true;
+                                }
 
                 - Screenshots tests
 

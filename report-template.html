@@ -1072,6 +1072,7 @@ c     = copy text of branch
                 onReportData(data) {
                     data = JSON.parse(unescapeBackticks(data));
                     this.branchSnapshots = [];
+                    data.limitMap = {};
                     this.setState(data);
                     this.openConnection(data.reportDomain);
                 }

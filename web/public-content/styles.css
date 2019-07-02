@@ -121,20 +121,43 @@ p {
 }
 
 .code.block {
-    font-size: 14px;
     white-space: pre;
     margin: 10px 0;
     padding: 10px 16px 10px 6px;
 }
 
-.code.inline {
-    padding: 1px 5px;
+.code.block table {
+    border-spacing: 0;
+    border-width: 0;
+}
+
+.code.block td {
+    padding: 0;
+    vertical-align: top;
+}
+
+.code.block .line-numbers {
+    position: relative;
+    top: 3px;
 }
 
 .code .line-number {
     color: rgb(80,80,80);
     font-size: 10px;
     margin-right: 20px;
+    height: 16px;
+}
+
+.code.block .lines {
+    font-size: 14px;
+}
+
+.code.block .line {
+    height: 16px;
+}
+
+.code.inline {
+    padding: 1px 5px;
 }
 
 .code .modifier,
