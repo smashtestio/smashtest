@@ -28,12 +28,12 @@ class Comparer {
      */
     static expect(actualObj, errorStart, errorEnd, jsonClone) {
         if(typeof errorStart == 'undefined') {
-            errorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED;
+            errorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
         }
         if(typeof errorEnd == 'undefined') {
             errorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;
         }
-        
+
         return {
             to: {
                 match: (expectedObj) => {

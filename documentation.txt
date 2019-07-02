@@ -209,7 +209,7 @@ Textual steps (-)
     - -s is also a textual step
 
 UI Testing
-    - Open Chrome/Open Firefox/Open Safari !/Open IE/Open Edge !
+    - Open Chrome/Open Firefox/Open Safari/Open Safari (parallel)/Open IE/Open Edge
         - Open browser 'browser name'
         - All steps below only exist in the context of Open browser
     - Mobile/Tablet/Laptop/Desktop

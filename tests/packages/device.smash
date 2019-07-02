@@ -1,10 +1,10 @@
 Open Chrome $
 Open Firefox $
-Open Safari ! $
+Open Safari $
 Open IE
 Open Edge
 
-    *
+    [
         - Generic devices
 
             Mobile
@@ -60,6 +60,5 @@ Open Edge
             iPad
             iPad Mini
             iPad Pro
-    *
-
+    ]
         - Debug and manually verify #manual

@@ -1,6 +1,6 @@
 open chrome $
 open firefox $
-open safari !
+open safari $
 open ie
 open edge
 
@@ -57,7 +57,7 @@ open edge
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(1);
-                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                    expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
                                 }
 
                                 finds all elements {
@@ -67,8 +67,8 @@ open edge
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(5);
-                                    expect(await results.matches[0].getTagName()).to.equal('html');
-                                    expect(await results.matches[1].getTagName()).to.equal('body');
+                                    expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
+                                    expect((await results.matches[1].getTagName()).toLowerCase()).to.equal('body');
                                     expect(await results.matches[2].getAttribute('id')).to.equal('one');
                                     expect(await results.matches[3].getAttribute('id')).to.equal('two');
                                     expect(await results.matches[4].getAttribute('id')).to.equal('three');
@@ -97,7 +97,7 @@ open edge
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(1);
-                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                    expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
                                 }
 
                                 finds all elements {
@@ -107,8 +107,8 @@ open edge
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(5);
-                                    expect(await results.matches[0].getTagName()).to.equal('html');
-                                    expect(await results.matches[1].getTagName()).to.equal('body');
+                                    expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
+                                    expect((await results.matches[1].getTagName()).toLowerCase()).to.equal('body');
                                     expect(await results.matches[2].getAttribute('id')).to.equal('one');
                                     expect(await results.matches[3].getAttribute('id')).to.equal('two');
                                     expect(await results.matches[4].getAttribute('id')).to.equal('three');
@@ -195,7 +195,7 @@ open edge
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(1);
-                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                    expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
                                 }
 
                                 finds all elements {
@@ -205,8 +205,8 @@ open edge
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(4);
-                                    expect(await results.matches[0].getTagName()).to.equal('html');
-                                    expect(await results.matches[1].getTagName()).to.equal('body');
+                                    expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
+                                    expect((await results.matches[1].getTagName()).toLowerCase()).to.equal('body');
                                     expect(await results.matches[2].getAttribute('id')).to.equal('one');
                                     expect(await results.matches[3].getAttribute('for')).to.equal('one');
                                 }
@@ -234,7 +234,7 @@ open edge
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(1);
-                                    expect(await results.matches[0].getTagName()).to.equal('html');
+                                    expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
                                 }
 
                                 finds all elements {
@@ -244,8 +244,8 @@ open edge
 
                                     expect(results.ef.hasErrors()).to.be.false;
                                     expect(results.matches).to.have.lengthOf(3);
-                                    expect(await results.matches[0].getTagName()).to.equal('html');
-                                    expect(await results.matches[1].getTagName()).to.equal('body');
+                                    expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
+                                    expect((await results.matches[1].getTagName()).toLowerCase()).to.equal('body');
                                     expect(await results.matches[2].getAttribute('id')).to.equal('one');
                                 }
 
@@ -520,7 +520,7 @@ open edge
 
                                                 expect(results.ef.hasErrors()).to.be.false;
                                                 expect(results.matches).to.have.lengthOf(1);
-                                                expect(await results.matches[0].getTagName()).to.equal('html');
+                                                expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
                                             }
 
                                         try to find all elements {
@@ -533,8 +533,8 @@ open edge
 
                                                 expect(results.ef.hasErrors()).to.be.false;
                                                 expect(results.matches).to.have.lengthOf(4);
-                                                expect(await results.matches[0].getTagName()).to.equal('html');
-                                                expect(await results.matches[1].getTagName()).to.equal('body');
+                                                expect((await results.matches[0].getTagName()).toLowerCase()).to.equal('html');
+                                                expect((await results.matches[1].getTagName()).toLowerCase()).to.equal('body');
                                                 expect(await results.matches[2].getAttribute('id')).to.equal('one');
                                                 expect(await results.matches[3].getAttribute('id')).to.equal('four');
                                             }
@@ -4212,8 +4212,8 @@ open edge
                     let results = await ef.find(browser.driver, undefined, false, false, 500);
 
                     expect(results).to.have.lengthOf(4);
-                    expect(await results[0].getTagName()).to.equal('html');
-                    expect(await results[1].getTagName()).to.equal('body');
+                    expect((await results[0].getTagName()).toLowerCase()).to.equal('html');
+                    expect((await results[1].getTagName()).toLowerCase()).to.equal('body');
                     expect(await results[2].getAttribute('id')).to.equal('one');
                     expect(await results[3].getAttribute('id')).to.equal('two');
                 }

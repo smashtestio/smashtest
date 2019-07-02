@@ -26,7 +26,13 @@
 }
     Use browser +?
 
-* Open Safari {
+* Open Safari ! {
+    // only one open Safari instance is allowed, hence the !
+    await BrowserInstance.create(runInstance).open({name: 'safari'});
+}
+    Use browser +?
+
+* Open Safari (parallel) {
     await BrowserInstance.create(runInstance).open({name: 'safari'});
 }
     Use browser +?
@@ -92,6 +98,7 @@
 
     *** After Every Branch {
         if(typeof browser != 'undefined') {
+            await new Promise(res => setTimeout(res, 100));
             await browser.clearUnneededScreenshots();
             await browser.close();
         }
