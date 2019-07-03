@@ -20,7 +20,7 @@ class Runner {
         this.groups = undefined;         // Array of string. Only run branches that are a part of one of these groups, no restrictions if this is undefined.
         this.headless = undefined;       // If true, run external processes (e.g., browsers) as headless, if possible
         this.maxParallel = 5;            // The maximum number of simultaneous branches to run
-        this.maxScreenshots = 2000;      // The maximum number of screenshots to take, -1 for no limit
+        this.maxScreenshots = -1;        // The maximum number of screenshots to take, -1 for no limit
         this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
         this.noDebug = false;            // If true, a compile error will occur if a $, ~, or ~~ is present anywhere in the tree
         this.outputErrors = true;        // If true, output errors to console
