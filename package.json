@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vptes1/smashtest.git"
+    "url": "https://github.com/smashtestio/smashtest.git"
   },
   "files": [
     "src/**",
