@@ -2,8 +2,8 @@
     // run a mock express test server
     const express = i('express');
     const http = i('http');
-    const bodyParser = require('body-parser');
-    const cookieParser = require('cookie-parser');
+    const bodyParser = i('body-parser');
+    const cookieParser = i('cookie-parser');
 
     let app = express();
     app.use(bodyParser.json());
