@@ -1,10 +1,1 @@
 node_modules
-selenium-server-standalone-3.141.59.jar
-package-lock.json
-coverage
-.nyc_output
-.prompt_hist.txt
-samplescreenshot1.png
-samplescreenshot2.png
-logo
-smashtest
