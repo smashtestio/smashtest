@@ -3926,7 +3926,7 @@ open edge
                             if those elements disappear after the timeout {
                                 setTimeout(() => setPageBody(`
                                     <div id="five" class="med">foobar</div>
-                                `), 2000);
+                                `), 5000);
                             }
                         ]
 
@@ -3934,7 +3934,7 @@ open edge
                                 let ef = new ElementFinder(`1+ x .big`);
                                 await expect(ef.find(browser.driver, undefined, true, false, 1500)).to.be.rejectedWith(`Elements still found after timeout (1.5 s)`);
 
-                                await new Promise(res => setTimeout(res, 1000)); // wait 1 more sec, so that browser is still around when setTimeout() goes off
+                                await new Promise(res => setTimeout(res, 5000)); // wait 5 more secs, so that browser is still around when setTimeout() goes off
                             }
 
                     - if nothing is ever found
