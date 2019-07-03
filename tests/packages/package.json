@@ -1,0 +1,14 @@
+{
+  "name": "smashtest-tests",
+  "version": "1.0.0-beta",
+  "description": "smashtest",
+  "author": "smashtest <smashtest.io>",
+  "license": "MIT",
+  "homepage": "smashtest.io",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.17.1",
+    "util": "^0.11.1"
+  }
+}

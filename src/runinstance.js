@@ -686,9 +686,16 @@ class RunInstance {
             }
             catch(e) {
                 if(!isPath) {
-                    // also try under ../node_modules
-                    packageName = `${path.dirname(filename)}/../node_modules/${packageName}`;
-                    this.setPersistent(varName, require(packageName));
+                    try {
+                        // also try under ./node_modules
+                        packageName = `${path.dirname(filename)}/./node_modules/${packageName}`;
+                        this.setPersistent(varName, require(packageName));
+                    }
+                    catch(e) {
+                        // also try under ../node_modules
+                        packageName = `${path.dirname(filename)}/../node_modules/${packageName}`;
+                        this.setPersistent(varName, require(packageName));
+                    }
                 }
                 else {
                     throw e;

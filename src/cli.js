@@ -34,7 +34,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("SmashTEST 1.0.2 BETA"));
+console.log(yellowChalk.bold("SmashTEST 1.0.3 BETA"));
 console.log("");
 
 // ***************************************
