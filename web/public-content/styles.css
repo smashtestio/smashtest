@@ -114,7 +114,7 @@ p {
 }
 
 .code {
-    color: #abb2bf;
+    color: #b2b2b2;
     border: 1px solid gray;
     background-color: rgb(35,35,35);
     border-radius: 5px;
@@ -149,6 +149,7 @@ p {
 }
 
 .code.block .lines {
+    color: #b2b2b2;
     font-size: 14px;
 }
 

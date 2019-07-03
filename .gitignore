@@ -1,8 +1,6 @@
 node_modules
 selenium-server-standalone-3.141.59.jar
 package-lock.json
-geckodriver
-chromedriver
 coverage
 .nyc_output
 .prompt_hist.txt
