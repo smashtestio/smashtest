@@ -31,6 +31,7 @@ describe("StepNode", () => {
                 assert.equal(s.isTextualStep, undefined);
                 assert.equal(s.isOnly, undefined);
                 assert.equal(s.isNonParallel, undefined);
+                assert.equal(s.isNonParallelCond, undefined);
                 assert.equal(s.isSequential, undefined);
                 assert.equal(s.varsList, undefined);
             });
@@ -467,11 +468,27 @@ describe("StepNode", () => {
                 s.parseLine(`Click {button} !`, "file.txt", 10);
                 assert.equal(s.text, `Click {button}`);
                 assert.equal(s.isNonParallel, true);
+                assert.equal(s.isNonParallelCond, undefined);
 
                 s = new StepNode(0);
                 s.parseLine(`Click {button} .s ! .. // comment`, "file.txt", 10);
                 assert.equal(s.text, `Click {button}`);
                 assert.equal(s.isNonParallel, true);
+                assert.equal(s.isNonParallelCond, undefined);
+            });
+
+            it("parses the non-parallel conditional modifier (!!)", () => {
+                s = new StepNode(0);
+                s.parseLine(`Click {button} !!`, "file.txt", 10);
+                assert.equal(s.text, `Click {button}`);
+                assert.equal(s.isNonParallel, undefined);
+                assert.equal(s.isNonParallelCond, true);
+
+                s = new StepNode(0);
+                s.parseLine(`Click {button} .s !! .. // comment`, "file.txt", 10);
+                assert.equal(s.text, `Click {button}`);
+                assert.equal(s.isNonParallel, undefined);
+                assert.equal(s.isNonParallelCond, true);
             });
 
             it("parses the sequential modifier (..)", () => {

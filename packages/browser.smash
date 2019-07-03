@@ -26,35 +26,20 @@
 }
     Use browser +?
 
-* Open Safari ! {
-    // only one open Safari instance is allowed, hence the !
+* Open Safari !! {
+    // only one open Safari instance is allowed, hence the !!
     await BrowserInstance.create(runInstance).open({name: 'safari'});
 }
     Use browser +?
 
-* Open Safari (parallel) {
-    await BrowserInstance.create(runInstance).open({name: 'safari'});
-}
-    Use browser +?
-
-* Open IE ! {
-    // only one open IE instance is allowed, hence the !
+* Open IE !! {
+    // only one open IE instance is allowed, hence the !!
     await BrowserInstance.create(runInstance).open({name: 'internet explorer'});
 }
     Use browser +?
 
-* Open IE (parallel) {
-    await BrowserInstance.create(runInstance).open({name: 'internet explorer'});
-}
-    Use browser +?
-
-* Open Edge ! {
-    // only one open Edge instance is allowed, hence the !
-    await BrowserInstance.create(runInstance).open({name: 'MicrosoftEdge'});
-}
-    Use browser +?
-
-* Open Edge (parallel) {
+* Open Edge !! {
+    // only one open Edge instance is allowed, hence the !1
     await BrowserInstance.create(runInstance).open({name: 'MicrosoftEdge'});
 }
     Use browser +?
@@ -110,7 +95,7 @@
 
     *** After Every Branch {
         if(typeof browser != 'undefined') {
-            await new Promise(res => setTimeout(res, 100));
+            await new Promise(res => setTimeout(res, 200));
             await browser.clearUnneededScreenshots();
             await browser.close();
         }

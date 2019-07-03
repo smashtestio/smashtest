@@ -542,7 +542,7 @@ class RunInstance {
             branchAbove.push(new Step(tempStep.id), this.tree.stepNodeIndex);
         }
 
-        let branchesToRun = this.tree.branchify(stepNode, undefined, undefined, undefined, undefined, branchAbove); // branchify so that if step is an already-defined function call, it will work
+        let branchesToRun = this.tree.branchify(stepNode, branchAbove); // branchify so that if step is an already-defined function call, it will work
         let stepsToRun = branchesToRun[0];
         this.stepsRan.mergeToEnd(stepsToRun);
 

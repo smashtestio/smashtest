@@ -24,10 +24,17 @@ class Tree {
 
         this.latestBranchifiedStepNode = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
 
-        this.stepDataMode = 'all';           // Keep step data for all steps, failed steps only, or no steps ('all', 'fail', or 'none')
+        this.stepDataMode = 'all';            // Keep step data for all steps, failed steps only, or no steps ('all', 'fail', or 'none')
 
         /*
         OPTIONAL
+
+        this.groups = [];                     // Array of String, only generate branches part of at least one of these groups, no group restrictions if this is undefined
+        this.minFrequency = '';               // Only generate branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+        this.noDebug = false;                 // If true, throws an error if at least one ~, ~~, or $ is encountered in the tree at or below the given step
+        this.noRandom = false;                // If true, does not randomize the order of branches generated
+        this.debugHash = '';                  // If set, only generate the one branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
+        this.noCondNonParallel = false;       // If true, conditional non-parallel modifiers (!!) are ignored
 
         this.elapsed = 0;                    // number of ms it took for all branches to execute, set to -1 if paused
         this.timeStarted = {};               // Date object (time) of when this tree started being executed
@@ -585,10 +592,6 @@ ${outputBranchAbove(this)}
     /**
      * Converts the given step node and its children into branches. Expands function calls, step blocks, etc.
      * @param {Step} stepNode - StepNode to convert to branches (NOTE: do not set step to a StepBlockNode unless it's a sequential StepBlockNode)
-     * @param {Array} [groups] - Array of String, only return branches part of at least one of these groups, no group restrictions if this is undefined
-     * @param {String} [minFrequency] - Only return branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~, ~~, or $ is encountered in the tree at or below the given step
-     * @param {String} [debugHash] - If set, only return the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
      * @param {Branch} [branchAbove] - post-branchify branch that comes before stepNode (used to help find function declarations), empty branch if omitted
      * @param {Number} [level] - Number of levels of function calls stepNode is under, 0 if omitted
      * @param {Boolean} [isFunctionCall] - If true, stepNode is a function declaration, and this branchify() call is in response to encountering a function call step node
@@ -596,7 +599,7 @@ ${outputBranchAbove(this)}
      * @return {Array} Array of Branch, containing the branches at and under stepNode (does not include the steps from branchAbove). Returns null if stepNode is a function declaration but isFunctionCall wasn't set (i.e., an unexpected function declaration - very rare scenario).
      * @throws {Error} If an error occurred
      */
-    branchify(stepNode, groups, minFrequency, noDebug, debugHash, branchAbove, level, isFunctionCall, isSequential) {
+    branchify(stepNode, branchAbove, level, isFunctionCall, isSequential) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -616,17 +619,17 @@ ${outputBranchAbove(this)}
         isSequential = (stepNode.isSequential && !(stepNode instanceof StepBlockNode)) || isSequential; // is this step node or any step node above it sequential? (does not include sequential step blocks)
 
         // Enforce noDebug
-        if(noDebug) {
+        if(this.noDebug) {
             if(stepNode.isDebug) {
                 if(stepNode.isExpressDebug) {
-                    utils.error(`A ~~ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
+                    utils.error(`A ~~ was found, but the no-debug flag is set`, stepNode.filename, stepNode.lineNumber);
                 }
                 else {
-                    utils.error(`A ~ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
+                    utils.error(`A ~ was found, but the no-debug flag is set`, stepNode.filename, stepNode.lineNumber);
                 }
             }
             else if(stepNode.isOnly) {
-                utils.error(`A $ was found, but the noDebug flag is set`, stepNode.filename, stepNode.lineNumber);
+                utils.error(`A $ was found, but the no-debug flag is set`, stepNode.filename, stepNode.lineNumber);
             }
         }
 
@@ -672,7 +675,7 @@ ${outputBranchAbove(this)}
                 }
 
                 // Branchify the function declaration node
-                newBranchesFromThisStepNode = placeOntoBranchAbove([step], () => this.branchify(functionDeclarationNode, groups, minFrequency, noDebug, debugHash, branchAbove, level + 1, true)); // there's no isSequential because isSequential does not extend into function calls
+                newBranchesFromThisStepNode = placeOntoBranchAbove([step], () => this.branchify(functionDeclarationNode, branchAbove, level + 1, true)); // there's no isSequential because isSequential does not extend into function calls
 
                 if(newBranchesFromThisStepNode.length == 0) {
                     // If newBranchesFromThisStepNode is empty (happens when the function declaration is empty),
@@ -725,7 +728,7 @@ ${outputBranchAbove(this)}
             // Branches from each step block member are cross joined sequentially to each other
             let branchesInThisStepBlock = [];
             stepNode.steps.forEach(s => {
-                let branchesFromThisStepBlockMember = this.branchify(s, groups, minFrequency, noDebug, debugHash, branchAbove, level, true); // there's no isSequential because isSequential does not extend into function calls
+                let branchesFromThisStepBlockMember = this.branchify(s, branchAbove, level, true); // there's no isSequential because isSequential does not extend into function calls
 
                 if(branchesInThisStepBlock.length == 0) {
                     branchesInThisStepBlock = branchesFromThisStepBlockMember;
@@ -872,7 +875,7 @@ ${outputBranchAbove(this)}
                 if(child instanceof StepBlockNode && !child.isSequential) {
                     // If this child is a non-sequential step block, just call branchify() directly on each member
                     child.steps.forEach(s => {
-                        let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => self.branchify(s, groups, minFrequency, noDebug, debugHash, branchAbove, level, false, isSequential));
+                        let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => self.branchify(s, branchAbove, level, false, isSequential));
                         if(branchesFromChild && branchesFromChild.length > 0) {
                             branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                         }
@@ -881,7 +884,7 @@ ${outputBranchAbove(this)}
                 }
                 else {
                     // If this child is a step, call branchify() on it normally
-                    let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => self.branchify(child, groups, minFrequency, noDebug, debugHash, branchAbove, level, false, isSequential));
+                    let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => self.branchify(child, branchAbove, level, false, isSequential));
                     if(branchesFromChild && branchesFromChild.length > 0) {
                         branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                     }
@@ -907,7 +910,7 @@ ${outputBranchAbove(this)}
 
                 let branchesFromChildren = getBranchesFromChildren(branchFromThisStepNode, this);
                 branchesFromChildren.forEach(branch => branch.isSkipBranch && (bigBranch.isSkipBranch = true));
-                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, stepNode.indents == -1);
+                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, stepNode.indents == -1);
                 branchesFromChildren.forEach(branchFromChild => {
                     bigBranch.mergeToEnd(branchFromChild);
                 });
@@ -918,7 +921,7 @@ ${outputBranchAbove(this)}
             // Cross-join between branchesFromThisStepNode and branches from children
             branchesFromThisStepNode.forEach(branchFromThisStepNode => {
                 let branchesFromChildren = getBranchesFromChildren(branchFromThisStepNode, this);
-                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, groups, minFrequency, debugHash, stepNode.indents == -1);
+                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, stepNode.indents == -1);
                 branchesFromChildren.forEach(branchFromChild => {
                     branchesBelow.push(branchFromThisStepNode.clone().mergeToEnd(branchFromChild.clone()));
                 });
@@ -954,13 +957,21 @@ ${outputBranchAbove(this)}
         }
 
         // If isNonParallel (!) is set, connect up the branches in branchesBelow
-        if(step.id && this.getModifier(step, 'isNonParallel')) {
-            let nonParallelId = step.id;
-            if(step.hasOwnProperty('fid') && this.stepNodeIndex[step.fid].isNonParallel) {
-                nonParallelId = step.fid;
-            }
+        let nonParallelId = undefined;
+        if(step.fid && (this.stepNodeIndex[step.fid].isNonParallel || (this.stepNodeIndex[step.fid].isNonParallelCond && !this.noCondNonParallel))) {
+            nonParallelId = step.fid;
+        }
+        else if(stepNode.isNonParallel || (stepNode.isNonParallelCond && !this.noCondNonParallel)) {
+            nonParallelId = step.id;
+        }
 
-            branchesBelow.forEach(branch => branch.nonParallelId = nonParallelId);
+        if(nonParallelId) {
+            branchesBelow.forEach(branch => {
+                if(!branch.nonParallelIds) {
+                    branch.nonParallelIds = [];
+                }
+                branch.nonParallelIds.push(nonParallelId);
+            });
         }
 
         return branchesBelow;
@@ -981,14 +992,11 @@ ${outputBranchAbove(this)}
 
     /**
      * @param {Array of Branch} branches - An array of branches that came from a step's children
-     * @param {Array} [groups] - Array of String, only return branches part of at least one of these groups, no group restrictions if this is undefined
-     * @param {String} [minFrequency] - Only return branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {String} [debugHash] - If set, all branches will be returned and the caller will need to isolate the branch that matches the hash
      * @param {Boolean} [isRoot] - If true, branches are the children of the root step in the tree
      * @return {Array of Branch} Branches from branches that are not being removed due to $, ~, minFrequency, or groups
      */
-    removeUnwantedBranches(branches, groups, minFrequency, debugHash, isRoot) {
-        if(debugHash) {
+    removeUnwantedBranches(branches, isRoot) {
+        if(this.debugHash) {
             return branches;
         }
 
@@ -1024,7 +1032,7 @@ ${outputBranchAbove(this)}
         // 2) Remove branches by groups
         //    (but only for steps at the top of the tree)
         // ***************************************
-        if(groups && isRoot) {
+        if(this.groups && isRoot) {
             for(let i = 0; i < branches.length;) {
                 let branch = branches[i];
 
@@ -1034,8 +1042,8 @@ ${outputBranchAbove(this)}
                 }
 
                 let isGroupMatched = false;
-                for(let j = 0; j < groups.length; j++) {
-                    let groupAllowedToRun = groups[j];
+                for(let j = 0; j < this.groups.length; j++) {
+                    let groupAllowedToRun = this.groups[j];
                     if(branch.groups.indexOf(groupAllowedToRun) != -1) {
                         isGroupMatched = true;
                         break;
@@ -1066,10 +1074,10 @@ ${outputBranchAbove(this)}
         // 3) Remove branches by frequency
         //    (but only for steps at the top of the tree)
         // ***************************************
-        if(minFrequency && isRoot) {
+        if(this.minFrequency && isRoot) {
             for(let i = 0; i < branches.length;) {
                 let branch = branches[i];
-                let freqAllowed = freqToNum(minFrequency);
+                let freqAllowed = freqToNum(this.minFrequency);
                 let freqOfBranch = freqToNum(branch.frequency);
 
                 if(freqOfBranch >= freqAllowed) {
@@ -1079,7 +1087,7 @@ ${outputBranchAbove(this)}
                     if(branch.isDebug) {
                         let debugStep = findModifierDepth(branch, '~', this).step;
                         let debugStepNode = this.stepNodeIndex[debugStep.id];
-                        utils.error(`This step contains a ~, but is not above the frequency allowed to run (${minFrequency}). Either set its frequency higher or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
+                        utils.error(`This step contains a ~, but is not above the frequency allowed to run (${this.minFrequency}). Either set its frequency higher or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
                     }
                     else {
                         branches.splice(i, 1); // remove this branch
@@ -1184,17 +1192,12 @@ ${outputBranchAbove(this)}
      * Converts the tree under this.root into an array of Branch in this.branches, randomly sorts these branches
      * Called after all of the tree's text has been inputted with parseIn()
      * Gets everything ready for the test runner
-     * @param {Array} [groups] - Array of String, where each string is a group we want run (do not run branches with no group or not in at least one group listed here), no group restrictions if this is undefined
-     * @param {String} [minFrequency] - Only run branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-     * @param {Boolean} [noDebug] - If true, throws an error if at least one ~, ~~, or $ is encountered in this.branches
-     * @param {String} [debugHash] - If set, run the branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
-     * @param {Boolean} [noRandom] - If true, does not randomly sort branches
      * @throws {Error} If an error occurs (e.g., if a function declaration cannot be found)
      */
-    generateBranches(groups, minFrequency, noDebug, debugHash, noRandom) {
+    generateBranches() {
         // Branchify and detect infinite loops
         try {
-            this.branches = this.branchify(this.root, groups, minFrequency, noDebug, debugHash);
+            this.branches = this.branchify(this.root);
         }
         catch(e) {
             if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
@@ -1260,7 +1263,7 @@ ${outputBranchAbove(this)}
         });
 
         // Randomize order of branches
-        if(!noRandom) {
+        if(!this.noRandom) {
             function randomizeOrder(arr) {
                 for(let i = arr.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -1322,10 +1325,10 @@ ${outputBranchAbove(this)}
         this.branches.forEach(branch => branch.updateHash(this.stepNodeIndex));
 
         // Choose branch by debugHash, if one is set
-        if(debugHash) {
+        if(this.debugHash) {
             let found = false;
             for(let i = 0; i < this.branches.length; i++) {
-                if(this.branches[i].equalsHash(debugHash)) {
+                if(this.branches[i].equalsHash(this.debugHash)) {
                     this.branches = [ this.branches[i] ];
 
                     let lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
@@ -1597,19 +1600,27 @@ ${outputBranchAbove(this)}
         for(let i = 0; i < this.branches.length; i++) {
             let branch = this.branches[i];
             if(!branch.isCompleteOrRunning()) {
-                if(branch.nonParallelId) {
-                    // If a branch's nonParallelId is set, check if a previous branch with that id is still running
+                if(branch.nonParallelIds) {
+                    // If a branch's nonParallelIds are set, check if a previous branch with one of those ids is still running
                     let found = false;
-                    for(let j = 0; j < this.branches.length; j++) {
-                        let b = this.branches[j];
-                        if(b.nonParallelId == branch.nonParallelId && b.isRunning) {
-                            found = true;
-                            break;
+
+                    start:
+                        for(let j = 0; j < this.branches.length; j++) {
+                            let b = this.branches[j];
+                            if(b.isRunning && b.nonParallelIds) {
+                                for(let g = 0; g < b.nonParallelIds.length; g++) {
+                                    for(let h = 0; h < branch.nonParallelIds.length; h++) {
+                                        if(b.nonParallelIds[g] == branch.nonParallelIds[h]) {
+                                            found = true;
+                                            break start;
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
 
                     if(found) {
-                        // You can't touch this branch yet, another branch with the same nonParallelId is still executing
+                        // You can't touch this branch yet, another branch that has the same nonParallelId is still executing
                         continue;
                     }
                 }

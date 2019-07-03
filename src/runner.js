@@ -51,7 +51,15 @@ class Runner {
      */
     init(tree, noRandom) {
         this.tree = tree;
-        this.tree.generateBranches(this.groups, this.minFrequency, this.noDebug, this.debugHash, noRandom || !this.random);
+
+        this.tree.groups = this.groups;
+        this.tree.minFrequency = this.minFrequency;
+        this.tree.noDebug = this.noDebug;
+        this.tree.debugHash = this.debugHash;
+        this.tree.noRandom = noRandom || !this.random;
+        this.tree.noCondNonParallel = typeof this.testServer != 'undefined';
+
+        this.tree.generateBranches();
 
         // If headless not set, set it to true, unless we're debugging with ~
         if(typeof this.headless == 'undefined') {

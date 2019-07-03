@@ -48,6 +48,7 @@ class StepNode {
         this.isExpressDebug = false;          // true if this step node has the express debug modifier (~~)
         this.isOnly = false;                  // true if this step node has the only modifier ($)
         this.isNonParallel = false;           // true if this step node has the non-parallel modifier (!)
+        this.isNonParallelCond = false;       // true if this step node has the non-parallel (conditional) modifier (!!)
         this.isSequential = false;            // true if this step node has the sequential modifier (..)
         this.isCollapsed = false;             // true if this step node should be collapsed in the report (+)
         this.isHidden = false;                // true if this step node should be hidden in the report (+?)
@@ -215,6 +216,9 @@ class StepNode {
             }
             if(this.modifiers.includes('!')) {
                 this.isNonParallel = true;
+            }
+            if(this.modifiers.includes('!!')) {
+                this.isNonParallelCond = true;
             }
             if(this.modifiers.includes('..')) {
                 this.isSequential = true;

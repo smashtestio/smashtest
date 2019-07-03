@@ -125,7 +125,6 @@ class BrowserInstance {
         };
 
         // Browser name
-
         if(!params.name) {
             try {
                 this.runInstance.findVarValue("browser name", false, true); // look for {browser name}, above or below
@@ -136,7 +135,6 @@ class BrowserInstance {
         }
 
         // Browser version
-
         if(!params.version) {
             try {
                 this.runInstance.findVarValue("browser version", false, true); // look for {browser version}, above or below
@@ -145,7 +143,6 @@ class BrowserInstance {
         }
 
         // Browser platform
-
         if(!params.platform) {
             try {
                 this.runInstance.findVarValue("browser platform", false, true); // look for {browser platform}, above or below
@@ -154,27 +151,23 @@ class BrowserInstance {
         }
 
         // Mobile device emulation (Chrome only)
-
         if(!params.deviceEmulation) {
             try {
                 params.deviceEmulation = this.runInstance.findVarValue("device", false, true);
             }
             catch(e) {}
         }
-
         if(params.deviceEmulation) {
             options.chrome.setMobileEmulation({deviceName: params.deviceEmulation});
         }
 
         // Dimensions
-
         if(!params.width) {
             try {
                 params.width = parseInt(this.runInstance.findVarValue("browser width", false, true)); // look for {browser width}, above or below
             }
             catch(e) {}
         }
-
         if(!params.height) {
             try {
                 params.height = parseInt(this.runInstance.findVarValue("browser height", false, true)); // look for {browser height}, above or below
@@ -183,7 +176,6 @@ class BrowserInstance {
         }
 
         // Headless
-
         if(typeof params.isHeadless == 'undefined') {
             params.isHeadless = this.runInstance.runner.headless;
         }
@@ -196,13 +188,14 @@ class BrowserInstance {
         }
 
         // Test server url
-
         if(!params.testServer) {
             params.testServer = this.runInstance.runner.testServer;
         }
 
-        // Log
+        // No console logging
+        options.chrome.addArguments('log-level=3', 'silent');
 
+        // Log
         let logStr = `Starting browser '${params.name}'`;
         params.version && (logStr += `, version '${params.version}'`);
         params.platform && (logStr += `, platform '${params.platform}'`);
@@ -215,7 +208,6 @@ class BrowserInstance {
         this.runInstance.log(logStr);
 
         // Build the driver
-
         let builder = new Builder()
             .forBrowser(params.name, params.version, params.platform)
             .setChromeOptions(options.chrome)

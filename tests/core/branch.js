@@ -29,7 +29,7 @@ describe("Branch", () => {
 
             let branch2 = new Branch;
             branch2.steps = [ stepB, stepC ];
-            branch2.nonParallelId = "ppppp";
+            branch2.nonParallelIds = ["ppppp"];
             branch2.frequency = "high";
             branch2.groups = [ "2", "3" ];
             branch2.isSkipBranch = true;
@@ -46,7 +46,7 @@ describe("Branch", () => {
                     { text: "B" },
                     { text: "C" }
                 ],
-                nonParallelId: "ppppp",
+                nonParallelIds: ["ppppp"],
                 frequency: "high",
                 groups: [ "1", "2", "3" ],
                 isSkipBranch: true,
@@ -825,7 +825,7 @@ describe("Branch", () => {
         it("returns a serialized object", () => {
             let b = new Branch();
 
-            b.nonParallelId = 4;
+            b.nonParallelIds = [4];
             b.isPassed = true;
             b.steps = [ new Step(0), new Step(1) ];
 
@@ -845,7 +845,7 @@ describe("Branch", () => {
         it("returns a serialized object for a branch that passed last time", () => {
             let b = new Branch();
 
-            b.nonParallelId = 4;
+            b.nonParallelIds = [4];
             b.passedLastTime = true;
             b.steps = [ new Step(0), new Step(1) ];
 

@@ -4311,7 +4311,7 @@ H -
                 ]);
             });
 
-            it("connects branches via nonParallelId when ! is set", () => {
+            it("connects branches via nonParallelIds when ! is set", () => {
                 let tree = new Tree();
                 tree.parseIn(`
 A -
@@ -4330,24 +4330,80 @@ G -
                 let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
-                let nonParallelId = branches[1].nonParallelId;
+                let nonParallelId = branches[1].nonParallelIds[0];
 
                 Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
-                        nonParallelId: undefined
+                        nonParallelIds: undefined
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
-                        nonParallelId: nonParallelId
+                        nonParallelIds: [nonParallelId]
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
-                        nonParallelId: nonParallelId
+                        nonParallelIds: [nonParallelId]
                     },
                     {
                         steps: [ { text: "G" } ],
-                        nonParallelId: undefined
+                        nonParallelIds: undefined
+                    }
+                ]);
+            });
+
+            it("connects branches via nonParallelIds when ! is set on a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F !
+    A -
+
+F
+
+F
+                `);
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                let nonParallelId = branches[0].nonParallelIds[0];
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ],
+                        nonParallelIds: [nonParallelId, nonParallelId]
+                    },
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ],
+                        nonParallelIds: [nonParallelId, nonParallelId]
+                    }
+                ]);
+            });
+
+            it("connects branches via nonParallelIds when !! is set on a function declaration", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+* F !!
+    A -
+
+F
+
+F
+                `);
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                let nonParallelId = branches[0].nonParallelIds[0];
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ],
+                        nonParallelIds: [nonParallelId, nonParallelId]
+                    },
+                    {
+                        steps: [ { text: "F" }, { text: "A" } ],
+                        nonParallelIds: [nonParallelId, nonParallelId]
                     }
                 ]);
             });
@@ -4372,28 +4428,115 @@ G -
                 let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
-                let nonParallelId = branches[1].nonParallelId;
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "A" }, { text: "B" } ],
+                        nonParallelIds: undefined
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
+                        nonParallelIds: { $typeof: 'array', $length: 2 }
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "H" } ],
+                        nonParallelIds: { $typeof: 'array', $length: 2 }
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
+                        nonParallelIds: { $typeof: 'array', $length: 1 }
+                    },
+                    {
+                        steps: [ { text: "G" } ],
+                        nonParallelIds: undefined
+                    }
+                ]);
+            });
+
+            it("handles branches with both ! and !!", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+
+    C - !
+
+        D !! -
+            E -
+            H -
+
+        F -
+
+G -
+                `);
+
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
-                        nonParallelId: undefined
+                        nonParallelIds: undefined
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
-                        nonParallelId: nonParallelId
+                        nonParallelIds: { $typeof: 'array', $length: 2 }
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "H" } ],
-                        nonParallelId: nonParallelId
+                        nonParallelIds: { $typeof: 'array', $length: 2 }
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
-                        nonParallelId: nonParallelId
+                        nonParallelIds: { $typeof: 'array', $length: 1 }
                     },
                     {
                         steps: [ { text: "G" } ],
-                        nonParallelId: undefined
+                        nonParallelIds: undefined
+                    }
+                ]);
+            });
+
+            it("ignores !! when noCondNonParallel is set", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+
+    C - !
+
+        D !! -
+            E -
+            H -
+
+        F -
+
+G -
+                `);
+
+                tree.noCondNonParallel = true;
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "A" }, { text: "B" } ],
+                        nonParallelIds: undefined
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
+                        nonParallelIds: { $typeof: 'array', $length: 1 }
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "H" } ],
+                        nonParallelIds: { $typeof: 'array', $length: 1 }
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
+                        nonParallelIds: { $typeof: 'array', $length: 1 }
+                    },
+                    {
+                        steps: [ { text: "G" } ],
+                        nonParallelIds: undefined
                     }
                 ]);
             });
@@ -4417,26 +4560,26 @@ G -
                 let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
-                let nonParallelId0 = branches[0].nonParallelId;
-                let nonParallelId1 = branches[1].nonParallelId;
+                let nonParallelId0 = branches[0].nonParallelIds[0];
+                let nonParallelId1 = branches[1].nonParallelIds[0];
                 expect(nonParallelId0).to.not.equal(nonParallelId1);
 
                 Comparer.expect(branches).to.match([
                     {
                         steps: [ { text: "A" }, { text: "B" } ],
-                        nonParallelId: nonParallelId0
+                        nonParallelIds: [nonParallelId0]
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "D" }, { text: "E" } ],
-                        nonParallelId: nonParallelId1
+                        nonParallelIds: [nonParallelId1]
                     },
                     {
                         steps: [ { text: "A" }, { text: "C" }, { text: "F" } ],
-                        nonParallelId: nonParallelId1
+                        nonParallelIds: [nonParallelId1]
                     },
                     {
                         steps: [ { text: "G" } ],
-                        nonParallelId: undefined
+                        nonParallelIds: undefined
                     }
                 ]);
             });
@@ -4469,8 +4612,9 @@ A -
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.branchify(tree.root, undefined, undefined, true);
-                }, "A $ was found, but the noDebug flag is set [file.txt:3]");
+                    tree.noDebug = true;
+                    tree.branchify(tree.root);
+                }, "A $ was found, but the no-debug flag is set [file.txt:3]");
             });
 
             it("throws an exception if noDebug is set but a ~ is present in a branch", () => {
@@ -4481,8 +4625,9 @@ A -
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.branchify(tree.root, undefined, undefined, true);
-                }, "A ~ was found, but the noDebug flag is set [file.txt:3]");
+                    tree.noDebug = true;
+                    tree.branchify(tree.root);
+                }, "A ~ was found, but the no-debug flag is set [file.txt:3]");
             });
 
             it("throws an exception if noDebug is set but a ~~ is present in a branch", () => {
@@ -4493,8 +4638,9 @@ A -
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.branchify(tree.root, undefined, undefined, true);
-                }, "A ~~ was found, but the noDebug flag is set [file.txt:3]");
+                    tree.noDebug = true;
+                    tree.branchify(tree.root);
+                }, "A ~~ was found, but the no-debug flag is set [file.txt:3]");
             });
 
             it("marks as packaged hooks that are packaged", () => {
@@ -11308,7 +11454,8 @@ A - #high
 G -
                 `, "file.txt");
 
-                let branches = tree.branchify(tree.root, undefined, "low");
+                tree.minFrequency = "low";
+                let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
@@ -11351,7 +11498,7 @@ A - #high
 G -
                 `, "file.txt");
 
-                let branches = tree.branchify(tree.root, undefined, undefined);
+                let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
@@ -11394,7 +11541,8 @@ A - #high
 G -
                 `, "file.txt");
 
-                let branches = tree.branchify(tree.root, undefined, "med");
+                tree.minFrequency = "med";
+                let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
@@ -11433,7 +11581,8 @@ A - #high
 G -
                 `, "file.txt");
 
-                let branches = tree.branchify(tree.root, undefined, "high");
+                tree.minFrequency = "high";
+                let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
@@ -11568,12 +11717,16 @@ A - #high
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.branchify(tree.root, undefined, "high");
+                    tree.minFrequency = "high";
+                    tree.branchify(tree.root);
                 }, "This step contains a ~, but is not above the frequency allowed to run (high). Either set its frequency higher or remove the ~. [file.txt:6]");
 
-                tree.branchify(tree.root, undefined, "med");
-                tree.branchify(tree.root, undefined, "low");
-                tree.branchify(tree.root, undefined, undefined);
+                tree.minFrequency = "med";
+                tree.branchify(tree.root);
+                tree.minFrequency = "low";
+                tree.branchify(tree.root);
+                delete tree.minFrequency;
+                tree.branchify(tree.root);
             });
         });
 
@@ -11686,7 +11839,7 @@ A -
 G -
                 `, "file.txt");
 
-                let branches = tree.branchify(tree.root, undefined);
+                let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
@@ -11732,7 +11885,8 @@ A -
 G -
                 `, "file.txt");
 
-                let branches = tree.branchify(tree.root, ["first"]);
+                tree.groups = ["first"];
+                let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
@@ -11769,7 +11923,8 @@ G -
                 `, "file.txt");
 
 
-                let branches = tree.branchify(tree.root, ["first", "sixth"]);
+                tree.groups = ["first", "sixth"];
+                let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
@@ -11893,14 +12048,17 @@ A -
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.branchify(tree.root, ["one"]);
+                    tree.groups = ["one"];
+                    tree.branchify(tree.root);
                 }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:5]");
 
                 assert.throws(() => {
-                    tree.branchify(tree.root, ["one", "three", "four"]);
+                    tree.groups = ["one", "three", "four"];
+                    tree.branchify(tree.root);
                 }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:5]");
 
-                tree.branchify(tree.root, ["two"]);
+                tree.groups = ["two"];
+                tree.branchify(tree.root);
             });
         });
 
@@ -11951,7 +12109,9 @@ G -
 
                 `, "file.txt");
 
-                let branches = tree.branchify(tree.root, ["first", "sixth"], "med");
+                tree.groups = ["first", "sixth"];
+                tree.minFrequency = "med";
+                let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
                 Comparer.expect(branches).to.match([
@@ -11977,7 +12137,8 @@ C - #high
 D - #med
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12040,7 +12201,8 @@ C - .s
 D -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12076,7 +12238,8 @@ A -
             D -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12112,7 +12275,8 @@ A -
             D - .s
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12158,7 +12322,8 @@ A -
 I -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12298,7 +12463,8 @@ A -
         D -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12356,7 +12522,8 @@ G -
 H -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12385,7 +12552,8 @@ G - $s
 H -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12409,7 +12577,8 @@ C - $s
     F -
                 `);
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12437,7 +12606,8 @@ F
     C -
                 `);
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12458,7 +12628,8 @@ $s * F
 C -
                 `);
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12479,7 +12650,8 @@ F $s
 C -
                 `);
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12500,7 +12672,8 @@ F $s
 C -
                 `);
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12525,7 +12698,8 @@ $s K -
     C -
                 `);
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12550,7 +12724,8 @@ $s G .. -
 J -
                 `);
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12574,7 +12749,8 @@ C -
 F -
                 `);
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12619,7 +12795,8 @@ H -
     I -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, "30cb5a00b9b3401c1a038b06e19f1d21");
+                tree.debugHash = '30cb5a00b9b3401c1a038b06e19f1d21';
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12642,7 +12819,8 @@ D -
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.generateBranches(undefined, undefined, undefined, "INVALID-HASH");
+                    tree.debugHash = 'INVALID-HASH';
+                    tree.generateBranches();
                 }, "Couldn't find the branch with the given hash");
             });
         });
@@ -12658,7 +12836,8 @@ D -
 F ~
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12683,7 +12862,8 @@ F ~
     C -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12712,7 +12892,8 @@ F ~
 F ~
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12747,7 +12928,8 @@ F ~
         I -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12780,7 +12962,8 @@ F ~
     E -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12811,7 +12994,8 @@ F ~
     E -
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12837,7 +13021,8 @@ F ~
 F ~
                 `, "file.txt");
 
-                tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                tree.noRandom = true;
+                tree.generateBranches();
                 mergeStepNodesInBranches(tree, tree.branches);
 
                 Comparer.expect(tree.branches).to.match([
@@ -12860,7 +13045,8 @@ A -
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.generateBranches(undefined, undefined, undefined, undefined, true);
+                    tree.noRandom = true;
+                    tree.generateBranches();
                 }, "A Before Everything hook must not be indented (it must be at 0 indents) [file.txt:3]");
             });
 
@@ -12880,7 +13066,7 @@ A
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.generateBranches();
+                tree.generateBranches();
                 }, /Infinite loop detected \[file\.txt:(5|8)\]/);
             });
         });
@@ -13004,7 +13190,8 @@ K-1 -
     C -
 `);
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.isDebug = true;
             tree.elapsed = "DATE";
             tree.branches[0].passedLastTime = true;
@@ -13047,7 +13234,8 @@ G -
     H -
 `);
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.branches[0].isPassed = true;
             tree.branches[1].isPassed = true;
             tree.branches[2].isFailed = true;
@@ -13080,7 +13268,8 @@ G -
     B -
     `);
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             let obj = tree.serialize();
 
             mergeStepNodesInBranches(tree, obj.branches);
@@ -13135,7 +13324,8 @@ A -
 }
 `);
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             let obj = tree.serialize();
 
             mergeStepNodesInBranches(tree, obj.branches);
@@ -13219,7 +13409,8 @@ A -
 C -
     D -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.branches[1].isRunning = true;
 
             let snapshot = tree.serializeSnapshot();
@@ -13244,7 +13435,8 @@ A -
 C -
     D -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.updateCounts();
 
             let snapshot = tree.serializeSnapshot();
@@ -13272,7 +13464,8 @@ E -
 G -
     H -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.branches[1].isRunning = true;
             tree.branches[2].isRunning = true;
             tree.branches[3].isRunning = true;
@@ -13309,7 +13502,8 @@ E -
 G -
     H -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.branches[1].isRunning = true;
             tree.branches[2].isRunning = true;
             tree.branches[3].isRunning = true;
@@ -13351,7 +13545,8 @@ E -
 G -
     H -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.branches[1].isRunning = true;
             tree.branches[2].isRunning = true;
             tree.branches[3].isRunning = true;
@@ -13397,7 +13592,8 @@ E -
 G -
     H -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.branches[1].isRunning = true;
             tree.branches[2].isRunning = true;
             tree.branches[3].isRunning = true;
@@ -13435,7 +13631,8 @@ E -
 G -
     H -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.branches[0].isRunning = true;
             tree.branches[1].isRunning = true;
             tree.branches[2].isRunning = true;
@@ -13506,7 +13703,8 @@ A -
 C -
     D -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             let str = tree.serializePassed();
             expect(str).to.equal("");
@@ -13527,7 +13725,8 @@ E -
 G -
     H -
             `);
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.branches[0].isPassed = true;
             tree.branches[2].isPassed = true;
             tree.branches[3].passedLastTime = true;
@@ -13721,7 +13920,8 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             expect(tree.getBranchCount(false, false)).to.equal(4);
         });
@@ -13745,7 +13945,8 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].passedLastTime = true;
 
@@ -13772,7 +13973,8 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].passedLastTime = true;
             tree.branches[2].isFailed = true;
@@ -13803,7 +14005,8 @@ D -
 E -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].isPassed = true;
             tree.branches[1].isSkipped = true;
@@ -13824,7 +14027,8 @@ D -
 E -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].isPassed = true;
             tree.branches[1].isSkipped = true;
@@ -13845,7 +14049,8 @@ D -
 E -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].isPassed = true;
             tree.branches[1].isSkipped = true;
@@ -13925,7 +14130,8 @@ F -
 }
 `, "packages.txt", true);
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             expect(tree.getBranchCount(false, false)).to.equal(4);
         });
@@ -13951,7 +14157,8 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             expect(tree.getStepCount()).to.equal(13);
         });
@@ -13975,7 +14182,8 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             expect(tree.getStepCount(false)).to.equal(13);
             expect(tree.getStepCount(true)).to.equal(10);
@@ -14004,7 +14212,8 @@ F -
     G -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isFailed = true;
@@ -14026,7 +14235,8 @@ A -
             E -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].isSkipped = true;
 
@@ -14103,7 +14313,8 @@ F -
 }
 `, "packages.txt", true);
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isFailed = true;
@@ -14125,7 +14336,8 @@ A -
             E -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].steps[0].isPassed = true;
             tree.branches[0].steps[1].isFailed = true;
@@ -14155,7 +14367,8 @@ F -
 G -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             let b = null;
 
             b = tree.nextBranch();
@@ -14224,7 +14437,7 @@ G -
             Comparer.expect(b).to.match(null);
         });
 
-        it("finds a branch not yet taken, skipping over those with a running branch with the same nonParallelId", () => {
+        it("finds a branch not yet taken, skipping over those with a running branch with matching nonParallelIds", () => {
             let tree = new Tree();
             tree.parseIn(`
 A - !
@@ -14238,7 +14451,8 @@ F -
 G -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].isRunning = true;
             tree.branches[0].steps[0].isPassed = true;
@@ -14261,7 +14475,8 @@ A - !
         E -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].isRunning = true;
             tree.branches[0].steps[0].isPassed = true;
@@ -14281,7 +14496,8 @@ A - !
 
         it("returns null on an empty tree", () => {
             tree = new Tree();
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             expect(tree.nextBranch()).to.equal(null);
         });
@@ -14933,7 +15149,8 @@ B -
     D -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
             tree.initCounts();
 
             expect(tree.counts.running).to.equal(0);
@@ -14961,7 +15178,8 @@ B -
     D -
 `, "file.txt");
 
-            tree.generateBranches(undefined, undefined, undefined, undefined, true);
+            tree.noRandom = true;
+            tree.generateBranches();
 
             tree.branches[0].isPassed = true;
             tree.branches[0].steps[0].isPassed = true;

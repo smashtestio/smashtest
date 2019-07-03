@@ -13,7 +13,7 @@ class Branch {
         /*
         OPTIONAL
 
-        this.nonParallelId = "";            // When multiple branches cannot be run in parallel (due to +), they are each given the same nonParallelId
+        this.nonParallelIds = [];           // When multiple branches cannot be run in parallel (due to !), they are each given the same nonParallelId
 
         this.frequency = "";                // Frequency of this branch (either 'high', 'med', or 'low')
         this.groups = [];                   // The groups that this branch is a part of
@@ -123,7 +123,7 @@ class Branch {
     mergeToEnd(branch) {
         this.steps = this.steps.concat(branch.steps);
 
-        branch.nonParallelId && !this.nonParallelId && (this.nonParallelId = branch.nonParallelId);
+        branch.nonParallelIds && (this.nonParallelIds = [].concat(this.nonParallelIds || []).concat(branch.nonParallelIds));
         branch.frequency && (this.frequency = branch.frequency);
 
         if(branch.groups) {
