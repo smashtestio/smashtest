@@ -2,7 +2,9 @@
 
 ## What is SmashTEST?
 
-Store tests in a tree. It will greatly speed up the building and updating of automated tests.
+SmashTEST is a language for describing test cases.
+
+Greatly speed up your automated testing by storing tests in a tree.
 
 Trees represent how we think when we're testing. They allow you to list all the permutations that branch off from any given page or input.
 
