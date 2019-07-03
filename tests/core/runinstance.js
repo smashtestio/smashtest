@@ -5817,7 +5817,7 @@ Step {
 
             expect(tree.branches[0].isFailed).to.be.true;
             expect(tree.branches[0].steps[0].isFailed).to.be.true;
-            expect(tree.branches[0].steps[0].error.message).to.equal(`Cannot find module './node_modules/bad-module'`);
+            expect(tree.branches[0].steps[0].error.message).to.equal(`Cannot find module './../node_modules/bad-module'`);
         });
     });
 
