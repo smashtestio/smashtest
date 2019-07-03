@@ -39,40 +39,40 @@ Open IE
 represents
 
 ```
-Test Case 1                         Test Case 2                         Test Case 3
------------                         -----------                         -----------
-Open Chrome                         Open Firefox                        Open IE
-Navigate to 'site.com'              Navigate to 'site.com'              Navigate to 'site.com'
-Click ['Sign In']                   Click ['Sign In']                   Click ['Sign In']
-Type 'joe' into [username box]      Type 'joe' into [username box]      Type 'joe' into [username box]
-Verify success                      Verify success                      Verify success
+Test Case 1                        Test Case 2                        Test Case 3
+-----------                        -----------                        -----------
+Open Chrome                        Open Firefox                       Open IE
+Navigate to 'site.com'             Navigate to 'site.com'             Navigate to 'site.com'
+Click ['Sign In']                  Click ['Sign In']                  Click ['Sign In']
+Type 'joe' into [username box]     Type 'joe' into [username box]     Type 'joe' into [username box]
+Verify success                     Verify success                     Verify success
 
 
-Test Case 4                         Test Case 5                         Test Case 6
------------                         -----------                         -----------
-Open Chrome                         Open Firefox                        Open IE
-Navigate to 'site.com'              Navigate to 'site.com'              Navigate to 'site.com'
-Click ['Sign In']                   Click ['Sign In']                   Click ['Sign In']
-Type 'bob' into [username box]      Type 'bob' into [username box]      Type 'bob' into [username box]
-Verify success                      Verify success                      Verify success
+Test Case 4                        Test Case 5                        Test Case 6
+-----------                        -----------                        -----------
+Open Chrome                        Open Firefox                       Open IE
+Navigate to 'site.com'             Navigate to 'site.com'             Navigate to 'site.com'
+Click ['Sign In']                  Click ['Sign In']                  Click ['Sign In']
+Type 'bob' into [username box]     Type 'bob' into [username box]     Type 'bob' into [username box]
+Verify success                     Verify success                     Verify success
 
 
-Test Case 7                         Test Case 8                         Test Case 9
------------                         -----------                         -----------
-Open Chrome                         Open Firefox                        Open IE
-Navigate to 'site.com'              Navigate to 'site.com'              Navigate to 'site.com'
-Click ['Sign In']                   Click ['Sign In']                   Click ['Sign In']
-Type 'mary' into [username box]     Type 'mary' into [username box]     Type 'mary' into [username box]
-Verify success                      Verify success                      Verify success
+Test Case 7                        Test Case 8                        Test Case 9
+-----------                        -----------                        -----------
+Open Chrome                        Open Firefox                       Open IE
+Navigate to 'site.com'             Navigate to 'site.com'             Navigate to 'site.com'
+Click ['Sign In']                  Click ['Sign In']                  Click ['Sign In']
+Type 'mary' into [username box]    Type 'mary' into [username box]    Type 'mary' into [username box]
+Verify success                     Verify success                     Verify success
 
 
-Test Case 10                        Test Case 11                        Test Case 12
-------------                        ------------                        ------------
-Open Chrome                         Open Firefox                        Open IE
-Navigate to 'site.com'              Navigate to 'site.com'              Navigate to 'site.com'
-Click ['Sign In']                   Click ['Sign In']                   Click ['Sign In']
-Type 'baduser' into [username box]  Type 'baduser' into [username box]  Type 'baduser' into [username box]
-Verify error                        Verify error                        Verify error
+Test Case 10                       Test Case 11                       Test Case 12
+------------                       ------------                       ------------
+Open Chrome                        Open Firefox                       Open IE
+Navigate to 'site.com'             Navigate to 'site.com'             Navigate to 'site.com'
+Click ['Sign In']                  Click ['Sign In']                  Click ['Sign In']
+Type 'baduser' into [username box] Type 'baduser' into [username box] Type 'baduser' into [username box]
+Verify error                       Verify error                       Verify error
 ```
 
 which represents
