@@ -35,8 +35,7 @@
     "packages/**"
   ],
   "scripts": {
-    "test": "nyc --reporter=lcov mocha tests/core/*.js tests/packages/*.js",
-    "build": "babel *.html -d lib"
+    "test": "nyc --reporter=lcov mocha tests/core/*.js tests/packages/*.js"
   },
   "private": true,
   "bin": {
