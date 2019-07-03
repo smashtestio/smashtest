@@ -686,15 +686,21 @@ class RunInstance {
             }
             catch(e) {
                 if(!isPath) {
-                    try {
-                        // also try under ./node_modules
-                        let packageName2 = `${path.dirname(filename)}/./node_modules/${packageName}`;
-                        this.setPersistent(varName, require(packageName2));
-                    }
-                    catch(e) {
-                        // also try under ../node_modules
-                        let packageName2 = `${path.dirname(filename)}/../node_modules/${packageName}`;
-                        this.setPersistent(varName, require(packageName2));
+                    // search for node_modules in every directory up the file's path
+                    let currPath = path.dirname(filename);
+                    while(true) {
+                        try {
+                            let packageNameAttempt = path.join(currPath, 'node_modules', packageName);
+                            this.setPersistent(varName, require(packageNameAttempt));
+                            break;
+                        }
+                        catch(e) {
+                            if(currPath == path.dirname(currPath)) { // we're at the highest directory, break out of the loop and throw an error
+                                throw e;
+                            }
+                        }
+
+                        currPath = path.dirname(currPath); // go up a directory
                     }
                 }
                 else {
