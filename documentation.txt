@@ -3,9 +3,45 @@ What is SmashTEST?
     - Example
     - Easier to create tests as a tree, makes you think of all permutations on a single page or input.
         Represents how a tester comes up with test cases (tester thinks breadth-first, user thinks depth-first).
-    - Look to "competitive advantages" section in SmashTEST Business
     - Speed is what matters. Quick and dirty tests are ok. They won't last long anyway. What's important is that you hit all
         permutations, get them written and running with little effort, and are able to debug quickly if something breaks.
+
+    - Test 10x faster/easier/more efficiently/more coverage/more bugs found?
+    - Testers think breadth-first, etc.
+        - Why a tree?
+            - Represents how a tester comes up with test cases (tester thinks breadth-first, user thinks depth-first)
+            - Easier to create tests as a tree, makes you think of all permutations on a single page or input
+            - You can look at all the children of a step and see if you have everything covered or not
+            - To find a specific test, you just look down the tree. Hard to find a specific test when you just have a flat jumble of files.
+            - Since steps are shared, building tests and tearing them down is fast and requires much less effort (see next section about speed)
+        - Speed is what it's all about
+            - Tests are quick to build, and quick to tear down
+            - Devs and SDETs hate writing tests and this makes it easy to crank out lots of them and get really wide coverage (more than with any other framework)
+            - Otherwise your tests will be too brittle and you won't be getting your bang for the buck
+            - Everything is all in one file (or in fewer files). No need to muck around with hundreds of files (i.e., one for each test).
+            - That's why we store tests in a tree (common steps in branches are fused together), and why we don't use test names (which take time to come up with and type, and usually do a horrible job in summarizing what a test does - you can't compress the specific set of steps without losing important information)
+
+    - We allow you to create and tear down tests faster and easier
+        - Easy to use
+        - Branching, step blocks, no test naming
+        - Tests are in plain English
+        - ElementFinders
+    - We do multi-browser, including mobile and tablet
+    - We do all your testing, while competitors are too specialized
+        - Both UI and API
+            - Especially since everybody today is moving complex logic into APIs and making the UI "dumb"
+            - Potential to expand to mobile apps via appium
+        - Functional and integration (and theoretically even unit)
+    - Parallelization handling
+    - Better reports
+        - Grouping of failed branches, so you can quickly identify the culprit
+    - Skip branches that passed last time
+        - Makes fixing broken tests must faster
+        - Makes it easy to just run the tests you're currently working on/editing
+    - Multiple passes/fails per test
+        - Error.continue
+        - Multiple simultaneous verifications in expected objects
+        - No need to rerun tests to find out what next broken item is
 
 Setup
     - Installation

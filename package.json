@@ -1,8 +1,10 @@
 {
   "name": "smashtest",
-  "version": "0.1.0-beta",
+  "version": "1.0.0-beta",
   "description": "smashtest",
   "author": "smashtest <smashtest.io>",
+  "license": "MIT",
+  "homepage": "smashtest.io",
   "dependencies": {
     "chalk": "^2.4.2",
     "cli-progress": "^2.1.1",
@@ -26,6 +28,10 @@
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
     "util": "^0.11.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vptes1/smashtest.git"
   },
   "files": [
     "src/**",

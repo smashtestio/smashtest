@@ -37,12 +37,24 @@
 }
     Use browser +?
 
-* Open IE {
+* Open IE ! {
+    // only one open IE instance is allowed, hence the !
     await BrowserInstance.create(runInstance).open({name: 'internet explorer'});
 }
     Use browser +?
 
-* Open Edge {
+* Open IE (parallel) {
+    await BrowserInstance.create(runInstance).open({name: 'internet explorer'});
+}
+    Use browser +?
+
+* Open Edge ! {
+    // only one open Edge instance is allowed, hence the !
+    await BrowserInstance.create(runInstance).open({name: 'MicrosoftEdge'});
+}
+    Use browser +?
+
+* Open Edge (parallel) {
     await BrowserInstance.create(runInstance).open({name: 'MicrosoftEdge'});
 }
     Use browser +?
