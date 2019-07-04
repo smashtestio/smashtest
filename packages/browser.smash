@@ -95,9 +95,16 @@
 
     *** After Every Branch {
         if(typeof browser != 'undefined') {
-            await new Promise(res => setTimeout(res, 200));
+            if(browser.params && browser.params.name.toLowerCase() == 'chrome') {
+                await new Promise(res => setTimeout(res, 300)); // prevents "ECONNREFUSED" error message from chromedriver when browser opens and closes too quickly
+            }
+
             await browser.clearUnneededScreenshots();
             await browser.close();
+
+            if(browser.params && browser.params.name.toLowerCase() == 'safari') {
+                await new Promise(res => setTimeout(res, 500)); // prevents "already paired" error message from safaridriver instances too close to each other
+            }
         }
     }
 
