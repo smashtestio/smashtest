@@ -2,7 +2,7 @@
 
 ## What is SmashTEST?
 
-SmashTEST is a language for describing test cases.
+SmashTEST is a language for rapidly describing and deploying test cases.
 
 Greatly speed up your automated testing by storing tests in a tree.
 
@@ -91,6 +91,7 @@ let usernameBox = await driver.findElement(By.id('#username-box'));
 await usernameBox.sendKeys('joe');
 await driver.wait(until.elementLocated(By.id('#success-element')), 10000);
 
+
 Test Case 2
 -----------
 let driver = await new Builder().forBrowser('firefox').build();
@@ -101,6 +102,7 @@ await driver.wait(until.elementLocated(By.id('#username-box')), 10000);
 let usernameBox = await driver.findElement(By.id('#username-box'));
 await usernameBox.sendKeys('joe');
 await driver.wait(until.elementLocated(By.id('#success-element')), 10000);
+
 
 etc.
 ```
