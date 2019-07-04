@@ -16,29 +16,29 @@
 //  Open browsers
 // ***************************************
 
-* Open Chrome {
+* Open Chrome #chrome {
     await BrowserInstance.create(runInstance).open({name: 'chrome'});
 }
     Use browser +?
 
-* Open Firefox {
+* Open Firefox #firefox {
     await BrowserInstance.create(runInstance).open({name: 'firefox'});
 }
     Use browser +?
 
-* Open Safari !! {
+* Open Safari !! #safari {
     // only one open Safari instance is allowed, hence the !!
     await BrowserInstance.create(runInstance).open({name: 'safari'});
 }
     Use browser +?
 
-* Open IE !! {
+* Open IE !! #ie {
     // only one open IE instance is allowed, hence the !!
     await BrowserInstance.create(runInstance).open({name: 'internet explorer'});
 }
     Use browser +?
 
-* Open Edge !! {
+* Open Edge !! #edge {
     // only one open Edge instance is allowed, hence the !1
     await BrowserInstance.create(runInstance).open({name: 'MicrosoftEdge'});
 }
