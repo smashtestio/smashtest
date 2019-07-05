@@ -1292,14 +1292,14 @@ describe("ElementFinder", function() {
                 it("throws an error when a line is not indented by a multiple of 4", () => {
                     assert.throws(() => {
                         new ElementFinder(`  one`);
-                    }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 2 spaces. [line:1]");
+                    }, "The number of spaces at the beginning of a line must be a multiple of 4. You have 2 spaces. [line:1]");
 
                     assert.throws(() => {
                         new ElementFinder(`
 one
  two
                         `);
-                    }, "The number of spaces at the beginning of a step must be a multiple of 4. You have 1 space. [line:3]");
+                    }, "The number of spaces at the beginning of a line must be a multiple of 4. You have 1 space. [line:3]");
                 });
 
                 it("throws an error if the 'selector' prop isn't available but is needed", () => {

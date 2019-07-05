@@ -520,6 +520,9 @@ class BrowserInstance {
 
         let ef = null;
         if(typeof element == 'string') {
+            if(!element.match(/\n/g)) {
+                element = element.trim();
+            }
             ef = new ElementFinder(element, this.definedProps);
         }
         else if(element instanceof ElementFinder) {
@@ -569,6 +572,9 @@ class BrowserInstance {
 
         let ef = null;
         if(typeof element == 'string') {
+            if(!element.match(/\n/g)) {
+                element = element.trim();
+            }
             ef = new ElementFinder(element, this.definedProps);
         }
         else if(element instanceof ElementFinder) {
@@ -597,6 +603,9 @@ class BrowserInstance {
 
         let ef = null;
         if(typeof element == 'string') {
+            if(!element.match(/\n/g)) {
+                element = element.trim();
+            }
             ef = new ElementFinder(element, this.definedProps);
         }
         else if(element instanceof ElementFinder) {

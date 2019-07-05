@@ -54,6 +54,7 @@ open edge         #windows
                             function $() is called
 
                                 with a text EF
+                                with a single-line untrimmed text EF
                                 with an ElementFinder object
 
                                     and tryClickable is set to
@@ -78,6 +79,7 @@ open edge         #windows
                             and function $() is called
 
                                 with a text EF
+                                with a single-line untrimmed text EF
                                 with an ElementFinder object
 
                                     and tryClickable is set to
@@ -115,6 +117,12 @@ open edge         #windows
                             * with a text EF {
                                 g('element passed in',
                                     `.big`
+                                );
+                            }
+
+                            * with a single-line untrimmed text EF {
+                                g('element passed in',
+                                    ` .big `
                                 );
                             }
 

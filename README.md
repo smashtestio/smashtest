@@ -27,13 +27,13 @@ Open Safari
 
             Type {username} into [username box]
 
-                {username} = 'joe'
-                {username} = 'bob'
-                {username} = 'mary'
+                {username} is 'joe'
+                {username} is 'bob'
+                {username} is 'mary'
 
                     Verify success
 
-                {username} = 'baduser'
+                {username} is 'baduser'
 
                     Verify error
 ```
