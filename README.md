@@ -1,8 +1,8 @@
-# SmashTEST - Test 10x Faster
+# Smashtest - Test 10x Faster
 
-## What is SmashTEST?
+## What is Smashtest?
 
-SmashTEST is a language for rapidly describing and deploying test cases.
+Smashtest is a language for rapidly describing and deploying test cases.
 
 Greatly speed up your automated testing by storing tests in a tree.
 

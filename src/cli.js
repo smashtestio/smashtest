@@ -34,7 +34,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("SmashTEST 1.0.10 BETA"));
+console.log(yellowChalk.bold("Smashtest 1.0.11 BETA"));
 console.log("");
 
 // ***************************************
@@ -148,9 +148,9 @@ Files
 Options
 
   -a                              Run all branches expected to run. No skipping passed branches. Opposite of -s.
-  -r                              Open the REPL (drive SmashTEST from command line)
+  -r                              Open the REPL (drive Smashtest from command line)
   -s                              Skip branches that passed last time, carrying them over into report as passed
-  -v                              Output the version of SmashTEST
+  -v                              Output the version of Smashtest
   -?                              Output this help prompt
 
   --debug=<hash>                  Only run the branch with the given hash, in debug mode
@@ -165,14 +165,14 @@ Options
   --output-errors=<true/false>    Whether to output all errors to console
   --p:<name>="<value>"            Set a persistent variable
   --random=<true/false>           Whether to randomize the order of branches
-  --repl                          Open the REPL (drive SmashTEST from command line) (-r)
+  --repl                          Open the REPL (drive Smashtest from command line) (-r)
   --report-domain=<domain>        Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>    Whether to run a server during run for live report updates
   --screenshots=<true/false>      Whether to take screenshots at each step
   --skip-passed=<true/false/file> Whether to skip branches that passed last time (-s/-a)
   --step-data=<all/fail/none>     Keep step data for all steps, only failed steps, or no steps
   --test-server=<url>             Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
-  --version                       Output the version of SmashTEST (-v)
+  --version                       Output the version of Smashtest (-v)
 `);
                 process.exit();
 
