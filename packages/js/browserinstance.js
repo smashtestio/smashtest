@@ -319,7 +319,7 @@ class BrowserInstance {
         const FOUND_LOG = `Found item that contains '${value}'`;
 
         dropdownElement = await this.$(dropdownElement, true);
-        let dropdownCoords = this.runInstance.currStep.targetCoords;
+        let dropdownCoords = this.runInstance.currStep ? this.runInstance.currStep.targetCoords : null;
 
         let tagName = await dropdownElement.getTagName();
         if(tagName.toLowerCase() == 'select') {
@@ -339,7 +339,9 @@ class BrowserInstance {
             throw new Error(`Target element is not a <select>`);
         }
 
-        this.runInstance.currStep.targetCoords = dropdownCoords; // restore the dropdown's coords, since the option's coords took over
+        if(this.runInstance.currStep) {
+            this.runInstance.currStep.targetCoords = dropdownCoords; // restore the dropdown's coords, since the option's coords took over
+        }
     }
 
     /**
@@ -465,6 +467,10 @@ class BrowserInstance {
      * Sets the crosshairs for the before screenshot to the given WebElement's coordinates
      */
     async setCrosshairs(elem) {
+        if(!this.runInstance.currStep) {
+            return;
+        }
+        
         let rect = await this.executeScript(function(elem) {
             let rect = elem.getBoundingClientRect();
             return {
