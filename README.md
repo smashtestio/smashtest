@@ -25,7 +25,7 @@ Open Safari
 
         Click ['Sign In']
 
-            Type {username} into [username box]
+            Type {username:} into [username box]
 
                 {username} is 'joe'
                 {username} is 'bob'
