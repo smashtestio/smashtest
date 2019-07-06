@@ -1,4 +1,4 @@
-# Smashtest - Test 10x Faster
+# Smashtest • Test 10x Faster
 
 ## What is Smashtest?
 

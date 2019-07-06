@@ -1,1 +1,12 @@
 node_modules
+.prompt_hist.txt
+package-lock.json
+selenium-server-standalone-3.141.59.jar
+.nyc_output
+coverage
+logo
+smashtest
+documentation.txt
+testfile.smash
+web
+smashtest.json
