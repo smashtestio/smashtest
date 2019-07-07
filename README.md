@@ -23,9 +23,9 @@ Open Safari
 
     Navigate to 'site.com'
 
-        Click ['Sign In']
+        Click 'Sign In'
 
-            Type {username:} into [username box]
+            Type {username:} into 'username box'
 
                 {username} is 'joe'
                 {username} is 'bob'
