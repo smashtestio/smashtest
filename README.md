@@ -1,6 +1,6 @@
 # Smashtest • Test 10x Faster
 
-[![1.0.12-beta](http://img.shields.io/npm/v/REPO.svg?style=flat)](https://npmjs.org/package/REPO "View this project on npm")
+[![npm version](https://badge.fury.io/js/smashtest.svg)](https://badge.fury.io/js/smashtest)
 [![Join the chat at https://gitter.im/smashtestio/community](https://badges.gitter.im/smashtestio/community.svg)](https://gitter.im/smashtestio/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## What is Smashtest?
