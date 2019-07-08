@@ -1,5 +1,7 @@
 # Smashtest • Test 10x Faster
 
+[![Join the chat at https://gitter.im/smashtestio/community](https://badges.gitter.im/smashtestio/community.svg)](https://gitter.im/smashtestio/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## What is Smashtest?
 
 Smashtest is a language for rapidly describing and deploying test cases.
