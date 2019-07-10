@@ -303,7 +303,7 @@
         await browser.selectByElem(element, dropdownElement);
     }
 
-    // Returns current abosolute urls
+    // Returns current absolute url
     * Current url {
         return await browser.driver.getCurrentUrl();
     }
