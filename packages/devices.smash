@@ -85,13 +85,13 @@
     {device}='LG Optimus L70', {browser width}='384', {browser height}='640' #mobile
 
 * Laptop with HiDPI screen +
-    {device}='Laptop with HiDPI screen', {browser width}='1440', {browser height}='900' #mobile
+    {device}='Laptop with HiDPI screen', {browser width}='1440', {browser height}='900' #desktop
 
 * Laptop with MDPI screen +
-    {device}='Laptop with MDPI screen', {browser width}='1280', {browser height}='800' #mobile
+    {device}='Laptop with MDPI screen', {browser width}='1280', {browser height}='800' #desktop
 
 * Laptop with touch +
-    {device}='Laptop with touch', {browser width}='1280', {browser height}='950' #mobile
+    {device}='Laptop with touch', {browser width}='1280', {browser height}='950' #desktop
 
 * Microsoft Lumia 550 +
     {device}='Microsoft Lumia 550', {browser width}='640', {browser height}='360' #mobile
