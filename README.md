@@ -17,7 +17,7 @@ Trees represent how we think when we're testing. They allow you to list all the 
 - Steps are human-readable
 - Awesome live reports
 
-## Sample .smash file
+## Sample test
 
 ```
 Open Chrome
