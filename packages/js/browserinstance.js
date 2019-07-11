@@ -795,7 +795,7 @@ class BrowserInstance {
     }
 
     /**
-     * Mock's the current page's XHR. Sends back the given response for any http requests to the given method/url from the current page.
+     * Mocks the current page's XHR. Sends back the given response for any http requests to the given method/url from the current page.
      * You can use multiple calls to this function to set up multiple routes. If a request doesn't match a route, it will get a 404 response.
      * See https://sinonjs.org/releases/latest/fake-xhr-and-server/ for more details
      * @param {String} method - The HTTP method ('GET', 'POST', etc.)
@@ -862,7 +862,7 @@ class BrowserInstance {
 
     /**
      * Sets configs on the currently mocked XHR
-     * @param {Object} The options to set (key value pairs)
+     * @param {Object} config - The options to set (key value pairs)
      * See server.configure(config) in https://sinonjs.org/releases/latest/fake-xhr-and-server/#fake-server-options for details on what config options are available
      * Fails silently if no mock is currently active
      */
