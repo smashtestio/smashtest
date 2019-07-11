@@ -470,7 +470,7 @@ class BrowserInstance {
         if(!this.runInstance.currStep) {
             return;
         }
-        
+
         let rect = await this.executeScript(function(elem) {
             let rect = elem.getBoundingClientRect();
             return {
@@ -569,7 +569,7 @@ class BrowserInstance {
     /**
      * Finds the matching elements. Waits up to timeout ms.
      * See $() for param details
-     * If counter isn't set on efText, sets it to 1+
+     * If element is an EF and a counter isn't set on the top element, sets it to 1+
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
