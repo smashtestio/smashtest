@@ -115,14 +115,6 @@ class HttpApi {
      * Makes an HTTP DELETE request
      * See this.makeReq() for details on args and return value
      */
-    delete() {
-        return this.makeReq(request.delete, ...Array.from(arguments));
-    }
-
-    /**
-     * Makes an HTTP DELETE request
-     * See this.makeReq() for details on args and return value
-     */
     del() {
         return this.makeReq(request.del, ...Array.from(arguments));
     }

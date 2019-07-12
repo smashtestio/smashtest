@@ -83,15 +83,15 @@
 
             make a request [
                 using get() {
-                    await api.get('http://localhost:8500/one');
+                    await get('http://localhost:8500/one');
                 }
 
                 using request() {
-                    await api.request('http://localhost:8500/one');
+                    await request('http://localhost:8500/one');
                 }
 
                 using request() with object {
-                    await api.request({
+                    await request({
                         method: 'GET',
                         url: 'http://localhost:8500/one',
                         timeout: 1500
@@ -116,7 +116,7 @@
 
             make a request [
                 using post() {
-                    await api.post({
+                    await post({
                         url: 'http://localhost:8500/one',
                         headers: {
                             'content-type': 'application/json'
@@ -127,7 +127,7 @@
                 }
 
                 using request() {
-                    await api.request({
+                    await request({
                         method: 'POST',
                         url: 'http://localhost:8500/one',
                         body: {one:"two"},
@@ -154,7 +154,7 @@
 
             make a request [
                 using put() {
-                    await api.put({
+                    await put({
                         url: 'http://localhost:8500/one',
                         headers: {
                             'content-type': 'application/json'
@@ -165,7 +165,7 @@
                 }
 
                 using request() {
-                    await api.request({
+                    await request({
                         method: 'PUT',
                         url: 'http://localhost:8500/one',
                         body: {one:"two"},
@@ -189,7 +189,7 @@
 
             make a request [
                 using patch() {
-                    await api.patch({
+                    await patch({
                         url: 'http://localhost:8500/one',
                         headers: {
                             'content-type': 'application/json'
@@ -200,7 +200,7 @@
                 }
 
                 using request() {
-                    await api.request({
+                    await request({
                         method: 'patch',
                         url: 'http://localhost:8500/one',
                         body: {one:"two"},
@@ -226,19 +226,8 @@
         - DELETE
 
             make a request [
-                using delete() {
-                    await api.delete({
-                        url: 'http://localhost:8500/one',
-                        headers: {
-                            'content-type': 'application/json'
-                        },
-                        body: `{"one":"two"}`,
-                        timeout: 1500
-                    });
-                }
-
                 using del() {
-                    await api.del({
+                    await del({
                         url: 'http://localhost:8500/one',
                         headers: {
                             'content-type': 'application/json'
@@ -249,7 +238,7 @@
                 }
 
                 using request() {
-                    await api.request({
+                    await request({
                         method: 'delete',
                         url: 'http://localhost:8500/one',
                         body: {one:"two"},
@@ -276,11 +265,11 @@
 
             make a request [
                 using head() {
-                    await api.head('http://localhost:8500/one');
+                    await head('http://localhost:8500/one');
                 }
 
                 using request() {
-                    await api.request({
+                    await request({
                         method: 'HEAD',
                         url: 'http://localhost:8500/one',
                         timeout: 1500
@@ -305,11 +294,11 @@
 
             make a request [
                 using options() {
-                    await api.options('http://localhost:8500/one');
+                    await options('http://localhost:8500/one');
                 }
 
                 using request() {
-                    await api.request({
+                    await request({
                         method: 'options',
                         url: 'http://localhost:8500/one',
                         timeout: 1500
@@ -353,7 +342,7 @@
 
                 send a request that necessitates the cookies {
                     let jar = prev;
-                    await api.get({url: 'http://localhost:8500/cookie-check', jar: jar});
+                    await get({url: 'http://localhost:8500/cookie-check', jar: jar});
                 }
 
                     verify response {
@@ -370,7 +359,7 @@
             - Verifies JSON bodies
 
                 make a request {
-                    await api.get('http://localhost:8500/send-json');
+                    await get('http://localhost:8500/send-json');
                 }
 
                     verify the response {
@@ -393,7 +382,7 @@
             - Verifies error responses
 
                 make a bad request {
-                    await api.get('http://localhost:8500/badendpoint');
+                    await get('http://localhost:8500/badendpoint');
                 }
 
                     verify the response {
