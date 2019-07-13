@@ -7,17 +7,18 @@
 
 Smashtest is a language for rapidly describing and deploying test cases.
 
-Greatly speed up your automated testing by storing tests in a tree.
+Greatly speed up your automated testing by writing tests in a tree-like format.
 
-Trees represent how we think when we're testing. They allow you to list all the permutations that branch off from any given page or input.
+Trees represent how we think when we're testing. They allow us to list all the permutations that branch off from any given point.
 
-- Test in multiple browsers and device types
-- Test UI and API
-- Run in parallel, locally or in CI
-- Steps are human-readable
+- Multiple browsers and devices
+- UI and API
+- Run tests in parallel
+- Human-readable steps
 - Awesome live reports
+- Run locally or in CI/CD
 
-[See smashtest.io for full documentation, examples, and screenshots](https://smashtest.io)
+[See smashtest.io](https://smashtest.io)
 
 ## Sample test
 
@@ -112,10 +113,16 @@ await driver.wait(until.elementLocated(By.id('#success-element')), 10000);
 etc.
 ```
 
+### Full documentation
+
+[See smashtest.io for full documentation, tutorials, and screenshots](https://smashtest.io)
+
+### Setup
+
+[See setup page](https://smashtest.io/getting-started/setup)
+
 ### Usage
 
 `smashtest [.smash files to run] [options]`
 
 Use `smashtest -?` to list options
-
-[See smashtest.io for full documentation, examples, and screenshots](https://smashtest.io)
