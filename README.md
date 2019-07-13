@@ -17,6 +17,8 @@ Trees represent how we think when we're testing. They allow you to list all the 
 - Steps are human-readable
 - Awesome live reports
 
+[See smashtest.io for full documentation, examples, and screenshots](https://smashtest.io)
+
 ## Sample test
 
 ```
@@ -116,4 +118,4 @@ etc.
 
 Use `smashtest -?` to list options
 
-### More documentation coming soon...
+[See smashtest.io for full documentation, examples, and screenshots](https://smashtest.io)
