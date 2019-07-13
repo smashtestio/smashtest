@@ -5,7 +5,7 @@
 
 ## What is Smashtest?
 
-Smashtest is a language for rapidly describing and deploying test cases.
+[Smashtest](https://smashtest.io) is a language for rapidly describing and deploying test cases.
 
 Greatly speed up your automated testing by writing tests in a tree-like format.
 
@@ -17,8 +17,6 @@ Trees represent how we think when we're testing. They allow us to list all the p
 - Human-readable steps
 - Awesome live reports
 - Run locally or in CI/CD
-
-[See smashtest.io](https://smashtest.io)
 
 ## Sample test
 
@@ -115,11 +113,7 @@ etc.
 
 ### Full documentation
 
-[See smashtest.io for full documentation, tutorials, and screenshots](https://smashtest.io)
-
-### Setup
-
-[See setup page](https://smashtest.io/getting-started/setup)
+[See smashtest.io for full documentation, setup, tutorials, and screenshots](https://smashtest.io)
 
 ### Usage
 
