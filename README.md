@@ -113,7 +113,7 @@ etc.
 
 ### Full documentation
 
-[See smashtest.io for full documentation, setup, tutorials, and screenshots](https://smashtest.io)
+[See smashtest.io](https://smashtest.io) for full documentation, setup, tutorials, and screenshots
 
 ### Usage
 
