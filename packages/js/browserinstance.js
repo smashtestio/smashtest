@@ -258,7 +258,7 @@ class BrowserInstance {
      * @param {String} url - The absolute or relative url to navigate to. If relative, uses the browser's current domain. If http(s) is omitted, uses http://
      */
     async nav(url) {
-        const URL_REGEX = /^(https?:\/\/|file:\/\/)?([^\/]*\.[^\/]*(:[0-9]+)?)?(.*)/;
+        const URL_REGEX = /^(https?:\/\/|file:\/\/)?([^\/]*(:[0-9]+)?)?(.*)/;
         let matches = url.match(URL_REGEX);
 
         let protocol = matches[1] || 'http://';
