@@ -111,7 +111,7 @@ class BrowserInstance {
      * @param {Boolean} [params.isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging with ~
      * @param {String} [params.testServer] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
      * @param {Options} [params.options] - Sets options (see the set[browser]Options() functions in https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html)
-     * @param {Capabilities} [params.capabilities] - Sets capabilities (see the withCapabilities() functions in https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html)
+     * @param {Capabilities} [params.capabilities] - Sets capabilities (see the withCapabilities() function in https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html)
      */
     async open(params) {
         if(!params) {
