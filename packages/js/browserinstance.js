@@ -110,24 +110,41 @@ class BrowserInstance {
      * @param {String} [params.deviceEmulation] - What mobile device to emulate, if any (overrides params.width and params.height, only works with Chrome)
      * @param {Boolean} [params.isHeadless] - If true, run the browser headlessly, if false do not run the browser headlessly, if not set, use headless unless we're debugging with ~
      * @param {String} [params.testServer] - The absolute url of the standalone selenium server, if we are to use one (e.g., http://localhost:4444/wd/hub)
+     * @param {Options} [params.options] - Sets options (see the set[browser]Options() functions in https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html)
+     * @param {Capabilities} [params.capabilities] - Sets capabilities (see the withCapabilities() functions in https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html)
      */
     async open(params) {
         if(!params) {
             params = {};
         }
 
+        // Options
+        if(!params.options) {
+            try {
+                params.options = this.runInstance.findVarValue("browser options", false, true); // look for {browser options}, above or below
+            }
+            catch(e) {}
+        }
         let options = {
-            chrome: new chrome.Options(),
-            firefox: new firefox.Options(),
-            safari: new safari.Options(),
-            ie: new ie.Options(),
-            edge: new edge.Options()
+            chrome: params.options || new chrome.Options(),
+            firefox: params.options || new firefox.Options(),
+            safari: params.options || new safari.Options(),
+            ie: params.options || new ie.Options(),
+            edge: params.options || new edge.Options()
         };
+
+        // Capabilities
+        if(!params.capabilities) {
+            try {
+                this.runInstance.findVarValue("browser capabilities", false, true); // look for {browser capabilities}, above or below
+            }
+            catch(e) {}
+        }
 
         // Browser name
         if(!params.name) {
             try {
-                this.runInstance.findVarValue("browser name", false, true); // look for {browser name}, above or below
+                params.name = this.runInstance.findVarValue("browser name", false, true); // look for {browser name}, above or below
             }
             catch(e) {
                 params.name = "chrome"; // defaults to chrome
@@ -137,7 +154,7 @@ class BrowserInstance {
         // Browser version
         if(!params.version) {
             try {
-                this.runInstance.findVarValue("browser version", false, true); // look for {browser version}, above or below
+                params.version = this.runInstance.findVarValue("browser version", false, true); // look for {browser version}, above or below
             }
             catch(e) {}  // it's ok if the variable isn't found (simply don't set browser version)
         }
@@ -145,7 +162,7 @@ class BrowserInstance {
         // Browser platform
         if(!params.platform) {
             try {
-                this.runInstance.findVarValue("browser platform", false, true); // look for {browser platform}, above or below
+                params.platform = this.runInstance.findVarValue("browser platform", false, true); // look for {browser platform}, above or below
             }
             catch(e) {}
         }
@@ -192,8 +209,10 @@ class BrowserInstance {
             params.testServer = this.runInstance.runner.testServer;
         }
 
-        // No console logging
-        options.chrome.addArguments('log-level=3', 'silent');
+        // No console logging (unless options are explicitly set)
+        if(!params.options) {
+            options.chrome.addArguments('log-level=3', 'silent');
+        }
 
         // Log
         let logStr = `Starting browser '${params.name}'`;
@@ -218,6 +237,10 @@ class BrowserInstance {
 
         if(params.testServer) {
             builder = builder.usingServer(params.testServer);
+        }
+
+        if(params.capabilities) {
+            builder = builder.withCapabilities(params.capabilities);
         }
 
         this.driver = await builder.build();
