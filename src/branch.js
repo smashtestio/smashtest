@@ -1,4 +1,4 @@
-const clonedeep = require('lodash/clonedeep');
+const clonedeep = require('lodash/cloneDeep');
 const md5 = require('md5');
 const Constants = require('./constants.js');
 const utils = require('./utils.js');
