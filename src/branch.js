@@ -1,5 +1,5 @@
 const clonedeep = require('lodash/cloneDeep');
-const md5 = require('md5');
+const crypto = require('crypto');
 const Constants = require('./constants.js');
 const utils = require('./utils.js');
 
@@ -291,7 +291,7 @@ class Branch {
 
              combinedStr += utils.canonicalize(stepNode.text) + codeBlock + '\n';
          });
-         this.hash = md5(combinedStr);
+         this.hash = crypto.createHash('md5').update(combinedStr).digest('hex');
      }
 
      /**
