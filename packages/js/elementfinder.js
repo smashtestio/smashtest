@@ -476,9 +476,7 @@ class ElementFinder {
             console.log(matches);
 
             return {
-                ef: JSON.stringify(ef, function(k, v) {
-                    return ['matchedElems', 'matchMeElems'].indexOf(k) != -1 ? undefined : v;
-                }),
+                ef: ef,
                 matches: matches
             };
 
@@ -834,7 +832,7 @@ class ElementFinder {
         }, this.serializeJSON(), parentElem);
 
         return {
-            ef: JSON.parse(obj.ef),
+            ef: obj.ef,
             matches: obj.matches || []
         };
     }
