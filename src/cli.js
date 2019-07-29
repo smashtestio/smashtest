@@ -14,6 +14,7 @@ const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
 const StepNode = require('./stepnode.js');
+const Constants = require('./constants.js');
 
 // ***************************************
 //  Globals
@@ -34,7 +35,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.0.20 BETA"));
+console.log(yellowChalk.bold("Smashtest 1.0.21 BETA"));
 console.log("");
 
 // ***************************************
