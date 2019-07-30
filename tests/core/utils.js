@@ -181,4 +181,20 @@ describe("Utils", () => {
             });
         });
     });
+
+    describe("generateGroups()", () => {
+        it("Generates groups", () => {
+            
+            expect( utils.generateGroups("")).to.eql([[""]]); 
+            expect(utils.generateGroups("A,B")).to.eql([["A"],["B"]]);
+
+            expect( utils.generateGroups("A,B+C,D") ).to.eql (  [ ["A"], ["B","C"], ["D"] ] );
+
+            expect( utils.generateGroups("Foo+Bar") ).to.eql( [["Foo", "Bar"]] );
+            expect( utils.generateGroups( "Foo,Bar" ) ).to.eql( [["Foo"], ["Bar"]] );
+
+            expect( utils.generateGroups("Aa+Ba+Ca,Da+Ea+Fa") ).to.eql( [["Aa","Ba","Ca"], ["Da","Ea","Fa"] ]);
+        })
+    });
+
 });

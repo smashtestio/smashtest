@@ -246,3 +246,32 @@ exports.serializeError = (error) => {
 
     return o;
 }
+
+/**
+ * @param {String} value - String value created from the flag argument --groups={value}
+ * @return {[[String]]} Converts value into a 2D array of Strings.  
+ */
+exports.generateGroups = (value) => {
+  
+    let groups = [];
+    let currentGroup = [];
+    let currentString = "";
+    
+    for (let i = 0; i < value.length; i++){
+        if (value[i] === "+"){
+            currentGroup.push(currentString);
+            currentString = "";
+        } else if( value[i] === "," ){
+            currentGroup.push(currentString);
+            groups.push(currentGroup);
+            currentGroup = [];
+            currentString = "";
+        } else {
+            currentString += value[i];
+        }
+    } 
+    
+    currentGroup.push(currentString);
+    groups.push(currentGroup);
+    return groups;
+}
