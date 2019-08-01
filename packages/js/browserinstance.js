@@ -911,9 +911,15 @@ class BrowserInstance {
             window.navigator.geolocation.getCurrentPosition = function(success) {
                 success({
                     coords: {
+                        accuracy: 98,
+                        altitude: null,
+                        altitudeAccuracy: null,
+                        heading: null,
                         latitude: parseFloat(latitude),
-                        longitude: parseFloat(longitude)
-                    }
+                        longitude: parseFloat(longitude),
+                        speed: null
+                    },
+                    timestamp: (new Date()).valueOf()
                 });
             }
         }, latitude, longitude);
