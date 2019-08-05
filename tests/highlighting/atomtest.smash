@@ -126,19 +126,19 @@ Function call
                                 Sequential step block two -
                                     Not sequential -
 
-.. Sequential step 'string' - //comment
+.. Sequential step 'string' .. +? //comment
     Sequential one -
         Sequential two -
     Sequential three -
 Not sequential
 
-    Sequential step 'string' .. - //comment
+    Sequential step 'string' .. +? //comment
         Sequential one -
             Sequential two -
         Sequential three -
     Not sequential
 
-        Sequential step 'string' .. - //comment
+        Sequential step 'string' .. +? //comment
 
             Sequential one -
 
@@ -148,7 +148,7 @@ Not sequential
 
         Not sequential
 
-            Sequential step 'string' .. - //comment
+            Sequential step 'string' .. +? //comment
                 Sequential one -
                     Sequential two -
                 Sequential three -
@@ -233,7 +233,7 @@ Not sequential
 
 $ .. * Func - +?
 
-- +? * Func - +?
+- +? * NonFunc - +?
 
 *** Before every branch {
     throw new Error("oops");
