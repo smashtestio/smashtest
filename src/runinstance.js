@@ -732,10 +732,7 @@ class RunInstance {
      * @param {Boolean} [isSync] - If true, the code will be executed synchronously
      * @return {Promise} Promise that gets resolved with what code returns
      */
-    evalCodeBlock(code, funcName, filename, lineNumber, logHere, isSync) {
-        if(typeof lineNumber == 'undefined') {
-            lineNumber = 1;
-        }
+    evalCodeBlock(code, funcName, filename, lineNumber = 1, logHere, isSync) { 
 
         // Functions accessible from a code block
         var runInstance = this; // var so it's accesible in the eval()
