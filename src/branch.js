@@ -174,11 +174,7 @@ class Branch {
      * @param {Number} [startIndent] - How many indents to put before the output, 0 if omitted
      * @return {String} The string representation of this branch
      */
-    output(stepNodeIndex, branchName, startIndent) {
-        if(typeof startIndent == 'undefined') {
-            startIndent = 0;
-        }
-
+    output(stepNodeIndex, branchName, startIndent = 0) { 
         let output = utils.getIndents(startIndent) + branchName + '\n';
 
         this.steps.forEach(step => {
