@@ -599,18 +599,11 @@ ${outputBranchAbove(this)}
      * @return {Array} Array of Branch, containing the branches at and under stepNode (does not include the steps from branchAbove). Returns null if stepNode is a function declaration but isFunctionCall wasn't set (i.e., an unexpected function declaration - very rare scenario).
      * @throws {Error} If an error occurred
      */
-    branchify(stepNode, branchAbove, level, isFunctionCall, isSequential) {
+    branchify(stepNode, branchAbove = new Branch, level = 0, isFunctionCall, isSequential) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
-
-        if(typeof branchAbove == 'undefined') {
-            branchAbove = new Branch;
-        }
-
-        if(typeof level == 'undefined') {
-            level = 0;
-        }
+  
 
         if(!stepNode.isFunctionDeclaration) {
             this.latestBranchifiedStepNode = stepNode;
