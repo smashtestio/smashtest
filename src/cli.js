@@ -130,7 +130,9 @@ function processFlag(name, value) {
                 if(!value) {
                     utils.error(`groups flag must list the groups to run, separated by commas`);
                 }
-                runner.groups = value.split(/\s*\,\s*/);
+                // runner.groups used to be ['a', 'b']
+                // now it's [ ['a'], ['b', 'c'] ] === --groups=a,b+c === A or (B and C)
+                runner.groups = value.split(/\s*\,\s*/).map(group => group.split('+'));
                 break;
 
             case "headless":
