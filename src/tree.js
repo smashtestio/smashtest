@@ -1041,13 +1041,28 @@ ${outputBranchAbove(this)}
                     continue;
                 }
 
-                let isGroupMatched = false;
+                let isGroupMatched = true;
+
+                // going through the arrays of groups from the input
                 for(let j = 0; j < this.groups.length; j++) {
-                    let groupAllowedToRun = this.groups[j];
-                    if(branch.groups.indexOf(groupAllowedToRun) != -1) {
-                        isGroupMatched = true;
-                        break;
+                    // this could be either a single group or multiple groups at once
+                    // if it's the latter, we need to check if ALL of them are mentioned
+                    // in branch.groups
+                    let groupsAllowedToRun = this.groups[j];
+
+                    isGroupMatched = true;
+                    // looping through the groups of the current branch
+                    // until we find one that's not in the current group array
+                    for(let k = 0; k < groupsAllowedToRun.length; k++) {
+
+                        if(branch.groups.indexOf(groupsAllowedToRun[k]) === -1) {
+                            isGroupMatched = false;
+                            break;
+                        }
                     }
+
+                    if (isGroupMatched)
+                        break;
                 }
 
                 if(isGroupMatched) {
