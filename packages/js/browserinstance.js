@@ -136,7 +136,7 @@ class BrowserInstance {
         // Capabilities
         if(!params.capabilities) {
             try {
-                this.runInstance.findVarValue("browser capabilities", false, true); // look for {browser capabilities}, above or below
+                params.capabilities = this.runInstance.findVarValue("browser capabilities", false, true); // look for {browser capabilities}, above or below
             }
             catch(e) {}
         }
