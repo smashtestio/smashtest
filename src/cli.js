@@ -93,14 +93,11 @@ process.on('uncaughtException', (err) => {
 /**
  * Validates and sets the given flag within runner
  */
-function processFlag(name, value) {
-    try {
-        if(typeof name != 'string') {
-            name = name.toString();
-        }
+function processFlag(name = name.toString(), value) {
+    try { 
         if(typeof value != 'string' && typeof value != 'undefined') {
             value = value.toString();
-        }
+        } 
 
         let varName = null;
         matches = name.match(/^(g|p)\:(.*)$/);
