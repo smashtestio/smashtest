@@ -35,7 +35,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.0.25 BETA"));
+console.log(yellowChalk.bold("Smashtest 1.0.26 BETA"));
 console.log("");
 
 // ***************************************
@@ -131,7 +131,7 @@ function processFlag(name, value) {
                     utils.error(`groups flag must include a group expression`);
                 }
                 runner.groups = value.split(/\s*\,\s*/)
-                                     .map(group => 
+                                     .map(group =>
                                         group.split(/\s*\+\s*/));
                 break;
 
@@ -157,7 +157,7 @@ Options
   -?                                       Output this help prompt
 
   --debug=<hash>                           Only run the branch with the given hash, in debug mode
-  --groups="<group1>,<group2>+<group3>"    Only run branches that match the expression (+ = AND, comma = OR. AND takes precendence)
+  --groups="<group1>,<group2>+<group3>"    Only run branches that match the expression (+ = AND, comma = OR, AND takes precendence)
   --g:<name>="<value>"                     Sets a global variable before every branch
   --headless=<true/false>                  Whether to run browsers as headless
   --help                                   Output this help prompt (-?)
