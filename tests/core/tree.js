@@ -11885,7 +11885,7 @@ A -
 G -
                 `, "file.txt");
 
-                tree.groups = ["first"];
+                tree.groups = [["first"]];
                 let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
@@ -11923,7 +11923,7 @@ G -
                 `, "file.txt");
 
 
-                tree.groups = ["first", "sixth"];
+                tree.groups = [["first"], ["sixth"]];
                 let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
 
@@ -11947,6 +11947,86 @@ G -
                     {
                         steps: [ { text: "A" }, { text: "C3" }, { text: "L" } ],
                         groups: [ 'third', 'sixth' ]
+                    }
+                ]);
+            });
+
+            it("only keeps branches that are part of a group being run, when an expression including ANDs is being run", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+        C1 - #first
+            C2 - #second
+
+    C3 -
+        D - #second #third
+
+        E - #second
+        F - #third
+
+            - C4 #sixth
+
+        - L #sixth
+
+G -
+                `, "file.txt");
+
+
+                tree.groups = [["first"], ["second", "third"]];
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C1" }, { text: "C2" } ],
+                        groups: [ 'first', 'second' ]
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "D" } ],
+                        groups: [ 'second', 'third' ]
+                    }
+                ]);
+            });
+
+            it("only keeps branches that are part of a group being run, when an expression including ANDs is being run, longer expression", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+A -
+    B -
+        C1 - #first
+            C2 - #second
+
+    C3 -
+        D - #second #third
+
+        E - #second
+        F - #third
+
+            - C4 #sixth
+
+        - L #sixth #seventh
+
+G - #first #last
+                `, "file.txt");
+
+
+                tree.groups = [["second", "third"], ['sixth', 'seventh'], ['first', 'last']];
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "D" } ],
+                        groups: [ 'second', 'third' ]
+                    },
+                    {
+                        steps: [ { text: "A" }, { text: "C3" }, { text: "L" } ],
+                        groups: [ 'sixth', 'seventh' ]
+                    },
+                    {
+                        steps: [ { text: "G" } ],
+                        groups: [ 'first', 'last' ]
                     }
                 ]);
             });
@@ -12048,16 +12128,16 @@ A -
                 `, "file.txt");
 
                 assert.throws(() => {
-                    tree.groups = ["one"];
+                    tree.groups = [["one"]];
                     tree.branchify(tree.root);
                 }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:5]");
 
                 assert.throws(() => {
-                    tree.groups = ["one", "three", "four"];
+                    tree.groups = [["one"], ["three"], ["four"]];
                     tree.branchify(tree.root);
                 }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:5]");
 
-                tree.groups = ["two"];
+                tree.groups = [["two"]];
                 tree.branchify(tree.root);
             });
         });
@@ -12109,7 +12189,7 @@ G -
 
                 `, "file.txt");
 
-                tree.groups = ["first", "sixth"];
+                tree.groups = [["first"], ["sixth"]];
                 tree.minFrequency = "med";
                 let branches = tree.branchify(tree.root);
                 mergeStepNodesInBranches(tree, branches);
