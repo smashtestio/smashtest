@@ -783,10 +783,7 @@ function plural(count) {
              * Outputs the given counts to the console
              */
             function outputCounts() {
-                if(!isReport) { // normally the reporter forces a count update itself, but if it isn't running, do it yourself
-                    tree.updateCounts();
-                }
-
+                tree.updateCounts();
                 process.stdout.write(
                     (elapsed ? (`${elapsed} | `) : ``) + getCounts()
                 );
