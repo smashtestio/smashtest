@@ -604,7 +604,6 @@ ${outputBranchAbove(this)}
         // 1) Initialize vars
         // ***************************************
 
-
         if(!stepNode.isFunctionDeclaration) {
             this.latestBranchifiedStepNode = stepNode;
         }
