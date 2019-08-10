@@ -17,7 +17,7 @@ class Runner {
         this.flags = {};                 // Flags passed in through the command line (e.g., --max-parallel=7 --no-debug --groups="one,two" --> {"max-parallel": "7", "no-debug": "true", "groups": "one,two"})
 
         this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
-        this.groups = undefined;         // Array of array of string. Only run branches that are a part of one of these groups, no restrictions if this is undefined.
+        this.groups = undefined;         // Array of array of string. Only run branches whose groups match the expression, no restrictions if this is undefined. --groups=a,b+c ===[ ['a'], ['b', 'c'] ] === A or (B and C)
         this.headless = undefined;       // If true, run external processes (e.g., browsers) as headless, if possible
         this.maxParallel = 5;            // The maximum number of simultaneous branches to run
         this.maxScreenshots = -1;        // The maximum number of screenshots to take, -1 for no limit

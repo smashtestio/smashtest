@@ -128,11 +128,11 @@ function processFlag(name, value) {
 
             case "groups":
                 if(!value) {
-                    utils.error(`groups flag must list the groups to run, separated by commas`);
+                    utils.error(`groups flag must include a group expression`);
                 }
-                // runner.groups used to be ['a', 'b']
-                // now it's [ ['a'], ['b', 'c'] ] === --groups=a,b+c === A or (B and C)
-                runner.groups = value.split(/\s*\,\s*/).map(group => group.split('+'));
+                runner.groups = value.split(/\s*\,\s*/)
+                                     .map(group => 
+                                        group.split(/\s*\+\s*/));
                 break;
 
             case "headless":
@@ -150,32 +150,32 @@ Files
 
 Options
 
-  -a                              Run all branches expected to run. No skipping passed branches. Opposite of -s.
-  -r                              Open the REPL (drive Smashtest from command line)
-  -s                              Skip branches that passed last time, carrying them over into report as passed
-  -v                              Output the version of Smashtest
-  -?                              Output this help prompt
+  -a                                       Run all branches expected to run. No skipping passed branches. Opposite of -s.
+  -r                                       Open the REPL (drive Smashtest from command line)
+  -s                                       Skip branches that passed last time, carrying them over into report as passed
+  -v                                       Output the version of Smashtest
+  -?                                       Output this help prompt
 
-  --debug=<hash>                  Only run the branch with the given hash, in debug mode
-  --groups="<group1>,<group2>"    Only run branches that are part of one of these groups
-  --g:<name>="<value>"            Sets a global variable before every branch
-  --headless=<true/false>         Whether to run browsers as headless
-  --help                          Output this help prompt (-?)
-  --max-parallel=<N>              Do not run more than N branches simultaneously
-  --max-screenshots=<N>           Do not take more than N screenshots
-  --min-frequency=<high/med/low>  Only run branches at or above this frequency
-  --no-debug                      Fail if there are any $'s or ~'s. Useful to prevent debugging in CI.
-  --output-errors=<true/false>    Whether to output all errors to console
-  --p:<name>="<value>"            Set a persistent variable
-  --random=<true/false>           Whether to randomize the order of branches
-  --repl                          Open the REPL (drive Smashtest from command line) (-r)
-  --report-domain=<domain>        Domain and port where report server should run (domain or domain:port format)
-  --report-server=<true/false>    Whether to run a server during run for live report updates
-  --screenshots=<true/false>      Whether to take screenshots at each step
-  --skip-passed=<true/false/file> Whether to skip branches that passed last time (-s/-a)
-  --step-data=<all/fail/none>     Keep step data for all steps, only failed steps, or no steps
-  --test-server=<url>             Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
-  --version                       Output the version of Smashtest (-v)
+  --debug=<hash>                           Only run the branch with the given hash, in debug mode
+  --groups="<group1>,<group2>+<group3>"    Only run branches that match the expression (+ = AND, comma = OR. AND takes precendence)
+  --g:<name>="<value>"                     Sets a global variable before every branch
+  --headless=<true/false>                  Whether to run browsers as headless
+  --help                                   Output this help prompt (-?)
+  --max-parallel=<N>                       Do not run more than N branches simultaneously
+  --max-screenshots=<N>                    Do not take more than N screenshots
+  --min-frequency=<high/med/low>           Only run branches at or above this frequency
+  --no-debug                               Fail if there are any $'s or ~'s. Useful to prevent debugging in CI.
+  --output-errors=<true/false>             Whether to output all errors to console
+  --p:<name>="<value>"                     Set a persistent variable
+  --random=<true/false>                    Whether to randomize the order of branches
+  --repl                                   Open the REPL (drive Smashtest from command line) (-r)
+  --report-domain=<domain>                 Domain and port where report server should run (domain or domain:port format)
+  --report-server=<true/false>             Whether to run a server during run for live report updates
+  --screenshots=<true/false>               Whether to take screenshots at each step
+  --skip-passed=<true/false/file>          Whether to skip branches that passed last time (-s/-a)
+  --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
+  --test-server=<url>                      Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
+  --version                                Output the version of Smashtest (-v)
 `);
                 process.exit();
 
