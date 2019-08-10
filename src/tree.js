@@ -29,7 +29,7 @@ class Tree {
         /*
         OPTIONAL
 
-        this.groups = [];                     // Array of String, only generate branches part of at least one of these groups, no group restrictions if this is undefined
+        this.groups = [];                     // Array of array of string. Only generate branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
         this.minFrequency = '';               // Only generate branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
         this.noDebug = false;                 // If true, throws an error if at least one ~, ~~, or $ is encountered in the tree at or below the given step
         this.noRandom = false;                // If true, does not randomize the order of branches generated
@@ -603,7 +603,7 @@ ${outputBranchAbove(this)}
         // ***************************************
         // 1) Initialize vars
         // ***************************************
-  
+
 
         if(!stepNode.isFunctionDeclaration) {
             this.latestBranchifiedStepNode = stepNode;
@@ -1054,8 +1054,9 @@ ${outputBranchAbove(this)}
                         }
                     }
 
-                    if (isGroupMatched)
+                    if(isGroupMatched) {
                         break;
+                    }
                 }
 
                 if(isGroupMatched) {
