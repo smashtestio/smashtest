@@ -535,7 +535,7 @@ open edge         #windows
                                     document.body.append(s);
                                 });
 
-                                await $(`#date, '${str("Sun Jan 02 2011 15:45:00")}'`);
+                                await $(`#date, '${str("Sun Jan 02 2011 15:45")}'`);
                             }
 
                     - mockHttp() tests
