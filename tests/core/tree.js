@@ -10795,7 +10795,7 @@ $ G .. -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "A" }, { text: "D" }, { text: "E" } ],
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" }, { text: "E" }, { text: "F" } ],
                         isOnly: true,
                         isDebug: undefined
                     },
@@ -10824,12 +10824,12 @@ C -
 
                 Comparer.expect(branches).to.match([
                     {
-                        steps: [ { text: "B" }, { text: "D" } ],
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "D" } ],
                         isOnly: true,
                         isDebug: undefined
                     },
                     {
-                        steps: [ { text: "B" }, { text: "E" } ],
+                        steps: [ { text: "A" }, { text: "B" }, { text: "C" }, { text: "E" } ],
                         isOnly: true,
                         isDebug: undefined
                     }
