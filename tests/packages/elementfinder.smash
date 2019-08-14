@@ -4249,6 +4249,24 @@ open edge
                         |1+ x clickable  \u001b[0m\u001b[31m-->  not found (zero matches after \`clickable\` applied)\u001b[0m\u001b[30m`));
                 }
 
+                finds elements but skips disabled elements {
+                    await setPageBody(`
+                        <div id="one" class="big">foobar</div>
+                        <div id="two" class="big" style="cursor:pointer">foobar</div>
+                        <a id="three" href="/">Link</a>
+                        <button id="four">Button</button>
+                        <input id="five" disabled" />
+                    `);
+
+                    let ef = new ElementFinder(`1+ x clickable`);
+                    let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                    expect(results).to.have.lengthOf(3);
+                    expect(await results[0].getAttribute('id')).to.equal('two');
+                    expect(await results[2].getAttribute('id')).to.equal('four');
+                    expect(await results[2].getAttribute('id')).to.equal('four');
+                }
+
             - page title
 
                 set page title {
