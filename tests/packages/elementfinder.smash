@@ -4249,13 +4249,13 @@ open edge
                         |1+ x clickable  \u001b[0m\u001b[31m-->  not found (zero matches after \`clickable\` applied)\u001b[0m\u001b[30m`));
                 }
 
-                finds elements but skips disabled elements {
+                finds elements but skips disabled elements #breh {
                     await setPageBody(`
                         <div id="one" class="big">foobar</div>
                         <div id="two" class="big" style="cursor:pointer">foobar</div>
                         <a id="three" href="/">Link</a>
                         <button id="four">Button</button>
-                        <input id="five" disabled" />
+                        <input id="five" disabled />
                     `);
 
                     let ef = new ElementFinder(`1+ x clickable`);
@@ -4263,7 +4263,7 @@ open edge
 
                     expect(results).to.have.lengthOf(3);
                     expect(await results[0].getAttribute('id')).to.equal('two');
-                    expect(await results[2].getAttribute('id')).to.equal('four');
+                    expect(await results[1].getAttribute('id')).to.equal('three');
                     expect(await results[2].getAttribute('id')).to.equal('four');
                 }
 
