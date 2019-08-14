@@ -857,35 +857,6 @@ ${outputBranchAbove(this)}
         // 4) Fill branchesBelow by cross joining branchesFromThisStepNode with the branches that come from its children
         // ***************************************
 
-        /**
-         * Gets branches derived from the children of stepNode (children variable)
-         */
-        function getBranchesFromChildren(branchFromThisStepNode, self) {
-            let branchesFromChildren = []; // Array of Branch
-
-            children.forEach(child => {
-                if(child instanceof StepBlockNode && !child.isSequential) {
-                    // If this child is a non-sequential step block, just call branchify() directly on each member
-                    child.steps.forEach(s => {
-                        let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => self.branchify(s, branchAbove, level, false, isSequential));
-                        if(branchesFromChild && branchesFromChild.length > 0) {
-                            branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
-                        }
-                        // NOTE: else is probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
-                    });
-                }
-                else {
-                    // If this child is a step, call branchify() on it normally
-                    let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => self.branchify(child, branchAbove, level, false, isSequential));
-                    if(branchesFromChild && branchesFromChild.length > 0) {
-                        branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
-                    }
-                }
-            });
-
-            return branchesFromChildren;
-        }
-
         let branchesBelow = []; // what we're returning - represents all branches at and below this step node
 
         // If branchesFromThisStepNode is empty, "prime" it with an empty Branch, so that the loops below work
@@ -900,11 +871,34 @@ ${outputBranchAbove(this)}
             branchesFromThisStepNode.forEach(branchFromThisStepNode => {
                 bigBranch.mergeToEnd(branchFromThisStepNode);
 
-                let branchesFromChildren = getBranchesFromChildren(branchFromThisStepNode, this);
-                branchesFromChildren.forEach(branch => branch.isSkipBranch && (bigBranch.isSkipBranch = true));
-                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, stepNode.indents == -1);
-                branchesFromChildren.forEach(branchFromChild => {
-                    bigBranch.mergeToEnd(branchFromChild);
+                children.forEach(child => {
+                    if(child instanceof StepBlockNode && !child.isSequential) {
+                        // If this child is a non-sequential step block, just call branchify() directly on each member
+                        child.steps.forEach(s => {
+                            let branchesFromChild = placeOntoBranchAbove(bigBranch.steps, () => this.branchify(s, branchAbove, level, false, isSequential));
+                            if(branchesFromChild && branchesFromChild.length > 0) {
+                                branchesFromChild.forEach(branch => branch.isSkipBranch && (bigBranch.isSkipBranch = true));
+                                branchesFromChild = this.removeUnwantedBranches(branchesFromChild, stepNode.indents == -1);
+
+                                branchesFromChild.forEach(branchFromChild => {
+                                    bigBranch.mergeToEnd(branchFromChild);
+                                });
+                            }
+                            // NOTE: else is probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
+                        });
+                    }
+                    else {
+                        // If this child is a step, call branchify() on it normally
+                        let branchesFromChild = placeOntoBranchAbove(bigBranch.steps, () => this.branchify(child, branchAbove, level, false, isSequential));
+                        if(branchesFromChild && branchesFromChild.length > 0) {
+                            branchesFromChild.forEach(branch => branch.isSkipBranch && (bigBranch.isSkipBranch = true));
+                            branchesFromChild = this.removeUnwantedBranches(branchesFromChild, stepNode.indents == -1);
+
+                            branchesFromChild.forEach(branchFromChild => {
+                                bigBranch.mergeToEnd(branchFromChild);
+                            });
+                        }
+                    }
                 });
             });
             branchesBelow = [ bigBranch ];
@@ -912,7 +906,27 @@ ${outputBranchAbove(this)}
         else {
             // Cross-join between branchesFromThisStepNode and branches from children
             branchesFromThisStepNode.forEach(branchFromThisStepNode => {
-                let branchesFromChildren = getBranchesFromChildren(branchFromThisStepNode, this);
+                let branchesFromChildren = [];
+                children.forEach(child => {
+                    if(child instanceof StepBlockNode && !child.isSequential) {
+                        // If this child is a non-sequential step block, just call branchify() directly on each member
+                        child.steps.forEach(s => {
+                            let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => this.branchify(s, branchAbove, level, false, isSequential));
+                            if(branchesFromChild && branchesFromChild.length > 0) {
+                                branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
+                            }
+                            // NOTE: else is probably unreachable, since branchify() only returns null on a function declaration and a function declaration cannot be a member of a step block
+                        });
+                    }
+                    else {
+                        // If this child is a step, call branchify() on it normally
+                        let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => this.branchify(child, branchAbove, level, false, isSequential));
+                        if(branchesFromChild && branchesFromChild.length > 0) {
+                            branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
+                        }
+                    }
+                });
+
                 branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, stepNode.indents == -1);
                 branchesFromChildren.forEach(branchFromChild => {
                     branchesBelow.push(branchFromThisStepNode.clone().mergeToEnd(branchFromChild.clone()));

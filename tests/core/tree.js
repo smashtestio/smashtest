@@ -6124,6 +6124,62 @@ F
                     ]);
                 });
 
+                it("allows access to a function declared within a function, inside sequential steps", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+* F
+    * G
+        H -
+
+- Seq ..
+    F
+    G
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Seq' },
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("allows access to a function declared within a function, inside a sequential function", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+* F
+    * G
+        H -
+
+* Seq ..
+    F
+    G
+
+Seq
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'Seq' },
+                                { text: 'F' },
+                                { text: 'G' },
+                                { text: 'H' }
+                            ]
+                        }
+                    ]);
+                });
+
                 it("calls a private function it has access to", () => {
                     let tree = new Tree();
                     tree.parseIn(`
