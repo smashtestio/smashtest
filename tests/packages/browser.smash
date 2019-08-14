@@ -1129,19 +1129,19 @@ Open test page [
                 Verify at page 'badstr'
                     - Verify error $s #manual
 
-        - Verify page is like
+        - Verify at page like
 
             - and the title matches the given regex
 
-                Verify page is like 'title .*'
+                Verify at page like 'title .*'
 
             - and the url matches the given regex
 
-                Verify page is like 'generic-.*'
+                Verify at page like 'generic-.*'
 
             - and neither the title not the url matches
 
-                Verify at page '\d{3}'
+                Verify at page like '\d{3}'
                     - Verify error $s #manual
 
         - Verify cookie contains

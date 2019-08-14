@@ -495,7 +495,7 @@
         await browser.verifyAtPage(titleOrUrl, VERIFY_TIMEOUT);
     }
 
-    * Verify page is like {{regex}} {
+    * Verify at page like {{regex}} {
         await browser.verifyAtPageRegex(regex, VERIFY_TIMEOUT);
     }
 
