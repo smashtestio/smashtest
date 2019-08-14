@@ -744,6 +744,32 @@ class BrowserInstance {
         }
     }
 
+    async verifyAtPageRegex(regex, timeout) {
+        let obj = null;
+        try {
+            await this.driver.wait(async () => {
+                obj = await this.executeScript(function(regex) {
+                    let documentMatch = document.title.match(regex);
+                    let locationMatch = window.location.href.match(regex);
+                    return {
+                        isMatched: documentMatch && documentMatch[0] === document.title || locationMatch && locationMatch[0] === window.location.href,
+                        title: document.title,
+                        url: window.location.href
+                    }
+                }, regex);
+                return obj.isMatched;
+            }, timeout)
+        }
+        catch (e) {
+            if(e.message.includes('Wait timed out after')) {
+                throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), match '${regex}' after ${timeout/1000} s, ${obj.match}`);
+            }
+            else {
+                throw e;
+            }
+        }
+    }
+
     /**
      * Throws error if cookie with the given name doesn't contain the given value within timeout ms
      */

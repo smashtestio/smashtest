@@ -495,6 +495,10 @@
         await browser.verifyAtPage(titleOrUrl, VERIFY_TIMEOUT);
     }
 
+    * Verify page is like {{regex}} {
+        await browser.verifyAtPageRegex(regex, VERIFY_TIMEOUT);
+    }
+
     * Verify cookie {{name}} contains {{value}} {
         await browser.verifyCookieContains(name, value, VERIFY_TIMEOUT);
     }
