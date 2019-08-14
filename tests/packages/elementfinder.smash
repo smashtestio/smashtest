@@ -4249,7 +4249,7 @@ open edge
                         |1+ x clickable  \u001b[0m\u001b[31m-->  not found (zero matches after \`clickable\` applied)\u001b[0m\u001b[30m`));
                 }
 
-                finds elements but skips disabled elements #breh {
+                finds elements but skips disabled elements {
                     await setPageBody(`
                         <div id="one" class="big">foobar</div>
                         <div id="two" class="big" style="cursor:pointer">foobar</div>
