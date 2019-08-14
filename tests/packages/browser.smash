@@ -1129,19 +1129,19 @@ Open test page [
                 Verify at page 'badstr'
                     - Verify error $s #manual
 
-        - Verify at page like
+        - Verify at page (with regex)
 
             - and the title matches the given regex
 
-                Verify at page like 'title .*'
+                Verify at page 'title .*'
 
             - and the url matches the given regex
 
-                Verify at page like 'generic-.*'
+                Verify at page 'generic-.*'
 
             - and neither the title not the url matches
 
-                Verify at page like '\d{3}'
+                Verify at page 'a{3}'
                     - Verify error $s #manual
 
         - Verify cookie contains
@@ -1218,19 +1218,36 @@ Open test page [
                 Wait until at page 'badstr'
                     - Verify error $s #manual
 
-        - Wait until at page (up to n secs)
+        - Wait until at page (with regex)
 
             - and the title contains the given text
 
-                Wait until at page 'title here' (up to '5' secs)
+                Wait until at page 'title .*'
 
             - and the url contains the given text
 
-                Wait until at page 'generic-page' (up to '5' secs)
+                Wait until at page 'generic-.*'
 
             - and neither the title nor the url contain the given text
 
-                Wait until at page 'badstr' (up to '5' secs)
+                Wait until at page 'd{3}'
+                    - Verify error $s #manual
+
+
+
+        - Wait until at page (up to n secs) (with regex)
+
+            - and the title contains the given text
+
+                Wait until at page 'title .*' (up to '5' secs)
+
+            - and the url contains the given text
+
+                Wait until at page 'generic-.*' (up to '5' secs)
+
+            - and neither the title nor the url contain the given text
+
+                Wait until at page 'd{3}' (up to '5' secs)
                     - Verify error $s #manual
 
         - Wait until cookie contains

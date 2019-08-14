@@ -725,8 +725,12 @@ class BrowserInstance {
         try {
             await this.driver.wait(async () => {
                 obj = await this.executeScript(function(titleOrUrl) {
+                    let isMatched: document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 || window.location.href.indexOf(titleOrUrl) != -1;
+                    let documentMatch = document.title.match(regex);
+                    let locationMatch = window.location.href.match(regex);
+                    isMatched = isMatched || documentMatch && documentMatch[0] === document.title || locationMatch && locationMatch[0] === window.location.href;
                     return {
-                        isMatched: document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 || window.location.href.indexOf(titleOrUrl) != -1,
+                        isMatched,
                         title: document.title,
                         url: window.location.href
                     };
@@ -737,32 +741,6 @@ class BrowserInstance {
         catch(e) {
             if(e.message.includes('Wait timed out after')) {
                 throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), contains '${titleOrUrl}' after ${timeout/1000} s`);
-            }
-            else {
-                throw e;
-            }
-        }
-    }
-
-    async verifyAtPageRegex(regex, timeout) {
-        let obj = null;
-        try {
-            await this.driver.wait(async () => {
-                obj = await this.executeScript(function(regex) {
-                    let documentMatch = document.title.match(regex);
-                    let locationMatch = window.location.href.match(regex);
-                    return {
-                        isMatched: documentMatch && documentMatch[0] === document.title || locationMatch && locationMatch[0] === window.location.href,
-                        title: document.title,
-                        url: window.location.href
-                    }
-                }, regex);
-                return obj.isMatched;
-            }, timeout)
-        }
-        catch (e) {
-            if(e.message.includes('Wait timed out after')) {
-                throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), match '${regex}' after ${timeout/1000} s, ${obj.match}`);
             }
             else {
                 throw e;
