@@ -725,7 +725,7 @@ class BrowserInstance {
         try {
             await this.driver.wait(async () => {
                 obj = await this.executeScript(function(titleOrUrl) {
-                    let isMatched: document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 || window.location.href.indexOf(titleOrUrl) != -1;
+                    let isMatched = document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 || window.location.href.indexOf(titleOrUrl) != -1;
                     let documentMatch = document.title.match(regex);
                     let locationMatch = window.location.href.match(regex);
                     isMatched = isMatched || documentMatch && documentMatch[0] === document.title || locationMatch && locationMatch[0] === window.location.href;
