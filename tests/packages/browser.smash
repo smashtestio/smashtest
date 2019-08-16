@@ -1,10 +1,5 @@
 Open test page [
-    Open Chrome $
-    Open Firefox $
-    Open Safari $
-    Open IE
-    Open Edge
-
+    Open browser
         Init vars +? {
             g('setPageBody',
                 async function(htmlStr) {
@@ -16,7 +11,6 @@ Open test page [
 
             g(`test page location`, `file:///${dir()}/generic-page.html`);
         }
-
             Navigate to {test page location}
 ]
     - Category: Actions
@@ -1133,15 +1127,15 @@ Open test page [
 
             - and the title matches the given regex
 
-                Verify at page 'title .*'
+                Verify at page '.* title .*'
 
             - and the url matches the given regex
 
-                Verify at page 'generic-.*'
+                Verify at page '.*generic-.*'
 
             - and neither the title not the url matches
 
-                Verify at page 'a{3}'
+                Verify at page 'aaa.*'
                     - Verify error $s #manual
 
         - Verify cookie contains
@@ -1222,15 +1216,15 @@ Open test page [
 
             - and the title contains the given text
 
-                Wait until at page 'title .*'
+                Wait until at page '.* title .*'
 
             - and the url contains the given text
 
-                Wait until at page 'generic-.*'
+                Wait until at page '.*generic-.*'
 
             - and neither the title nor the url contain the given text
 
-                Wait until at page 'd{3}'
+                Wait until at page 'ddd.*'
                     - Verify error $s #manual
 
         - Wait until at page (up to n secs)
@@ -1252,15 +1246,15 @@ Open test page [
 
             - and the title contains the given text
 
-                Wait until at page 'title .*' (up to '5' secs)
+                Wait until at page '.*title .*' (up to '5' secs)
 
             - and the url contains the given text
 
-                Wait until at page 'generic-.*' (up to '5' secs)
+                Wait until at page '.*generic-.*' (up to '5' secs)
 
             - and neither the title nor the url contain the given text
 
-                Wait until at page 'd{3}' (up to '5' secs)
+                Wait until at page 'ddd.*' (up to '5' secs)
                     - Verify error $s #manual
 
         - Wait until cookie contains

@@ -741,7 +741,7 @@ class BrowserInstance {
         }
         catch(e) {
             if(e.message.includes('Wait timed out after')) {
-                throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), contains '${titleOrUrl}' after ${timeout/1000} s`);
+                throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), contain or match '${titleOrUrl}' after ${timeout/1000} s`);
             }
             else {
                 throw e;
