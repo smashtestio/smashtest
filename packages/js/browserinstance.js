@@ -719,6 +719,7 @@ class BrowserInstance {
 
     /**
      * Throws error if current page's title or url doesn't contain the given string within timeout ms
+     * @param {String} titleOrUrl - A string that the title or url must contain, or a string containing a regex that the title or url must match
      */
     async verifyAtPage(titleOrUrl, timeout) {
         let obj = null;
