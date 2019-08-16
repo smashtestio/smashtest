@@ -186,12 +186,12 @@ class RunInstance {
                 // Check change of step.level between this step and the previous one, push/pop this.localStack accordingly
                 if(step.level > prevStep.level) { // NOTE: when step.level > prevStep.level, step.level is always prevStep.level + 1
                     if(!prevStepWasACodeBlockFunc) { // if previous step was a code block function, the push was already done
-                        // Push existing local let context to stack, create fresh local let context
+                        // Push existing local var context to stack, create fresh local var context
                         this.pushLocalStack();
                     }
                 }
                 else if(step.level < prevStep.level) {
-                    // Pop one local let context for every level decrement
+                    // Pop one local var context for every level decrement
                     let diff = prevStep.level - step.level;
                     for(let i = 0; i < diff; i++) {
                         this.popLocalStack();
@@ -276,7 +276,7 @@ class RunInstance {
                 // Step has a code block to execute
                 if(this.tree.hasCodeBlock(step)) {
                     if(stepNode.isFunctionCall) {
-                        // Push existing local let context to stack, create fresh local let context
+                        // Push existing local var context to stack, create fresh local var context
                         this.pushLocalStack();
                     }
 
@@ -290,7 +290,13 @@ class RunInstance {
                     // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
                     if(varsBeingSet && varsBeingSet.length == 1) {
                         // Grab return value from code and assign it to {var}
-                        this.setVarBeingSet(varsBeingSet[0], retVal);
+                        if(varsBeingSet[0].isLocal && stepNode.isFunctionCall) {
+                            // {{local var}} = Function, necessitates setting {{local var}} which is already on the localStack
+                            this.setLocalOnStack(varsBeingSet[0].name, retVal);
+                        }
+                        else {
+                            this.setVarBeingSet(varsBeingSet[0], retVal);
+                        }
                     }
 
                     // If this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
@@ -618,6 +624,14 @@ class RunInstance {
     }
 
     /**
+     * Sets a local variable on the last item in localStack
+     */
+    setLocalOnStack(varname, value) {
+        this.localStack[this.localStack.length - 1][utils.keepCaseCanonicalize(varname)] = value;
+        return value;
+    }
+
+    /**
      * Set/Get a persistent variable
      */
     p(varname, value) {
@@ -732,7 +746,7 @@ class RunInstance {
      * @param {Boolean} [isSync] - If true, the code will be executed synchronously
      * @return {Promise} Promise that gets resolved with what code returns
      */
-    evalCodeBlock(code, funcName, filename, lineNumber = 1, logHere, isSync) { 
+    evalCodeBlock(code, funcName, filename, lineNumber = 1, logHere, isSync) {
         // Functions accessible from a code block
         var runInstance = this; // var so it's accesible in the eval()
 
@@ -1088,7 +1102,7 @@ class RunInstance {
     }
 
     /**
-     * Push existing local let context to stack, create fresh local let context
+     * Push existing local var context to stack, create fresh local var context
      */
     pushLocalStack() {
         this.localStack.push(this.local);
@@ -1098,7 +1112,7 @@ class RunInstance {
     }
 
     /**
-     * Pop one local let context
+     * Pop one local var context
      */
     popLocalStack() {
         this.local = this.localStack.pop();
