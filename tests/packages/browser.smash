@@ -1233,7 +1233,20 @@ Open test page [
                 Wait until at page 'd{3}'
                     - Verify error $s #manual
 
+        - Wait until at page (up to n secs)
 
+            - and the title contains the given text
+
+                Wait until at page 'title here' (up to '5' secs)
+
+            - and the url contains the given text
+
+                Wait until at page 'generic-page' (up to '5' secs)
+
+            - and neither the title nor the url contain the given text
+
+                Wait until at page 'badstr' (up to '5' secs)
+                    - Verify error $s #manual
 
         - Wait until at page (up to n secs) (with regex)
 
