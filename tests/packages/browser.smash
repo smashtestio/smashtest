@@ -1129,16 +1129,21 @@ Open test page [
 
             - and the title matches the given regex
 
-                Verify at page '.* title .*'
+                Verify at page 'title .*'
 
             - and the url matches the given regex
 
-                Verify at page '.*generic-.*'
+                Verify at page 'generic-.*'
+                Verify at page '^.*generic-.*$'
 
             - and neither the title not the url matches
 
                 Verify at page 'aaa.*'
                     - Verify error $s #manual
+
+                - Bad regex
+                    Verify at page '(()'
+                        - Verify error $s #manual
 
         - Verify cookie contains
 

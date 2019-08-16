@@ -727,9 +727,14 @@ class BrowserInstance {
             await this.driver.wait(async () => {
                 obj = await this.executeScript(function(titleOrUrl) {
                     let isMatched = document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 || window.location.href.indexOf(titleOrUrl) != -1;
-                    let titleRegexMatch = document.title.match(titleOrUrl);
-                    let urlRegexMatch = window.location.href.match(titleOrUrl);
-                    isMatched = isMatched || (titleRegexMatch && titleRegexMatch[0] === document.title) || (urlRegexMatch && urlRegexMatch[0] === window.location.href);
+                    if(!isMatched) { // try them as regexes
+                        try {
+                            isMatched = document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl);
+                        }
+                        catch(e) { // in case of a bad regex
+                        }
+                    }
+
                     return {
                         isMatched,
                         title: document.title,
@@ -741,7 +746,7 @@ class BrowserInstance {
         }
         catch(e) {
             if(e.message.includes('Wait timed out after')) {
-                throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), contain or match '${titleOrUrl}' after ${timeout/1000} s`);
+                throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), contains the string or regex '${titleOrUrl}' after ${timeout/1000} s`);
             }
             else {
                 throw e;
