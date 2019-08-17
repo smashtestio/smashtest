@@ -769,6 +769,35 @@ ${outputBranchAbove(this)}
             }
         }
 
+        // If at least one child has a $/~, remove other children that don't have a $/~.
+        // Does not affect sequential steps
+        // This is a performance optimization. Full $/~ reduction is done in removeUnwantedBranches().
+        if(!isSequential) {
+            let stepNodeHasModifier = c => (c.isOnly || c.isDebug) && !c.isFunctionDeclaration;
+            let hasModifier = c =>
+                c instanceof StepBlockNode ?
+                c.steps.find(c => stepNodeHasModifier(c)) && !c.isSequential :
+                stepNodeHasModifier(c);
+
+            if(children.find(c => hasModifier(c))) {
+                for(let i = 0; i < children.length;) {
+                    let c = children[i];
+                    if(c.isFunctionDeclaration) {
+                        i++;
+                    }
+                    else if(c instanceof StepBlockNode) {
+                        for(let j = 0; j < c.steps.length;) {
+                            !stepNodeHasModifier(c.steps[j]) ? c.steps.splice(j, 1) : j++;
+                        }
+                        c.steps.length == 0 ? children.splice(i, 1) : i++;
+                    }
+                    else { // regular StepNode
+                        !stepNodeHasModifier(c) ? children.splice(i, 1) : i++;
+                    }
+                }
+            }
+        }
+
         // Set step's hooks if a child is a hook
 
         let beforeEveryBranch = [];
