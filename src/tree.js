@@ -116,7 +116,18 @@ class Tree {
      * @return {Boolean} True if step or its corresponding function declaration has a step block, false otherwise
      */
     hasCodeBlock(step) {
-        return this.getCodeBlock(step) !=  '';
+        let stepNode = this.stepNodeIndex[step.id];
+        if(stepNode.hasCodeBlock()) {
+            return true;
+        }
+        else if(step.hasOwnProperty('fid')) {
+            let functionDeclarationNode = this.stepNodeIndex[step.fid];
+            if(functionDeclarationNode.hasCodeBlock()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

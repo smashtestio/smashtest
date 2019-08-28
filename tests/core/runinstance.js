@@ -1974,6 +1974,50 @@ My Function
                 expect(tree.branches[0].steps[0].error).to.equal(undefined);
                 expect(tree.branches[0].steps[1].error).to.equal(undefined);
             });
+
+            it("doesn't clear out a {{local var}} after a function is called", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+{{v}}='foobar'
+    F '1'
+        V '{{v}}'
+
+* F {{n}}
+    G {{n}}
+
+* G {{n}} {
+}
+
+* V {{n}} {
+    runInstance.one = n;
+}
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+                runInstance.currBranch = tree.branches[0];
+
+                runInstance.currStep = tree.branches[0].steps[0];
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+                runInstance.currStep = tree.branches[0].steps[1];
+                await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
+                runInstance.currStep = tree.branches[0].steps[2];
+                await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
+
+                runInstance.currStep = tree.branches[0].steps[3];
+                await runInstance.runStep(tree.branches[0].steps[3], tree.branches[0], false);
+
+                expect(runInstance.one).to.equal("foobar");
+
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[1].error).to.equal(undefined);
+                expect(tree.branches[0].steps[2].error).to.equal(undefined);
+                expect(tree.branches[0].steps[3].error).to.equal(undefined);
+            });
         });
 
         context("passing in {vars}", () => {

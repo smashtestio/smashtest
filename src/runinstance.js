@@ -196,6 +196,10 @@ class RunInstance {
                     for(let i = 0; i < diff; i++) {
                         this.popLocalStack();
                     }
+
+                    if(prevStepWasACodeBlockFunc) {
+                        this.popLocalStack(); // on this step we're stepping out of the code block in the previous step
+                    }
                 }
                 else { // step.level == prevStep.level
                     if(prevStepWasACodeBlockFunc) {
