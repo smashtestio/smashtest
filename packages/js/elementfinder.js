@@ -518,7 +518,8 @@ class ElementFinder {
                         if(ef.isAnyOrder) { // Element array, any order
                             // Remove from topElems the elems that match up with a child EF
                             let foundElems = [];
-                            for(let childEF of ef.children) {
+                            for(let i = 0; i < ef.children.length; i++) {
+                                let childEF = ef.children[i];
                                 findEF(childEF, topElems);
                                 removeFromArr(topElems, childEF.matchedElems);
                                 foundElems = foundElems.concat(childEF.matchedElems);
@@ -526,7 +527,8 @@ class ElementFinder {
 
                             if(topElems.length > 0) {
                                 // Set block error for each of topElems still around (these elems weren't matched by the elem array)
-                                for(let topElem of topElems) {
+                                for(let i = 0; i < topElems.length; i++) {
+                                    let topElem = topElems[i];
                                     ef.blockErrors.push({ header: 'missing', body: elemSummary(topElem) });
                                 }
                             }
@@ -600,7 +602,8 @@ class ElementFinder {
                             let pool = toArray(topElem.querySelectorAll('*')); // all elements under topElem
                             let remove = false;
 
-                            for(let childEF of ef.children) {
+                            for(let j = 0; j < ef.children.length; j++) {
+                                let childEF = ef.children[j];
                                 if(pool.length == 0) {
                                     remove = true; // topElem has no children left, but more children are expected, so remove topElem from contention
                                     break;
@@ -673,7 +676,8 @@ class ElementFinder {
                     // Copy over matchMeElems from children (only elements that aren't already in ef.matchMeElems)
                     ef.children.forEach(function(childEF) {
                         if(childEF.matchMeElems) {
-                            for(let matchMeElem of childEF.matchMeElems) {
+                            for(let i = 0; i < childEF.matchMeElems.length; i++) {
+                                let matchMeElem = childEF.matchMeElems[i];
                                 if(ef.matchMeElems.indexOf(matchMeElem) == -1) {
                                     ef.matchMeElems.push(matchMeElem);
                                 }
@@ -689,7 +693,8 @@ class ElementFinder {
              * @return {Array of Element} Elements from pool that match the top line in ef. Ignores the counter.
              */
             function findTopEF(ef, pool) {
-                for(let prop of ef.props) {
+                for(let i = 0; i < ef.props.length; i++) {
+                    let prop = ef.props[i];
                     let approvedElems = [];
 
                     if(!definedProps.hasOwnProperty(prop.def)) {
@@ -697,7 +702,8 @@ class ElementFinder {
                         return [];
                     }
 
-                    for(let def of definedProps[prop.def]) {
+                    for(let j = 0; j < definedProps[prop.def].length; j++) {
+                        let def = definedProps[prop.def][j];
                         if(typeof def == 'object') { // def is an EF
                             def.counter = { min: 0 }; // match multiple elements
                             findEF(def, pool);
@@ -734,7 +740,8 @@ class ElementFinder {
              * @return {Boolean} true if the given EF's children have errors, false otherwise
              */
             function hasChildErrors(ef) {
-                for(let childEF of ef.children) {
+                for(let i = 0; i < ef.children.length; i++) {
+                    let childEF = ef.children[i];
                     if(childEF.error || (childEF.blockErrors && childEF.blockErrors.length > 0)) {
                         return true;
                     }
@@ -748,14 +755,15 @@ class ElementFinder {
              * @return {String} A summary of the given elem
              */
             function elemSummary(elem) {
-                return `${elem.tagName.toLowerCase()}${elem.id ? `#${elem.id}`: ``}${elem.className ? elem.className.trim().replace(/^\s*|\s+/g, `.`) : ``}`;
+                return elem.tagName.toLowerCase() + (elem.id ? ('#' + elem.id) : '') + (elem.className ? elem.className.trim().replace(/^\s*|\s+/g, '.') : '');
             }
 
             /**
              * Clears errors of the given EF's children
              */
             function clearErrorsOfChildren(ef) {
-                for(let childEF of ef.children) {
+                for(let i = 0; i < ef.children.length; i++) {
+                    let childEF = ef.children[i];
                     childEF.error = null;
                     childEF.blockErrors = [];
                     clearErrorsOfChildren(childEF);
@@ -768,7 +776,8 @@ class ElementFinder {
              */
             function toArray(list) {
                 let newArr = [];
-                for(let item of list) {
+                for(let i = 0; i < list.length; i++) {
+                    let item = list[i];
                     newArr.push(item);
                 }
                 return newArr;
@@ -1174,7 +1183,8 @@ class ElementFinder {
                     }
 
                     let nodesArr = [];
-                    for(let node of nodes) {
+                    for(let i = 0; i < nodes.length; i++) {
+                        let node = nodes[i];
                         nodesArr.push(node);
                     }
                     return nodesArr.filter(function(node) {
