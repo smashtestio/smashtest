@@ -454,10 +454,10 @@ class BrowserInstance {
         // Write screenshot to file
         let filename = `screenshots/${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isAfter ? `after` : `before`}.jpg`;
         const SCREENSHOT_WIDTH = 1000;
-        (await Jimp.read(Buffer.from(data, 'base64')))
+        await (await Jimp.read(Buffer.from(data, 'base64')))
             .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
             .quality(60)
-            .write(`smashtest/${filename}`);
+            .writeAsync(`smashtest/${filename}`);
 
         // Include crosshairs in report
         if(targetCoords) {
