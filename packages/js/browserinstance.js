@@ -454,17 +454,26 @@ class BrowserInstance {
         // Write screenshot to file
         let filename = `screenshots/${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isAfter ? `after` : `before`}.jpg`;
         const SCREENSHOT_WIDTH = 1000;
-        (await Jimp.read(Buffer.from(data, 'base64')))
-            .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
-            .quality(60)
-            .write(`smashtest/${filename}`);
 
-        // Include crosshairs in report
-        if(targetCoords) {
-            this.runInstance.currStep.targetCoords = targetCoords;
-        }
+        let currStep = this.runInstance.currStep;
+        let runner = this.runInstance.runner;
+        Jimp.read(Buffer.from(data, 'base64')) // complete image resize and write operation in background
+            .then(image => {
+                image
+                    .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
+                    .quality(60)
+                    .write(`smashtest/${filename}`, () => {
+                        // Include crosshairs in report
+                        if(targetCoords) {
+                            currStep.targetCoords = targetCoords;
+                        }
 
-        this.runInstance.runner.screenshotCount++;
+                        runner.screenshotCount++;
+                    });
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     /**
