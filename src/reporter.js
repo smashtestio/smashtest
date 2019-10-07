@@ -1,52 +1,74 @@
-const fs = require('fs');
-const path = require('path');
-const readFiles = require('read-files-promise');
-const mustache = require('mustache');
-const utils = require('./utils.js');
-const chalk = require('chalk');
-const getPort = require('get-port');
-const WebSocket = require('ws');
+const fs = require("fs");
+const path = require("path");
+const readFiles = require("read-files-promise");
+const mustache = require("mustache");
+const utils = require("./utils.js");
+const chalk = require("chalk");
+const getPort = require("get-port");
+const WebSocket = require("ws");
 
-const REPORT_FILENAME = path.join('smashtest', 'report.html');
-const REPORT_DATA_FILENAME = path.join('smashtest', 'report-data.js');
-const PASSED_DATA_FILENAME = path.join('smashtest', 'passed-data');
-const SMASHTEST_SS_DIR = path.join('smashtest', 'screenshots');
+let REPORT_FILENAME,
+    REPORT_DATA_FILENAME,
+    PASSED_DATA_FILENAME,
+    SMASHTEST_SS_DIR,
+    initialFolder,
+    folder;
+
+const date = Date.now();
 
 /**
  * Generates a report on the status of the tree and runner
  */
 class Reporter {
-    constructor(tree, runner) {
-        this.tree = tree;               // the Tree object to report on
-        this.runner = runner;           // the Runner object to report on
+  constructor(tree, runner) {
+    this.tree = tree; // the Tree object to report on
+    this.runner = runner; // the Runner object to report on
 
-        this.reportTemplate = "";       // template for html reports
-        this.reportTime = null;         // Date when the report was generated
+    this.reportTemplate = ""; // template for html reports
+    this.reportTime = null; // Date when the report was generated
 
-        this.isReportServer = true;     // whether or not to run the report server
-        this.reportDomain = null;       // domain:port where report server's api is available
-        this.wsServer = null;           // websocket server object
+    this.isReportServer = true; // whether or not to run the report server
+    this.reportDomain = null; // domain:port where report server's api is available
+    this.wsServer = null; // websocket server object
 
-        this.prevSnapshot = null;       // previous snapshot sent over websockets
+    this.prevSnapshot = null; // previous snapshot sent over websockets
 
-        this.timerFull = null;          // timer that goes off when it's time to do a full write
-        this.timerSnapshot = null;      // timer that goes off when it's time to do a snapshot write
+    this.timerFull = null; // timer that goes off when it's time to do a full write
+    this.timerSnapshot = null; // timer that goes off when it's time to do a snapshot write
 
-        this.stopped = false;           // true if this Reporter has been stopped
-    }
+    this.stopped = false; // true if this Reporter has been stopped
 
-    /**
-     * @return {String} The absolute path of the report html file
-     */
-    getFullReportPath() {
-        return path.join(process.cwd(), REPORT_FILENAME);
-    }
+    this.reportPath = "";
+    this.history = "false";
+  }
+
+  /**
+   * @return {String} The absolute path of the report html file
+   */
+  getFullReportPath() {
+    return path.join(folder, "report.html");
+  }
+
+  getPathFolder() {
+    initialFolder = (this.history === "false" ? "smashtest" : `report/smashtest-${date}`);
+    folder = (this.reportPath === "" ? initialFolder : `${this.reportPath}/${initialFolder}`);
+    return folder
+  }
+
+  setCustomPath() {
+      return folder
+  }
 
     /**
      * Starts the reporter, which generates and writes to disk a new report once every REPORT_GENERATE_FREQUENCY ms
      */
     async start() {
         // Clear out existing screenshots (one by one)
+        REPORT_FILENAME = path.join(folder, "report.html");
+        REPORT_DATA_FILENAME = path.join(folder, "report-data.js");
+        PASSED_DATA_FILENAME = path.join(folder, "passed-data");
+        SMASHTEST_SS_DIR = path.join(folder, "screenshots");
+
         try {
             let files = fs.readdirSync(SMASHTEST_SS_DIR);
             for(let file of files) {

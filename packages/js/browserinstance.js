@@ -6,12 +6,19 @@ const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
 const fs = require('fs');
 const path = require('path');
-const readFiles = require('read-files-promise');
+
 const Jimp = require('jimp');
 const request = require('request-promise-native');
 const utils = require('../../src/utils.js');
 const ElementFinder = require('./elementfinder.js');
 const Comparer = require('./comparer.js');
+const Tree = require('../../src/tree.js');
+const Runner = require('../../src/runner.js');
+const Reporter = require('../../src/reporter.js');
+
+let tree = new Tree();
+let runner = new Runner();
+let reporter = new Reporter(tree, runner);
 
 class BrowserInstance {
     // ***************************************
@@ -435,9 +442,10 @@ class BrowserInstance {
         }
 
         // Create smashtest/screenshots if it doesn't already exist
-        const dir = path.join('smashtest', 'screenshots');
+        const customPath = reporter.setCustomPath();
+        const dir = path.join(customPath, "/screenshots");
         if(!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
+            fs.mkdirSync(dir, { recursive: true });
         }
 
         // Take screenshot
@@ -457,7 +465,7 @@ class BrowserInstance {
         await (await Jimp.read(Buffer.from(data, 'base64')))
             .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
             .quality(60)
-            .writeAsync(`smashtest/${filename}`);
+            .writeAsync(`${reporter.getPathFolder()}/${filename}`);
 
         // Include crosshairs in report
         if(targetCoords) {
@@ -473,7 +481,7 @@ class BrowserInstance {
     async clearUnneededScreenshots() {
         if(this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) { // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
             // Delete all screenshots with a filename that begins with the currBranch's hash
-            const SMASHTEST_SS_DIR = path.join('smashtest', 'screenshots');
+            const SMASHTEST_SS_DIR = `${reporter.getPathFolder()}/screenshots`;
             let files = fs.readdirSync(SMASHTEST_SS_DIR);
             for(let file of files) {
                 if(file.startsWith(this.runInstance.currBranch.hash)) {
