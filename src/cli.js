@@ -466,7 +466,7 @@ function plural(count) {
 
         // Create smashtest directory if it doesn't already exist
         const SMASHTEST_DIR = reporter.getPathFolder();
-        console.log(SMASHTEST_DIR)
+
         if(!fs.existsSync(SMASHTEST_DIR)) {
             fs.mkdirSync(SMASHTEST_DIR, { recursive: true });
         }
