@@ -418,28 +418,26 @@ class Tree {
         for(let index = branchAbove.steps.length - 1; index >= 0; index--) {
             let currStep = branchAbove.steps[index];
             let currStepNode = this.stepNodeIndex[currStep.id];
-            let parent = currStepNode.parent || currStepNode.containingStepBlock.parent;
-            let siblings = parent.children;
 
-            let foundDeclarationNodes = [];
-            if(index != branchAbove.steps.length - 1) {
-                foundDeclarationNodes = searchAmong(currStepNode.children, currStep);
+            let stepAbove, stepNodeAbove, siblings;
+            if(index > 0) {
+                stepAbove = branchAbove.steps[index-1];
+                stepNodeAbove = this.stepNodeIndex[stepAbove.id];
+                siblings = stepNodeAbove.containingStepBlock ? stepNodeAbove.containingStepBlock.children : stepNodeAbove.children;
             }
-            if(foundDeclarationNodes.length == 0) {
-                foundDeclarationNodes = searchAmong(siblings, currStep);
+            else {
+                siblings = this.root.children;
             }
 
+            let foundDeclarationNodes = searchAmong(siblings, currStep);
             if(foundDeclarationNodes.length > 0) {
                 branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
                 return foundDeclarationNodes;
             }
 
-            // If nothing found yet, try going to the step right above (P), finding its corresponding function declaration (*P),
+            // If nothing found, try going to the step right above (P), finding its corresponding function declaration (*P),
             // finding all equivalents to *P, and searching all of their children
             if(index > 0) {
-                let stepAbove = branchAbove.steps[index-1];
-                let stepNodeAbove = this.stepNodeIndex[stepAbove.id];
-
                 if(stepNodeAbove && stepNodeAbove.isFunctionCall) {
                     let funcDeclAbove = this.stepNodeIndex[stepAbove.fid]; // this is *P from the example above
                     if(funcDeclAbove) {
@@ -457,7 +455,7 @@ class Tree {
             }
         }
 
-        utils.error(`The function \`${functionCallNode.getFunctionCallText()}\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+        utils.error(`The function \`${functionCallNode.getFunctionCallText()}\` cannot be found.
 
 Trace:
 ${outputBranchAbove(this)}
