@@ -436,7 +436,11 @@ class RunInstance {
      * Outputs the given error to the console, if allowed
      */
     outputError(error, stepNode) {
-        this.c(chalk.red.bold(stepNode.text) + '\n' + this.runner.formatStackTrace(error));
+        this.c(
+            chalk.red.bold(stepNode.text) + '\n' +
+            this.runner.formatStackTrace(error) +
+            (this.currBranch ? chalk.gray(`\n\n(branch ${this.currBranch.hash})`) : ``)
+        );
     }
 
     /**

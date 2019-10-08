@@ -445,17 +445,13 @@ Open test page [
                         Type 'foobar[]' into [#textbox]
                             Verify 'foobar[]' is typed in
 
-                - a string containing an escaped \[special key\]
+                - typing in actual brackets
 
-                    - \[key\]
+                    - [key]
 
-                        Type 'foobar\\[enter\\]' into [#textbox]
-                            Verify 'foobar[enter]' is typed in
-
-                    - multiple \[keys\]
-
-                        Type 'foobar\\[enter\\]something\\[enter\\]' into [#textbox]
-                            Verify 'foobar[enter]something[enter]' is typed in
+                        Type 'foobar[' into [#textbox]
+                            Type 'enter]' into [#textbox]
+                                Verify 'foobar[enter]' is typed in
 
         * Generate page for testing a textbox {
             await setPageBody(`

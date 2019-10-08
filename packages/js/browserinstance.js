@@ -323,7 +323,7 @@ class BrowserInstance {
                 return key;
             }
             else {
-                return utils.unescape(item);
+                return item;
             }
         });
 
