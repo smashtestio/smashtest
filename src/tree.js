@@ -494,7 +494,7 @@ ${outputBranchAbove(this)}
                 let sn = self.stepNodeIndex[s.id];
                 let text = sn.text;
                 if(text) {
-                    str += `   ${text}\n`
+                    str += `   ${utils.getIndents(s.level, 2)}${text}\n`
                 }
             });
             return str;

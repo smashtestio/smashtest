@@ -201,11 +201,13 @@ exports.numIndents = (line, filename, lineNumber) => {
 }
 
 /**
+ * @param {Number} n - Number of indents
+ * @param {Number} [s] - Spaces per indent, omit to use default
  * @return {String} n indents worth of spaces
  */
-exports.getIndents = (n) => {
+exports.getIndents = (n, s) => {
     let spaces = '';
-    for(let i = 0; i < Constants.SPACES_PER_INDENT * n; i++) {
+    for(let i = 0; i < (s || Constants.SPACES_PER_INDENT) * n; i++) {
         spaces += ' ';
     }
     return spaces;

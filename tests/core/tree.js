@@ -5891,7 +5891,7 @@ F
 
 Trace:
    F
-   F
+     F
 
  [file.txt:5]`);
                 });
@@ -6634,7 +6634,7 @@ F
 
 Trace:
    F
-   F
+     F
 
  [file.txt:5]`);
                 });
