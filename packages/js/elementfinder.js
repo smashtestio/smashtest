@@ -306,10 +306,15 @@ class ElementFinder {
                 self.usedDefinedProps[def] = definedProps[def];
                 self.usedDefinedProps[def].forEach(d => {
                     if(d instanceof ElementFinder) {
-                        d.props.forEach(prop => addToUsedDefinedProps(prop.def));
+                        addEF(d);
                     }
                 });
             }
+        }
+
+        function addEF(ef) {
+            ef.props.forEach(prop => addToUsedDefinedProps(prop.def));
+            ef.children.forEach(child => addEF(child));
         }
 
         let propObj = {
@@ -451,18 +456,17 @@ class ElementFinder {
      * @throws {Error} If an element array wasn't properly matched
      */
     async getAll(driver, parentElem) {
-        let obj = await driver.executeScript(function() {
-            let payload = JSON.parse(arguments[0]);
+        let obj = await driver.executeScript(function(payload, parentElem) {
+            payload = JSON.parse(payload);
             let ef = payload.ef;
             let definedProps = payload.definedProps;
-            let parentElem = arguments[1];
-
-            findEF(ef, parentElem ? toArray(parentElem.querySelectorAll('*')).concat([parentElem]) : toArray(document.querySelectorAll('*')));
-            let matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
 
             const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";
             const SEPARATOR_STYLE = "color: #C0C0C0";
             const HEADING_STYLE = "font-weight: bold";
+
+            findEF(ef, parentElem ? toArray(parentElem.querySelectorAll('*')).concat([parentElem]) : toArray(document.querySelectorAll('*')));
+            let matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
 
             console.log(SEPARATOR, SEPARATOR_STYLE);
             console.log("%cElementFinder: ", HEADING_STYLE);
@@ -474,6 +478,9 @@ class ElementFinder {
             }
             console.log("%cMatches:", HEADING_STYLE);
             console.log(matches);
+
+            console.log("%cDefined props: ", HEADING_STYLE);
+            console.log(definedProps);
 
             return {
                 ef: ef,
@@ -705,7 +712,7 @@ class ElementFinder {
                     for(let j = 0; j < definedProps[prop.def].length; j++) {
                         let def = definedProps[prop.def][j];
                         if(typeof def == 'object') { // def is an EF
-                            def.counter = { min: 0 }; // match multiple elements
+                            def.counter = { min: 1 }; // match multiple elements
                             findEF(def, pool);
                             let matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
                             approvedElems = approvedElems.concat(intersectArr(pool, matched));
@@ -725,7 +732,7 @@ class ElementFinder {
                         break;
                     }
                 }
-
+                
                 return pool;
             }
 
