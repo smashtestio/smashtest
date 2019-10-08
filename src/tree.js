@@ -421,7 +421,14 @@ class Tree {
             let parent = currStepNode.parent || currStepNode.containingStepBlock.parent;
             let siblings = parent.children;
 
-            let foundDeclarationNodes = searchAmong(siblings, currStep);
+            let foundDeclarationNodes = [];
+            if(index != branchAbove.steps.length - 1) {
+                foundDeclarationNodes = searchAmong(currStepNode.children, currStep);
+            }
+            if(foundDeclarationNodes.length == 0) {
+                foundDeclarationNodes = searchAmong(siblings, currStep);
+            }
+
             if(foundDeclarationNodes.length > 0) {
                 branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
                 return foundDeclarationNodes;

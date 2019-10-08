@@ -6180,6 +6180,44 @@ Seq
                     ]);
                 });
 
+                it("allows access to a function declared within a function, when multiple functions of that same name are declared on different branches", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    G
+
+* F
+    - A
+        * G
+            - C
+    - B
+        * G
+            - D
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'A' },
+                                { text: 'G' },
+                                { text: 'C' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'B' },
+                                { text: 'G' },
+                                { text: 'D' }
+                            ]
+                        }
+                    ]);
+                });
+
                 it("calls a private function it has access to", () => {
                     let tree = new Tree();
                     tree.parseIn(`
