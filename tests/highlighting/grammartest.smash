@@ -13,7 +13,7 @@ Function call
     Multi-level step block
 ]
 
-* Function declaration {{var}} and 'string'
+* Function declaration {{var}} and 'string' 'http://site.com'
     Step one
 
 * Function declaration {{var}} and 'string' [
