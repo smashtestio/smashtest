@@ -438,7 +438,7 @@ class BrowserInstance {
 
         // Create smashtest/screenshots if it doesn't already exist
         const customPath = reporter.setCustomPath();
-        const dir = path.join(customPath, "/screenshots");
+        const dir = path.join(customPath, "screenshots");
         if(!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
