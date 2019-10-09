@@ -171,6 +171,8 @@ Options
   --repl                                   Open the REPL (drive Smashtest from command line) (-r)
   --report-domain=<domain>                 Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>             Whether to run a server during run for live report updates
+  --report-path=<path>/<domain>            Set path, domain or domain:port for change report location
+  --history=<true/false>                   You can activated history for reporting
   --screenshots=<true/false>               Whether to take screenshots at each step
   --skip-passed=<true/false/file>          Whether to skip branches that passed last time (-s/-a)
   --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
@@ -236,7 +238,7 @@ Options
                 reporter.isReportServer = boolValue();
                 break;
 
-            case "report-root":
+            case "report-path":
                 if(!value.match((/^(.*?)[\\\/]([^\\\/]+[a-zA-Z])$/) || (/^[^\/\: ]+(\:[0-9]+)?$/))) {
                     utils.error(`Invalid path report folder. It must be absolute 'path', 'domain' or 'domain:port'.`);
                 }
