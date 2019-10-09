@@ -462,10 +462,10 @@ function plural(count) {
         setSigint(); // attach SIGINT (Ctrl + C) handler after runner.init(), so user can Ctrl + C out of a long branchify operation via the default SIGINT handler
 
         // Create smashtest directory if it doesn't already exist
-        const SMASHTEST_DIR = reporter.getPathFolder();
+        const smashtestDir = reporter.getPathFolder();
 
-        if(!fs.existsSync(SMASHTEST_DIR)) {
-            fs.mkdirSync(SMASHTEST_DIR, { recursive: true });
+        if(!fs.existsSync(smashtestDir)) {
+            fs.mkdirSync(smashtestDir, { recursive: true });
         }
 
         // Output errors to console by default, do not output all steps to console by default

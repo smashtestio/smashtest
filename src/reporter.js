@@ -7,10 +7,10 @@ const chalk = require("chalk");
 const getPort = require("get-port");
 const WebSocket = require("ws");
 
-let REPORT_FILENAME,
-    REPORT_DATA_FILENAME,
-    PASSED_DATA_FILENAME,
-    SMASHTEST_SS_DIR,
+let ReportFilename,
+    ReportDataFilename,
+    PassedDataFilename,
+    SmashtestSSDir,
     initialFolder,
     folder;
 
@@ -64,19 +64,19 @@ class Reporter {
      */
     async start() {
         // Clear out existing screenshots (one by one)
-        REPORT_FILENAME = path.join(folder, "report.html");
-        REPORT_DATA_FILENAME = path.join(folder, "report-data.js");
-        PASSED_DATA_FILENAME = path.join(folder, "passed-data");
-        SMASHTEST_SS_DIR = path.join(folder, "screenshots");
+        ReportFilename = path.join(folder, "report.html");
+        ReportDataFilename = path.join(folder, "report-data.js");
+        PassedDataFilename = path.join(folder, "passed-data");
+        SmashtestSSDir = path.join(folder, "screenshots");
 
         try {
-            let files = fs.readdirSync(SMASHTEST_SS_DIR);
+            let files = fs.readdirSync(SmashtestSSDir);
             for(let file of files) {
                 let match = file.match(/[^\_]+/);
                 let hash = match ? match[0] : null;
                 // If we're doing --skip-passed, delete a screenshot only if the branch didn't pass last time
                 if(!this.runner.skipPassed || !this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
-                    fs.unlinkSync(path.join(SMASHTEST_SS_DIR, file));
+                    fs.unlinkSync(path.join(SmashtestSSDir, file));
                 }
             }
         }
@@ -215,9 +215,9 @@ class Reporter {
 
         // Write report, report data, and passed data to disk
         await Promise.all([
-            new Promise((res, rej) => fs.writeFile(REPORT_FILENAME, this.reportTemplate, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(REPORT_DATA_FILENAME, reportData, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(PASSED_DATA_FILENAME, passedData, err => err ? rej(err) : res()))
+            new Promise((res, rej) => fs.writeFile(ReportFilename, this.reportTemplate, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(ReportDataFilename, reportData, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(PassedDataFilename, passedData, err => err ? rej(err) : res()))
         ]);
 
         // Notify all connected websockets that new data is available on disk
@@ -269,7 +269,7 @@ class Reporter {
      * @param {String} [filename] - The relative filename to use, uses passed data file filename if omitted
      */
     async markPassedFromPrevRun(filename) {
-        filename = filename || PASSED_DATA_FILENAME;
+        filename = filename || PassedDataFilename;
         console.log(`Including passed branches from: ${chalk.gray(filename)}`);
         console.log("");
 
