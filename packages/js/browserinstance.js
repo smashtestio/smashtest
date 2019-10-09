@@ -12,7 +12,7 @@ const request = require('request-promise-native');
 const utils = require('../../src/utils.js');
 const ElementFinder = require('./elementfinder.js');
 const Comparer = require('./comparer.js');
-const {runner, tree, reporter} = require('../../src/isntances.js');
+const {runner, tree, reporter} = require('../../src/instances.js');
 
 
 class BrowserInstance {
@@ -437,7 +437,7 @@ class BrowserInstance {
         }
 
         // Create smashtest/screenshots if it doesn't already exist
-        const customPath = reporter.setCustomPath();
+        const customPath = reporter.getCustomPath();
         const dir = path.join(customPath, "screenshots");
         if(!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });

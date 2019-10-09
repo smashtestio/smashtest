@@ -166,7 +166,7 @@ Options
   --repl                                   Open the REPL (drive Smashtest from command line) (-r)
   --report-domain=<domain>                 Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>             Whether to run a server during run for live report updates
-  --report-path=<path>/<domain>            Set path, domain or domain:port for change report location
+  --report-path=<path>/<domain>            Set absolute path, domain or domain:port for change report location
   --history=<true/false>                   You can activated history for reporting
   --screenshots=<true/false>               Whether to take screenshots at each step
   --skip-passed=<true/false/file>          Whether to skip branches that passed last time (-s/-a)

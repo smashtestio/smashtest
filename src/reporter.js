@@ -6,15 +6,17 @@ const utils = require("./utils.js");
 const chalk = require("chalk");
 const getPort = require("get-port");
 const WebSocket = require("ws");
+const date = require('date-and-time');
 
-let ReportFilename,
-    ReportDataFilename,
-    PassedDataFilename,
-    SmashtestSSDir,
+let reportFilename,
+    reportDataFilename,
+    passedDataFilename,
+    smashtestSSDir,
     initialFolder,
     folder;
 
-const date = Date.now();
+const now = new Date();
+const dateFormat = date.format(now, 'YYYY-MM-DDTHH-mm-ss');
 
 /**
  * Generates a report on the status of the tree and runner
@@ -50,7 +52,7 @@ class Reporter {
     }
 
     getPathFolder() {
-        initialFolder = (this.history === "false" ? "smashtest" : `report/smashtest-${date}`);
+        initialFolder = (this.history === "false" ? "smashtest" : `report/smashtest-${dateFormat}`);
         folder = (this.reportPath === "" ? initialFolder : `${path.join(this.reportPath, initialFolder)}`);
         return folder
     }
@@ -64,19 +66,19 @@ class Reporter {
      */
     async start() {
         // Clear out existing screenshots (one by one)
-        ReportFilename = path.join(folder, "report.html");
-        ReportDataFilename = path.join(folder, "report-data.js");
-        PassedDataFilename = path.join(folder, "passed-data");
-        SmashtestSSDir = path.join(folder, "screenshots");
+        reportFilename = path.join(folder, "report.html");
+        reportDataFilename = path.join(folder, "report-data.js");
+        passedDataFilename = path.join(folder, "passed-data");
+        smashtestSSDir = path.join(folder, "screenshots");
 
         try {
-            let files = fs.readdirSync(SmashtestSSDir);
+            let files = fs.readdirSync(smashtestSSDir);
             for(let file of files) {
                 let match = file.match(/[^\_]+/);
                 let hash = match ? match[0] : null;
                 // If we're doing --skip-passed, delete a screenshot only if the branch didn't pass last time
                 if(!this.runner.skipPassed || !this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
-                    fs.unlinkSync(path.join(SmashtestSSDir, file));
+                    fs.unlinkSync(path.join(smashtestSSDir, file));
                 }
             }
         }
@@ -215,9 +217,9 @@ class Reporter {
 
         // Write report, report data, and passed data to disk
         await Promise.all([
-            new Promise((res, rej) => fs.writeFile(ReportFilename, this.reportTemplate, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(ReportDataFilename, reportData, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(PassedDataFilename, passedData, err => err ? rej(err) : res()))
+            new Promise((res, rej) => fs.writeFile(reportFilename, this.reportTemplate, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(reportDataFilename, reportData, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, err => err ? rej(err) : res()))
         ]);
 
         // Notify all connected websockets that new data is available on disk
@@ -269,7 +271,7 @@ class Reporter {
      * @param {String} [filename] - The relative filename to use, uses passed data file filename if omitted
      */
     async markPassedFromPrevRun(filename) {
-        filename = filename || PassedDataFilename;
+        filename = filename || passedDataFilename;
         console.log(`Including passed branches from: ${chalk.gray(filename)}`);
         console.log("");
 
