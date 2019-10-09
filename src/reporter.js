@@ -39,7 +39,7 @@ class Reporter {
     this.stopped = false; // true if this Reporter has been stopped
 
     this.reportPath = "";
-    this.history = "false";
+    this.history = false;
   }
 
   /**
