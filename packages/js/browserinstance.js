@@ -460,7 +460,7 @@ class BrowserInstance {
         await (await Jimp.read(Buffer.from(data, 'base64')))
             .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
             .quality(60)
-            .writeAsync(`${reporter.getPathFolder()}/${filename}`);
+            .writeAsync(path.join(reporter.getPathFolder(), filename));
 
         // Include crosshairs in report
         if(targetCoords) {
