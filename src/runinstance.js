@@ -136,7 +136,7 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            console.log(`Start:     ${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
+            console.log(`Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
         }
 
         if(this.tree.isDebug && !this.tree.isExpressDebug) {
@@ -360,9 +360,9 @@ class RunInstance {
             let seconds = step.elapsed/1000 || 0;
 
             let isGreen = step.isPassed;
-            console.log("End:       " +
-                (isGreen ? chalk.green(stepNode.text.trim() || '(anon)') : chalk.red(stepNode.text.trim() || '(anon)')) +
-                "    " +
+            console.log(`End:       ${utils.getIndents(step.level, 2)}` +
+                (isGreen ? chalk.green(stepNode.text.trim() || `(anon)`) : chalk.red(stepNode.text.trim() || `(anon)`)) +
+                `    ` +
                 (step.isPassed ? chalk.green(` passed`) : ``) +
                 (step.isFailed ? chalk.red(` failed`) : ``) +
                 chalk.gray(` (${seconds} s)`)
@@ -436,7 +436,11 @@ class RunInstance {
      * Outputs the given error to the console, if allowed
      */
     outputError(error, stepNode) {
-        this.c(chalk.red.bold(stepNode.text) + '\n' + this.runner.formatStackTrace(error));
+        this.c(
+            chalk.red.bold(stepNode.text) + '\n' +
+            this.runner.formatStackTrace(error) +
+            (this.currBranch ? chalk.gray(`\n\n(branch ${this.currBranch.hash})`) : ``)
+        );
     }
 
     /**

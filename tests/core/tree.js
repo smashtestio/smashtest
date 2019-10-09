@@ -3765,7 +3765,7 @@ Function that doesn't exist
             let functionCall = new Step(tree.root.children[0].id);
             assert.throws(() => {
                 tree.findFunctionDeclarations(functionCall, branchAbove);
-            }, `The function \`Function that doesn't exist\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+            }, `The function \`Function that doesn't exist\` cannot be found.
 
 Trace:
    Function that doesn't exist
@@ -3787,7 +3787,7 @@ Other scope -
 
             assert.throws(() => {
                 tree.findFunctionDeclarations(functionCall, branchAbove);
-            }, `The function \`My function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+            }, `The function \`My function\` cannot be found.
 
 Trace:
    My function
@@ -3809,7 +3809,7 @@ Other scope -
             functionCall = new Step(tree.root.children[0].children[0].id);
             assert.throws(() => {
                 tree.findFunctionDeclarations(functionCall, branchAbove);
-            }, `The function \`My function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+            }, `The function \`My function\` cannot be found.
 
 Trace:
    One scope
@@ -3833,7 +3833,7 @@ Trace:
             let functionCall = new Step(tree.root.children[0].children[0].id);
             assert.throws(() => {
                 tree.findFunctionDeclarations(functionCall, branchAbove);
-            }, `The function \`Function that doesn't exist\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+            }, `The function \`Function that doesn't exist\` cannot be found.
 
 Trace:
    *
@@ -5086,7 +5086,7 @@ F
 
                     assert.throws(() => {
                         tree.branchify(tree.root);
-                    }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+                    }, `The function \`F\` cannot be found.
 
 Trace:
    F
@@ -5887,11 +5887,11 @@ F
 
                     assert.throws(() => {
                         tree.branchify(tree.root);
-                    }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+                    }, `The function \`F\` cannot be found.
 
 Trace:
    F
-   F
+     F
 
  [file.txt:5]`);
                 });
@@ -6175,6 +6175,44 @@ Seq
                                 { text: 'F' },
                                 { text: 'G' },
                                 { text: 'H' }
+                            ]
+                        }
+                    ]);
+                });
+
+                it("allows access to a function declared within a function, when multiple functions of that same name are declared on different branches", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    G
+
+* F
+    - A
+        * G
+            - C
+    - B
+        * G
+            - D
+                    `, "file.txt");
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'A' },
+                                { text: 'G' },
+                                { text: 'C' }
+                            ]
+                        },
+                        {
+                            steps: [
+                                { text: 'F' },
+                                { text: 'B' },
+                                { text: 'G' },
+                                { text: 'D' }
                             ]
                         }
                     ]);
@@ -6592,11 +6630,11 @@ F
 
                     assert.throws(() => {
                         tree.branchify(tree.root);
-                    }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+                    }, `The function \`F\` cannot be found.
 
 Trace:
    F
-   F
+     F
 
  [file.txt:5]`);
                 });
@@ -12905,7 +12943,7 @@ A -
 
                 assert.throws(() => {
                     tree.generateBranches();
-                }, `The function \`F\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?
+                }, `The function \`F\` cannot be found.
 
 Trace:
    A

@@ -8018,7 +8018,7 @@ My function
 
             await runInstance.run();
 
-            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
+            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found.");
         });
 
         it("can handle two function calls that cannot be found", async () => {
@@ -8034,8 +8034,8 @@ A -
 
             await runInstance.run();
 
-            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
-            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found. Is there a typo, or did you mean to make this a textual step (with a - at the end)?");
+            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found.");
+            await expect(runInstance.inject(`Some unknown function`)).to.be.rejectedWith("The function \`Some unknown function\` cannot be found.");
         });
 
         it("the RunInstance can flawlessly resume from a pause, after an injected step has run", async () => {

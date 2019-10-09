@@ -153,6 +153,10 @@ describe("Utils", () => {
             expect(utils.getIndents(1)).to.equal('    ');
             expect(utils.getIndents(2)).to.equal('        ');
             expect(utils.getIndents(3)).to.equal('            ');
+
+            expect(utils.getIndents(0, 2)).to.equal('');
+            expect(utils.getIndents(1, 2)).to.equal('  ');
+            expect(utils.getIndents(2, 2)).to.equal('    ');
         });
     });
 
