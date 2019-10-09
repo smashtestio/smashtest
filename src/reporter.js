@@ -55,7 +55,7 @@ class Reporter {
     return folder
   }
 
-  setCustomPath() {
+  getCustomPath() {
       return folder
   }
 
