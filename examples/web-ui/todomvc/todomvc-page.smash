@@ -1,0 +1,69 @@
+// Functions related to the TodoMVC page (opening it, performing actions, and verifies)
+
+* Given I am at todomvc
+    Open browser
+        Navigate to todomvc
+            Verify page is empty
+
+    * Open browser
+
+        Open Chrome
+        Open Firefox
+
+            Desktop
+            Mobile
+
+    * Navigate to todomvc
+        Navigate to 'todomvc.com/examples/vanillajs/#/'
+            On todomvc page
+
+    * On todomvc page + {
+        props({
+            'new note box': `.new-todo`,
+            'item': `.todo-list li`,
+            'crossed out': `.completed`,
+            'checkbox': `input[type=checkbox], any visibility`,
+            'delete button': `.destroy`,
+            'chevron': `label[for='toggle-all']`,
+            'footer': `.footer`,
+            'All button': `.filters a, 'All'`,
+            'Active button': `.filters a, 'Active'`,
+            'Completed button': `.filters a, 'Completed'`,
+            'Clear Completed button': `.clear-completed`,
+            'edit box': `.edit`,
+            'empty page': `
+                'todos'
+                'What needs to be done?'
+            `
+        });
+    }
+
+        * Verify page is empty +
+            Verify 'empty page' is visible
+                Verify list is empty
+                    Verify 'footer' is not visible
+
+        * Verify list is empty +
+            Verify 'item' is not visible
+
+        * Create note {{text}}
+            Type '{{text}}[enter]' into 'new note box'
+
+        * Delete {{nth}} note
+            Hover over 'item, {{nth}}'
+                Click 'delete button'
+
+        * Toggle completed on {{nth}} note {
+            let checkbox = await $(`
+                item, ${nth}
+                    [checkbox, any visibility]
+            `);
+            await checkbox.click();
+        }
+
+        * Edit {{nth}} note
+            Double click 'item, {{nth}}'
+
+            * and set text to {{text}}
+                Set 'edit box' to {{text}}
+                    Type '[enter]' into 'edit box'
