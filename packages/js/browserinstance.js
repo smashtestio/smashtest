@@ -12,13 +12,8 @@ const request = require('request-promise-native');
 const utils = require('../../src/utils.js');
 const ElementFinder = require('./elementfinder.js');
 const Comparer = require('./comparer.js');
-const Tree = require('../../src/tree.js');
-const Runner = require('../../src/runner.js');
-const Reporter = require('../../src/reporter.js');
+const {runner, tree, reporter} = require('../../src/isntances.js');
 
-let tree = new Tree();
-let runner = new Runner();
-let reporter = new Reporter(tree, runner);
 
 class BrowserInstance {
     // ***************************************

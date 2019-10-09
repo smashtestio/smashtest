@@ -10,19 +10,14 @@ const progress = require('cli-progress');
 const repl = require('repl');
 const readline = require('readline');
 
-const Tree = require('./tree.js');
-const Runner = require('./runner.js');
-const Reporter = require('./reporter.js');
+
+const {runner, tree, reporter} = require('./instances.js');
 const StepNode = require('./stepnode.js');
 const Constants = require('./constants.js');
 
 // ***************************************
 //  Globals
 // ***************************************
-
-let tree = new Tree();
-let runner = new Runner();
-let reporter = new Reporter(tree, runner);
 
 let isReport = true;
 
