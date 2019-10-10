@@ -51,12 +51,19 @@ class Reporter {
         return path.join(folder, "report.html");
     }
 
-    getPathFolder() {
-        initialFolder = (this.history === false ? "smashtest" : `${path.join("smashtest/report/smashtest-", dateFormat)}`);
-        folder = (this.reportPath === "" ? initialFolder : `${path.join(this.reportPath, initialFolder)}`);
-        return folder;
-    }
+    /**
+    * @return {String} The path for report folder
+    */
+   getPathFolder() {
+    initialFolder = (this.history === false ? "smashtest" : `${path.join(`smashtest`, `report`, `smashtest-${dateFormat}`)}`);
+    initialFolder = (this.history === false ? "smashtest" : `${path.join("smashtest/report/smashtest-", dateFormat)}`);
+    folder = (this.reportPath === "" ? initialFolder : `${path.join(this.reportPath, initialFolder)}`);
+    return folder;
+}
 
+    /**
+    * @return {String} Variable custom path for report folder
+    */
     getCustomPath() {
         return folder;
     }
