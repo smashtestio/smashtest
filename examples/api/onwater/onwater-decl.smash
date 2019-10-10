@@ -1,3 +1,5 @@
+// Declarations (implementations) of functions called in onwater.smash
+
 * Test the OnWater API +
     ..
     {access_token} = ''
