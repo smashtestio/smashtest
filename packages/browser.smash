@@ -152,6 +152,10 @@
         await browser.driver.actions({bridge: true}).move({origin: await $(element, true)}).perform();
     }
 
+    * Move over {{element}} to {{x}}, {{y}} {
+        await browser.driver.actions({bridge: true}).move({x: parseInt(x), y: parseInt(y), origin: await $(element, true)}).perform();
+    }
+
     * Scroll to {{element}} {
         await executeScript(function(element) {
             element.scrollIntoView();
