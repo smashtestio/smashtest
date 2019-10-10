@@ -2,6 +2,8 @@
 // This file contains high-level Gherkin-style tests covering all TodoMVC functionality
 // Steps are implemented in other .smash files
 
+// Run these tests by running `smashtest` in this directory
+
 Given I am at todomvc
 
     - Creating notes

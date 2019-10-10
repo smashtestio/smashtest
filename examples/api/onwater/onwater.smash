@@ -5,6 +5,8 @@
 // and set the {access_token} on onwater-decl.smash
 // If you're running into rate-limiting problems, try running a subset of the tests at a time (e.g., by putting a $ on a line with a "-")
 
+// Run these tests by running `smashtest` in this directory
+
 Test the OnWater API
 
     GET /results
