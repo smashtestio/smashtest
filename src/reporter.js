@@ -22,43 +22,43 @@ const dateFormat = date.format(now, 'YYYY-MM-DDTHH-mm-ss');
  * Generates a report on the status of the tree and runner
  */
 class Reporter {
-  constructor(tree, runner) {
-    this.tree = tree;               // the Tree object to report on
-    this.runner = runner;           // the Runner object to report on
+    constructor(tree, runner) {
+        this.tree = tree;               // the Tree object to report on
+        this.runner = runner;           // the Runner object to report on
 
-    this.reportTemplate = "";       // template for html reports
-    this.reportTime = null;         // Date when the report was generated
+        this.reportTemplate = "";       // template for html reports
+        this.reportTime = null;         // Date when the report was generated
 
-    this.isReportServer = true;     // whether or not to run the report server
-    this.reportDomain = null;       // domain:port where report server's api is available
-    this.wsServer = null;           // websocket server object
+        this.isReportServer = true;     // whether or not to run the report server
+        this.reportDomain = null;       // domain:port where report server's api is available
+        this.wsServer = null;           // websocket server object
 
-    this.prevSnapshot = null;       // previous snapshot sent over websockets
+        this.prevSnapshot = null;       // previous snapshot sent over websockets
 
-    this.timerFull = null;          // timer that goes off when it's time to do a full write
-    this.timerSnapshot = null;      // timer that goes off when it's time to do a snapshot write
+        this.timerFull = null;          // timer that goes off when it's time to do a full write
+        this.timerSnapshot = null;      // timer that goes off when it's time to do a snapshot write
 
-    this.stopped = false;           // true if this Reporter has been stopped
+        this.stopped = false;           // true if this Reporter has been stopped
 
-    this.reportPath = "";           // path for the report folder default is same folder smashtest file
-    this.history = false;           // activate history for reporting
-  }
+        this.reportPath = "";           // path for the report folder default is same folder smashtest file
+        this.history = false;           // activate history for reporting
+    }
 
-  /**
-   * @return {String} The absolute path of the report html file
-   */
+    /**
+    * @return {String} The absolute path of the report html file
+    */
     getFullReportPath() {
         return path.join(folder, "report.html");
     }
 
     getPathFolder() {
-        initialFolder = (this.history === "false" ? "smashtest" : `report/smashtest-${dateFormat}`);
+        initialFolder = (this.history === false ? "smashtest" : `${path.join("report/smashtest-", dateFormat)}`);
         folder = (this.reportPath === "" ? initialFolder : `${path.join(this.reportPath, initialFolder)}`);
-        return folder
+        return folder;
     }
 
     getCustomPath() {
-        return folder
+        return folder;
     }
 
     /**

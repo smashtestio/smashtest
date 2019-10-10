@@ -2,8 +2,12 @@ const Tree = require('./tree.js');
 const Runner = require('./runner.js');
 const Reporter = require('./reporter.js');
 
-let tree = new Tree();
-let runner = new Runner();
-let reporter = new Reporter(tree, runner);
+let tree, runner, reporter = null
+if(tree === null && runner === null && report === null){
+  tree = new Tree();
+  runner = new Runner();
+  reporter = new Reporter(tree, runner);
+}
+
 
 module.exports = {runner, tree, reporter}

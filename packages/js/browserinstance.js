@@ -476,11 +476,11 @@ class BrowserInstance {
     async clearUnneededScreenshots() {
         if(this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) { // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
             // Delete all screenshots with a filename that begins with the currBranch's hash
-            const SMASHTEST_SS_DIR = `${path.join(reporter.getPathFolder(), "screenshots")}`;
-            let files = fs.readdirSync(SMASHTEST_SS_DIR);
+            const screenshotsDir = `${path.join(reporter.getPathFolder(), "screenshots")}`;
+            let files = fs.readdirSync(screenshotsDir);
             for(let file of files) {
                 if(file.startsWith(this.runInstance.currBranch.hash)) {
-                    fs.unlinkSync(path.join(SMASHTEST_SS_DIR, file));
+                    fs.unlinkSync(path.join(screenshotsDir, file));
                     this.runInstance.runner.screenshotCount--; // decrement screenshotCount for every screenshot deleted
                 }
             }
