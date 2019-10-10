@@ -1,0 +1,92 @@
+// Sample functional tests of the OnWater API (https://onwater.io/)
+// This API takes in a latitude and longitude and outputs whether or not that point is on water
+
+// Register an account at https://onwater.io/users/sign_up, get an API key on https://onwater.io/users/api_key,
+// and set the {access_token} on onwater-decl.smash
+// If you're running into rate-limiting problems, try running a subset of the tests at a time (e.g., by putting a $ on a line with a "-")
+
+Test the OnWater API
+
+    GET /results
+
+        - Valid responses
+
+            When a request is made with coords on water
+            When a request is made with coords on a body of water inside land
+
+                Then the response is '200' 'true'
+
+            When a request is made with coords on land
+
+                Then the response is '200' 'false'
+
+            When a request is made with integer coords
+            When a request is made with no access token // public access is allowed
+
+                Then the response is successful
+
+        - Error responses
+
+            When a request is made with missing coords
+            When a request is made with non-numeric coords
+            When a request is made with no inputs
+
+                Then the response is '404'
+
+            When a request is made with out-of-bounds latitude
+
+                Then the response is '400'
+                    and the errors are 'latitude must be a valid number between -90 and 90 inclusive'
+
+            When a request is made with out-of-bounds longitude
+
+                Then the response is '400'
+                    and the errors are 'longitude must be a valid number between -180 and 180 inclusive'
+
+            When a request is too long
+
+                Then the response is '400'
+
+            When a request is made with a bad access token
+
+                Then the response is '403'
+                    and the error is 'invalid access_token param.'
+
+    POST /results
+
+        - Valid responses
+
+            When a request is made with a single set of coords
+                Then the response is correct
+
+            When a request is made with multiple coords
+                Then the response is correct
+
+            When a request is made with whitespace inside input strings
+                Then the response is correct
+
+        - Error responses
+
+            When a request is made with an empty array
+            When a request is made with an object instead of array
+
+                Then the response is '400'
+                    and the errors are 'Input must be an array of strings.'
+
+            When a request is made where one set of coords is invalid
+                Then the response contains both valid responses and errors
+
+            When a request is made where the Content-Type is invalid
+                Then the response is '400'
+
+            When a request is made with a bad access token
+
+                Then the response is '403'
+                    and the error is 'invalid access_token param.'
+
+    - Other invalid requests
+
+        When a request is made to a bad url
+        When a request is made using an unsupported HTTP method
+
+            Then the response is '404'

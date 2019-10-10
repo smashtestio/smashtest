@@ -1,0 +1,339 @@
+* Test the OnWater API +
+    ..
+    {access_token} = ''
+    {domain} = 'https:\/\/api.onwater.io'
+
+* Then the response is {{status}} {
+    response.verify({
+        statusCode: parseInt(status)
+    });
+}
+
+* the error is {{error}} {
+    response.verify({
+        body: {
+            error: error
+        }
+    });
+}
+
+* the errors are {{errors}} {
+    response.verify({
+        body: {
+            errors: errors
+        }
+    });
+}
+
+* GET /results
+
+    * GET /results {lat} {long} {
+        await get(`${domain}/api/v1/results/${lat},${long}${access_token === '[none]' ? `` : `?access_token=${access_token}`}`);
+    }
+
+        * Then the response is {status} {water} {
+            response.verify({
+                statusCode: parseInt(status),
+                body: {
+                    "query": `${lat},${long}`,
+                    "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                    "lat": parseFloat(lat),
+                    "lon": parseFloat(long),
+                    "water": (water == 'true')
+                }
+            });
+        }
+
+    * When a request is made with coords on water
+        - Ocean
+            - Caribbean sea
+                GET /results '23.92323' '-66.3'
+
+            - Pacific ocean
+                GET /results '31.107082' '167.889817'
+
+            - Near land
+                - Off coast of Antarctica $s // BUG: responds as if on land
+                    GET /results '-76.771153' '-58.540076'
+
+        - Input bounds
+            - Pacific ocean, equator
+                GET /results '0.0' '0.0'
+                GET /results '0.0' '180.0'
+                GET /results '0.0' '-180.0'
+
+            - North Pole $s // BUG: responds with 200 + "unknown error"
+                GET /results '90.0' '0.0'
+                GET /results '90.0' '180.0'
+                GET /results '90.0' '-180.0'
+
+    * When a request is made with coords on a body of water inside land
+        - Sea
+            - Caspian sea
+                GET /results '40.209066' '51.128058'
+
+        - Lake
+            - Lake Michigan
+                GET /results '42.630011' '-86.832838'
+
+            - Lake Okeechobee, Florida
+                GET /results '26.961489' '-80.806185'
+
+        - River
+            - Nile in Sudan
+                GET /results '17.985258' '31.164253'
+
+        - Very small bodies of water
+            - Small moat in Florida
+                GET /results '28.366134' '-81.549376'
+
+    * When a request is made with coords on land
+        - Continent
+            - Chad, Africa
+                GET /results '17.197161' '21.087813'
+
+        - Island
+            - Chiba, Japan
+                GET /results '35.822618' '140.166259'
+
+            - Hawaii
+                GET /results '20.783956' '-156.976211'
+
+        - Near water
+            - Next to Nile in Sudan
+                GET /results '17.981176' '31.163062'
+
+        - Input bounds
+            - South Pole $s // BUG: responds with 200 + "unknown error"
+                GET /results '-90.0' '0.0'
+                GET /results '-90.0' '180.0'
+                GET /results '-90.0' '-180.0'
+
+    * When a request is made with integer coords
+        - Shizuoka, Japan
+            GET /results '35' '139'
+
+        * Then the response is successful
+            Then the response is '200' 'false'
+
+    * When a request is made with no access token
+        {access_token} = '[none]'
+            - Shizuoka, Japan
+                GET /results '35.0' '139.0'
+
+        * Then the response is successful
+            Then the response is '200' 'false'
+
+    * When a request is made with missing coords
+        - None
+            GET /results '' ''
+
+        - Only one
+            - Lat only
+                GET /results '100.0' ''
+
+            - Long only
+                GET /results '' '100.0'
+
+    * When a request is made with non-numeric coords
+        GET /results 'a' 'b'
+
+    * When a request is made with out-of-bounds latitude
+        GET /results '90.1' '0.0'
+        GET /results '-90.1' '0.0'
+
+    * When a request is made with no inputs {
+        await get(`${domain}/api/v1/results/`);
+    }
+
+    * When a request is made with out-of-bounds longitude
+        GET /results '0.0' '180.1'
+        GET /results '0.0' '-180.1'
+
+    * When a request is too long
+        GET /results '0.0' '10.777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777'
+
+    * When a request is made with a bad access token
+        {access_token} = 'BADTOKEN'
+            GET /results '10.0' '10.0'
+
+* POST /results
+
+    * When a request is made with a single set of coords {
+        await post({
+            url: `${domain}/api/v1/results?access_token=${access_token}`,
+            body: ["23.92323,-66.3"],
+            json: true,
+            timeout: 1500
+        });
+    }
+
+        * Then the response is correct {
+            response.verify({
+                statusCode: 200,
+                body: [
+                    {
+                        "query": "23.92323,-66.3",
+                        "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                        "lat": 23.92323,
+                        "lon": -66.3,
+                        "water": true
+                    }
+                ]
+            });
+        }
+
+    * When a request is made with multiple coords {
+        await post({
+            url: `${domain}/api/v1/results?access_token=${access_token}`,
+            body: ["23.92323,-66.3", "40.209066,51.128058", "17.197161,21.087813"],
+            json: true,
+            timeout: 1500
+        });
+    }
+
+        * Then the response is correct {
+            response.verify({
+                statusCode: 200,
+                body: [
+                    {
+                        "query": "23.92323,-66.3",
+                        "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                        "lat": 23.92323,
+                        "lon": -66.3,
+                        "water": true
+                    },
+                    {
+                        "query": "40.209066,51.128058",
+                        "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                        "lat": 40.209066,
+                        "lon": 51.128058,
+                        "water": true
+                    },
+                    {
+                        "query": "17.197161,21.087813",
+                        "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                        "lat": 17.197161,
+                        "lon": 21.087813,
+                        "water": false
+                    }
+                ]
+            });
+        }
+
+    * When a request is made with whitespace inside input strings {
+        await post({
+            url: `${domain}/api/v1/results?access_token=${access_token}`,
+            body: [" 23.92323,  -66.3 "],
+            json: true,
+            timeout: 1500
+        });
+    }
+
+        * Then the response is correct {
+            response.verify({
+                statusCode: 200,
+                body: [
+                    {
+                        "query": " 23.92323,  -66.3 ",
+                        "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                        "lat": 23.92323,
+                        "lon": -66.3,
+                        "water": true
+                    }
+                ]
+            });
+        }
+
+    * When a request is made with an empty array {
+        await post({
+            url: `${domain}/api/v1/results?access_token=${access_token}`,
+            body: [],
+            json: true,
+            timeout: 1500
+        });
+    }
+
+    * When a request is made with an object instead of array {
+        await post({
+            url: `${domain}/api/v1/results?access_token=${access_token}`,
+            body: {},
+            json: true,
+            timeout: 1500
+        });
+    }
+
+    * When a request is made where one set of coords is invalid {
+        await post({
+            url: `${domain}/api/v1/results?access_token=${access_token}`,
+            body: ["23.92323,-66.3", ",51.128058", "17.197161,21.087813"],
+            json: true,
+            timeout: 1500
+        });
+    }
+
+        * Then the response contains both valid responses and errors {
+            response.verify({
+                statusCode: 200,
+                body: [
+                    {
+                        "query": ",51.128058",
+                        "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                        "error": "latitude must be a valid number between -90 and 90 inclusive"
+                    },
+                    {
+                        "query": "23.92323,-66.3",
+                        "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                        "lat": 23.92323,
+                        "lon": -66.3,
+                        "water": true
+                    },
+                    {
+                        "query": "17.197161,21.087813",
+                        "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
+                        "lat": 17.197161,
+                        "lon": 21.087813,
+                        "water": false
+                    }
+                ]
+            });
+        }
+
+    * When a request is made where the Content-Type is invalid {
+        await post({
+            url: `${domain}/api/v1/results?access_token=${access_token}`,
+            headers: {
+                'content-type': 'text/html'
+            },
+            body: `<html></html>`,
+            timeout: 1500
+        });
+    }
+
+    * When a request is made with a bad access token {
+        await post({
+            url: `${domain}/api/v1/results?access_token=BADTOKEN`,
+            body: ["23.92323,-66.3", "40.209066,51.128058", "17.197161,21.087813"],
+            json: true,
+            timeout: 1500
+        });
+    }
+
+* When a request is made to a bad url
+    and /api/v1 is correct {
+        await get(`${domain}/api/v1/BADURL`);
+    }
+    and whole url is invalid {
+        await get(`${domain}/BADURL`);
+    }
+
+* When a request is made using an unsupported HTTP method {
+    await put({
+        url: `${domain}/api/v1/results?access_token=${access_token}`,
+        headers: {
+            'content-type': 'text/plain'
+        },
+        body: `body`,
+        timeout: 1500
+    });
+}
