@@ -1,0 +1,182 @@
+// Sample functional tests of TodoMVC (http://todomvc.com)
+// This file contains high-level Gherkin-style tests covering all TodoMVC functionality
+// Steps are implemented in other .smash files
+
+// Run these tests by running `smashtest` in this directory
+
+Given I am at todomvc
+
+    - Creating notes
+
+        - with a normal string
+
+            Given no notes exist
+            Given notes exist
+
+                When a note is created
+                    Then it is properly displayed
+
+        - with a whitespace-only string
+
+            When a note is created with an empty string
+            When a note is created with whitespace only
+
+                Then no note is created
+
+    - Deleting notes
+
+        - via X button
+
+            Given one note exists
+                When the X next to a note is clicked
+                    Then it will be deleted
+                        and the page will be empty
+
+            Given multiple notes exist
+                When the X next to a note is clicked
+                    Then it will be deleted
+
+            Given multiple identical notes exist
+                When the X next to a note is clicked
+                    Then it will be deleted
+
+        - via Clear completed
+
+            Given one completed note exists
+            Given multiple completed notes exist
+            Given multiple notes exist, all of which are completed
+
+                When Clear completed is clicked
+                    Then all completed notes will be deleted
+
+        - via editing to a blank string
+
+            Given one note exists
+            Given multiple notes exist
+
+                When a note is edited to a blank string
+                    Then it will be deleted
+
+        - that have been edited
+
+            Given one note exists
+                and that note has been edited
+                    When that note is deleted
+                        Then it is no longer displayed
+
+    - Editing notes
+
+        Given a non-completed note exists
+            When that note is edited
+                Then it is properly updated
+                    and remains non-completed
+
+        Given a completed note exists
+            When that note is edited
+                Then it is properly updated
+                    and remains completed
+
+    - Toggling between complete and non-complete
+
+        - Marking notes as complete
+
+            - via checkbox
+
+                Given a non-completed note exists
+                    When its checkbox is clicked
+                        Then it will be marked as complete
+
+            - All notes at once
+
+                Given multiple notes exist, some completed and some not
+                Given multiple notes exist, all of which are non-completed
+
+                    When the chevron to the left of the new note textbox is clicked
+                        Then all notes will be marked as complete
+
+        - Marking notes as non-complete
+
+            - via checkbox
+
+                Given a completed note exists
+                    When its checkbox is clicked
+                        Then it will be marked as non-complete
+
+            - All notes at once
+
+                Given multiple notes exist, all of which are completed
+                    When the chevron to the left of the new note textbox is clicked
+                        Then all notes will be marked as non-complete
+
+    - Filters
+
+        - All
+
+            Given multiple notes exist, some completed and some not
+                When the All filter is selected
+                    Then all notes are displayed
+
+        - Active
+
+            Given multiple notes exist, some completed and some not
+                When the Active filter is selected
+                    Then only non-completed notes are displayed
+
+            Given multiple notes exist, all of which are completed
+                When the Active filter is selected
+                    Then no notes are displayed
+
+            - Clear completed
+
+                Given multiple notes exist, some completed and some not
+                    and the Active filter is selected
+                        When Clear completed is clicked
+                            Then the same notes are displayed
+
+            - Creating notes
+
+                Given multiple notes exist, some completed and some not
+                    and the Active filter is selected
+                        When a note is created
+                            Then that note will be displayed
+
+        - Completed
+
+            Given multiple notes exist, some completed and some not
+                When the Completed filter is selected
+                    Then only completed notes are displayed
+
+            Given multiple notes exist, all of which are non-completed
+                When the Completed filter is selected
+                    Then no notes are displayed
+
+            - Clear completed
+
+                Given multiple notes exist, some completed and some not
+                    and the Completed filter is selected
+                        When Clear completed is clicked
+                            Then no notes are displayed
+
+            - Creating notes
+
+                Given multiple notes exist, some completed and some not
+                    and the Completed filter is selected
+                        When a note is created
+                            Then that note won't be displayed
+
+    - Item count
+
+        Given one note exists, and it is non-completed
+            Then an item count of 1 is displayed
+
+        Given one note exists, and it is completed
+            Then an item count of 0 is displayed
+
+        Given multiple notes exist, some completed and some not
+            Then an item count equal to the number of non-completed notes is displayed
+
+    - Cross-window
+
+        Given multiple notes exist, some completed and some not
+            When todomvc is opened in another tab
+                Then the same notes will be displayed

@@ -188,7 +188,17 @@ HttpApi.Response = class Response {
             }
         }
 
-        let responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${this.response.rawBody.replace(/(.*)/g, '  $1') || ``}`;
+        let rawBody = this.response.rawBody;
+        if(typeof rawBody == 'string') {
+        }
+        else if(typeof rawBody == 'object') {
+            rawBody = JSON.stringify(rawBody);
+        }
+        else {
+            rawBody = `[${typeof rawBody}]`;
+        }
+
+        let responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${rawBody.replace(/(.*)/g, '  $1')}`;
         this.runInstance.log(responseLog);
 
         Comparer.expect(this.response, undefined, undefined, 'Actual response object:').to.match(expectedObj);

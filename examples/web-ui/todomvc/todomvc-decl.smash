@@ -1,0 +1,415 @@
+// Declarations (implementations) of functions called in todomvc.smash
+
+* Given no notes exist +
+
+    * When a note is created
+
+        Type {text:} into 'new note box'
+
+            {text} = 'one'
+            {text} = 'one two  three'
+            {text} = '&nbsp;<b>bold</b>'
+            {text} = '\'\"\\ 日本語'
+
+                Type '[enter]' into 'new note box'
+                Click 'body'
+
+        * Then it is properly displayed {
+            await $(`
+                * item
+                    '${str(text)}'
+            `);
+        }
+
+* Given notes exist +
+    Given multiple notes exist
+
+    * When a note is created
+        Create note 'four'
+
+        * Then it is properly displayed {
+            await $(`
+                * item
+                    'one'
+                    'two'
+                    'three'
+                    'four'
+            `);
+        }
+
+* When a note is created with an empty string
+    Create note ''
+
+* When a note is created with whitespace only
+    Create note ' '
+    Create note '  '
+
+* Then no note is created
+    Verify list is empty
+
+* Given one note exists +
+    Create note 'one'
+
+    * When the X next to a note is clicked
+        Hover over 'item, 1st'
+            Click 'delete button'
+
+        * Then it will be deleted
+            Verify list is empty
+
+            * and the page will be empty
+                Verify page is empty
+
+    * When a note is edited to a blank string
+        Edit '1st' note
+            and set text to ''
+            and set text to ' '
+
+        * Then it will be deleted
+            Verify list is empty
+
+    * and that note has been edited
+        Edit '1st' note
+            and set text to 'something else'
+
+        * When that note is deleted
+            Delete '1st' note
+
+            * Then it is no longer displayed
+                Verify list is empty
+
+* Given multiple notes exist +
+    Create note 'one'
+        Create note 'two'
+            Create note 'three'
+
+    * When the X next to a note is clicked
+        Hover over 'item, 2nd'
+            Click 'delete button'
+
+        * Then it will be deleted {
+            await $(`
+                * item
+                    'one'
+                    'three'
+            `);
+        }
+
+    * When a note is edited to a blank string
+        Edit '2nd' note
+            and set text to ''
+
+        * Then it will be deleted {
+            await $(`
+                * item
+                    'one'
+                    'three'
+            `);
+        }
+
+* Given multiple identical notes exist +
+    Create note 'one'
+        Create note 'one'
+            Create note 'one'
+
+    * When the X next to a note is clicked
+        Hover over 'item, 2nd'
+            Click 'delete button'
+
+        * Then it will be deleted {
+            await $(`
+                * item
+                    'one'
+                    'one'
+            `);
+        }
+
+* Given one completed note exists +
+
+    Create note 'one'
+        Create note 'two'
+
+            Toggle completed on '1st' note
+
+                * When Clear completed is clicked
+                    Click 'Clear Completed button'
+
+                    * Then all completed notes will be deleted {
+                        await $(`
+                            * item
+                                'two'
+                        `);
+                    }
+
+            Toggle completed on '2nd' note
+
+                * When Clear completed is clicked
+                    Click 'Clear Completed button'
+
+                    * Then all completed notes will be deleted {
+                        await $(`
+                            * item
+                                'one'
+                        `);
+                    }
+
+* Given multiple completed notes exist +
+
+    Create note 'one'
+        Create note 'two'
+            Create note 'three'
+
+                Toggle completed on '2nd' note
+                    Toggle completed on '3rd' note
+
+    * When Clear completed is clicked
+        Click 'Clear Completed button'
+
+        * Then all completed notes will be deleted {
+            await $(`
+                * item
+                    'one'
+            `);
+        }
+
+* Given a non-completed note exists +
+    - Fresh note
+        Create note 'one'
+
+    - Note that's been toggled
+        Create note 'one'
+            Toggle completed on '1st' note
+                Toggle completed on '1st' note
+
+    * When that note is edited
+        Edit '1st' note
+            and set text to 'two'
+
+        * Then it is properly updated
+            * and remains non-completed {
+                await $(`
+                    * item
+                        'two', not crossed out
+                `);
+            }
+
+    * When its checkbox is clicked
+        Toggle completed on '1st' note
+
+        * Then it will be marked as complete {
+            await $(`
+                * item
+                    'one', crossed out
+            `);
+        }
+
+* Given a completed note exists +
+    Create note 'one'
+        Toggle completed on '1st' note
+
+    * When that note is edited
+        Edit '1st' note
+            and set text to 'two'
+
+        * Then it is properly updated
+            * and remains completed {
+                await $(`
+                    * item
+                        'two', crossed out
+                `);
+            }
+
+    * When its checkbox is clicked
+        Toggle completed on '1st' note
+
+        * Then it will be marked as non-complete {
+            await $(`
+                * item
+                    'one', not crossed out
+            `);
+        }
+
+* Given multiple notes exist, some completed and some not +
+    Create note 'one'
+        Create note 'two'
+            Create note 'three'
+                Create note 'four'
+
+                    Toggle completed on '1st' note
+                        Toggle completed on '3rd' note
+
+    * When the chevron to the left of the new note textbox is clicked
+        Click 'chevron'
+
+        * Then all notes will be marked as complete {
+            await $(`
+                * item
+                    'one', crossed out
+                    'two', crossed out
+                    'three', crossed out
+                    'four', crossed out
+            `);
+        }
+
+    * When the All filter is selected
+        Click 'All button'
+
+        * Then all notes are displayed {
+            await $(`
+                * item
+                    'one', crossed out
+                    'two', not crossed out
+                    'three', crossed out
+                    'four', not crossed out
+            `);
+        }
+
+    * the Active filter is selected
+        Click 'Active button'
+
+        * Then only non-completed notes are displayed {
+            await $(`
+                * item
+                    'two', not crossed out
+                    'four', not crossed out
+            `);
+        }
+
+        * When Clear completed is clicked
+            Click 'Clear completed button'
+
+            * Then the same notes are displayed {
+                await $(`
+                    * item
+                        'two', not crossed out
+                        'four', not crossed out
+                `);
+            }
+
+        * When a note is created
+            Create note 'five'
+
+            * Then that note will be displayed {
+                await $(`
+                    * item
+                        'two', not crossed out
+                        'four', not crossed out
+                        'five', not crossed out
+                `);
+            }
+
+    * the Completed filter is selected
+        Click 'Completed button'
+
+        * Then only completed notes are displayed {
+            await $(`
+                * item
+                    'one', crossed out
+                    'three', crossed out
+            `);
+        }
+
+        * When Clear completed is clicked
+            Click 'Clear Completed button'
+
+            * Then no notes are displayed
+                Verify list is empty
+
+        * When a note is created
+            Create note 'five'
+
+            * Then that note won't be displayed {
+                await $(`
+                    * item
+                        'one', crossed out
+                        'three', crossed out
+                `);
+            }
+
+    * Then an item count equal to the number of non-completed notes is displayed
+        Verify ['2 items left'] is visible
+
+    * When todomvc is opened in another tab
+        Open new tab
+            Navigate to todomvc
+
+        * Then the same notes will be displayed {
+            await $(`
+                * item
+                    'one', crossed out
+                    'two', not crossed out
+                    'three', crossed out
+                    'four', not crossed out
+            `);
+        }
+
+* Given multiple notes exist, all of which are non-completed +
+    Create note 'one'
+        Create note 'two'
+            Create note 'three'
+
+    * When the chevron to the left of the new note textbox is clicked
+        Click 'chevron'
+
+        * Then all notes will be marked as complete {
+            await $(`
+                * item
+                    'one', crossed out
+                    'two', crossed out
+                    'three', crossed out
+            `);
+        }
+
+    * When the Completed filter is selected
+        Click 'Completed button'
+
+        * Then no notes are displayed
+            Verify list is empty
+
+* Given multiple notes exist, all of which are completed +
+    Create note 'one'
+        Create note 'two'
+            Create note 'three'
+
+                Toggle completed on '1st' note
+                    Toggle completed on '2nd' note
+                        Toggle completed on '3rd' note
+
+                Click 'chevron'
+
+    * When Clear completed is clicked
+        Click 'Clear Completed button'
+
+        * Then all completed notes will be deleted
+            Verify list is empty
+
+    * When the chevron to the left of the new note textbox is clicked
+        Click 'chevron'
+
+        * Then all notes will be marked as non-complete {
+            await $(`
+                * item
+                    'one', not crossed out
+                    'two', not crossed out
+                    'three', not crossed out
+            `);
+        }
+
+    * When the Active filter is selected
+        Click 'Active button'
+
+        * Then no notes are displayed
+            Verify list is empty
+
+* Given one note exists, and it is non-completed +
+    Create note 'one'
+
+    * Then an item count of 1 is displayed
+        Verify ['1 item left'] is visible
+
+* Given one note exists, and it is completed +
+    Create note 'one'
+        Toggle completed on '1st' note
+
+    * Then an item count of 0 is displayed
+        Verify ['0 items left'] is visible

@@ -2752,6 +2752,9 @@ c     = copy text of branch
              */
             function formatStackTrace(error) {
                 return error.stack
+                    .replace(/\&/g, '&amp;')
+                    .replace(/\</g, '&lt;')
+                    .replace(/\>/g, '&gt;')
                     .replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`)
                     .replace(/\u001b\[0m\u001b\[31m/g, `<span class='red'>`)
                     .replace(/\u001b\[0m\u001b\[30m/g, `</span>`);
