@@ -56,7 +56,6 @@ class Reporter {
     */
    getPathFolder() {
     initialFolder = (this.history === false ? "smashtest" : `${path.join(`smashtest`, `report`, `smashtest-${dateFormat}`)}`);
-    initialFolder = (this.history === false ? "smashtest" : `${path.join("smashtest/report/smashtest-", dateFormat)}`);
     folder = (this.reportPath === "" ? initialFolder : `${path.join(this.reportPath, initialFolder)}`);
     return folder;
 }
