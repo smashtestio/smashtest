@@ -228,7 +228,7 @@ class Reporter {
             new Promise((res, rej) => fs.writeFile(reportFilename, this.reportTemplate, err => err ? rej(err) : res())),
             new Promise((res, rej) => fs.writeFile(reportDataFilename, reportData, err => err ? rej(err) : res())),
             new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(passedDataFilenameHistory, passedData, err => err ? rej(err) : res()))
+            this.history ? new Promise((res, rej) => fs.writeFile(passedDataFilenameHistory, passedData, err => err ? rej(err) : res())): null
         ]);
 
         // Notify all connected websockets that new data is available on disk
