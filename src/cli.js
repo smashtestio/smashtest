@@ -234,12 +234,8 @@ Options
                 break;
 
             case "report-path":
-                if(value.indexOf('\"') == -1) {
-                    utils.error("Invalid report-path. You must put double quotes around the path");
-                }
-                else {
-                    reporter.reportPath = value;
-                }
+                reporter.reportPath = value;
+                break;
 
             case "report-history":
                 reporter.history = boolValue();
