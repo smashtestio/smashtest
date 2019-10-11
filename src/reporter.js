@@ -1,16 +1,23 @@
-const fs = require('fs');
-const path = require('path');
-const readFiles = require('read-files-promise');
-const mustache = require('mustache');
-const utils = require('./utils.js');
-const chalk = require('chalk');
-const getPort = require('get-port');
-const WebSocket = require('ws');
+const fs = require("fs");
+const path = require("path");
+const readFiles = require("read-files-promise");
+const mustache = require("mustache");
+const utils = require("./utils.js");
+const chalk = require("chalk");
+const getPort = require("get-port");
+const WebSocket = require("ws");
+const date = require('date-and-time');
 
-const REPORT_FILENAME = path.join('smashtest', 'report.html');
-const REPORT_DATA_FILENAME = path.join('smashtest', 'report-data.js');
-const PASSED_DATA_FILENAME = path.join('smashtest', 'passed-data');
-const SMASHTEST_SS_DIR = path.join('smashtest', 'screenshots');
+let reportFilename,
+    reportDataFilename,
+    passedDataFilename,
+    passedDataFilenameHistory,
+    smashtestSSDir,
+    initialFolder,
+    folder;
+
+const now = new Date();
+const dateFormat = date.format(now, 'YYYY-MM-DDTHH-mm-ss');
 
 /**
  * Generates a report on the status of the tree and runner
@@ -33,13 +40,32 @@ class Reporter {
         this.timerSnapshot = null;      // timer that goes off when it's time to do a snapshot write
 
         this.stopped = false;           // true if this Reporter has been stopped
+
+        this.reportPath = "";           // path for the report folder default is same folder smashtest file
+        this.history = false;           // activate history for reporting
     }
 
     /**
-     * @return {String} The absolute path of the report html file
-     */
+    * @return {String} The absolute path of the report html file
+    */
     getFullReportPath() {
-        return path.join(process.cwd(), REPORT_FILENAME);
+        return path.join(folder, "report.html");
+    }
+
+    /**
+    * @return {String} The path for report folder
+    */
+   getPathFolder() {
+    initialFolder = (this.history === false ? "smashtest" : `${path.join(`smashtest`, `report`, `smashtest-${dateFormat}`)}`);
+    folder = (this.reportPath === "" ? initialFolder : `${path.join(this.reportPath, initialFolder)}`);
+    return folder;
+}
+
+    /**
+    * @return {String} Variable custom path for report folder
+    */
+    getCustomPath() {
+        return folder;
     }
 
     /**
@@ -47,14 +73,20 @@ class Reporter {
      */
     async start() {
         // Clear out existing screenshots (one by one)
+        reportFilename = path.join(folder, "report.html");
+        reportDataFilename = path.join(folder, "report-data.js");
+        passedDataFilename = path.join("smashtest", "passed-data");
+        passedDataFilenameHistory = path.join(folder, "passed-data");
+        smashtestSSDir = path.join(folder, "screenshots");
+
         try {
-            let files = fs.readdirSync(SMASHTEST_SS_DIR);
+            let files = fs.readdirSync(smashtestSSDir);
             for(let file of files) {
                 let match = file.match(/[^\_]+/);
                 let hash = match ? match[0] : null;
                 // If we're doing --skip-passed, delete a screenshot only if the branch didn't pass last time
                 if(!this.runner.skipPassed || !this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
-                    fs.unlinkSync(path.join(SMASHTEST_SS_DIR, file));
+                    fs.unlinkSync(path.join(smashtestSSDir, file));
                 }
             }
         }
@@ -193,9 +225,10 @@ class Reporter {
 
         // Write report, report data, and passed data to disk
         await Promise.all([
-            new Promise((res, rej) => fs.writeFile(REPORT_FILENAME, this.reportTemplate, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(REPORT_DATA_FILENAME, reportData, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(PASSED_DATA_FILENAME, passedData, err => err ? rej(err) : res()))
+            new Promise((res, rej) => fs.writeFile(reportFilename, this.reportTemplate, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(reportDataFilename, reportData, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, err => err ? rej(err) : res())),
+            this.history ? new Promise((res, rej) => fs.writeFile(passedDataFilenameHistory, passedData, err => err ? rej(err) : res())): null
         ]);
 
         // Notify all connected websockets that new data is available on disk
@@ -247,7 +280,7 @@ class Reporter {
      * @param {String} [filename] - The relative filename to use, uses passed data file filename if omitted
      */
     async markPassedFromPrevRun(filename) {
-        filename = filename || PASSED_DATA_FILENAME;
+        filename = filename || passedDataFilename;
         console.log(`Including passed branches from: ${chalk.gray(filename)}`);
         console.log("");
 

@@ -6,12 +6,14 @@ const ie = require('selenium-webdriver/ie');
 const edge = require('selenium-webdriver/edge');
 const fs = require('fs');
 const path = require('path');
-const readFiles = require('read-files-promise');
+
 const Jimp = require('jimp');
 const request = require('request-promise-native');
 const utils = require('../../src/utils.js');
 const ElementFinder = require('./elementfinder.js');
 const Comparer = require('./comparer.js');
+const {runner, tree, reporter} = require('../../src/instances.js');
+
 
 class BrowserInstance {
     // ***************************************
@@ -435,9 +437,10 @@ class BrowserInstance {
         }
 
         // Create smashtest/screenshots if it doesn't already exist
-        const dir = path.join('smashtest', 'screenshots');
+        const customPath = reporter.getCustomPath();
+        const dir = path.join(customPath, "screenshots");
         if(!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
+            fs.mkdirSync(dir, { recursive: true });
         }
 
         // Take screenshot
@@ -457,7 +460,7 @@ class BrowserInstance {
         await (await Jimp.read(Buffer.from(data, 'base64')))
             .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
             .quality(60)
-            .writeAsync(`smashtest/${filename}`);
+            .writeAsync(path.join(reporter.getPathFolder(), filename));
 
         // Include crosshairs in report
         if(targetCoords) {
@@ -473,11 +476,11 @@ class BrowserInstance {
     async clearUnneededScreenshots() {
         if(this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) { // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
             // Delete all screenshots with a filename that begins with the currBranch's hash
-            const SMASHTEST_SS_DIR = path.join('smashtest', 'screenshots');
-            let files = fs.readdirSync(SMASHTEST_SS_DIR);
+            const screenshotsDir = `${path.join(reporter.getPathFolder(), "screenshots")}`;
+            let files = fs.readdirSync(screenshotsDir);
             for(let file of files) {
                 if(file.startsWith(this.runInstance.currBranch.hash)) {
-                    fs.unlinkSync(path.join(SMASHTEST_SS_DIR, file));
+                    fs.unlinkSync(path.join(screenshotsDir, file));
                     this.runInstance.runner.screenshotCount--; // decrement screenshotCount for every screenshot deleted
                 }
             }

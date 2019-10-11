@@ -10,19 +10,14 @@ const progress = require('cli-progress');
 const repl = require('repl');
 const readline = require('readline');
 
-const Tree = require('./tree.js');
-const Runner = require('./runner.js');
-const Reporter = require('./reporter.js');
+
+const {runner, tree, reporter} = require('./instances.js');
 const StepNode = require('./stepnode.js');
 const Constants = require('./constants.js');
 
 // ***************************************
 //  Globals
 // ***************************************
-
-let tree = new Tree();
-let runner = new Runner();
-let reporter = new Reporter(tree, runner);
 
 let isReport = true;
 
@@ -171,6 +166,8 @@ Options
   --repl                                   Open the REPL (drive Smashtest from command line) (-r)
   --report-domain=<domain>                 Domain and port where report server should run (domain or domain:port format)
   --report-server=<true/false>             Whether to run a server during run for live report updates
+  --report-path="<path>"                   Set to absolute path to set report location
+  --report-history=<true/false>            Whether to keep a history of all reports by date
   --screenshots=<true/false>               Whether to take screenshots at each step
   --skip-passed=<true/false/file>          Whether to skip branches that passed last time (-s/-a)
   --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
@@ -234,6 +231,14 @@ Options
 
             case "report-server":
                 reporter.isReportServer = boolValue();
+                break;
+
+            case "report-path":
+                reporter.reportPath = value;
+                break;
+
+            case "report-history":
+                reporter.history = boolValue();
                 break;
 
             case "s":
@@ -454,9 +459,10 @@ function plural(count) {
         setSigint(); // attach SIGINT (Ctrl + C) handler after runner.init(), so user can Ctrl + C out of a long branchify operation via the default SIGINT handler
 
         // Create smashtest directory if it doesn't already exist
-        const SMASHTEST_DIR = 'smashtest';
-        if(!fs.existsSync(SMASHTEST_DIR)) {
-            fs.mkdirSync(SMASHTEST_DIR);
+        const smashtestDir = reporter.getPathFolder();
+
+        if(!fs.existsSync(smashtestDir)) {
+            fs.mkdirSync(smashtestDir, { recursive: true });
         }
 
         // Output errors to console by default, do not output all steps to console by default
