@@ -9,12 +9,10 @@ const WebSocket = require("ws");
 const date = require('date-and-time');
 
 let reportFilename,
-    reportDataFilename,
-    passedDataFilename,
-    passedDataFilenameHistory,
-    smashtestSSDir,
-    initialFolder,
-    folder;
+    reportDataFilename,            // absolute path of report-data.js file
+    passedDataFilename,            // absolute path of passed-data file
+    passedDataFilenameHistory,     // absolute path of passed-data file inside history, if report-history is on
+    smashtestSSDir;                // absolute path of screenshots directory
 
 const now = new Date();
 const dateFormat = date.format(now, 'YYYY-MM-DDTHH-mm-ss');
@@ -41,31 +39,39 @@ class Reporter {
 
         this.stopped = false;           // true if this Reporter has been stopped
 
-        this.reportPath = "";           // path for the report folder default is same folder smashtest file
+        this.reportPath = "";           // custom absolute path for the smashtest folder sent in by user
         this.history = false;           // activate history for reporting
     }
 
     /**
-    * @return {String} The absolute path of the report html file
-    */
-    getFullReportPath() {
-        return path.join(folder, "report.html");
+     * @return {String} Absolute path of smashtest/ folder
+     */
+    getPathFolder() {
+        let initialFolder = this.history ? path.join(`smashtest`, `reports`, `smashtest-${dateFormat}`) : `smashtest`;
+        let smashtestFolder = this.reportPath === "" ? path.join(process.cwd(), `smashtest`) : path.join(this.reportPath, `smashtest`);
+        let folder = this.reportPath === "" ? path.join(process.cwd(), initialFolder) : path.join(this.reportPath, initialFolder);
+
+        reportFilename = path.join(folder, "report.html");
+        reportDataFilename = path.join(folder, "report-data.js");
+        passedDataFilename = path.join(smashtestFolder, "passed-data");
+        passedDataFilenameHistory = path.join(folder, "passed-data");
+        smashtestSSDir = path.join(folder, "screenshots");
+
+        return folder;
     }
 
     /**
-    * @return {String} The path for report folder
-    */
-   getPathFolder() {
-    initialFolder = (this.history === false ? "smashtest" : `${path.join(`smashtest`, `report`, `smashtest-${dateFormat}`)}`);
-    folder = (this.reportPath === "" ? initialFolder : `${path.join(this.reportPath, initialFolder)}`);
-    return folder;
-}
+     * @return {String} Absolute path of the report html file
+     */
+    getFullReportPath() {
+        return path.join(this.getPathFolder(), "report.html");
+    }
 
     /**
-    * @return {String} Variable custom path for report folder
-    */
-    getCustomPath() {
-        return folder;
+     * @return {String} Absolute path of the screenshots directory
+     */
+    getFullSSPath() {
+        return smashtestSSDir;
     }
 
     /**
@@ -73,12 +79,6 @@ class Reporter {
      */
     async start() {
         // Clear out existing screenshots (one by one)
-        reportFilename = path.join(folder, "report.html");
-        reportDataFilename = path.join(folder, "report-data.js");
-        passedDataFilename = path.join("smashtest", "passed-data");
-        passedDataFilenameHistory = path.join(folder, "passed-data");
-        smashtestSSDir = path.join(folder, "screenshots");
-
         try {
             let files = fs.readdirSync(smashtestSSDir);
             for(let file of files) {
@@ -228,7 +228,7 @@ class Reporter {
             new Promise((res, rej) => fs.writeFile(reportFilename, this.reportTemplate, err => err ? rej(err) : res())),
             new Promise((res, rej) => fs.writeFile(reportDataFilename, reportData, err => err ? rej(err) : res())),
             new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, err => err ? rej(err) : res())),
-            this.history ? new Promise((res, rej) => fs.writeFile(passedDataFilenameHistory, passedData, err => err ? rej(err) : res())): null
+            this.history ? new Promise((res, rej) => fs.writeFile(passedDataFilenameHistory, passedData, err => err ? rej(err) : res())): undefined
         ]);
 
         // Notify all connected websockets that new data is available on disk

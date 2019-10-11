@@ -30,7 +30,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.3.4 BETA"));
+console.log(yellowChalk.bold("Smashtest 1.4.0 BETA"));
 console.log("");
 
 // ***************************************
@@ -165,9 +165,9 @@ Options
   --random=<true/false>                    Whether to randomize the order of branches
   --repl                                   Open the REPL (drive Smashtest from command line) (-r)
   --report-domain=<domain>                 Domain and port where report server should run (domain or domain:port format)
-  --report-server=<true/false>             Whether to run a server during run for live report updates
-  --report-path="<path>"                   Set to absolute path to set report location
   --report-history=<true/false>            Whether to keep a history of all reports by date
+  --report-path="<path>"                   Set to absolute path to set report location
+  --report-server=<true/false>             Whether to run a server during run for live report updates
   --screenshots=<true/false>               Whether to take screenshots at each step
   --skip-passed=<true/false/file>          Whether to skip branches that passed last time (-s/-a)
   --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
@@ -510,7 +510,7 @@ function plural(count) {
             if(outputCounts) {
                 console.log(getCounts());
             }
-            if(isReport) {
+            if(isReport && !reporter.history) {
                 console.log(`Report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
             }
 

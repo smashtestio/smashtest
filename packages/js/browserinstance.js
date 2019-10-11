@@ -437,8 +437,7 @@ class BrowserInstance {
         }
 
         // Create smashtest/screenshots if it doesn't already exist
-        const customPath = reporter.getCustomPath();
-        const dir = path.join(customPath, "screenshots");
+        const dir = path.join(reporter.getPathFolder(), "screenshots");
         if(!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
@@ -455,12 +454,12 @@ class BrowserInstance {
         }
 
         // Write screenshot to file
-        let filename = `screenshots/${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isAfter ? `after` : `before`}.jpg`;
+        let filename = `${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isAfter ? `after` : `before`}.jpg`;
         const SCREENSHOT_WIDTH = 1000;
         await (await Jimp.read(Buffer.from(data, 'base64')))
             .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
             .quality(60)
-            .writeAsync(path.join(reporter.getPathFolder(), filename));
+            .writeAsync(path.join(reporter.getFullSSPath(), filename));
 
         // Include crosshairs in report
         if(targetCoords) {
