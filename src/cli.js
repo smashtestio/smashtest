@@ -235,7 +235,7 @@ Options
 
             case "report-path":
                 if(value.indexOf('\"') == -1) {
-                    utils.error("Invalid report-path. You must put double quotes around the path"));
+                    utils.error("Invalid report-path. You must put double quotes around the path");
                 }
                 else {
                     reporter.reportPath = value;
