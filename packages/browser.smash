@@ -152,7 +152,7 @@
         await browser.driver.actions({bridge: true}).move({origin: await $(element, true)}).perform();
     }
 
-    * Move mouse from element {{element}} by {{x}}, {{y}} {
+    * Move mouse from {{element}} by {{x}}, {{y}} {
         await browser.driver.actions({bridge: true}).move({x: parseInt(x), y: parseInt(y), origin: await $(element, true)}).perform();
     }
 
