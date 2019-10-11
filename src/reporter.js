@@ -11,6 +11,7 @@ const date = require('date-and-time');
 let reportFilename,
     reportDataFilename,
     passedDataFilename,
+    passedDataFilenameHistory,
     smashtestSSDir,
     initialFolder,
     folder;
@@ -74,7 +75,8 @@ class Reporter {
         // Clear out existing screenshots (one by one)
         reportFilename = path.join(folder, "report.html");
         reportDataFilename = path.join(folder, "report-data.js");
-        passedDataFilename = path.join(folder, "passed-data");
+        passedDataFilename = path.join("smashtest", "passed-data");
+        passedDataFilenameHistory = path.join(folder, "passed-data");
         smashtestSSDir = path.join(folder, "screenshots");
 
         try {
@@ -225,7 +227,8 @@ class Reporter {
         await Promise.all([
             new Promise((res, rej) => fs.writeFile(reportFilename, this.reportTemplate, err => err ? rej(err) : res())),
             new Promise((res, rej) => fs.writeFile(reportDataFilename, reportData, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, err => err ? rej(err) : res()))
+            new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, err => err ? rej(err) : res())),
+            new Promise((res, rej) => fs.writeFile(passedDataFilenameHistory, passedData, err => err ? rej(err) : res()))
         ]);
 
         // Notify all connected websockets that new data is available on disk
