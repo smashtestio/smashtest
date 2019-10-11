@@ -234,9 +234,12 @@ Options
                 break;
 
             case "report-path":
-                console.log(value.indexOf('\"'));
-                reporter.reportPath = (value.indexOf('\"') !== -1 ? value : utils.error("Invalid report-path. It must be a string don't forget double quotes around path"));
-                break;
+                if(value.indexOf('\"') == -1) {
+                    utils.error("Invalid report-path. You must put double quotes around the path"));
+                }
+                else {
+                    reporter.reportPath = value;
+                }
 
             case "report-history":
                 reporter.history = boolValue();
