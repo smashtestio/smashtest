@@ -21,6 +21,7 @@ class StepNode {
         OPTIONAL
 
         this.text = "";                       // text of the command of the step node (not including spaces in front, modifiers, comments, etc.)
+        this.canon = "";                      // canonicalized text of the step node
 
         this.modifiers = [];                  // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step node
         this.frontModifiers = [];             // Array of String, modifiers in front of the step node's text
@@ -332,6 +333,14 @@ class StepNode {
             }
         }
 
+        // Set canon
+        if(this.isFunctionDeclaration) {
+            this.canon = this.canonicalizeFunctionDeclarationText();
+        }
+        else if(this.isFunctionCall) {
+            this.canon = this.canonicalizeFunctionCallText();
+        }
+
         return this;
     }
 
@@ -384,8 +393,8 @@ class StepNode {
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
      */
     isFunctionMatch(functionDeclarationNode) {
-        let functionCallText = this.canonicalizeFunctionCallText();
-        let functionDeclarationText = functionDeclarationNode.canonicalizeFunctionDeclarationText();
+        let functionCallText = this.canon;
+        let functionDeclarationText = functionDeclarationNode.canon;
         if(functionCallText == functionDeclarationText) {
             return true;
         }
@@ -398,7 +407,7 @@ class StepNode {
     /**
      * @return {String} Canonicalized text of this step node
      */
-    canonicalizeFunctionDeclarationText(isFunctionCall) {
+    canonicalizeFunctionDeclarationText() {
         let functionDeclarationText = this.text;
 
         // Canonicalize by replacing {vars} with {}'s

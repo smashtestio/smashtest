@@ -506,28 +506,28 @@ ${outputBranchAbove(this)}
     equivalents(stepNode) {
         let results = [];
 
-        let stack = [];
+        let parents = [];
         let s = null;
         for(s = stepNode; s && s.isFunctionDeclaration; s = s.parent) {
-            stack.push(s);
+            parents.push(s);
         }
 
         results.push(s);
 
-        while(stack.length > 0) {
+        for(let i = parents.length - 1; i >= 0; i--) {
             let newResults = [];
-            let fd = stack.pop();
+            let fd = parents[i];
             results.forEach(result => {
-                newResults = newResults.concat(
-                    result.children.filter(
-                        c =>
-                            c === stepNode ||    // include the original
-                            (
-                                c.isFunctionDeclaration &&
-                                c.canonicalizeFunctionDeclarationText() == fd.canonicalizeFunctionDeclarationText()
-                            )
-                    )
-                );
+                result.children.forEach(c => {
+                    if(c === stepNode ||
+                        (
+                            c.isFunctionDeclaration &&
+                            c.canon == fd.canon
+                        )
+                    ) {
+                        newResults.push(c);
+                    }
+                });
             });
             results = newResults;
         }

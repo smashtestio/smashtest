@@ -853,206 +853,203 @@ describe("StepNode", () => {
         let functionDeclaration = new StepNode(0);
         let functionCall = new StepNode(0);
 
-        functionDeclaration.isFunctionDeclaration = true;
-        functionCall.isFunctionCall = true;
-
         it("matches a function call and function declaration with the same text", () => {
-            functionDeclaration.text = "Step name here";
-            functionCall.text = "Step name here";
+            functionDeclaration.parseLine("* Step name here");
+            functionCall.parseLine("Step name here");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("doesn't match a function call and function declaration with different text", () => {
-            functionDeclaration.text = "Step name here";
-            functionCall.text = "Different name here";
+            functionDeclaration.parseLine("* Step name here");
+            functionCall.parseLine("Different name here");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
         it("matches a function call and function declaration with the same text but differing amounts of whitespace", () => {
-            functionDeclaration.text = "Step name here";
-            functionCall.text = "  Step  name here ";
+            functionDeclaration.parseLine("* Step name here");
+            functionCall.parseLine("  Step  name here ");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with a single quote", () => {
-            functionDeclaration.text = "I don't know";
-            functionCall.text = "I don't know";
+            functionDeclaration.parseLine("* I don't know");
+            functionCall.parseLine("I don't know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with an escaped single quote", () => {
-            functionDeclaration.text = "I don\\'t know";
-            functionCall.text = "I don\\'t know";
+            functionDeclaration.parseLine("* I don\\'t know");
+            functionCall.parseLine("I don\\'t know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I don't know";
-            functionCall.text = "I don\\'t know";
+            functionDeclaration.parseLine("* I don't know");
+            functionCall.parseLine("I don\\'t know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I don\\'t know";
-            functionCall.text = "I don't know";
+            functionDeclaration.parseLine("* I don\\'t know");
+            functionCall.parseLine("I don't know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with multiple escaped single quotes", () => {
-            functionDeclaration.text = "I don\\'t k\\'now";
-            functionCall.text = "I don\\'t k\\'now";
+            functionDeclaration.parseLine("* I don\\'t k\\'now");
+            functionCall.parseLine("I don\\'t k\\'now");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I don't k'now";
-            functionCall.text = "I don\\'t k'now";
+            functionDeclaration.parseLine("* I don't k\\'now");
+            functionCall.parseLine("I don\\'t k'now");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I don\\'t k\\'now";
-            functionCall.text = "I don't k\\'now";
+            functionDeclaration.parseLine("* I don\\'t k\\'now");
+            functionCall.parseLine("I don't k\\'now");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with an escaped single quote preceded with a backslash", () => {
-            functionDeclaration.text = "I don\\\\'t know";
-            functionCall.text = "I don\\\\'t know";
+            functionDeclaration.parseLine("* I don\\\\'t know");
+            functionCall.parseLine("I don\\\\'t know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with a double quote", () => {
-            functionDeclaration.text = "I don\"t know";
-            functionCall.text = "I don\"t know";
+            functionDeclaration.parseLine("* I don\"t know");
+            functionCall.parseLine("I don\"t know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with an escaped double quote", () => {
-            functionDeclaration.text = "I don\\\"t know";
-            functionCall.text = "I don\\\"t know";
+            functionDeclaration.parseLine("* I don\\\"t know");
+            functionCall.parseLine("I don\\\"t know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I don\"t know";
-            functionCall.text = "I don\\\"t know";
+            functionDeclaration.parseLine("* I don\"t know");
+            functionCall.parseLine("I don\\\"t know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I don\\\"t know";
-            functionCall.text = "I don\"t know";
+            functionDeclaration.parseLine("* I don\\\"t know");
+            functionCall.parseLine("I don\"t know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with multiple escaped double quotes", () => {
-            functionDeclaration.text = "I don\\\"t k\\\"now";
-            functionCall.text = "I don\\\"t k\\\"now";
+            functionDeclaration.parseLine("* I don\\\"t k\\\"now");
+            functionCall.parseLine("I don\\\"t k\\\"now");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I don\\\"t k\"now";
-            functionCall.text = "I don\"t k\\\"now";
+            functionDeclaration.parseLine("* I don\\\"t k\"now");
+            functionCall.parseLine("I don\"t k\\\"now");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I don\\\"t k\\\"now";
-            functionCall.text = "I don\"t k\\\"now";
+            functionDeclaration.parseLine("* I don\\\"t k\\\"now");
+            functionCall.parseLine("I don\"t k\\\"now");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with an escaped double quote preceded with a backslash", () => {
-            functionDeclaration.text = "I don\\\\\"t know";
-            functionCall.text = "I don\\\\\"t know";
+            functionDeclaration.parseLine("* I don\\\\\"t know");
+            functionCall.parseLine("I don\\\\\"t know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with multiple escaped brackets", () => {
-            functionDeclaration.text = "I [do not know";
-            functionCall.text = "I \\[do not know";
+            functionDeclaration.parseLine("* I [do not know");
+            functionCall.parseLine("I \\[do not know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I \\[do not know";
-            functionCall.text = "I \\[do not know";
+            functionDeclaration.parseLine("* I \\[do not know");
+            functionCall.parseLine("I \\[do not know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I \\[do not know";
-            functionCall.text = "I [do not know";
+            functionDeclaration.parseLine("* I \\[do not know");
+            functionCall.parseLine("I [do not know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with multiple escaped brackets", () => {
-            functionDeclaration.text = "I [do not] know";
-            functionCall.text = "I \\[do not\\] know";
+            functionDeclaration.parseLine("* I [do not\\] know");
+            functionCall.parseLine("I \\[do not] know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "I \\[do not\\] know";
-            functionCall.text = "I \\[do not\\] know";
+            functionDeclaration.parseLine("* I \\[do not\\] know");
+            functionCall.parseLine("I \\[do not\\] know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration with an escaped bracket preceded with a backslash", () => {
-            functionDeclaration.text = "I \\\\[do not know";
-            functionCall.text = "I \\\\[do not know";
+            functionDeclaration.parseLine("* I \\\\[do not know");
+            functionCall.parseLine("I \\\\[do not know");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call and function declaration if they match case insensitively", () => {
-            functionDeclaration.text = "Step name here";
-            functionCall.text = "step name here";
+            functionDeclaration.parseLine("* Step name here");
+            functionCall.parseLine("step name here");
             functionCall.filename = "filename.txt";
             functionCall.lineNumber = 10;
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", and [strings]", () => {
-            functionDeclaration.text = "Step {{var1}} and {{var2}} {{var3}} also {{var4}}, {{var5}}";
-            functionCall.text = "Step {{varA}} and  {varB} 'string C' also \"stringD\", [4th 'Login' button]";
+            functionDeclaration.parseLine("* Step {{var1}} and {{var2}} {{var3}} also {{var4}}, {{var5}}");
+            functionCall.parseLine("Step {{varA}} and  {varB} 'string C' also \"stringD\", [4th 'Login' button]");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function declaration with {{vars}} and a function call with {{vars}}, {vars}, 'strings', \"strings\", [strings], and escaped single and double quotes", () => {
-            functionDeclaration.text = "Step {{var1}} a\\'nd {{var2}} {{var3}} \\'al\\\"so {{var4}}, {{var5}}";
-            functionCall.text = "Step {{varA}} a\\'nd  {varB} 'string C' \\'al\\\"so \"stringD\", [4th 'Login' button]";
+            functionDeclaration.parseLine("* Step {{var1}} a\\'nd {{var2}} {{var3}} \\'al\\\"so {{var4}}, {{var5}}");
+            functionCall.parseLine("Step {{varA}} a\\'nd  {varB} 'string C' \\'al\\\"so \"stringD\", [4th 'Login' button]");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
 
-            functionDeclaration.text = "Step {{var1}} a'nd {{var2}} {{var3}} al\"so {{var4}}, {{var5}}";
-            functionCall.text = "Step {{varA}} a\\'nd  {varB} 'string C' al\\\"so \"stringD\", [4th 'Login' button]";
+            functionDeclaration.parseLine("* Step {{var1}} a'nd {{var2}} {{var3}} al\"so {{var4}}, {{var5}}");
+            functionCall.parseLine("Step {{varA}} a\\'nd  {varB} 'string C' al\\\"so \"stringD\", [4th 'Login' button]");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("doesn't match a function declaration with {{vars}} and a function call with extra text at the end", () => {
-            functionDeclaration.text = "Step {{var1}}";
-            functionCall.text = "Step 'one' two three";
+            functionDeclaration.parseLine("* Step {{var1}}");
+            functionCall.parseLine("Step 'one' two three");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
         it("doesn't match a function declaration with {{vars}} and a function call with extra {vars} at the end", () => {
-            functionDeclaration.text = "Step {{var1}}";
-            functionCall.text = "Step {varA} {varB}";
+            functionDeclaration.parseLine("* Step {{var1}}");
+            functionCall.parseLine("Step {varA} {varB}");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
         it("doesn't match a function declaration with {{vars}} and a function call with extra 'strings' at the end", () => {
-            functionDeclaration.text = "Step {{var1}}";
-            functionCall.text = "Step 'stringA' 'stringB'";
+            functionDeclaration.parseLine("* Step {{var1}}");
+            functionCall.parseLine("Step 'stringA' 'stringB'");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
         it("doesn't match a function declaration with {{vars}} and a function call with extra [string] at the end", () => {
-            functionDeclaration.text = "Step {{var1}}";
-            functionCall.text = "Step {varA} ['element' finderB]";
+            functionDeclaration.parseLine("* Step {{var1}}");
+            functionCall.parseLine("Step {varA} ['element' finderB]");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
         it("doesn't match a function declaration with a function call with extra text at the end", () => {
-            functionDeclaration.text = "Step one two";
-            functionCall.text = "Step   one  two   three  ";
+            functionDeclaration.parseLine("* Step one two");
+            functionCall.parseLine("Step   one  two   three  ");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
         it("doesn't match a function declaration with extra text at the end with a function call", () => {
-            functionDeclaration.text = "Step   one  two   three  ";
-            functionCall.text = "Step one two";
+            functionDeclaration.parseLine("* Step   one  two   three  ");
+            functionCall.parseLine("Step one two");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(false);
         });
 
         it("matches a function call and function declaration with the same gherkin keyword", () => {
-            functionDeclaration.text = "Given step name here";
-            functionCall.text = "Given step name here";
+            functionDeclaration.parseLine("* Given step name here");
+            functionCall.parseLine("Given step name here");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
 
         it("matches a function call with gherkin a and function declaration without gherkin", () => {
-            functionDeclaration.text = "step name here";
-            functionCall.text = "Given step name here";
+            functionDeclaration.parseLine("* step name here");
+            functionCall.parseLine("Given step name here");
             expect(functionCall.isFunctionMatch(functionDeclaration)).to.equal(true);
         });
     });
