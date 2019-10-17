@@ -148,6 +148,20 @@
         }
     }
 
+    * Click each {{element}} {
+        if(!Array.isArray(element)){
+            const elems = await $(element);
+            elems.forEach(elem => elem.click());
+        }
+        else {
+            const multiElems = element.forEach(elem => elem.click());
+        }
+    }
+
+    * Drag {{dragPosition}} in {{dropPosition}} {
+        await browser.driver.actions({bridge: true}).dragAndDrop(dragPosition, dropPostiion).perform();
+    }
+
     * Hover over {{element}} {
         await browser.driver.actions({bridge: true}).move({origin: await $(element, true)}).perform();
     }
