@@ -149,17 +149,17 @@
     }
 
     * Click each {{element}} {
-        if(!Array.isArray(element)){
-            const elems = await $(element);
-            elems.forEach(elem => elem.click());
-        }
-        else {
-            const multiElems = element.forEach(elem => elem.click());
-        }
+        const list = element.split(",");
+        const elems = await $$(list);
+        elems.forEach(elem => elem.click());
     }
 
-    * Drag {{dragPosition}} in {{dropPosition}} {
-        await browser.driver.actions({bridge: true}).dragAndDrop(dragPosition, dropPostiion).perform();
+    * Drag {{elementFrom}} in {{elementTo}} {
+        await browser.driver.actions({bridge: true}).dragAndDrop(elementFrom, elementTo).perform();
+    }
+
+    * Drag {{elementFrom}} to {{x}}, {{y}} {
+        await browser.driver.actions({bridge: true}).dragAndDrop(dragPosition, {x: parseInt(x), y: parseInt(y)}).perform();
     }
 
     * Hover over {{element}} {
