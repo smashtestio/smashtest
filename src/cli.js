@@ -20,6 +20,7 @@ const Constants = require('./constants.js');
 // ***************************************
 
 let isReport = true;
+let isRecursive = false;
 
 const yellowChalk = chalk.hex("#ffb347");
 const hRule = chalk.gray("─".repeat(process.stdout.columns));
@@ -279,7 +280,7 @@ Options
             
             case "recursive":
                 noValue();
-                runner.isRecursive = true;
+                isRecursive = true;
                 break;
 
             case "version":
@@ -404,7 +405,7 @@ function plural(count) {
         if(filenames.length == 0 && !runner.isRepl) {
             let searchString = '*.smash';
 
-            if (runner.isRecursive) {
+            if (isRecursive) {
                 searchString = '**/*.smash';
             }
 
