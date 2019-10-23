@@ -218,6 +218,11 @@ Options
                 runner.random = boolValue();
                 break;
 
+            case "recursive":
+                noValue();
+                isRecursive = true;
+                break;
+
             case "repl":
             case "r":
                 noValue();
@@ -276,11 +281,6 @@ Options
                     utils.error(`Invalid test-server. It must be in the format 'http://...' or 'https://...'.`);
                 }
                 runner.testServer = value;
-                break;
-            
-            case "recursive":
-                noValue();
-                isRecursive = true;
                 break;
 
             case "version":
