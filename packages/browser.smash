@@ -149,17 +149,16 @@
     }
 
     * Click each {{element}} {
-        const list = element.split(",");
-        const elems = await $$(list);
+        const elems = await $$(element);
         elems.forEach(elem => elem.click());
     }
 
-    * Drag {{elementFrom}} in {{elementTo}} {
+    * Drag {{elementFrom}} to {{elementTo}} {
         await browser.driver.actions({bridge: true}).dragAndDrop(elementFrom, elementTo).perform();
     }
 
     * Drag {{elementFrom}} to {{x}}, {{y}} {
-        await browser.driver.actions({bridge: true}).dragAndDrop(dragPosition, {x: parseInt(x), y: parseInt(y)}).perform();
+        await browser.driver.actions({bridge: true}).dragAndDrop(elementFrom, {x: parseInt(x), y: parseInt(y)}).perform();
     }
 
     * Hover over {{element}} {
