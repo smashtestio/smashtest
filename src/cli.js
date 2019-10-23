@@ -367,7 +367,9 @@ function plural(count) {
         try {
             fileBuffers = await readFiles([ CONFIG_FILENAME ], {encoding: 'utf8'});
         }
-        catch(e) {} // it's ok if there's no config file
+        catch(e) { // it's ok if there's no config file
+            console.log(yellowChalk.bold("Did not find a config file, using default values."));
+        } 
 
         if(fileBuffers && fileBuffers.length > 0) {
             let config = null;
