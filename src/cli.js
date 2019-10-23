@@ -20,6 +20,7 @@ const Constants = require('./constants.js');
 // ***************************************
 
 let isReport = true;
+let isRecursive = false;
 
 const yellowChalk = chalk.hex("#ffb347");
 const hRule = chalk.gray("─".repeat(process.stdout.columns));
@@ -163,6 +164,7 @@ Options
   --output-errors=<true/false>             Whether to output all errors to console
   --p:<name>="<value>"                     Set a persistent variable
   --random=<true/false>                    Whether to randomize the order of branches
+  --recursive                              Scan the current directory and subdirectories for .smash files
   --repl                                   Open the REPL (drive Smashtest from command line) (-r)
   --report-domain=<domain>                 Domain and port where report server should run (domain or domain:port format)
   --report-history=<true/false>            Whether to keep a history of all reports by date
@@ -214,6 +216,11 @@ Options
 
             case "random":
                 runner.random = boolValue();
+                break;
+
+            case "recursive":
+                noValue();
+                isRecursive = true;
                 break;
 
             case "repl":
@@ -396,9 +403,15 @@ function plural(count) {
         }
 
         if(filenames.length == 0 && !runner.isRepl) {
+            let searchString = '*.smash';
+
+            if (isRecursive) {
+                searchString = '**/*.smash';
+            }
+
             let smashFiles = await new Promise((resolve, reject) => {
                 // if no filenames passed in, just choose all the .smash files
-                glob('*.smash', {absolute: true}, (err, smashFiles) => err ? reject(err) : resolve(smashFiles));
+                glob(searchString, {absolute: true}, (err, smashFiles) => err ? reject(err) : resolve(smashFiles));
             });
 
             if(!smashFiles) {
