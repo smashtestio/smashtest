@@ -163,6 +163,7 @@ Options
   --output-errors=<true/false>             Whether to output all errors to console
   --p:<name>="<value>"                     Set a persistent variable
   --random=<true/false>                    Whether to randomize the order of branches
+  --recursive                              Scan the current directory and subdirectories for .smash files
   --repl                                   Open the REPL (drive Smashtest from command line) (-r)
   --report-domain=<domain>                 Domain and port where report server should run (domain or domain:port format)
   --report-history=<true/false>            Whether to keep a history of all reports by date
@@ -173,7 +174,6 @@ Options
   --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
   --test-server=<url>                      Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
   --version                                Output the version of Smashtest (-v)
-  --recursive                              Scan the current directory and subdirectories for .smash files
 `);
                 process.exit();
 
