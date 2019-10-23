@@ -173,6 +173,7 @@ Options
   --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
   --test-server=<url>                      Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
   --version                                Output the version of Smashtest (-v)
+  --recursive                              Scan the current directory and subdirectories for .smash files
 `);
                 process.exit();
 
@@ -274,6 +275,11 @@ Options
                     utils.error(`Invalid test-server. It must be in the format 'http://...' or 'https://...'.`);
                 }
                 runner.testServer = value;
+                break;
+            
+            case "recursive":
+                noValue();
+                runner.isRecursive = true;
                 break;
 
             case "version":
@@ -396,9 +402,15 @@ function plural(count) {
         }
 
         if(filenames.length == 0 && !runner.isRepl) {
+            let searchString = '*.smash';
+
+            if (runner.isRecursive) {
+                searchString = '**/*.smash';
+            }
+
             let smashFiles = await new Promise((resolve, reject) => {
                 // if no filenames passed in, just choose all the .smash files
-                glob('*.smash', {absolute: true}, (err, smashFiles) => err ? reject(err) : resolve(smashFiles));
+                glob(searchString, {absolute: true}, (err, smashFiles) => err ? reject(err) : resolve(smashFiles));
             });
 
             if(!smashFiles) {
