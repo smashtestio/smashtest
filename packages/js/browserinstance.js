@@ -478,7 +478,7 @@ class BrowserInstance {
             const screenshotsDir = `${path.join(reporter.getPathFolder(), "screenshots")}`;
             let files = [];
             try {
-                fs.readdirSync(screenshotsDir);
+                files = fs.readdirSync(screenshotsDir);
             }
             catch(e) {} // it's ok if the directory doesn't exist
 
