@@ -512,6 +512,18 @@
         await not$(element, undefined, VERIFY_TIMEOUT, true);
     }
 
+    * Verify {{element}} is selected {
+        // Applies only to inputs of type checkbox, radio buttons and options in a select element
+        const el = (await $(element));
+        expect(await el.isSelected()).to.equal(true);   
+    }
+
+    * Verify {{element}} is not selected {
+        // Will always pass if element is not selectable
+        const el = (await $(element));
+        expect(await el.isSelected()).to.equal(false);
+    }
+
     // ***************************************
     //  Wait until
     // ***************************************
