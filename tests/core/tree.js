@@ -5873,6 +5873,153 @@ F
                         ]
                     });
                 });
+
+                it("branchifies function calls and declaractions that match at the same level", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    * A
+        - A1
+
+    * B
+        - B1
+
+    * C
+        - C1
+
+* F
+    A
+    B
+    C
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        { steps: [ { text: "F" }, { text: "A" }, { text: "A1" } ] },
+                        { steps: [ { text: "F" }, { text: "B" }, { text: "B1" } ] },
+                        { steps: [ { text: "F" }, { text: "C" }, { text: "C1" } ] }
+                    ]);
+                });
+
+                it("branchifies function calls and declaractions that match at the same level, with multiple function calls", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    * A
+        - A1
+
+    * B
+        - B1
+
+    * C
+        - C1
+
+F
+    * A
+        - A2
+
+    * B
+        - B2
+
+    * C
+        - C2
+
+* F
+    A
+    B
+    C
+                    `);
+
+                    let branches = tree.branchify(tree.root);
+                    mergeStepNodesInBranches(tree, branches);
+
+                    Comparer.expect(branches).to.match([
+                        { steps: [ { text: "F" }, { text: "A" }, { text: "A1" } ] },
+                        { steps: [ { text: "F" }, { text: "B" }, { text: "B1" } ] },
+                        { steps: [ { text: "F" }, { text: "C" }, { text: "C1" } ] },
+                        { steps: [ { text: "F" }, { text: "A" }, { text: "A2" } ] },
+                        { steps: [ { text: "F" }, { text: "B" }, { text: "B2" } ] },
+                        { steps: [ { text: "F" }, { text: "C" }, { text: "C2" } ] }
+                    ]);
+                });
+
+                it("throws an error when functions calls and declaration that should match at the same level don't", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    * A
+        - A1
+
+    * C
+        - C1
+
+* F
+    A
+    B
+    C
+                    `, 'file.txt');
+
+                    assert.throws(() => {
+                        tree.branchify(tree.root);
+                    }, `The function \`B\` cannot be found.
+
+Trace:
+   F
+     B
+
+ [file.txt:11]`);
+                });
+
+                it("throws an error when functions calls and declaration that should match at the same level don't (more complex example)", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    * A
+        - A1
+
+    - Something
+        * B
+            - B1
+
+    * C
+        - C1
+
+* F
+    A
+    B
+    C
+                    `, 'file.txt');
+
+                    assert.throws(() => {
+                        tree.branchify(tree.root);
+                    }, `The function \`B\` cannot be found.
+
+Trace:
+   F
+     B
+
+ [file.txt:15]`);
+                });
+
+                it("throws an error when a function declaration is underneath the function call", () => {
+                    let tree = new Tree();
+                    tree.parseIn(`
+F
+    * F
+        - A
+                    `, 'file.txt');
+
+                    assert.throws(() => {
+                        tree.branchify(tree.root);
+                    }, `The function \`F\` cannot be found.
+
+Trace:
+   F
+
+ [file.txt:2]`);
+                });
             });
 
             context("functions calling themselves", () => {
