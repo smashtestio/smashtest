@@ -96,7 +96,7 @@
     *** After Every Branch {
         if(typeof browser != 'undefined') {
             if(browser.params && browser.params.name.toLowerCase() == 'chrome') {
-                await new Promise(res => setTimeout(res, 300)); // prevents "ECONNREFUSED" error message from chromedriver when browser opens and closes too quickly
+                await new Promise(res => setTimeout(res, 1000)); // prevents "ECONNREFUSED" error message from chromedriver when browser opens and closes too quickly
             }
 
             await browser.clearUnneededScreenshots();
