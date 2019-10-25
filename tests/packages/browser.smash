@@ -915,8 +915,9 @@ Open test page [
             }
 
                 Switch to iframe [#frame]
-                    Verify ['Example Domain'] is visible
-                        Verify ['foobar'] is not visible
+                    Wait '2' secs
+                        Verify ['Example Domain'] is visible
+                            Verify ['foobar'] is not visible
 
         - Switch to topmost iframe
 
