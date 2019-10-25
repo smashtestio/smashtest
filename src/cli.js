@@ -10,7 +10,6 @@ const progress = require('cli-progress');
 const repl = require('repl');
 const readline = require('readline');
 
-
 const {runner, tree, reporter} = require('./instances.js');
 const StepNode = require('./stepnode.js');
 const Constants = require('./constants.js');
@@ -31,7 +30,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.5.4 BETA"));
+console.log(yellowChalk.bold("Smashtest 1.5.5 BETA"));
 console.log("");
 
 // ***************************************

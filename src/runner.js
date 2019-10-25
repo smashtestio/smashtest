@@ -25,7 +25,7 @@ class Runner {
         this.noDebug = false;            // If true, a compile error will occur if a $, ~, or ~~ is present anywhere in the tree
         this.outputErrors = true;        // If true, output errors to console
         this.random = true;              // If true, randomize the order of branches
-        this.screenshots = true;         // If true, take screenshots when possible
+        this.screenshots = false;        // If true, take screenshots before and after each step
         this.skipPassed = undefined;     // If true, carry over branches that passed last time
         this.testServer = undefined;     // Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
 
