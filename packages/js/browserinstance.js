@@ -96,6 +96,7 @@ class BrowserInstance {
         this.driver = null;
         this.params = null;
         this.runInstance = runInstance;
+        this.startTime = null;
 
         this.definedProps = ElementFinder.defaultProps();  // ElementFinder props
     }
@@ -246,6 +247,7 @@ class BrowserInstance {
         }
 
         this.driver = await builder.build();
+        this.startTime = new Date();
         this.params = params;
 
         // Resize to dimensions
@@ -262,6 +264,16 @@ class BrowserInstance {
      * Closes this browser
      */
     async close() {
+        if(this.params && (this.params.name.toLowerCase() == 'chrome')) {
+            // Sleeps until browser has been open for at least MIN_ELAPSED ms
+            // This prevents "ECONNREFUSED" error message
+            const MIN_ELAPSED = 2000;
+            let elapsed = (new Date()) - this.startTime;
+            if(elapsed < MIN_ELAPSED) {
+                await new Promise(res => setTimeout(res, MIN_ELAPSED - elapsed)); // sleep until browser has been open for at least MIN_ELAPSED ms
+            }
+        }
+
         try {
             if(this.driver) {
                 await this.driver.quit();
@@ -275,6 +287,10 @@ class BrowserInstance {
             if(browsers[i] === this) {
                 browsers.splice(i, 1);
             }
+        }
+
+        if(this.params && (this.params.name.toLowerCase() == 'safari')) {
+            await new Promise(res => setTimeout(res, 2000)); // prevent "already paired" error message from safaridriver when instances exist too close to each other
         }
     }
 
