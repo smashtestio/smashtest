@@ -264,7 +264,7 @@ class BrowserInstance {
     async close() {
         try {
             if(this.driver) {
-                await this.driver.quit();
+                await this.driver.close();
                 this.driver = null;
             }
         }
