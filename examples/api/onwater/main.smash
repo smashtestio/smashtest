@@ -2,7 +2,7 @@
 // This API takes in a latitude and longitude and outputs whether or not that point is on water
 
 // Register an account at https://onwater.io/users/sign_up, get an API key on https://onwater.io/users/api_key,
-// and set the {access_token} on onwater-decl.smash
+// and set the {access_token} on implementation.smash
 // If you're running into rate-limiting problems, try running a subset of the tests at a time (e.g., by putting a $ on a line with a "-")
 
 // Run these tests by running `smashtest` in this directory
