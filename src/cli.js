@@ -30,7 +30,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.5.7 BETA"));
+console.log(yellowChalk.bold("Smashtest 1.5.8 BETA"));
 console.log("");
 
 // ***************************************
@@ -277,7 +277,8 @@ Options
 
             case "test-server":
                 if(value == "") {
-                    break; // --test-server="" is the same as not setting test-server at all
+                    runner.testServer = undefined; // --test-server="" is the same as not setting test-server at all
+                    break;
                 }
                 if(!value.match(/^https?:\/\/.*$/)) {
                     utils.error(`Invalid test-server. It must be in the format 'http://...' or 'https://...'.`);
