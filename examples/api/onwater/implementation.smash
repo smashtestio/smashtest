@@ -167,7 +167,8 @@
             return dec;
         }
 
-            GET /results '0.0' {{long}}
+            GET /results '10.0' {{long}}
+            GET /results {{long}} '10.0'
 
     * When a request is made with a bad access token
         {access_token} = 'BADTOKEN'
