@@ -1253,6 +1253,25 @@ Step {
 
                 expect(tree.branches[0].steps[0].error.message).to.equal(`A non-object was thrown inside this step. Only objects can be thrown.`);
             });
+
+            it.only("handles a step timeout", async () => {
+                let tree = new Tree();
+                tree.parseIn(`
+This step times out {
+    setStepTimeout(0.1); // timeout in 100 ms
+    await new Promise(res => setTimeout(res, 200)); // wait 200 ms
+}
+                `, "file.txt");
+
+                let runner = new Runner();
+                runner.init(tree, true);
+                let runInstance = new RunInstance(runner);
+try {
+                await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+} catch(e) { console.log(e);}
+                expect(tree.branches[0].error).to.equal(undefined);
+                expect(tree.branches[0].steps[0].error).to.equal(`meow`);
+            });
         });
 
         context("functions", () => {

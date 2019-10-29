@@ -27,6 +27,8 @@ class RunInstance {
         this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
 
         this.stepsRan = new Branch();                   // record of all steps ran by this RunInstance, for inject()
+
+        this.timer = null;                              // timer used to enforce the step timeout
     }
 
     /**
@@ -284,9 +286,11 @@ class RunInstance {
                         this.pushLocalStack();
                     }
 
+                    this.setStepTimer();
                     inCodeBlock = true;
                     let retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getFilenameOfCodeBlock(step), this.getLineNumberOffset(step), step);
                     inCodeBlock = false;
+                    this.clearStepTimer();
 
                     this.g('prev', retVal);
 
@@ -310,6 +314,8 @@ class RunInstance {
                 }
             }
             catch(e) {
+                this.clearStepTimer();
+
                 if(e.fatal) { // if fatal is set, the error will bubble all the way up to the console and end execution
                     throw e;
                 }
@@ -397,9 +403,13 @@ class RunInstance {
         let codeBlock = this.tree.getCodeBlock(step);
 
         try {
+            this.setStepTimer();
             await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.filename, stepNode.lineNumber, stepToGetError || branchToGetError);
+            this.clearStepTimer();
         }
         catch(e) {
+            this.clearStepTimer();
+
             if(this.isStopped) {
                 return true;
             }
@@ -430,6 +440,30 @@ class RunInstance {
         }
 
         return true;
+    }
+
+    /**
+     * Sets the timer for the step timeout
+     * @param {Number} [secs] - The number of seconds after which the timeout occurs, 60 if omitted
+     */
+    setStepTimer(secs) {
+        if(typeof secs == 'undefined') {
+            secs = 60;
+        }
+        this.clearStepTimer();
+        this.timer = setTimeout(() => {
+            throw new Error(`Timeout of ${secs}s exceeded`);
+        }, secs * 1000);
+    }
+
+    /**
+     * Clears the timer for the step timeout
+     */
+    clearStepTimer() {
+        if(this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
     }
 
     /**
@@ -679,6 +713,13 @@ class RunInstance {
     }
 
     /**
+     * Sets the step timeout to the given number of seconds
+     */
+    setStepTimeout(secs) {
+        this.setStepTimer(secs);
+    }
+
+    /**
      * i(varName, packageName, filename) or i(packageName, undefined, filename)
      * Imports (via require()) the given package, sets persistent var varName to the imported object and returns the imported object
      * If a persistent var with that name already exists, this function only returns the value of that var
@@ -816,6 +857,10 @@ class RunInstance {
             console.log('');
             console.log(s);
             console.log('');
+        }
+
+        function setStepTimeout(secs) {
+            return runInstance.setStepTimeout(secs);
         }
 
         // Generate code
