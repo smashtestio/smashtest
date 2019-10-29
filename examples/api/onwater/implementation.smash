@@ -30,7 +30,10 @@
 * GET /results
 
     * GET /results {lat} {long} {
-        await get(`${domain}/api/v1/results/${lat},${long}${access_token === '[none]' ? `` : `?access_token=${access_token}`}`);
+        long = long === '[none]' ? `` : `,${long}`;
+        access_token = access_token === '[none]' ? `` : `?access_token=${access_token}`;
+
+        await get(`${domain}/api/v1/results/${lat}${long}${access_token}`);
     }
 
         * Then the response is {status} {water} {
@@ -115,16 +118,16 @@
         - Shizuoka, Japan
             GET /results '35' '139'
 
-        * Then the response is successful
-            Then the response is '200' 'false'
+                * Then the response is successful
+                    Then the response is '200' 'false'
 
     * When a request is made with no access token
         {access_token} = '[none]'
             - Shizuoka, Japan
                 GET /results '35.0' '139.0'
 
-        * Then the response is successful
-            Then the response is '200' 'false'
+                    * Then the response is successful
+                        Then the response is '200' 'false'
 
     * When a request is made with missing coords
         - None
@@ -133,6 +136,7 @@
         - Only one
             - Lat only
                 GET /results '100.0' ''
+                GET /results '100.0' '[none]'
 
             - Long only
                 GET /results '' '100.0'
