@@ -132,6 +132,7 @@
     * When a request is made with missing coords
         - None
             GET /results '' ''
+            GET /results '' '[none]'
 
         - Only one
             - Lat only
