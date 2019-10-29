@@ -28,7 +28,8 @@ class RunInstance {
 
         this.stepsRan = new Branch();                   // record of all steps ran by this RunInstance, for inject()
 
-        this.timer = null;                              // timer used to enforce the step timeout
+        this.stepTimeout = 60;                          // default timeout for steps, in secs
+        this.timer = null;                              // timer used to enforce step timeout
     }
 
     /**
@@ -286,11 +287,9 @@ class RunInstance {
                         this.pushLocalStack();
                     }
 
-                    this.setStepTimer();
                     inCodeBlock = true;
                     let retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getFilenameOfCodeBlock(step), this.getLineNumberOffset(step), step);
                     inCodeBlock = false;
-                    this.clearStepTimer();
 
                     this.g('prev', retVal);
 
@@ -314,8 +313,6 @@ class RunInstance {
                 }
             }
             catch(e) {
-                this.clearStepTimer();
-
                 if(e.fatal) { // if fatal is set, the error will bubble all the way up to the console and end execution
                     throw e;
                 }
@@ -403,13 +400,9 @@ class RunInstance {
         let codeBlock = this.tree.getCodeBlock(step);
 
         try {
-            this.setStepTimer();
             await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.filename, stepNode.lineNumber, stepToGetError || branchToGetError);
-            this.clearStepTimer();
         }
         catch(e) {
-            this.clearStepTimer();
-
             if(this.isStopped) {
                 return true;
             }
@@ -444,20 +437,15 @@ class RunInstance {
 
     /**
      * Sets the timer for the step timeout
-     * @param {Number} [secs] - The number of seconds after which the timeout occurs, 60 if omitted
+     * @return {Promise} Promise that rejects when the timeout occurs
      */
-    setStepTimer(secs) {
-        if(typeof secs == 'undefined') {
-            secs = 60;
-        }
+    setStepTimer() {
         this.clearStepTimer();
-        this.timer = setTimeout(() => {
-            throw new Error(`Timeout of ${secs}s exceeded`);
-        }, secs * 1000);
+        return new Promise((resolve, reject) => this.timer = setTimeout(() => reject(new Error(`Timeout of ${this.stepTimeout}s exceeded`)), this.stepTimeout * 1000));
     }
 
     /**
-     * Clears the timer for the step timeout
+     * Clears the current step timeout
      */
     clearStepTimer() {
         if(this.timer) {
@@ -713,10 +701,10 @@ class RunInstance {
     }
 
     /**
-     * Sets the step timeout to the given number of seconds
+     * Sets the timeout for all further steps in the branch, in secs
      */
     setStepTimeout(secs) {
-        this.setStepTimer(secs);
+        this.stepTimeout = secs;
     }
 
     /**
@@ -860,7 +848,7 @@ class RunInstance {
         }
 
         function setStepTimeout(secs) {
-            return runInstance.setStepTimeout(secs);
+            runInstance.setStepTimeout(secs);
         }
 
         // Generate code
@@ -898,8 +886,10 @@ class RunInstance {
             return eval(code);
         }
         else {
+            let timerPromise = this.setStepTimer();
+
             // Doing this instead of putting async on top of evalCodeBlock(), because we want evalCodeBlock() to return both values and promises, depending on the value of isSync
-            return new Promise(async (resolve, reject) => {
+            let mainPromise = new Promise(async (resolve, reject) => {
                 let error = null;
                 let retVal = null;
                 try {
@@ -912,6 +902,14 @@ class RunInstance {
                 if(!error) {
                     resolve(retVal);
                 }
+            });
+
+            return Promise.race([
+                mainPromise,
+                timerPromise
+            ])
+            .finally(() => {
+                this.clearStepTimer();
             });
         }
 

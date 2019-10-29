@@ -1254,23 +1254,30 @@ Step {
                 expect(tree.branches[0].steps[0].error.message).to.equal(`A non-object was thrown inside this step. Only objects can be thrown.`);
             });
 
-            it.only("handles a step timeout", async () => {
+            it("handles a step timeout", async () => {
                 let tree = new Tree();
                 tree.parseIn(`
-This step times out {
-    setStepTimeout(0.1); // timeout in 100 ms
-    await new Promise(res => setTimeout(res, 200)); // wait 200 ms
+Set step timeout to 10 ms {
+    setStepTimeout(0.01);
 }
+    This step times out {
+        await new Promise(res => setTimeout(res, 20)); // wait 20 ms
+    }
                 `, "file.txt");
 
                 let runner = new Runner();
                 runner.init(tree, true);
                 let runInstance = new RunInstance(runner);
-try {
+
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
-} catch(e) { console.log(e);}
+                await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
+
                 expect(tree.branches[0].error).to.equal(undefined);
-                expect(tree.branches[0].steps[0].error).to.equal(`meow`);
+                expect(tree.branches[0].steps[0].error).to.equal(undefined);
+
+                expect(tree.branches[0].steps[1].error.message).to.equal("Timeout of 0.01s exceeded");
+                expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
+                expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
             });
         });
 
