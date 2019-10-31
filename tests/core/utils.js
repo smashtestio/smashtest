@@ -185,4 +185,18 @@ describe("Utils", () => {
             });
         });
     });
+
+    describe("addWhitespaceToEnd()", () => {
+        it("adds whitespace to the end of a string", () => {
+            expect(utils.addWhitespaceToEnd('', 1)).to.equal(' ');
+            expect(utils.addWhitespaceToEnd('1234', 7)).to.equal('1234   ');
+        });
+
+        it("doesn't add whitespace to the end of a string if it's long enough", () => {
+            expect(utils.addWhitespaceToEnd('', 0)).to.equal('');
+            expect(utils.addWhitespaceToEnd('1234', 0)).to.equal('1234');
+            expect(utils.addWhitespaceToEnd('1234', 3)).to.equal('1234');
+            expect(utils.addWhitespaceToEnd('1234', 4)).to.equal('1234');
+        });
+    });
 });

@@ -3768,7 +3768,7 @@ Function that doesn't exist
             }, `The function \`Function that doesn't exist\` cannot be found.
 
 Trace:
-   Function that doesn't exist
+   Function that doesn't exist                          file.txt:2
 
  [file.txt:2]`);
         });
@@ -3790,7 +3790,7 @@ Other scope -
             }, `The function \`My function\` cannot be found.
 
 Trace:
-   My function
+   My function                                          file.txt:2
 
  [file.txt:2]`);
 
@@ -3812,8 +3812,8 @@ Other scope -
             }, `The function \`My function\` cannot be found.
 
 Trace:
-   One scope
-   My function
+   One scope                                            file.txt:2
+   My function                                          file.txt:3
 
  [file.txt:3]`);
         });
@@ -3836,8 +3836,8 @@ Trace:
             }, `The function \`Function that doesn't exist\` cannot be found.
 
 Trace:
-   *
-   Function that doesn't exist
+   *                                                    file.txt:4
+   Function that doesn't exist                          file.txt:3
 
  [file.txt:3]`);
         });
@@ -5089,7 +5089,7 @@ F
                     }, `The function \`F\` cannot be found.
 
 Trace:
-   F
+   F                                                    file.txt:2
 
  [file.txt:2]`);
                 });
@@ -5966,8 +5966,8 @@ F
                     }, `The function \`B\` cannot be found.
 
 Trace:
-   F
-     B
+   F                                                    file.txt:2 --> file.txt:9
+     B                                                  file.txt:11
 
  [file.txt:11]`);
                 });
@@ -5997,8 +5997,8 @@ F
                     }, `The function \`B\` cannot be found.
 
 Trace:
-   F
-     B
+   F                                                    file.txt:2 --> file.txt:13
+     B                                                  file.txt:15
 
  [file.txt:15]`);
                 });
@@ -6016,7 +6016,7 @@ F
                     }, `The function \`F\` cannot be found.
 
 Trace:
-   F
+   F                                                    file.txt:2
 
  [file.txt:2]`);
                 });
@@ -6037,8 +6037,8 @@ F
                     }, `The function \`F\` cannot be found.
 
 Trace:
-   F
-     F
+   F                                                    file.txt:2 --> file.txt:4
+     F                                                  file.txt:5
 
  [file.txt:5]`);
                 });
@@ -6780,8 +6780,8 @@ F
                     }, `The function \`F\` cannot be found.
 
 Trace:
-   F
-     F
+   F                                                    file.txt:2 --> file.txt:4
+     F                                                  file.txt:5
 
  [file.txt:5]`);
                 });
@@ -13093,8 +13093,8 @@ A -
                 }, `The function \`F\` cannot be found.
 
 Trace:
-   A
-   F
+   A                                                    file.txt:2
+   F                                                    file.txt:3
 
  [file.txt:3]`);
             });

@@ -248,3 +248,13 @@ exports.serializeError = (error) => {
 
     return o;
 }
+
+/**
+ * @return {String} The string s, with spaces added to the end to make it length len (only if the string's length is < len)
+ */
+exports.addWhitespaceToEnd = (s, len) => {
+    while(s.length < len) {
+        s += ' ';
+    }
+    return s;
+}
