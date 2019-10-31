@@ -57,14 +57,6 @@ This will run your local code instead of the regular Smashtest.
 - The comments at the top of `main.smash` (in both examples) contain valuable info
 - Run `smashtest` inside the directory of the example you want to run
 
-## Important links
-
-- [Smashtest documentation](https://smashtest.io/)
-- [Gitter](https://gitter.im/smashtestio/community)
-- [GitHub](https://github.com/smashtestio/smashtest)
-- [NPM](https://www.npmjs.com/package/smashtest)
-- [WebdriverJS documentation](https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver)
-
 ## Grammars
 
 Grammars provide syntax highlighting in code editors, and are stored in their own GitHub repos:
@@ -72,3 +64,11 @@ Grammars provide syntax highlighting in code editors, and are stored in their ow
 - [VSCode](https://github.com/smashtestio/smash-language-vscode) | [issues](https://github.com/smashtestio/smash-language-vscode/issues)
 
 Please test changes you make to any of the grammars by opening up `tests/highlighting/grammartest.smash` and visually inspecting it
+
+## Important links
+
+- [Smashtest documentation](https://smashtest.io/)
+- [Gitter](https://gitter.im/smashtestio/community)
+- [GitHub](https://github.com/smashtestio/smashtest)
+- [NPM](https://www.npmjs.com/package/smashtest)
+- [WebdriverJS documentation](https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver)
