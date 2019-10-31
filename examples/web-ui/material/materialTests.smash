@@ -1,0 +1,19 @@
+// Sample functional tests of Material Design (https://material.io/)
+// Shows how to test a website that has a different navigation for desktop and mobile
+// Steps are implemented in other .smash files
+
+// Run these tests by running `smashtest --recursive` in this directory
+
+Open Chrome
+
+    Set Desktop
+
+        - Can navigate to home page
+
+            Given I am on home page
+        
+        - Can navigate to design page
+
+            Given I am on design page
+                
+

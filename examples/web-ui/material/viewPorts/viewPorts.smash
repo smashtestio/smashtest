@@ -1,0 +1,8 @@
+* Set Desktop
+    Desktop // calls `Desktop` step exposed by `Open Chrome`
+
+* Set Mobile
+    Mobile
+    Mobile Landscape
+    Tablet
+    iPhone 6/7/8

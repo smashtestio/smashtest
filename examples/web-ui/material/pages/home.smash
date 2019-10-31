@@ -1,0 +1,17 @@
+* Given I am on home page
+    Navigate to home page
+        On home page
+
+* Navigate to home page
+    Navigate to 'https://material.io/'
+        On home page
+
+* On home page
+    setHomePage +? {
+        props({
+            'hero': `.header-show.page--homepage_hero`
+        })
+
+        await $(`hero`);
+
+    }
