@@ -221,7 +221,6 @@ class RunInstance {
                 // Passing inputs into function calls
                 if(stepNode.isFunctionCall) {
                     let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
-                    this.appendToLog(`Calling function at ${functionDeclarationNode.filename}:${functionDeclarationNode.lineNumber}`, step);
 
                     // Set {vars} based on function declaration signature and function call signature
 

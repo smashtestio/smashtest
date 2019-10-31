@@ -1,3 +1,7 @@
+# 1.5.12
+
+- Simplified function call and function declaration filenames/linenumbers in report, removed excess logging
+
 # 1.5.11
 
 - Fixed lack of filenames/line numbers in stack trace for function not found error

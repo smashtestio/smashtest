@@ -2478,8 +2478,9 @@ c     = copy text of branch
                     }
                     else {
                         let stepNode = stepNodeIndex[previewedObj.id];
+                        let fdStepNode = previewedObj.fid ? stepNodeIndex[previewedObj.fid] : null;
                         if(stepNode) {
-                            postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}] ${elapsedText}`;
+                            postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}${fdStepNode ? ` --> ${fdStepNode.filename}:${fdStepNode.lineNumber}` : ``}] ${elapsedText}`;
                         }
                     }
 
