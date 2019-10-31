@@ -4,9 +4,9 @@
 
 # 1.5.10
 
-- Removed unnecessary code to mitigate ECONNREFUSED errors, which were fixed by correcting an environment variable [issue](https://github.com/smashtestio/smashtest/issues/30)
+- Removed unnecessary code to mitigate ECONNREFUSED errors, which were fixed by correcting an environment variable [(issue)](https://github.com/smashtestio/smashtest/issues/30)
 
 # 1.5.9
 
-- Added new 60s default timeout for all steps [issue](https://github.com/smashtestio/smashtest/issues/53)
+- Added new 60s default timeout for all steps [(issue)](https://github.com/smashtestio/smashtest/issues/53)
 - Added function to adjust default timeout for the current branch
