@@ -1,3 +1,7 @@
+# 1.5.13
+
+- Removed crossorigin attribute from report due to problems with chrome
+
 # 1.5.12
 
 - Simplified function call and function declaration filenames/linenumbers in report, removed excess logging
