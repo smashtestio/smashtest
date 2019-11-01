@@ -108,7 +108,7 @@ class StepNode {
         //   'Step [' is a multi-step-block function declaration
         //   '[' is a multi-level-step-block function declaration
         //   ']' is a multi-level-step-block function call to the last multi-level-step-block function declaration
-        this.isOpeningBracket = (matches[5] && matches[5].trim() == '[') || (matches[18] && matches[18].trim() == '[');
+        this.isOpeningBracket = (matches[5] && matches[5].trim() == '[') || (matches[20] && matches[20].trim() == '[');
         if(matches[4] || this.isOpeningBracket) {
             if(this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
                 this.isFunctionDeclaration = true;
@@ -142,15 +142,15 @@ class StepNode {
             this.frontModifiers = matches[1].trim().split(/\s+/);
             this.modifiers = (this.modifiers || []).concat(this.frontModifiers);
         }
-        if(matches[13]) {
-            this.backModifiers = matches[13].trim().split(/\s+/);
+        if(matches[15]) {
+            this.backModifiers = matches[15].trim().split(/\s+/);
             this.modifiers = (this.modifiers || []).concat(this.backModifiers);
         }
-        if(matches[17] && matches[17].trim().startsWith('{')) {
-            this.codeBlock = matches[17].replace(/^\{/, '');
+        if(matches[19] && matches[19].trim().startsWith('{')) {
+            this.codeBlock = matches[19].replace(/^\{/, '');
         }
-        if(matches[20]) {
-            this.comment = matches[20];
+        if(matches[22]) {
+            this.comment = matches[22];
         }
 
         // Validation against prohibited step texts

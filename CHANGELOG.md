@@ -1,3 +1,7 @@
+# 1.5.15
+
+- Fixed missing bracketed-strings in parse regexes
+
 # 1.5.14
 
 - Removed unnecessary Init step from Use browser
