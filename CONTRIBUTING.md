@@ -30,7 +30,8 @@ Thank you for your contribution!
 
 ## Running Smashtest locally
 
-After cloning the project, in the top project directory, run `./src/cli.js` where you'd normally run `smashtest`.
+1. Clone the project with `git clone https://github.com/smashtestio/smashtest.git`
+2. In the top project directory, run `./src/cli.js` where you'd normally run `smashtest`.
 This will run your local code instead of the regular Smashtest.
 
 ## Testing Smashtest locally
