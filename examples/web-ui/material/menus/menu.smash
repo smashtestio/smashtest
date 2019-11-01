@@ -1,5 +1,18 @@
-* Navigate to first level page {{ page }}
-    Navigate to home page
-        Click first level menu {{ page }}
+* Navigate to first level page {{page}}
+    setFirstLevelMenuItems +? {
+        props({
+            'hamburger': `body > header > button.header__hamburger.header__button`,
+            'layoutButton': `body > nav.side-nav.initialized > ul:nth-child(5) > li:nth-child(3) > button`
+        })
+    }
 
+        Click first level page button {{page}}
 
+* Navigate to second level page {{page}}
+    setSecondLevelMenuItems +? {
+        props({
+            'understandingLayoutButton': '#_nav4 > ul > li:nth-child(1) > a',
+        })
+    }
+
+        Click second level page button {{page}}

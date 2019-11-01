@@ -150,6 +150,12 @@
         }, await $(element));
     }
 
+    * Scroll to top {
+        await executeScript(function() {
+            window.scrollTo(0, 0);
+        });
+    }
+
     // Returns JSON object representing cookie
     * Get cookie {{name}} {
         let cookie = await browser.driver.manage().getCookie(name);

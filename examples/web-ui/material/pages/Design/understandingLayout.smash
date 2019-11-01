@@ -1,1 +1,15 @@
-* Given I am at understanding layout
+* Given I am on understanding layout page
+    Navigate to understanding layout page
+        On understanding layout page
+
+* Navigate to understanding layout page
+    Navigate to second level page "understandingLayout"
+
+* On understanding layout page
+    setUnderstandingDesignPage +? {
+        props({
+            'understandingLayoutH1': `h1, "Understanding layout"`
+        })
+
+        await $(`understandingLayoutH1`);
+    }

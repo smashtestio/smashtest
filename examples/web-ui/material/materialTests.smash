@@ -7,13 +7,14 @@
 Open Chrome
 
     Set Desktop
+    Set Mobile
 
         - Can navigate to home page
 
             Given I am on home page
         
-        - Can navigate to design page
+        - Can navigate to understanding layout page
 
             Given I am on design page
-                
-
+                Given I am on layout page 
+                    Given I am on understanding layout page

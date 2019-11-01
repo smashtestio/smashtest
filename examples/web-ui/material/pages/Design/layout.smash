@@ -1,6 +1,5 @@
 * Given I am on layout page
     Navigate to layout page
-        On layout page
 
 * Navigate to layout page
-    * Navigate to first level page {{ layout }}
+    Navigate to first level page "layout"
