@@ -55,27 +55,21 @@
 
 // Note: functions under Use browser are indented because they're only available after a Use browser call
 
-* Use browser
+* Use browser  {
+    // Verify/Wait until timeouts
+    g('VERIFY_TIMEOUT', 1000);
+    g('WAITUNTIL_TIMEOUT', 15000);
 
-    // ***************************************
-    //  Init
-    // ***************************************
+    // Checks if current browser is Chrome (for network throttling steps)
+    g('isChrome', function() {
+        if(browser.params.name.toLowerCase() != 'chrome') {
+            log(`Ignoring, since browser isn't chrome`);
+            return false;
+        }
 
-    Init +? {
-        // Verify/Wait until timeouts
-        g('VERIFY_TIMEOUT', 1000);
-        g('WAITUNTIL_TIMEOUT', 15000);
-
-        // Checks if current browser is Chrome (for network throttling steps)
-        g('isChrome', function() {
-            if(browser.params.name.toLowerCase() != 'chrome') {
-                log(`Ignoring, since browser isn't chrome`);
-                return false;
-            }
-
-            return true;
-        });
-    }
+        return true;
+    });
+}
 
     // ***************************************
     //  Hooks

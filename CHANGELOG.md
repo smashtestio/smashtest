@@ -1,3 +1,7 @@
+# 1.5.14
+
+- Removed unnecessary Init step from Use browser
+
 # 1.5.13
 
 - Removed crossorigin attribute from report due to problems with chrome
