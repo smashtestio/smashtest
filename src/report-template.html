@@ -15,8 +15,8 @@
         <script src="https://unpkg.com/popper.js@1"></script>
         <script src="https://unpkg.com/tippy.js@4"></script>
 
-        <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
-        <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
         <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
         <style>
@@ -2478,8 +2478,9 @@ c     = copy text of branch
                     }
                     else {
                         let stepNode = stepNodeIndex[previewedObj.id];
+                        let fdStepNode = previewedObj.fid ? stepNodeIndex[previewedObj.fid] : null;
                         if(stepNode) {
-                            postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}] ${elapsedText}`;
+                            postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}${fdStepNode ? ` --> ${fdStepNode.filename}:${fdStepNode.lineNumber}` : ``}] ${elapsedText}`;
                         }
                     }
 
