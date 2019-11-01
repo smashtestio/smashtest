@@ -1,3 +1,9 @@
+# 1.5.16
+
+- Fixed lack of test trace in console errors
+- Removed unused branch functions
+- Moved branch output code into branch object
+
 # 1.5.15
 
 - Fixed missing bracketed-strings in parse regexes

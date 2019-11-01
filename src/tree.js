@@ -458,7 +458,7 @@ class Tree {
         utils.error(`The function \`${functionCallNode.getFunctionCallText()}\` cannot be found.
 
 Trace:
-${this.outputBranch(branchAbove)}
+${branchAbove.output(this.stepNodeIndex)}
 `, functionCallNode.filename, functionCallNode.lineNumber);
 
         /**
@@ -482,31 +482,6 @@ ${this.outputBranch(branchAbove)}
 
             return matches;
         }
-    }
-
-    /**
-     * @param {Branch} branch - A branch to output
-     * @return {String} The contents of the branch in a stack trace like format
-     */
-    outputBranch(branch) {
-        let str = '';
-        branch.steps.forEach(s => {
-            const removePath = s => s ? s.replace(/^.*[\/\\]/, '') : '';
-
-            let sn = this.stepNodeIndex[s.id];
-            let text = sn.text || '';
-
-            let loc = `${removePath(sn.filename)}:${sn.lineNumber}`;
-            let fsn = s.fid ? this.stepNodeIndex[s.fid] : null; // function declaration step node
-            if(fsn) {
-                loc += ` --> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
-            }
-
-            let indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${text}`, 50);
-
-            str += `   ${indentedText}   ${loc}\n`;
-        });
-        return str;
     }
 
     /**

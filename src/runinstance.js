@@ -51,6 +51,7 @@ class RunInstance {
         }
         else { // we're starting off from scratch (not paused)
             this.currBranch = this.tree.nextBranch();
+            this.stepsRan = new Branch();
         }
 
         while(this.currBranch) {
@@ -112,6 +113,7 @@ class RunInstance {
             await this.runAfterEveryBranch();
 
             this.currBranch = this.tree.nextBranch();
+            this.stepsRan = new Branch();
         }
     }
 
@@ -142,9 +144,7 @@ class RunInstance {
             console.log(`Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
         }
 
-        if(this.tree.isDebug && !this.tree.isExpressDebug) {
-            this.stepsRan.steps.push(step);
-        }
+        this.stepsRan.steps.push(step);
 
         // Reset state
         delete step.isPassed;
@@ -457,10 +457,13 @@ class RunInstance {
      * Outputs the given error to the console, if allowed
      */
     outputError(error, stepNode) {
+        let showTrace = (!this.tree.isDebug || this.tree.isExpressDebug) && this.stepsRan && this.stepsRan.steps.length > 0;
+
         this.c(
-            chalk.red.bold(stepNode.text) + '\n' +
-            this.runner.formatStackTrace(error) +
-            (this.currBranch ? chalk.gray(`\n\n(branch ${this.currBranch.hash})`) : ``)
+            (showTrace && this.currBranch ? chalk.gray(`Branch ${this.currBranch.hash}:\n\n`) : ``) +
+            (showTrace ? chalk.gray(this.stepsRan.output(this.tree.stepNodeIndex, 0)) + `\n` : ``) +
+            chalk.red.bold(stepNode.text) + `\n` +
+            this.runner.formatStackTrace(error)
         );
     }
 

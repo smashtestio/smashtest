@@ -170,32 +170,33 @@ class Branch {
 
     /**
      * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
-     * @param {String} [branchName] - The name of this branch
-     * @param {Number} [startIndent] - How many indents to put before the output, 0 if omitted
+     * @param {Number} [spaces] - Number of spaces before each line, 3 if omitted
      * @return {String} The string representation of this branch
      */
-    output(stepNodeIndex, branchName, startIndent = 0) { 
-        let output = utils.getIndents(startIndent) + branchName + '\n';
+    output(stepNodeIndex, spaces) {
+        const removePath = s => s ? s.replace(/^.*[\/\\]/, '') : '';
 
-        this.steps.forEach(step => {
-            let stepNode = stepNodeIndex[step.id];
-            output += utils.getIndents(step.level + startIndent + 1) + stepNode.text + '\n';
+        let beginSpace = '   ';
+        if(typeof spaces != 'undefined') {
+            beginSpace = utils.getIndents(spaces, ' ');
+        }
+
+        let str = '';
+        this.steps.forEach(s => {
+            let sn = stepNodeIndex[s.id];
+            let text = sn.text || '';
+
+            let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : ``;
+            let fsn = s.fid ? stepNodeIndex[s.fid] : null; // function declaration step node
+            if(fsn) {
+                loc += `${loc ? ` ` : ``}--> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
+            }
+
+            let indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${text}`, 50);
+
+            str += `${beginSpace}${indentedText}   ${loc}\n`;
         });
-
-        return output;
-    }
-
-    /**
-     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
-     * @return {String} A short string representation of this branch
-     */
-    quickOutput(stepNodeIndex) {
-        let output = '';
-        this.steps.forEach(step => {
-            let stepNode = stepNodeIndex[step.id];
-            output += stepNode.text + ' ';
-        });
-        return output;
+        return str;
     }
 
     /**

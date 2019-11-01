@@ -30,7 +30,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.5.15"));
+console.log(yellowChalk.bold("Smashtest 1.5.16"));
 console.log("");
 
 // ***************************************
