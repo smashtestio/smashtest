@@ -3,7 +3,7 @@
 * Test the OnWater API +
     ..
     {access_token} = ''
-    {domain} = 'https:\/\/api.onwater.io'
+    {domain} = 'https://api.onwater.io'
 
 * Then the response is {{status}} {
     response.verify({
