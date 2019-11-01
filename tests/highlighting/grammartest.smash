@@ -212,7 +212,7 @@ Not sequential
     {global var}='something'
         {global var} is 'something'
             {{local var}}="something else here {var} {var:}", {{local var2}} = "something {var inside string}"
-                {var} = [ 1st 'Login' box near 'title' {var} ]
+                {var} = [ 1st 'Login' box near 'title' {var} ] outside [str] outside
                     {escaping} = outside 'single\'\\\'quote\n' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
                         {escaping}=outside 'something' outside 'something else' outside
                             {escaping}=outside "something" outside "something else" outside
