@@ -732,7 +732,7 @@ class ElementFinder {
                         break;
                     }
                 }
-                
+
                 return pool;
             }
 
@@ -1236,6 +1236,26 @@ class ElementFinder {
             'position': [
                 function(elems, input) {
                     return elems[parseInt(input) - 1];
+                }
+            ],
+
+            'textbox': [
+                function(elems, input) {
+                    let nodes = document.querySelectorAll(`input, textarea`);
+                    let nodesArr = [];
+                    for(let i = 0; i < nodes.length; i++) {
+                        let node = nodes[i];
+                        let tagName = node.tagName.toLowerCase();
+                        if(
+                            (tagName == 'input' && (node.type == 'text' || node.type == 'password' || node.type == 'search')) ||
+                            (tagName == 'textarea')
+                        ) {
+                            nodesArr.push(node);
+                        }
+                    }
+                    return elems.filter(function(elem) {
+                        return nodesArr.indexOf(elem) != -1;
+                    });
                 }
             ]
         };

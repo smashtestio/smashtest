@@ -19,18 +19,13 @@
 
     * On todomvc page + {
         props({
-            'new note box': `.new-todo`,
             'item': `.todo-list li`,
             'crossed out': `.completed`,
             'checkbox': `input[type=checkbox], any visibility`,
             'delete button': `.destroy`,
             'chevron': `label[for='toggle-all']`,
             'footer': `.footer`,
-            'All button': `.filters a, 'All'`,
-            'Active button': `.filters a, 'Active'`,
-            'Completed button': `.filters a, 'Completed'`,
-            'Clear Completed button': `.clear-completed`,
-            'edit box': `.edit`,
+            'filter': `.footer a`,
             'empty page': `
                 'todos'
                 'What needs to be done?'
@@ -47,7 +42,7 @@
             Verify 'item' is not visible
 
         * Create note {{text}}
-            Type '{{text}}[enter]' into 'new note box'
+            Type '{{text}}[enter]' into ['What needs to be done?']
 
         * Delete {{nth}} note
             Hover over 'item, {{nth}}'
@@ -65,5 +60,5 @@
             Double click 'item, {{nth}}'
 
             * and set text to {{text}}
-                Set 'edit box' to {{text}}
-                    Type '[enter]' into 'edit box'
+                Set 'textbox, focused' to {{text}}
+                    Type '[enter]' into 'textbox, focused'

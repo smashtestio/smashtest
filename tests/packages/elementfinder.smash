@@ -4948,3 +4948,39 @@ open browser
                             |
                             |div, position '4'  \u001b[0m\u001b[31m-->  not found (zero matches after \`position '4'\` applied)\u001b[0m\u001b[30m`));
                     }
+
+            - textbox
+
+                create html page {
+                    await setPageBody(`
+                        <div id="one">Alpha</div>
+                        <input type="text" id="two">
+                        <input id="three">
+                        <textarea id="four">
+                        <input type="radio" id="five">
+                    `);
+                }
+
+                    finds elements {
+                        let ef = new ElementFinder(`1+ x textbox`);
+                        let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                        expect(results).to.have.lengthOf(3);
+                        expect(await results[0].getAttribute('id')).to.equal('two');
+                        expect(await results[1].getAttribute('id')).to.equal('three');
+                        expect(await results[2].getAttribute('id')).to.equal('four');
+                    }
+
+                create html page {
+                    await setPageBody(`
+                        <input type="radio" id="five">
+                    `);
+                }
+
+                    doesn't find elements {
+                        let ef = new ElementFinder(`textbox`);
+                        await expect(ef.find(browser.driver, undefined, false, false, 500)).to.be.rejectedWith(regularize(`
+                            |Element not found in time (0.5 s):
+                            |
+                            |textbox  \u001b[0m\u001b[31m-->  not found (zero matches after \`textbox\` applied)\u001b[0m\u001b[30m`));
+                    }

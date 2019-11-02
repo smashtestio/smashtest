@@ -1,3 +1,8 @@
+# 1.6.0
+
+- New 'textbox' ElementFinder prop
+- Better use of ElementFinder props in UI example
+
 # 1.5.17
 
 - Refactored generating a step's filename/line number
