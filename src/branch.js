@@ -174,8 +174,6 @@ class Branch {
      * @return {String} The string representation of this branch
      */
     output(stepNodeIndex, spaces) {
-        const removePath = s => s ? s.replace(/^.*[\/\\]/, '') : '';
-
         let beginSpace = '   ';
         if(typeof spaces != 'undefined') {
             beginSpace = utils.getIndents(spaces, ' ');
@@ -184,17 +182,9 @@ class Branch {
         let str = '';
         this.steps.forEach(s => {
             let sn = stepNodeIndex[s.id];
-            let text = sn.text || '';
+            let indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${sn.text || ''}`, 50);
 
-            let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : ``;
-            let fsn = s.fid ? stepNodeIndex[s.fid] : null; // function declaration step node
-            if(fsn) {
-                loc += `${loc ? ` ` : ``}--> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
-            }
-
-            let indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${text}`, 50);
-
-            str += `${beginSpace}${indentedText}   ${loc}\n`;
+            str += `${beginSpace}${indentedText}   ${s.locString(stepNodeIndex)}\n`;
         });
         return str;
     }

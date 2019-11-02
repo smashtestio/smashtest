@@ -141,7 +141,7 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            console.log(`Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
+            console.log(`Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(step.locString(this.tree.stepNodeIndex)) : ``}`);
         }
 
         this.stepsRan.steps.push(step);

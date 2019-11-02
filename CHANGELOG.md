@@ -1,3 +1,8 @@
+# 1.5.17
+
+- Refactored generating a step's filename/line number
+- Cleaned up REPL's filename/line number output for each step
+
 # 1.5.16
 
 - Fixed lack of test trace in console errors

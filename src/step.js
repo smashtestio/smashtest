@@ -65,6 +65,23 @@ class Step {
     }
 
     /**
+     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
+     * @return {String} A string in the format [this step's filename:linenumber] --> [this step's function declaration's filename:linenumber]
+     */
+    locString(stepNodeIndex) {
+        const removePath = s => s ? s.replace(/^.*[\/\\]/, '') : '';
+
+        let sn = stepNodeIndex[this.id];
+        let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : ``;
+        let fsn = this.fid ? stepNodeIndex[this.fid] : null; // function declaration step node
+        if(fsn) {
+            loc += `${loc ? ` ` : ``}--> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
+        }
+
+        return loc;
+    }
+
+    /**
      * @return {Object} An Object representing this step, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
