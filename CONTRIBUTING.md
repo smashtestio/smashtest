@@ -25,7 +25,7 @@ Thank you for your contribution!
 ### Code rules
 
 - If your PR changes any behavior or fixes an issue, it should have an associated unit and/or functional test(s)
-    - The exception is `cli.js`, which is currently manually tested
+    - `cli.js` and `reporter.js` are currently manually tested. Please add manual test cases to the corresponding files (see "Manual tests" below)
 - Please include [JSDoc](https://devhints.io/jsdoc) for all functions and classes
 
 ## Running Smashtest locally
@@ -50,6 +50,14 @@ This will run your local code instead of the regular Smashtest.
 - Functional tests for these packages are written in smash code itself
 - From the top project directory, run `smashtest tests/packages/*.smash --groups=[browsers]`
     - Set `--groups` to the list of browsers you want to test in (e.g., `chrome,firefox,safari,ie,edge`)
+
+## Manual tests
+
+- `cli.js` runs the command line prompt, and is currently manually tested
+Since this file kicks off all other smashtest-related functions, testing it is also integration testing the whole app.
+    - Manual test cases are stored in `tests/core/integration.smash` (core smash) and `tests/packages/integration.smash` (integration with packages, such as web UI)
+- `reporter.js` outputs the live report, and is also currently manually tested
+    - To test, run `smashtest` on individual files in `tests/reporter` and visually inspect the reports that come out
 
 ### Running examples
 
