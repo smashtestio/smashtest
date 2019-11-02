@@ -25,6 +25,10 @@ Thank you for your contribution!
 ### Code rules
 
 - If your PR changes any behavior or fixes an issue, it should have an associated unit and/or functional test(s)
+    - `tests/core` contains mocha unit tests for smashtest's core functionality
+    - `tests/highlighting` contains a .smash file used to visually inspect syntax highlighting
+    - `tests/packages` contains .smash and mocha tests for the built-in packages: web UI with selenium webdriver and REST API
+    - `tests/reporter` contains .smash files used to visually inspect the live report
     - `cli.js` and `reporter.js` are currently manually tested. Please add manual test cases to the corresponding files (see "Manual tests" below)
 - Please include [JSDoc](https://devhints.io/jsdoc) for all functions and classes
 
@@ -58,6 +62,7 @@ Since this file kicks off all other smashtest-related functions, testing it is a
     - Manual test cases are stored in `tests/core/integration.smash` (core smash) and `tests/packages/integration.smash` (integration with packages, such as web UI)
 - `reporter.js` outputs the live report, and is also currently manually tested
     - To test, run `smashtest` on individual files in `tests/reporter` and visually inspect the reports that come out
+- Some unit and functional tests are marked skipped. These tests are periodically run manually. They each come with a comment with further details.
 
 ### Running examples
 
