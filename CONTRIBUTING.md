@@ -55,7 +55,7 @@ This will run your local code instead of the regular Smashtest.
 - From the top project directory, run `smashtest tests/packages/*.smash --groups=[browsers]`
     - Set `--groups` to the list of browsers you want to test in (e.g., `chrome,firefox,safari,ie,edge`)
 
-## Manual tests
+### Manual tests
 
 - `cli.js` runs the command line prompt, and is currently manually tested
 Since this file kicks off all other smashtest-related functions, testing it is also integration testing the whole app.
