@@ -296,7 +296,12 @@ class ElementFinder {
     }
 
     /**
-     * Includes the given prop in this EF (placed at the end of the list of props)
+     * Includes the given prop in this EF
+     * @param {String} prop - The full string of the prop
+     * @param {String} def - The name the prop (not including any inputs)
+     * @param {String} [input] - The input string of this prop, if any
+     * @param {Boolean} [isNot] - If true, there's a "not" at the beginning of this prop
+     * @param {Array} definedProps - The defined props, see the return of defaultProps() below
      */
     addProp(prop, def, input, isNot, definedProps) {
         let self = this;

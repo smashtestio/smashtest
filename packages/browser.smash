@@ -57,7 +57,7 @@
 
 * Use browser  {
     // Verify/Wait until timeouts
-    g('VERIFY_TIMEOUT', 1000);
+    g('VERIFY_TIMEOUT', 2000);
     g('WAITUNTIL_TIMEOUT', 15000);
 
     // Checks if current browser is Chrome (for network throttling steps)
@@ -107,7 +107,16 @@
     }
 
     * Click {{element}} {
-        await (await $(element, true)).click();
+        let elem = await $(element, true);
+        if(browser.params.name == 'safari') {
+            log(`Safari doesn't support webdriver click, so using js click event instead`);
+            await executeScript(function(elem) {
+                elem.click();
+            }, elem);
+        }
+        else {
+            await elem.click();
+        }
     }
 
     * Native click {{element}} {
@@ -135,7 +144,20 @@
     }
 
     * Hover over {{element}} {
-        await browser.driver.actions({bridge: true}).move({origin: await $(element, true)}).perform();
+        let elem = await $(element, true);
+        if(browser.params.name == 'safari') {
+            log(`Safari doesn't support webdriver hover, so using js mouseover event instead`);
+            await executeScript(function(elem) {
+                elem.dispatchEvent(new MouseEvent('mouseover', {
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true
+                }));
+            }, elem);
+        }
+        else {
+            await browser.driver.actions({bridge: true}).move({origin: elem}).perform();
+        }
     }
 
     * Scroll to {{element}} {
@@ -184,21 +206,15 @@
             Clear local storage +?
 
     * Go Back {
-        await executeScript(function() {
-            window.history.back();
-        });
+        await browser.driver.navigate().back();
     }
 
     * Go Forward {
-        await executeScript(function() {
-            window.history.forward();
-        });
+        await browser.driver.navigate().forward();
     }
 
     * Refresh {
-        await executeScript(function() {
-            location.reload(true);
-        });
+        await browser.driver.navigate().refresh();
     }
 
     * Type {{text}} into {{element}} {
@@ -235,7 +251,16 @@
         catch(e) {
             // Not checked, so click it
             log(`Element is currently not checked, so clicking it`);
-            await elem.click();
+
+            if(browser.params.name == 'safari') {
+                log(`Safari doesn't support webdriver checking via click, so using js checked property instead`);
+                await executeScript(function(elem) {
+                    elem.checked = true;
+                }, elem);
+            }
+            else {
+                await elem.click();
+            }
         }
 
         try {
@@ -257,7 +282,15 @@
         catch(e) {
             // Checked, so click it
             log(`Element is currently checked, so clicking it`);
-            await elem.click();
+            if(browser.params.name == 'safari') {
+                log(`Safari doesn't support webdriver checking via click, so using js checked property instead`);
+                await executeScript(function(elem) {
+                    elem.checked = false;
+                }, elem);
+            }
+            else {
+                await elem.click();
+            }
         }
 
         try {

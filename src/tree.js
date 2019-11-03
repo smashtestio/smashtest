@@ -1051,7 +1051,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                 let branch = branches[i];
 
                 if(!branch.groups) {
-                    removeBranch(this);
+                    branches.splice(i, 1); // remove this branch
                     continue;
                 }
 
@@ -1084,18 +1084,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     i++;
                 }
                 else {
-                    removeBranch(this);
-                }
-
-                function removeBranch(self) {
-                    if(branch.isDebug) {
-                        let debugStep = findModifierDepth(branch, '~', self).step;
-                        let debugStepNode = self.stepNodeIndex[debugStep.id];
-                        utils.error(`This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
-                    }
-                    else {
-                        branches.splice(i, 1); // remove this branch
-                    }
+                    branches.splice(i, 1); // remove this branch
                 }
             }
         }
@@ -1114,14 +1103,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     i++; // keep it
                 }
                 else {
-                    if(branch.isDebug) {
-                        let debugStep = findModifierDepth(branch, '~', this).step;
-                        let debugStepNode = this.stepNodeIndex[debugStep.id];
-                        utils.error(`This step contains a ~, but is not above the frequency allowed to run (${this.minFrequency}). Either set its frequency higher or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
-                    }
-                    else {
-                        branches.splice(i, 1); // remove this branch
-                    }
+                    branches.splice(i, 1); // remove this branch
                 }
 
                 /**

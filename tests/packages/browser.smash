@@ -1,6 +1,8 @@
-Open test page [
+* Open test page
+
     Open browser
-        Init vars +? {
+
+        Init vars {
             g('setPageBody',
                 async function(htmlStr) {
                     await browser.executeScript(function(htmlStr) {
@@ -11,8 +13,11 @@ Open test page [
 
             g(`test page location`, `file:///${dir()}/generic-page.html`);
         }
+
             Navigate to {test page location}
-]
+
+Open test page
+
     - Category: Actions
 
         - Navigate
