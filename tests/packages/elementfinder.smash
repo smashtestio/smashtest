@@ -1302,6 +1302,82 @@ open browser
                                     expect(await results.matches[0].getAttribute('id')).to.equal('three');
                                 }
 
+                    - special format
+
+                        create html page {
+                            await setPageBody(`
+                                <div id="one" class="small">foobar</div>
+                                <div id="two" class="big">foobar</div>
+                                <div id="three" class="big">foobar</div>
+                                <div id="four" class="small">foobar</div>
+                            `);
+
+                            let definedProps = ElementFinder.defaultProps();
+                            definedProps.big = [ new ElementFinder(`.big`, definedProps) ];
+                            definedProps.bad1 = [ new ElementFinder(`.bad1`, definedProps) ];
+                            definedProps.bad2 = [ new ElementFinder(`.bad2`, definedProps) ];
+                            g('definedProps', definedProps);
+                        }
+
+                            - 0 matching elements exist
+
+                                0 matching elements after the first prop {
+                                    g('ef', new ElementFinder(`bad1 'foobar' bad2`, definedProps));
+                                }
+
+                                    doesn't find elements, has error {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`bad1 'foobar' bad2  -->  not found (zero matches after \`bad1\` applied)`);
+                                    }
+
+                                0 matching elements after the second prop {
+                                    g('ef', new ElementFinder(`'foobar' bad1 bad2`, definedProps));
+                                }
+
+                                    doesn't find elements, has error {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.true;
+                                        expect(results.matches).to.have.lengthOf(0);
+                                        expect(results.ef.print()).to.equal(`'foobar' bad1 bad2  -->  not found (zero matches after \`bad1\` applied)`);
+                                    }
+
+                            - matching elements exist
+
+                                variant 1 {
+                                    g('ef', new ElementFinder(`2nd big 'foobar'`, definedProps));
+                                }
+                                variant 2 {
+                                    g('ef', new ElementFinder(`2nd 'foobar' big`, definedProps));
+                                }
+
+                                    finds elements ~ {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('three');
+                                    }
+
+                                variant 3 {
+                                    g('ef', new ElementFinder(`'foobar' big`, definedProps));
+                                }
+
+                                    finds elements {
+                                        let results = await ef.getAll(browser.driver);
+                                        results.ef = ElementFinder.parseObj(results.ef);
+
+                                        expect(results.ef.hasErrors()).to.be.false;
+                                        expect(results.matches).to.have.lengthOf(1);
+                                        expect(await results.matches[0].getAttribute('id')).to.equal('two');
+                                    }
+
                     - visible prop
 
                         create html page {

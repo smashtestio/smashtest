@@ -5,6 +5,7 @@
 - Ability to selectively run branches with groups, freq, $, ~ simultaneously
 - Verify steps now wait for up to 2 secs, in par with $()
 - Implicit visible and clickable props applied in front (fixes issue with these props coming after ords)
+- New special format for EFs using spaces to separate props (much easier to read and understand)
 
 # 1.6.0
 

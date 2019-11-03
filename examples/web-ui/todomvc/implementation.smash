@@ -252,7 +252,7 @@
         }
 
     * When the All filter is selected
-        Click ['All', filter]
+        Click ['All' filter]
 
         * Then all notes are displayed {
             await $(`
@@ -265,7 +265,7 @@
         }
 
     * the Active filter is selected
-        Click ['Active', filter]
+        Click ['Active' filter]
 
         * Then only non-completed notes are displayed {
             await $(`
@@ -299,7 +299,7 @@
             }
 
     * the Completed filter is selected
-        Click ['Completed', filter]
+        Click ['Completed' filter]
 
         * Then only completed notes are displayed {
             await $(`
@@ -361,7 +361,7 @@
         }
 
     * When the Completed filter is selected
-        Click ['Completed', filter]
+        Click ['Completed' filter]
 
         * Then no notes are displayed
             Verify list is empty
@@ -396,7 +396,7 @@
         }
 
     * When the Active filter is selected
-        Click ['Active', filter]
+        Click ['Active' filter]
 
         * Then no notes are displayed
             Verify list is empty

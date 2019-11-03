@@ -188,8 +188,9 @@ class ElementFinder {
             }
 
             // Split into comma-separated props
-            const PROP_REGEX = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g;
-            let propStrs = parentLine.match(PROP_REGEX).filter(propStr => propStr.trim() != '');
+            const PROP_REGEX_COMMAS = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g; // separate by commas
+            const PROP_REGEX_SPACES = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^ ])*/g; // separate by spaces
+            let propStrs = parentLine.match(PROP_REGEX_COMMAS).filter(propStr => propStr.trim() != '');
             let implicitVisible = true;
 
             for(let i = 0; i < propStrs.length; i++) {
@@ -207,7 +208,7 @@ class ElementFinder {
                 }
 
                 // ords (convert to `position 'N'`)
-                const ORD_REGEX = /([0-9]+)(st|nd|rd|th)/;
+                const ORD_REGEX = /^([0-9]+)(st|nd|rd|th)$/;
                 let matches = propStr.match(ORD_REGEX);
                 if(matches) {
                     canonPropStr = `position`;
@@ -221,10 +222,45 @@ class ElementFinder {
                         input = utils.unescape(utils.stripQuotes(propStr));
                     }
                     else {
-                        // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
+                        // Check if it's not a defined prop
                         if(!definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr)[0])) {
-                            canonPropStr = `selector`;
-                            input = propStr;
+                            // Check if it's possible to further subdivide propStr by spaces
+                            // into special format [ord]? [defined prop OR text]+
+                            let isSpecialFormat = true;
+                            matches = propStr.match(PROP_REGEX_SPACES).filter(s => s.trim() != '');
+                            if(matches && matches.length >= 2) {
+                                for(let j = 0; j < matches.length; j++) {
+                                    let match = matches[j];
+                                    if(
+                                        !match.match(ORD_REGEX) &&
+                                        !match.match(Constants.QUOTED_STRING_LITERAL_WHOLE) &&
+                                        !definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(match)[0])
+                                    ) {
+                                        isSpecialFormat = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            else {
+                                isSpecialFormat = false;
+                            }
+
+                            if(isSpecialFormat) {
+                                // Put ord in back, if there is one
+                                if(matches[0].match(ORD_REGEX)) {
+                                    let ord = matches.shift();
+                                    matches.push(ord);
+                                }
+
+                                propStrs.splice(i, 1, ...matches); // replace current propStr with all the matches
+                                i--;
+                                continue;
+                            }
+                            else {
+                                // propStr is a css selector (convert to `selector 'selector'`)
+                                canonPropStr = `selector`;
+                                input = propStr;
+                            }
                         }
                     }
                 }
@@ -1274,7 +1310,7 @@ class ElementFinder {
 
     /**
      * Canonicalizes the text of a prop and isolates the input
-     * @return {Array} Where index 0 contains str canonicalized and without 'text', and index 1 contains the input (undefined if no input)
+     * @return {Array} Where index 0 contains the canonicalized prop name, and index 1 contains the input (undefined if no input)
      */
     static canonicalizePropStr(str) {
         let canonStr = str
@@ -1285,6 +1321,10 @@ class ElementFinder {
 
         let input = (str.match(Constants.QUOTED_STRING_LITERAL) || [])[0];
         if(input) {
+            if(str.trim().indexOf(input) + input.length < str.trim().length) { // if the input isn't at the very end of str, it's not input
+                return [str];
+            }
+
             input = utils.stripQuotes(input);
             input = utils.unescape(input);
         }

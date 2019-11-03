@@ -45,20 +45,20 @@
             Type '{{text}}[enter]' into ['What needs to be done?']
 
         * Delete {{nth}} note
-            Hover over 'item, {{nth}}'
+            Hover over '{{nth}} item'
                 Click 'delete button'
 
         * Toggle completed on {{nth}} note {
             let checkbox = await $(`
-                item, ${nth}
+                ${nth} item
                     [checkbox, any visibility]
             `);
             await checkbox.click();
         }
 
         * Edit {{nth}} note
-            Double click 'item, {{nth}}'
+            Double click '{{nth}} item'
 
             * and set text to {{text}}
-                Set 'textbox, focused' to {{text}}
-                    Type '[enter]' into 'textbox, focused'
+                Set 'focused textbox' to {{text}}
+                    Type '[enter]' into 'focused textbox'

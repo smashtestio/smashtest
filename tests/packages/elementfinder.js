@@ -880,6 +880,236 @@ describe("ElementFinder", function() {
                 });
             });
 
+            context("special format", () => {
+                it("multiple props with ord", () => {
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                    definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
+
+                    let ef = new ElementFinder(`4th big red 'piece of text' textbox`, definedProps);
+
+                    Comparer.expect(ef).to.match({
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
+                                prop: `big`,
+                                def: `big`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `red`,
+                                def: `red`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `'piece of text'`,
+                                def: `contains`,
+                                input: `piece of text`,
+                                not: undefined
+                            },
+                            {
+                                prop: `textbox`,
+                                def: `textbox`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `4th`,
+                                def: `position`,
+                                input: 4,
+                                not: undefined
+                            }
+                        ],
+
+                        parent: undefined,
+                        children: [],
+
+                        matchMe: undefined,
+                        isElemArray: undefined,
+                        isAnyOrder: undefined
+                    });
+                });
+
+                it("multiple props without ord", () => {
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                    definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
+
+                    let ef = new ElementFinder(`big red 'piece of text' textbox`, definedProps);
+
+                    Comparer.expect(ef).to.match({
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
+                                prop: `big`,
+                                def: `big`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `red`,
+                                def: `red`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `'piece of text'`,
+                                def: `contains`,
+                                input: `piece of text`,
+                                not: undefined
+                            },
+                            {
+                                prop: `textbox`,
+                                def: `textbox`,
+                                input: undefined,
+                                not: undefined
+                            }
+                        ],
+
+                        parent: undefined,
+                        children: [],
+
+                        matchMe: undefined,
+                        isElemArray: undefined,
+                        isAnyOrder: undefined
+                    });
+                });
+
+                it("multiple props with ord not in front", () => {
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                    definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
+
+                    let ef = new ElementFinder(`big 4th red 'piece of text' 5th textbox`, definedProps);
+
+                    Comparer.expect(ef).to.match({
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
+                                prop: `big`,
+                                def: `big`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `4th`,
+                                def: `position`,
+                                input: 4,
+                                not: undefined
+                            },
+                            {
+                                prop: `red`,
+                                def: `red`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `'piece of text'`,
+                                def: `contains`,
+                                input: `piece of text`,
+                                not: undefined
+                            },
+                            {
+                                prop: `5th`,
+                                def: `position`,
+                                input: 5,
+                                not: undefined
+                            },
+                            {
+                                prop: `textbox`,
+                                def: `textbox`,
+                                input: undefined,
+                                not: undefined
+                            }
+                        ],
+
+                        parent: undefined,
+                        children: [],
+
+                        matchMe: undefined,
+                        isElemArray: undefined,
+                        isAnyOrder: undefined
+                    });
+                });
+
+                it("multiple props with other props separated by commas", () => {
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                    definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
+
+                    let ef = new ElementFinder(`textbox, 4th red 'piece of text', big`, definedProps);
+
+                    Comparer.expect(ef).to.match({
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
+                                prop: `textbox`,
+                                def: `textbox`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `red`,
+                                def: `red`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `'piece of text'`,
+                                def: `contains`,
+                                input: `piece of text`,
+                                not: undefined
+                            },
+                            {
+                                prop: `4th`,
+                                def: `position`,
+                                input: 4,
+                                not: undefined
+                            },
+                            {
+                                prop: `big`,
+                                def: `big`,
+                                input: undefined,
+                                not: undefined
+                            },
+                        ],
+
+                        parent: undefined,
+                        children: [],
+
+                        matchMe: undefined,
+                        isElemArray: undefined,
+                        isAnyOrder: undefined
+                    });
+                });
+            });
+
             context("quotes", () => {
                 it("'text' containing commas and escaped quotes", () => {
                     let ef = new ElementFinder(`'quote1,2\\'3"4'`);
@@ -2701,8 +2931,8 @@ one
             expect(input).to.be.equal(`blah`);
 
             [canonStr, input] = ElementFinder.canonicalizePropStr(`foo 'blah' bar`);
-            expect(canonStr).to.equal(`foo bar`);
-            expect(input).to.be.equal(`blah`);
+            expect(canonStr).to.equal(`foo 'blah' bar`);
+            expect(input).to.be.equal(undefined);
 
             [canonStr, input] = ElementFinder.canonicalizePropStr(`  foo  bar  ' blah  2 '  `);
             expect(canonStr).to.equal(`foo bar`);
@@ -2727,8 +2957,8 @@ one
             expect(input).to.be.equal(`blah`);
 
             [canonStr, input] = ElementFinder.canonicalizePropStr(`foo "blah" bar`);
-            expect(canonStr).to.equal(`foo bar`);
-            expect(input).to.be.equal(`blah`);
+            expect(canonStr).to.equal(`foo "blah" bar`);
+            expect(input).to.be.equal(undefined);
 
             [canonStr, input] = ElementFinder.canonicalizePropStr(`  foo  bar  " blah  2 "  `);
             expect(canonStr).to.equal(`foo bar`);
