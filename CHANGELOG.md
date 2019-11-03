@@ -4,7 +4,7 @@
 - Fixed clicking issue in Safari
 - Ability to selectively run branches with groups, freq, $, ~ simultaneously
 - Verify steps now wait for up to 2 secs, in par with $()
-- Implicit visible and clickable props applied in front
+- Implicit visible and clickable props applied in front (fixes issue with these props coming after ords)
 
 # 1.6.0
 

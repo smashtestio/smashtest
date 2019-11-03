@@ -40,16 +40,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `'text'`,
-                                def: `contains`,
-                                input: `text`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `'text'`,
+                                def: `contains`,
+                                input: `text`,
+                                not: undefined
                             }
                         ],
 
@@ -70,6 +70,12 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
                                 prop: `'text1'`,
                                 def: `contains`,
                                 input: `text1`,
@@ -80,12 +86,6 @@ describe("ElementFinder", function() {
                                 def: `contains`,
                                 input: `text 2`,
                                 not: undefined
-                            },
-                            {
-                               prop: `visible`,
-                               def: `visible`,
-                               input: undefined,
-                               not: undefined
                             }
                         ],
 
@@ -105,16 +105,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `not 'text'`,
-                                def: `contains`,
-                                input: `text`,
-                                not: true
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `not 'text'`,
+                                def: `contains`,
+                                input: `text`,
+                                not: true
                             }
                         ],
 
@@ -134,6 +134,12 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
                                 prop: `not 'text1'`,
                                 def: `contains`,
                                 input: `text1`,
@@ -150,12 +156,6 @@ describe("ElementFinder", function() {
                                 def: `contains`,
                                 input: `text 3`,
                                 not: undefined
-                            },
-                            {
-                               prop: `visible`,
-                               def: `visible`,
-                               input: undefined,
-                               not: undefined
                             }
                         ],
 
@@ -181,15 +181,15 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `bold`,
-                                def: `bold`,
-                                input: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `bold`,
+                                def: `bold`,
+                                input: undefined
                             }
                         ],
 
@@ -212,16 +212,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `bold`,
-                                def: `bold`,
-                                input: undefined,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `bold`,
+                                def: `bold`,
+                                input: undefined,
+                                not: undefined
                             }
                         ],
 
@@ -244,16 +244,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `bold "foobar"`,
-                                def: `bold`,
-                                input: `foobar`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `bold "foobar"`,
+                                def: `bold`,
+                                input: `foobar`,
+                                not: undefined
                             }
                         ],
 
@@ -276,16 +276,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `not bold "foobar"`,
-                                def: `bold`,
-                                input: `foobar`,
-                                not: true
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `not bold "foobar"`,
+                                def: `bold`,
+                                input: `foobar`,
+                                not: true
                             }
                         ],
 
@@ -307,16 +307,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `div.class1 .class2`,
-                                def: `selector`,
-                                input: `div.class1 .class2`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `div.class1 .class2`,
+                                def: `selector`,
+                                input: `div.class1 .class2`,
+                                not: undefined
                             }
                         ],
 
@@ -336,16 +336,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `div.class1 .class2'`,
-                                def: `selector`,
-                                input: `div.class1 .class2'`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `div.class1 .class2'`,
+                                def: `selector`,
+                                input: `div.class1 .class2'`,
+                                not: undefined
                             }
                         ],
 
@@ -365,16 +365,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `div[attr='foobar']`,
-                                def: `selector`,
-                                input: `div[attr='foobar']`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `div[attr='foobar']`,
+                                def: `selector`,
+                                input: `div[attr='foobar']`,
+                                not: undefined
                             }
                         ],
 
@@ -394,16 +394,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `div.class1 .class2"`,
-                                def: `selector`,
-                                input: `div.class1 .class2"`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `div.class1 .class2"`,
+                                def: `selector`,
+                                input: `div.class1 .class2"`,
+                                not: undefined
                             }
                         ],
 
@@ -423,16 +423,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `div[attr="foobar"]`,
-                                def: `selector`,
-                                input: `div[attr="foobar"]`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `div[attr="foobar"]`,
+                                def: `selector`,
+                                input: `div[attr="foobar"]`,
+                                not: undefined
                             }
                         ],
 
@@ -452,16 +452,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `not div.class1 .class2`,
-                                def: `selector`,
-                                input: `div.class1 .class2`,
-                                not: true
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `not div.class1 .class2`,
+                                def: `selector`,
+                                input: `div.class1 .class2`,
+                                not: true
                             }
                         ],
 
@@ -483,16 +483,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `4th`,
-                                def: `position`,
-                                input: 4,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `4th`,
+                                def: `position`,
+                                input: 4,
+                                not: undefined
                             }
                         ],
 
@@ -586,7 +586,7 @@ describe("ElementFinder", function() {
                         counter: { min: 0 },
                         isElemArray: true,
 
-                        props: [ { prop: `something` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `something` } ],
 
                         parent: undefined,
                         children: []
@@ -612,7 +612,7 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         matchMe: true,
 
-                        props: [ { prop: `something` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `something` } ],
 
                         parent: undefined,
                         children: []
@@ -626,7 +626,7 @@ describe("ElementFinder", function() {
                         counter: { min: 4, max: 4 },
                         matchMe: true,
 
-                        props: [ { prop: `something` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `something` } ],
 
                         parent: undefined,
                         children: []
@@ -640,7 +640,7 @@ describe("ElementFinder", function() {
                         counter: { min: 4, max: 4 },
                         matchMe: undefined,
 
-                        props: [ { prop: `[something]` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `[something]` } ],
 
                         parent: undefined,
                         children: []
@@ -655,7 +655,7 @@ describe("ElementFinder", function() {
                         matchMe: true,
                         isElemArray: true,
 
-                        props: [ { prop: `something` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `something` } ],
 
                         parent: undefined,
                         children: []
@@ -681,16 +681,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `.class1`,
-                                def: `selector`,
-                                input: `.class1`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `.class1`,
+                                def: `selector`,
+                                input: `.class1`,
+                                not: undefined
                             }
                         ],
 
@@ -714,16 +714,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `.class1`,
-                                def: `selector`,
-                                input: `.class1`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `.class1`,
+                                def: `selector`,
+                                input: `.class1`,
+                                not: undefined
                             }
                         ],
 
@@ -745,6 +745,12 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
                                 prop: `div.class1 .class2`,
                                 def: `selector`,
                                 input: `div.class1 .class2`,
@@ -767,12 +773,6 @@ describe("ElementFinder", function() {
                                 def: `selected`,
                                 input: undefined,
                                 not: true
-                            },
-                            {
-                               prop: `visible`,
-                               def: `visible`,
-                               input: undefined,
-                               not: undefined
                             }
                         ],
 
@@ -792,6 +792,12 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
                                 prop: `div.class1 .class2`,
                                 def: `selector`,
                                 input: `div.class1 .class2`,
@@ -814,12 +820,6 @@ describe("ElementFinder", function() {
                                 def: `selected`,
                                 input: undefined,
                                 not: true
-                            },
-                            {
-                               prop: `visible`,
-                               def: `visible`,
-                               input: undefined,
-                               not: undefined
                             }
                         ],
 
@@ -838,6 +838,12 @@ describe("ElementFinder", function() {
                     Comparer.expect(ef).to.match({
                         counter: { min: 1, max: 1 },
                         props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
                             {
                                 prop: `input[attr='quote'] p[attr="quote"]`,
                                 def: `selector`,
@@ -861,12 +867,6 @@ describe("ElementFinder", function() {
                                 def: `selected`,
                                 input: undefined,
                                 not: true
-                            },
-                            {
-                               prop: `visible`,
-                               def: `visible`,
-                               input: undefined,
-                               not: undefined
                             }
                         ],
 
@@ -888,16 +888,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `'quote1,2\\'3"4'`,
-                                def: `contains`,
-                                input: `quote1,2'3"4`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `'quote1,2\\'3"4'`,
+                                def: `contains`,
+                                input: `quote1,2'3"4`,
+                                not: undefined
                             }
                         ],
 
@@ -916,6 +916,12 @@ describe("ElementFinder", function() {
                     Comparer.expect(ef).to.match({
                         counter: { min: 1, max: 1 },
                         props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
                             {
                                 prop: `input[attr='quote'] p[attr="quote"] input[attr='quote1,2\\'3"4'].div[attr='quote1,2\\'3\\"4']`,
                                 def: `selector`,
@@ -945,12 +951,6 @@ describe("ElementFinder", function() {
                                 def: `selected`,
                                 input: undefined,
                                 not: true
-                            },
-                            {
-                               prop: `visible`,
-                               def: `visible`,
-                               input: undefined,
-                               not: undefined
                             }
                         ],
 
@@ -970,16 +970,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `contains 'quote1,2\\'3"4'`,
-                                def: `contains`,
-                                input: `quote1,2'3"4`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `contains 'quote1,2\\'3"4'`,
+                                def: `contains`,
+                                input: `quote1,2'3"4`,
+                                not: undefined
                             }
                         ]
                     });
@@ -992,16 +992,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `selector 'input[attr="quote1,2\\'3\\"4\\'"]'`,
-                                def: `selector`,
-                                input: `input[attr="quote1,2'3"4'"]`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `selector 'input[attr="quote1,2\\'3\\"4\\'"]'`,
+                                def: `selector`,
+                                input: `input[attr="quote1,2'3"4'"]`,
+                                not: undefined
                             }
                         ]
                     });
@@ -1087,16 +1087,16 @@ describe("ElementFinder", function() {
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `one`,
-                                def: `selector`,
-                                input: `one`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `one`,
+                                def: `selector`,
+                                input: `one`,
+                                not: undefined
                             }
                         ],
 
@@ -1107,20 +1107,20 @@ describe("ElementFinder", function() {
                                 counter: { min: 1, max: 1 },
                                 props: [
                                     {
-                                        prop: `two`,
-                                        def: `selector`,
-                                        input: `two`,
-                                        not: undefined
-                                    },
-                                    {
                                        prop: `visible`,
                                        def: `visible`,
                                        input: undefined,
                                        not: undefined
+                                    },
+                                    {
+                                        prop: `two`,
+                                        def: `selector`,
+                                        input: `two`,
+                                        not: undefined
                                     }
                                 ],
 
-                                parent: { props: [ { prop: `one` }, { prop: `visible` } ] },
+                                parent: { props: [ { prop: `visible` }, { prop: `one` } ] },
                                 children: [],
 
                                 matchMe: undefined,
@@ -1149,40 +1149,40 @@ describe("ElementFinder", function() {
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [
                                     {
-                                        props: [ { prop: `three` }, { prop: `visible` } ],
+                                        props: [ { prop: `visible` }, { prop: `three` } ],
                                         parent: {},
                                         children: []
                                     },
                                     {
-                                        props: [ { prop: `four` }, { prop: `visible` } ],
+                                        props: [ { prop: `visible` }, { prop: `four` } ],
                                         parent: {},
                                         children: []
                                     }
                                 ]
                             },
                             {
-                                props: [ { prop: `five` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `five` } ],
                                 parent: {},
                                 children: []
                             },
                             {
-                                props: [ { prop: `six` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `six` } ],
                                 parent: {},
                                 children: [
                                     {
-                                        props: [ { prop: `seven` }, { prop: `visible` } ],
+                                        props: [ { prop: `visible` }, { prop: `seven` } ],
                                         parent: {},
                                         children: [
                                             {
-                                                props: [ { prop: `eight` }, { prop: `visible` } ],
+                                                props: [ { prop: `visible` }, { prop: `eight` } ],
                                                 parent: {},
                                                 children: []
                                             }
@@ -1203,11 +1203,11 @@ describe("ElementFinder", function() {
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: []
                             }
@@ -1224,11 +1224,11 @@ describe("ElementFinder", function() {
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: []
                             }
@@ -1242,11 +1242,11 @@ describe("ElementFinder", function() {
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: []
                             }
@@ -1320,16 +1320,16 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: []
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: []
                             }
@@ -1349,16 +1349,16 @@ one
                         line: `body`,
                         props: [
                             {
-                                prop: `body`,
-                                def: `selector`,
-                                input: `body`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `body`,
+                                def: `selector`,
+                                input: `body`,
+                                not: undefined
                             }
                         ],
                         parent: undefined,
@@ -1367,16 +1367,16 @@ one
                                 line: `one`,
                                 props: [
                                     {
-                                        prop: `one`,
-                                        def: `selector`,
-                                        input: `one`,
-                                        not: undefined
-                                    },
-                                    {
                                        prop: `visible`,
                                        def: `visible`,
                                        input: undefined,
                                        not: undefined
+                                    },
+                                    {
+                                        prop: `one`,
+                                        def: `selector`,
+                                        input: `one`,
+                                        not: undefined
                                     }
                                 ],
                                 parent: { line: `body` },
@@ -1386,16 +1386,16 @@ one
                                 line: `two`,
                                 props: [
                                     {
-                                        prop: `two`,
-                                        def: `selector`,
-                                        input: `two`,
-                                        not: undefined
-                                    },
-                                    {
                                        prop: `visible`,
                                        def: `visible`,
                                        input: undefined,
                                        not: undefined
+                                    },
+                                    {
+                                        prop: `two`,
+                                        def: `selector`,
+                                        input: `two`,
+                                        not: undefined
                                     }
                                 ],
                                 parent: { line: `body` },
@@ -1418,16 +1418,16 @@ one
                         line: `body`,
                         props: [
                             {
-                                prop: `body`,
-                                def: `selector`,
-                                input: `body`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `body`,
+                                def: `selector`,
+                                input: `body`,
+                                not: undefined
                             }
                         ],
                         parent: undefined,
@@ -1436,16 +1436,16 @@ one
                                 line: `one`,
                                 props: [
                                     {
-                                        prop: `one`,
-                                        def: `selector`,
-                                        input: `one`,
-                                        not: undefined
-                                    },
-                                    {
                                        prop: `visible`,
                                        def: `visible`,
                                        input: undefined,
                                        not: undefined
+                                    },
+                                    {
+                                        prop: `one`,
+                                        def: `selector`,
+                                        input: `one`,
+                                        not: undefined
                                     }
                                 ],
                                 parent: { line: `body` },
@@ -1454,16 +1454,16 @@ one
                                         line: `two`,
                                         props: [
                                             {
-                                                prop: `two`,
-                                                def: `selector`,
-                                                input: `two`,
-                                                not: undefined
-                                            },
-                                            {
                                                prop: `visible`,
                                                def: `visible`,
                                                input: undefined,
                                                not: undefined
+                                            },
+                                            {
+                                                prop: `two`,
+                                                def: `selector`,
+                                                input: `two`,
+                                                not: undefined
                                             }
                                         ],
                                         parent: {},
@@ -1475,16 +1475,16 @@ one
                                 line: `three`,
                                 props: [
                                     {
-                                        prop: `three`,
-                                        def: `selector`,
-                                        input: `three`,
-                                        not: undefined
-                                    },
-                                    {
                                        prop: `visible`,
                                        def: `visible`,
                                        input: undefined,
                                        not: undefined
+                                    },
+                                    {
+                                        prop: `three`,
+                                        def: `selector`,
+                                        input: `three`,
+                                        not: undefined
                                     }
                                 ],
                                 parent: { line: `body` },
@@ -1494,16 +1494,16 @@ one
                                 line: `four`,
                                 props: [
                                     {
-                                        prop: `four`,
-                                        def: `selector`,
-                                        input: `four`,
-                                        not: undefined
-                                    },
-                                    {
                                        prop: `visible`,
                                        def: `visible`,
                                        input: undefined,
                                        not: undefined
+                                    },
+                                    {
+                                        prop: `four`,
+                                        def: `selector`,
+                                        input: `four`,
+                                        not: undefined
                                     }
                                 ],
                                 parent: { line: `body` },
@@ -1524,17 +1524,17 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
@@ -1553,17 +1553,17 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
@@ -1580,17 +1580,17 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
@@ -1609,23 +1609,23 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `any order` }, { prop: `.class` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `any order` }, { prop: `.class` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
                             },
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 isAnyOrder: undefined
@@ -1645,17 +1645,17 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 isElemArray: undefined
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 isElemArray: undefined
@@ -1674,18 +1674,18 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 isElemArray: undefined,
                                 isAnyOrder: undefined
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 isElemArray: undefined,
@@ -1725,17 +1725,17 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 matchMe: undefined
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 matchMe: undefined
@@ -1753,17 +1753,17 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 matchMe: true
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 matchMe: undefined
@@ -1781,18 +1781,18 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
                                 counter: { min: 5, max: 5 },
-                                props: [ { prop: `two` }, { prop: `two2` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` }, { prop: `two2` } ],
                                 parent: {},
                                 children: [],
                                 matchMe: true
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 matchMe: undefined
@@ -1810,17 +1810,17 @@ one
                     `);
 
                     Comparer.expect(ef).to.match({
-                        props: [ { prop: `one` }, { prop: `visible` } ],
+                        props: [ { prop: `visible` }, { prop: `one` } ],
                         parent: undefined,
                         children: [
                             {
-                                props: [ { prop: `two` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `two` } ],
                                 parent: {},
                                 children: [],
                                 matchMe: true
                             },
                             {
-                                props: [ { prop: `three` }, { prop: `visible` } ],
+                                props: [ { prop: `visible` }, { prop: `three` } ],
                                 parent: {},
                                 children: [],
                                 matchMe: undefined
@@ -1843,6 +1843,12 @@ one
                 counter: { min: 1, max: 1 },
                 props: [
                     {
+                       prop: `visible`,
+                       def: `visible`,
+                       input: undefined,
+                       not: undefined
+                    },
+                    {
                         prop: `'text1'`,
                         def: `contains`,
                         input: `text1`,
@@ -1859,12 +1865,6 @@ one
                        def: `selected`,
                        input: undefined,
                        not: undefined
-                   },
-                   {
-                      prop: `visible`,
-                      def: `visible`,
-                      input: undefined,
-                      not: undefined
                    }
                 ],
 
@@ -1893,6 +1893,12 @@ one
                 counter: { min: 1, max: 1 },
                 props: [
                     {
+                       prop: `visible`,
+                       def: `visible`,
+                       input: undefined,
+                       not: undefined
+                    },
+                    {
                         prop: `'text1'`,
                         def: `contains`,
                         input: `text1`,
@@ -1909,12 +1915,6 @@ one
                        def: `selected`,
                        input: undefined,
                        not: undefined
-                    },
-                    {
-                       prop: `visible`,
-                       def: `visible`,
-                       input: undefined,
-                       not: undefined
                     }
                 ],
 
@@ -1924,16 +1924,16 @@ one
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `child1`,
-                                def: `selector`,
-                                input: `child1`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `child1`,
+                                def: `selector`,
+                                input: `child1`,
+                                not: undefined
                             }
                         ],
                         children: [
@@ -1941,16 +1941,16 @@ one
                                 counter: { min: 3, max: 3 },
                                 props: [
                                     {
-                                        prop: `child2`,
-                                        def: `selector`,
-                                        input: `child2`,
-                                        not: undefined
-                                    },
-                                    {
                                        prop: `visible`,
                                        def: `visible`,
                                        input: undefined,
                                        not: undefined
+                                    },
+                                    {
+                                        prop: `child2`,
+                                        def: `selector`,
+                                        input: `child2`,
+                                        not: undefined
                                     }
                                 ],
                                 children: [],
@@ -1961,16 +1961,16 @@ one
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `child3`,
-                                def: `selector`,
-                                input: `child3`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `child3`,
+                                def: `selector`,
+                                input: `child3`,
+                                not: undefined
                             }
                         ],
                         children: []
@@ -2327,16 +2327,16 @@ one
                 counter: { min: 1, max: 1 },
                 props: [
                     {
-                        prop: `one`,
-                        def: `selector`,
-                        input: `one`,
-                        not: undefined
-                    },
-                    {
                        prop: `visible`,
                        def: `visible`,
                        input: undefined,
                        not: undefined
+                    },
+                    {
+                        prop: `one`,
+                        def: `selector`,
+                        input: `one`,
+                        not: undefined
                     }
                 ],
                 children: []
@@ -2359,16 +2359,16 @@ one
                 counter: { min: 1, max: 1 },
                 props: [
                     {
-                        prop: `one`,
-                        def: `selector`,
-                        input: `one`,
-                        not: undefined
-                    },
-                    {
                        prop: `visible`,
                        def: `visible`,
                        input: undefined,
                        not: undefined
+                    },
+                    {
+                        prop: `one`,
+                        def: `selector`,
+                        input: `one`,
+                        not: undefined
                     }
                 ],
                 children: [
@@ -2378,16 +2378,16 @@ one
                         counter: { min: 1, max: 1 },
                         props: [
                             {
-                                prop: `two`,
-                                def: `selector`,
-                                input: `two`,
-                                not: undefined
-                            },
-                            {
                                prop: `visible`,
                                def: `visible`,
                                input: undefined,
                                not: undefined
+                            },
+                            {
+                                prop: `two`,
+                                def: `selector`,
+                                input: `two`,
+                                not: undefined
                             }
                         ],
                         children: []
@@ -2410,16 +2410,16 @@ one
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `one`,
-                            def: `selector`,
-                            input: `one`,
-                            not: undefined
-                        },
-                        {
                            prop: `visible`,
                            def: `visible`,
                            input: undefined,
                            not: undefined
+                        },
+                        {
+                            prop: `one`,
+                            def: `selector`,
+                            input: `one`,
+                            not: undefined
                         }
                     ],
                     children: []
@@ -2442,16 +2442,16 @@ one
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `big`,
-                            def: `big`,
-                            input: undefined,
-                            not: undefined
-                        },
-                        {
                            prop: `visible`,
                            def: `visible`,
                            input: undefined,
                            not: undefined
+                        },
+                        {
+                            prop: `big`,
+                            def: `big`,
+                            input: undefined,
+                            not: undefined
                         }
                     ],
                     children: []
@@ -2463,13 +2463,13 @@ one
                             counter: { min: 1, max: 1 },
                             props: [
                                 {
+                                    prop: `visible`,
+                                    def: `visible`
+                                },
+                                {
                                     prop: `selector '.big'`,
                                     def: `selector`,
                                     input: `.big`
-                                },
-                                {
-                                    prop: `visible`,
-                                    def: `visible`
                                 }
                             ],
                             children: []
@@ -2496,16 +2496,16 @@ one
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `bigger`,
-                            def: `bigger`,
-                            input: undefined,
-                            not: undefined
-                        },
-                        {
                            prop: `visible`,
                            def: `visible`,
                            input: undefined,
                            not: undefined
+                        },
+                        {
+                            prop: `bigger`,
+                            def: `bigger`,
+                            input: undefined,
+                            not: undefined
                         }
                     ],
                     children: []
@@ -2517,14 +2517,14 @@ one
                             counter: { min: 1, max: 1 },
                             props: [
                                 {
-                                    prop: `selector '.big'`,
-                                    def: `selector`,
-                                    input: `.big`
-                                },
-                                {
                                     prop: `visible`,
                                     def: `visible`,
                                     input: undefined,
+                                },
+                                {
+                                    prop: `selector '.big'`,
+                                    def: `selector`,
+                                    input: `.big`
                                 }
                             ],
                             children: []
@@ -2536,13 +2536,13 @@ one
                             counter: { min: 1, max: 1 },
                             props: [
                                 {
-                                    prop: `big`,
-                                    def: `big`,
+                                    prop: `visible`,
+                                    def: `visible`,
                                     input: undefined,
                                 },
                                 {
-                                    prop: `visible`,
-                                    def: `visible`,
+                                    prop: `big`,
+                                    def: `big`,
                                     input: undefined,
                                 }
                             ],
@@ -2570,16 +2570,16 @@ one
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `big`,
-                            def: `big`,
-                            input: undefined,
-                            not: undefined
-                        },
-                        {
                            prop: `visible`,
                            def: `visible`,
                            input: undefined,
                            not: undefined
+                        },
+                        {
+                            prop: `big`,
+                            def: `big`,
+                            input: undefined,
+                            not: undefined
                         }
                     ],
                     children: []
@@ -2620,16 +2620,16 @@ one
                     counter: { min: 1, max: 1 },
                     props: [
                         {
-                            prop: `one`,
-                            def: `selector`,
-                            input: `one`,
-                            not: undefined
-                        },
-                        {
                            prop: `visible`,
                            def: `visible`,
                            input: undefined,
                            not: undefined
+                        },
+                        {
+                            prop: `one`,
+                            def: `selector`,
+                            input: `one`,
+                            not: undefined
                         }
                     ],
                     children: [
@@ -2638,16 +2638,16 @@ one
                             counter: { min: 1, max: 1 },
                             props: [
                                 {
-                                    prop: `'two'`,
-                                    def: `contains`,
-                                    input: `two`,
-                                    not: undefined
-                                },
-                                {
                                    prop: `visible`,
                                    def: `visible`,
                                    input: undefined,
                                    not: undefined
+                                },
+                                {
+                                    prop: `'two'`,
+                                    def: `contains`,
+                                    input: `two`,
+                                    not: undefined
                                 }
                             ],
                             children: []

@@ -249,7 +249,7 @@ class ElementFinder {
 
             // Apply the 'visible' property, except if 'visible', 'not visible', or 'any visibility' was explicitly listed
             if(implicitVisible) {
-                this.addProp('visible', 'visible', undefined, undefined, definedProps);
+                this.addProp('visible', 'visible', undefined, undefined, definedProps, true);
             }
         }
 
@@ -302,8 +302,9 @@ class ElementFinder {
      * @param {String} [input] - The input string of this prop, if any
      * @param {Boolean} [isNot] - If true, there's a "not" at the beginning of this prop
      * @param {Array} definedProps - The defined props, see the return of defaultProps() below
+     * @param {Boolean} [toFront] - If true, append the prop to the front of this.props (as opposed to the back)
      */
-    addProp(prop, def, input, isNot, definedProps) {
+    addProp(prop, def, input, isNot, definedProps, toFront) {
         let self = this;
 
         function addToUsedDefinedProps(def) {
@@ -329,7 +330,12 @@ class ElementFinder {
         typeof input != 'undefined' && (propObj.input = input);
         isNot && (propObj.not = true);
 
-        this.props.push(propObj);
+        if(toFront) {
+            this.props.unshift(propObj);
+        }
+        else {
+            this.props.push(propObj);
+        }
 
         addToUsedDefinedProps(def);
     }
