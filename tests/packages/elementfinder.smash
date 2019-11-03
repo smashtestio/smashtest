@@ -1356,7 +1356,7 @@ open browser
                                     g('ef', new ElementFinder(`2nd 'foobar' big`, definedProps));
                                 }
 
-                                    finds elements ~ {
+                                    finds elements {
                                         let results = await ef.getAll(browser.driver);
                                         results.ef = ElementFinder.parseObj(results.ef);
 
