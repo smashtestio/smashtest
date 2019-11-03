@@ -62,7 +62,8 @@ Since this file kicks off all other smashtest-related functions, testing it is a
     - Manual test cases are stored in `tests/core/integration.smash` (core smash) and `tests/packages/integration.smash` (integration with packages)
 - `reporter.js` outputs the live report, and is also currently manually tested
     - To test, run `smashtest` on individual files in `tests/reporter` and visually inspect the reports that come out
-- Some unit and functional tests are marked skipped. These tests are run individually from time to time. They each come with a comment with further details. Most of them are performance tests.
+- Some unit and functional tests are marked skipped. These tests are run individually from time to time. They each come with a comment with further details. Some of them are performance tests, others interfere with the code coverage tool, and other require a manual verification
+of a report and/or error.
 
 ### Running examples
 

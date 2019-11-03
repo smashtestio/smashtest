@@ -3,7 +3,7 @@
 // ***************************************
 
 *** Before Everything {
-    let Comparer = i('./js/comparer.js');
+    let Comparer = i('Comparer', './js/comparer.js');
     let chai = i('chai');
 
     p("expect", chai.expect);

@@ -9,6 +9,11 @@ const ElementFinder = require('../../packages/js/elementfinder.js');
 const Comparer = require('../../packages/js/comparer.js');
 
 describe("ElementFinder", function() {
+    before(() => {
+        Comparer.defaultErrorStart = '-->';
+        Comparer.defaultErrorEnd = '';
+    });
+
     describe("parseIn()", () => {
         context("empty EFs", () => {
             it("rejects an empty EF", () => {
@@ -880,8 +885,59 @@ describe("ElementFinder", function() {
                 });
             });
 
-            context("special format", () => {
-                it("multiple props with ord", () => {
+            context("props separated by spaces", () => {
+                it("with defined props and text", () => {
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                    definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
+
+                    let ef = new ElementFinder(`big red 'piece of text' textbox`, definedProps);
+
+                    Comparer.expect(ef).to.match({
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
+                                prop: `big`,
+                                def: `big`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `red`,
+                                def: `red`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `'piece of text'`,
+                                def: `contains`,
+                                input: `piece of text`,
+                                not: undefined
+                            },
+                            {
+                                prop: `textbox`,
+                                def: `textbox`,
+                                input: undefined,
+                                not: undefined
+                            }
+                        ],
+
+                        parent: undefined,
+                        children: [],
+
+                        matchMe: undefined,
+                        isElemArray: undefined,
+                        isAnyOrder: undefined
+                    });
+                });
+
+                it("with defined props, text, and ord", () => {
                     let definedProps = ElementFinder.defaultProps();
                     definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
                     definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
@@ -938,58 +994,7 @@ describe("ElementFinder", function() {
                     });
                 });
 
-                it("multiple props without ord", () => {
-                    let definedProps = ElementFinder.defaultProps();
-                    definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
-                    definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
-
-                    let ef = new ElementFinder(`big red 'piece of text' textbox`, definedProps);
-
-                    Comparer.expect(ef).to.match({
-                        counter: { min: 1, max: 1 },
-                        props: [
-                            {
-                               prop: `visible`,
-                               def: `visible`,
-                               input: undefined,
-                               not: undefined
-                            },
-                            {
-                                prop: `big`,
-                                def: `big`,
-                                input: undefined,
-                                not: undefined
-                            },
-                            {
-                                prop: `red`,
-                                def: `red`,
-                                input: undefined,
-                                not: undefined
-                            },
-                            {
-                                prop: `'piece of text'`,
-                                def: `contains`,
-                                input: `piece of text`,
-                                not: undefined
-                            },
-                            {
-                                prop: `textbox`,
-                                def: `textbox`,
-                                input: undefined,
-                                not: undefined
-                            }
-                        ],
-
-                        parent: undefined,
-                        children: [],
-
-                        matchMe: undefined,
-                        isElemArray: undefined,
-                        isAnyOrder: undefined
-                    });
-                });
-
-                it("multiple props with ord not in front", () => {
+                it("ord not in front", () => {
                     let definedProps = ElementFinder.defaultProps();
                     definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
                     definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
@@ -1052,7 +1057,7 @@ describe("ElementFinder", function() {
                     });
                 });
 
-                it("multiple props with other props separated by commas", () => {
+                it("with other props separated by commas", () => {
                     let definedProps = ElementFinder.defaultProps();
                     definedProps.big = [ new ElementFinder(`selector '.big'`, definedProps) ];
                     definedProps.red = [ new ElementFinder(`selector '.red'`, definedProps) ];
@@ -1098,6 +1103,138 @@ describe("ElementFinder", function() {
                                 input: undefined,
                                 not: undefined
                             },
+                        ],
+
+                        parent: undefined,
+                        children: [],
+
+                        matchMe: undefined,
+                        isElemArray: undefined,
+                        isAnyOrder: undefined
+                    });
+                });
+
+                it("some props contain multiple words", () => {
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps['big red'] = [ new ElementFinder(`selector '.big.red'`, definedProps) ];
+
+                    let ef = new ElementFinder(`4th big red 'piece of text' textbox`, definedProps);
+
+                    Comparer.expect(ef).to.match({
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
+                                prop: `big red`,
+                                def: `big red`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `'piece of text'`,
+                                def: `contains`,
+                                input: `piece of text`,
+                                not: undefined
+                            },
+                            {
+                                prop: `textbox`,
+                                def: `textbox`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `4th`,
+                                def: `position`,
+                                input: 4,
+                                not: undefined
+                            }
+                        ],
+
+                        parent: undefined,
+                        children: [],
+
+                        matchMe: undefined,
+                        isElemArray: undefined,
+                        isAnyOrder: undefined
+                    });
+                });
+
+                it("some props contain multiple words, and multiple definitions exist", () => {
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps['big'] = [ new ElementFinder(`selector '.big'`, definedProps) ];
+                    definedProps['red'] = [ new ElementFinder(`selector '.red'`, definedProps) ];
+                    definedProps['big red'] = [ new ElementFinder(`selector '.big.red'`, definedProps) ];
+
+                    let ef = new ElementFinder(`big red`, definedProps);
+
+                    Comparer.expect(ef).to.match({
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
+                                prop: `big red`,
+                                def: `big red`,
+                                input: undefined,
+                                not: undefined
+                            }
+                        ],
+
+                        parent: undefined,
+                        children: [],
+
+                        matchMe: undefined,
+                        isElemArray: undefined,
+                        isAnyOrder: undefined
+                    });
+                });
+
+                it("some props contain multiple words, and multiple definitions exist, more complex example", () => {
+                    let definedProps = ElementFinder.defaultProps();
+                    definedProps['big'] = [ new ElementFinder(`.big`, definedProps) ];
+                    definedProps['red'] = [ new ElementFinder(`.red`, definedProps) ];
+                    definedProps['big red'] = [ new ElementFinder(`.big.red`, definedProps) ];
+                    definedProps['selected'] = [ new ElementFinder(`.selected`, definedProps) ];
+                    definedProps['textbox'] = [ new ElementFinder(`.textbox`, definedProps) ];
+
+                    let ef = new ElementFinder(`big red selected textbox`, definedProps);
+
+                    Comparer.expect(ef).to.match({
+                        counter: { min: 1, max: 1 },
+                        props: [
+                            {
+                               prop: `visible`,
+                               def: `visible`,
+                               input: undefined,
+                               not: undefined
+                            },
+                            {
+                                prop: `big red`,
+                                def: `big red`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `selected`,
+                                def: `selected`,
+                                input: undefined,
+                                not: undefined
+                            },
+                            {
+                                prop: `textbox`,
+                                def: `textbox`,
+                                input: undefined,
+                                not: undefined
+                            }
                         ],
 
                         parent: undefined,

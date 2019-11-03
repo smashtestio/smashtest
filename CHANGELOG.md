@@ -1,3 +1,9 @@
+# 1.6.2
+
+- Fixed color issue in comparer output in unit tests
+- Allow multi-word props in a space-separated prop list
+- Fix bug with accessing Comparer in code blocks
+
 # 1.6.1
 
 - Fixed back and forward errors in Chrome

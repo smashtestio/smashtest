@@ -29,10 +29,10 @@ class Comparer {
      */
     static expect(actualObj, errorStart, errorEnd, errorHeader, jsonClone) {
         if(typeof errorStart == 'undefined') {
-            errorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
+            errorStart = Comparer.defaultErrorStart;
         }
         if(typeof errorEnd == 'undefined') {
-            errorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;
+            errorEnd = Comparer.defaultErrorEnd;
         }
 
         return {
@@ -621,3 +621,6 @@ class Comparer {
     }
 }
 module.exports = Comparer;
+
+Comparer.defaultErrorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
+Comparer.defaultErrorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;
