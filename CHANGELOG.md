@@ -1,3 +1,9 @@
+# 1.6.4
+
+- Fixed 'textbox' prop in IE
+- Steps that do not have code blocks will come out as bright gray in both report and REPL
+- No screenshots for steps with no code blocks (including textual steps)
+
 # 1.6.3
 
 - Fixed passing in globs from the command line in windows

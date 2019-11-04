@@ -438,6 +438,9 @@ class BrowserInstance {
         if(!this.runInstance.currStep || !this.runInstance.currBranch) {
             return;
         }
+        if(!this.runInstance.tree.hasCodeBlock(this.runInstance.currStep)) {
+            return;
+        }
 
         // Create smashtest/screenshots if it doesn't already exist
         const dir = path.join(reporter.getPathFolder(), "screenshots");

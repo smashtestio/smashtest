@@ -1073,7 +1073,8 @@ describe("StepNode", () => {
                 text: "Foobar",
                 filename: "file.txt",
                 lineNumber: 10,
-                isTextualStep: true
+                isTextualStep: true,
+                hasCodeBlock: false
             });
         });
     });

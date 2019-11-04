@@ -778,7 +778,7 @@ class ElementFinder {
                             approvedElems = approvedElems.concat(intersectArr(pool, matched));
                         }
                         else if(typeof def == 'string') { // stringified function
-                            eval('var f = ' + def.replace(/\n/g, '\n'));
+                            eval('var f = ' + def);
                             approvedElems = approvedElems.concat(f(pool, prop.input));
                         }
                     }
@@ -1301,7 +1301,7 @@ class ElementFinder {
 
             'textbox': [
                 function(elems, input) {
-                    let nodes = document.querySelectorAll(`input, textarea`);
+                    let nodes = document.querySelectorAll('input, textarea');
                     let nodesArr = [];
                     for(let i = 0; i < nodes.length; i++) {
                         let node = nodes[i];

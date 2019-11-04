@@ -361,13 +361,30 @@ class RunInstance {
         if(this.runner.consoleOutput) {
             let seconds = step.elapsed/1000 || 0;
 
-            let isGreen = step.isPassed;
+            let chalkToUse = null;
+            let isGray = !this.tree.hasCodeBlock(step);
+            if(isGray) {
+                chalkToUse = chalk.hex("#B6B6B6"); // light gray
+            }
+            else if(step.isPassed) {
+                chalkToUse = chalk.green;
+            }
+            else {
+                chalkToUse = chalk.red;
+            }
+
             console.log(`End:       ${utils.getIndents(step.level, 2)}` +
-                (isGreen ? chalk.green(stepNode.text.trim() || `(anon)`) : chalk.red(stepNode.text.trim() || `(anon)`)) +
+                (chalkToUse(stepNode.text.trim() || `(anon)`)) +
                 `    ` +
-                (step.isPassed ? chalk.green(` passed`) : ``) +
-                (step.isFailed ? chalk.red(` failed`) : ``) +
-                chalk.gray(` (${seconds} s)`)
+                (
+                    !isGray ?
+                    (
+                        (step.isPassed ? chalk.green(` passed`) : ``) +
+                        (step.isFailed ? chalk.red(` failed`) : ``) +
+                        chalk.gray(` (${seconds} s)`)
+                    )
+                    : ``
+                )
             );
 
             if(step.error) {

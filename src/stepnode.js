@@ -457,6 +457,8 @@ class StepNode {
             'isMultiBlockFunctionCall'
         ]);
 
+        o.hasCodeBlock = this.hasCodeBlock();
+
         return o;
     }
 }
