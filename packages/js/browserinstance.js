@@ -215,6 +215,7 @@ class BrowserInstance {
         // No console logging (unless options are explicitly set)
         if(!params.options) {
             options.chrome.addArguments('log-level=3', 'silent');
+            options.chrome.excludeSwitches('enable-logging');
         }
 
         // Log

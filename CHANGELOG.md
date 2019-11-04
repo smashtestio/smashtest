@@ -1,3 +1,8 @@
+# 1.6.3
+
+- Fixed passing in globs from the command line in windows
+- Fixed "DevTools listening" console output in windows
+
 # 1.6.2
 
 - Fixed color issue in comparer output in unit tests

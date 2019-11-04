@@ -30,7 +30,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.6.2"));
+console.log(yellowChalk.bold("Smashtest 1.6.3"));
 console.log("");
 
 // ***************************************
@@ -401,7 +401,11 @@ function plural(count) {
                 processFlag(name, value);
             }
             else {
-                filenames.push(path.resolve(arg));
+                let newFilenames = await new Promise((resolve, reject) => {
+                    glob(path.resolve(arg), {absolute: true}, (err, newFilenames) => err ? reject(err) : resolve(newFilenames));
+                });
+
+                filenames = filenames.concat(newFilenames);
             }
         }
 
