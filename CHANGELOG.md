@@ -1,3 +1,5 @@
+# Changelog
+
 # 1.6.4
 
 - Fixed 'textbox' prop in IE
