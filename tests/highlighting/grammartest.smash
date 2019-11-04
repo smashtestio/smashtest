@@ -1,225 +1,240 @@
 // Use this file to test .smash syntax highlighting
 
-Function call
-    Step one
+// ******** Function calls ********
 
 Function call
+
+Function call
+    Function call
+
+Function call
+    Function call   // comment here
+    Function call 'this is a string not a // comment' "this is a string not a // comment" // comment here
+
+Function call 'input' and "input" and [input] and {input} and {{input}} and '{input} and input' and ['input' and "input"]
+
+Function call with \\ special \" chars "string \" " {"var"}
+
+// ******** Function declarations ********
 
 * Function declaration
     Step one
         Step two
 
-[
-    Multi-level step block
-]
-
 * Function declaration {{var}} and 'string' 'http://site.com'
     Step one
 
-* Function declaration {{var}} and 'string' [
+* Function declaration {{var}} and "string" [string]
     Step one
 
-    * Second function declaration [ // comment
+    * Function declaration in context // comment
         Step
-    ]
 
-    Named Multi-level step block [
-        Step 'here'
-    ]
-
-    Named Multi-level step block + [
-        Named Multi-level step block + [
-            + [
-            ]
-        ]
-    ]
-
-    + +? [
-    ] // comment
-
-    [ // comment
-        Step
-        Step
-        - textual
-    ]
-        Something else
+* Bracketed function declaration [ // comment
+    Step // comment
 ]
 
-Function call
-    Function call   // comment here
-    Function call 'non // comment string' // comment here
-        Textual step 'non // comment non-string' - // comment here
-        Textual step 'non-string' + - ! !! // Note: non-string only works when - modifier is first or last
-        - Textual step 'non-string' +
-            // comment on its own line
+// ******** Vars ********
 
-            - Textual #group1 #group2 // comment
-            #group1 + Function call #group2 #group-3 // comment
+{var}
+{{var}}
+{global var}='something'
+{global var} is 'something'
+{var1} = '1', {{var2}}='2', {{var3}} = "3", {var4} = [4]
+{{local var}}="something else here {var} {var:}", {{local var2}} = "something {var inside string}"
 
-            Skipped step -s
-                Other stuff -
+// ******** Strings ********
 
-            Skip below step .s
-                Stuff under the skip below step...
-                    More stuff under skip below step .. ~
+'string'
+"string"
+[string]
 
-            Skip branch step $s
+"something \" "
+[ 1st 'Login' box near 'title' {var} ] outside [str] outside
+outside 'single\'\\\'quote\n' outside "double\"quote\\\"" outside [ "bracketed\"" 'string\'' \] ] outside
+outside 'string' outside 'string' outside
+outside "string" outside "string" outside
+outside [string] outside [string] outside
+{lookahead var:} {{{var in three squigglies}}} {a} {}
 
-            Step block one -
-            Step block two -
-            Step block three -
+// ******** Step blocks ********
 
-                Under step block -
+Step block step 1
+Step block step 2
+Step block step 3
 
-            Step block one
-            Step block two
-            Step block three ..
+    Under step block
 
-                Should this be blue or white?
+[
+]
 
-            Step block one
-            Step block two ..
-            Step block three
+[
+    Step in multi-level step block
+]
 
-                Should this be blue or white?
+[ // comment
+    Step in multi-level step block 1 'input' // comment
+        Step in multi-level step block 2
 
-            ..
-            Sequential step block one -
-            Sequential step block two -
-            Sequential step block three -
-            {var} = "something \" "
+    Step in multi-level step block 3
+]
+    Step underneath
 
-                Under step block -
-                {var1} = "something 111 \" "
-                {var222} = "something 222 \" "
-                {var3333} = "something 333 \" "
+Named multi-level step block [
+    Step 'input'
+]
 
-                ..
-                {var1} = "something 111 \" "
-                {var222} = "something 222 \" "
-                {var3333} = "something 333 \" "
+Named multi-level step block + [ // comment
+    Named multi-level step block + [
+        + [
+        ]
+    ]
+]
 
-                ..  // comment here
-                Sequential step block one - // comment
-                Sequential step block two -
-                Sequential step block three -
-                    Not sequential block -
++ +? [
+] // comment
 
-                    ..
-                    Sequential step block one -
-                    Sequential step block two -
-                    Sequential step block three -
-                Not sequential block -
+[ // comment
+    Step
+    Step
+    - Textual step
+]
 
-                        ..
-                        Sequential step block one -
-                        Sequential step block two -
-                        Sequential step block three -
+..
+Sequential step block step 1
+Sequential step block step 2
+Sequential step block step 3 -
 
-                    Not sequential block -
+// ******** Textual steps ********
 
-                            ..
-                            Sequential step block one -
-                            Sequential step block two -
-                                ..
-                                Sequential step block one -
-                                Sequential step block two -
-                                    Not sequential -
+- Textual step
+Textual step 'non // comment non-string' - // in textual steps, 'strings' should not be highlighted as strings
+- Textual step 'non-string' +
+Textual step 'non-string' + - ! !! // BUG: this only works when - modifier is first or last
 
-.. Sequential step 'string' .. +? //comment
-    Sequential one -
-        Sequential two -
-    Sequential three -
-Not sequential
+// ******** Comments ********
 
-    Sequential step 'string' .. +? //comment
-        Sequential one -
-            Sequential two -
-        Sequential three -
-    Not sequential
+// comment on its own line
+    // comment on its own line
 
-        Sequential step 'string' .. +? //comment
+// ******** Groups ********
 
-            Sequential one -
+Step with groups #group1 #group2 // comment
+- Step with groups #group1 #group2 // comment
+#group1 + Step with groups #group2 #group-3 // comment
 
-                Sequential two -
+// ******** Modifiers ********
 
-            Sequential three -
+- + +? ! Modifiers+?- - + +? !
 
-        Not sequential
+Step ? +? // comment
+Step! ! // comment
 
-            Sequential step 'string' .. +? //comment
-                Sequential one -
-                    Sequential two -
-                Sequential three -
-            Not sequential
+Step -s
+Step .s
+Step $s
+Step -
+Step !!
+Step !
+Step ..
+Step +?
+Step +
+Step #group
+Step ~~
+Step ~
+Step $
 
-            IsOnly $
-            Debug ~
-            Debug ~~
+-s Step
+.s Step
+$s Step
+- Step
+!! Step
+! Step
+.. Step
++? Step
++ Step
+#group Step
+~~ Step
+~ Step
+$ Step
 
-            Sequential and debug ~ ..
+Step -s .s $s - !! ! .. +? + #group #med
+-s .s $s - !! ! .. +? + #group #med Step
+ -s .s $s - !! ! .. +? + #group #med Step -s .s $s - !! ! .. +? + #group #med
 
-            $ IsOnly step -
-                IsOnly step $ -
-                    ~ Debug step // comment
-                        Debug step + ~ - //comment
-                            Non-debug step // comment ~ comment
+ ~ -s .s $s - !! ! .. +? + #group #med Step -s .s $s - !! ! .. +? + #group #med // comment
+ ~~ -s .s $s - !! ! .. +? + #group #med Step -s .s $s - !! ! .. +? + #group #med // comment
+ $ -s .s $s - !! ! .. +? + #group #med Step -s .s $s - !! ! .. +? + #group #med // comment
 
-                ~ Debug code {var} {var2:} 'string' block {
-                }
-                    Debug code block ~ {
-                    }
-                        Non-debug ~ step
+.. * Func - +?
+$ .. * Func - +?
+- +? * NonFunc - +?
 
-            - + +? ! Modifiers+?- - + +? !
+// ******** Only and Debug ********
 
-            Step with \\ special \" chars "string \" " {"var"}
+Only $
+Debug ~
+Debug ~~
 
-            Code block 'non-string' {var} {
-                throw new Error("oops");
-                if(something) {
-                    something();
-                }
-                return 6;
-            }
+$ Only
+~ Debug
+~~ Debug
 
-                * Function declaration code block {
-                    throw new Error("oops");
-                    if(something) {
-                        something();
-                    }
-                    return 6;
-                }
+Non-debug step // comment ~ comment // BUG: the ~ should be part of the comment
+Non-debug ~ step // BUG: ~ should be part of the step name
 
-                    $ Code block ~ {
-                        throw new Error("oops");
-                        if(something) {
-                            something();
-                        }
-                        return 6;
-                    }
+Debug and other modifiers + ~ ..
++ ~ .. Debug and other modifiers
 
-                        .. Code block {
-                            throw new Error("oops");
-                            if(something) {
-                                something();
-                            }
-                            return 6;
-                        }
+~ Debug code {var} {var2:} 'string' block {
+}
+    Debug code block ~ {
+        throw new Error("oops");
+    }
 
-* Function declaration
-    {global var}='something'
-        {global var} is 'something'
-            {{local var}}="something else here {var} {var:}", {{local var2}} = "something {var inside string}"
-                {var} = [ 1st 'Login' box near 'title' {var} ] outside [str] outside
-                    {escaping} = outside 'single\'\\\'quote\n' outside "double\"quote\\\"" outside [ "element\"" 'finder\'' \] ] outside
-                        {escaping}=outside 'something' outside 'something else' outside
-                            {escaping}=outside "something" outside "something else" outside
-                                {escaping}=outside [something] outside [something else] outside
-                                    {lookahead var:} {{{var in squigglies}}} {a} {}
+// ******** Code blocks ********
 
-* Other function {{var}} 'string' {
+Code block 'non-string' {var} {
+    throw new Error("oops");
+    if(something) {
+        something();
+    }
+    return 6;
+}
+
+* Function declaration code block {
+    throw new Error("oops");
+    if(something) {
+        something();
+    }
+    return 6;
+}
+
+$ Code block ~ {
+throw new Error("oops");
+if(something) {
+    something();
+}
+return 6;
+}
+
+.. Code block {
+    throw new Error("oops");
+    if(something) {
+        something();
+    }
+    return 6;
+}
+    Code block {
+        throw new Error("oops");
+    }
+    Code block {
+    }
+    Code block {
+        
+    }
+
+* Function declaration {{var}} 'string' {
     // code block
     let x = 5 + 5;
     setTimeout(() => {
@@ -229,11 +244,7 @@ Not sequential
     return new Object();
 }
 
-.. * Func - +?
-
-$ .. * Func - +?
-
-- +? * NonFunc - +?
+// ******** Hooks ********
 
 *** Before every branch {
     throw new Error("oops");
