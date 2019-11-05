@@ -5,7 +5,7 @@
 
 ## What is Smashtest?
 
-[Smashtest](https://smashtest.io) is a language for rapidly describing and deploying test cases.
+[Smashtest](https://smashtest.io) is an open-source tool and language for rapidly deploying tests.
 
 Greatly speed up your automated testing by writing tests in a tree-like format.
 
