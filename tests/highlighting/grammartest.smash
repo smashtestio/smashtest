@@ -231,7 +231,7 @@ return 6;
     Code block {
     }
     Code block {
-        
+
     }
 
 * Function declaration {{var}} 'string' {
@@ -243,6 +243,12 @@ return 6;
 
     return new Object();
 }
+
+** Private function declaration
+
+*** Hook
+
+**** Too many asterisks
 
 // ******** Hooks ********
 
@@ -258,9 +264,9 @@ return 6;
     throw new Error("oops");
 }
 
-    *** After every step {
-        throw new Error("oops");
-    }
+*** After every step {
+    throw new Error("oops");
+}
 
 *** Before Everything  {
     throw new Error("oops");
