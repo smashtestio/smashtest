@@ -34,6 +34,12 @@ Function call with \\ special \" chars "string \" " {"var"}
     Step // comment
 ]
 
+** Private function declaration
+
+*** Hook
+
+**** Too many asterisks
+
 // ******** Vars ********
 
 {var}
@@ -243,12 +249,6 @@ return 6;
 
     return new Object();
 }
-
-** Private function declaration
-
-*** Hook
-
-**** Too many asterisks
 
 // ******** Hooks ********
 
