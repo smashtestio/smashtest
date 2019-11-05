@@ -3,6 +3,7 @@
 // Steps are implemented in other .smash files
 
 // Run these tests by running `smashtest` in this directory
+// Optionally include the browser you want to test in: `smashtest --groups=chrome` or `smashtest --groups=firefox`
 
 Given I am at todomvc
 
