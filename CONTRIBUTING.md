@@ -25,12 +25,17 @@ Thank you for your contribution!
 ### Code rules
 
 - If your PR changes any behavior or fixes an issue, it should have an associated unit and/or functional test(s)
-    - The exception is `cli.js`, which is currently manually tested
+    - `tests/core` contains mocha unit tests for smashtest's core functionality
+    - `tests/highlighting` contains a .smash file used to visually inspect syntax highlighting
+    - `tests/packages` contains .smash and mocha tests for the built-in packages: web UI with selenium webdriver and REST API
+    - `tests/reporter` contains .smash files used to visually inspect the live report
+    - `cli.js` and `reporter.js` are currently manually tested. Please add manual test cases to the corresponding files (see "Manual tests" below)
 - Please include [JSDoc](https://devhints.io/jsdoc) for all functions and classes
 
 ## Running Smashtest locally
 
-After cloning the project, in the top project directory, run `./src/node cli.js` where you'd normally run `smashtest`.
+1. Clone the project with `git clone https://github.com/smashtestio/smashtest.git`
+2. In the top project directory, run `node ./src/cli.js` where you'd normally run `smashtest`.
 This will run your local code instead of the regular Smashtest.
 
 ## Testing Smashtest locally
@@ -49,6 +54,16 @@ This will run your local code instead of the regular Smashtest.
 - Functional tests for these packages are written in smash code itself
 - From the top project directory, run `smashtest tests/packages/*.smash --groups=[browsers]`
     - Set `--groups` to the list of browsers you want to test in (e.g., `chrome,firefox,safari,ie,edge`)
+
+### Manual tests
+
+- `cli.js` runs the command line prompt, and is currently manually tested.
+Since this file kicks off all other smashtest-related functions, testing it is also integration testing the whole app.
+    - Manual test cases are stored in `tests/core/integration.smash` (core smash) and `tests/packages/integration.smash` (integration with packages)
+- `reporter.js` outputs the live report, and is also currently manually tested
+    - To test, run `smashtest` on individual files in `tests/reporter` and visually inspect the reports that come out
+- Some unit and functional tests are marked skipped. These tests are run individually from time to time. They each come with a comment with further details. Some of them are performance tests, others interfere with the code coverage tool, and other require a manual verification
+of a report and/or error.
 
 ### Running examples
 

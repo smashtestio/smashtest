@@ -1,0 +1,9 @@
+This step will fail with a comparer error {
+    Comparer.expect({
+        one: 1,
+        two: 22
+    }).to.match({
+        one: 1,
+        two: 2
+    });
+}

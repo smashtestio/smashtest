@@ -320,8 +320,8 @@ open browser
 
                                                             verify {
                                                                 expect(browser.definedProps.fuzzy).to.have.lengthOf(2);
-                                                                expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.original-fuzzy');
-                                                                expect(browser.definedProps.fuzzy[1].props[0].input).to.equal('.fuzzy');
+                                                                expect(browser.definedProps.fuzzy[0].props[1].input).to.equal('.original-fuzzy');
+                                                                expect(browser.definedProps.fuzzy[1].props[1].input).to.equal('.fuzzy');
                                                             }
 
                                                 - with isAdd set to false
@@ -336,7 +336,7 @@ open browser
 
                                                             verify {
                                                                 expect(browser.definedProps.fuzzy).to.have.lengthOf(1);
-                                                                expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.fuzzy');
+                                                                expect(browser.definedProps.fuzzy[0].props[1].input).to.equal('.fuzzy');
                                                             }
 
                                             - to a function
@@ -355,7 +355,7 @@ open browser
 
                                                             verify {
                                                                 expect(browser.definedProps.fuzzy).to.have.lengthOf(2);
-                                                                expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.original-fuzzy');
+                                                                expect(browser.definedProps.fuzzy[0].props[1].input).to.equal('.original-fuzzy');
                                                                 expect(typeof browser.definedProps.fuzzy[1]).to.equal('function');
                                                             }
 
@@ -400,7 +400,7 @@ open browser
 
                                                 verify {
                                                     expect(browser.definedProps.fuzzy).to.have.lengthOf(1);
-                                                    expect(browser.definedProps.fuzzy[0].props[0].input).to.equal('.fuzzy');
+                                                    expect(browser.definedProps.fuzzy[0].props[1].input).to.equal('.fuzzy');
                                                 }
 
                         - Setting multiple props

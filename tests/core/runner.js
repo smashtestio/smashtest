@@ -207,7 +207,7 @@ Branch 3 -
             await runner.run();
 
             expect(tree.elapsed).to.be.above(55);
-            expect(tree.elapsed).to.be.below(85);
+            expect(tree.elapsed).to.be.below(90);
         });
 
         it("can spawn a multiple run instances, but due to ! only a subset of them run at a time", async () => {

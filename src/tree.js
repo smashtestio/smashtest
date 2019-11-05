@@ -458,7 +458,7 @@ class Tree {
         utils.error(`The function \`${functionCallNode.getFunctionCallText()}\` cannot be found.
 
 Trace:
-${this.outputBranch(branchAbove)}
+${branchAbove.output(this.stepNodeIndex)}
 `, functionCallNode.filename, functionCallNode.lineNumber);
 
         /**
@@ -482,31 +482,6 @@ ${this.outputBranch(branchAbove)}
 
             return matches;
         }
-    }
-
-    /**
-     * @param {Branch} branch - A branch to output
-     * @return {String} The contents of the branch in a stack trace like format
-     */
-    outputBranch(branch) {
-        let str = '';
-        branch.steps.forEach(s => {
-            const removePath = s => s ? s.replace(/^.*[\/\\]/, '') : '';
-
-            let sn = this.stepNodeIndex[s.id];
-            let text = sn.text || '';
-
-            let loc = `${removePath(sn.filename)}:${sn.lineNumber}`;
-            let fsn = s.fid ? this.stepNodeIndex[s.fid] : null; // function declaration step node
-            if(fsn) {
-                loc += ` --> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
-            }
-
-            let indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${text}`, 50);
-
-            str += `   ${indentedText}   ${loc}\n`;
-        });
-        return str;
     }
 
     /**
@@ -1076,7 +1051,7 @@ ${this.outputBranch(branchAbove)}
                 let branch = branches[i];
 
                 if(!branch.groups) {
-                    removeBranch(this);
+                    branches.splice(i, 1); // remove this branch
                     continue;
                 }
 
@@ -1109,18 +1084,7 @@ ${this.outputBranch(branchAbove)}
                     i++;
                 }
                 else {
-                    removeBranch(this);
-                }
-
-                function removeBranch(self) {
-                    if(branch.isDebug) {
-                        let debugStep = findModifierDepth(branch, '~', self).step;
-                        let debugStepNode = self.stepNodeIndex[debugStep.id];
-                        utils.error(`This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
-                    }
-                    else {
-                        branches.splice(i, 1); // remove this branch
-                    }
+                    branches.splice(i, 1); // remove this branch
                 }
             }
         }
@@ -1139,14 +1103,7 @@ ${this.outputBranch(branchAbove)}
                     i++; // keep it
                 }
                 else {
-                    if(branch.isDebug) {
-                        let debugStep = findModifierDepth(branch, '~', this).step;
-                        let debugStepNode = this.stepNodeIndex[debugStep.id];
-                        utils.error(`This step contains a ~, but is not above the frequency allowed to run (${this.minFrequency}). Either set its frequency higher or remove the ~.`, debugStepNode.filename, debugStepNode.lineNumber);
-                    }
-                    else {
-                        branches.splice(i, 1); // remove this branch
-                    }
+                    branches.splice(i, 1); // remove this branch
                 }
 
                 /**

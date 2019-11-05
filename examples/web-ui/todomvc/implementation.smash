@@ -4,14 +4,14 @@
 
     * When a note is created
 
-        Type {text:} into 'new note box'
+        Type {text:} into ['What needs to be done?']
 
             {text} = 'one'
             {text} = 'one two  three'
             {text} = '&nbsp;<b>bold</b>'
             {text} = '\'\"\\ 日本語'
 
-                Type '[enter]' into 'new note box'
+                Type '[enter]' into ['What needs to be done?']
                 Click 'body'
 
         * Then it is properly displayed {
@@ -132,7 +132,7 @@
             Toggle completed on '1st' note
 
                 * When Clear completed is clicked
-                    Click 'Clear Completed button'
+                    Click ['Clear Completed']
 
                     * Then all completed notes will be deleted {
                         await $(`
@@ -144,7 +144,7 @@
             Toggle completed on '2nd' note
 
                 * When Clear completed is clicked
-                    Click 'Clear Completed button'
+                    Click ['Clear Completed']
 
                     * Then all completed notes will be deleted {
                         await $(`
@@ -163,7 +163,7 @@
                     Toggle completed on '3rd' note
 
     * When Clear completed is clicked
-        Click 'Clear Completed button'
+        Click ['Clear Completed']
 
         * Then all completed notes will be deleted {
             await $(`
@@ -252,7 +252,7 @@
         }
 
     * When the All filter is selected
-        Click 'All button'
+        Click ['All' filter]
 
         * Then all notes are displayed {
             await $(`
@@ -265,7 +265,7 @@
         }
 
     * the Active filter is selected
-        Click 'Active button'
+        Click ['Active' filter]
 
         * Then only non-completed notes are displayed {
             await $(`
@@ -276,7 +276,7 @@
         }
 
         * When Clear completed is clicked
-            Click 'Clear completed button'
+            Click ['Clear Completed']
 
             * Then the same notes are displayed {
                 await $(`
@@ -299,7 +299,7 @@
             }
 
     * the Completed filter is selected
-        Click 'Completed button'
+        Click ['Completed' filter]
 
         * Then only completed notes are displayed {
             await $(`
@@ -310,7 +310,7 @@
         }
 
         * When Clear completed is clicked
-            Click 'Clear Completed button'
+            Click ['Clear Completed']
 
             * Then no notes are displayed
                 Verify list is empty
@@ -361,7 +361,7 @@
         }
 
     * When the Completed filter is selected
-        Click 'Completed button'
+        Click ['Completed' filter]
 
         * Then no notes are displayed
             Verify list is empty
@@ -378,7 +378,7 @@
                 Click 'chevron'
 
     * When Clear completed is clicked
-        Click 'Clear Completed button'
+        Click ['Clear Completed']
 
         * Then all completed notes will be deleted
             Verify list is empty
@@ -396,7 +396,7 @@
         }
 
     * When the Active filter is selected
-        Click 'Active button'
+        Click ['Active' filter]
 
         * Then no notes are displayed
             Verify list is empty

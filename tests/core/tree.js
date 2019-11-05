@@ -11940,35 +11940,6 @@ F #low
                     }
                 ]);
             });
-
-            it("throws exception if a ~ exists, but is cut off due to a frequency restriction", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-A - #high
-    B -
-
-    K - #med
-        C - ~
-
-        D - #high
-            E -
-
-        F - #low
-    G -
-                `, "file.txt");
-
-                assert.throws(() => {
-                    tree.minFrequency = "high";
-                    tree.branchify(tree.root);
-                }, "This step contains a ~, but is not above the frequency allowed to run (high). Either set its frequency higher or remove the ~. [file.txt:6]");
-
-                tree.minFrequency = "med";
-                tree.branchify(tree.root);
-                tree.minFrequency = "low";
-                tree.branchify(tree.root);
-                delete tree.minFrequency;
-                tree.branchify(tree.root);
-            });
         });
 
         context("groups", () => {
@@ -12352,34 +12323,6 @@ F #one
                         groups: ['two', 'one']
                     }
                 ]);
-            });
-
-            it("throws exception if a ~ exists, but is cut off due to a groups restriction", () => {
-                let tree = new Tree();
-                tree.parseIn(`
-A -
-    B - #one
-
-    ~ C - #two
-
-    D -
-        E - #three
-        F - #four
-    G -
-                `, "file.txt");
-
-                assert.throws(() => {
-                    tree.groups = [["one"]];
-                    tree.branchify(tree.root);
-                }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:5]");
-
-                assert.throws(() => {
-                    tree.groups = [["one"], ["three"], ["four"]];
-                    tree.branchify(tree.root);
-                }, "This step contains a ~, but is not inside one of the groups being run. Either add it to the groups being run or remove the ~. [file.txt:5]");
-
-                tree.groups = [["two"]];
-                tree.branchify(tree.root);
             });
         });
 

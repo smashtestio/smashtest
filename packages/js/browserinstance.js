@@ -215,6 +215,7 @@ class BrowserInstance {
         // No console logging (unless options are explicitly set)
         if(!params.options) {
             options.chrome.addArguments('log-level=3', 'silent');
+            options.chrome.excludeSwitches('enable-logging');
         }
 
         // Log
@@ -437,6 +438,9 @@ class BrowserInstance {
         if(!this.runInstance.currStep || !this.runInstance.currBranch) {
             return;
         }
+        if(!this.runInstance.tree.hasCodeBlock(this.runInstance.currStep)) {
+            return;
+        }
 
         // Create smashtest/screenshots if it doesn't already exist
         const dir = path.join(reporter.getPathFolder(), "screenshots");
@@ -570,7 +574,7 @@ class BrowserInstance {
 
         let results = null;
         if(tryClickable) {
-            ef.addProp('clickable', 'clickable', undefined, undefined, this.definedProps);
+            ef.addProp('clickable', 'clickable', undefined, undefined, this.definedProps, true);
             try {
                 results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
                 this.runInstance.log(`Clickable element found for \`${ef.print()}\``);
@@ -584,7 +588,7 @@ class BrowserInstance {
             catch(e) {}
         }
 
-        ef.props.pop(); // remove 'clickable'
+        ef.props.shift(); // remove 'clickable'
         this.runInstance.log(`Clickable element not found for \`${ef.print()}\`, so trying all elements`);
 
         results = await ef.find(this.driver, parentElem, false, isContinue, timeout);

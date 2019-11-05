@@ -51,6 +51,7 @@ class RunInstance {
         }
         else { // we're starting off from scratch (not paused)
             this.currBranch = this.tree.nextBranch();
+            this.stepsRan = new Branch();
         }
 
         while(this.currBranch) {
@@ -112,6 +113,7 @@ class RunInstance {
             await this.runAfterEveryBranch();
 
             this.currBranch = this.tree.nextBranch();
+            this.stepsRan = new Branch();
         }
     }
 
@@ -139,12 +141,10 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            console.log(`Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(`[${stepNode.filename}:${stepNode.lineNumber}]`) : ``}`);
+            console.log(`Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(step.locString(this.tree.stepNodeIndex)) : ``}`);
         }
 
-        if(this.tree.isDebug && !this.tree.isExpressDebug) {
-            this.stepsRan.steps.push(step);
-        }
+        this.stepsRan.steps.push(step);
 
         // Reset state
         delete step.isPassed;
@@ -361,13 +361,30 @@ class RunInstance {
         if(this.runner.consoleOutput) {
             let seconds = step.elapsed/1000 || 0;
 
-            let isGreen = step.isPassed;
+            let chalkToUse = null;
+            let isGray = !this.tree.hasCodeBlock(step);
+            if(isGray) {
+                chalkToUse = chalk.hex("#B6B6B6"); // light gray
+            }
+            else if(step.isPassed) {
+                chalkToUse = chalk.green;
+            }
+            else {
+                chalkToUse = chalk.red;
+            }
+
             console.log(`End:       ${utils.getIndents(step.level, 2)}` +
-                (isGreen ? chalk.green(stepNode.text.trim() || `(anon)`) : chalk.red(stepNode.text.trim() || `(anon)`)) +
+                (chalkToUse(stepNode.text.trim() || `(anon)`)) +
                 `    ` +
-                (step.isPassed ? chalk.green(` passed`) : ``) +
-                (step.isFailed ? chalk.red(` failed`) : ``) +
-                chalk.gray(` (${seconds} s)`)
+                (
+                    !isGray ?
+                    (
+                        (step.isPassed ? chalk.green(` passed`) : ``) +
+                        (step.isFailed ? chalk.red(` failed`) : ``) +
+                        chalk.gray(` (${seconds} s)`)
+                    )
+                    : ``
+                )
             );
 
             if(step.error) {
@@ -457,10 +474,13 @@ class RunInstance {
      * Outputs the given error to the console, if allowed
      */
     outputError(error, stepNode) {
+        let showTrace = (!this.tree.isDebug || this.tree.isExpressDebug) && this.stepsRan && this.stepsRan.steps.length > 0;
+
         this.c(
-            chalk.red.bold(stepNode.text) + '\n' +
-            this.runner.formatStackTrace(error) +
-            (this.currBranch ? chalk.gray(`\n\n(branch ${this.currBranch.hash})`) : ``)
+            (showTrace && this.currBranch ? chalk.gray(`Branch ${this.currBranch.hash}:\n\n`) : ``) +
+            (showTrace ? chalk.gray(this.stepsRan.output(this.tree.stepNodeIndex, 0)) + `\n` : ``) +
+            chalk.red.bold(stepNode.text) + `\n` +
+            this.runner.formatStackTrace(error)
         );
     }
 

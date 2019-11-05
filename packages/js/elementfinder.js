@@ -187,9 +187,12 @@ class ElementFinder {
                 }
             }
 
+            const PROP_REGEX_COMMAS = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g; // separate by commas
+            const PROP_REGEX_SPACES = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^ ])*/g; // separate by spaces
+            const ORD_REGEX = /^([0-9]+)(st|nd|rd|th)$/;
+
             // Split into comma-separated props
-            const PROP_REGEX = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g;
-            let propStrs = parentLine.match(PROP_REGEX).filter(propStr => propStr.trim() != '');
+            let propStrs = parentLine.match(PROP_REGEX_COMMAS).filter(propStr => propStr.trim() != '');
             let implicitVisible = true;
 
             for(let i = 0; i < propStrs.length; i++) {
@@ -198,6 +201,7 @@ class ElementFinder {
 
                 let canonPropStr = null;
                 let input = null;
+                let matches = null;
 
                 // not keyword
                 let isNot = false;
@@ -206,26 +210,71 @@ class ElementFinder {
                     isNot = true;
                 }
 
-                // ords (convert to `position 'N'`)
-                const ORD_REGEX = /([0-9]+)(st|nd|rd|th)/;
-                let matches = propStr.match(ORD_REGEX);
-                if(matches) {
+                // Decide which pattern propStr matches
+                if(matches = propStr.match(ORD_REGEX)) { // propStr is an ord (convert to `position 'N'`)
                     canonPropStr = `position`;
                     input = parseInt(matches[1]);
                 }
-                else {
-                    // 'text' (convert to `contains 'text'`)
-                    matches = propStr.match(Constants.QUOTED_STRING_LITERAL_WHOLE);
-                    if(matches) {
-                        canonPropStr = `contains`;
-                        input = utils.unescape(utils.stripQuotes(propStr));
+                else if(matches = propStr.match(Constants.QUOTED_STRING_LITERAL_WHOLE)) { // propStr is 'text' (convert to `contains 'text'`)
+                    canonPropStr = `contains`;
+                    input = utils.unescape(utils.stripQuotes(propStr));
+                }
+                else if(definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr)[0])) { // propStr is a defined prop
+                    // do nothing
+                }
+                else { // propStr doesn't match any pattern
+
+                    // Check if it's possible to further subdivide propStr by spaces into special format [ord]? [defined prop OR text]+
+
+                    /**
+                     * @return {Boolean} True if s matches one of the prop patterns (ord, 'text', or defined prop with no input), false otherwise
+                     */
+                    function isValidPattern(s) {
+                        return  s.match(ORD_REGEX) ||
+                                s.match(Constants.QUOTED_STRING_LITERAL_WHOLE) ||
+                                (
+                                    definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(s)[0]) &&
+                                    !s.match(Constants.QUOTED_STRING_LITERAL) // we don't accept `prop 'with input'` in a space-separated list
+                                );
+                    }
+
+                    let isSpecialFormat = true;
+                    matches = propStr.match(PROP_REGEX_SPACES).filter(s => s.trim() != '');
+                    let spaceSeparatedPropStrs = [];
+                    if(matches && matches.length >= 2) {
+                        outside:
+                        for(let j = 0; j < matches.length; j++) {
+                            for(let len = matches.length - j; len > 0; len--) {
+                                let possibleProp = matches.slice(j, j + len).join(' ');
+                                if(isValidPattern(possibleProp)) {
+                                    spaceSeparatedPropStrs.push(possibleProp);
+                                    j += len - 1;
+                                    break;
+                                }
+                                else if(len == 1) {
+                                    isSpecialFormat = false;
+                                    break outside;
+                                }
+                            }
+                        }
                     }
                     else {
-                        // If not found in definedProps, it's a css selector (convert to `selector 'selector'`)
-                        if(!definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr)[0])) {
-                            canonPropStr = `selector`;
-                            input = propStr;
+                        isSpecialFormat = false;
+                    }
+
+                    if(isSpecialFormat) {
+                        // Put ord in back, if there is one
+                        if(spaceSeparatedPropStrs[0].match(ORD_REGEX)) {
+                            spaceSeparatedPropStrs.push(spaceSeparatedPropStrs.shift());
                         }
+
+                        propStrs.splice(i, 1, ...spaceSeparatedPropStrs); // replace current propStr with all the space-separated props
+                        i--;
+                        continue;
+                    }
+                    else { // propStr is a css selector (convert to `selector 'selector'`)
+                        canonPropStr = `selector`;
+                        input = propStr;
                     }
                 }
 
@@ -249,7 +298,7 @@ class ElementFinder {
 
             // Apply the 'visible' property, except if 'visible', 'not visible', or 'any visibility' was explicitly listed
             if(implicitVisible) {
-                this.addProp('visible', 'visible', undefined, undefined, definedProps);
+                this.addProp('visible', 'visible', undefined, undefined, definedProps, true);
             }
         }
 
@@ -296,9 +345,15 @@ class ElementFinder {
     }
 
     /**
-     * Includes the given prop in this EF (placed at the end of the list of props)
+     * Includes the given prop in this EF
+     * @param {String} prop - The full string of the prop
+     * @param {String} def - The name the prop (not including any inputs)
+     * @param {String} [input] - The input string of this prop, if any
+     * @param {Boolean} [isNot] - If true, there's a "not" at the beginning of this prop
+     * @param {Array} definedProps - The defined props, see the return of defaultProps() below
+     * @param {Boolean} [toFront] - If true, append the prop to the front of this.props (as opposed to the back)
      */
-    addProp(prop, def, input, isNot, definedProps) {
+    addProp(prop, def, input, isNot, definedProps, toFront) {
         let self = this;
 
         function addToUsedDefinedProps(def) {
@@ -324,7 +379,12 @@ class ElementFinder {
         typeof input != 'undefined' && (propObj.input = input);
         isNot && (propObj.not = true);
 
-        this.props.push(propObj);
+        if(toFront) {
+            this.props.unshift(propObj);
+        }
+        else {
+            this.props.push(propObj);
+        }
 
         addToUsedDefinedProps(def);
     }
@@ -718,7 +778,7 @@ class ElementFinder {
                             approvedElems = approvedElems.concat(intersectArr(pool, matched));
                         }
                         else if(typeof def == 'string') { // stringified function
-                            eval('var f = ' + def.replace(/\n/g, '\n'));
+                            eval('var f = ' + def);
                             approvedElems = approvedElems.concat(f(pool, prop.input));
                         }
                     }
@@ -732,7 +792,7 @@ class ElementFinder {
                         break;
                     }
                 }
-                
+
                 return pool;
             }
 
@@ -1237,13 +1297,33 @@ class ElementFinder {
                 function(elems, input) {
                     return elems[parseInt(input) - 1];
                 }
+            ],
+
+            'textbox': [
+                function(elems, input) {
+                    let nodes = document.querySelectorAll('input, textarea');
+                    let nodesArr = [];
+                    for(let i = 0; i < nodes.length; i++) {
+                        let node = nodes[i];
+                        let tagName = node.tagName.toLowerCase();
+                        if(
+                            (tagName == 'input' && (node.type == 'text' || node.type == 'password' || node.type == 'search')) ||
+                            (tagName == 'textarea')
+                        ) {
+                            nodesArr.push(node);
+                        }
+                    }
+                    return elems.filter(function(elem) {
+                        return nodesArr.indexOf(elem) != -1;
+                    });
+                }
             ]
         };
     }
 
     /**
      * Canonicalizes the text of a prop and isolates the input
-     * @return {Array} Where index 0 contains str canonicalized and without 'text', and index 1 contains the input (undefined if no input)
+     * @return {Array} Where index 0 contains the canonicalized prop name, and index 1 contains the input (undefined if no input)
      */
     static canonicalizePropStr(str) {
         let canonStr = str
@@ -1254,6 +1334,10 @@ class ElementFinder {
 
         let input = (str.match(Constants.QUOTED_STRING_LITERAL) || [])[0];
         if(input) {
+            if(str.trim().indexOf(input) + input.length < str.trim().length) { // if the input isn't at the very end of str, it's not input
+                return [str];
+            }
+
             input = utils.stripQuotes(input);
             input = utils.unescape(input);
         }

@@ -136,26 +136,36 @@ describe("Branch", () => {
 
     describe("output()", () => {
         it("outputs the right text", () => {
-            let stepNodes = [ new StepNode(0), new StepNode(1), new StepNode(2) ];
+            let stepNodes = [ new StepNode(0), new StepNode(1), new StepNode(2), new StepNode(3) ];
             let steps = [ new Step(0), new Step(1), new Step(2) ];
 
             stepNodes[0].text = "A";
+            stepNodes[0].filename = "file1.txt";
+            stepNodes[0].lineNumber = 11;
             steps[0].level = 0;
 
             stepNodes[1].text = "B";
+            stepNodes[1].filename = "file2.txt";
+            stepNodes[1].lineNumber = 22;
             steps[1].level = 1;
+            steps[1].fid = 3;
 
             stepNodes[2].text = "C";
-            stepNodes[2].isPackaged = true;
+            stepNodes[2].filename = "file3.txt";
+            stepNodes[2].lineNumber = 33;
             steps[2].level = 2;
+
+            stepNodes[3].text = "B";
+            stepNodes[3].filename = "file4.txt";
+            stepNodes[3].lineNumber = 44;
 
             let branch = new Branch;
             branch.steps = steps;
 
-            expect(branch.output(stepNodes, "Foo")).to.equal(`Foo
-    A
-        B
-            C
+            expect(branch.output(stepNodes, "Foo")).to.equal(
+`A                                                    file1.txt:11
+  B                                                  file2.txt:22 --> file4.txt:44
+    C                                                file3.txt:33
 `);
         });
     });
