@@ -61,7 +61,7 @@
     g('WAITUNTIL_TIMEOUT', 15000);
 
     // If debug, activate EF debug
-    if(runInstance.tree.isDebug) {
+    if(runInstance.tree.isDebug || runInstance.runner.isRepl) {
         ElementFinder.isDebug = true;
     }
 

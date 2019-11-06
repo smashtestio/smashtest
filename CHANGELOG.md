@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.7
+
+- Fix for EF browser console output not coming out in non-debug REPLs
+
 ## 1.6.6
 
 - Fixed ordering in browser console of EFs that are defined by other EFs
