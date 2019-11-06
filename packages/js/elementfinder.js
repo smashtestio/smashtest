@@ -789,13 +789,14 @@ class ElementFinder {
                     for(let prop of ef.props) {
                         props.push(prop.prop);
                     }
-                    record = {
+                    searchRecord.push({
                         ['Searching for EF']: ef.line,
                         ['[1] divide into props']: props,
                         ['[2] before']: pool,
                         ['[3] apply each prop']: [],
                         ['[4] after']: []
-                    };
+                    });
+                    record = searchRecord[searchRecord.length - 1];
                 }
 
                 for(let i = 0; i < ef.props.length; i++) {
@@ -852,10 +853,6 @@ class ElementFinder {
                         }
                         break;
                     }
-                }
-
-                if(isDebug) {
-                    searchRecord.push(record);
                 }
 
                 return pool;
